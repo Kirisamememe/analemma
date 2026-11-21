@@ -31,9 +31,11 @@ export const PasskeysSection = (): ReactNode => {
         PASSKEYS_QUERY_KEY,
       );
 
-    focusAdd.current = !(
-      listed?.passkeys.some(({ id }) => id === passkey.id) ?? false
-    );
+    const isShown =
+      queryClient.getQueryState(PASSKEYS_QUERY_KEY)?.status === "success" &&
+      (listed?.passkeys.some(({ id }) => id === passkey.id) ?? false);
+
+    focusAdd.current = !isShown;
   };
 
   useEffect(() => {

@@ -73,7 +73,7 @@ const isAttestation = (credential: unknown): credential is Attestation =>
   credential.response !== null &&
   "attestationObject" in credential.response;
 
-const CANCELLED = new Set(["NotAllowedError", "AbortError"]);
+const CANCELLED = new Set(["NotAllowedError", "AbortError", "TimeoutError"]);
 
 const ask = async <Credential>(
   request: () => Promise<Credential | undefined>,

@@ -101,4 +101,41 @@ describe("RenamePasskeyDialog", () => {
       screen.getByRole("button", { name: "パスキーを足す" }),
     );
   });
+
+  test("名前を変えた後に一覧を読み込めなければ、「パスキーを足す」に focus を移す", async () => {
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+    const list = server.routes["admin/passkeys/list"]!;
+    let isListBroken = false;
+
+    renderApp({
+      path: "/security",
+      routes: {
+        ...server.routes,
+        "admin/passkeys/list": async (input) =>
+          isListBroken
+            ? {
+                error: "INTERNAL_SERVER_ERROR",
+                status: 500,
+                defined: false,
+              }
+            : list(input),
+      },
+    });
+
+    await screen.findByRole("button", { name: "名前を変える" });
+    isListBroken = true;
+    await renameTo("Mac mini");
+    await screen.findByText(
+      "パスキーを読み込めませんでした。",
+      {},
+      { timeout: 5000 },
+    );
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "パスキーを足す" }),
+    );
+  }, 10_000);
 });

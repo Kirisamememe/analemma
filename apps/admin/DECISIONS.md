@@ -79,7 +79,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - ログインした後は、まだログインの画面にいるときだけ、`redirect` のパスに戻る(応答を待つ間に履歴でほかの画面へ移っていたら、そこから動かさない)。ログインの画面にいるかは、パスを比べずに、router が今の route として選んだかで確かめる。router は大文字と小文字を区別せず、末尾の `/` も受け付けるので、パスを比べると `/LOGIN` や `/login/` で食い違った(Copilot のレビューで見つかった)。登録用 URL の画面も同じ。管理画面の中の、ログインした後の画面のパス(`/` で始まり、`//`・`/\` で始まらず、ログインと登録用 URL の画面でないもの。大文字と小文字は区別しない。router が区別せずに照らし合わせるので)だけを受け付け、ほかは捨てる(外のサイトに移させない)。
 - セッションが無いという応答(401)が、ログインの前の画面(`/login`・`/enroll`)を開いているときに届いたら(前の画面から遅れて届いた 401)、状態を消すだけで、ログインの画面には移らない。登録用 URL の画面から移ると、`redirect` に URL の `#` の後ろの token まで入り、URL の search params として server に届いてしまう(Codex のレビューで見つかった)。
 - ログインと登録の流れ(`src/features/auth/log-in.ts`・`enroll.ts`)は、server の API と認証器を受け取る関数にし、作り物で単体テストする。server の失敗のうち、利用者に伝えるもの(期限切れ・登録されていないパスキーなど)は `_tag` の結果にし、origin の食い違いのような設定の誤りは throw する(画面には「ログインできませんでした」と出る)。
-- 認証器(`src/features/auth/webauthn/create-authenticator.ts`)は、`navigator.credentials` を受け取り、options と資格情報を、server の base64url の形とブラウザの形のあいだで変える。base64url の変換は `atob`・`btoa` で書く。`Uint8Array` の `fromBase64`・`toBase64` は Safari 18.2 からで、CSS の下限(Safari 17.5)のブラウザでログインできなくなる。`PublicKeyCredential.parseRequestOptionsFromJSON()` と `toJSON()` は使わない。どちらも出てから日が浅く、`toJSON()` の戻り値には型が無い(`any`)。キャンセル(`NotAllowedError`・`AbortError`)と、登録済みの認証器(`InvalidStateError`)は、想定内の結果として返す。
+- 認証器(`src/features/auth/webauthn/create-authenticator.ts`)は、`navigator.credentials` を受け取り、options と資格情報を、server の base64url の形とブラウザの形のあいだで変える。base64url の変換は `atob`・`btoa` で書く。`Uint8Array` の `fromBase64`・`toBase64` は Safari 18.2 からで、CSS の下限(Safari 17.5)のブラウザでログインできなくなる。`PublicKeyCredential.parseRequestOptionsFromJSON()` と `toJSON()` は使わない。どちらも出てから日が浅く、`toJSON()` の戻り値には型が無い(`any`)。キャンセル(`NotAllowedError`・`AbortError`、`AbortSignal.timeout()` で止めたときの `TimeoutError`)と、登録済みの認証器(`InvalidStateError`)は、想定内の結果として返す。
 - **登録用 URL の形**:`{AUTH_ORIGIN}/enroll#{token}` に決めた(server のコマンドが出す形のまま)。
 - 登録用 URL の画面は、開いたらすぐに token をメモリに移し、URL と履歴から `#` の後ろを消す(`replace`)。登録の最中に履歴を移ってから成功の `replace` が走ると、移った先の履歴を書き換えてしまうので、成功したときは、登録の画面にいるときだけホームに移る。開き直すと token は無いので、コマンドで出し直す。開いたまま新しい登録用 URL を開いたときは(`#` の後ろだけが変わるので、ブラウザは読み込み直さない)、新しい token に替え、前の登録の知らせを消す。期限切れの URL の後に出し直した URL を同じタブに貼ると、こうなる。
 - パスキーの名前は、認証器でパスキーを作る前に、contract と同じスキーマ(`passkeyName`)で確かめ、入力欄に誤りを出す。作った後で server に名前を断られると、認証器に、ログインに使えないパスキーが残る。
@@ -93,7 +93,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 消すことと、すべてのセッションからのログアウトは、取り消せないので、確かめの画面(Dialog)を出してから送る。足すときと名前を変えるときも、入力のために Dialog を使う。
 - 失敗(再認証できない・最後のパスキー・もう無いパスキーなど)は、Dialog を開いたまま、その中に知らせる。成功したら Dialog を閉じ、画面に知らせを残す(操作の結果を知らせる Toast を足したら、そちらに移す)。次の操作を始めたら、前の知らせは消す。閉じてから開き直した Dialog には、前の失敗を出さない。
 - server が答えたら(取り消しのほかは)、成功でも失敗でも一覧を取り直す。再認証に使ったパスキーの最後に使った日時は、操作が断られても書き換わる。取り直す前に、送っている一覧の取得を取り消す。最初の取得が操作より前の一覧を読んで遅れて届くと、取り直しがその取得を使い回し、足したパスキーが一覧に出なかった(Codex のレビューで見つかった)。
-- 名前を変える・消す Dialog を閉じたとき、そのパスキーが一覧から消えていたら(消した・ほかの画面で消されていた)、消えた行の操作の代わりに「パスキーを足す」に focus を移す。Dialog は閉じると開いたボタンに focus を戻すが、そのボタンは行ごと消えている。
+- 名前を変える・消す Dialog を閉じたとき、そのパスキーが一覧から消えていたら(消した・ほかの画面で消されていた・一覧を読み込めずに知らせに替わった)、消えた行の操作の代わりに「パスキーを足す」に focus を移す。Dialog は閉じると開いたボタンに focus を戻すが、そのボタンは行ごと消えている。
 - パスキーを足すとき、新しいパスキーを作る時間を、再認証の challenge が切れる時刻の手前までに絞り、残りが30秒より少なければ、作らずに期限切れとして返す。WebAuthn の `timeout` はブラウザが変えてよい目安なので、`AbortSignal` でもその時刻に作るのを止め、止めたときは期限切れとして返す。再認証と登録の challenge は別々に5分で、再認証に時間をかけると、パスキーを作れても server が再認証の期限切れで断り、認証器に使えないパスキーが残る。
 - パスキーの名前は、ログインの前の登録と同じく、contract の `passkeyName` で、作る前に確かめる。
 - パスキーを消すと、server は今のセッションのほかをすべてログアウトさせるので、そのことも知らせる。

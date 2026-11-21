@@ -96,7 +96,7 @@ describe("createAuthenticator", () => {
     });
   });
 
-  test.each(["NotAllowedError", "AbortError"])(
+  test.each(["NotAllowedError", "AbortError", "TimeoutError"])(
     "利用者がキャンセルしたとき(%s)は、キャンセルとして返す",
     async (name) => {
       const authenticator = createAuthenticator(storeThrowing(name));
