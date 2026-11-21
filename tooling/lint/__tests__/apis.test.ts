@@ -15,6 +15,21 @@ describe("使える API と書き方", () => {
       rule: "eslint(no-restricted-imports)",
     },
     {
+      label: "client の CLI の外での Node の API の import",
+      file: "packages/client/src/uses-node.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "client の CLI での Bun の API の import",
+      file: "packages/client/src/cli/uses-bun.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "client の CLI の入口の外での process.env",
+      file: "packages/client/src/cli/reads-env.ts",
+      rule: "node(no-process-env)",
+    },
+    {
       label: "console",
       file: "syntax/restricted-apis.ts",
       rule: "eslint(no-console)",

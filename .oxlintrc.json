@@ -578,6 +578,31 @@
       }
     },
     {
+      "files": ["**/packages/client/src/cli/**"],
+      "env": {
+        "node": true
+      },
+      "rules": {
+        "eslint/no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["bun", "bun:*", "!bun:test", "hono/bun"],
+                "message": "Bun 専用の API は server の src/platform/ と src/main.ts だけで使います。CLI は Node で動かします。"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/packages/client/src/cli/main.ts"],
+      "rules": {
+        "node/no-process-env": "off"
+      }
+    },
+    {
       "files": ["**/apps/admin/src/**/*.tsx"],
       "rules": {
         "project/require-sibling-test": [

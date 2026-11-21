@@ -51,6 +51,8 @@
   - Bun 専用の API(`Bun` と `HTMLRewriter` のグローバル、`globalThis.Bun`、`bun` と `bun:*` のモジュール、`hono/bun`)を使えるのは、`src/platform/` と `src/main.ts` だけ。テストのための `bun:test` はどこでも使える。
   - 素の oRPC の builder(`implement`・`os`・`Builder`)を値として使えるのは、`src/procedures.ts` と `src/router.ts` だけ。型だけの import は許す。
   - contract・client・管理画面にも、同じ形で Bun の API と `node:*` の禁止を掛ける。
+  - ただし、client の CLI(`packages/client/src/cli/`)は Node で動かすコマンドなので、`node:*` の import と Node のグローバルを許す(Bun の API は禁じたまま)。`process.env` は、CLI の入口の `main.ts` でだけ読める。fixture は `packages/client/src/` の下に置く。
+  - `node/no-process-env` は、グローバルの `process` の `env` だけを見る。`import process from "node:process"` で読み込んだ `process` の `env` には診断を出さない(fixture を書いていて分かった)。今は server と CLI のどちらも、そう書いていない。
 - **TypeScript の検査と lint のルールがぶつかったら、TypeScript の方を取る**(ユーザーが決めた):型の正しさを決めるのは `tsc` で、lint のルールは、書いているときにすぐ気づくための早めの知らせ。lint に合わせると、型の検査が既に保証していることのために、余計な `return` や `default` やキャストを書かされ、かえって型の検査を弱める。
 - **tsrs の不具合**:tsrs は、tsc が Bun の型から読める WebCrypto の型の名前(`JsonWebKey` など)を解決できず、error 型として `no-unsafe-*` の診断を出す。TypeScript の検査とルールのぶつかりではなく、tsrs の不具合なので、ルールは外さない。使う項目だけの型を手で書き、tsrs が読めるようになったら標準の型に戻す(`src/features/auth/DECISIONS.md`)。
 - **外したルール**
