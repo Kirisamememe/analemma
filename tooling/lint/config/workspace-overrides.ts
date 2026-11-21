@@ -7,6 +7,13 @@ import {
   restrictApis,
 } from "./restricted-apis.ts";
 
+const NODE_EXTENSIONS = {
+  css: "always",
+  json: "always",
+  mjs: "always",
+  svg: "always",
+} as const;
+
 /** 実行環境・テスト・ワークスペースごとの設定(後に書いたものが勝つ)。 */
 export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
   {
@@ -36,12 +43,7 @@ export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
         {
           checkTypeImports: true,
           ignorePackages: true,
-          pattern: {
-            css: "always",
-            json: "always",
-            mjs: "always",
-            svg: "always",
-          },
+          pattern: NODE_EXTENSIONS,
         },
       ],
     },
@@ -50,7 +52,7 @@ export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
     files: [
       "oxlint.config.ts",
       "oxlint.fixtures.config.ts",
-      "tooling/lint/config/**",
+      "tooling/lint/config/**/*.ts",
     ],
     rules: {
       "import/extensions": [
@@ -59,7 +61,7 @@ export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
         {
           checkTypeImports: true,
           ignorePackages: true,
-          pattern: { ts: "always" },
+          pattern: { ...NODE_EXTENSIONS, ts: "always" },
         },
       ],
     },
