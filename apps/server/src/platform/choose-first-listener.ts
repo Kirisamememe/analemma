@@ -6,7 +6,7 @@ export type ListenPorts = {
   readonly internal: number;
 };
 
-/** 番号を決めたポートを、OS に選ばせるポートより先に待ち受けるよう、先に待ち受けるポートを選ぶ。 */
+/** 2つのポートのうち、先に待ち受けるポートを選ぶ。 */
 export const chooseFirstListener = ({
   external,
   internal,
