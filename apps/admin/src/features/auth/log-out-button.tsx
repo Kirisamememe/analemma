@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 
 import { useTranslation } from "../../i18n/use-translation";
 import { Cluster } from "../../ui/layout/cluster";
-import { Text } from "../../ui/layout/text";
 import { Button } from "../../ui/primitives/button";
+import { Notice } from "../../ui/primitives/notice";
 
 /** 今のセッションからログアウトするボタン。 */
 export const LogOutButton = (): ReactNode => {
@@ -24,9 +24,7 @@ export const LogOutButton = (): ReactNode => {
   return (
     <Cluster gap={2}>
       {logOut.isError && (
-        <Text as="span" tone="danger" variant="caption">
-          {t("session.logOutFailed")}
-        </Text>
+        <Notice tone="danger">{t("session.logOutFailed")}</Notice>
       )}
       <Button
         isPending={logOut.isPending}

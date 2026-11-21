@@ -46,11 +46,9 @@ describe("LogOutButton", () => {
 
     await pressLogOut();
 
-    expect(
-      await screen.findByText(
-        "ログアウトできませんでした。もう一度試してください。",
-      ),
-    ).toBeDefined();
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "ログアウトできませんでした。もう一度試してください。",
+    );
     expect(history.location.pathname).toBe("/");
   });
 
