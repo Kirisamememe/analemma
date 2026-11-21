@@ -5,6 +5,7 @@ import {
   CHALLENGE_LIFETIME_MS,
   createChallengeStore,
 } from "./features/auth/challenge/create-challenge-store";
+import { chooseFirstListener } from "./platform/choose-first-listener";
 import { systemClock } from "./platform/clock";
 import { openDatabase } from "./platform/database";
 import { readEnv } from "./platform/env";
@@ -27,23 +28,30 @@ const context: AppContext = {
     lifetimeMs: CHALLENGE_LIFETIME_MS,
   }),
 };
-const internal = Bun.serve({
+const internalOptions = {
   fetch: createInternalApp(context).fetch,
   port: env.internal.port,
   hostname: env.internal.host,
-});
-const servers = [internal];
-
-resources.defer(async () => {
-  await Promise.all(servers.map(async (server) => server.stop()));
-});
-
-const external = Bun.serve({
+};
+const externalOptions = {
   fetch: createExternalApp(context).fetch,
   port: env.port,
-});
+};
+const { external, internal } =
+  chooseFirstListener({ external: env.port, internal: env.internal.port }) ===
+  "external"
+    ? {
+        external: Bun.serve(externalOptions),
+        internal: Bun.serve(internalOptions),
+      }
+    : {
+        internal: Bun.serve(internalOptions),
+        external: Bun.serve(externalOptions),
+      };
 
-servers.push(external);
+resources.defer(async () => {
+  await Promise.all([internal.stop(), external.stop()]);
+});
 
 const stopRequested = new Promise<NodeJS.Signals>((resolve) => {
   process.once("SIGINT", resolve);
