@@ -1,9 +1,22 @@
 {
   "name": "@analemma/client",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "analemma": "./dist/cli/main.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@analemma/contract": "workspace:*",
@@ -16,6 +29,8 @@
     "@types/bun": "1.4.5"
   },
   "scripts": {
+    "build": "rm -rf dist && bun build src/index.ts --outdir dist --target node --external zod --external '@orpc/*' && bun build src/cli/main.ts --outdir dist/cli --target node --external zod --external '@orpc/*' --banner '#!/usr/bin/env node' && tsc -p tsconfig.build.json",
+    "prepack": "bun run build",
     "typecheck": "tsc --noEmit -p tsconfig.src.json && tsc --noEmit -p ."
   }
 }
