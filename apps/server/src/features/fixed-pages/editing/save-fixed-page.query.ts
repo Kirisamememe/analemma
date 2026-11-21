@@ -22,7 +22,7 @@ export type FixedPageSave = {
 
 /** 保存した固定ページの行。 */
 export type SavedFixedPage = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Saved";
   /** 保存した行。 */
   readonly row: FixedPageRow;
@@ -30,7 +30,7 @@ export type SavedFixedPage = {
 
 /** slug が、ほかの固定ページに使われていること。 */
 export type SlugTaken = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "SlugTaken";
 };
 

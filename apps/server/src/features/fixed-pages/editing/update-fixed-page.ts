@@ -7,7 +7,7 @@ import { saveFixedPage } from "./save-fixed-page.query";
 
 /** 書き換える固定ページが無いこと。 */
 type MissingPage = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Missing";
 };
 

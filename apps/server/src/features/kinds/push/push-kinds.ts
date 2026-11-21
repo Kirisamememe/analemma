@@ -12,13 +12,13 @@ import { updateKinds } from "./update-kinds.query";
 /** 送られた定義を受け付けたか、既存のページに合わずに断ったか。 */
 type PushOutcome =
   | {
-      /** 結果の種類。 */
+      /** どの結果か。 */
       readonly _tag: "Accepted";
       /** 種類ごとの変わり方。 */
       readonly kinds: KindChange[];
     }
   | {
-      /** 結果の種類。 */
+      /** どの結果か。 */
       readonly _tag: "Incompatible";
       /** 送られた定義に合わない固定ページ。 */
       readonly pages: IncompatiblePage[];

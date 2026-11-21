@@ -11,7 +11,7 @@ export type ContentIssue = z.output<typeof contentIssues>[number];
 
 /** 種類の定義に合った中身。 */
 export type ValidContent = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Valid";
   /** 定義に無いキーも残した、検査した中身。 */
   readonly content: Record<string, unknown>;
@@ -19,7 +19,7 @@ export type ValidContent = {
 
 /** 種類の定義に合わない中身と、その理由。 */
 export type InvalidContent = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Invalid";
   /** 合わない理由(先頭の20件まで)。 */
   readonly issues: ContentIssue[];

@@ -6,7 +6,7 @@ import { saveFixedPage } from "./save-fixed-page.query";
 
 /** 選んだ種類が無いこと。 */
 type UnknownKind = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "UnknownKind";
 };
 
