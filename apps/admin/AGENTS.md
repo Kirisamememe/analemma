@@ -7,7 +7,7 @@
 - React + TanStack Router + TanStack Query の SPA。SSR しない。Vite でビルドし、server が同じ origin で静的ファイルとして配信する。
 - `index.html`:Vite の入口。`vite.config.ts` の plugin が、`src/boot/boot.ts` を1つの script にまとめて head に書き込む(言語と配色を、最初の描画の前に当てる)。
 - `src/main.tsx`:React を描き始める入口。
-- `src/router.ts`:route の木。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
+- `src/router.tsx`:route の木と、router を作る関数。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
 - `src/routes/`:route ごとの画面。
 - `src/i18n/`:訳と言語。訳は `messages/` に言語ごとに1ファイル。
 - `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値。
@@ -30,7 +30,8 @@
 ## 開発とテスト
 
 - 開発のサーバーは `bun --cwd=apps/admin run dev`(`http://localhost:5173`)。`/api` は server の外部用のポート(`http://localhost:8787`)へ流す。開くのは `localhost` で、`127.0.0.1` ではない(server の `AUTH_ORIGIN` とパスキーの RP ID に合わせる)。
-- 管理画面のテストは、リポジトリの直下の `bun test` からは外し、`apps/admin` の `bun test` で流す(`bun run test` は両方を流す)。`apps/admin/bunfig.toml` が DOM を用意してから流す。
+- `src/` のテストは、リポジトリの直下の `bun test` からは外し、`apps/admin` の `bun test` で流す(`bun run test` は両方を流す)。`apps/admin/bunfig.toml` が DOM を用意してから流す。
+- Vite の設定とビルドのテスト(`__tests__/`)は、DOM を用意しない直下の `bun test` で流す。
 
 ## セルフレビューの観点
 

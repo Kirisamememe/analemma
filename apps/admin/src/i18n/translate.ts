@@ -12,7 +12,7 @@ export const TRANSLATIONS: Readonly<Record<Locale, Translation>> = {
   "zh-Hans": zhHans,
 };
 
-const PLACEHOLDER = /\{(?<name>[^\{\}]+)\}/gv;
+const PLACEHOLDER = /\{(?<name>[A-Za-z][A-Za-z0-9]*)\}/gv;
 
 /** キーから訳を引き、`{name}` に引数を入れる関数。 */
 export type Translate = <Key extends MessageKey>(

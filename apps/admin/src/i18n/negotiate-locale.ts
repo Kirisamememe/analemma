@@ -8,25 +8,31 @@ type Script = {
   readonly script: string | undefined;
 };
 
-const toScript = (tag: string): Script => {
-  const { language, script } = new Intl.Locale(tag).maximize();
+const toScript = (tag: string): Script | undefined => {
+  try {
+    const { language, script } = new Intl.Locale(tag).maximize();
 
-  return { language, script };
+    return { language, script };
+  } catch {
+    return undefined;
+  }
 };
 
-const SUPPORTED = LOCALES.map((locale) => {
-  const { language, script } = toScript(locale);
-
-  return { locale, language, script };
-});
+const SUPPORTED = LOCALES.map((locale) => ({
+  locale,
+  script: toScript(locale),
+}));
 
 const match = (tag: string): Locale | undefined => {
   const requested = toScript(tag);
 
-  return SUPPORTED.find(
-    ({ language, script }) =>
-      language === requested.language && script === requested.script,
-  )?.locale;
+  return requested === undefined
+    ? undefined
+    : SUPPORTED.find(
+        ({ script }) =>
+          script?.language === requested.language &&
+          script.script === requested.script,
+      )?.locale;
 };
 
 /** 利用者が望む言語の並びから、管理画面が持つ言語を選ぶ。 */

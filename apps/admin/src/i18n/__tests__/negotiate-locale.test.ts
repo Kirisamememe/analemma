@@ -28,6 +28,13 @@ describe("negotiateLocale", () => {
     expect(negotiateLocale(["fr-FR", "zh-TW", "ja", "en"])).toBe("ja");
   });
 
+  test.each(["i-klingon", "", "not a tag"])(
+    "Intl.Locale が読めない tag %p を飛ばし、次の言語に進む",
+    (tag) => {
+      expect(negotiateLocale([tag, "ja"])).toBe("ja");
+    },
+  );
+
   test("どれも持たなければ、英語にする", () => {
     expect(negotiateLocale(["fr", "de"])).toBe("en");
     expect(negotiateLocale([])).toBe("en");

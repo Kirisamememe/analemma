@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { isLocale } from "../locales";
+import { isLocale, toLocale } from "../locales";
 
 describe("isLocale", () => {
   test.each(["en", "ja", "zh-Hans"])(
@@ -16,4 +16,15 @@ describe("isLocale", () => {
       expect(isLocale(tag)).toBe(false);
     },
   );
+});
+
+describe("toLocale", () => {
+  test("管理画面が持つ言語は、そのまま使う", () => {
+    expect(toLocale("zh-Hans")).toBe("zh-Hans");
+  });
+
+  test("lang が空や、持たない言語なら、英語にする", () => {
+    expect(toLocale("")).toBe("en");
+    expect(toLocale("fr")).toBe("en");
+  });
 });

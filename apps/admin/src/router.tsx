@@ -2,6 +2,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  type RouterHistory,
 } from "@tanstack/react-router";
 
 import { HomePage } from "./routes/home-page";
@@ -19,15 +20,16 @@ const homeRoute = createRoute({
   component: HomePage,
 });
 
-/** 管理画面の route の木。 */
-export const router = createRouter({
-  routeTree: rootRoute.addChildren([homeRoute]),
-});
+const routeTree = rootRoute.addChildren([homeRoute]);
+
+/** 履歴を受け取り、管理画面の router を作る。 */
+export const createAppRouter = (history: RouterHistory) =>
+  createRouter({ routeTree, history });
 
 declare module "@tanstack/react-router" {
   // oxlint-disable-next-line typescript/consistent-type-definitions -- TanStack Router の型の登録は、interface の宣言のマージでしか書けない
   interface Register {
-    /** 管理画面の route の木。 */
-    router: typeof router;
+    /** 管理画面の router。 */
+    router: ReturnType<typeof createAppRouter>;
   }
 }

@@ -15,6 +15,12 @@ describe("resolvePreferences", () => {
     ).toEqual({ locale: "zh-Hans", theme: "dark" });
   });
 
+  test("Intl.Locale が読めない言語が先にあっても、言語と配色を両方決める", () => {
+    expect(
+      resolvePreferences({ locale: null, theme: "dark" }, ["i-klingon", "ja"]),
+    ).toEqual({ locale: "ja", theme: "dark" });
+  });
+
   test("置いてあった値が持たないものなら、置いていないときと同じにする", () => {
     expect(
       resolvePreferences({ locale: "fr", theme: "sepia" }, ["en-GB"]),

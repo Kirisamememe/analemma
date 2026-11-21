@@ -2,9 +2,9 @@ import { beforeAll, describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { Script, createContext } from "node:vm";
-import { build } from "vite";
+import { build, createServer } from "vite";
 
-import { DEV_ORIGIN } from "../vite.config";
+import { DEV_API_PATH, DEV_ORIGIN } from "../vite.config";
 
 const ADMIN_ROOT = fileURLToPath(new URL("../", import.meta.url));
 const SERVER_ENV_EXAMPLE = new URL(
@@ -122,5 +122,70 @@ describe("開発のときの origin", () => {
     const env = await readFile(SERVER_ENV_EXAMPLE, "utf8");
 
     expect(env.split("\n")).toContain(`AUTH_ORIGIN=${DEV_ORIGIN}`);
+  });
+});
+
+/** 作り物の server が受け取ったリクエスト。 */
+type Received = {
+  /** パス。 */
+  readonly path: string;
+  /** Origin ヘッダー。 */
+  readonly origin: string | null;
+  /** Sec-Fetch-Site ヘッダー。 */
+  readonly site: string | null;
+};
+
+describe("開発のときのプロキシ", () => {
+  test("/api/ で始まるパスを server へ流し、Origin・Sec-Fetch-Site・Set-Cookie をそのまま渡す", async () => {
+    using upstream = Bun.serve({
+      port: 0,
+      fetch: (request) =>
+        Response.json(
+          {
+            path: new URL(request.url).pathname,
+            origin: request.headers.get("origin"),
+            site: request.headers.get("sec-fetch-site"),
+          } satisfies Received,
+          {
+            headers: {
+              "Set-Cookie":
+                "analemma_session=token; HttpOnly; SameSite=Strict; Path=/",
+            },
+          },
+        ),
+    });
+    const server = await createServer({
+      root: ADMIN_ROOT,
+      logLevel: "silent",
+      optimizeDeps: { noDiscovery: true, include: [] },
+      server: {
+        port: 0,
+        strictPort: false,
+        proxy: { [DEV_API_PATH]: { target: upstream.url.origin } },
+      },
+    });
+
+    await server.listen();
+
+    try {
+      const base = server.resolvedUrls?.local[0] ?? "";
+      const api = await fetch(new URL("/api/auth/login/options", base), {
+        method: "POST",
+        headers: { Origin: DEV_ORIGIN, "Sec-Fetch-Site": "same-origin" },
+      });
+      const page = await fetch(new URL("/api-guide", base));
+
+      expect(await api.json()).toEqual({
+        path: "/api/auth/login/options",
+        origin: DEV_ORIGIN,
+        site: "same-origin",
+      });
+      expect(api.headers.get("set-cookie")).toBe(
+        "analemma_session=token; HttpOnly; SameSite=Strict; Path=/",
+      );
+      expect(page.headers.get("content-type")).toStartWith("text/html");
+    } finally {
+      await server.close();
+    }
   });
 });

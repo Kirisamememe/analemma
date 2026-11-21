@@ -4,7 +4,8 @@ import { LOCALES } from "../locales";
 import { en } from "../messages/en";
 import { TRANSLATIONS } from "../translate";
 
-const PLACEHOLDER = /\{(?<name>[^\{\}]+)\}/gv;
+const PLACEHOLDER = /\{(?<name>[A-Za-z][A-Za-z0-9]*)\}/gv;
+const BRACE = /[\{\}]/v;
 
 const placeholdersOf = (message: string): string[] =>
   [...message.matchAll(PLACEHOLDER)]
@@ -26,6 +27,14 @@ describe.each(LOCALES)("%s の訳", (locale) => {
     expect(placeholdersOf(translation.get(key) ?? "")).toEqual(
       placeholdersOf(message),
     );
+  });
+
+  test("{ と } を、英字で始まる名前の引数 {name} にだけ使う", () => {
+    expect(
+      [...translation].filter(([, message]) =>
+        BRACE.test(message.replaceAll(PLACEHOLDER, "")),
+      ),
+    ).toEqual([]);
   });
 
   test("空の訳を持たない", () => {

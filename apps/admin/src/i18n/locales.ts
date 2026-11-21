@@ -12,3 +12,7 @@ const SUPPORTED: ReadonlySet<string> = new Set(LOCALES);
 /** 値が、管理画面が持つ言語の tag かを返す。 */
 export const isLocale = (value: string): value is Locale =>
   SUPPORTED.has(value);
+
+/** html の `lang` の値を、管理画面が持つ言語にする。 */
+export const toLocale = (lang: string): Locale =>
+  isLocale(lang) ? lang : FALLBACK_LOCALE;

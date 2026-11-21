@@ -278,7 +278,9 @@
     word-break: auto-phrase;
   }
 
-  :lang(zh-Hans, zh-CN, zh-SG) {
+  :lang(zh-Hans),
+  :lang(zh-CN),
+  :lang(zh-SG) {
     --font-sans:
       ui-sans-serif, -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
   }
