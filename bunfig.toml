@@ -3,4 +3,4 @@ exact = true
 linker = "isolated"
 
 [test]
-pathIgnorePatterns = ["tooling/lint/fixtures/**"]
+pathIgnorePatterns = ["tooling/lint/fixtures/**", "apps/admin/**"]

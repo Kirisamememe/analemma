@@ -1,0 +1,14 @@
+/** 管理画面が持つ言語の、BCP 47 の tag。 */
+export const LOCALES = ["en", "ja", "zh-Hans"] as const;
+
+/** 管理画面が持つ言語。 */
+export type Locale = (typeof LOCALES)[number];
+
+/** 利用者の言語を持たないときと、訳が無いときに使う言語。 */
+export const FALLBACK_LOCALE: Locale = "en";
+
+const SUPPORTED: ReadonlySet<string> = new Set(LOCALES);
+
+/** 値が、管理画面が持つ言語の tag かを返す。 */
+export const isLocale = (value: string): value is Locale =>
+  SUPPORTED.has(value);

@@ -1,0 +1,43 @@
+import { FALLBACK_LOCALE, LOCALES, type Locale } from "./locales";
+
+/** 言語と文字の組。 */
+type Script = {
+  /** ISO 639 の言語。 */
+  readonly language: string;
+  /** ISO 15924 の文字。 */
+  readonly script: string | undefined;
+};
+
+const toScript = (tag: string): Script => {
+  const { language, script } = new Intl.Locale(tag).maximize();
+
+  return { language, script };
+};
+
+const SUPPORTED = LOCALES.map((locale) => {
+  const { language, script } = toScript(locale);
+
+  return { locale, language, script };
+});
+
+const match = (tag: string): Locale | undefined => {
+  const requested = toScript(tag);
+
+  return SUPPORTED.find(
+    ({ language, script }) =>
+      language === requested.language && script === requested.script,
+  )?.locale;
+};
+
+/** 利用者が望む言語の並びから、管理画面が持つ言語を選ぶ。 */
+export const negotiateLocale = (requested: readonly string[]): Locale => {
+  for (const tag of requested) {
+    const locale = match(tag);
+
+    if (locale !== undefined) {
+      return locale;
+    }
+  }
+
+  return FALLBACK_LOCALE;
+};
