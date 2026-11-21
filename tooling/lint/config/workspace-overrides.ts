@@ -52,7 +52,7 @@ export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
     files: [
       "oxlint.config.ts",
       "oxlint.fixtures.config.ts",
-      "tooling/lint/config/**/*.ts",
+      "**/tooling/lint/config/**/*.ts",
     ],
     rules: {
       "import/extensions": [
