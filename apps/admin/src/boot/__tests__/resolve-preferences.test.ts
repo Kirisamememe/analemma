@@ -21,7 +21,7 @@ describe("resolvePreferences", () => {
     ).toEqual({ locale: "ja", theme: "dark" });
   });
 
-  test("置いてあった値が持たないものなら、置いていないときと同じにする", () => {
+  test("置いてあった値が管理画面に無い言語や配色なら、何も置いていないときと同じにする", () => {
     expect(
       resolvePreferences({ locale: "fr", theme: "sepia" }, ["en-GB"]),
     ).toEqual({ locale: "en", theme: "system" });

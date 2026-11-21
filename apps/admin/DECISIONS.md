@@ -11,7 +11,7 @@
 | 役割           | 使うもの                                                     | 理由                                                                                                                                   |
 | -------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | 描画           | React 19                                                     | ユーザーが決めた。                                                                                                                     |
-| route          | TanStack Router                                              | route の引数と検索の引数に型が付く。                                                                                                   |
+| route          | TanStack Router                                              | path params と search params に型が付く。                                                                                              |
 | server の状態  | TanStack Query                                               | 取得・再取得・送信中の状態を、画面ごとに書かずに済む。                                                                                 |
 | ビルド         | Vite 8                                                       | SPA の静的ファイルを作るだけなら、設定が一番少ない。                                                                                   |
 | 見た目         | Tailwind CSS v4 + tailwind-variants                          | 理由は `src/ui/DECISIONS.md`。                                                                                                         |
@@ -50,7 +50,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 全部の言語が英語と同じキーと同じ引数を持ち、空の訳を持たないことを、テスト(`src/i18n/__tests__/messages.test.ts`)で確かめる。型で省けても、check を通る前に訳がそろう。
 - それでも訳が無いキーは、英語にする(`pick-message.ts`)。訳しかけの開発の途中でも、画面が壊れない。
 - 引数は `{name}` の形で、名前は英字で始まる英数字にする。訳の中の `{` と `}` は引数にだけ使えることも、テストで確かめる。型は `{` と `}` の間をそのまま名前として読むので、`{}` のような書き損じがあると、型と実行時で引数の読み方が食い違う。
-- ブラウザの言語の並びから選ぶときは、`Intl.Locale` の `maximize()` で言語と文字の組にしてから比べる。`zh-CN`・`zh-SG`・`zh` は `zh-Hans`、`ja-JP` は `ja` になる。`zh-TW`・`zh-HK` は文字が違う(繁体字)ので、`zh-Hans` に寄せず、並びの次の言語に進む。どれも持たなければ英語にする。
+- ブラウザの言語の並びから選ぶときは、`Intl.Locale` の `maximize()` で言語と文字体系の組にしてから比べる。`zh-CN`・`zh-SG`・`zh` は `zh-Hans`、`ja-JP` は `ja` になる。`zh-TW`・`zh-HK` は文字体系が違う(繁体字)ので、`zh-Hans` に寄せず、並びの次の言語に進む。どれにも対応していなければ英語にする。
 - `Intl.Locale` が読めない tag(`i-klingon` など。BCP 47 では正しくても、Intl が受け付けないものがある)は、飛ばして次の言語に進む。head の script の中で throw すると、言語と配色のどちらも当たらなくなる(Codex のレビューで見つかった)。
 - 利用者が選んだ言語と配色は、`localStorage` の `analemma:locale`・`analemma:theme` に置く。server には送らない。管理者は1人で、端末ごとに違ってよい。
 
@@ -58,7 +58,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 
 開発では、Vite の開発のサーバー(`http://localhost:5173`)が、`/api/` で始まるパスを server の外部用のポート(`http://localhost:8787`)へ流す。
 
-- ブラウザから見ると、管理画面と API は同じ origin になる。server は、`admin` と `auth` の procedure で、GET でなければ Origin が `AUTH_ORIGIN` と完全に一致することを、GET を含めて、ブラウザが `Sec-Fetch-Site` を付けたらそれが `same-origin` であることを確かめる(`apps/server/DECISIONS.md` の「入口の守り」)。Vite は Origin・`Sec-Fetch-Site`・Host をそのまま流し、server の `Set-Cookie` もそのまま返すので、server の `.env.example` の `AUTH_ORIGIN`(`http://localhost:5173`)のままで通る。`changeOrigin` は使わない。この振る舞いは、作り物の server を立てたテスト(`__tests__/vite-config.test.ts`)で確かめる。
+- ブラウザから見ると、管理画面と API は同じ origin になる。server は、`admin` と `auth` の procedure で、次を確かめる(`apps/server/DECISIONS.md` の「入口の守り」)。GET 以外では、Origin が `AUTH_ORIGIN` と完全に一致すること。GET も含め、ブラウザが `Sec-Fetch-Site` を付けたなら、それが `same-origin` であること。Vite は Origin・`Sec-Fetch-Site`・Host をそのまま流し、server の `Set-Cookie` もそのまま返すので、server の `.env.example` の `AUTH_ORIGIN`(`http://localhost:5173`)のままで通る。`changeOrigin` は使わない。この振る舞いは、作り物の server を立てたテスト(`__tests__/vite-config.test.ts`)で確かめる。
 - 流すのは `/api/` で始まるパスだけにする(`^/api/`)。Vite は文字列のキーを前方一致で比べるので、`/api` と書くと `/api-guide` のような画面のパスまで server へ流れる。
 - 開発のサーバーの origin が `AUTH_ORIGIN` と食い違うと、すべてのログインが 403 になるので、`vite.config.ts` の origin と server の `.env.example` の `AUTH_ORIGIN` が同じことを、テストで確かめる。ポートが空いていなければ、別のポートに移らずに止まる(`strictPort`)。
 - `127.0.0.1` で開くと、origin が `AUTH_ORIGIN` と食い違い、RP ID(`localhost`)ともずれるので、`localhost` で開く。
@@ -87,5 +87,5 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 
 ## 割り切ったこと
 
-- **開発のときの head の script**:開発のサーバーは、HTML を返すたびに、head の script を Vite の lib のビルドでまとめ直す(数十ミリ秒)。覚えておくと、`src/boot/` を直したときに開発のサーバーを起動し直す必要がある。待ち時間が気になったら、依存が変わったときだけまとめ直す形にする。
+- **開発のときの head の script**:開発のサーバーは、HTML を返すたびに、head の script を Vite の lib のビルドでまとめ直す(数十ミリ秒)。まとめた結果を使い回すと、`src/boot/` を直したときに開発のサーバーを起動し直す必要がある。待ち時間が気になったら、依存が変わったときだけまとめ直す形にする。
 - **`localStorage` が使えないブラウザ**:head の script は、`localStorage` を読めないと(ストレージを切った設定など)throw し、言語と配色を当てずに終わる。React は html の `lang` が無ければ英語にするので、画面は英語で出る。管理者が自分のブラウザで使うだけなので、受け入れる。

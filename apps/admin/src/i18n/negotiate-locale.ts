@@ -1,10 +1,10 @@
 import { FALLBACK_LOCALE, LOCALES, type Locale } from "./locales";
 
-/** 言語と文字の組。 */
+/** 言語と文字体系の組。 */
 type Script = {
   /** ISO 639 の言語。 */
   readonly language: string;
-  /** ISO 15924 の文字。 */
+  /** ISO 15924 の文字体系。 */
   readonly script: string | undefined;
 };
 
@@ -35,7 +35,7 @@ const match = (tag: string): Locale | undefined => {
       )?.locale;
 };
 
-/** 利用者が望む言語の並びから、管理画面が持つ言語を選ぶ。 */
+/** 利用者が望む言語の並びから、対応する言語を選ぶ。 */
 export const negotiateLocale = (requested: readonly string[]): Locale => {
   for (const tag of requested) {
     const locale = match(tag);

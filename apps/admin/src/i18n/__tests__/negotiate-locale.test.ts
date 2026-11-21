@@ -11,7 +11,7 @@ describe("negotiateLocale", () => {
     { requested: ["zh"], expected: "zh-Hans" },
     { requested: ["zh-Hans-HK"], expected: "zh-Hans" },
   ])(
-    "地域の付いた言語 $requested を、同じ言語と文字の $expected にする",
+    "地域の付いた言語 $requested を、同じ言語と文字体系の $expected にする",
     ({ requested, expected }) => {
       expect(negotiateLocale(requested)).toBe(expected);
     },
@@ -24,7 +24,7 @@ describe("negotiateLocale", () => {
     },
   );
 
-  test("持たない言語を飛ばし、並びの先にある、持っている言語を選ぶ", () => {
+  test("対応していない言語を飛ばし、並びの先にある、対応する言語を選ぶ", () => {
     expect(negotiateLocale(["fr-FR", "zh-TW", "ja", "en"])).toBe("ja");
   });
 
@@ -35,7 +35,7 @@ describe("negotiateLocale", () => {
     },
   );
 
-  test("どれも持たなければ、英語にする", () => {
+  test("どれにも対応していなければ、英語にする", () => {
     expect(negotiateLocale(["fr", "de"])).toBe("en");
     expect(negotiateLocale([])).toBe("en");
   });

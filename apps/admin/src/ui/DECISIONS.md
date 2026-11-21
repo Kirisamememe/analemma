@@ -5,17 +5,17 @@
 ## 考え方
 
 - CSS の変数は土台でしかない。色の組み合わせ・文字の役割・状態の見せ方といった具体的な UI の規則は、部品の層で守る(ユーザーが決めた)。変数を増やして規則を表そうとすると、変数が増えるほど選び方の自由も増え、守らせたいことが守られない。層を増やして、変数の層は柔軟に、部品の層は厳しくする。
-- 管理画面では、画面のコードに色も不透明度も選ばせない。画面のコードは `<Badge tone="danger">` のように用途を部品に渡し、どの色をどの不透明度で使うかは、部品の中で用途ごとに1つに決める。公開サイトは UI の例外が多いので、もっと柔軟にする(公開サイトを作るときに決める)。
+- 管理画面では、画面のコードに色も不透明度も選ばせない。画面のコードは `<Badge tone="danger">` のように用途を部品に渡し、どの色をどの不透明度で使うかは、部品の中で用途ごとに1つに決める。公開サイトは決まりから外れる UI が多いので、もっと柔軟にする(公開サイトを作るときに決める)。
 - 変数は、エージェントが覚えて選べる数に抑える。
 
 ## 層
 
-| 層                    | 置く所                                | 中身                                                                                         |
-| --------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------- |
-| 1. パレット           | `theme.css` の `:root`(`@theme` の外) | `--palette-<系統>-<段>`。class にならない。アプリごとに差し替える                            |
-| 2. 役割               | `@theme static`                       | 色・文字・角丸・影・重ね順・幅・画面の幅・格子・縦横比・動き                                 |
-| 3. utility と variant | `@utility`・`@custom-variant`         | 大きさ(`h-control` など)・状態(`state-hover` など)・`focus-ring`・状態の variant             |
-| 4. base               | `@layer base`                         | 昼と夜の切り替え、言語ごとの字体、`th`・`::selection`・`mark`、reduced motion、forced-colors |
+| 層                    | 置く所                                | 中身                                                                                                 |
+| --------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 1. パレット           | `theme.css` の `:root`(`@theme` の外) | `--palette-<系統>-<段>`。class にならない。アプリごとに差し替える                                    |
+| 2. 役割               | `@theme static`                       | 色・文字・角丸・影・重ね順・幅・画面の幅・格子・縦横比・動き                                         |
+| 3. utility と variant | `@utility`・`@custom-variant`         | 大きさ(`h-control` など)・状態(`state-hover` など)・`focus-ring`・状態の variant                     |
+| 4. base               | `@layer base`                         | light と dark の切り替え、言語ごとの字体、`th`・`::selection`・`mark`、reduced motion、forced-colors |
 
 - `@theme static` の先頭で `--*: initial` にして、Tailwind の既定の変数を全部消し、要るものだけを書き戻す。既定が残ると、`font-serif`・`tracking-*`・`drop-shadow-*` のような、デザインシステムに無い class が作られる。
 - `static` にして、使っていない変数も出力する。役割の色はパレットの変数を `light-dark()` で参照するので、部品の中の `var()` からも読める必要がある。
@@ -24,30 +24,30 @@
 
 不透明な色を15個だけ持つ。
 
-| 種類               | 名前                                                                                                |
-| ------------------ | --------------------------------------------------------------------------------------------------- |
-| 面                 | `canvas`(画面の地)・`surface`(カード・ダイアログ・入力欄)・`surface-sunken`(サイドバー・表の見出し) |
-| 文字と線           | `fg`・`fg-muted`(補足と placeholder)・`line`(線の既定)・`focus`                                     |
-| 塗り               | `primary`・`on-primary`                                                                             |
-| 意味               | `info`・`success`・`warning`・`danger`                                                              |
-| 昼と夜で変わらない | `scrim`(写真や画面の上の幕)・`on-media`(写真の上の文字)                                             |
+| 種類                       | 名前                                                                                                |
+| -------------------------- | --------------------------------------------------------------------------------------------------- |
+| 面                         | `canvas`(画面の地)・`surface`(カード・ダイアログ・入力欄)・`surface-sunken`(サイドバー・表の見出し) |
+| 文字と線                   | `fg`・`fg-muted`(補足と placeholder)・`line`(線の既定)・`focus`                                     |
+| 塗り                       | `primary`・`on-primary`                                                                             |
+| 意味                       | `info`・`success`・`warning`・`danger`                                                              |
+| light と dark で変わらない | `scrim`(写真や画面の上の幕)・`on-media`(写真の上の文字)                                             |
 
-- 透明度付きの色の変数は作らない。薄い色は、部品の中で Tailwind の不透明度の修飾(`bg-danger/10` など)で作る。透明度付きの変数を足していくと、同じような色の変数が何十にも増えた。
+- 透明度付きの色の変数は作らない。薄い色は、部品の中で Tailwind の不透明度の修飾(`bg-danger/10` など)で作る。透明度付きの変数を足していくと、同じような色の変数が増える。
 - 面の色は不透明にする。`surface-sunken` は sticky の見出しにも使うので、下が透けない。
-- 意味の色の塗りの上の文字は `text-canvas` にする(昼は白、夜は黒になる)。夜の意味の色は明るいので、白い文字では読めない。
-- `black`・`white` という名前は使わず、用途の名前(`scrim`・`on-media`)にする。`bg-white` をカードに、`text-white` を塗りの上に、と書かれやすく、夜の意味の色の塗りの上の白い文字は、コントラストが 1.7〜2.9:1 しかない。
+- 意味の色の塗りの上の文字は `text-canvas` にする(light では白、dark では黒になる)。dark の意味の色は明るいので、白い文字では読めない。
+- `black`・`white` という名前は使わず、用途の名前(`scrim`・`on-media`)にする。`bg-white` をカードに、`text-white` を塗りの上に、と書かれやすく、dark の意味の色の塗りの上の白い文字は、コントラストが 1.7〜2.9:1 しかない。
 - パレットの値は、shadcn/ui の neutral に合わせる。管理画面の `primary` は白と黒。役割の名前は、自分たちの名前(`canvas`・`surface`・`fg` など)を使う。
-- 昼の意味の色は、薄い面の上の文字でも 4.5:1(WCAG の AA)に届く段にする(red-700・green-800・amber-800・blue-700)。
-- 夜の `surface-sunken` は、`surface` と別の段(neutral-950)にする。同じ色だと、夜のサイドバーで、今いる場所が見分けられない。
-- 昼の `focus` は neutral-500 にする。白に対して 3:1 に届く。
+- light の意味の色は、薄い面の上の文字でも 4.5:1(WCAG の AA)に届く段にする(red-700・green-800・amber-800・blue-700)。
+- dark の `surface-sunken` は、`surface` と別の段(neutral-950)にする。同じ色だと、dark のサイドバーで、今いる場所が見分けられない。
+- light の `focus` は neutral-500 にする。白に対して 3:1 に届く。
 - 未選択の Checkbox・Switch の off のような部品の枠は、`fg-muted` で描く。部品の枠には 3:1 が要り、`line` では届かない。色は足さない。
 
-## 昼と夜
+## light と dark
 
-- 役割の色は、`light-dark()` で、昼と夜にパレットのどの段を使うかを1つの定義に持つ。`dark:` の variant は使わない。1つの定義なら、昼だけ直して夜を直し忘れることがない。
+- 役割の色は、`light-dark()` で、light と dark にパレットのどの段を使うかを1つの定義に持つ。`dark:` の variant は使わない。1つの定義なら、light だけ直して dark を直し忘れることがない。
 - 利用者が配色を選んだら、html の `data-theme` で `color-scheme` を固定する。選んでいなければ OS に従う。
-- 部分だけを夜(昼)にするときは `scheme-dark`(`scheme-light`)を使う。`color-scheme` を変えるだけでは、`:root` から継いだ文字の色が評価し直されないので、文字の色も入れ直す。
-- Vite の `build.cssTarget` を `chrome123`・`safari17.5`・`firefox128` にする。既定のターゲットでは、圧縮のときに Lightning CSS が `light-dark()` を `--lightningcss-light`・`--lightningcss-dark` の変数に書き換え、`scheme-dark` で部分だけを夜にすると効かなくなる。下限は `light-dark()` を読めるブラウザで、Firefox だけは Tailwind CSS v4 の公式の下限(128)に合わせる。本番のビルドの出力に `--lightningcss-` が無いことを、テスト(`apps/admin/__tests__/vite-config.test.ts`)で確かめる。
+- 部分だけを dark(light)にするときは `scheme-dark`(`scheme-light`)を使う。`color-scheme` を変えるだけでは、`:root` から継いだ文字の色が評価し直されないので、文字の色も入れ直す。
+- Vite の `build.cssTarget` を `chrome123`・`safari17.5`・`firefox128` にする。既定のターゲットでは、圧縮のときに Lightning CSS が `light-dark()` を `--lightningcss-light`・`--lightningcss-dark` の変数に書き換え、`scheme-dark` で部分だけを dark にすると効かなくなる。下限は `light-dark()` を読めるブラウザで、Firefox だけは Tailwind CSS v4 の公式の下限(128)に合わせる。本番のビルドの出力に `--lightningcss-` が無いことを、テスト(`apps/admin/__tests__/vite-config.test.ts`)で確かめる。
 
 ## 文字
 

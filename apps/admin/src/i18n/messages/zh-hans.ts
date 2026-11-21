@@ -1,6 +1,6 @@
 import type { Translation } from "../translation";
 
-/** 简体中文的訳。 */
+/** 簡体字中国語の訳。 */
 export const zhHans = {
   "app.name": "Stilus",
   "home.title": "Stilus",
