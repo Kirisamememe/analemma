@@ -65,6 +65,34 @@
 - reduced motion では、base で transition だけを一律に止める。animation は、止めたときの見せ方(spinner をどう見せるかなど)が部品ごとに違うので、部品の中で `motion-reduce:` で決める。base で animation まで `!important` で止めると、部品で見せ方を作れない。
 - forced-colors では、役割の変数をシステムの色(`Highlight` など)に差し替える。
 
+## 検査
+
+どの決まりも、文書だけでは守られないので、lint とテストで止める(リポジトリの `DECISIONS.md` の「境界はツールで強制する」)。lint の設定は `tooling/lint/config/admin-classes.ts`、仕組みは `tooling/DECISIONS.md` にある。
+
+### 画面のコード(`ui/` の外)
+
+- 書いてよい class は、子の大きさと見せ方の5つ(`grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only`)だけ。並べ方(`flex`・`grid`・gap・padding)・文字(`text-*`・`font-*`)・色は、部品と props で決める(`<Stack gap={2}>`・`<Text role="caption">`・`<Badge tone="danger">` など)。許す側の一覧にするので、新しい class を使いたくなったら、部品を足すか、一覧を足すかを決めることになる。
+- `className` には文字列のリテラルだけを渡す。変数や式を渡すと、class の検査が中身を読めない。
+- `style` は書かない。
+
+### 部品(`ui/` と `features/*/ui/`)
+
+- theme.css に無い class(Tailwind CSS の既定の色や目盛りなど)。
+- 任意の値(`[…]`)と任意のプロパティ。値は theme.css の役割か、部品の props で決める。
+- `(--name)` で CSS 変数を直接読むこと。読めるのは、実行時に決まる値を渡す変数(React Aria Components の `--trigger-width`・`--visual-viewport-height`、`--progress`・`--media-aspect`・`--media-color`・`--focal-x`・`--focal-y`)だけ。
+- `dark:`(昼と夜は `light-dark()` で決める)、`!`、生の `data-*:`・`aria-*:`(状態は `is-*:` の variant を使う。生の variant は名前の順に並び、`data-disabled:` が一番弱くなる。打ち間違いも CSS を出すので、無い class でも止まらない)、数の `z-*`、`outline-none`(`outline-hidden` を使う。forced-colors で線が残る)。
+- 余白(gap・padding・margin)の値は 0・0.5・1・1.5・2・3・4・6・8・12 だけ(margin は `auto` も)。上と下の margin と `space-x/y` は使わず、親の gap で空ける。子の側で空けると、並べ替えや出し分けのたびに空きが崩れる。
+- `leading-*` と、行間を付けない `text-*`(文字の大きさ)。文字の大きさと太さ(`text-sm/xl`・`font-semibold` など)は、`ui/typography.ts` の文字の役割の対応にだけ書く。対応の中で使える組は、役割で使う6つ(`xs/lg`・`sm/xl`・`sm/2xl`・`base/2xl`・`xl/3xl`・`3xl/5xl`)だけ。`text-sm/5` のような数の行間は、`--spacing` の倍数として通ってしまうので止める。
+- `--*: initial` の後も Tailwind CSS が作る class(`duration-150`・`delay-*`・`ease-linear`・`ring-2`・`opacity-50`・`bg-linear-*`・`from-*` など)。`opacity-0` と `opacity-100` は、出入りの動きに使うので許す。
+- 色の不透明度の修飾は 5・10・15・20・30・40・60・80 だけ。
+- 色ごとに、使ってよい utility を決める。面の色(`surface`・`surface-sunken`・`scrim`)は `bg-` だけ、`canvas` は `bg-` と、意味の色の塗りの上の `text-`、`line` は `border-`・`divide-`・`outline-` だけ、`focus` は `focus-ring` の中だけ、など(一覧は `admin-classes.ts` の `COLOR_USAGE`)。色を足したら、ここにも決まりを足す(テストで止まる)。
+- `style` には、その場で書いたオブジェクトだけを渡し、キーは `--` で始まる CSS 変数だけにする。見た目は class で書き、`style` は実行時に決まる値を CSS 変数として渡すためだけに使う。画像の縦横比は `width`・`height` の属性で付ける。
+
+### ファイル
+
+- CSS のファイルは `src/ui/` にだけ置き、パレットの変数(`--palette-*`)を読めるのは `theme.css` だけ(`apps/admin/__tests__/theme.test.ts`)。
+- `--color-*` と `--text-*` の名前は重ねない。重ねると、`text-<名前>` が色か大きさかを Tailwind CSS が取り違える。文字の大きさと行間は、同じ名前の目盛りにする(同じテスト)。
+
 ## 割り切ったこと
 
 - **Windows の和文の太さ**:Windows の和文の字体には 600 が無いものがあり、600 と 700 の区別がつかないことがある(実機では確かめていない)。管理画面は管理者1人が Mac で使うので、受け入れる(ユーザーが決めた)。公開サイトは、作るときに決める。

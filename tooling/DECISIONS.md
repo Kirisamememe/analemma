@@ -25,7 +25,14 @@
   - `no-catch-outside-entry`:try/catch の catch 節と、`.catch()` の呼び出しを禁止する(server だけ)。想定外の失敗は throw して入口で 500 とログにする約束で、これまで lint で止めていなかったので、WebCrypto の鍵の読み込みの `.catch(() => undefined)` が約束をすり抜けていた。`finally` だけの try は、後始末のために許す。`.then(a, b)` の2つ目の引数は、`promise/prefer-catch` が `.catch()` に書き直させるので、ここで止まる。
     - 入口と dispatcher では、Oxlint の設定の `overrides` でこのルールを外す。入口に数えるのは、HTTP の入口(`src/app.ts`)、コマンドの入口(`src/main.ts`・`src/enroll.ts`・`src/db/migrate.ts`)、起動のときの環境変数の検証(`src/platform/parse-database-url.ts`)。環境変数の検証は、起動の入口で外からの値をデコードする場所なので入口に数える。`.env` のパスワードの `%` のような、人が普通にする書き間違いを、パスワードを出さない決まった文言で知らせるため、`decodeURIComponent` の失敗を受け止める。dispatcher(ビジネスイベントを配る場所)は、作るときに足す。
     - テストのファイルと、テストの部品(`src/test-client/`・`src/platform/test-database/`)でも外す。テストは失敗を値として受け取って確かめるので、握りつぶしではない。本番のコードは、この2つのフォルダを import できない(`tooling/structure/` のテストが止める)。import できると、`catchErrorCode` のような部品を通して、このルールをすり抜けられる。
+  - `styling-boundary`:管理画面の見た目の境界を守る(デザインシステムの判断は `apps/admin/src/ui/DECISIONS.md`)。画面のコード(`ui/` の外)では、`style` と、文字列のリテラルでない `className`(と `…ClassName`)を止める。式を渡すと、class の検査(eslint-plugin-better-tailwindcss)が中身を読めず、すり抜けるため。`ui/` の中では、`style` にその場で書いたオブジェクトだけを許し、キーを `--` で始まる CSS 変数に限る。見た目は class で書き、`style` は実行時に決まる値を CSS 変数で渡すためだけに使う。
   - `no-dynamic-import`:`import()` による動的な import を禁止する。境界を守る `no-restricted-imports` は動的な import を見ないので、`import()` なら Drizzle や Bun の API を、決めた場所の外から読めてしまう。今のコードでは、client の CLI の入口(`packages/client/src/cli/main.ts`)の1か所だけで、理由付きで抑制している(利用者の定義のファイルは、実行するときにしかパスが分からない)。
+- **管理画面の Tailwind CSS の class の検査**(eslint-plugin-better-tailwindcss を、Oxlint の JS のプラグインで動かす。設定は `tooling/lint/config/admin-classes.ts`)
+  - 管理画面の `src/` にだけプラグインを読み込む(`overrides` の `jsPlugins`)。server などのファイルで、Tailwind CSS の設定を読む時間を使わない。プラグインの設定(`settings`)は `overrides` に書けないので、直下に書く。`cwd` を `apps/admin` にし、`entryPoint` に管理画面の `src/ui/app.css` を渡して、theme.css に無い class を「無い class」として落とす。
+  - 使うルールは、無い class・止める class・効き目がぶつかる class・重なった class・古い class・余分な空白・正規の書き方・class の並び。行の折り返しは整形と食い違うので使わない。
+  - 止める class は、場所ごとに違う(画面のコード、`ui/` と `features/*/ui/`、文字の役割を決める `ui/typography.ts`)。`overrides` は同じルールの options を丸ごと置き換えるので、止める形を部品にして、場所ごとの一覧を組み立てる(「設定を TypeScript で組み立てる」)。何を止めるかと理由は `apps/admin/src/ui/DECISIONS.md` にある。
+  - selectors に、名前が `ClassName` で終わる属性と変数を足す(`contentClassName` など)。既定では `className` と `class` しか見ない。
+  - theme.css の色にどれも使ってよい utility を決めてあることと、文字の役割の組が theme.css の目盛りの名前であることを、テスト(`tooling/lint/__tests__/styles.test.ts`)で確かめる。色を足したときに、決まりを書き忘れると落ちる。
 - **TSDoc のタグの検査**(eslint-plugin-jsdoc):`@param` の名前が引数と合うこと(`check-param-names`)、1つでも書いたら全部の引数に書くこと(`require-param`)、何も返さない関数に `@returns` を書かないこと(`require-returns-check`)、タグに型を書かないこと(`no-types`。型は TypeScript が持つ)。
 - **使える API の制限**
   - `node:*` と Bun 専用のモジュールは、contract・client・管理画面で import できない。Node と Bun のグローバルも、server と tooling だけで有効にする。

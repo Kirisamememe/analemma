@@ -1,5 +1,9 @@
 import { defineConfig } from "oxlint";
 
+import {
+  ADMIN_CLASS_OVERRIDES,
+  ADMIN_CLASS_SETTINGS,
+} from "./tooling/lint/config/admin-classes.ts";
 import { CORE_RULES } from "./tooling/lint/config/core-rules.ts";
 import { PROJECT_RULES } from "./tooling/lint/config/project-rules.ts";
 import { SERVER_OVERRIDES } from "./tooling/lint/config/server-overrides.ts";
@@ -46,6 +50,11 @@ export default defineConfig({
     "react",
     "jsx-a11y",
   ],
+  settings: { "better-tailwindcss": ADMIN_CLASS_SETTINGS },
   rules: { ...CORE_RULES, ...PROJECT_RULES },
-  overrides: [...WORKSPACE_OVERRIDES, ...SERVER_OVERRIDES],
+  overrides: [
+    ...WORKSPACE_OVERRIDES,
+    ...SERVER_OVERRIDES,
+    ...ADMIN_CLASS_OVERRIDES,
+  ],
 });
