@@ -1,4 +1,5 @@
-import { createApp } from "./app";
+import { createExternalApp, createInternalApp } from "./app";
+import type { AppContext } from "./context";
 import {
   CHALLENGE_CAPACITY,
   CHALLENGE_LIFETIME_MS,
@@ -16,7 +17,7 @@ await using resources = new AsyncDisposableStack();
 const database = resources.use(
   openDatabase({ target: env.database, logger: stdoutLogger }),
 );
-const app = createApp({
+const context: AppContext = {
   clock: systemClock,
   db: database.db,
   logger: stdoutLogger,
@@ -25,10 +26,21 @@ const app = createApp({
     capacity: CHALLENGE_CAPACITY,
     lifetimeMs: CHALLENGE_LIFETIME_MS,
   }),
+};
+const external = Bun.serve({
+  fetch: createExternalApp(context).fetch,
+  port: env.port,
 });
-const server = Bun.serve({ fetch: app.fetch, port: env.port });
 
-resources.defer(async () => server.stop());
+resources.defer(async () => external.stop());
+
+const internal = Bun.serve({
+  fetch: createInternalApp(context).fetch,
+  port: env.internal.port,
+  hostname: env.internal.host,
+});
+
+resources.defer(async () => internal.stop());
 
 const stopRequested = new Promise<NodeJS.Signals>((resolve) => {
   process.once("SIGINT", resolve);
@@ -38,7 +50,11 @@ const stopRequested = new Promise<NodeJS.Signals>((resolve) => {
 stdoutLogger.write({
   level: "info",
   message: "Analemma を起動した",
-  details: { port: server.port },
+  details: {
+    port: external.port,
+    internalPort: internal.port,
+    internalHost: env.internal.host,
+  },
 });
 
 const signal = await stopRequested;

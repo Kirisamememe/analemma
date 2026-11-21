@@ -20,23 +20,39 @@ const logger = {
 
 const startedSchema = z.object({
   message: z.literal("Analemma を起動した"),
-  details: z.object({ port: z.number() }),
+  details: z.object({
+    port: z.number(),
+    internalPort: z.number(),
+    internalHost: z.literal("127.0.0.1"),
+  }),
 });
 
-const readStartedPort = (line: string): number | undefined => {
+type StartedPorts = z.output<typeof startedSchema>["details"];
+
+const readStartedPorts = (line: string): StartedPorts | undefined => {
   const parsed = startedSchema.safeParse(
     line.startsWith("{") ? JSON.parse(line) : undefined,
   );
 
-  return parsed.success ? parsed.data.details.port : undefined;
+  return parsed.success ? parsed.data.details : undefined;
 };
 
-test("SIGTERM を受けると、受け付けを止め、止めることをログに書いて終わること", async () => {
+const postHealth = async (port: number): Promise<number> =>
+  (
+    await fetch(`http://127.0.0.1:${String(port)}/api/public/health/get`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ json: null }),
+    })
+  ).status;
+
+test("2つのポートで待ち受け、SIGTERM を受けると、受け付けを止め、止めることをログに書いて終わること", async () => {
   await using database = await createTestDatabase({ logger });
   await using stack = new AsyncDisposableStack();
   const server = spawn(process.execPath, ["--no-env-file", MAIN], {
     env: {
       PORT: "0",
+      INTERNAL_PORT: "0",
       DATABASE_URL: toTestDatabaseUrl(database.name),
       AUTH_ORIGIN: "https://analemma.test",
       AUTH_RP_ID: "analemma.test",
@@ -45,7 +61,7 @@ test("SIGTERM を受けると、受け付けを止め、止めることをログ
   const lines: string[] = [];
   let pending = "";
   let stderr = "";
-  const started = Promise.withResolvers<number>();
+  const started = Promise.withResolvers<StartedPorts>();
   const closed = new Promise<number | null>((resolve) => {
     server.once("close", resolve);
   });
@@ -69,15 +85,15 @@ test("SIGTERM を受けると、受け付けを止め、止めることをログ
     for (const line of parts) {
       lines.push(line);
 
-      const port = readStartedPort(line);
+      const ports = readStartedPorts(line);
 
-      if (port !== undefined) {
-        started.resolve(port);
+      if (ports !== undefined) {
+        started.resolve(ports);
       }
     }
   });
 
-  const port = await Promise.race([
+  const ports = await Promise.race([
     started.promise,
     closed.then((code) => {
       throw new Error(
@@ -85,18 +101,14 @@ test("SIGTERM を受けると、受け付けを止め、止めることをログ
       );
     }),
   ]);
-  const response = await fetch(
-    `http://127.0.0.1:${String(port)}/api/public/health/get`,
-    {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ json: null }),
-    },
-  );
+  const statuses = [
+    await postHealth(ports.internalPort),
+    await postHealth(ports.port),
+  ];
 
   server.kill("SIGTERM");
 
-  expect(response.status).toBe(200);
+  expect(statuses).toEqual([200, 404]);
   expect(await closed).toBe(0);
   expect(lines.join("\n")).toContain("Analemma を止める");
 });
