@@ -28,11 +28,15 @@ export const readCliArgs = (
     options: { url: { type: "string" } },
   });
   const [command, file, ...rest] = positionals;
-  const misusedOption = tokens.some(
-    (token) =>
-      token.kind === "option" &&
-      (token.name !== "url" || token.value === undefined),
-  );
+  const options = tokens.filter((token) => token.kind === "option");
+  const misusedOption =
+    options.length > 1 ||
+    options.some(
+      (option) =>
+        option.name !== "url" ||
+        option.value === undefined ||
+        option.value.startsWith("-"),
+    );
 
   if (
     command !== "push-kinds" ||

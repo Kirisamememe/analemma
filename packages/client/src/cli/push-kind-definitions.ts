@@ -64,7 +64,8 @@ export const pushKindDefinitions = async ({
     new RPCLink({
       url: new URL("/api", url).href,
       headers: { authorization: `Bearer ${token}` },
-      fetch: async (request) => fetch(request),
+      fetch: async (request) =>
+        fetch(new Request(request, { redirect: "error" })),
     }),
   );
   const { data, error } = await safe(client.deploy.kinds.push({ kinds }));

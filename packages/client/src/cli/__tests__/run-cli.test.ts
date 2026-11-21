@@ -158,6 +158,21 @@ describe("種類の定義を送る CLI", () => {
     expect(result.stderr[0]).toContain("ANALEMMA_DEPLOY_TOKEN");
   });
 
+  test("CMS へのリクエストは、リダイレクトを追わないこと", async () => {
+    const redirects: string[] = [];
+    const fake = serveFakeCms("accept");
+    const result = await run("accept", {
+      fetch: async (request) => {
+        redirects.push(request.redirect);
+
+        return fake(request);
+      },
+    });
+
+    expect(result.code).toBe(0);
+    expect(redirects).toEqual(["error"]);
+  });
+
   test("--url を渡すと、環境変数の URL より優先すること", async () => {
     const urls: string[] = [];
     const fake = serveFakeCms("accept");
@@ -190,6 +205,23 @@ describe("種類の定義を送る CLI", () => {
       io: { args: ["push-kinds", "./kinds.ts", "--urll=http://10.0.0.2"] },
     },
     {
+      title: "--url が2つある",
+      io: {
+        args: [
+          "push-kinds",
+          "./kinds.ts",
+          "--url",
+          "--force",
+          "--url",
+          "http://10.0.0.2",
+        ],
+      },
+    },
+    {
+      title: "ユーザー名とパスワードを含む URL",
+      io: { url: "https://deploy:s3cret@127.0.0.1:8788" },
+    },
+    {
       title: "知らない option がある",
       io: { args: ["push-kinds", "./kinds.ts", "--force"] },
     },
@@ -203,6 +235,7 @@ describe("種類の定義を送る CLI", () => {
       expect(result.received).toEqual([]);
       expect(result.stderr.join("\n")).toContain("使い方: analemma push-kinds");
       expect(result.stderr.join("\n")).not.toContain(TOKEN);
+      expect(result.stderr.join("\n")).not.toContain("s3cret");
     },
   );
 

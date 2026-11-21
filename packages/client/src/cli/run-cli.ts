@@ -40,8 +40,19 @@ const writeLines = (
 
 const TOKEN = /^[\w\-]{22}\.[\w\-]{43}$/v;
 
-const isHttpUrl = (value: string): boolean =>
-  URL.canParse(value) && /^https?:$/v.test(new URL(value).protocol);
+const isCmsUrl = (value: string): boolean => {
+  if (!URL.canParse(value)) {
+    return false;
+  }
+
+  const url = new URL(value);
+
+  return (
+    /^https?:$/v.test(url.protocol) &&
+    url.username === "" &&
+    url.password === ""
+  );
+};
 
 /** `analemma` のコマンドを流し、終了コードを返す。 */
 export const runCli = async (io: CliIo): Promise<number> => {
@@ -55,9 +66,9 @@ export const runCli = async (io: CliIo): Promise<number> => {
 
   const url = args.url ?? io.url;
 
-  if (url === undefined || !isHttpUrl(url)) {
+  if (url === undefined || !isCmsUrl(url)) {
     writeLines(io.writeError, [
-      "CMS の URL を、http か https で渡す。",
+      "CMS の URL を、http か https で、ユーザー名とパスワードを含めずに渡す。",
       ...USAGE,
     ]);
 
