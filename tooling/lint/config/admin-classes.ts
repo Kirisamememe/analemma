@@ -133,8 +133,9 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
     message: `余白は ${SPACING.join("・").replaceAll("\\", "")} の目盛りだけを使います。`,
   },
   {
-    pattern: `${VARIANTS}(?:mt|mb|my|mbs|mbe)-`,
-    message: "縦の間は、親の gap で空けます。",
+    pattern: `${VARIANTS}(?:m|my|mt|mb|mbs|mbe)-(?!(?:0|auto)$)`,
+    message:
+      "縦の間は、親の gap で空けます(上と下の正の margin は使いません)。",
   },
   {
     pattern: `${VARIANTS}-?space-[xy]-`,

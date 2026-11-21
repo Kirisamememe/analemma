@@ -31,6 +31,7 @@ export const RestrictedClasses = () => (
     <span className="text-focus" />
     <span className="ring-offset-focus" />
     <span className="group-has-data-selected:bg-primary" />
+    <span className="m-2" />
     <span className="bg-red-500" />
   </>
 );

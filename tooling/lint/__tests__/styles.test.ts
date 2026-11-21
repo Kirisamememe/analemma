@@ -70,6 +70,7 @@ describe("管理画面の部品の class", () => {
       [31, "focus は class にせず"],
       [32, "focus は class にせず"],
       [33, "状態は theme.css の is-*:"],
+      [34, "縦の間は"],
     ];
 
     expect(diagnosticsOf({ file, rule: RESTRICTED }, expected)).toEqual(
@@ -109,6 +110,58 @@ describe("管理画面の部品の class", () => {
     expect(
       diagnosticsOf(
         { file: "invalid/apps/admin/src/ui/styled.tsx", rule: BOUNDARY },
+        expected,
+      ),
+    ).toEqual(expected);
+  });
+});
+
+describe("プラグインの、制限のほかのルール", () => {
+  test("効き目のぶつかり・重なり・古い class・余分な空白・正規の書き方・並びに診断を出すこと", () => {
+    const rules = new Set(
+      ruleIdsOf(lintFixture("invalid/apps/admin/src/ui/plugin-rules.tsx")),
+    );
+
+    expect(
+      [
+        "no-conflicting-classes",
+        "no-duplicate-classes",
+        "no-deprecated-classes",
+        "no-unnecessary-whitespace",
+        "enforce-canonical-classes",
+        "enforce-consistent-class-order",
+      ].filter((rule) => !rules.has(`better-tailwindcss(${rule})`)),
+    ).toEqual([]);
+  });
+});
+
+describe("class を探す場所", () => {
+  test("名前が ClassNames で終わる変数と、merge の呼び出しの class も検査すること", () => {
+    const expected: Expected[] = [
+      [4, "余白は"],
+      [7, "余白は"],
+    ];
+
+    expect(
+      diagnosticsOf(
+        {
+          file: "invalid/apps/admin/src/ui/selector-classes.ts",
+          rule: RESTRICTED,
+        },
+        expected,
+      ),
+    ).toEqual(expected);
+  });
+
+  test("名前が ClassName で終わる属性の class も検査すること", () => {
+    const expected: Expected[] = [[14, "余白は"]];
+
+    expect(
+      diagnosticsOf(
+        {
+          file: "invalid/apps/admin/src/ui/selector-attribute.tsx",
+          rule: RESTRICTED,
+        },
         expected,
       ),
     ).toEqual(expected);
