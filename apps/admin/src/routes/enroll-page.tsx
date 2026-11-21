@@ -7,7 +7,7 @@ import {
 import { type ReactNode, useEffect, useState } from "react";
 
 import { checkPasskeyName } from "../features/auth/check-passkey-name";
-import { enroll } from "../features/auth/enroll";
+import { type EnrollInput, enroll } from "../features/auth/enroll";
 import { readEnrollmentToken } from "../features/auth/read-enrollment-token";
 import { toEnrollNotice } from "../features/auth/to-auth-notice";
 import { useTranslation } from "../i18n/use-translation";
@@ -30,12 +30,19 @@ export const EnrollPage = (): ReactNode => {
   const queryClient = useQueryClient();
   const { api, authenticator, gate } = useRouteContext({ from: "/enroll" });
   const hash = useLocation({ select: (location) => location.hash });
-  const [token] = useState(() => readEnrollmentToken(hash));
+  const [opened, setOpened] = useState(() => ({
+    hash,
+    token: readEnrollmentToken(hash),
+  }));
+
+  if (hash !== "" && hash !== opened.hash) {
+    setOpened({ hash, token: readEnrollmentToken(hash) });
+  }
+
+  const { token } = opened;
   const enrollment = useMutation({
-    mutationFn: async (name: string) =>
-      gate.authenticate(async () =>
-        enroll({ api, authenticator }, { token: token ?? "", name }),
-      ),
+    mutationFn: async (input: EnrollInput) =>
+      gate.authenticate(async () => enroll({ api, authenticator }, input)),
     onSuccess: ({ _tag }) => {
       if (_tag !== "Enrolled") {
         return;
@@ -48,7 +55,8 @@ export const EnrollPage = (): ReactNode => {
       }
     },
   });
-  const outcome = enrollment.isError ? "Unexpected" : enrollment.data?._tag;
+  const result = enrollment.isError ? "Unexpected" : enrollment.data?._tag;
+  const outcome = enrollment.variables?.token === token ? result : undefined;
   const notice = outcome === undefined ? undefined : toEnrollNotice(outcome);
 
   useEffect(() => {
@@ -72,7 +80,10 @@ export const EnrollPage = (): ReactNode => {
             onSubmit={(data) => {
               const name = data.get("name");
 
-              enrollment.mutate(typeof name === "string" ? name : "");
+              enrollment.mutate({
+                token,
+                name: typeof name === "string" ? name : "",
+              });
             }}
           >
             <TextField

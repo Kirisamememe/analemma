@@ -105,7 +105,7 @@ describe("EnrollPage", () => {
     renderApp({ path: "/enroll", routes: serverWith(EXPIRY).routes });
 
     expect((await screen.findByRole("alert")).textContent).toBe(
-      "登録用 URL が欠けています。server のコマンドで出し直してください。",
+      "登録用 URL が不完全です。サーバーのコマンドで発行し直してください。",
     );
     expect(screen.queryByRole("textbox")).toBeNull();
   });
@@ -124,7 +124,7 @@ describe("EnrollPage", () => {
     );
   });
 
-  test("登録済みの認証器なら、ログインの画面へのリンクを出す", async () => {
+  test("登録済みの認証器なら、ログイン画面へのリンクを出す", async () => {
     renderApp({
       path: "/enroll#abc.def",
       routes: serverWith(EXPIRY).routes,
@@ -134,7 +134,7 @@ describe("EnrollPage", () => {
     await submitName("MacBook");
 
     expect(
-      await screen.findByRole("link", { name: "ログインの画面へ" }),
+      await screen.findByRole("link", { name: "ログイン画面へ" }),
     ).toBeDefined();
     expect(screen.getByRole("alert").textContent).toContain(
       "この認証器には、この管理画面のパスキーがもうあります。",
@@ -177,5 +177,41 @@ describe("EnrollPage", () => {
       }),
     ).toBeDefined();
     expect(calls).not.toContain("auth/enrollment/options");
+  });
+
+  test("開いたまま新しい登録用 URL を開くと、前の知らせを消し、新しい token で登録する", async () => {
+    const server = serverWith(EXPIRY);
+    const register = server.routes["auth/enrollment/register"]!;
+    const { history } = renderApp({
+      path: "/enroll#old.token",
+      routes: {
+        ...server.routes,
+        "auth/enrollment/register": async (input) =>
+          typeof input === "object" &&
+          input !== null &&
+          "token" in input &&
+          input.token === "old.token"
+            ? { error: "INVALID_ENROLLMENT", status: 403 }
+            : register(input),
+      },
+      authenticator: registering({ _tag: "Answered", credential: CREDENTIAL }),
+    });
+
+    await submitName("MacBook");
+    await screen.findByRole("alert");
+    history.push("/enroll#new.token");
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(history.location.hash).toBe("");
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "パスキーを登録" }),
+    );
+    await screen.findByRole("heading", { name: "Stilus" });
+
+    expect(server.registered()).toMatchObject({ token: "new.token" });
   });
 });
