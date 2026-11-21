@@ -13,21 +13,21 @@ const tone = tv({
   },
 });
 
-/** 文に渡す値。 */
+/** Text に渡す値。 */
 type TextProps = {
   /** 文字の役割。 */
   readonly variant?: "body" | "body-long" | "caption" | "label";
   /** 文字の色の用途。 */
   readonly tone?: "default" | "muted" | "danger";
-  /** 文にする要素。 */
+  /** 文字を包む要素。 */
   readonly as?: "p" | "span" | "div";
   /** 中身の言語(画面と違うときだけ)。 */
   readonly lang?: string;
-  /** 文の中身。 */
+  /** テキストの中身。 */
   readonly children: ReactNode;
 };
 
-/** 文字の役割で大きさと太さを決めた文。 */
+/** 文字の役割で大きさと太さを決めたテキスト。 */
 export const Text = ({
   variant = "body",
   tone: color = "default",

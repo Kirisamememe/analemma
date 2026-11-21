@@ -7,7 +7,7 @@ import { TextField } from "../text-field";
 afterEach(cleanup);
 
 describe("TextField", () => {
-  test("見出しで入力欄を探せ、補足を入力欄の説明として読み上げる", () => {
+  test("ラベルで入力欄を探せて、補足を入力欄の説明として読み上げる", () => {
     render(
       <TextField
         description="管理画面で見分けるための名前"

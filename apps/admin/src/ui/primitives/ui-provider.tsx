@@ -18,7 +18,7 @@ declare module "react-aria-components" {
   }
 }
 
-/** 部品の言語と移り方を決める箱に渡す値。 */
+/** `UiProvider` に渡す値。 */
 type UiProviderProps = {
   /** 部品が使う言語(日付や数の書き方)。 */
   readonly locale: Locale;
@@ -26,7 +26,7 @@ type UiProviderProps = {
   readonly children: ReactNode;
 };
 
-/** React Aria Components に、画面の言語と TanStack Router での移り方を渡す箱。 */
+/** 部品に、言語と TanStack Router の navigate を渡す Provider。 */
 export const UiProvider = ({
   locale,
   children,

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-/** 待っていることを示す、回る輪(読み上げには出さない)。 */
+/** 待っていることを示す spinner(スクリーンリーダーには出さない)。 */
 export const Spinner = (): ReactNode => (
   <span
     aria-hidden="true"

@@ -15,7 +15,7 @@ const notice = tv({
   },
 });
 
-/** 知らせの帯に渡す値。 */
+/** `Notice` に渡す値。 */
 type NoticeProps = {
   /** 知らせの用途。 */
   readonly tone: "info" | "success" | "warning" | "danger";
@@ -23,7 +23,7 @@ type NoticeProps = {
   readonly children: ReactNode;
 };
 
-/** 画面の中に残す知らせの帯(誤りはすぐに読み上げる)。 */
+/** 画面の中に残す知らせ(誤りはすぐに読み上げる)。 */
 export const Notice = ({ tone, children }: NoticeProps): ReactNode => (
   <div
     className={notice({ tone, className: typography({ role: "body" }) })}

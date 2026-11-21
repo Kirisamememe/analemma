@@ -35,7 +35,7 @@ describe("Button", () => {
     expect(counter.count()).toBe(1);
   });
 
-  test("送信中は、ボタンの名前を残したまま、待っていることを読み上げに伝える", () => {
+  test("送信中は、ボタンの名前を残したまま、待っていることをスクリーンリーダーに伝える", () => {
     render(<Button isPending>保存</Button>);
 
     expect(screen.getByRole("button", { name: /保存/v })).toBeDefined();

@@ -139,7 +139,7 @@ describe("theme.css の名前の merge", () => {
     expect(merge(`${partner} ${name}`)).toBe(name);
   });
 
-  test("state-disabled は、hover や押した状態の class を消さない", () => {
+  test("state-disabled は、hover や pressed の class を消さない", () => {
     expect(merge("state-hover state-disabled")).toBe(
       "state-hover state-disabled",
     );

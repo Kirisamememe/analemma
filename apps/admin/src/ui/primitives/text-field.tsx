@@ -27,7 +27,7 @@ const { root, label, input, description, error } = field();
 type TextFieldProps = {
   /** 入力欄の名前(フォームのキー)。 */
   readonly name: string;
-  /** 入力欄の見出し。 */
+  /** 入力欄のラベル。 */
   readonly label: string;
   /** 入力欄の補足。 */
   readonly description?: string;
@@ -41,7 +41,7 @@ type TextFieldProps = {
   readonly defaultValue?: string;
 };
 
-/** 見出しと補足と誤りの知らせを持つ、1行の入力欄。 */
+/** ラベルと補足と誤りの知らせを持つ、1行の入力欄。 */
 export const TextField = ({
   name,
   label: title,

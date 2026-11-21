@@ -7,7 +7,7 @@ import { PageHeader } from "../page-header";
 afterEach(cleanup);
 
 describe("PageHeader", () => {
-  test("画面の名前を1段目の見出しにし、補足と操作を並べる", () => {
+  test("画面の名前をレベル 1 の見出しにし、補足と操作を並べる", () => {
     render(
       <PageHeader
         actions={<Button>新しいページ</Button>}

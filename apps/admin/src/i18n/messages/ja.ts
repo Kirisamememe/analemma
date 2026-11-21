@@ -7,5 +7,5 @@ export const ja = {
   "notFound.title": "ページが見つかりません",
   "notFound.description": "{path} にページはありません。",
   "notFound.backHome": "ホームに戻る",
-  "ui.pending": "処理しています",
+  "ui.pending": "処理中",
 } satisfies Translation;
