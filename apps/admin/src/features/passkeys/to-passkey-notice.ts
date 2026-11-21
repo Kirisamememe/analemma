@@ -10,7 +10,7 @@ export type PasskeyNotice = {
   readonly message: PlainMessageKey;
 };
 
-/** 想定していない失敗で終わったこと。 */
+/** 想定外の失敗で終わったこと。 */
 type Unexpected = "Unexpected";
 
 const COMMON: Readonly<Record<string, PasskeyNotice>> = {
@@ -37,12 +37,12 @@ const DELETE: Readonly<Record<string, PasskeyNotice>> = {
   NotFound: { tone: "warning", message: "passkeys.notFound" },
 };
 
-/** パスキーを足した結果を、画面の知らせにする。 */
+/** パスキーを追加した結果を、画面の知らせにする。 */
 export const toAddNotice = (
   outcome: AddPasskeyResult["_tag"] | Unexpected,
 ): PasskeyNotice | undefined => ADD[outcome];
 
-/** パスキーを消した結果を、画面の知らせにする。 */
+/** パスキーを削除した結果を、画面の知らせにする。 */
 export const toDeleteNotice = (
   outcome: DeletePasskeyResult["_tag"] | Unexpected,
 ): PasskeyNotice | undefined => DELETE[outcome];

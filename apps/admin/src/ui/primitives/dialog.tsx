@@ -22,21 +22,21 @@ const dialog = tv({
 
 const { overlay, modal, body, title: titleSlot } = dialog();
 
-/** 浮かぶ確認の画面に渡す値。 */
+/** `Dialog` に渡す値。 */
 type DialogProps = {
   /** 開いているか。 */
   readonly isOpen: boolean;
   /** 開け閉めを知らせる関数。 */
   readonly onOpenChange: (isOpen: boolean) => void;
-  /** 画面の名前。 */
+  /** Dialog の名前。 */
   readonly title: string;
-  /** 送信中か(送信中は Escape と外側の押下で閉じない)。 */
+  /** 送信中か(送信中は Escape と backdrop の押下で閉じない)。 */
   readonly isPending?: boolean;
-  /** 画面の中身。 */
+  /** Dialog の中身。 */
   readonly children: ReactNode;
 };
 
-/** 今の画面の上に浮かべ、focus を閉じ込める確認の画面。 */
+/** 今の画面の上に重ねて開き、focus を閉じ込める Dialog。 */
 export const Dialog = ({
   isOpen,
   onOpenChange,

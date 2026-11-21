@@ -15,17 +15,17 @@ import { refreshPasskeys } from "./passkeys-query";
 import { renamePasskey } from "./rename-passkey";
 import type { PasskeyNotice } from "./to-passkey-notice";
 
-/** パスキーの名前を変える画面に渡す値。 */
+/** パスキーの名前を変更する Dialog に渡す値。 */
 type RenamePasskeyDialogProps = {
-  /** 名前を変えるパスキー。 */
+  /** 名前を変更するパスキー。 */
   readonly passkey: PasskeySummary;
   /** 閉じる関数。 */
   readonly onClose: () => void;
-  /** 名前を変えたことを知らせる関数。 */
+  /** 名前を変更したことを知らせる関数。 */
   readonly onRenamed: (notice: PasskeyNotice) => void;
 };
 
-/** パスキーの名前を変える画面。 */
+/** パスキーの名前を変更する Dialog。 */
 export const RenamePasskeyDialog = ({
   passkey,
   onClose,

@@ -83,7 +83,7 @@ describe("createQueryClient", () => {
     );
   });
 
-  test("オフラインでも送信を止めておかず、その場で送って失敗を返す", async () => {
+  test("オフラインでも送信を保留せず、その場で送って失敗を返す", async () => {
     const queryClient = createQueryClient(countCalls());
     let sent = 0;
 
@@ -108,7 +108,7 @@ describe("createQueryClient", () => {
     expect(sent).toBe(1);
   });
 
-  test("オフラインでも取得を止めておかず、その場で取りに行く", async () => {
+  test("オフラインでも取得を保留せず、その場で取りに行く", async () => {
     const queryClient = createQueryClient(countCalls());
     let fetched = 0;
 

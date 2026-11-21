@@ -6,7 +6,7 @@ import {
   reauthenticate,
 } from "../auth/reauthenticate";
 
-/** パスキーを足した結果。 */
+/** パスキーを追加した結果。 */
 export type AddPasskeyResult = {
   /** 結果の種類。 */
   readonly _tag:
@@ -39,7 +39,7 @@ const fromError = (error: Error): AddPasskeyResult => {
 const SERVER_MARGIN_MS = 10_000;
 const MINIMUM_CREATION_MS = 30_000;
 
-/** 今のパスキーで確かめ直してから、新しいパスキーを作って足す。 */
+/** 再認証をしてから、新しいパスキーを作って追加する。 */
 export const addPasskey = async (
   dependencies: ReauthenticateDependencies,
   name: string,

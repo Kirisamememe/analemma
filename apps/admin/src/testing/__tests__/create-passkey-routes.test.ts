@@ -13,7 +13,7 @@ const setUp = (names: readonly string[]) => {
 };
 
 describe("createPasskeyRoutes", () => {
-  test("再認証の後なら、足す・名前を変える・消すと、一覧が変わる", async () => {
+  test("再認証の後なら、追加・名前の変更・削除で、一覧が変わる", async () => {
     const { api } = setUp(["MacBook", "iPhone"]);
 
     await api.admin.session.reauthenticationOptions();

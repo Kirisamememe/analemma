@@ -14,7 +14,7 @@ export type ReauthenticateDependencies = {
   readonly abortAfter?: (milliseconds: number) => AbortSignal;
 };
 
-/** 今のパスキーで確かめ直せたこと。 */
+/** 再認証ができたこと。 */
 type Confirmed = {
   /** 結果の種類。 */
   readonly _tag: "Confirmed";
@@ -24,7 +24,7 @@ type Confirmed = {
   readonly expiresAt: number;
 };
 
-/** 認証器で取り消したこと。 */
+/** 認証器でキャンセルしたこと。 */
 type Cancelled = {
   /** 結果の種類。 */
   readonly _tag: "Cancelled";
@@ -33,7 +33,7 @@ type Cancelled = {
 /** 再認証の結果。 */
 export type ReauthenticationResult = Confirmed | Cancelled;
 
-/** 今のパスキーで確かめ直し、操作と一緒に送る資格情報を得る。 */
+/** 再認証をして、操作と一緒に送る資格情報を得る。 */
 export const reauthenticate = async ({
   api,
   authenticator,

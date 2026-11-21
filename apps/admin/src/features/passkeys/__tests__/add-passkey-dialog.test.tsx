@@ -10,10 +10,10 @@ afterEach(cleanup);
 
 const openAndSubmit = async (name: string): Promise<void> => {
   await userEvent.click(
-    await screen.findByRole("button", { name: "パスキーを足す" }),
+    await screen.findByRole("button", { name: "パスキーを追加" }),
   );
 
-  const dialog = await screen.findByRole("dialog", { name: "パスキーを足す" });
+  const dialog = await screen.findByRole("dialog", { name: "パスキーを追加" });
 
   await userEvent.type(
     screen.getByRole("textbox", { name: "パスキーの名前" }),
@@ -21,13 +21,13 @@ const openAndSubmit = async (name: string): Promise<void> => {
   );
   await userEvent.click(
     screen
-      .getAllByRole("button", { name: "パスキーを足す" })
+      .getAllByRole("button", { name: "パスキーを追加" })
       .find((button) => dialog.contains(button))!,
   );
 };
 
 describe("AddPasskeyDialog", () => {
-  test("確かめ直して足すと、画面を閉じ、一覧に出し、足したことを知らせる", async () => {
+  test("再認証をして追加すると、Dialog を閉じ、一覧に出し、追加したことを知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
     const { calls } = renderApp({
       path: "/security",
@@ -39,13 +39,13 @@ describe("AddPasskeyDialog", () => {
 
     expect(await screen.findByText("iPhone")).toBeDefined();
     expect(screen.getByRole("status").textContent).toBe(
-      "パスキーを足しました。",
+      "パスキーを追加しました。",
     );
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(calls).toContain("admin/session/reauthenticationOptions");
   });
 
-  test("確かめ直せなければ、画面を開いたまま知らせる", async () => {
+  test("再認証ができなければ、Dialog を開いたまま知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
     server.replyNext("admin/passkeys/register", () => ({
@@ -61,7 +61,7 @@ describe("AddPasskeyDialog", () => {
     await openAndSubmit("iPhone");
 
     expect((await screen.findByRole("alert")).textContent).toBe(
-      "今のパスキーで確かめられませんでした。",
+      "本人確認ができませんでした。",
     );
     expect(screen.getByRole("dialog")).toBeDefined();
     expect(server.passkeys()).toHaveLength(1);
@@ -82,16 +82,16 @@ describe("AddPasskeyDialog", () => {
 
     await openAndSubmit("iPhone");
     await screen.findByRole("alert");
-    await userEvent.click(screen.getByRole("button", { name: "やめる" }));
+    await userEvent.click(screen.getByRole("button", { name: "キャンセル" }));
     await userEvent.click(
-      await screen.findByRole("button", { name: "パスキーを足す" }),
+      await screen.findByRole("button", { name: "パスキーを追加" }),
     );
     await screen.findByRole("dialog");
 
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  test("最初の一覧の取得が遅れて届いても、足したパスキーを一覧に出す", async () => {
+  test("最初の一覧の取得が遅れて届いても、追加したパスキーを一覧に出す", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
     const slow = Promise.withResolvers<undefined>();
     const original = server.routes["admin/passkeys/list"]!;
@@ -114,7 +114,7 @@ describe("AddPasskeyDialog", () => {
 
     expect(await screen.findByText("iPhone")).toBeDefined();
     expect(screen.getByRole("status").textContent).toBe(
-      "パスキーを足しました。",
+      "パスキーを追加しました。",
     );
   });
 });

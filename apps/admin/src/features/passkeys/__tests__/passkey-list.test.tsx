@@ -20,7 +20,7 @@ describe("PasskeyList", () => {
     expect(within(macbook!).getByText("MacBook")).toBeDefined();
     expect(within(macbook!).getByText("Synced")).toBeDefined();
     expect(
-      within(macbook!).getByText(/Registered .+ ・ Last used /v),
+      within(macbook!).getByText(/Registered .+ · Last used /v),
     ).toBeDefined();
     expect(within(yubikey!).getByText("YubiKey")).toBeDefined();
     expect(within(yubikey!).queryByText("Synced")).toBeNull();

@@ -15,7 +15,7 @@ import { addPasskey } from "./add-passkey";
 import { refreshPasskeys } from "./passkeys-query";
 import { type PasskeyNotice, toAddNotice } from "./to-passkey-notice";
 
-/** パスキーを足す画面に渡す値。 */
+/** パスキーを追加する Dialog に渡す値。 */
 type AddPasskeyDialogProps = {
   /** 開いているか。 */
   readonly isOpen: boolean;
@@ -25,7 +25,7 @@ type AddPasskeyDialogProps = {
   readonly onAdded: (notice: PasskeyNotice) => void;
 };
 
-/** 今のパスキーで確かめてから、新しいパスキーを足す画面。 */
+/** 再認証をしてから、新しいパスキーを追加する Dialog。 */
 export const AddPasskeyDialog = ({
   isOpen,
   onClose,

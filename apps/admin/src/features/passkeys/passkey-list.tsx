@@ -20,9 +20,9 @@ export type PasskeySummary =
 
 /** パスキーの一覧に渡す値。 */
 type PasskeyListProps = {
-  /** 名前を変える操作を始める関数。 */
+  /** 名前の変更を始める関数。 */
   readonly onRename: (passkey: PasskeySummary) => void;
-  /** 消す操作を始める関数。 */
+  /** 削除を始める関数。 */
   readonly onDelete: (passkey: PasskeySummary) => void;
 };
 
@@ -62,12 +62,9 @@ export const PasskeyList = ({
                 )}
               </Cluster>
               <Text tone="muted" variant="caption">
-                {t("passkeys.created", {
-                  date: formatDateTime(locale, passkey.createdAt),
-                })}
-                {" ・ "}
-                {t("passkeys.lastUsed", {
-                  date: formatDateTime(locale, passkey.lastUsedAt),
+                {t("passkeys.dates", {
+                  created: formatDateTime(locale, passkey.createdAt),
+                  lastUsed: formatDateTime(locale, passkey.lastUsedAt),
                 })}
               </Text>
             </Stack>

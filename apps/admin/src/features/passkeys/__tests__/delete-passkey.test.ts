@@ -33,7 +33,7 @@ const serverReplying = (reply: FakeReply) => {
 };
 
 describe("deletePasskey", () => {
-  test("今のパスキーで確かめ直してから、再認証の資格情報と一緒に消す", async () => {
+  test("再認証をしてから、再認証の資格情報と一緒に削除する", async () => {
     const server = serverReplying({ output: undefined });
 
     expect(
@@ -48,7 +48,7 @@ describe("deletePasskey", () => {
     });
   });
 
-  test("再認証を取り消したら、消さない", async () => {
+  test("再認証をキャンセルしたら、削除しない", async () => {
     const server = serverReplying({ output: undefined });
 
     expect(

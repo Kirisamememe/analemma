@@ -6,7 +6,7 @@ import {
   reauthenticate,
 } from "../auth/reauthenticate";
 
-/** パスキーを消した結果。 */
+/** パスキーを削除した結果。 */
 export type DeletePasskeyResult = {
   /** 結果の種類。 */
   readonly _tag:
@@ -34,7 +34,7 @@ const fromError = (error: Error): DeletePasskeyResult => {
   return { _tag: tag };
 };
 
-/** 今のパスキーで確かめ直してから、パスキーを消す。 */
+/** 再認証をしてから、パスキーを削除する。 */
 export const deletePasskey = async (
   dependencies: ReauthenticateDependencies,
   id: string,

@@ -22,16 +22,16 @@ describe("PasskeysSection", () => {
     });
 
     await userEvent.click(
-      (await screen.findAllByRole("button", { name: "消す" }))[0]!,
+      (await screen.findAllByRole("button", { name: "削除" }))[0]!,
     );
     await userEvent.click(
-      (await screen.findAllByRole("button", { name: "消す" })).at(-1)!,
+      (await screen.findAllByRole("button", { name: "削除" })).at(-1)!,
     );
 
     expect(await screen.findByRole("status")).toBeDefined();
 
     await userEvent.click(
-      screen.getByRole("button", { name: "パスキーを足す" }),
+      screen.getByRole("button", { name: "パスキーを追加" }),
     );
 
     expect(screen.queryByRole("status")).toBeNull();

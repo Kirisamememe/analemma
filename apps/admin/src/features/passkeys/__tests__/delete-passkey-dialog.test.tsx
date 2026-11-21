@@ -10,18 +10,18 @@ afterEach(cleanup);
 
 const confirmDelete = async (): Promise<void> => {
   await userEvent.click(
-    (await screen.findAllByRole("button", { name: "消す" }))[0]!,
+    (await screen.findAllByRole("button", { name: "削除" }))[0]!,
   );
 
   const dialog = await screen.findByRole("dialog", {
-    name: "「MacBook」を消しますか?",
+    name: "「MacBook」を削除しますか?",
   });
 
-  await userEvent.click(within(dialog).getByRole("button", { name: "消す" }));
+  await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
 };
 
 describe("DeletePasskeyDialog", () => {
-  test("確かめ直して消すと、一覧から外し、ほかのブラウザのログインが終わったことを知らせる", async () => {
+  test("再認証をして削除すると、一覧から外し、ほかのブラウザからはログアウトしたことを知らせる", async () => {
     const server = createPasskeyRoutes([
       { name: "MacBook", backedUp: true },
       { name: "iPhone", backedUp: true },
@@ -36,13 +36,13 @@ describe("DeletePasskeyDialog", () => {
     await confirmDelete();
 
     expect((await screen.findByRole("status")).textContent).toBe(
-      "パスキーを消しました。ほかのブラウザのログインは終わりました。",
+      "パスキーを削除しました。ほかのブラウザからはログアウトしました。",
     );
     expect(screen.queryByText("MacBook")).toBeNull();
     expect(server.passkeys().map(({ name }) => name)).toEqual(["iPhone"]);
   });
 
-  test("最後のパスキーは消せないことを、画面を開いたまま知らせる", async () => {
+  test("最後のパスキーは削除できないことを、Dialog を開いたまま知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
     renderApp({
       path: "/security",
@@ -53,12 +53,12 @@ describe("DeletePasskeyDialog", () => {
     await confirmDelete();
 
     expect((await screen.findByRole("alert")).textContent).toBe(
-      "最後のパスキーは消せません。",
+      "最後のパスキーは削除できません。",
     );
     expect(screen.getByRole("dialog")).toBeDefined();
   });
 
-  test("確かめ直しを取り消したら、消さずに知らせる", async () => {
+  test("再認証をキャンセルしたら、削除せずに知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
     renderApp({
@@ -72,12 +72,12 @@ describe("DeletePasskeyDialog", () => {
     await confirmDelete();
 
     expect(
-      await screen.findByText("パスキーの操作を取り消しました。"),
+      await screen.findByText("パスキーの操作をキャンセルしました。"),
     ).toBeDefined();
     expect(server.passkeys()).toHaveLength(1);
   });
 
-  test("消した後は、消えた行の代わりに「パスキーを足す」に focus を移す", async () => {
+  test("削除した後は、消えた行の代わりに「パスキーを追加」に focus を移す", async () => {
     const server = createPasskeyRoutes([
       { name: "MacBook", backedUp: true },
       { name: "iPhone", backedUp: true },
@@ -96,7 +96,7 @@ describe("DeletePasskeyDialog", () => {
     });
 
     expect(document.activeElement).toBe(
-      screen.getByRole("button", { name: "パスキーを足す" }),
+      screen.getByRole("button", { name: "パスキーを追加" }),
     );
   });
 });

@@ -63,7 +63,7 @@ const serverReplying = (register: FakeReply) => {
 };
 
 describe("addPasskey", () => {
-  test("今のパスキーで確かめ直してから、作ったパスキーを再認証の資格情報と一緒に送る", async () => {
+  test("再認証をしてから、作ったパスキーを再認証の資格情報と一緒に送る", async () => {
     const server = serverReplying({ output: SUMMARY });
 
     expect(
@@ -84,7 +84,7 @@ describe("addPasskey", () => {
     });
   });
 
-  test("再認証を取り消したら、パスキーを作らせない", async () => {
+  test("再認証をキャンセルしたら、パスキーを作らせない", async () => {
     const server = serverReplying({ output: SUMMARY });
 
     expect(

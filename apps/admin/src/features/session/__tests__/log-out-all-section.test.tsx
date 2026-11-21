@@ -26,7 +26,7 @@ const confirmLogOutAll = async (): Promise<void> => {
 };
 
 describe("LogOutAllSection", () => {
-  test("確かめてからログアウトし、ログインの画面に移る", async () => {
+  test("確認してからログアウトし、ログインの画面に移る", async () => {
     const server = createPasskeyRoutes([]);
     const { calls, history } = renderApp({
       path: "/security",
@@ -42,7 +42,7 @@ describe("LogOutAllSection", () => {
     expect(history.location.pathname).toBe("/login");
   });
 
-  test("ログアウトできなければ、確かめの画面に知らせる", async () => {
+  test("ログアウトできなければ、確認の Dialog に知らせる", async () => {
     const server = createPasskeyRoutes([]);
 
     server.replyNext("admin/session/logOutAll", () => ({
@@ -71,7 +71,7 @@ describe("LogOutAllSection", () => {
 
     await confirmLogOutAll();
     await screen.findByRole("alert");
-    await userEvent.click(screen.getByRole("button", { name: "やめる" }));
+    await userEvent.click(screen.getByRole("button", { name: "キャンセル" }));
     await userEvent.click(
       screen.getByRole("button", { name: "すべてのセッションからログアウト" }),
     );

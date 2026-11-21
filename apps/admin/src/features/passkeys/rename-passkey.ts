@@ -3,7 +3,7 @@ import { safe } from "@orpc/client";
 import type { ApiClient } from "../../api/api-types";
 import { definedCode } from "../../api/defined-code";
 
-/** パスキーの名前を変えるときに渡す値。 */
+/** パスキーの名前を変更するときに渡す値。 */
 export type RenamePasskeyInput = {
   /** パスキーの ID。 */
   readonly id: string;
@@ -11,13 +11,13 @@ export type RenamePasskeyInput = {
   readonly name: string;
 };
 
-/** パスキーの名前を変えた結果。 */
+/** パスキーの名前を変更した結果。 */
 export type RenamePasskeyResult = {
   /** 結果の種類。 */
   readonly _tag: "Renamed" | "NotFound";
 };
 
-/** パスキーの名前を変える(再認証は要らない)。 */
+/** パスキーの名前を変更する(再認証は要らない)。 */
 export const renamePasskey = async (
   api: ApiClient,
   input: RenamePasskeyInput,

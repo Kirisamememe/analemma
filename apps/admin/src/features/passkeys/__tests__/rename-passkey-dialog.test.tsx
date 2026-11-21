@@ -11,7 +11,7 @@ afterEach(cleanup);
 
 const renameTo = async (name: string): Promise<void> => {
   await userEvent.click(
-    await screen.findByRole("button", { name: "名前を変える" }),
+    await screen.findByRole("button", { name: "名前を変更" }),
   );
 
   const field = await screen.findByRole("textbox", { name: "パスキーの名前" });
@@ -22,13 +22,13 @@ const renameTo = async (name: string): Promise<void> => {
 };
 
 describe("RenamePasskeyDialog", () => {
-  test("今の名前を入れて開き、変えると一覧に出す", async () => {
+  test("今の名前を入れて開き、変更すると一覧に出す", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
     renderApp({ path: "/security", routes: server.routes });
 
     await userEvent.click(
-      await screen.findByRole("button", { name: "名前を変える" }),
+      await screen.findByRole("button", { name: "名前を変更" }),
     );
 
     expect(
@@ -39,14 +39,14 @@ describe("RenamePasskeyDialog", () => {
       ).value,
     ).toBe("MacBook");
 
-    await userEvent.click(screen.getByRole("button", { name: "やめる" }));
+    await userEvent.click(screen.getByRole("button", { name: "キャンセル" }));
     await renameTo("Mac mini");
 
     expect(await screen.findByText("Mac mini")).toBeDefined();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  test("もう無いパスキーなら、画面を開いたまま知らせる", async () => {
+  test("もう無いパスキーなら、Dialog を開いたまま知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
     server.replyNext("admin/passkeys/rename", () => ({
@@ -63,7 +63,7 @@ describe("RenamePasskeyDialog", () => {
     expect(screen.getByRole("dialog")).toBeDefined();
   });
 
-  test("名前を変えたら、そのことを知らせる", async () => {
+  test("名前を変更したら、そのことを知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
     renderApp({ path: "/security", routes: server.routes });
@@ -71,11 +71,11 @@ describe("RenamePasskeyDialog", () => {
     await renameTo("Mac mini");
 
     expect((await screen.findByRole("status")).textContent).toBe(
-      "パスキーの名前を変えました。",
+      "パスキーの名前を変更しました。",
     );
   });
 
-  test("もう無いパスキーの画面を閉じたら、「パスキーを足す」に focus を移す", async () => {
+  test("もう無いパスキーの Dialog を閉じたら、「パスキーを追加」に focus を移す", async () => {
     const server = createPasskeyRoutes([
       { name: "MacBook", backedUp: true },
       { name: "iPhone", backedUp: true },
@@ -85,24 +85,24 @@ describe("RenamePasskeyDialog", () => {
     renderApp({ path: "/security", routes: server.routes });
 
     await userEvent.click(
-      (await screen.findAllByRole("button", { name: "名前を変える" }))[0]!,
+      (await screen.findAllByRole("button", { name: "名前を変更" }))[0]!,
     );
     await screen.findByRole("dialog");
     await api.admin.session.reauthenticationOptions();
     await api.admin.passkeys.delete({ id: "pk1", assertion: FAKE_ASSERTION });
     await userEvent.click(screen.getByRole("button", { name: "保存" }));
     await screen.findByText("このパスキーはもうありません。");
-    await userEvent.click(screen.getByRole("button", { name: "やめる" }));
+    await userEvent.click(screen.getByRole("button", { name: "キャンセル" }));
     await new Promise((resolve) => {
       setTimeout(resolve, 50);
     });
 
     expect(document.activeElement).toBe(
-      screen.getByRole("button", { name: "パスキーを足す" }),
+      screen.getByRole("button", { name: "パスキーを追加" }),
     );
   });
 
-  test("名前を変えた後に一覧を読み込めなければ、「パスキーを足す」に focus を移す", async () => {
+  test("名前を変更した後に一覧を読み込めなければ、「パスキーを追加」に focus を移す", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
     const list = server.routes["admin/passkeys/list"]!;
     let isListBroken = false;
@@ -122,7 +122,7 @@ describe("RenamePasskeyDialog", () => {
       },
     });
 
-    await screen.findByRole("button", { name: "名前を変える" });
+    await screen.findByRole("button", { name: "名前を変更" });
     isListBroken = true;
     await renameTo("Mac mini");
     await screen.findByText(
@@ -135,7 +135,7 @@ describe("RenamePasskeyDialog", () => {
     });
 
     expect(document.activeElement).toBe(
-      screen.getByRole("button", { name: "パスキーを足す" }),
+      screen.getByRole("button", { name: "パスキーを追加" }),
     );
   }, 10_000);
 });

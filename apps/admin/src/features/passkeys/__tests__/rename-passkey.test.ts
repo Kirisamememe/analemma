@@ -4,7 +4,7 @@ import { createFakeApi } from "../../../testing/create-fake-api";
 import { renamePasskey } from "../rename-passkey";
 
 describe("renamePasskey", () => {
-  test("ID と新しい名前を送り、名前を変える", async () => {
+  test("ID と新しい名前を送り、名前を変更する", async () => {
     let sent: unknown;
     const { api } = createFakeApi({
       "admin/passkeys/rename": (input) => {

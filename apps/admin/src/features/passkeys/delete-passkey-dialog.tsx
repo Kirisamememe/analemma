@@ -13,9 +13,9 @@ import type { PasskeySummary } from "./passkey-list";
 import { refreshPasskeys } from "./passkeys-query";
 import { type PasskeyNotice, toDeleteNotice } from "./to-passkey-notice";
 
-/** パスキーを消す画面に渡す値。 */
+/** パスキーを削除する Dialog に渡す値。 */
 type DeletePasskeyDialogProps = {
-  /** 消すパスキー。 */
+  /** 削除するパスキー。 */
   readonly passkey: PasskeySummary;
   /** 閉じる関数。 */
   readonly onClose: () => void;
@@ -23,7 +23,7 @@ type DeletePasskeyDialogProps = {
   readonly onDeleted: (notice: PasskeyNotice) => void;
 };
 
-/** 今のパスキーで確かめてから、パスキーを消す画面。 */
+/** 再認証をしてから、パスキーを削除する Dialog。 */
 export const DeletePasskeyDialog = ({
   passkey,
   onClose,

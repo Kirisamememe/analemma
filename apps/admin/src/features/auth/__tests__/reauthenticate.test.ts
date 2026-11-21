@@ -35,7 +35,7 @@ describe("reauthenticate", () => {
     expect(calls).toEqual(["admin/session/reauthenticationOptions"]);
   });
 
-  test("認証器で取り消したら、取り消しとして返す", async () => {
+  test("認証器でキャンセルしたら、キャンセルとして返す", async () => {
     const { api } = createFakeApi({
       "admin/session/reauthenticationOptions": () => ({ output: OPTIONS }),
     });

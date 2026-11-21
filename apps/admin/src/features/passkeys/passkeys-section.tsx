@@ -15,7 +15,7 @@ import { PASSKEYS_QUERY_KEY } from "./passkeys-query";
 import { RenamePasskeyDialog } from "./rename-passkey-dialog";
 import type { PasskeyNotice } from "./to-passkey-notice";
 
-/** パスキーの一覧と、足す・名前を変える・消す操作。 */
+/** パスキーの一覧と、追加・名前の変更・削除の操作。 */
 export const PasskeysSection = (): ReactNode => {
   const t = useTranslation();
   const queryClient = useQueryClient();

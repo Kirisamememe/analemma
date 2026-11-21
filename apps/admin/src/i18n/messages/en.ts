@@ -41,13 +41,12 @@ export const en = {
   "home.security": "Security",
   "security.title": "Security",
   "security.description":
-    "Passkeys and sessions used to sign in to this admin.",
+    "Passkeys and sessions used to sign in to this admin panel.",
   "passkeys.title": "Passkeys",
   "passkeys.add": "Add a passkey",
   "passkeys.addDescription":
     "You will first confirm with a current passkey, then create the new one.",
-  "passkeys.created": "Registered {date}",
-  "passkeys.lastUsed": "Last used {date}",
+  "passkeys.dates": "Registered {created} · Last used {lastUsed}",
   "passkeys.synced": "Synced",
   "passkeys.rename": "Rename",
   "passkeys.renameTitle": "Rename the passkey",
@@ -67,7 +66,7 @@ export const en = {
     "Could not confirm with a current passkey.",
   "passkeys.expired": "It took too long. Please try again.",
   "passkeys.alreadyRegistered":
-    "This authenticator already has a passkey for this admin.",
+    "This authenticator already has a passkey for this admin panel.",
   "passkeys.rejected": "The passkey could not be registered.",
   "passkeys.lastPasskey": "The last passkey cannot be deleted.",
   "passkeys.notFound": "This passkey no longer exists.",
