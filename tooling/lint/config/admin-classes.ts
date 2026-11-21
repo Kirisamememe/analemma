@@ -1,3 +1,4 @@
+import { getDefaultSelectors } from "eslint-plugin-better-tailwindcss/api/defaults";
 import type { AllowWarnDeny, OxlintOverride } from "oxlint";
 
 /** `no-restricted-classes` で止める class の形。 */
@@ -18,10 +19,10 @@ const VARIANTS = "^(?:[^:]+:)*";
 const SCALE = "xs|sm|base|lg|xl|2xl|3xl|4xl|5xl";
 const SPACING = ["0", "0\\.5", "1", "1\\.5", "2", "3", "4", "6", "8", "12"];
 const OPACITY = ["5", "10", "15", "20", "30", "40", "60", "80"];
-const SPACING_UTILITIES =
-  "gap|gap-x|gap-y|p|px|py|pt|pr|pb|pl|ps|pe|pbs|pbe|m|mx|my|mt|mr|mb|ml|ms|me|mbs|mbe|scroll-p[xytrblse]?|scroll-m[xytrblse]?";
+const SIDES = "(?:[xytrblse]|bs|be)?";
+const SPACING_UTILITIES = `gap(?:-[xy])?|p${SIDES}|m${SIDES}|scroll-p${SIDES}|scroll-m${SIDES}`;
 const BORDER = "border(?:-[xytrblse]|-bs|-be)?";
-const COLOR_UTILITIES = `bg|text|${BORDER}|divide|outline|(?:inset-)?ring|fill|stroke|decoration|caret|accent|(?:inset-)?shadow|placeholder|from|via|to`;
+const MODIFIER = "(?:/[^/]+)?";
 
 /** 管理画面の文字の役割で使う、文字の大きさと行間の組。 */
 export const TEXT_PAIRS = [
@@ -52,6 +53,9 @@ export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
   "on-media": ["text", "fill", "stroke"],
 };
 
+/** 不透明度を付けない、面の色。 */
+const OPAQUE_COLORS = ["canvas", "surface", "surface-sunken"];
+
 /** 部品が読んでよい、実行時に決まる CSS 変数。 */
 export const READABLE_VARIABLES = [
   "--trigger-width",
@@ -81,7 +85,7 @@ const colorRestriction = (color: string): Restriction => {
   const usage = allowed.length === 0 ? "(?!)" : `(?:${allowed.join("|")})`;
 
   return {
-    pattern: `${VARIANTS}(?!${usage}-${color}(?:/\\d+)?$)(?:${COLOR_UTILITIES})-${color}(?:/\\d+)?$`,
+    pattern: `${VARIANTS}(?!${usage}-${color}${MODIFIER}$)(?!rounded(?:-[a-z]{1,2})?-)[a-z\\-]+-${color}${MODIFIER}$`,
     message:
       allowed.length === 0
         ? `${color} は class にせず、theme.css の utility の中でだけ使います。`
@@ -93,20 +97,20 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
   {
     pattern: "\\[",
     message:
-      "任意の値([…])は使いません。theme.css の役割か、部品の props を使います。",
+      "任意の値・任意のプロパティ・任意の variant([…])は使いません。theme.css の役割か、部品の props を使います。",
   },
   {
-    pattern: `\\((?!(?:${READABLE_VARIABLES.join("|")})\\))`,
+    pattern: `\\((?!(?:[a-z\\-]+:)?(?:${READABLE_VARIABLES.join("|")})\\))`,
     message: `CSS 変数を直接読めるのは ${READABLE_VARIABLES.join("・")} だけです。`,
   },
   {
-    pattern: "(?:^|:)dark:",
+    pattern: "(?:^|:|-)dark:",
     message:
       "dark: は使いません。昼と夜は theme.css の light-dark() で決めます。",
   },
-  { pattern: "^!|!$", message: "! で優先させません。" },
+  { pattern: "(?:^|:)!|!$", message: "! で優先させません。" },
   {
-    pattern: "(?:^|:)(?:(?:group|peer|in|not|has)-)?(?:data|aria)-",
+    pattern: "(?:^|:|-)(?:data|aria)-",
     message: "状態は theme.css の is-*: の variant で書きます。",
   },
   {
@@ -139,11 +143,16 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
     message: "文字の大きさは、行間と組で書きます(text-sm/xl)。",
   },
   {
-    pattern: `${VARIANTS}(?:(?:duration|delay)-\\d+|ease-(?:linear|in|out|in-out)|(?:inset-)?ring(?:-\\d+)?|opacity-(?!(?:0|100)$)\\d+|bg-(?:linear|radial|conic).*|(?:from|via|to)-.*)$`,
+    pattern: `${VARIANTS}(?:(?:duration|delay)-\\d+|ease-(?:linear|in|out|in-out)|(?:inset-)?ring(?:-\\d+)?|opacity-(?!(?:0|100)$).+|bg-(?:linear|radial|conic).*|(?:from|via|to)-.*)$`,
     message: "theme.css に無い値です(Tailwind CSS の既定から残っているもの)。",
   },
   {
-    pattern: `${VARIANTS}[a-z-]+-(?:${COLORS.join("|")})/(?!(?:${OPACITY.join("|")})$)\\d+$`,
+    pattern: `${VARIANTS}[a-z\\-]+-(?:${OPAQUE_COLORS.join("|")})/`,
+    message:
+      "面の色(canvas・surface・surface-sunken)には不透明度を付けません。",
+  },
+  {
+    pattern: `${VARIANTS}(?!text-(?:${SCALE})/)[a-z\\-]+-(?:${COLORS.join("|")}|current|transparent|inherit|\\([^)]*\\))/(?!(?:${OPACITY.join("|")})$)[^/]+$`,
     message: `色の不透明度は ${OPACITY.join("・")} だけです。`,
   },
   ...COLORS.map((color) => colorRestriction(color)),
@@ -169,10 +178,14 @@ const restrictClasses = (
   restrict: readonly Restriction[],
 ): [AllowWarnDeny, RestrictOptions] => ["error", { restrict }];
 
+const ADMIN_SOURCES = ["ts", "tsx", "mts", "cts", "js", "jsx", "mjs", "cjs"];
+
 /** 管理画面の、Tailwind CSS の class の検査(後に書いたものが勝つ)。 */
 export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
   {
-    files: ["**/apps/admin/src/**/*.ts", "**/apps/admin/src/**/*.tsx"],
+    files: ADMIN_SOURCES.map(
+      (extension) => `**/apps/admin/src/**/*.${extension}`,
+    ),
     jsPlugins: [
       {
         name: "better-tailwindcss",
@@ -214,23 +227,24 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
   },
 ];
 
+const UNRELATED_VARIABLES = new Set(["^classes$", "^styles?$"]);
+
 /** class を検査するプラグインの設定。 */
 export const ADMIN_CLASS_SETTINGS = {
   entryPoint: "src/ui/app.css",
   cwd: "apps/admin",
-  selectors: {
-    extends: [
-      { kind: "attribute", name: ".+ClassName$" },
-      {
-        kind: "attribute",
-        name: ".+ClassName$",
-        match: [{ type: "strings" }],
-      },
-      {
-        kind: "variable",
-        name: ".+ClassNames?$",
-        match: [{ type: "strings" }],
-      },
-    ],
-  },
+  selectors: [
+    ...getDefaultSelectors().filter(
+      (selector) =>
+        !("name" in selector && UNRELATED_VARIABLES.has(selector.name)),
+    ),
+    { kind: "attribute", name: ".+ClassName$" },
+    {
+      kind: "attribute",
+      name: ".+ClassName$",
+      match: [{ type: "strings" }],
+    },
+    { kind: "variable", name: ".+ClassNames?$", match: [{ type: "strings" }] },
+    { kind: "callee", name: "^merge$", match: [{ type: "strings" }] },
+  ],
 };

@@ -1,5 +1,18 @@
 import type { ReactNode } from "react";
 
+import { tv } from "./tv";
+
+const item = tv({
+  base: "rounded-surface",
+  variants: { isSelected: { true: "bg-primary/10" } },
+});
+
+/** 行の状態。 */
+type ItemState = {
+  /** 選んでいるか。 */
+  readonly isSelected: boolean;
+};
+
 /** 知らせの帯に渡す値。 */
 type NoticeProps = {
   /** 知らせの中身。 */
@@ -15,6 +28,10 @@ export const Notice = ({ children, progress }: NoticeProps) => (
     style={{ "--progress": progress }}
   >
     <span className="w-(--progress) bg-fg/10" />
+    <svg className="stroke-(length:--progress)" />
+    <span className="w-1/2 rounded-surface" />
+    <span className={item({ isSelected: true })} />
+    <span className={({ isSelected }: ItemState) => item({ isSelected })} />
     {children}
   </div>
 );

@@ -37,6 +37,22 @@ const propertyKey = (property) => {
   return property.key.type === "Identifier" ? property.key.name : undefined;
 };
 
+const isCheckedExpression = (expression) =>
+  expression.type === "CallExpression" ||
+  (expression.type === "ArrowFunctionExpression" &&
+    expression.body.type === "CallExpression");
+
+const isCheckedClassName = (value) => {
+  if (isStaticString(value)) {
+    return true;
+  }
+
+  return (
+    value.type === "JSXExpressionContainer" &&
+    isCheckedExpression(value.expression)
+  );
+};
+
 const checkScreen = (context, node) => {
   const name = attributeName(node);
 
@@ -52,7 +68,19 @@ const checkScreen = (context, node) => {
 };
 
 const checkUi = (context, node) => {
-  if (attributeName(node) !== "style") {
+  const name = attributeName(node);
+
+  if (
+    name !== undefined &&
+    CLASS_ATTRIBUTE.test(name) &&
+    !isCheckedClassName(node.value)
+  ) {
+    context.report({ node, messageId: "uncheckedClassName" });
+
+    return;
+  }
+
+  if (name !== "style") {
     return;
   }
 
@@ -81,7 +109,7 @@ const stylingBoundary = {
     type: "problem",
     docs: {
       description:
-        "管理画面の画面のコードに、式の className と style を書かせず、ui/ の style を CSS 変数だけにする。",
+        "管理画面の画面のコードに、式の className と style を書かせず、ui/ の className を検査できる形に、style を CSS 変数だけにし、JSX の props の spread を止める。",
     },
     schema: [
       {
@@ -96,6 +124,10 @@ const stylingBoundary = {
     messages: {
       dynamicClassName:
         "画面のコードの className には、文字列のリテラルだけを渡します。式を渡すと、class の検査をすり抜けます。見た目を変えるときは、ui/ の部品の props を使います。",
+      uncheckedClassName:
+        "部品の className には、文字列のリテラルか、tv などの関数の呼び出し(render props なら、呼び出しを返す関数)を渡します。変数や条件の式を渡すと、class の検査をすり抜けます。",
+      spread:
+        "JSX の props は spread しません。className や style が、検査をすり抜けて渡るため。props を1つずつ書きます。",
       styleOutsideUi:
         "style は ui/ の部品の中でだけ使います。画面のコードは、部品の props を使います。",
       styleNotObject:
@@ -112,6 +144,9 @@ const stylingBoundary = {
     return {
       JSXAttribute(node) {
         check(context, node);
+      },
+      JSXSpreadAttribute(node) {
+        context.report({ node, messageId: "spread" });
       },
     };
   },
