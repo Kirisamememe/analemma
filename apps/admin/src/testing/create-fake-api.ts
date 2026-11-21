@@ -25,7 +25,7 @@ export type FakeReply = FakeOutput | FakeError;
 
 /** procedure のパス(`auth/login/options` など)ごとの、作り物の応答。 */
 export type FakeRoutes = Readonly<
-  Record<string, (input: unknown) => FakeReply>
+  Record<string, (input: unknown) => FakeReply | Promise<FakeReply>>
 >;
 
 /** 作り物の server と、それにつないだ client。 */
@@ -76,7 +76,7 @@ export const createFakeApi = (routes: FakeRoutes): FakeApi => {
 
     return route === undefined
       ? NOT_FOUND()
-      : toResponse(route(await readInput(request)));
+      : toResponse(await route(await readInput(request)));
   };
 
   return {

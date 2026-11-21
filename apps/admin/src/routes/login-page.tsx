@@ -22,8 +22,13 @@ export const LoginPage = (): ReactNode => {
     mutationFn: async () =>
       gate.authenticate(async () => logIn({ api, authenticator })),
     onSuccess: ({ _tag }) => {
-      if (_tag === "LoggedIn") {
-        queryClient.clear();
+      if (_tag !== "LoggedIn") {
+        return;
+      }
+
+      queryClient.clear();
+
+      if (router.state.location.pathname === "/login") {
         router.history.push(redirect ?? "/");
       }
     },

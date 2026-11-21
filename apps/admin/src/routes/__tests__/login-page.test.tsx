@@ -123,4 +123,32 @@ describe("LoginPage", () => {
     );
     expect(screen.queryByRole("alert")).toBeNull();
   });
+
+  test("ログインの応答を待つ間にほかの画面へ移ったら、その画面から動かさない", async () => {
+    const verified = Promise.withResolvers<undefined>();
+    const routes = serverWith(EXPIRY);
+    const verify = routes["auth/login/verify"]!;
+    const { history } = renderApp({
+      path: "/login?redirect=%2Fsecurity",
+      routes: {
+        ...routes,
+        "auth/login/verify": async (input) => {
+          await verified.promise;
+
+          return verify(input);
+        },
+      },
+      authenticator: answering,
+    });
+
+    await pressLogIn();
+    history.push("/missing");
+    await screen.findByRole("heading", { name: "ページが見つかりません" });
+    verified.resolve(undefined);
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+
+    expect(history.location.pathname).toBe("/missing");
+  });
 });
