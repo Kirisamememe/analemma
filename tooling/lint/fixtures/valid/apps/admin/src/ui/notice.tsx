@@ -30,6 +30,7 @@ export const Notice = ({ children, progress }: NoticeProps) => (
     <span className="w-(--progress) bg-fg/10" />
     <svg className="stroke-(length:--progress)" />
     <span className="w-1/2 rounded-surface" />
+    <span className="-mt-2 -mb-1 md:-my-0.5" />
     <span className="bg-primary text-on-primary" />
     <span className="border-x-line bg-scrim/40 text-on-media" />
     <span className={item({ isSelected: true })} />

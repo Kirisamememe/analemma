@@ -69,6 +69,7 @@ describe("管理画面の部品の class", () => {
       [30, "surface は bg"],
       [31, "focus は class にせず"],
       [32, "focus は class にせず"],
+      [33, "状態は theme.css の is-*:"],
     ];
 
     expect(diagnosticsOf({ file, rule: RESTRICTED }, expected)).toEqual(
