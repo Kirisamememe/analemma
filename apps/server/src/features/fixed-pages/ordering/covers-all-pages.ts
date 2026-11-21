@@ -11,11 +11,12 @@ export const coversAllPages = ({
   existing,
   requested,
 }: OrderCheck): boolean => {
-  const all = new Set(existing);
+  const all = new Set(existing.map((id) => id.toLowerCase()));
+  const ids = requested.map((id) => id.toLowerCase());
 
   return (
-    requested.length === all.size &&
-    new Set(requested).size === requested.length &&
-    requested.every((id) => all.has(id))
+    ids.length === all.size &&
+    new Set(ids).size === ids.length &&
+    ids.every((id) => all.has(id))
   );
 };

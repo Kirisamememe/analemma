@@ -16,6 +16,12 @@ test.each([
   },
   { title: "同じ ID を2回含む並び", requested: ["a", "a"], covers: false },
   { title: "数は合うが、1つが違う並び", requested: ["a", "c"], covers: false },
+  { title: "大文字で書いた ID の並び", requested: ["B", "A"], covers: true },
+  {
+    title: "大文字と小文字で同じ ID を2回含む並び",
+    requested: ["a", "A"],
+    covers: false,
+  },
 ])(
   "$title を、すべてのページを含むかで見分けること",
   ({ covers, requested }) => {

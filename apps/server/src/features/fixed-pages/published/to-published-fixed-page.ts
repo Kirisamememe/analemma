@@ -3,6 +3,7 @@ import type { InferContractRouterOutputs } from "@orpc/contract";
 import { type contract, fixedPageContent } from "@analemma/contract";
 
 import type { FixedPageRow } from "../find-fixed-page.query";
+import type { FixedPageSummaryRow } from "../list-fixed-pages.query";
 
 type PublicOutputs = InferContractRouterOutputs<
   typeof contract
@@ -15,7 +16,9 @@ export type PublishedSummary = PublicOutputs["list"]["pages"][number];
 export type PublishedFixedPage = PublicOutputs["get"];
 
 /** 公開している固定ページの行を、一覧の1件の形にする。 */
-export const toPublishedSummary = (row: FixedPageRow): PublishedSummary => {
+export const toPublishedSummary = (
+  row: FixedPageSummaryRow,
+): PublishedSummary => {
   if (row.publishedAt === null) {
     throw new Error("公開していない固定ページを公開 API で返そうとした");
   }
