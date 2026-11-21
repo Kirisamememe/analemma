@@ -11,9 +11,24 @@ describe("base64url", () => {
     expect(toBase64Url(new Uint8Array([0xfb, 0xff]).buffer)).toBe("-_8");
   });
 
-  test("戻したバイト列を、同じ文字列にできる", () => {
-    const value = "AAECAwQFBgc";
+  test("どのバイトも、戻して同じバイト列にできる", () => {
+    const bytes = Uint8Array.from({ length: 256 }, (_, index) => index);
 
-    expect(toBase64Url(fromBase64Url(value).buffer)).toBe(value);
+    expect([...fromBase64Url(toBase64Url(bytes.buffer))]).toEqual([...bytes]);
+  });
+
+  test("Uint8Array の base64 の変換(Safari 18.2 から)と同じ結果にする", () => {
+    const bytes = Uint8Array.from(
+      { length: 70_000 },
+      (_, index) => index % 251,
+    );
+    const encoded = toBase64Url(bytes.buffer);
+
+    expect(encoded).toBe(
+      bytes.toBase64({ alphabet: "base64url", omitPadding: true }),
+    );
+    expect([...fromBase64Url(encoded)]).toEqual([
+      ...Uint8Array.fromBase64(encoded, { alphabet: "base64url" }),
+    ]);
   });
 });

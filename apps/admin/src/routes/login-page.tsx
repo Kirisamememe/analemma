@@ -16,10 +16,11 @@ export const LoginPage = (): ReactNode => {
   const t = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { api, authenticator } = useRouteContext({ from: "/login" });
+  const { api, authenticator, gate } = useRouteContext({ from: "/login" });
   const { redirect } = useSearch({ from: "/login" });
   const login = useMutation({
-    mutationFn: async () => logIn({ api, authenticator }),
+    mutationFn: async () =>
+      gate.authenticate(async () => logIn({ api, authenticator })),
     onSuccess: ({ _tag }) => {
       if (_tag === "LoggedIn") {
         queryClient.clear();

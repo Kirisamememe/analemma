@@ -45,4 +45,29 @@ describe("router", () => {
       "/?tab=pages",
     );
   });
+
+  test("セッションを確かめられなければ、訳した知らせを出し、やり直せる", async () => {
+    let reachable = false;
+
+    renderApp({
+      path: "/",
+      routes: {
+        "admin/session/get": () =>
+          reachable
+            ? { output: { expiresAt: "2026-01-08T00:00:00.000Z" } }
+            : { error: "INTERNAL_SERVER_ERROR", status: 500, defined: false },
+      },
+    });
+
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "ログインの状態を確かめられませんでした。もう一度試してください。",
+    );
+
+    reachable = true;
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Stilus" }),
+    ).toBeDefined();
+  });
 });

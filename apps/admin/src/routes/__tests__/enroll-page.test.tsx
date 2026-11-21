@@ -40,7 +40,10 @@ const serverWith = (register: FakeReply): EnrollmentServer => {
 
   return {
     routes: {
-      "admin/session/get": () => EXPIRY,
+      "admin/session/get": () =>
+        registered === undefined || !("output" in register)
+          ? { error: "UNAUTHORIZED", status: 401 }
+          : EXPIRY,
       "auth/enrollment/options": () => ({
         output: {
           challenge: "AQID",
@@ -136,5 +139,43 @@ describe("EnrollPage", () => {
     expect(screen.getByRole("alert").textContent).toContain(
       "この認証器には、この管理画面のパスキーがもうあります。",
     );
+  });
+
+  test("開いたら、token を覚えて、URL と履歴から token を消す", async () => {
+    const server = serverWith(EXPIRY);
+    const { history } = renderApp({
+      path: "/enroll#abc.def",
+      routes: server.routes,
+      authenticator: registering({ _tag: "Answered", credential: CREDENTIAL }),
+    });
+
+    await screen.findByRole("textbox", { name: "パスキーの名前" });
+
+    expect(history.location.hash).toBe("");
+    expect(history.length).toBe(1);
+
+    await submitName("MacBook");
+    await screen.findByRole("heading", { name: "Stilus" });
+
+    expect(server.registered()).toMatchObject({ token: "abc.def" });
+  });
+
+  test("空白だけの名前は、パスキーを作る前に、入力欄で知らせる", async () => {
+    const server = serverWith(EXPIRY);
+    const { calls } = renderApp({
+      path: "/enroll#abc.def",
+      routes: server.routes,
+      authenticator: registering({ _tag: "Answered", credential: CREDENTIAL }),
+    });
+
+    await submitName("   ");
+
+    expect(
+      await screen.findByRole("textbox", {
+        name: "パスキーの名前",
+        description: /1〜64文字で、改行などを使わずに付けてください。/v,
+      }),
+    ).toBeDefined();
+    expect(calls).not.toContain("auth/enrollment/options");
   });
 });

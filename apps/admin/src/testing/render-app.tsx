@@ -4,7 +4,12 @@ import {
 } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 
+import { createApiClient } from "../api/create-api-client";
 import { App } from "../app";
+import {
+  createAuthGate,
+  gateAdminRequests,
+} from "../features/auth/create-auth-gate";
 import type { Authenticator } from "../features/auth/webauthn/create-authenticator";
 import type { Locale } from "../i18n/locales";
 import { createApp } from "../router";
@@ -43,8 +48,18 @@ export const renderApp = ({
   locale = "ja",
 }: RenderAppOptions): RenderedApp => {
   const history = createMemoryHistory({ initialEntries: [path] });
-  const { api, calls } = createFakeApi(routes);
-  const { router, queryClient } = createApp({ history, api, authenticator });
+  const { calls, fetch } = createFakeApi(routes);
+  const gate = createAuthGate();
+  const api = createApiClient({
+    origin: "http://localhost:5173",
+    fetch: gateAdminRequests(gate, fetch),
+  });
+  const { router, queryClient } = createApp({
+    history,
+    api,
+    authenticator,
+    gate,
+  });
 
   render(<App locale={locale} queryClient={queryClient} router={router} />);
 

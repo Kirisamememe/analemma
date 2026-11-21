@@ -33,4 +33,8 @@ export const zhHans = {
   "enroll.signIn": "前往登录",
   "session.logOut": "退出登录",
   "session.logOutFailed": "无法退出登录，请重试。",
+  "sessionError.title": "无法连接服务器",
+  "sessionError.description": "无法确认登录状态，请重试。",
+  "sessionError.retry": "重试",
+  "passkeyName.invalid": "请使用 1～64 个字符，不要包含换行等。",
 } satisfies Translation;

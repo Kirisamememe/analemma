@@ -34,4 +34,8 @@ export const en = {
   "enroll.signIn": "Go to sign-in",
   "session.logOut": "Sign out",
   "session.logOutFailed": "Could not sign out. Please try again.",
+  "sessionError.title": "Could not reach the server",
+  "sessionError.description": "Could not check your session. Please try again.",
+  "sessionError.retry": "Try again",
+  "passkeyName.invalid": "Use 1 to 64 characters, without line breaks.",
 } as const satisfies Readonly<Record<string, string>>;

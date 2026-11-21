@@ -39,6 +39,8 @@ type TextFieldProps = {
   readonly autoComplete?: string;
   /** 最初に入れておく値。 */
   readonly defaultValue?: string;
+  /** 送る前に値を確かめ、誤りの知らせを返す関数(合っていれば undefined)。 */
+  readonly validate?: (value: string) => string | undefined;
 };
 
 /** ラベルと補足と誤りの知らせを持つ、1行の入力欄。 */
@@ -50,10 +52,12 @@ export const TextField = ({
   maxLength,
   autoComplete,
   defaultValue = "",
+  validate,
 }: TextFieldProps): ReactNode => (
   <AriaTextField
     className={root()}
     defaultValue={defaultValue}
+    validate={(value) => validate?.(value)}
     isRequired={isRequired}
     name={name}
   >

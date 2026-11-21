@@ -11,13 +11,15 @@ import {
 import type { ApiClient } from "./api/api-types";
 import { createQueryClient } from "./api/create-query-client";
 import { isUnauthorized } from "./api/is-unauthorized";
-import { toLoginSearch } from "./features/auth/login-search";
+import type { AuthGate } from "./features/auth/create-auth-gate";
+import { isPublicPath, toLoginSearch } from "./features/auth/login-search";
 import type { Authenticator } from "./features/auth/webauthn/create-authenticator";
 import { EnrollPage } from "./routes/enroll-page";
 import { HomePage } from "./routes/home-page";
 import { LoginPage } from "./routes/login-page";
 import { NotFoundPage } from "./routes/not-found-page";
 import { RootLayout } from "./routes/root-layout";
+import { SessionErrorPage } from "./routes/session-error-page";
 
 /** 画面が route から受け取る、server と認証器の窓口。 */
 export type RouterContext = {
@@ -25,6 +27,8 @@ export type RouterContext = {
   readonly api: ApiClient;
   /** パスキーの認証器。 */
   readonly authenticator: Authenticator;
+  /** ログインの最中に、管理用 API を送らせない門。 */
+  readonly gate: AuthGate;
 };
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
@@ -48,6 +52,7 @@ const enrollRoute = createRoute({
 const signedInRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "signed-in",
+  errorComponent: SessionErrorPage,
   beforeLoad: async ({ context, location }) => {
     const [error] = await safe(context.api.admin.session.get());
 
@@ -83,8 +88,13 @@ export type AppDependencies = RouterContext & {
   readonly history: RouterHistory;
 };
 
-const createAppRouter = ({ history, api, authenticator }: AppDependencies) =>
-  createRouter({ routeTree, history, context: { api, authenticator } });
+const createAppRouter = ({
+  history,
+  api,
+  authenticator,
+  gate,
+}: AppDependencies) =>
+  createRouter({ routeTree, history, context: { api, authenticator, gate } });
 
 /** 管理画面の router。 */
 export type AppRouter = ReturnType<typeof createAppRouter>;
@@ -103,6 +113,11 @@ export const createApp = (dependencies: AppDependencies): AppParts => {
   const queryClient = createQueryClient({
     onUnauthorized: (client) => {
       client.clear();
+
+      if (isPublicPath(router.state.location.pathname)) {
+        return;
+      }
+
       void router.navigate({
         to: "/login",
         search: toLoginSearch({ redirect: router.state.location.href }),

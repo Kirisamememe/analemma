@@ -41,6 +41,7 @@ describe("LogOutButton", () => {
     const { history } = renderHome({
       error: "INTERNAL_SERVER_ERROR",
       status: 500,
+      defined: false,
     });
 
     await pressLogOut();

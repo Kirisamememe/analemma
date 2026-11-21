@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { toLoginSearch } from "../login-search";
+import { isPublicPath, toLoginSearch } from "../login-search";
 
 describe("toLoginSearch", () => {
   test("管理画面の中のパスは、ログインした後の行き先として残す", () => {
@@ -16,6 +16,9 @@ describe("toLoginSearch", () => {
     "pages",
     "/login",
     "/login?redirect=/",
+    "/LOGIN",
+    "/enroll#abc.def",
+    "/Enroll",
   ])("外やログインの画面への行き先 %p は捨てる", (redirect) => {
     expect(toLoginSearch({ redirect })).toEqual({});
   });
@@ -24,4 +27,23 @@ describe("toLoginSearch", () => {
     expect(toLoginSearch({ redirect: 42 })).toEqual({});
     expect(toLoginSearch({})).toEqual({});
   });
+});
+
+describe("isPublicPath", () => {
+  test.each([
+    "/login",
+    "/login?redirect=/",
+    "/LOGIN",
+    "/enroll",
+    "/enroll#token",
+  ])("ログインの前に開く画面のパス %p を見分ける", (path) => {
+    expect(isPublicPath(path)).toBe(true);
+  });
+
+  test.each(["/", "/pages", "/login-history", "/enrollments"])(
+    "ログインした後の画面のパス %p は、ログインの前の画面と見なさない",
+    (path) => {
+      expect(isPublicPath(path)).toBe(false);
+    },
+  );
 });

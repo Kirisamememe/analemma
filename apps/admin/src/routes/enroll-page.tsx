@@ -4,8 +4,9 @@ import {
   useRouteContext,
   useRouter,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 
+import { checkPasskeyName } from "../features/auth/check-passkey-name";
 import { enroll } from "../features/auth/enroll";
 import { readEnrollmentToken } from "../features/auth/read-enrollment-token";
 import { toEnrollNotice } from "../features/auth/to-auth-notice";
@@ -27,22 +28,34 @@ export const EnrollPage = (): ReactNode => {
   const t = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { api, authenticator } = useRouteContext({ from: "/enroll" });
-  const token = readEnrollmentToken(
-    useLocation({ select: (location) => location.hash }),
-  );
+  const { api, authenticator, gate } = useRouteContext({ from: "/enroll" });
+  const hash = useLocation({ select: (location) => location.hash });
+  const [token] = useState(() => readEnrollmentToken(hash));
   const enrollment = useMutation({
     mutationFn: async (name: string) =>
-      enroll({ api, authenticator }, { token: token ?? "", name }),
+      gate.authenticate(async () =>
+        enroll({ api, authenticator }, { token: token ?? "", name }),
+      ),
     onSuccess: ({ _tag }) => {
-      if (_tag === "Enrolled") {
-        queryClient.clear();
+      if (_tag !== "Enrolled") {
+        return;
+      }
+
+      queryClient.clear();
+
+      if (router.state.location.pathname === "/enroll") {
         router.history.replace("/");
       }
     },
   });
   const outcome = enrollment.isError ? "Unexpected" : enrollment.data?._tag;
   const notice = outcome === undefined ? undefined : toEnrollNotice(outcome);
+
+  useEffect(() => {
+    if (hash !== "") {
+      router.history.replace("/enroll");
+    }
+  }, [hash, router]);
 
   return (
     <Center width="sm">
@@ -69,6 +82,11 @@ export const EnrollPage = (): ReactNode => {
               label={t("enroll.name")}
               maxLength={PASSKEY_NAME_MAX_LENGTH}
               name="name"
+              validate={(value) => {
+                const problem = checkPasskeyName(value);
+
+                return problem === undefined ? undefined : t(problem);
+              }}
             />
             {notice !== undefined && (
               <Notice tone={notice.tone}>{t(notice.message)}</Notice>

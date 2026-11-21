@@ -38,4 +38,9 @@ export const ja = {
   "session.logOut": "ログアウト",
   "session.logOutFailed":
     "ログアウトできませんでした。もう一度試してください。",
+  "sessionError.title": "server につながりません",
+  "sessionError.description":
+    "ログインの状態を確かめられませんでした。もう一度試してください。",
+  "sessionError.retry": "もう一度試す",
+  "passkeyName.invalid": "1〜64文字で、改行などを使わずに付けてください。",
 } satisfies Translation;
