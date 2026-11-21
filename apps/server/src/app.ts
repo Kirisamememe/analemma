@@ -79,7 +79,7 @@ const addNoStore = (app: Hono, paths: readonly string[]): void => {
   }
 };
 
-/** 管理画面と認証用 API を、リバースプロキシの向こうのブラウザから受けるアプリを作る。 */
+/** 管理用 API と認証用 API を、リバースプロキシを通って届くブラウザのリクエストから受けるアプリを作る。 */
 export const createExternalApp = (context: AppContext): Hono => {
   const app = new Hono();
 
