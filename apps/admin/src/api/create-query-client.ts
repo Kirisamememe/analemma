@@ -26,6 +26,7 @@ export const createQueryClient = ({
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
+        networkMode: "always",
         retry: (failures, error) =>
           !isUnauthorized(error) && failures < MAX_RETRIES,
       },

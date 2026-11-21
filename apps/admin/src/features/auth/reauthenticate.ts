@@ -10,6 +10,8 @@ export type ReauthenticateDependencies = {
   readonly authenticator: Authenticator;
   /** 今の時刻(ミリ秒)を返す関数。 */
   readonly now?: () => number;
+  /** 決めた時間(ミリ秒)の後に止まる signal を作る関数。 */
+  readonly abortAfter?: (milliseconds: number) => AbortSignal;
 };
 
 /** 今のパスキーで確かめ直せたこと。 */

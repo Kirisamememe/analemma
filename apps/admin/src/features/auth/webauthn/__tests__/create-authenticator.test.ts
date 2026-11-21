@@ -135,4 +135,21 @@ describe("createAuthenticator", () => {
       authenticator.authenticate(AUTHENTICATION_OPTIONS),
     ).rejects.toThrow();
   });
+
+  test("パスキーを作るときは、渡した signal を認証器に渡す", async () => {
+    const received: unknown[] = [];
+    const authenticator = createAuthenticator({
+      get: () => Promise.resolve(null),
+      create: (options) => {
+        received.push(options.signal);
+
+        return Promise.resolve(null);
+      },
+    });
+    const signal = new AbortController().signal;
+
+    await authenticator.register(REGISTRATION_OPTIONS, signal);
+
+    expect(received).toEqual([signal]);
+  });
 });

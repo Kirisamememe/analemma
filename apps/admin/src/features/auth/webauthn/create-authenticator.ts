@@ -40,9 +40,10 @@ export type Authenticator = {
   readonly authenticate: (
     options: AuthenticationOptions,
   ) => Promise<AuthenticatorAnswer<AuthenticationCredential>>;
-  /** 新しいパスキーを作る。 */
+  /** 新しいパスキーを作る(signal で途中で止められる)。 */
   readonly register: (
     options: RegistrationOptions,
+    signal?: AbortSignal,
   ) => Promise<AuthenticatorAnswer<RegistrationCredential>>;
 };
 
@@ -108,10 +109,11 @@ export const createAuthenticator = (store: CredentialStore): Authenticator => ({
         ? toAuthenticationCredential(credential)
         : undefined;
     }),
-  register: async (options) =>
+  register: async (options, signal) =>
     ask(async () => {
       const credential = await store.create({
         publicKey: toCreationOptions(options),
+        ...(signal === undefined ? {} : { signal }),
       });
 
       return isAttestation(credential)

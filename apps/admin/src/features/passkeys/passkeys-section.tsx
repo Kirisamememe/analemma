@@ -1,5 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
+import type { ApiOutputs } from "../../api/api-types";
 import { useTranslation } from "../../i18n/use-translation";
 import { Cluster } from "../../ui/layout/cluster";
 import { Heading } from "../../ui/layout/heading";
@@ -9,25 +11,37 @@ import { Notice } from "../../ui/primitives/notice";
 import { AddPasskeyDialog } from "./add-passkey-dialog";
 import { DeletePasskeyDialog } from "./delete-passkey-dialog";
 import { PasskeyList, type PasskeySummary } from "./passkey-list";
+import { PASSKEYS_QUERY_KEY } from "./passkeys-query";
 import { RenamePasskeyDialog } from "./rename-passkey-dialog";
 import type { PasskeyNotice } from "./to-passkey-notice";
 
 /** パスキーの一覧と、足す・名前を変える・消す操作。 */
 export const PasskeysSection = (): ReactNode => {
   const t = useTranslation();
+  const queryClient = useQueryClient();
   const addButton = useRef<HTMLButtonElement>(null);
   const [notice, setNotice] = useState<PasskeyNotice>();
   const [isAdding, setAdding] = useState(false);
   const [renaming, setRenaming] = useState<PasskeySummary>();
   const [deleting, setDeleting] = useState<PasskeySummary>();
-  const focusAddAfterDelete = useRef(false);
+  const focusAdd = useRef(false);
+  const rememberIfGone = (passkey: PasskeySummary): void => {
+    const listed =
+      queryClient.getQueryData<ApiOutputs["admin"]["passkeys"]["list"]>(
+        PASSKEYS_QUERY_KEY,
+      );
+
+    focusAdd.current = !(
+      listed?.passkeys.some(({ id }) => id === passkey.id) ?? false
+    );
+  };
 
   useEffect(() => {
-    if (deleting === undefined && focusAddAfterDelete.current) {
-      focusAddAfterDelete.current = false;
+    if (renaming === undefined && deleting === undefined && focusAdd.current) {
+      focusAdd.current = false;
       addButton.current?.focus();
     }
-  }, [deleting]);
+  }, [renaming, deleting]);
 
   return (
     <Stack as="section" gap={4}>
@@ -69,6 +83,7 @@ export const PasskeysSection = (): ReactNode => {
       {renaming !== undefined && (
         <RenamePasskeyDialog
           onClose={() => {
+            rememberIfGone(renaming);
             setRenaming(undefined);
           }}
           onRenamed={setNotice}
@@ -78,12 +93,10 @@ export const PasskeysSection = (): ReactNode => {
       {deleting !== undefined && (
         <DeletePasskeyDialog
           onClose={() => {
+            rememberIfGone(deleting);
             setDeleting(undefined);
           }}
-          onDeleted={(deleted) => {
-            setNotice(deleted);
-            focusAddAfterDelete.current = true;
-          }}
+          onDeleted={setNotice}
           passkey={deleting}
         />
       )}

@@ -2,6 +2,8 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { createFakeApi } from "../../../testing/create-fake-api";
+import { FAKE_ASSERTION } from "../../../testing/create-fake-authenticator";
 import { createPasskeyRoutes } from "../../../testing/create-passkey-routes";
 import { renderApp } from "../../../testing/render-app";
 
@@ -70,6 +72,33 @@ describe("RenamePasskeyDialog", () => {
 
     expect((await screen.findByRole("status")).textContent).toBe(
       "パスキーの名前を変えました。",
+    );
+  });
+
+  test("もう無いパスキーの画面を閉じたら、「パスキーを足す」に focus を移す", async () => {
+    const server = createPasskeyRoutes([
+      { name: "MacBook", backedUp: true },
+      { name: "iPhone", backedUp: true },
+    ]);
+    const { api } = createFakeApi(server.routes);
+
+    renderApp({ path: "/security", routes: server.routes });
+
+    await userEvent.click(
+      (await screen.findAllByRole("button", { name: "名前を変える" }))[0]!,
+    );
+    await screen.findByRole("dialog");
+    await api.admin.session.reauthenticationOptions();
+    await api.admin.passkeys.delete({ id: "pk1", assertion: FAKE_ASSERTION });
+    await userEvent.click(screen.getByRole("button", { name: "保存" }));
+    await screen.findByText("このパスキーはもうありません。");
+    await userEvent.click(screen.getByRole("button", { name: "やめる" }));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "パスキーを足す" }),
     );
   });
 });

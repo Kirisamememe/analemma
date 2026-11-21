@@ -107,4 +107,29 @@ describe("createQueryClient", () => {
 
     expect(sent).toBe(1);
   });
+
+  test("オフラインでも取得を止めておかず、その場で取りに行く", async () => {
+    const queryClient = createQueryClient(countCalls());
+    let fetched = 0;
+
+    onlineManager.setOnline(false);
+
+    try {
+      await queryClient
+        .query({
+          queryKey: ["passkeys"],
+          queryFn: () => {
+            fetched += 1;
+
+            return Promise.reject(new TypeError("Failed to fetch"));
+          },
+          retry: false,
+        })
+        .catch(() => undefined);
+    } finally {
+      onlineManager.setOnline(true);
+    }
+
+    expect(fetched).toBe(1);
+  });
 });

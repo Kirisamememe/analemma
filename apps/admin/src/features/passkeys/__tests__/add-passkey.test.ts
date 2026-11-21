@@ -206,4 +206,37 @@ describe("addPasskey", () => {
     ).toEqual({ _tag: "ChallengeExpired" });
     expect(server.calls).not.toContain("admin/passkeys/register");
   });
+
+  test("再認証の期限の手前で、パスキーを作るのを止め、期限切れとして返す", async () => {
+    const server = serverReplying({ output: SUMMARY });
+    const requested: number[] = [];
+    const signals: (AbortSignal | undefined)[] = [];
+    const authenticator: Authenticator = {
+      authenticate: createFakeAuthenticator().authenticate,
+      register: (_options, signal) => {
+        signals.push(signal);
+
+        return Promise.resolve({ _tag: "Cancelled" });
+      },
+    };
+
+    expect(
+      await addPasskey(
+        {
+          api: server.api,
+          authenticator,
+          now: () => 0,
+          abortAfter: (milliseconds) => {
+            requested.push(milliseconds);
+
+            return AbortSignal.abort();
+          },
+        },
+        "iPhone",
+      ),
+    ).toEqual({ _tag: "ChallengeExpired" });
+    expect(requested).toEqual([290_000]);
+    expect(signals[0]?.aborted).toBe(true);
+    expect(server.calls).not.toContain("admin/passkeys/register");
+  });
 });

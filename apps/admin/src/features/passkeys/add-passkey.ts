@@ -44,7 +44,12 @@ export const addPasskey = async (
   dependencies: ReauthenticateDependencies,
   name: string,
 ): Promise<AddPasskeyResult> => {
-  const { api, authenticator, now = Date.now } = dependencies;
+  const {
+    api,
+    authenticator,
+    now = Date.now,
+    abortAfter = (milliseconds: number) => AbortSignal.timeout(milliseconds),
+  } = dependencies;
   const confirmation = await reauthenticate(dependencies);
 
   if (confirmation._tag === "Cancelled") {
@@ -58,13 +63,14 @@ export const addPasskey = async (
     return { _tag: "ChallengeExpired" };
   }
 
-  const answer = await authenticator.register({
-    ...options,
-    timeout: Math.min(options.timeout, remaining),
-  });
+  const deadline = abortAfter(remaining);
+  const answer = await authenticator.register(
+    { ...options, timeout: Math.min(options.timeout, remaining) },
+    deadline,
+  );
 
   if (answer._tag !== "Answered") {
-    return { _tag: answer._tag };
+    return { _tag: deadline.aborted ? "ChallengeExpired" : answer._tag };
   }
 
   const [error] = await safe(
