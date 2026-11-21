@@ -38,7 +38,7 @@ export const lintFixture = (target: string): FixtureLintResult => {
     oxlintBin,
     [
       "--config",
-      "oxlint.fixtures.config.mjs",
+      "oxlint.fixtures.config.ts",
       "--disable-nested-config",
       "--format",
       "json",
