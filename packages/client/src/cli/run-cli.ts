@@ -68,7 +68,7 @@ export const runCli = async (io: CliIo): Promise<number> => {
 
   if (url === undefined || !isCmsUrl(url)) {
     writeLines(io.writeError, [
-      "CMS の URL を、http か https で、ユーザー名とパスワードを含めずに渡す。",
+      "CMS の URL を、http か https で、ユーザー名とパスワードを含めずに渡してください。",
       ...USAGE,
     ]);
 
@@ -77,7 +77,7 @@ export const runCli = async (io: CliIo): Promise<number> => {
 
   if (io.token === undefined || !TOKEN.test(io.token)) {
     writeLines(io.writeError, [
-      "ANALEMMA_DEPLOY_TOKEN に、管理画面で発行したデプロイ用のトークンを入れる。",
+      "ANALEMMA_DEPLOY_TOKEN に、管理画面で発行したデプロイ用のトークンを入れてください。",
       ...USAGE,
     ]);
 

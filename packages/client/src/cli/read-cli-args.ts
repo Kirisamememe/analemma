@@ -2,7 +2,7 @@ import { parseArgs } from "node:util";
 
 /** 種類の定義を送るコマンドの引数。 */
 export type PushArgs = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Push";
   /** 定義のファイルのパス。 */
   readonly file: string;
@@ -12,7 +12,7 @@ export type PushArgs = {
 
 /** 引数が、使い方に合わないこと。 */
 export type MisusedArgs = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Misused";
 };
 

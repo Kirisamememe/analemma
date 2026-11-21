@@ -16,7 +16,7 @@ const about = defineKind({
   fields: { headline: text({ label: "見出し" }) },
 });
 
-/** 偽の CMS の答え方。 */
+/** テスト用の CMS の答え方。 */
 type Answer = "accept" | "incompatible" | "unauthorized";
 
 /** CLI を流した結果。 */
@@ -27,15 +27,15 @@ type CliRun = {
   readonly stdout: string[];
   /** 標準エラーに書いた行。 */
   readonly stderr: string[];
-  /** 偽の CMS が受け取ったリクエストの Authorization ヘッダー。 */
+  /** テスト用の CMS が受け取ったリクエストの Authorization ヘッダー。 */
   readonly received: (string | null)[];
-  /** 偽の CMS が受け取った種類の定義。 */
+  /** テスト用の CMS が受け取った種類の定義。 */
   readonly kinds: KindDefinition[];
 };
 
 const os = implement({ deploy: contract.deploy });
 
-/** 偽の CMS が受け取ったもの。 */
+/** テスト用の CMS が受け取ったもの。 */
 type Inbox = {
   /** 受け取ったリクエストの Authorization ヘッダー。 */
   readonly received: (string | null)[];

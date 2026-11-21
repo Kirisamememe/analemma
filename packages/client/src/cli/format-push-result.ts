@@ -35,7 +35,7 @@ export const formatPushResult = (
       ];
     case "Unauthorized":
       return [
-        "デプロイ用のトークンを受け付けられなかった。ANALEMMA_DEPLOY_TOKEN を確かめる。",
+        "デプロイ用のトークンを受け付けられなかった。ANALEMMA_DEPLOY_TOKEN を確かめてください。",
       ];
   }
 };

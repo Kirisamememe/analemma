@@ -2,7 +2,7 @@ import { type KindDefinition, kindDefinitionList } from "@analemma/contract";
 
 /** 定義のファイルから読めた、種類の定義。 */
 export type ReadKinds = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Read";
   /** 種類の定義。 */
   readonly kinds: KindDefinition[];
@@ -10,7 +10,7 @@ export type ReadKinds = {
 
 /** 定義のファイルから、種類の定義を読めないこと。 */
 export type UnreadableKinds = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Unreadable";
   /** 読めない理由。 */
   readonly problem: string;
@@ -34,7 +34,7 @@ export const readKindDefinitions = (
     return {
       _tag: "Unreadable",
       problem:
-        "定義のファイルは、defineKind で作った種類の配列を default export する",
+        "定義のファイルでは、defineKind で作った種類の配列を default export してください",
     };
   }
 

@@ -21,7 +21,7 @@ export type KindChange =
 
 /** CMS が定義を受け付けたこと。 */
 export type AcceptedKinds = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Accepted";
   /** 種類ごとの変わり方。 */
   readonly kinds: KindChange[];
@@ -29,7 +29,7 @@ export type AcceptedKinds = {
 
 /** 既存の固定ページに合わず、CMS が定義を断ったこと。 */
 export type IncompatibleKinds = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Incompatible";
   /** 新しい定義に合わない固定ページ。 */
   readonly pages: IncompatibleData["pages"];
@@ -37,7 +37,7 @@ export type IncompatibleKinds = {
 
 /** デプロイ用のトークンを、CMS が受け付けなかったこと。 */
 export type UnauthorizedPush = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Unauthorized";
 };
 
