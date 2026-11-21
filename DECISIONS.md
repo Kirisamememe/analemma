@@ -53,6 +53,7 @@ tsrs はまだ prerelease なので、型エラーの判定は公式の `tsc` �
 
 - すべての tsconfig が `tsconfig.base.json` を extends する。strict の外にある検査も全部入れる。
 - 環境の型(Bun・DOM)は各ワークスペースの tsconfig で足す。contract と client は Bun・Node・ブラウザのどれでも動くよう、環境の型を持たない。
+  - ただし、テストは `bun:test` を使うので、Bun の型が要る。contract と client では、`tsconfig.json` をテストを含めて Bun の型を足したものにし、テストを除いた `src` を環境の型なしで検査する `tsconfig.src.json` を別に置く。typecheck は両方を流す。型付きの lint(tsrs)が読むのは `tsconfig.json` なので、テストの型も解決できる。`src` に Bun や Node の型を使うコードが入ると、`tsconfig.src.json` の検査で落ちる。
 - 型を消すだけで実行できる構文に限る(`erasableSyntaxOnly`)。enum・namespace・引数プロパティは使えない。Bun はそのまま実行し、tsc は型検査だけをする。
 - パッケージ間の解決は Bun の workspaces で行うので、`paths` は使わない。
 - リポジトリの直下の tsconfig は tooling だけを検査する。各ワークスペースは自分の tsconfig で検査し、リポジトリの直下で流す `bun run typecheck` が順に回す。
