@@ -35,4 +35,5 @@ export const urlValue = z
   .string()
   .max(2000)
   .regex(SINGLE_LINE, { error: "改行と制御文字は使えない" })
+  .refine(isWellFormed, { error: "対になっていないサロゲートは使えない" })
   .pipe(z.url({ protocol: /^https?$/v }));

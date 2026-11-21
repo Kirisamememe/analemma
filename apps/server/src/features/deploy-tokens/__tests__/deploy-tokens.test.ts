@@ -112,6 +112,25 @@ describe("デプロイ用のトークンの発行", () => {
   });
 });
 
+describe("デプロイ用のトークンの最後に使った日時", () => {
+  test("前に使った日時より古い時刻では、戻さないこと", async () => {
+    let now = TEST_NOW;
+    await using server = await createTestClient({ clock: { now: () => now } });
+    const { passkey } = await signInAsAdmin(server);
+    const token = await issueTestDeployToken(server, passkey);
+    const later = new Date(TEST_NOW.getTime() + 60_000);
+
+    now = later;
+    await server.internal(token).deploy.kinds.push({ kinds: [] });
+    now = TEST_NOW;
+    await server.internal(token).deploy.kinds.push({ kinds: [] });
+
+    expect(
+      (await server.client.admin.deployTokens.list()).tokens[0]?.lastUsedAt,
+    ).toBe(later.toISOString());
+  });
+});
+
 describe("デプロイ用のトークンの取り消し", () => {
   test("取り消したトークンでは、定義を送れなくなること", async () => {
     await using server = await createTestClient();

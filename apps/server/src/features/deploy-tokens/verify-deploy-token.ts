@@ -46,12 +46,11 @@ export const verifyDeployToken = async ({
 
   if (
     row === undefined ||
-    !equalSecretHashes(row.secretHash, parts.secretHash)
+    !equalSecretHashes(row.secretHash, parts.secretHash) ||
+    !(await recordDeployTokenUse(db, { id: row.id, now }))
   ) {
     return { _tag: "Rejected", id: parts.id };
   }
-
-  await recordDeployTokenUse(db, { id: row.id, now });
 
   return { _tag: "Verified", id: row.id };
 };

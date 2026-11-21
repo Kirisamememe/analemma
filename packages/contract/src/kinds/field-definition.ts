@@ -25,6 +25,9 @@ export const fieldKey = z
   .regex(/^[A-Za-z][A-Za-z0-9]*$/v, {
     error: "英字で始め、英字と数字だけで書く",
   })
+  .refine((key) => !(key in Object.prototype), {
+    error: "constructor など、オブジェクトが元から持つ名前は使えない",
+  })
   .describe("中身のオブジェクトのキー。");
 
 const selectOption = z.object({

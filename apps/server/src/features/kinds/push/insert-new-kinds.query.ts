@@ -3,6 +3,9 @@ import type { KindDefinition } from "@analemma/contract";
 import { kind } from "../../../db/schema/kind";
 import type { DatabaseExecutor } from "../../../platform/database";
 
+const byName = (left: KindDefinition, right: KindDefinition): number =>
+  left.name < right.name ? -1 : Number(left.name > right.name);
+
 /** 新しく作るかもしれない種類と、送られた日時。 */
 export type KindInsert = {
   /** 送られた種類の定義。 */
@@ -11,7 +14,7 @@ export type KindInsert = {
   readonly now: Date;
 };
 
-/** まだ無い種類の行を作り、作った種類の名前を返す。 */
+/** まだ無い種類の行を、名前の順に作り、作った種類の名前を返す。 */
 export const insertNewKinds = async (
   db: DatabaseExecutor,
   { kinds, now }: KindInsert,
@@ -23,7 +26,7 @@ export const insertNewKinds = async (
   const rows = await db
     .insert(kind)
     .values(
-      kinds.map(({ fields, label, name }) => ({
+      kinds.toSorted(byName).map(({ fields, label, name }) => ({
         name,
         label,
         fields,

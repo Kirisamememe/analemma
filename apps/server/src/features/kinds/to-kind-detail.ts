@@ -3,6 +3,7 @@ import type { InferContractRouterOutputs } from "@orpc/contract";
 import type { contract } from "@analemma/contract";
 
 import type { KindRow } from "./find-kind.query";
+import type { KindSummaryRow } from "./list-kinds.query";
 import { readKindFields } from "./read-kind-fields";
 
 type KindOutputs = InferContractRouterOutputs<
@@ -16,7 +17,7 @@ export type KindSummary = KindOutputs["list"]["kinds"][number];
 export type KindDetail = KindOutputs["get"];
 
 /** 種類の行を、一覧の1件の形にする。 */
-export const toKindSummary = (row: KindRow): KindSummary => ({
+export const toKindSummary = (row: KindSummaryRow): KindSummary => ({
   name: row.name,
   label: row.label,
   createdAt: row.createdAt.toISOString(),

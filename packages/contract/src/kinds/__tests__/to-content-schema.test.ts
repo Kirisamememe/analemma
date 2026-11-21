@@ -107,6 +107,11 @@ describe("中身の検査", () => {
       path: "site",
     },
     {
+      title: "対になっていないサロゲートのある URL",
+      value: { headline: "a", site: "https://example.com/\uD800" },
+      path: "site",
+    },
+    {
       title: "改行のある URL",
       value: { headline: "a", site: "https://exa\nmple.com" },
       path: "site",
@@ -145,4 +150,19 @@ describe("中身の検査", () => {
       links: [{ url: "https://example.com" }],
     });
   });
+});
+
+describe("項目の名前", () => {
+  test.each(["constructor", "toString", "hasOwnProperty", "valueOf"])(
+    "%s のような、オブジェクトが元から持つ名前は使えないこと",
+    (key) => {
+      expect(
+        kindDefinition.safeParse({
+          name: "about",
+          label: "自己紹介",
+          fields: [{ key, label: "名前", type: "text", optional: true }],
+        }).success,
+      ).toBe(false);
+    },
+  );
 });
