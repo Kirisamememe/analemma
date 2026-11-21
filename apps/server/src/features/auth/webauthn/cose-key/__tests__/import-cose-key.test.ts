@@ -108,14 +108,14 @@ describe("COSE の鍵の読み込み", () => {
     20_000,
   );
 
-  test("アルゴリズムと鍵の種類・曲線が合わなければ拒むこと", async () => {
+  test("アルゴリズムと鍵の型・曲線が合わなければ拒むこと", async () => {
     const map = await es256Map();
 
     expect(await problemOf(replaced(map, [3, COSE_ALGORITHM.EdDSA]))).toContain(
-      "鍵の種類",
+      "鍵の型",
     );
     expect(await problemOf(replaced(map, [3, COSE_ALGORITHM.RS256]))).toContain(
-      "鍵の種類",
+      "鍵の型",
     );
     expect(await problemOf(replaced(map, [-1, 2]))).toContain("曲線");
   });

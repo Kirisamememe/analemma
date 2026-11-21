@@ -23,7 +23,7 @@ export type EnrollmentCompletion = {
 
 /** 登録用の token を使ってパスキーを保存したこと。 */
 export type CompletedEnrollment = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Completed";
   /** 保存したパスキーの行。 */
   readonly row: PasskeyRow;

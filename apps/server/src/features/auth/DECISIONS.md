@@ -18,7 +18,7 @@
 
 ### COSE の鍵
 
-- 扱うのは EC2 の P-256(ES256)・OKP の Ed25519(EdDSA)・RSA(RS256)だけ。鍵の種類(kty)と曲線(crv)がアルゴリズムに合わなければ拒む。登録の options には、Ed25519・ES256・RS256 の順に並べる。
+- 扱うのは EC2 の P-256(ES256)・OKP の Ed25519(EdDSA)・RSA(RS256)だけ。鍵の型(kty)と曲線(crv)がアルゴリズムに合わなければ拒む。登録の options には、Ed25519・ES256・RS256 の順に並べる。
 - WebCrypto は COSE を読めないので、JWK に直して読み込む。曲線の上に無い点などは、WebCrypto が読み込みを断り、throw する(「割り切ったこと」)。
 - ES256 の認証器は署名を DER(`SEQUENCE { r INTEGER, s INTEGER }`)で返すが、WebCrypto の ECDSA は r‖s(32 バイトずつ)を受け付けるので、直してから検証する。
 - 秘密鍵の項目(EC2・OKP の `d`、RSA の `d`・`p`・`q` など)が混ざった COSE_Key は拒む。届いた COSE_Key をそのまま保存するので、仕様に合わない認証器が秘密鍵を送ってくると、DB に残ってしまう(Codex の2回目のレビューで見つかった)。
@@ -181,7 +181,7 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
 ## 割り切ったこと
 
 - **壊れた clientDataJSON**:clientDataJSON が JSON として読めないと、`JSON.parse` が throw し、500 とログ1行になる。ブラウザは壊れた clientDataJSON を作らず、細工したリクエストでだけ起きる。challenge を取り出す前で DB にも触れないので、try/catch や `.catch()` で受け止めて、`Rejected` に変えることはしない(ユーザーが決めた)。
-- **WebCrypto が読めない鍵**:登録で届いた鍵を WebCrypto が読めない(曲線の上に無い点など)と、throw して 500 とログ1行になる。本物の認証器は読める鍵しか作らず、細工したリクエストでだけ起きる。読めない理由が鍵の誤りか WebCrypto の障害かは、throw された値の種類から見分けられないので、try/catch や `.catch()` で受け止めて、`Rejected` に変えることはしない(ユーザーが決めた)。
+- **WebCrypto が読めない鍵**:登録で届いた鍵を WebCrypto が読めない(曲線の上に無い点など)と、throw して 500 とログ1行になる。本物の認証器は読める鍵しか作らず、細工したリクエストでだけ起きる。読めない理由が鍵の誤りか WebCrypto の障害かは、throw された値の型から見分けられないので、try/catch や `.catch()` で受け止めて、`Rejected` に変えることはしない(ユーザーが決めた)。
 - **CBOR と DER の正規形でない形**:CBOR の最短でない整数の書き方、COSE_Key の余分な項目、DER の余分な先頭の 0 は受け付けている。仕様は CBOR の正規形でない形を拒むことを SHOULD にしているが、これらから署名を偽造できる経路は無い(Codex のレビューでも見つからなかった)。受け付ける形を減らすなら、ここを絞る。
 - **CBOR の UTF-8 でないキー**:map の2つのキーが、どちらも UTF-8 でない別々のバイト列だと、どちらも置換文字になり、重なったキーとして拒まれる。仕様に合う認証器は UTF-8 のキーしか書かず、細工した入力でだけ起きる。拒むだけで、困るのは細工した側なので直さない。
 - **RP ID の public suffix**:RP ID が Public Suffix List の public suffix(`co.uk` など)かは確かめない。そうした RP ID はブラウザが断るが、起動の時点では気づけない。リストへの依存を持つほどの守りではないので、受け入れる。

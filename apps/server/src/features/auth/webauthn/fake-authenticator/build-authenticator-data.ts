@@ -10,7 +10,7 @@ export const AUTHENTICATOR_FLAG = {
 
 /** 登録のときに authenticatorData に入れる資格情報。 */
 export type FakeAttestedCredential = {
-  /** 認証器の種類を表す 16 バイト。 */
+  /** 認証器の機種を表す 16 バイト。 */
   readonly aaguid: Uint8Array;
   /** 資格情報の ID。 */
   readonly credentialId: Uint8Array;

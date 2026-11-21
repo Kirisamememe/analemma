@@ -18,7 +18,7 @@ export type Session = {
 
 /** 続けられたセッションと、期限を延ばしたか。 */
 export type ResumedSession = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Active";
   /** 続けたセッション。 */
   readonly session: Session;
@@ -28,7 +28,7 @@ export type ResumedSession = {
 
 /** token でセッションを続けられないこと。 */
 export type InvalidSession = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Invalid";
 };
 

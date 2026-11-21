@@ -5,7 +5,7 @@
 設定は `.oxlintrc.json`。型付きのルールは fixture では確かめられない(fixture は型を使わずに検査する)。
 
 - **自作のルール**(`tooling/lint/rules/`)
-  - `no-standalone-comment`:単独の行のコメントとブロックコメントを禁止し、行末のコメントは40文字までにする。lint への指示(`oxlint-disable` など)と `@ts-expect-error` は除く。TSDoc は宣言・型の項目・メンバーの直前にだけ書ける。分割の見出し(10本以上の `-` の罫線・見出しの行・罫線の3行)は、コードが200行を超えるファイルでだけ許し、400行を超えるファイルには1つ以上を求める。行数は、空行とコメントだけの行を除いて数える(`eslint/max-lines` の `skipBlankLines`・`skipComments` と同じ数え方)。見出しの行は、文字か数字を含み、lint への指示ではないものに限り、40文字までにする。必須の条件を満たすのは、後ろにコードが続く見出しだけ(ファイルの末尾に置いただけの見出しは数えない)。改行は LF・CRLF・CR・U+2028・U+2029 のどれでも1行と数える。TSDoc と宣言のあいだに見出しを挟むと、宣言の直前に無い TSDoc の診断を出す。
+  - `no-standalone-comment`:単独の行のコメントとブロックコメントを禁止し、行末のコメントは40文字までにする。lint への指示(`oxlint-disable` など)と `@ts-expect-error` は除く。TSDoc は宣言・型のプロパティ・メンバーの直前にだけ書ける。分割の見出し(10本以上の `-` の罫線・見出しの行・罫線の3行)は、コードが200行を超えるファイルでだけ許し、400行を超えるファイルには1つ以上を求める。行数は、空行とコメントだけの行を除いて数える(`eslint/max-lines` の `skipBlankLines`・`skipComments` と同じ数え方)。見出しの行は、文字か数字を含み、lint への指示ではないものに限り、40文字までにする。必須の条件を満たすのは、後ろにコードが続く見出しだけ(ファイルの末尾に置いただけの見出しは数えない)。改行は LF・CRLF・CR・U+2028・U+2029 のどれでも1行と数える。TSDoc と宣言のあいだに見出しを挟むと、宣言の直前に無い TSDoc の診断を出す。
   - `tsdoc-role-only`:TSDoc の説明とタグを、それぞれ1行・1文・60文字までにし、条件・例・補足・理由の言い回しと、`@param`・`@returns`・`@deprecated` 以外のタグを禁止する。言い回しは正規表現で見る(「割り切ったこと」)。「起動時に組み立てる」のような定義まで止めていたので、「時に」「ときに」は条件の言い回しから外した。`test.if` のようなコードの名前で引っかからないよう、バッククォートで囲んだ部分は言い回しの検査から外す。
   - `no-markup-test`:テストで、test id による検索、DOM のたどり方(`querySelector` など)、クラス名や HTML の中身、スナップショットを禁止する。
   - `max-code-lines`・`file-length-limit`:ファイルのコードの行数(空行とコメントだけの行を除く)に上限を設ける。同じ実装を、400行(`max-code-lines`。1行目に理由付きで抑制できる)と800行(`file-length-limit`。抑制できない)の2つの名前で使う。Oxlint の `eslint/max-lines` は、複数行のコメントや CR だけの改行で数え方が食い違ったので使わない。
@@ -29,7 +29,7 @@
   - `typescript/return-await`(`in-try-catch`):`try`・`finally` の中と `await using` の後で、`await` を省いた `return` に診断を出す。省くと、返した処理が終わる前に後始末が走り、使っている最中の接続が閉じる。Postgres の用意で実際にこの誤りがあった。型は同じ `Promise` なので型検査では止まらない。ほかの場所の `return` には診断を出さない。テストでも外さない(テストで出るのも同じ誤り)。型付きのルールなので fixture では確かめられない。
 - **変えた設定**
   - `no-underscore-dangle`:`_tag` だけ許す。想定内の失敗を `_tag` 付きの判別共用体で表すため。
-  - `switch-exhaustiveness-check`:網羅している switch に `default` を書けないようにし、判別共用体でない値の switch には `default` を求める。`default` があると、`_tag` の種類を足したときに扱い忘れが見つからない。
+  - `switch-exhaustiveness-check`:網羅している switch に `default` を書けないようにし、判別共用体でない値の switch には `default` を求める。`default` があると、`_tag` の値を足したときに扱い忘れが見つからない。
   - `require-unicode-regexp`:正規表現に `v` フラグを求める。和文を扱うので、サロゲートペアや Unicode のプロパティを正しく扱える必要がある。
   - `no-await-in-loop`:有効にする。ループの中の直列の I/O(N+1)を見つける。
   - `consistent-type-assertions`:オブジェクトリテラルへの `as` を禁止する。`as` を付けると余計な項目の検査が効かなくなり、キーの綴り間違いが素通りする。`satisfies` か型の注釈を使う。
@@ -42,7 +42,7 @@
   - `no-non-null-assertion`:テストでは、あると分かっている値を読む場面が多い。無ければテストが落ちるので、それで足りる。
   - `no-await-in-loop`:テストでは、順に待つこと自体を確かめたい場面がある。
   - `consistent-type-assertions`:項目の一部だけを持つ作り物を `as` で作れるようにする。
-  - `unicorn/prefer-type-error`:テストの中で throw する値の種類は、テストの都合で決める。
+  - `unicorn/prefer-type-error`:テストの中で throw する値の型は、テストの都合で決める。
 - **自作のルールのファイル(`tooling/lint/**/*.mjs`)で変えるルール**
   - `import/extensions`:`.mjs` の拡張子を付ける。Node の ES モジュールは、相対 import に拡張子が無いと読み込めない。全体に掛けると、`.mjs` で配布されているパッケージ(oRPC など)の import にまで拡張子を求められたので、範囲を絞った。
   - `typescript/no-unsafe-*` と `strict-boolean-expressions` を外す。Oxlint は JS プラグインへ型の無い構文木を渡すので、型付きのルールを当てても意味が無い。
@@ -61,8 +61,8 @@
   - 同じ中身のルールが2系統あるものは、型付きの方か片方だけを残す(`require-await`・`prefer-promise-reject-errors`・`no-implied-eval`・`prefer-includes`・`prefer-string-starts-ends-with`・`no-lonely-if`・`no-negated-condition`)。1つの違反が2回報告されるのを防ぐ。
 - **import の並び**:oxfmt の `sortImports` に任せ、eslint-plugin-perfectionist は外した。並びは整形の仕事で、保存のたびに直る。`{ }` の中の並びは見た目だけなので揃えない。
 - **ファイル名**:`unicorn/filename-case` で kebab-case を求める。
-- **fixture のテスト**:`tooling/lint/__tests__/` に、ルールの種類ごとのテストのファイルを置く。lint の実行と結果の読み取りは `tooling/lint/fixture-lint.ts` にまとめる。正常系は、診断が0件であることに加えて、fixture を全部 lint したことも確かめる。分割の見出しのように、同じルールが何通りもの診断を出すものは、診断の文言と件数まで確かめる。
-- **fixture**:ルールの種類ごとのフォルダ(`comments/`・`tsdoc/`・`jsdoc/`・`functions/`・`imports/`・`syntax/`・`tests/`)に分け、server や管理画面だけに掛かるルールの fixture は、`apps/server/src/` のように同じパスを再現したフォルダに置く。`tooling/lint/fixtures/` は `bun test` の対象から外す(`bunfig.toml` の `pathIgnorePatterns`)。描画するライブラリを import する fixture など、実行できないものを置くため。
+- **fixture のテスト**:`tooling/lint/__tests__/` に、ルールの分類ごとのテストのファイルを置く。lint の実行と結果の読み取りは `tooling/lint/fixture-lint.ts` にまとめる。正常系は、診断が0件であることに加えて、fixture を全部 lint したことも確かめる。分割の見出しのように、同じルールが何通りもの診断を出すものは、診断の文言と件数まで確かめる。
+- **fixture**:ルールの分類ごとのフォルダ(`comments/`・`tsdoc/`・`jsdoc/`・`functions/`・`imports/`・`syntax/`・`tests/`)に分け、server や管理画面だけに掛かるルールの fixture は、`apps/server/src/` のように同じパスを再現したフォルダに置く。`tooling/lint/fixtures/` は `bun test` の対象から外す(`bunfig.toml` の `pathIgnorePatterns`)。描画するライブラリを import する fixture など、実行できないものを置くため。
 
 ## Stop hook
 

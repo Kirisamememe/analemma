@@ -5,7 +5,7 @@ import { readDerSignature } from "./read-der-signature";
 
 /** JWK の形の公開鍵。 */
 export type PublicJwk = {
-  /** 鍵の種類。 */
+  /** 鍵の型。 */
   readonly kty: "EC" | "OKP" | "RSA";
   /** 曲線の名前。 */
   readonly crv?: "P-256" | "Ed25519";
@@ -31,7 +31,7 @@ export type CryptoParams = {
 
 /** COSE の鍵を、WebCrypto で読み込んで検証するための値。 */
 export type KeyImport = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Readable";
   /** JWK の形の公開鍵。 */
   readonly jwk: PublicJwk;
@@ -103,7 +103,7 @@ const checkShape = (
   [keyType, curve]: readonly [number, number | undefined],
 ): WebAuthnRejection | undefined => {
   if (map.get(KEY.kty) !== keyType) {
-    return invalid("鍵の種類(kty)がアルゴリズムに合わない");
+    return invalid("鍵の型(kty)がアルゴリズムに合わない");
   }
 
   if ((PRIVATE_LABELS[keyType] ?? []).some((label) => map.has(label))) {

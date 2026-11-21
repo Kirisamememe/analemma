@@ -12,7 +12,7 @@ export type FakeAuthenticator = {
   readonly keyPair: CryptoKeyPair;
   /** 公開鍵の COSE_Key。 */
   readonly publicKey: Uint8Array<ArrayBuffer>;
-  /** 認証器の種類を表す 16 バイト。 */
+  /** 認証器の機種を表す 16 バイト。 */
   readonly aaguid: Uint8Array<ArrayBuffer>;
 };
 

@@ -25,7 +25,7 @@ export type ChallengePurpose =
 
 /** 取り出した challenge。 */
 export type TakenChallenge = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Taken";
   /** 出した challenge のバイト列。 */
   readonly challenge: Uint8Array<ArrayBuffer>;
@@ -33,7 +33,7 @@ export type TakenChallenge = {
 
 /** 知らない・期限切れ・用途の違う challenge だったこと。 */
 export type MissingChallenge = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Missing";
 };
 
