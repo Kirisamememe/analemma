@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 
-import { merge } from "../src/ui/tv";
+import { merge, tv } from "../src/ui/tv";
 
 const theme = await readFile(
   new URL("../src/ui/theme.css", import.meta.url),
@@ -45,6 +45,25 @@ const THEME_GROUPS: readonly ThemeGroup[] = [
   { variable: "animate", utility: "animate" },
 ];
 
+/** theme.css に名前が1つしかない変数と、組の相手の class。 */
+type SingleNameGroup = {
+  /** theme.css の変数の、名前の前の部分。 */
+  readonly variable: string;
+  /** class の、名前の前の部分。 */
+  readonly utility: string;
+  /** 同じ組の、Tailwind CSS の class。 */
+  readonly partner: string;
+};
+
+const SINGLE_NAME_GROUPS: readonly SingleNameGroup[] = [
+  {
+    variable: "grid-template-columns",
+    utility: "grid-cols",
+    partner: "grid-cols-2",
+  },
+  { variable: "aspect", utility: "aspect", partner: "aspect-square" },
+];
+
 const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "h-control": "h-full",
   "h-control-sm": "h-full",
@@ -76,6 +95,30 @@ describe("theme.css の名前の merge", () => {
       ).toEqual(names.map((name) => classOf(name)));
     },
   );
+
+  test.each(SINGLE_NAME_GROUPS)(
+    "--$variable-* の名前の $utility-* は、$partner と組になり、後だけが残る",
+    ({ variable, utility, partner }) => {
+      const names = namesOf(variable);
+
+      expect(names.length).toBeGreaterThan(0);
+      expect(
+        names.flatMap((name) => [
+          merge(`${partner} ${utility}-${name}`),
+          merge(`${utility}-${name} ${partner}`),
+        ]),
+      ).toEqual(names.flatMap((name) => [`${utility}-${name}`, partner]));
+    },
+  );
+
+  test("tv の variant も、theme.css の名前で merge する", () => {
+    const layer = tv({
+      base: "z-sticky",
+      variants: { raised: { true: "z-overlay" } },
+    });
+
+    expect(layer({ raised: true })).toBe("z-overlay");
+  });
 
   test("文字の色と、文字の大きさと行間の組は、別の組として両方残る", () => {
     expect(merge("text-fg text-base/2xl")).toBe("text-fg text-base/2xl");

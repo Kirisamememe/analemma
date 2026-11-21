@@ -5,4 +5,5 @@ export const en = {
   "notFound.title": "Page not found",
   "notFound.description": "There is no page at {path}.",
   "notFound.backHome": "Back to home",
+  "ui.pending": "Working",
 } as const satisfies Readonly<Record<string, string>>;

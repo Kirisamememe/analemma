@@ -78,18 +78,19 @@
 
 - import の向きは、patterns → primitives・layout。layout は primitives と patterns を、primitives は patterns を import しない(lint で止まる)。layout は並べ方と文字だけを持つ層で、操作を持たない。
 - React Aria Components(`react-aria`・`react-stately`・`@react-aria/*`・`@react-stately/*`・`@internationalized/*` と、型だけの import も)を import できるのは `primitives/` だけ。primitives は、React Aria Components の props の型を extends せず、自分の props の型を持つ。画面のコードに、ライブラリの props(`className` の関数や、`data-*` の render props など)を見せない。ライブラリを替えるときに直すのは primitives だけになる。
-- `tailwind-variants` は `tv.ts` だけが import し、ほかは `tv.ts` の `tv` と `merge` を使う(lint で止まる)。既定の入口の `tv` は theme.css の名前を知らず、`text-base`(`base` は t-shirt の大きさの名前ではない)を色と取り違え、`text-fg text-base/2xl` の色を消す。
-- merge の設定には、theme.css の名前(色・文字の目盛り・角丸・影・重ね順・幅・動き)と `@utility` の名前を入れる。theme.css の名前ごとに「同じ組の2つを渡すと後だけが残る」ことと、`@utility` ごとに組の相手を決めてあることを、theme.css を読むテスト(`apps/admin/__tests__/tailwind-merge.test.ts`)で確かめる。名前の一覧と見比べるテストにすると、設定を写しただけになり、merge が本当に効くかを確かめない。`state-disabled` は透明度と押せなさを変えるだけで、hover や押した状態とは組にしない(組にすると、`state-hover state-disabled` で hover の見た目が消える)。
-- 文字の役割と組:`body`(`text-sm/xl`・400)・`body-long`(`text-sm/2xl`・400。長い文)・`caption`(`text-xs/lg`・400)・`label`(`text-sm/xl`・600)・`section`(`text-base/2xl`・600)・`page`(`text-xl/3xl`・700)・`display`(`text-3xl/5xl`・700)。`Heading` は段(h1〜h3)から役割の既定を決め(1 は `page`、2 と 3 は `section`)、見た目と段を別々に選べる。
+- `tailwind-variants` は `tv.ts` だけが import し、ほかは `tv.ts` の `tv` と `merge` を使う(lint で止まる)。既定の入口の `tv` は theme.css の名前を知らず、`z-sticky z-overlay` のような theme.css の名前の組を merge できずに両方残す(後から渡した class で上書きできない)。
+- merge の設定には、theme.css の名前(色・文字の目盛り・角丸・影・重ね順・幅・動き)と `@utility` の名前を入れる。theme.css の名前ごとに「同じ組の2つを渡すと後だけが残る」ことと、`@utility` ごとに組の相手を決めてあることを、theme.css を読むテスト(`apps/admin/__tests__/tailwind-merge.test.ts`)で確かめる。名前が1つしかない組(`grid-cols-thumbnails`・`aspect-photo`)は、Tailwind CSS の既定の class を相手にする。`tv` の variant を通しても merge が効くことも確かめる。名前の一覧と見比べるテストにすると、設定を写しただけになり、merge が本当に効くかを確かめない。`state-disabled` は透明度と押せなさを変えるだけで、hover や押した状態とは組にしない(組にすると、`state-hover state-disabled` で hover の見た目が消える)。
+- 文字の役割と組:`body`(`text-sm/xl`・400)・`body-long`(`text-sm/2xl`・400。長い文)・`caption`(`text-xs/lg`・400)・`label`(`text-sm/xl`・600)・`section`(`text-base/2xl`・600)・`page`(`text-xl/3xl`・700)・`display`(`text-3xl/5xl`・700)。`Text` と `Heading` は、文字の役割を `variant` で受ける(`role` にすると、ARIA の `role` と取り違える)。`Heading` は段(h1〜h3)から役割の既定を決め(1 は `page`、2 と 3 は `section`)、見た目と段を別々に選べる。
 - `UiProvider`(`primitives/ui-provider.tsx`)が、React Aria Components に、html の `lang` から決めた言語(`I18nProvider`)と、TanStack Router での移り方(`RouterProvider`)を渡す。リンクは TanStack Router の型の付いた行き先だけを受け、画面を読み込み直さずに移る。
 
 ### 部品の決まり
 
 - **塗りのボタン**:`border border-transparent` を付ける。forced-colors で、塗りが消えても線として残る。
-- **押せない・送信中**:見た目(`state-disabled` など)だけでなく、React Aria Components の props(`isDisabled`・`isPending`)で動きを止める。CSS の `pointer-events` はキーボードの操作を止めない。送信中のボタンは、focus を残したまま押せなくし、回る輪を出す(管理画面の「送信中はボタンを無効にする」)。
+- **押せない・送信中**:見た目(`state-disabled` など)だけでなく、React Aria Components の props(`isDisabled`・`isPending`)で動きを止める。CSS の `pointer-events` はキーボードの操作を止めない。送信中のボタンは、focus を残したまま押せなくし、回る輪を、訳した名前の付いた `ProgressBar` の中に出して、待っていることを読み上げに伝える(輪だけでは、読み上げはボタンの名前しか読まない)。React Aria Components は送信中のボタンを `type="button"` に変えるので、入力欄の Enter がフォームを送り直せる。`Form` にも `isPending` を渡し、送信中は送らない(管理画面の「送信中はボタンを無効にする」)。
 - **リンク**:いつも下線を付ける。`primary` が中立色なので、色だけではリンクと分からない。
 - **入力欄**:見出し・補足・誤りの知らせを、React Aria Components の slot で入力欄に結びつけ、補足と誤りを入力欄の説明として読み上げさせる。server が断った入力は、`Form` の `validationErrors` で入力欄ごとに出す。
-- **知らせの帯**:誤り(`danger`)は `alert` にしてすぐに読み上げ、ほかは割り込まない `status` にする。
+- **知らせの帯**:誤り(`danger`)は `alert` にしてすぐに読み上げ、ほかは割り込まない `status` にする。知らせの帯は、その場に残す知らせ(誤り・定義と合わない、など)に使い、保存したなどの操作の結果は Toast で知らせる(Toast を足すときに作る)。
+- **見出しの操作と補足**:`PageHeader` は、`false`・`null` の操作と、空の補足を、無いものとして扱う(条件で出さない操作のために、空の要素が余白を取らないように)。
 - 選んだ状態・今いる場所・浮かぶもの(Dialog・Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし形でも示す、今いる場所は `aria-current` と形で示す、浮かぶものは border と `shadow-overlay` を付ける)。
 
 ## 検査
@@ -123,6 +124,10 @@
 - `--color-*` と `--text-*` の名前は重ねない。重ねると、`text-<名前>` が色か大きさかを Tailwind CSS が取り違える。文字の大きさと行間は、同じ名前の目盛りにする(同じテスト)。
 
 ## 割り切ったこと
+
+- **後から出す `status` の知らせ**:`Notice` の `status` は、中身と一緒に描くので、読み上げのソフトによっては読まれない(live region は、中身を変える前からあるものが確実に読まれる)。`Notice` はその場に残す知らせで、読み上げの割り込みは要らない。急ぎの誤りは `alert` で読まれ、操作の結果は Toast(React Aria Components が知らせ方を持つ)で知らせるので、受け入れる。
+- **層の検査が見ない import**:層の境界の lint は、import 文の名前だけを見る。`import("react-aria-components").LinkProps` のような型の中の import と、ほかの層を通した再 export は見ない。どちらも今のコードに無く、追うには依存の木を解く検査が要る。
+- **hash の履歴**:`UiProvider` のリンクの `href` は、TanStack Router の `buildLocation` の `href` をそのまま使い、hash の履歴(`createHashHistory`)や URL の書き換えには合わない。管理画面は browser の履歴だけを使う。使うときは、`history.createHref()` を通す。
 
 - **検査が見ない class の渡し方**:JSX の属性と、`tv`・`merge` などの呼び出しの中の文字列だけを検査する。DOM を直に触る `element.classList.add()` や `element.style`、`className` に渡した、`tv` で作っていない関数の戻り値は見ない。今の部品にはどれも無く、要る場面が出たら、そこで使える範囲を決める。参照先まで追う検査は、作る手間に見合わない。
 - **入力欄の枠の濃さ**:入力欄の枠は `line` で描き、地とのコントラストは 3:1 に届かない(未選択の Checkbox・Switch の枠は `fg-muted` で描くと決めたが、入力欄は決めていない)。入力欄は面(`surface`)と影と見出しで見分けられ、管理者1人が使う画面なので、今は受け入れる。見本の画面ができたら、ユーザーと見直す。

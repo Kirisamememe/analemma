@@ -7,4 +7,5 @@ export const zhHans = {
   "notFound.title": "找不到页面",
   "notFound.description": "{path} 处没有页面。",
   "notFound.backHome": "返回首页",
+  "ui.pending": "正在处理",
 } satisfies Translation;

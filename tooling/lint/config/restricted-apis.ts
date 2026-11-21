@@ -110,8 +110,11 @@ export const UI_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
   {
     group: [
       "react-aria-components",
+      "react-aria-components/*",
       "react-aria",
+      "react-aria/*",
       "react-stately",
+      "react-stately/*",
       "@react-aria/*",
       "@react-stately/*",
       "@internationalized/*",
@@ -122,16 +125,18 @@ export const UI_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
 ];
 
 /** merge の設定を入れていない、tailwind-variants の入口。 */
-export const VARIANT_LIBRARY_PATHS: readonly RestrictedPath[] = [
-  "tailwind-variants",
-  "tailwind-variants/lite",
-  "tailwind-variants/config",
-  "tailwind-merge",
-].map((name) => ({
-  name,
-  message:
-    "tv と merge は ui/tv.ts から import します。theme.css の名前を merge の設定に入れてあります。",
-}));
+export const VARIANT_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
+  {
+    group: [
+      "tailwind-variants",
+      "tailwind-variants/*",
+      "tailwind-merge",
+      "tailwind-merge/*",
+    ],
+    message:
+      "tv と merge は ui/tv.ts から import します。theme.css の名前を merge の設定に入れてあります。",
+  },
+];
 
 /** 管理画面の `.ts` で止める、React。 */
 export const REACT_PATHS: readonly RestrictedPath[] = [

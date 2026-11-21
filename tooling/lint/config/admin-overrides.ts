@@ -3,7 +3,7 @@ import type { OxlintOverride } from "oxlint";
 import {
   REACT_PATHS,
   UI_LIBRARY_PATTERNS,
-  VARIANT_LIBRARY_PATHS,
+  VARIANT_LIBRARY_PATTERNS,
   WORKSPACE_BUN_GLOBALS,
   WORKSPACE_RUNTIME_PATTERNS,
   restrictApis,
@@ -57,17 +57,24 @@ const byExtension = (
 export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   { files: ["apps/admin/**"], env: { browser: true } },
   ...byExtension("**/", {
-    imports: { paths: VARIANT_LIBRARY_PATHS, patterns: UI_LIBRARY_PATTERNS },
+    imports: {
+      patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
+    },
     globals: [],
   }),
   ...byExtension("ui/primitives/**/", {
-    imports: { paths: VARIANT_LIBRARY_PATHS, patterns: PRIMITIVE_LAYERS },
+    imports: {
+      patterns: [...VARIANT_LIBRARY_PATTERNS, ...PRIMITIVE_LAYERS],
+    },
     globals: [],
   }),
   ...byExtension("ui/layout/**/", {
     imports: {
-      paths: VARIANT_LIBRARY_PATHS,
-      patterns: [...UI_LIBRARY_PATTERNS, ...LAYOUT_LAYERS],
+      patterns: [
+        ...VARIANT_LIBRARY_PATTERNS,
+        ...UI_LIBRARY_PATTERNS,
+        ...LAYOUT_LAYERS,
+      ],
     },
     globals: [],
   }),

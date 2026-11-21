@@ -27,7 +27,8 @@
 - 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/translate.ts` の `TRANSLATIONS` に足し、`messages/` にファイルを置く。
 - route の code splitting(`import()`)は使わない。`no-dynamic-import` はそのまま効かせる。
 - 画面のコード(`src/ui/` と `src/features/*/ui/` の外)には、見た目の class を書かない。書けるのは `grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only` だけで、`className` は文字列のリテラルにし、`style` は書かない。並べ方・文字・色は `ui/` の部品の props で決める(lint で止まる)。
-- 部品は、層の向き(patterns → primitives・layout)を守る。React Aria Components は `ui/primitives/` の中でだけ使い、primitives は自分の props の型を持つ(ライブラリの props の型を extends しない)。`tv` は `ui/tv.ts` から import する(どれも lint で止まる)。
+- 部品は、層の向き(patterns → primitives・layout)を守る。React Aria Components は `ui/primitives/` の中でだけ使い、`tv` は `ui/tv.ts` から import する(ここまでは lint で止まる)。primitives は自分の props の型を持ち、ライブラリの props の型を extends しない(lint では止まらないので、セルフレビューで見る)。
+- 文字の役割は `Text`・`Heading` の `variant` で選ぶ。
 - `ui/` の部品の class は、theme.css の役割だけで書く。止める class と理由は `src/ui/DECISIONS.md` の「検査」。止められたら、部品や役割を足すかを考え、`[…]` や抑制で逃げない。
 
 ## 開発とテスト
@@ -41,3 +42,4 @@
 - コンポーネントのテストが、決まった文言を描画して確かめるだけになっていないか。出し分けの条件ごとに、利用者に見える結果の違いを確かめているか。
 - `.tsx` に、`.ts` へ切り出せるロジックが残っていないか。
 - 画面に、訳を通さない文言を直接書いていないか。
+- primitives の props の型に、React Aria Components の props の型を流用していないか。

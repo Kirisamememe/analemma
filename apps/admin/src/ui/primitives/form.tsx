@@ -10,6 +10,8 @@ const NO_ERRORS: Readonly<Record<string, string>> = {};
 type FormProps = {
   /** 送ったときに、入力をまとめて受け取る関数。 */
   readonly onSubmit: (data: FormData) => void;
+  /** 送信中か(送信中は、Enter で送り直させない)。 */
+  readonly isPending?: boolean;
   /** server が断った入力ごとの、誤りの知らせ。 */
   readonly validationErrors?: Readonly<Record<string, string>>;
   /** 入力欄とボタン。 */
@@ -19,12 +21,16 @@ type FormProps = {
 /** 入力欄をまとめて送るフォーム。 */
 export const Form = ({
   onSubmit,
+  isPending = false,
   validationErrors = NO_ERRORS,
   children,
 }: FormProps): ReactNode => {
   const submit: NonNullable<AriaFormProps["onSubmit"]> = (event) => {
     event.preventDefault();
-    onSubmit(new FormData(event.currentTarget));
+
+    if (!isPending) {
+      onSubmit(new FormData(event.currentTarget));
+    }
   };
 
   return (

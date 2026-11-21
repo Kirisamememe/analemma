@@ -35,6 +35,19 @@ describe("Button", () => {
     expect(counter.count()).toBe(1);
   });
 
+  test("送信中は、ボタンの名前を残したまま、待っていることを読み上げに伝える", () => {
+    render(<Button isPending>保存</Button>);
+
+    expect(screen.getByRole("button", { name: /保存/v })).toBeDefined();
+    expect(screen.getByRole("progressbar", { name: "Working" })).toBeDefined();
+  });
+
+  test("送信中でなければ、待っていることを伝えない", () => {
+    render(<Button>保存</Button>);
+
+    expect(screen.queryByRole("progressbar")).toBeNull();
+  });
+
   test("送信中は、押しても onPress を呼ばない", async () => {
     const counter = countPresses();
 

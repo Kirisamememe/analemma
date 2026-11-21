@@ -16,7 +16,7 @@ const tone = tv({
 /** 文に渡す値。 */
 type TextProps = {
   /** 文字の役割。 */
-  readonly role?: "body" | "body-long" | "caption" | "label";
+  readonly variant?: "body" | "body-long" | "caption" | "label";
   /** 文字の色の用途。 */
   readonly tone?: "default" | "muted" | "danger";
   /** 文にする要素。 */
@@ -29,14 +29,14 @@ type TextProps = {
 
 /** 文字の役割で大きさと太さを決めた文。 */
 export const Text = ({
-  role = "body",
+  variant = "body",
   tone: color = "default",
   as: Element = "p",
   lang,
   children,
 }: TextProps): ReactNode => (
   <Element
-    className={tone({ tone: color, className: typography({ role }) })}
+    className={tone({ tone: color, className: typography({ role: variant }) })}
     lang={lang}
   >
     {children}

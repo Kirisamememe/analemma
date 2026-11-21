@@ -23,6 +23,13 @@ describe("PageHeader", () => {
     expect(screen.getByRole("button", { name: "新しいページ" })).toBeDefined();
   });
 
+  test("条件で出さない操作(false)と空の補足は、無いものとして扱う", () => {
+    render(<PageHeader actions={false} description="" title="固定ページ" />);
+
+    expect(screen.queryByRole("paragraph")).toBeNull();
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
   test("補足と操作が無ければ、見出しだけを出す", () => {
     render(<PageHeader title="固定ページ" />);
 

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import { Button as AriaButton } from "react-aria-components";
+import { Button as AriaButton, ProgressBar } from "react-aria-components";
 
+import { useTranslation } from "../../i18n/use-translation";
 import { tv } from "../tv";
 import { typography } from "../typography";
 import { Spinner } from "./spinner";
@@ -48,19 +49,27 @@ export const Button = ({
   isDisabled = false,
   onPress,
   children,
-}: ButtonProps): ReactNode => (
-  <AriaButton
-    className={button({
-      tone,
-      size,
-      className: typography({ role: "label" }),
-    })}
-    isDisabled={isDisabled}
-    isPending={isPending}
-    onPress={() => onPress?.()}
-    type={type}
-  >
-    {isPending && <Spinner />}
-    {children}
-  </AriaButton>
-);
+}: ButtonProps): ReactNode => {
+  const t = useTranslation();
+
+  return (
+    <AriaButton
+      className={button({
+        tone,
+        size,
+        className: typography({ role: "label" }),
+      })}
+      isDisabled={isDisabled}
+      isPending={isPending}
+      onPress={() => onPress?.()}
+      type={type}
+    >
+      {isPending && (
+        <ProgressBar aria-label={t("ui.pending")} isIndeterminate>
+          <Spinner />
+        </ProgressBar>
+      )}
+      {children}
+    </AriaButton>
+  );
+};

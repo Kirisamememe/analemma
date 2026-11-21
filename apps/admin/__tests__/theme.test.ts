@@ -16,6 +16,16 @@ const namesOf = (prefix: string): string[] =>
   ].map(({ groups }) => groups?.["name"] ?? "");
 
 describe("CSS の置き場所", () => {
+  test("src/ のソースは .ts と .tsx だけにする(lint の設定が見る拡張子)", async () => {
+    const all = await Array.fromAsync(
+      new Bun.Glob("src/**/*").scan({ cwd: ADMIN_ROOT }),
+    );
+
+    expect(all.filter((path) => !/\.(?:ts|tsx|css|md)$/v.test(path))).toEqual(
+      [],
+    );
+  });
+
   test("CSS のファイルは src/ui/ にだけ置く", () => {
     expect(
       sourceFiles.filter(

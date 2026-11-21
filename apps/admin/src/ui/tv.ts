@@ -40,6 +40,8 @@ const MERGE_CONFIG: TWMergeConfig = {
       w: ["w-sidebar"],
       "object-position": ["object-focal"],
       z: [{ z: ["sticky", "overlay", "toast"] }],
+      "grid-cols": [{ "grid-cols": ["thumbnails"] }],
+      aspect: [{ aspect: ["photo"] }],
       duration: [{ duration: ["fast", "normal"] }],
       "interaction-state": ["state-hover", "state-pressed"],
       "focus-ring": ["focus-ring", "focus-ring-inset"],
