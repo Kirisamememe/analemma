@@ -1,0 +1,34 @@
+{
+  "name": "analemma",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun run test",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint --disable-nested-config",
+    "lint:fix": "oxlint --disable-nested-config --fix",
+    "typecheck": "tsc --noEmit -p tsconfig.json && bun run --workspaces --if-present typecheck",
+    "test": "bun --cwd=apps/server run test:prepare && bun test",
+    "prepare": "bun tooling/git-hooks/install.ts"
+  },
+  "packageManager": "bun@1.4.2",
+  "devDependencies": {
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
+    "@commitlint/types": "21.2.3",
+    "@stylistic/eslint-plugin": "6.0.1",
+    "@types/bun": "1.4.5",
+    "eslint-plugin-jsdoc": "65.5.0",
+    "eslint-plugin-prefer-arrow-functions": "3.10.2",
+    "oxc-parser": "0.159.0",
+    "oxfmt": "0.79.0",
+    "oxlint": "1.94.0",
+    "tsrs": "7.1.0-beta.tsrs4",
+    "typescript": "7.1.0-beta"
+  }
+}

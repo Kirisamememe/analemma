@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "endOfLine": "lf",
+  "ignorePatterns": [
+    "node_modules/**",
+    "apps/*/dist/**",
+    "packages/*/dist/**",
+    "apps/server/src/db/migrations/**",
+    "bun.lock"
+  ],
+  "printWidth": 80,
+  "semi": true,
+  "singleQuote": false,
+  "sortPackageJson": false,
+  "trailingComma": "all",
+  "sortImports": {
+    "customGroups": [
+      {
+        "groupName": "workspace",
+        "elementNamePattern": ["@analemma/**"]
+      }
+    ],
+    "groups": [
+      ["builtin", "external"],
+      "workspace",
+      ["parent", "sibling", "index"],
+      "unknown"
+    ]
+  }
+}

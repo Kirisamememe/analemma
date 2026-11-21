@@ -1,0 +1,6 @@
+[install]
+exact = true
+linker = "isolated"
+
+[test]
+pathIgnorePatterns = ["tooling/lint/fixtures/**"]

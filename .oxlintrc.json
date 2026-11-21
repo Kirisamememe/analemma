@@ -1,0 +1,836 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "pedantic": "error",
+    "perf": "error",
+    "suspicious": "error"
+  },
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": [
+    "node_modules/**",
+    "apps/*/dist/**",
+    "packages/*/dist/**",
+    "tooling/lint/fixtures/**",
+    "bun.lock"
+  ],
+  "jsPlugins": [
+    {
+      "name": "prefer-arrow-functions",
+      "specifier": "eslint-plugin-prefer-arrow-functions"
+    },
+    {
+      "name": "jsdoc-js",
+      "specifier": "eslint-plugin-jsdoc"
+    },
+    {
+      "name": "jsdoc-type",
+      "specifier": "./tooling/lint/jsdoc-type-plugin.mjs"
+    },
+    {
+      "name": "project",
+      "specifier": "./tooling/lint/plugin.mjs"
+    },
+    {
+      "name": "stylistic",
+      "specifier": "@stylistic/eslint-plugin"
+    }
+  ],
+  "options": {
+    "denyWarnings": true,
+    "reportUnusedDisableDirectives": "error",
+    "typeAware": true
+  },
+  "plugins": [
+    "eslint",
+    "typescript",
+    "oxc",
+    "import",
+    "unicorn",
+    "promise",
+    "node",
+    "react",
+    "jsx-a11y"
+  ],
+  "rules": {
+    "eslint/func-style": [
+      "error",
+      "expression",
+      {
+        "allowArrowFunctions": true,
+        "overrides": {
+          "namedExports": "expression"
+        }
+      }
+    ],
+    "eslint/max-lines": "off",
+    "eslint/max-lines-per-function": "off",
+    "eslint/max-params": [
+      "error",
+      {
+        "countThis": "never",
+        "max": 2
+      }
+    ],
+    "eslint/no-inline-comments": "off",
+    "eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_",
+        "ignoreUsingDeclarations": true,
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "eslint/prefer-arrow-callback": "error",
+    "eslint/curly": ["error", "multi-line"],
+    "eslint/default-case-last": "error",
+    "eslint/default-param-last": "error",
+    "eslint/grouped-accessor-pairs": "error",
+    "eslint/guard-for-in": "error",
+    "eslint/no-alert": "error",
+    "eslint/no-empty": "error",
+    "eslint/no-empty-function": [
+      "error",
+      {
+        "allow": ["arrowFunctions"]
+      }
+    ],
+    "eslint/no-extra-label": "error",
+    "eslint/no-label-var": "error",
+    "eslint/no-lone-blocks": "error",
+    "eslint/no-multi-assign": "error",
+    "eslint/no-multi-str": "error",
+    "eslint/no-proto": "error",
+    "eslint/no-return-assign": "error",
+    "eslint/no-script-url": "error",
+    "eslint/no-sequences": "error",
+    "eslint/no-template-curly-in-string": "error",
+    "eslint/no-unreachable-loop": "error",
+    "eslint/no-useless-assignment": "error",
+    "eslint/no-useless-computed-key": "error",
+    "eslint/no-var": "error",
+    "eslint/object-shorthand": "error",
+    "eslint/prefer-const": "error",
+    "eslint/prefer-exponentiation-operator": "error",
+    "eslint/prefer-numeric-literals": "error",
+    "eslint/prefer-object-has-own": "error",
+    "eslint/prefer-regex-literals": "error",
+    "eslint/prefer-rest-params": "error",
+    "eslint/prefer-spread": "error",
+    "import/extensions": [
+      "error",
+      "never",
+      {
+        "checkTypeImports": true,
+        "ignorePackages": true,
+        "pattern": {
+          "css": "always",
+          "json": "always",
+          "svg": "always"
+        }
+      }
+    ],
+    "import/max-dependencies": "off",
+    "import/no-unassigned-import": "off",
+    "import/consistent-type-specifier-style": [
+      "error",
+      "prefer-top-level-if-only-type-imports"
+    ],
+    "import/first": "error",
+    "import/no-amd": "error",
+    "import/no-anonymous-default-export": "error",
+    "import/no-commonjs": "error",
+    "import/no-cycle": "error",
+    "import/no-duplicates": [
+      "error",
+      {
+        "preferInline": true
+      }
+    ],
+    "import/no-dynamic-require": "error",
+    "import/no-webpack-loader-syntax": "error",
+    "jsdoc-js/require-description": "error",
+    "jsdoc-type/require-description": "error",
+    "jsdoc-type/require-jsdoc": [
+      "error",
+      {
+        "contexts": [
+          "TSPropertySignature",
+          "TSMethodSignature",
+          "TSIndexSignature"
+        ],
+        "enableFixer": false,
+        "publicOnly": false,
+        "require": {
+          "ArrowFunctionExpression": false,
+          "ClassDeclaration": false,
+          "FunctionDeclaration": false,
+          "FunctionExpression": false,
+          "MethodDefinition": false
+        }
+      }
+    ],
+    "jsdoc-js/require-jsdoc": [
+      "error",
+      {
+        "contexts": [
+          "TSTypeAliasDeclaration",
+          "TSInterfaceDeclaration",
+          "TSEnumDeclaration"
+        ],
+        "enableFixer": false,
+        "publicOnly": true,
+        "require": {
+          "ArrowFunctionExpression": true,
+          "FunctionDeclaration": true,
+          "FunctionExpression": true
+        }
+      }
+    ],
+    "prefer-arrow-functions/prefer-arrow-functions": [
+      "error",
+      {
+        "allowObjectProperties": true
+      }
+    ],
+    "react/react-in-jsx-scope": "off",
+    "stylistic/lines-between-class-members": ["error", "always"],
+    "stylistic/padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": "return"
+      },
+      {
+        "blankLine": "any",
+        "prev": ["singleline-const", "singleline-let", "singleline-expression"],
+        "next": {
+          "selector": "ReturnStatement:nth-child(2):last-child"
+        }
+      },
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": ["if", "for", "while", "do", "switch", "try"]
+      },
+      {
+        "blankLine": "always",
+        "prev": ["if", "for", "while", "do", "switch", "try", "block-like"],
+        "next": "*"
+      },
+      {
+        "blankLine": "any",
+        "prev": "*",
+        "next": ["case", "default"]
+      }
+    ],
+    "typescript/adjacent-overload-signatures": "error",
+    "typescript/ban-tslint-comment": "error",
+    "typescript/consistent-type-assertions": [
+      "error",
+      {
+        "assertionStyle": "as",
+        "objectLiteralTypeAssertions": "never"
+      }
+    ],
+    "typescript/consistent-type-definitions": ["error", "type"],
+    "typescript/consistent-type-exports": "error",
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "typescript/dot-notation": "error",
+    "typescript/method-signature-style": "error",
+    "typescript/no-dynamic-delete": "error",
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/no-import-type-side-effects": "error",
+    "typescript/no-invalid-void-type": "error",
+    "typescript/no-namespace": "error",
+    "typescript/no-non-null-asserted-nullish-coalescing": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/no-require-imports": "error",
+    "typescript/prefer-find": "error",
+    "typescript/prefer-for-of": "error",
+    "typescript/prefer-literal-enum-member": "error",
+    "typescript/prefer-nullish-coalescing": [
+      "error",
+      {
+        "ignorePrimitives": {
+          "string": true
+        }
+      }
+    ],
+    "typescript/prefer-optional-chain": "error",
+    "typescript/prefer-readonly": "error",
+    "typescript/prefer-string-starts-ends-with": "error",
+    "typescript/return-await": ["error", "in-try-catch"],
+    "typescript/strict-boolean-expressions": [
+      "error",
+      {
+        "allowNullableString": true
+      }
+    ],
+    "typescript/use-unknown-in-catch-callback-variable": "error",
+    "oxc/bad-bitwise-operator": "error",
+    "oxc/no-const-enum": "error",
+    "promise/no-return-in-finally": "error",
+    "promise/no-return-wrap": "error",
+    "promise/param-names": "error",
+    "promise/prefer-catch": "error",
+    "promise/spec-only": "error",
+    "unicorn/error-message": "error",
+    "unicorn/no-document-cookie": "error",
+    "unicorn/no-useless-error-capture-stack-trace": "error",
+    "unicorn/prefer-array-index-of": "error",
+    "unicorn/prefer-dom-node-text-content": "error",
+    "unicorn/prefer-export-from": "error",
+    "unicorn/prefer-includes": "off",
+    "unicorn/prefer-keyboard-event-key": "error",
+    "unicorn/prefer-modern-dom-apis": "error",
+    "unicorn/prefer-modern-math-apis": "error",
+    "unicorn/prefer-module": "error",
+    "unicorn/prefer-negative-index": "error",
+    "unicorn/prefer-node-protocol": "error",
+    "unicorn/prefer-number-properties": "error",
+    "unicorn/prefer-optional-catch-binding": "error",
+    "unicorn/text-encoding-identifier-case": "error",
+    "typescript/no-unnecessary-type-assertion": [
+      "error",
+      {
+        "checkLiteralConstAssertions": false
+      }
+    ],
+    "typescript/prefer-readonly-parameter-types": "off",
+    "project/no-markup-test": "error",
+    "project/no-standalone-comment": [
+      "error",
+      {
+        "maxTrailingLength": 40,
+        "dividerAllowedAfter": 200,
+        "dividerRequiredAfter": 400
+      }
+    ],
+    "project/tsdoc-role-only": [
+      "error",
+      {
+        "maxLength": 60
+      }
+    ],
+    "eslint/no-underscore-dangle": [
+      "error",
+      {
+        "allow": ["_tag"]
+      }
+    ],
+    "typescript/switch-exhaustiveness-check": [
+      "error",
+      {
+        "allowDefaultCaseForExhaustiveSwitch": false,
+        "requireDefaultForNonUnion": true
+      }
+    ],
+    "eslint/require-unicode-regexp": [
+      "error",
+      {
+        "requireFlag": "v"
+      }
+    ],
+    "typescript/consistent-return": "off",
+    "eslint/no-warning-comments": [
+      "error",
+      {
+        "terms": ["fixme", "xxx"]
+      }
+    ],
+    "eslint/require-await": "off",
+    "eslint/prefer-promise-reject-errors": "off",
+    "eslint/no-implied-eval": "off",
+    "unicorn/prefer-string-starts-ends-with": "off",
+    "unicorn/no-lonely-if": "off",
+    "unicorn/no-negated-condition": "off",
+    "eslint/no-console": "error",
+    "node/no-process-env": "error",
+    "eslint/no-param-reassign": [
+      "error",
+      {
+        "props": true
+      }
+    ],
+    "unicorn/no-abusive-eslint-disable": "error",
+    "typescript/no-unnecessary-condition": "error",
+    "react/only-export-components": "error",
+    "react/no-danger": "error",
+    "react/button-has-type": "error",
+    "project/no-focused-test": "error",
+    "jsdoc-js/check-param-names": [
+      "error",
+      {
+        "checkDestructured": false
+      }
+    ],
+    "jsdoc-js/require-param": [
+      "error",
+      {
+        "ignoreWhenAllParamsMissing": true,
+        "checkDestructured": false,
+        "checkDestructuredRoots": false
+      }
+    ],
+    "jsdoc-js/require-param-name": "error",
+    "jsdoc-js/require-param-description": "error",
+    "jsdoc-js/require-returns-check": "error",
+    "jsdoc-js/require-returns-description": "error",
+    "jsdoc-js/no-types": "error",
+    "jsdoc-js/check-tag-names": [
+      "error",
+      {
+        "typed": true
+      }
+    ],
+    "unicorn/no-useless-undefined": "off",
+    "project/no-cross-workspace-import": "error",
+    "project/no-dynamic-import": "error",
+    "project/test-location": "error",
+    "unicorn/filename-case": [
+      "error",
+      {
+        "case": "kebabCase"
+      }
+    ],
+    "project/file-length-limit": [
+      "error",
+      {
+        "max": 800
+      }
+    ],
+    "project/require-disable-reason": [
+      "error",
+      {
+        "unsuppressible": [
+          "project/file-length-limit",
+          "project/no-standalone-comment",
+          "project/require-disable-reason"
+        ],
+        "topOfFileOnly": ["project/max-code-lines"]
+      }
+    ],
+    "project/max-code-lines": [
+      "error",
+      {
+        "max": 400
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["apps/server/**", "tooling/**", "*.mjs"],
+      "env": {
+        "node": true
+      },
+      "globals": {
+        "Bun": "readonly"
+      }
+    },
+    {
+      "files": ["apps/**", "packages/**", "tooling/**"],
+      "rules": {
+        "project/max-exported-functions": [
+          "error",
+          {
+            "max": 2
+          }
+        ],
+        "project/no-inline-parameter-type": "error"
+      }
+    },
+    {
+      "files": ["tooling/lint/**/*.mjs"],
+      "rules": {
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off",
+        "typescript/strict-boolean-expressions": "off",
+        "import/extensions": [
+          "error",
+          "never",
+          {
+            "checkTypeImports": true,
+            "ignorePackages": true,
+            "pattern": {
+              "css": "always",
+              "json": "always",
+              "mjs": "always",
+              "svg": "always"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "eslint/no-await-in-loop": "off",
+        "typescript/consistent-type-assertions": [
+          "error",
+          {
+            "assertionStyle": "as",
+            "objectLiteralTypeAssertions": "allow"
+          }
+        ],
+        "typescript/no-non-null-assertion": "off",
+        "unicorn/prefer-type-error": "off"
+      }
+    },
+    {
+      "files": ["apps/admin/**"],
+      "env": {
+        "browser": true
+      }
+    },
+    {
+      "files": ["**/apps/admin/src/**/*.ts"],
+      "rules": {
+        "project/require-sibling-test": "error",
+        "eslint/no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "react",
+                "message": "React を使うコードは .tsx に置きます。.ts にはテストできるロジックだけを置きます。"
+              },
+              {
+                "name": "react-dom",
+                "message": "React を使うコードは .tsx に置きます。.ts にはテストできるロジックだけを置きます。"
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["bun", "bun:*", "!bun:test", "hono/bun"],
+                "message": "Bun 専用の API は server の src/platform/ と src/main.ts だけで使います。"
+              },
+              {
+                "group": ["node:*"],
+                "message": "Node の API は server と tooling だけで使います。ここは Bun・Node・ブラウザのどれでも動くコードです。"
+              }
+            ]
+          }
+        ],
+        "eslint/no-restricted-globals": [
+          "error",
+          {
+            "name": "Bun",
+            "message": "Bun 専用の API は server の src/platform/ と src/main.ts だけで使います。"
+          }
+        ],
+        "eslint/no-restricted-properties": [
+          "error",
+          {
+            "object": "globalThis",
+            "property": "Bun",
+            "message": "Bun 専用の API は server の src/platform/ と src/main.ts だけで使います。"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/packages/*/src/**", "**/apps/admin/src/**/*.tsx"],
+      "rules": {
+        "eslint/no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["bun", "bun:*", "!bun:test", "hono/bun"],
+                "message": "Bun 専用の API は server の src/platform/ と src/main.ts だけで使います。"
+              },
+              {
+                "group": ["node:*"],
+                "message": "Node の API は server と tooling だけで使います。ここは Bun・Node・ブラウザのどれでも動くコードです。"
+              }
+            ]
+          }
+        ],
+        "eslint/no-restricted-globals": [
+          "error",
+          {
+            "name": "Bun",
+            "message": "Bun 専用の API は server の src/platform/ と src/main.ts だけで使います。"
+          }
+        ],
+        "eslint/no-restricted-properties": [
+          "error",
+          {
+            "object": "globalThis",
+            "property": "Bun",
+            "message": "Bun 専用の API は server の src/platform/ と src/main.ts だけで使います。"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/apps/admin/src/**/*.tsx"],
+      "rules": {
+        "project/require-sibling-test": [
+          "error",
+          {
+            "branchingComponents": true
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/apps/server/src/**"],
+      "rules": {
+        "eslint/no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "drizzle-orm",
+                "allowTypeImports": true,
+                "message": "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。"
+              },
+              {
+                "name": "postgres",
+                "allowTypeImports": true,
+                "message": "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。"
+              },
+              {
+                "name": "@orpc/server",
+                "importNames": ["Builder", "implement", "os"],
+                "allowTypeImports": true,
+                "message": "procedure は procedures.ts の base(publicProcedures・authProcedures・adminProcedures)から作ります。素の builder は procedures.ts と router.ts だけで使います。"
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["drizzle-orm/*"],
+                "allowTypeImports": true,
+                "message": "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。"
+              },
+              {
+                "group": ["bun", "bun:*", "!bun:test", "hono/bun"],
+                "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+              }
+            ]
+          }
+        ],
+        "eslint/no-restricted-globals": [
+          "error",
+          {
+            "name": "Bun",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          },
+          {
+            "name": "HTMLRewriter",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          }
+        ],
+        "eslint/no-restricted-properties": [
+          "error",
+          {
+            "object": "globalThis",
+            "property": "Bun",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          },
+          {
+            "object": "globalThis",
+            "property": "HTMLRewriter",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          }
+        ],
+        "project/no-catch-outside-entry": "error"
+      }
+    },
+    {
+      "files": ["**/apps/server/src/**/*.query.ts", "**/apps/server/src/db/**"],
+      "rules": {
+        "eslint/no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@orpc/server",
+                "importNames": ["Builder", "implement", "os"],
+                "allowTypeImports": true,
+                "message": "procedure は procedures.ts の base(publicProcedures・authProcedures・adminProcedures)から作ります。素の builder は procedures.ts と router.ts だけで使います。"
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["bun", "bun:*", "!bun:test", "hono/bun"],
+                "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+              }
+            ]
+          }
+        ],
+        "eslint/no-restricted-globals": [
+          "error",
+          {
+            "name": "Bun",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          },
+          {
+            "name": "HTMLRewriter",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          }
+        ],
+        "eslint/no-restricted-properties": [
+          "error",
+          {
+            "object": "globalThis",
+            "property": "Bun",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          },
+          {
+            "object": "globalThis",
+            "property": "HTMLRewriter",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/apps/server/src/platform/**"],
+      "rules": {
+        "eslint/no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@orpc/server",
+                "importNames": ["Builder", "implement", "os"],
+                "allowTypeImports": true,
+                "message": "procedure は procedures.ts の base(publicProcedures・authProcedures・adminProcedures)から作ります。素の builder は procedures.ts と router.ts だけで使います。"
+              }
+            ]
+          }
+        ],
+        "eslint/no-restricted-globals": "off",
+        "eslint/no-restricted-properties": "off"
+      }
+    },
+    {
+      "files": ["**/apps/server/src/main.ts"],
+      "rules": {
+        "eslint/no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "drizzle-orm",
+                "allowTypeImports": true,
+                "message": "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。"
+              },
+              {
+                "name": "postgres",
+                "allowTypeImports": true,
+                "message": "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。"
+              },
+              {
+                "name": "@orpc/server",
+                "importNames": ["Builder", "implement", "os"],
+                "allowTypeImports": true,
+                "message": "procedure は procedures.ts の base(publicProcedures・authProcedures・adminProcedures)から作ります。素の builder は procedures.ts と router.ts だけで使います。"
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["drizzle-orm/*"],
+                "allowTypeImports": true,
+                "message": "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。"
+              }
+            ]
+          }
+        ],
+        "eslint/no-restricted-globals": "off",
+        "eslint/no-restricted-properties": "off"
+      }
+    },
+    {
+      "files": [
+        "**/apps/server/src/procedures.ts",
+        "**/apps/server/src/router.ts"
+      ],
+      "rules": {
+        "eslint/no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "drizzle-orm",
+                "allowTypeImports": true,
+                "message": "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。"
+              },
+              {
+                "name": "postgres",
+                "allowTypeImports": true,
+                "message": "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。"
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["drizzle-orm/*"],
+                "allowTypeImports": true,
+                "message": "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。"
+              },
+              {
+                "group": ["bun", "bun:*", "!bun:test", "hono/bun"],
+                "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+              }
+            ]
+          }
+        ],
+        "eslint/no-restricted-globals": [
+          "error",
+          {
+            "name": "Bun",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          },
+          {
+            "name": "HTMLRewriter",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          }
+        ],
+        "eslint/no-restricted-properties": [
+          "error",
+          {
+            "object": "globalThis",
+            "property": "Bun",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          },
+          {
+            "object": "globalThis",
+            "property": "HTMLRewriter",
+            "message": "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。"
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "**/apps/server/src/main.ts",
+        "**/apps/server/src/enroll.ts",
+        "**/apps/server/src/app.ts",
+        "**/apps/server/src/db/migrate.ts",
+        "**/apps/server/src/platform/parse-database-url.ts",
+        "**/apps/server/src/platform/test-database/**",
+        "**/apps/server/src/test-client/**",
+        "**/*.test.ts"
+      ],
+      "rules": {
+        "project/no-catch-outside-entry": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,624 @@
+{
+  "type": "base",
+  "version": "10",
+  "dialect": "postgres",
+  "id": "0ef98597-3edf-4c2c-b9c8-f876dda414d4",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "admin_user"
+      ],
+      "writes": [
+        "s|tbl|public.admin_user",
+        "n|tbl|public.admin_user",
+        "e|tbl|public.admin_user",
+        "n|rel|public.admin_user",
+        "n|type|public.admin_user",
+        "n|rel|public.admin_user_pkey",
+        "n|rel|public.admin_user_user_handle_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "passkey_enrollment"
+      ],
+      "writes": [
+        "s|tbl|public.passkey_enrollment",
+        "n|tbl|public.passkey_enrollment",
+        "e|tbl|public.passkey_enrollment",
+        "n|rel|public.passkey_enrollment",
+        "n|type|public.passkey_enrollment",
+        "n|rel|public.passkey_enrollment_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "passkey"
+      ],
+      "writes": [
+        "s|tbl|public.passkey",
+        "n|tbl|public.passkey",
+        "e|tbl|public.passkey",
+        "n|rel|public.passkey",
+        "n|type|public.passkey",
+        "n|rel|public.passkey_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "session"
+      ],
+      "writes": [
+        "s|tbl|public.session",
+        "n|tbl|public.session",
+        "e|tbl|public.session",
+        "n|rel|public.session",
+        "n|type|public.session",
+        "n|rel|public.session_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "passkey_enrollment"
+      ],
+      "writes": [
+        "s|fk|public.passkey_enrollment.passkey_enrollment_admin_user_id_admin_user_id_fkey",
+        "n|fk|public.passkey_enrollment.passkey_enrollment_admin_user_id_admin_user_id_fkey",
+        "e|fk|public.passkey_enrollment.passkey_enrollment_admin_user_id_admin_user_id_fkey",
+        "n|con|public.passkey_enrollment.passkey_enrollment_admin_user_id_admin_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.passkey_enrollment",
+        "n|sch|public",
+        "n|tbl|public.admin_user",
+        "n|sch|public",
+        "n|col|public.passkey_enrollment.admin_user_id",
+        "n|col|public.admin_user.id",
+        "e|uniqueness|public.admin_user.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "passkey"
+      ],
+      "writes": [
+        "s|fk|public.passkey.passkey_admin_user_id_admin_user_id_fkey",
+        "n|fk|public.passkey.passkey_admin_user_id_admin_user_id_fkey",
+        "e|fk|public.passkey.passkey_admin_user_id_admin_user_id_fkey",
+        "n|con|public.passkey.passkey_admin_user_id_admin_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.passkey",
+        "n|sch|public",
+        "n|tbl|public.admin_user",
+        "n|sch|public",
+        "n|col|public.passkey.admin_user_id",
+        "n|col|public.admin_user.id",
+        "e|uniqueness|public.admin_user.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "session"
+      ],
+      "writes": [
+        "s|fk|public.session.session_admin_user_id_admin_user_id_fkey",
+        "n|fk|public.session.session_admin_user_id_admin_user_id_fkey",
+        "e|fk|public.session.session_admin_user_id_admin_user_id_fkey",
+        "n|con|public.session.session_admin_user_id_admin_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.session",
+        "n|sch|public",
+        "n|tbl|public.admin_user",
+        "n|sch|public",
+        "n|col|public.session.admin_user_id",
+        "n|col|public.admin_user.id",
+        "e|uniqueness|public.admin_user.id"
+      ]
+    }
+  ],
+  "ddl": [
+    {
+      "schema": "public",
+      "name": "admin_user",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "passkey_enrollment",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "passkey",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "session",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "table": "admin_user",
+      "name": "id",
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "1",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "admin_user",
+      "name": "user_handle",
+      "type": "bytea",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "admin_user",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey_enrollment",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey_enrollment",
+      "name": "secret_hash",
+      "type": "bytea",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey_enrollment",
+      "name": "admin_user_id",
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey_enrollment",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey_enrollment",
+      "name": "expires_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "admin_user_id",
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "name",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "public_key",
+      "type": "bytea",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "algorithm",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "sign_count",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "transports",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "aaguid",
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "backup_eligible",
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "backed_up",
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "last_used_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "session",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "session",
+      "name": "secret_hash",
+      "type": "bytea",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "session",
+      "name": "admin_user_id",
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "session",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "session",
+      "name": "last_used_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "passkey_enrollment",
+      "name": "passkey_enrollment_admin_user_id_admin_user_id_fkey",
+      "nameExplicit": false,
+      "columns": [
+        "admin_user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "admin_user",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "passkey_admin_user_id_admin_user_id_fkey",
+      "nameExplicit": false,
+      "columns": [
+        "admin_user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "admin_user",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "session",
+      "name": "session_admin_user_id_admin_user_id_fkey",
+      "nameExplicit": false,
+      "columns": [
+        "admin_user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "admin_user",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "admin_user",
+      "name": "admin_user_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "passkey_enrollment",
+      "name": "passkey_enrollment_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "passkey_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "session",
+      "name": "session_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "admin_user",
+      "name": "admin_user_user_handle_key",
+      "nameExplicit": false,
+      "columns": [
+        "user_handle"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "admin_user",
+      "name": "admin_user_single_row",
+      "value": "\"id\" = 1",
+      "entityType": "checks"
+    },
+    {
+      "schema": "public",
+      "table": "passkey",
+      "name": "passkey_sign_count_uint32",
+      "value": "\"sign_count\" between 0 and 4294967295",
+      "entityType": "checks"
+    }
+  ]
+}

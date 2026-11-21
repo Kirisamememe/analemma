@@ -1,0 +1,27 @@
+{
+  "name": "@analemma/server",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@analemma/contract": "workspace:*",
+    "@orpc/server": "1.16.4",
+    "drizzle-orm": "1.0.0-rc.6",
+    "hono": "4.13.19",
+    "postgres": "4.1.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@orpc/client": "1.16.4",
+    "@orpc/contract": "1.16.4",
+    "drizzle-kit": "1.0.0-rc.6"
+  },
+  "scripts": {
+    "dev": "bun --watch src/main.ts",
+    "start": "bun src/main.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun src/db/migrate.ts",
+    "passkey:enroll": "bun src/enroll.ts",
+    "test:prepare": "bun src/platform/test-database/prepare.ts",
+    "typecheck": "tsc --noEmit -p ."
+  }
+}

@@ -1,0 +1,55 @@
+name: analemma
+
+x-postgres: &postgres
+  image: postgres:18.7-trixie
+  shm_size: 256mb
+  environment:
+    POSTGRES_PASSWORD: postgres
+  configs:
+    - source: create-app-role
+      target: /docker-entrypoint-initdb.d/create-app-role.sql
+  healthcheck:
+    test:
+      - CMD
+      - psql
+      - --host=127.0.0.1
+      - --username=analemma
+      - --dbname=analemma
+      - --command=select 1
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
+    start_interval: 1s
+
+services:
+  postgres:
+    <<: *postgres
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+
+  postgres-test:
+    <<: *postgres
+    command:
+      - postgres
+      - -c
+      - fsync=off
+      - -c
+      - synchronous_commit=off
+      - -c
+      - full_page_writes=off
+    ports:
+      - "127.0.0.1:55433:5432"
+    tmpfs:
+      - /var/lib/postgresql
+
+configs:
+  create-app-role:
+    content: |
+      CREATE ROLE analemma LOGIN PASSWORD 'analemma';
+      CREATE DATABASE analemma OWNER analemma;
+
+volumes:
+  postgres-data:

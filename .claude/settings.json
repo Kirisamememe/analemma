@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"$CLAUDE_PROJECT_DIR/tooling/hooks/stop-check.ts\"",
+            "timeout": 300,
+            "statusMessage": "bun run check を流しています"
+          }
+        ]
+      }
+    ]
+  }
+}

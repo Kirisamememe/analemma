@@ -1,0 +1,55 @@
+# server(Analemma 本体)
+
+理由は同じフォルダの `DECISIONS.md` にある。
+
+## 構成
+
+- `src/main.ts`:起動。環境変数の検証と依存の組み立て。SIGINT・SIGTERM で受け付けを止め、DB の接続を閉じて終わる。
+- `src/enroll.ts`:パスキーの登録用 URL を出すコマンド(`bun run passkey:enroll`)。最初の登録と、パスキーを全部失ったときの復旧に使う。
+- `src/app.ts`:HTTP の層。Hono の middleware に、oRPC の handler を `/api` でつなぐ。
+- `src/context.ts`:context の型(起動時に組み立てる `AppContext` と、リクエストごとの `RequestContext`)。
+- `src/platform/`:Bun 専用の API、DB の接続、clock、logger。
+- `src/db/schema/`:全テーブルの Drizzle の定義。
+- `src/db/migrate.ts`:migration を適用するコマンド(`bun run db:migrate`)。server の起動とは別に流す。
+- `src/db/migrations/`:drizzle-kit(`bun run db:generate`)が書き出す migration。
+- `src/platform/test-database/`:テストの DB。`bun test` の前にテンプレートの DB を用意するスクリプトと、テストごとに DB を作る関数。このフォルダと `src/db/` のテストは、仕組みそのものを確かめるので DB を直接読む。
+- `src/procedures.ts`:アクセス区分ごとの base(`publicProcedures`・`authProcedures`・`adminProcedures`)。contract の `public`・`auth`・`admin` に対応する。
+- `src/router.ts`:全 feature の procedure を束ねる。
+- ビジネスイベントの型と dispatcher:まだ無い。`src/` の直下は10件で埋まっているので、置き場所は、最初のビジネスイベントを作るときに決める。
+- `src/test-client/`:API 越しのテストの部品。`create-test-client.ts` がアプリとそれにつないだ client を、テストだけの DB で作る(`await using` で受ける)。管理用 API のテストは、`sign-in-as-admin.ts` の `signInAsAdmin` で、テスト用の認証器のパスキーを登録してログインしてから呼ぶ。
+- `src/features/<名前>/`:feature ごとのフォルダ。複数の feature が使う概念(公開状態の判定、slug の履歴など)も feature として置く。`shared/`・`common/`・`utils/` を作らない。
+
+## 書き方
+
+- 1ファイルに、1つの procedure か1つの関数を置く。名前は動詞から始まる kebab-case にする(`get-post.ts`、`decide-publish.ts`、`to-post-detail.ts`)。
+- procedure の中を、DB に触れる関数(`*.query.ts`)、判断する純粋関数、DB の行を contract の出力に変える mapper(純粋関数)に分ける。controller / service / repository の決まった層には分けない。
+- Drizzle と DB のドライバを値として import できるのは `*.query.ts`・`src/db/`・`src/platform/` だけ。Bun 専用の API を使えるのは `src/platform/` と `src/main.ts` だけ。それ以外は `Request`・`Response`・`fetch` などの Web 標準で書く(どちらも lint で止まる)。
+- procedure は `procedures.ts` の `publicProcedures`・`authProcedures`・`adminProcedures` から作る。素の oRPC の builder(`implement`・`os`)は `procedures.ts` と `router.ts` だけで使う(lint で止まる)。
+- テーブルに書き込めるのは、そのテーブルを持つ feature だけ。読むのはどこからでもよい。
+- 公開状態の判定は、公開状態を持つ feature の関数だけで行う。見つからないものと公開していないものは区別せず、どちらも「無い」として返す。
+- canonical URL は mapper で作り、公開サイトに組み立てさせない。
+- ビジネスイベント(`post.published` など)は、判断する純粋関数が変更の前後から導き、トランザクションのコミットの後で `context.events` に渡す。キャッシュの無効化や Webhook には dispatcher が配る。
+- テストは API 越しに書き、DB の中身を直接見ない。`src/test-client/` で組み立てたアプリに、型付きの client か `Request` で触る。判断と mapper の純粋関数には、同じフォルダの `__tests__` に単体テストを置く。
+- 想定内の失敗(slug の重複など)は `_tag` 付きの判別共用体で返す。想定外の失敗は throw し、入口で 500 とログにする。try/catch や `.catch()` で握りつぶさない(書けるのは、入口と dispatcher だけ。lint で止まる)。
+- 依存(db・clock・storage・events・logger など)は oRPC の context で渡す。グローバルなシングルトンを作らない。
+- 入力は入口でデコードしてブランド型にし、内側で検証し直さない。
+- リソースの後始末は `await using` で保証する。リクエストの `AbortSignal` は、DB や外部への呼び出しの渡せるところまで渡す。
+- 再試行の方針(Webhook の再送など)は設定のデータとして書く。環境変数は起動時にスキーマで検証し、不正なら起動しない。
+- `pipe`・`flatMap`・`andThen` のような汎用の合成関数や、メソッドを持つ Result 型を作らない。
+
+## セルフレビューの観点
+
+- 公開状態の判定や認可を、決まった関数や base の外で書いていないか。
+- 書き込んだ後に、ビジネスイベントを出し忘れていないか。
+- 出力を contract のスキーマで返しているか。内部の列が出力に混ざっていないか。
+- ループの中や `map` の中で DB を呼んでいないか(N+1)。
+
+## まだ決めていないこと
+
+- 古い slug で来たときに、新しい slug を返すか(301 で転送するため)。
+- ビジネスイベントを同じプロセスのメモリで配るか、トランザクションの中でテーブルに書いてから配るか(outbox)。
+- 削除を論理削除にするか、物理削除にするか(コンテンツモデルと一緒に決める)。
+- server を1プロセスで動かし続けるか。challenge をプロセスのメモリに置いているので、今は1プロセスが前提(本番の置き場所と一緒に決める)。
+- ログインと登録の、IP ごとの回数の制限(本番の置き場所と一緒に決める)。
+- 登録用 URL の形(今は仮に `{AUTH_ORIGIN}/enroll#{token}`。管理画面を作るときに決める)。
+- 監査の記録の残し方(今は logger に書くだけ)。

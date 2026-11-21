@@ -1,0 +1,93 @@
+import { getCookie } from "@orpc/server/helpers";
+
+import { authProcedures } from "../../../procedures";
+import { issueSecretToken } from "../secret-token/issue-secret-token";
+import { readSecretToken } from "../secret-token/read-secret-token";
+import { toSessionExpiry } from "../session/decide-session";
+import { toSessionCookie } from "../session/to-session-cookie";
+import { writeSessionCookie } from "../session/write-session-cookie";
+import { recordLogin } from "./record-login.query";
+import { type LoginFailure, verifyLogin } from "./verify-login";
+import { writeLoginWarnings } from "./write-login-warnings";
+
+const LOGIN_ERRORS = {
+  ChallengeExpired: "CHALLENGE_EXPIRED",
+  UnknownCredential: "UNKNOWN_CREDENTIAL",
+  InvalidCredential: "INVALID_CREDENTIAL",
+} as const satisfies Record<LoginFailure["_tag"], string>;
+
+/** パスキーの署名を確かめてセッションを始め、Cookie を書く procedure。 */
+export const logIn = authProcedures.login.verify.handler(
+  async ({ context, errors, input }) => {
+    const now = context.clock.now();
+    const verified = await verifyLogin({
+      db: context.db,
+      challenges: context.challenges,
+      relyingParty: context.relyingParty,
+      credential: input,
+      purpose: { kind: "login" },
+      now,
+    });
+
+    if (verified._tag !== "Verified") {
+      context.logger.write({
+        level: "info",
+        message: "ログインを断った",
+        details: { reason: verified },
+      });
+
+      throw errors[LOGIN_ERRORS[verified._tag]]();
+    }
+
+    writeLoginWarnings(context.logger, verified);
+
+    const cookie = toSessionCookie(context.relyingParty.origin);
+    const previousToken = getCookie(context.headers, cookie.name);
+    const previous =
+      previousToken === undefined
+        ? undefined
+        : await readSecretToken(previousToken);
+    const issued = await issueSecretToken();
+
+    const recorded = await recordLogin(context.db, {
+      use: {
+        id: verified.passkey.id,
+        adminUserId: verified.passkey.adminUserId,
+        publicKey: verified.passkey.publicKey,
+        signCount: verified.signCount,
+        backedUp: verified.backedUp,
+        now,
+      },
+      session: { id: issued.id, secretHash: issued.secretHash },
+      previous: previous?._tag === "Read" ? previous : undefined,
+    });
+
+    if (recorded._tag === "PasskeyGone") {
+      context.logger.write({
+        level: "info",
+        message: "ログインを断った",
+        details: {
+          reason: { _tag: "PasskeyGone", passkeyId: verified.passkey.id },
+        },
+      });
+
+      throw errors.UNKNOWN_CREDENTIAL();
+    }
+
+    const expiresAt = toSessionExpiry({ createdAt: now, lastUsedAt: now });
+
+    writeSessionCookie(context.resHeaders, {
+      cookie,
+      token: issued.token,
+      expiresAt,
+      now,
+    });
+    context.logger.write({
+      level: "info",
+      message: "ログインした",
+      details: { passkeyId: verified.passkey.id, sessionId: issued.id },
+    });
+
+    return { expiresAt: expiresAt.toISOString() };
+  },
+);
