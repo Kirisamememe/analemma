@@ -16,7 +16,7 @@ const dialog = tv({
     modal:
       "max-h-full w-full max-w-md overflow-y-auto rounded-surface border border-line bg-surface p-6 text-fg shadow-overlay",
     body: "flex flex-col gap-4 outline-hidden",
-    title: "text-fg",
+    title: "wrap-anywhere text-fg",
   },
 });
 

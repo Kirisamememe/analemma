@@ -4,6 +4,7 @@ import { tv } from "../tv";
 import { typography } from "../typography";
 
 const tone = tv({
+  base: "wrap-anywhere",
   variants: {
     tone: {
       default: "",

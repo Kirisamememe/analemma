@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 
+import { tv } from "../tv";
 import { typography } from "../typography";
+
+const heading = tv({ base: "wrap-anywhere" });
 
 const VARIANTS = { 1: "page", 2: "section", 3: "section" } as const;
 
@@ -23,7 +26,11 @@ export const Heading = ({
   const Element = `h${level}` as const;
 
   return (
-    <Element className={typography({ role: variant ?? VARIANTS[level] })}>
+    <Element
+      className={heading({
+        className: typography({ role: variant ?? VARIANTS[level] }),
+      })}
+    >
       {children}
     </Element>
   );
