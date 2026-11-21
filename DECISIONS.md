@@ -47,7 +47,7 @@ tsrs はまだ prerelease なので、型エラーの判定は公式の `tsc` �
 - **ロール**:image が作る superuser(`postgres`)とは別に、superuser でないロール `analemma` を init で作る。開発とテストでは、server も migration も `analemma`(DB の持ち主で、DDL も使える)でつなぐ。本番で実行用のロールを DML だけに絞るかは、本番の置き場所と一緒に決める。手元だけの値なので、パスワードはファイルに書き、ポートは 127.0.0.1 にだけ開く(開発用は 55432、テスト用は 55433。5432 は手元の別の PostgreSQL とぶつかりやすい)。ポートとロールは、`compose.yaml` と、テストの定数(`to-test-database-target.ts`)・`apps/server/.env.example` の両方に書くので、そろっていることをテストで確かめる。
 - **`bun run check` には Docker が要る**:テストの前に、スクリプトが `docker compose up` でテスト用の PostgreSQL を起動する。Docker が無いときや動いていないときは、分かる文言で失敗させ、`bun test` は1件も流さない。DB を使うテストを黙って飛ばすと、check が通っても何も確かめていないことになる。image の取得で黙って固まって見えないよう、起動の前に1行出す。
 - **Codex の sandbox からは Docker を使わない**:Codex の既定の sandbox(`workspace-write`)からは Docker のソケットに届かず、`bun run test` は `test:prepare` で止まる(実測)。sandbox に network を許せば届くが、許さない。Docker を使えると、Docker Desktop が既定で共有する `/Users` をコンテナから読み書きでき、sandbox の守りがほぼ無くなるため。届かない環境では、テストを飛ばす抜け道を作らず、届かなかったことを報告して終える(`AGENTS.md` の「作業の確認」)。
-- **CI**:GitHub Actions の ubuntu-latest には Docker と Compose が入っていて、`bun run check` が自分で Compose を起動するので、workflow には何も足さない。`services:` を使わないのは、`compose.yaml` の設定を workflow に写すことになるため。
+- **CI**:GitHub Actions の Linux の runner(`ubuntu-26.04`)には Docker と Compose が入っていて、`bun run check` が自分で Compose を起動するので、workflow には何も足さない。`services:` を使わないのは、`compose.yaml` の設定を workflow に写すことになるため。
 
 ## TypeScript の設定
 
@@ -81,7 +81,7 @@ DB の形の出どころは Drizzle のテーブル定義、API の形の出ど�
 - コメントは、短い行末のコメント(コードと同じ行の後ろに付ける説明)だけを許す。そのくらいの短さなら、コードと一緒に目に入り、直し忘れにくい。
 - 例外として、長いファイルを区切る分割の見出しを許す。見出しは仕様ではなく目次なので、コードと食い違いにくい。短いファイルでは見出しが要らないので、コードが200行を超えるファイルでだけ許し、400行を超えるファイルでは必須にする。
 - マークアップの作りをなぞるだけのテストは書かない(詳しくは `apps/admin/DECISIONS.md`)。
-- 設定ファイル(JSON・TOML・YAML)にもコメントを書かず、理由は `DECISIONS.md` に書く。
+- 設定ファイル(JSON・TOML・YAML)にもコメントを書かず、理由は `DECISIONS.md` に書く。例外は、GitHub Actions の workflow で、コミットの SHA で固定した actions の行末に書くバージョンだけ。SHA だけでは何のバージョンか読めず、SHA と同じ行にあるので一緒に直せる(`tooling/DECISIONS.md` の「CI」)。
 
 ## ファイルの長さ
 
@@ -149,6 +149,7 @@ DB の形の出どころは Drizzle のテーブル定義、API の形の出ど�
 
 - 1行目は Conventional Commits の `type(scope): 件名` で書き、件名は日本語で書く。type と scope の一覧は、`commitlint.config.ts` にだけ書く。
 - メッセージの形と、メッセージの中にあるほかのリポジトリの名前・「機械で探す語」に挙げた表記は、コミットのときに git の hook が確かめる。`bun run check` はコミットの前に流すので、メッセージを見られない。文書だけの約束は守られないため(「境界はツールで強制する」)。詳しいことは `tooling/DECISIONS.md` の「コミットのときの検査」にある。
+- PR では、CI が、PR のコミットのメッセージと、main に残る PR のタイトルを、commit-msg の hook と同じ検査に掛ける。hook を飛ばしたコミットや、GitHub の画面で書くタイトルのように、hook を通らないメッセージも確かめるため。ほかのリポジトリの名前は、一覧が無いので CI では探さない。詳しいことは `tooling/DECISIONS.md` の「CI」にある。
 
 ## 割り切ったこと
 

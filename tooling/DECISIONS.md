@@ -124,10 +124,10 @@ lint のルールは、書いているときにすぐ気づくための早めの
 
 ## コミットのときの検査
 
-コミットのときに、git の hook(`tooling/git-hooks/`)が、CI と `bun run check` では確かめられないものだけを確かめる。
+コミットのときに、git の hook(`tooling/git-hooks/`)が、`bun run check` では確かめられないものを確かめる。
 
 - pre-commit(と、merge のときの pre-merge-commit)は、ステージしたファイルのパスと中身から、ほかのリポジトリの名前を探す。名前の一覧は手元にしか無く、CI では探せないため。作業ツリーでなく、ステージした中身を読む。
-- commit-msg は、commitlint でメッセージの形を確かめ、メッセージから、ほかのリポジトリの名前と、用語集の「機械で探す語」に挙げた表記を探す。メッセージは、check の時点ではまだ無く、CI も見ない。
+- commit-msg は、commitlint でメッセージの形を確かめ、メッセージから、ほかのリポジトリの名前と、用語集の「機械で探す語」に挙げた表記を探す。メッセージは、check の時点ではまだ無い。PR では、CI も同じ検査を、PR のコミットのメッセージとタイトルに掛ける(下の「CI」)。
 - 整形・lint・型検査・テスト(ファイルの中の「機械で探す語」の検索を含む)は、コミットのときには流さない。CI と役割が重なるため(ユーザーが決めた)。時間の問題ではない。測ったときは、ステージした32ファイルで、整形0.1秒・lint 0.4秒・型検査0.5〜0.8秒と速かった。
 
 ### hook の入れ方
@@ -159,6 +159,33 @@ git の `core.hooksPath` を、コミットしたフォルダ `tooling/git-hooks
 - git が消すコメント(`core.commentChar` で始まる行)と、`git commit --verbose` の scissors の行から後(diff)を除いてから探す。コメントには消したファイルのパスが、diff には消した行が入るので、名前を消すためのコミットを止めないため。
 - 「機械で探す語」は、探す範囲が「リポジトリ全体」の表記だけを探す。メッセージは、どのフォルダにも属さない。
 
+## CI
+
+GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の名前(`check`・`commit-messages`)は、main の ruleset で通ることを必須にする名前なので、変えるときは ruleset も直す。
+
+- **`check`**(`check.yml`):PR と main への push で、`bun install --frozen-lockfile` と `bun run check` を流す。手元と同じ手順で、テスト用の PostgreSQL も `bun run check` が Docker Compose で起動する(直下の `DECISIONS.md` の「PostgreSQL の用意」)。
+- **`commit-messages`**(`commit-messages.yml`):PR で、PR のコミットのメッセージと、PR のタイトルを確かめる。main は「Squash and merge」だけにする予定で、main に残るのはタイトルになるため。
+- **workflow を分ける**:`commit-messages` は、PR のタイトルを直したとき(`edited`)にも流す必要がある。`check` を同じ workflow に置くと、タイトルや本文を直すたびに `check` も流れる。job の `if` で `check` を飛ばすと、飛ばした job は通ったものとして扱われ、落ちていた `check` が、タイトルを直しただけで通ったことになる。同じ理由で、本文だけを直したときも `commit-messages` を飛ばさない。
+
+### メッセージの検査
+
+- **同じ検査を2か所に書かない**:`tooling/ci/check-pull-request-messages.ts` は、メッセージを1件ずつ一時ファイルに書き、commit-msg の hook のスクリプト(`tooling/git-hooks/commit-msg.ts`)にそのまま渡す。hook の検査を変えれば、CI の検査も変わる。`#` で始まる行の扱いも hook と同じになる。
+- **範囲は PR のコミットだけ**:`git rev-list` で、PR のイベントの base から head までをたどる。main に入ったコミットは、入るときに確かめてある。検査を厳しくしても、過去のコミットで PR が落ちないようにするため。履歴をたどるので、checkout は `fetch-depth: 0` にする。
+- **PR のタイトルは、main に残る1行目として確かめる**:「Squash and merge」は、タイトルの後ろに ` (#番号)` を足して1行目にする。確かめるのは番号を足した1行目なので、半角に換算した幅は番号まで含めて数える。
+- **PR の本文は確かめない**:main に残るのはタイトルだけにする前提(squash のコミットのメッセージを、PR のタイトルだけにする設定)。本文も main に残す設定にするなら、本文も確かめる。
+- **タイトルは環境変数と標準入力で渡す**:`${{ }}` で `run` に直接書くと、タイトルがシェルのスクリプトの一部として展開され、タイトルに書いたコマンドが流れる(script injection)。引数でなく標準入力で渡すのは、`-` で始まるタイトルを option と読ませないため。
+- **ほかのリポジトリの名前は探さない**:CI には名前の一覧が無い(作りのとおり)。名前は、手元の `bun run check` とコミットのときの hook が探す。
+
+### 守りの設定
+
+- **`permissions` は `contents: read` だけ**:どちらの job も、リポジトリを読むだけで何も書かない。既定の権限はリポジトリの設定で決まり、書き込みを含む設定にもできる。最上位で決めていることを、`tooling/structure/` のテストが確かめる。
+- **checkout の `persist-credentials: false`**:token を `.git/config` に残さない。後の step(依存の install で流れる script を含む)から token を読めないようにする。
+- **actions はコミットの SHA で固定する**:タグは付け替えられるので、同じタグでも別のコードが流れうる。SHA だけでは何のバージョンか読めないので、行末のコメントにバージョンを書く(設定ファイルにコメントを書かない約束の例外。直下の `DECISIONS.md`)。形は `tooling/structure/` のテストが確かめる。上げるときは、SHA とコメントを一緒に直す。
+- **`concurrency`**:PR は番号ごとにまとめ、新しい実行が古い実行を止める。main への push は SHA ごとに分け、止めない。main のどのコミットにも結果を残すため。
+- **runner を `ubuntu-26.04` に固定する**:`ubuntu-latest` は GitHub が切り替えるので、Docker や Compose のバージョンが知らないうちに変わる。
+- **`timeout-minutes`**:既定の6時間は長すぎる。`check` は15分、`commit-messages` は5分にする。
+- **依存を cache しない**:`bun install` は CI で1秒かからない(810ms。実測)。cache の action を足すほどではない。
+
 ## 割り切ったこと
 
 - **TSDoc の言い回しの検査**:`tsdoc-role-only` は条件・例・補足・理由の言い回しを正規表現で見るので、すり抜けも誤検知もある。文の意味を読むには、日本語の構文の解析が要る。すり抜けはセルフレビューで見て、誤検知は言い回しを外して直す。
@@ -170,3 +197,5 @@ git の `core.hooksPath` を、コミットしたフォルダ `tooling/git-hooks
 - **既にある hook**:`install.ts` は、ほかの `core.hooksPath` があれば置き換える(前の値を出す)。そのため、`.git/hooks` の hook も流れなくなる。このリポジトリでは、ほかの hook を使っていない。
 - **submodule**:pre-commit は、ステージした submodule の中身を読めずに失敗し、コミットを止める。このリポジトリでは submodule を使っていない。
 - **PATH に Bun が無い環境**:hook は `bun` を PATH から探すので、PATH を引き継がない GUI の git クライアントなどでは、hook が失敗してコミットできない。黙って通すより安全なので受け入れる。
+- **PR のタイトルの句点**:確かめるのは ` (#番号)` を足した1行目なので、タイトルを `。` で終えても `subject-full-stop` では止まらない。main の1行目は番号で終わり、句点では終わらないので受け入れる。
+- **hook を通らないメッセージの中の名前**:PR のタイトルと、GitHub の画面で作ったコミット(レビューの提案の取り込みなど)のメッセージは、手元の hook を通らない。CI にも名前の一覧が無いので、ほかのリポジトリの名前は誰も探さない。一覧を CI に渡すと、一覧そのものを GitHub に預けることになり、見つけた名前も公開のログに出る。タイトルは人が書いてレビューで見るので、受け入れる。
