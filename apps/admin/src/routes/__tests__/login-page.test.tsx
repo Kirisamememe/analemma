@@ -151,4 +151,19 @@ describe("LoginPage", () => {
 
     expect(history.location.pathname).toBe("/missing");
   });
+
+  test("大文字を含むパスでログインの画面を開いても、ログインすると戻り先に移る", async () => {
+    const { history } = renderApp({
+      path: "/LOGIN?redirect=%2Fmissing",
+      routes: serverWith(EXPIRY),
+      authenticator: answering,
+    });
+
+    await pressLogIn();
+
+    expect(
+      await screen.findByRole("heading", { name: "ページが見つかりません" }),
+    ).toBeDefined();
+    expect(history.location.pathname).toBe("/missing");
+  });
 });
