@@ -49,7 +49,7 @@ export const lintFixture = (target: string): FixtureLintResult => {
 
   if (!result.stdout.trimStart().startsWith("{")) {
     throw new Error(
-      `oxlint が JSON の結果を出さなかった:\n${result.stderr}\n${result.stdout}`,
+      `Oxlint が JSON の結果を出さなかった:\n${result.stderr}\n${result.stdout}`,
     );
   }
 

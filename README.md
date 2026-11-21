@@ -22,7 +22,7 @@
 
 ## 開発
 
-[Bun](https://bun.com) と Docker(Docker Compose)と Node.js 24.15 以上を使う。テストは Docker でテスト用の PostgreSQL を起動するので、Docker が動いていないと `bun run check` は失敗する。Oxlint は Node で動き、TypeScript で書いた設定(`oxlint.config.ts`)を Node の型消去で読む。エディタの Oxc の拡張が別の Node を使うときは、拡張の設定 `oxc.path.node` で Node を指定する。
+[Bun](https://bun.com) と Docker(Docker Compose)と Node.js 24.15 以上を使う。テストは Docker でテスト用の PostgreSQL を起動するので、Docker が動いていないと `bun run check` は失敗する。Oxlint は Node で動き、TypeScript で書いた設定(`oxlint.config.ts`)を Node の type stripping で読む。エディタの Oxc の拡張が別の Node を使うときは、拡張の設定 `oxc.path.node` で Node を指定する。
 
 ```bash
 bun install

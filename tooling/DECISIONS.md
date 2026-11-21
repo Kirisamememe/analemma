@@ -6,7 +6,7 @@
 
 - **設定を TypeScript で組み立てる**:設定は1つの JSON ではなく、`oxlint.config.ts` が `tooling/lint/config/` のモジュール(組み込みのルール・自作のルール・ワークスペースごとの `overrides`・server の `overrides`・API の制限の部品)を組み立てる。Oxlint の `overrides` は、同じルールを書くと前の options を丸ごと置き換えるので、場所ごとに少しずつ違う制限(Bun・Node・Drizzle・oRPC の builder の import の禁止など)を、JSON では毎回全部書き写していた。部品にすれば1か所から組み立てられ、写し間違いが起きない。管理画面の Tailwind CSS の class の検査も、場所ごとに違う制限を同じ部品から組み立てる(デザインシステムのレビューで決めた)。`defineConfig` の型で、Oxlint が型を持つ組み込みのルールの options は型検査に掛かる(JS のプラグインのルールの名前と options は、型が `unknown` なので掛からない)。
 - 移したときに、組み立てた設定が、前の `.oxlintrc.json` と同じ値になることを確かめた(違いは、`$schema` を消したことと、下の `import/extensions` の `overrides` を足したことだけ)。
-- 設定のファイルは、Oxlint が Node の `import()` で読む。Node は TypeScript の型を消して流すだけで、拡張子の無い相対 import を解決しないので、設定のファイル(`oxlint.config.ts`・`oxlint.fixtures.config.ts`・`tooling/lint/config/`)の相対 import には `.ts` を付ける(fixture は `tooling/lint/fixtures/{valid,invalid}/tooling/lint/config/`)。`import/extensions` も、そこでだけ `.ts` を求める(`tooling/lint/**/*.mjs` に `.mjs` を求めるのと同じ理由)。`overrides` は options を丸ごと置き換えるので、`.json`・`.mjs` などの決まりも同じ部品から書き足す。TypeScript の設定のファイルを読むには、型消去を既定で使う Node が要る(README の「開発」。CI の runner には Node 24 が入っている)。
+- 設定のファイルは、Oxlint が Node の `import()` で読む。Node は TypeScript を type stripping で読むだけで、拡張子の無い相対 import を解決しないので、設定のファイル(`oxlint.config.ts`・`oxlint.fixtures.config.ts`・`tooling/lint/config/`)の相対 import には `.ts` を付ける(fixture は `tooling/lint/fixtures/{valid,invalid}/tooling/lint/config/`)。`import/extensions` も、そこでだけ `.ts` を求める(`tooling/lint/**/*.mjs` に `.mjs` を求めるのと同じ理由)。`overrides` は options を丸ごと置き換えるので、`.json`・`.mjs` などの決まりも同じ部品から書き足す。TypeScript の設定のファイルを読むには、型消去を既定で使う Node が要る(README の「開発」。CI の runner には Node 24 が入っている)。
 - fixture のテストは、Oxlint が設定を読めずに JSON の結果を出さなかったときに、Oxlint の出力をそのまま失敗の文言に入れる。Node が古いと、JSON を読めないという失敗だけが出て、原因が分からなかった。
 - 1つのファイルのコードは400行までなので、ルールの一覧も、組み込みのプラグインのルール(`core-rules.ts`)と、自作と JS のプラグインのルール(`project-rules.ts`)に分ける。
 
@@ -196,7 +196,7 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 
 ## 割り切ったこと
 
-- **エディタの設定の読み直し**:エディタの Oxlint(LSP)は `oxlint.config.ts` だけを見張り、`tooling/lint/config/` のモジュールを直しても、読み直さない(Node のモジュールのキャッシュに残る)。CLI と CI は毎回新しいプロセスで読むので、困るのは開いているエディタだけ。設定を直したら、エディタで `Oxc: Restart oxlint Server` を流す。見張る範囲は Oxlint の側でしか変えられない。
+- **エディタの設定の読み直し**:エディタの Oxlint(LSP)は `oxlint.config.ts` だけを監視し、`tooling/lint/config/` のモジュールを直しても、読み直さない(Node のモジュールのキャッシュに残る)。CLI と CI は毎回新しいプロセスで読むので、困るのは開いているエディタだけ。設定を直したら、エディタで `Oxc: Restart oxlint Server` を実行する。監視する範囲は Oxlint の側でしか変えられない。
 - **TSDoc の言い回しの検査**:`tsdoc-role-only` は条件・例・補足・理由の言い回しを正規表現で見るので、すり抜けも誤検知もある。文の意味を読むには、日本語の構文の解析が要る。すり抜けはセルフレビューで見て、誤検知は言い回しを外して直す。
 - **字下げのコードのブロック**:用語集の検査は、Markdown の、4つの空白で字下げしたコードのブロックを扱わない。コードはフェンスで書くので、受け入れる。
 - **`Promise.allSettled`・`Promise.any`**:どちらも失敗を値に変えられるが、`no-catch-outside-entry` は止めていない。結果の型に失敗が出るので、握りつぶしがコードから見える。使う場面が出たら、止めるかを決める。
