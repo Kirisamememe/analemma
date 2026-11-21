@@ -1,5 +1,6 @@
 import { enrollment } from "./enrollment";
 import { health } from "./health";
+import { deployTokens } from "./kinds/deploy-tokens";
 import { login } from "./login";
 import { passkeys } from "./passkeys";
 import { session } from "./session";
@@ -32,7 +33,7 @@ export {
 
 /** Analemma の API 全体の contract。 */
 export const contract = {
-  admin: { passkeys, session },
+  admin: { deployTokens, passkeys, session },
   auth: { enrollment, login },
   public: { health },
 };
