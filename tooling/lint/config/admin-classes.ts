@@ -34,21 +34,21 @@ export const TEXT_PAIRS = [
   "3xl/5xl",
 ] as const;
 
-/** theme.css の色ごとに、使ってよい utility(正規表現)。 */
+/** theme.css の色ごとに、使ってよい utility(`border` は辺ごとの border も含む)。 */
 export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
   canvas: ["bg", "text"],
   surface: ["bg"],
   "surface-sunken": ["bg"],
   fg: ["text", "fill", "stroke", "bg"],
-  "fg-muted": ["text", "fill", "stroke", BORDER],
-  line: [BORDER, "divide", "outline"],
+  "fg-muted": ["text", "fill", "stroke", "border"],
+  line: ["border", "divide", "outline"],
   focus: [],
-  primary: ["bg", "text", BORDER, "fill", "stroke"],
+  primary: ["bg", "text", "border", "fill", "stroke"],
   "on-primary": ["text", "fill", "stroke"],
-  info: ["bg", "text", BORDER, "fill", "stroke"],
-  success: ["bg", "text", BORDER, "fill", "stroke"],
-  warning: ["bg", "text", BORDER, "fill", "stroke"],
-  danger: ["bg", "text", BORDER, "fill", "stroke"],
+  info: ["bg", "text", "border", "fill", "stroke"],
+  success: ["bg", "text", "border", "fill", "stroke"],
+  warning: ["bg", "text", "border", "fill", "stroke"],
+  danger: ["bg", "text", "border", "fill", "stroke"],
   scrim: ["bg"],
   "on-media": ["text", "fill", "stroke"],
 };
@@ -82,10 +82,16 @@ const COLORS = Object.keys(COLOR_USAGE).toSorted(
 
 const colorRestriction = (color: string): Restriction => {
   const allowed = COLOR_USAGE[color] ?? [];
-  const usage = allowed.length === 0 ? "(?!)" : `(?:${allowed.join("|")})`;
+  const utilities = allowed.map((utility) =>
+    utility === "border" ? BORDER : utility,
+  );
+  const usage = utilities.length === 0 ? "(?!)" : `(?:${utilities.join("|")})`;
+  const longer = COLORS.filter((other) => other.endsWith(`-${color}`));
+  const notLonger =
+    longer.length === 0 ? "" : `(?!.*-(?:${longer.join("|")})${MODIFIER}$)`;
 
   return {
-    pattern: `${VARIANTS}(?!${usage}-${color}${MODIFIER}$)(?!rounded(?:-[a-z]{1,2})?-)[a-z\\-]+-${color}${MODIFIER}$`,
+    pattern: `${VARIANTS}(?!${usage}-${color}${MODIFIER}$)(?!rounded(?:-[a-z]{1,2})?-)${notLonger}[a-z\\-]+-${color}${MODIFIER}$`,
     message:
       allowed.length === 0
         ? `${color} は class にせず、theme.css の utility の中でだけ使います。`
