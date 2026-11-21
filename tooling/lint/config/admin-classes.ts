@@ -149,6 +149,15 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
     message: "文字の大きさは、行間と組で書きます(text-sm/xl)。",
   },
   {
+    pattern: `${VARIANTS}text-\\((?!color:)[a-z\\-]+:`,
+    message:
+      "文字の大きさは、theme.css の目盛りで書きます(型を付けた CSS 変数では書きません)。",
+  },
+  {
+    pattern: `${VARIANTS}font-\\d+$`,
+    message: "文字の太さは、font-normal・font-semibold・font-bold で書きます。",
+  },
+  {
     pattern: `${VARIANTS}(?:(?:duration|delay)-\\d+|ease-(?:linear|in|out|in-out)|(?:inset-)?ring(?:-\\d+)?|opacity-(?!(?:0|100)$).+|bg-(?:linear|radial|conic).*|(?:from|via|to)-.*)$`,
     message: "theme.css に無い値です(Tailwind CSS の既定から残っているもの)。",
   },

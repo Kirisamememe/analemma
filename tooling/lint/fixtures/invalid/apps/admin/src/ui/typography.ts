@@ -6,6 +6,7 @@ export const text = tv({
     role: {
       body: "text-sm/5",
       lead: "text-lg/lg",
+      medium: "font-500",
     },
   },
 });

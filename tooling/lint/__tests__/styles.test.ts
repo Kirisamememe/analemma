@@ -71,6 +71,8 @@ describe("管理画面の部品の class", () => {
       [32, "focus は class にせず"],
       [33, "状態は theme.css の is-*:"],
       [34, "上下の正の margin は使わず"],
+      [35, "文字の大きさは、theme.css の目盛りで"],
+      [36, "文字の太さは"],
     ];
 
     expect(diagnosticsOf({ file, rule: RESTRICTED }, expected)).toEqual(
@@ -84,10 +86,11 @@ describe("管理画面の部品の class", () => {
     );
   });
 
-  test("文字の役割の対応では、決めていない大きさと行間の組に診断を出すこと", () => {
+  test("文字の役割の対応では、決めていない大きさと行間の組と、数値の太さに診断を出すこと", () => {
     const expected: Expected[] = [
       [7, "文字の大きさと行間の組は"],
       [8, "文字の大きさと行間の組は"],
+      [9, "文字の太さは"],
     ];
 
     expect(
