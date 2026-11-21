@@ -586,6 +586,12 @@
         "eslint/no-restricted-imports": [
           "error",
           {
+            "paths": [
+              {
+                "name": "node:process",
+                "message": "CLI では、グローバルの process を使います。process.env は main.ts でだけ読みます(import した process の env には、node/no-process-env が診断を出しません)。"
+              }
+            ],
             "patterns": [
               {
                 "group": ["bun", "bun:*", "!bun:test", "hono/bun"],

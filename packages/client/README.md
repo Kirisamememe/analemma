@@ -62,10 +62,11 @@ const page = await cms.fixedPages.get(about, "about");
 本番のデプロイのときに、新しいサイトに切り替える前に流す。定義のファイルは、`defineKind` で作った種類の配列を default export する。
 
 ```bash
-ANALEMMA_URL=http://127.0.0.1:8788 ANALEMMA_DEPLOY_TOKEN=... analemma push-kinds ./src/lib/kinds.ts
+analemma push-kinds ./src/lib/kinds.ts --url http://127.0.0.1:8788
 ```
 
-- `ANALEMMA_DEPLOY_TOKEN` は、管理画面で発行したデプロイ用のトークン。
+- `ANALEMMA_DEPLOY_TOKEN` に、管理画面で発行したデプロイ用のトークンを入れておく。デプロイの仕組み(CI の secret など)から渡し、コマンドの行に書かない(シェルの履歴に残る)。
+- URL は、`--url` か環境変数 `ANALEMMA_URL` で渡す。
 - CMS が断ると(既存のページが新しい定義に合わないときなど)、合わないページを標準エラーに書き、0 でない終了コードで終わる。デプロイを止める。
 - 定義のファイルを TypeScript で書くときは、Node 22.18 以上で流す(型を取り除いて読み込む)。定義のファイルの import は、Node が読める形(パッケージ名か、拡張子付きの相対パス)にする。
 

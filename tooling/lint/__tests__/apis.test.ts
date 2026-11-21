@@ -25,6 +25,11 @@ describe("使える API と書き方", () => {
       rule: "eslint(no-restricted-imports)",
     },
     {
+      label: "client の CLI での node:process の import",
+      file: "packages/client/src/cli/imports-process.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
       label: "client の CLI の入口の外での process.env",
       file: "packages/client/src/cli/reads-env.ts",
       rule: "node(no-process-env)",

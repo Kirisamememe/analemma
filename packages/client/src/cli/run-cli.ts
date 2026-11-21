@@ -1,7 +1,6 @@
-import { parseArgs } from "node:util";
-
 import { formatPushResult } from "./format-push-result";
 import { pushKindDefinitions } from "./push-kind-definitions";
+import { readCliArgs } from "./read-cli-args";
 import { readKindDefinitions } from "./read-kind-definitions";
 
 /** CLI が外とやり取りするための値と関数。 */
@@ -39,36 +38,43 @@ const writeLines = (
   }
 };
 
+const TOKEN = /^[\w\-]{22}\.[\w\-]{43}$/v;
+
 const isHttpUrl = (value: string): boolean =>
   URL.canParse(value) && /^https?:$/v.test(new URL(value).protocol);
 
 /** `analemma` のコマンドを流し、終了コードを返す。 */
 export const runCli = async (io: CliIo): Promise<number> => {
-  const { positionals, values } = parseArgs({
-    args: [...io.args],
-    allowPositionals: true,
-    strict: false,
-    options: { url: { type: "string" } },
-  });
-  const [command, file, ...rest] = positionals;
-  const url = typeof values.url === "string" ? values.url : io.url;
+  const args = readCliArgs(io.args);
 
-  if (command !== "push-kinds" || file === undefined || rest.length > 0) {
+  if (args._tag === "Misused") {
     writeLines(io.writeError, USAGE);
 
     return EXIT_USAGE;
   }
 
-  if (url === undefined || !isHttpUrl(url) || io.token === undefined) {
+  const url = args.url ?? io.url;
+
+  if (url === undefined || !isHttpUrl(url)) {
     writeLines(io.writeError, [
-      "CMS の URL(http か https)と、デプロイ用のトークンを渡す。",
+      "CMS の URL を、http か https で渡す。",
       ...USAGE,
     ]);
 
     return EXIT_USAGE;
   }
 
-  const read = readKindDefinitions(await io.loadModule(file));
+  if (io.token === undefined || !TOKEN.test(io.token)) {
+    writeLines(io.writeError, [
+      "ANALEMMA_DEPLOY_TOKEN に、管理画面で発行したデプロイ用のトークンを入れる。",
+      ...USAGE,
+    ]);
+
+    return EXIT_USAGE;
+  }
+
+  const token = io.token;
+  const read = readKindDefinitions(await io.loadModule(args.file));
 
   if (read._tag === "Unreadable") {
     io.writeError(`種類の定義を読めない。\n${read.problem}`);
@@ -78,7 +84,7 @@ export const runCli = async (io: CliIo): Promise<number> => {
 
   const result = await pushKindDefinitions({
     url,
-    token: io.token,
+    token,
     kinds: read.kinds,
     fetch: io.fetch,
   });

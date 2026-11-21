@@ -2,7 +2,7 @@ import { implement } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { describe, expect, test } from "bun:test";
 
-import { contract } from "@analemma/contract";
+import { type KindDefinition, contract } from "@analemma/contract";
 
 import { defineKind } from "../../kinds/define-kind";
 import { text } from "../../kinds/scalar-fields";
@@ -29,16 +29,30 @@ type CliRun = {
   readonly stderr: string[];
   /** 偽の CMS が受け取ったリクエストの Authorization ヘッダー。 */
   readonly received: (string | null)[];
+  /** 偽の CMS が受け取った種類の定義。 */
+  readonly kinds: KindDefinition[];
 };
 
 const os = implement({ deploy: contract.deploy });
 
-const serveFakeCms = (answer: Answer, received: (string | null)[]) => {
+/** 偽の CMS が受け取ったもの。 */
+type Inbox = {
+  /** 受け取ったリクエストの Authorization ヘッダー。 */
+  readonly received: (string | null)[];
+  /** 受け取った種類の定義。 */
+  readonly kinds: KindDefinition[];
+};
+
+const serveFakeCms = (answer: Answer, inbox?: Inbox) => {
+  const { kinds, received } = inbox ?? { received: [], kinds: [] };
+
   const handler = new RPCHandler(
     os.router({
       deploy: {
         kinds: {
           push: os.deploy.kinds.push.handler(({ errors, input }) => {
+            kinds.push(...input.kinds);
+
             switch (answer) {
               case "accept":
                 return {
@@ -94,13 +108,13 @@ const run = async (
 ): Promise<CliRun> => {
   const stdout: string[] = [];
   const stderr: string[] = [];
-  const received: (string | null)[] = [];
+  const inbox: Inbox = { received: [], kinds: [] };
   const code = await runCli({
     args: ["push-kinds", "./kinds.ts"],
     url: "http://127.0.0.1:8788",
     token: TOKEN,
     loadModule: () => Promise.resolve({ default: [about] }),
-    fetch: serveFakeCms(answer, received),
+    fetch: serveFakeCms(answer, inbox),
     write: (line) => {
       stdout.push(line);
     },
@@ -110,7 +124,7 @@ const run = async (
     ...io,
   });
 
-  return { code, stdout, stderr, received };
+  return { code, stdout, stderr, ...inbox };
 };
 
 describe("種類の定義を送る CLI", () => {
@@ -122,6 +136,7 @@ describe("種類の定義を送る CLI", () => {
       stdout: ["種類の定義を送った(1 件)。", "- about: 作った"],
       stderr: [],
       received: [`Bearer ${TOKEN}`],
+      kinds: [about.definition],
     });
   });
 
@@ -145,7 +160,7 @@ describe("種類の定義を送る CLI", () => {
 
   test("--url を渡すと、環境変数の URL より優先すること", async () => {
     const urls: string[] = [];
-    const fake = serveFakeCms("accept", []);
+    const fake = serveFakeCms("accept");
     const result = await run("accept", {
       args: ["push-kinds", "./kinds.ts", "--url", "http://10.0.0.2:9000"],
       fetch: async (request) => {
@@ -166,6 +181,19 @@ describe("種類の定義を送る CLI", () => {
     { title: "トークンが無い", io: { token: undefined } },
     { title: "URL が無い", io: { url: undefined } },
     { title: "http でない URL", io: { url: "ftp://127.0.0.1" } },
+    {
+      title: "--url の値が無い",
+      io: { args: ["push-kinds", "./kinds.ts", "--url"] },
+    },
+    {
+      title: "--url の名前を打ち間違えた",
+      io: { args: ["push-kinds", "./kinds.ts", "--urll=http://10.0.0.2"] },
+    },
+    {
+      title: "知らない option がある",
+      io: { args: ["push-kinds", "./kinds.ts", "--force"] },
+    },
+    { title: "トークンの形が違う", io: { token: `${TOKEN}\nX` } },
   ])(
     "$title ときは、何も送らずに使い方を書き、2 で終わること",
     async ({ io }) => {
@@ -174,6 +202,7 @@ describe("種類の定義を送る CLI", () => {
       expect(result.code).toBe(2);
       expect(result.received).toEqual([]);
       expect(result.stderr.join("\n")).toContain("使い方: analemma push-kinds");
+      expect(result.stderr.join("\n")).not.toContain(TOKEN);
     },
   );
 
