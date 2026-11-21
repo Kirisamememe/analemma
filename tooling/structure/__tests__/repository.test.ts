@@ -249,3 +249,34 @@ test("ほかのリポジトリの名前を、どのファイルにも書いて�
 
   expect([...inPaths, ...inFiles]).toEqual([]);
 });
+
+const WORKFLOW = /^\.github\/workflows\/[^\/]+\.ya?ml$/v;
+const USES = /^\s*(?:-\s+)?uses:\s*(?<action>.*)$/gmv;
+const PINNED_ACTION = /^[\w.\-]+\/[\w.\-\/]+@[0-9a-f]{40} # v\d+(?:\.\d+)*$/v;
+const TOP_LEVEL_PERMISSIONS = /^permissions:/mv;
+const workflows = paths
+  .filter((path) => WORKFLOW.test(path))
+  .map((path) => ({
+    path,
+    text: readFileSync(join(repoRoot, path), "utf8"),
+  }));
+
+test("workflow の actions を、コミットの SHA で固定し、行末にバージョンを書いていること", () => {
+  expect(workflows.length).toBeGreaterThan(0);
+  expect(
+    workflows.flatMap(({ path, text }) =>
+      [...text.matchAll(USES)]
+        .map(({ groups }) => groups?.["action"] ?? "")
+        .filter((action) => !PINNED_ACTION.test(action))
+        .map((action) => `${path}: ${action}`),
+    ),
+  ).toEqual([]);
+});
+
+test("どの workflow も、最上位で permissions を決めていること", () => {
+  expect(
+    workflows
+      .filter(({ text }) => !TOP_LEVEL_PERMISSIONS.test(text))
+      .map(({ path }) => path),
+  ).toEqual([]);
+});
