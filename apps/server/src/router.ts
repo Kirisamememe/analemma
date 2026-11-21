@@ -24,6 +24,7 @@ import { deleteFixedPage } from "./features/fixed-pages/editing/delete-fixed-pag
 import { updateFixedPage } from "./features/fixed-pages/editing/update-fixed-page";
 import { getFixedPage } from "./features/fixed-pages/get-fixed-page";
 import { listFixedPages } from "./features/fixed-pages/list-fixed-pages";
+import { reorderFixedPages } from "./features/fixed-pages/ordering/reorder-fixed-pages";
 import { getHealth } from "./features/health/get-health";
 import { getKind } from "./features/kinds/get-kind";
 import { listKinds } from "./features/kinds/list-kinds";
@@ -49,6 +50,7 @@ export const router = implement(contract)
         get: getFixedPage,
         create: createFixedPage,
         update: updateFixedPage,
+        reorder: reorderFixedPages,
         delete: deleteFixedPage,
       },
       kinds: { list: listKinds, get: getKind },

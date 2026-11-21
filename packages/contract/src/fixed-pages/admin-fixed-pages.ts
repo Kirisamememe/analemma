@@ -71,6 +71,24 @@ export const fixedPages = {
       }),
     )
     .output(fixedPageDetail),
+  reorder: adminAccess
+    .errors({ ORDER_MISMATCH: { status: 409 } })
+    .route({
+      method: "POST",
+      path: "/admin/fixed-pages/reorder",
+      summary: "すべての固定ページを、渡した順に並べ直す",
+    })
+    .input(
+      z.object({
+        ids: z
+          .array(fixedPageId)
+          .max(1000)
+          .refine((ids) => new Set(ids).size === ids.length, {
+            error: "ID が重なっている",
+          }),
+      }),
+    )
+    .output(z.object({ pages: z.array(fixedPageSummary) })),
   delete: adminAccess
     .errors({ NOT_FOUND: { status: 404 } })
     .route({

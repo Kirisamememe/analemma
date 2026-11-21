@@ -221,3 +221,75 @@ describe("固定ページを消す", () => {
     );
   });
 });
+
+describe("固定ページの並び順", () => {
+  test("すべてのページを、渡した順に並べ直すこと", async () => {
+    await using server = await createTestClient();
+
+    await prepareTestKinds(server, [profile]);
+
+    const admin = server.client.admin.fixedPages;
+    const ids = [];
+
+    for (const slug of ["a", "b", "c"]) {
+      ids.push(
+        (await admin.create({ kind: "profile", slug, title: slug, content }))
+          .id,
+      );
+    }
+
+    const [a = "", b = "", c = ""] = ids;
+    const reordered = await admin.reorder({ ids: [c, a, b] });
+
+    expect(
+      reordered.pages.map(({ position, slug }) => ({ slug, position })),
+    ).toEqual([
+      { slug: "c", position: 0 },
+      { slug: "a", position: 1 },
+      { slug: "b", position: 2 },
+    ]);
+    expect((await admin.list()).pages.map(({ slug }) => slug)).toEqual([
+      "c",
+      "a",
+      "b",
+    ]);
+  });
+
+  test("足りない・知らない ID を含む並びは ORDER_MISMATCH、重なる ID は入力の誤りにすること", async () => {
+    await using server = await createTestClient();
+
+    await prepareTestKinds(server, [profile]);
+
+    const admin = server.client.admin.fixedPages;
+    const a = await admin.create({
+      kind: "profile",
+      slug: "a",
+      title: "a",
+      content,
+    });
+    const b = await admin.create({
+      kind: "profile",
+      slug: "b",
+      title: "b",
+      content,
+    });
+    const unknown = "0190b5e0-0000-7000-8000-000000000000";
+
+    expect(await catchErrorCode(admin.reorder({ ids: [a.id] }))).toBe(
+      "ORDER_MISMATCH",
+    );
+    expect(
+      await catchErrorCode(admin.reorder({ ids: [a.id, b.id, unknown] })),
+    ).toBe("ORDER_MISMATCH");
+    expect(await catchErrorCode(admin.reorder({ ids: [a.id, unknown] }))).toBe(
+      "ORDER_MISMATCH",
+    );
+    expect(await catchErrorCode(admin.reorder({ ids: [a.id, a.id] }))).toBe(
+      "BAD_REQUEST",
+    );
+    expect((await admin.list()).pages.map(({ slug }) => slug)).toEqual([
+      "a",
+      "b",
+    ]);
+  });
+});
