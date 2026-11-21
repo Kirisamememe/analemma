@@ -1,6 +1,6 @@
 import type { KindDefinition } from "@analemma/contract";
 
-import { type ContentIssue, checkContent } from "../check-content";
+import { type ContentIssue, createContentCheck } from "../check-content";
 import type { KindPage } from "./list-kind-pages.query";
 
 /** 新しい定義に合わない固定ページと、その理由。 */
@@ -30,18 +30,18 @@ export const findIncompatiblePages = ({
   definitions,
   pages,
 }: CompatibilityCheck): IncompatiblePage[] => {
-  const fieldsByKind = new Map(
-    definitions.map(({ fields, name }) => [name, fields]),
+  const checkByKind = new Map(
+    definitions.map(({ fields, name }) => [name, createContentCheck(fields)]),
   );
 
   return pages.flatMap((page) => {
-    const fields = fieldsByKind.get(page.kind);
+    const check = checkByKind.get(page.kind);
 
-    if (fields === undefined) {
+    if (check === undefined) {
       return [];
     }
 
-    const checked = checkContent({ fields, content: page.content });
+    const checked = check(page.content);
 
     return checked._tag === "Valid"
       ? []

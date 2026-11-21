@@ -35,27 +35,37 @@ export type ContentCheck = {
 
 const MAX_ISSUES = 20;
 
+/** 種類の定義から、中身を定義に無いキーを残したまま確かめる関数を作る。 */
+export const createContentCheck = (
+  fields: readonly FieldDefinition[],
+): ((content: unknown) => ValidContent | InvalidContent) => {
+  const schema = toContentSchema({ fields, unknownKeys: "keep" });
+
+  return (content) => {
+    const result = schema.safeParse(content);
+
+    if (result.success) {
+      return { _tag: "Valid", content: result.data };
+    }
+
+    return {
+      _tag: "Invalid",
+      issues: result.error.issues
+        .slice(0, MAX_ISSUES)
+        .map(({ code, message, path }) => ({
+          path: path.map((key) =>
+            typeof key === "symbol" ? String(key) : key,
+          ),
+          code,
+          message,
+        })),
+    };
+  };
+};
+
 /** 中身が種類の定義に合うかを、定義に無いキーを残したまま確かめる。 */
 export const checkContent = ({
   content,
   fields,
-}: ContentCheck): ValidContent | InvalidContent => {
-  const result = toContentSchema({ fields, unknownKeys: "keep" }).safeParse(
-    content,
-  );
-
-  if (result.success) {
-    return { _tag: "Valid", content: result.data };
-  }
-
-  return {
-    _tag: "Invalid",
-    issues: result.error.issues
-      .slice(0, MAX_ISSUES)
-      .map(({ code, message, path }) => ({
-        path: path.map((key) => (typeof key === "symbol" ? String(key) : key)),
-        code,
-        message,
-      })),
-  };
-};
+}: ContentCheck): ValidContent | InvalidContent =>
+  createContentCheck(fields)(content);
