@@ -52,6 +52,8 @@ CMS のプロセスが、外部用のポート(`PORT`、既定は 8787)と内部
 - 内部用のポートには、ブラウザに向けた守り(`secureHeaders`・`csrf()`・Origin の確認)を掛けない。ブラウザから呼ぶものではなく、Cookie も使わない。本文の大きさの上限と、受けるメソッドの制限は、外部用のポートと同じに掛ける。
 - health(`public.health.get`)は公開 API なので、内部用のポートにだけ置く。コンテナの healthcheck は、同じマシンの中から呼ぶ。
 - `PORT` と `INTERNAL_PORT` が同じ番号なら、起動の時点で断る(どちらも `0` のときを除く)。`INTERNAL_PORT` も、`0` なら OS が空いているポートを選び、起動のログに実際のポートを書く。
+- 内部用のポートを先に待ち受ける。`PORT` を `0` にしたときに、OS が選ぶ外部用のポートが、決めた番号の内部用のポートを先に取ってしまわないように。
+- 止めるときは、2つのポートの受け付けを同時に止めてから、処理中のリクエストが終わるのを待つ。片方の処理中のリクエストを待つ間に、もう片方が新しいリクエストを受けないように(Codex のレビューで見つかった)。
 
 ## contract の分け方
 
@@ -69,7 +71,7 @@ contract を3つのアクセス区分に分け、server ではそれぞれの ba
 - 管理用の応答と認証用の応答には、断ったときも含めて `Cache-Control: no-store` を付ける。認証用の procedure は、ログインのたびに Set-Cookie を返すため。`csrf()` や本文の大きさの上限が procedure の前で断る応答(403・413)にも付くよう、no-store の middleware を、それらより先に置く。Cookie で認可していても、途中のキャッシュに保存されると、後のリクエストが認可を通らずに中身を受け取れてしまう。公開 API の応答のキャッシュは、キャッシュの設計と一緒に決める。
 - `admin` と `auth` の procedure は、GET でなければ、Origin ヘッダーが管理画面の origin(`AUTH_ORIGIN`)と完全に一致するときだけ受け付け、ほかは 403 と `FORBIDDEN` にする(Origin が無いときも)。Hono の `csrf()` はフォームの形の Content-Type だけを見て、JSON の POST はブラウザの CORS の preflight に任せている。CORS の設定や、ブラウザが preflight を送らない Content-Type に頼らないよう、Cookie で認証するアクセス区分では自分で確かめる。確かめるのは oRPC の middleware で、パスではなく contract のアクセス区分で掛ける。パーセントエンコードしたパスのような、Hono と oRPC でパスの読み方が食い違う抜け道を作らない。GET は読むだけの procedure にしか届かない(oRPC の既定で、route を GET にした procedure 以外は GET で呼べない)。同じ origin の GET に、ブラウザは Origin を付けない。代わりに、ブラウザの `Sec-Fetch-Site` が `same-origin` でないリクエストは、GET を含めて断る。同じサイトの別の origin のページに、Cookie 付きの GET を送らせないため(理由は `src/features/auth/DECISIONS.md`)。
 - Hono の `csrf()` の許す origin は、リクエストの URL からではなく `AUTH_ORIGIN` から決める。TLS を終端するリバースプロキシの後ろでは、リクエストの URL の scheme やホストが、ブラウザから見た origin と食い違う。
-- すべての応答に、`Permissions-Policy: publickey-credentials-create=(self), publickey-credentials-get=(self)` と、`Content-Security-Policy: frame-ancestors 'none'`・`X-Frame-Options: DENY` を付ける。ほかのサイトが管理画面を iframe に入れ、パスキーの操作を任せる(`allow` 属性)ことを、ブラウザに断らせる。Hono の `secureHeaders` には `publickey-credentials-create` の項目が無いので、Permissions-Policy は自分で書く。CSP のほかの directive は、管理画面の配信を足すときに決める。
+- 外部用のポートのすべての応答に、`Permissions-Policy: publickey-credentials-create=(self), publickey-credentials-get=(self)` と、`Content-Security-Policy: frame-ancestors 'none'`・`X-Frame-Options: DENY` を付ける。ほかのサイトが管理画面を iframe に入れ、パスキーの操作を任せる(`allow` 属性)ことを、ブラウザに断らせる。Hono の `secureHeaders` には `publickey-credentials-create` の項目が無いので、Permissions-Policy は自分で書く。CSP のほかの directive は、管理画面の配信を足すときに決める。
 - 認可の middleware は、`adminProcedures` に付けるのに加えて、`router.ts` で管理用のルーター全体にも掛ける(oRPC は同じ middleware の重複を1つにまとめる)。管理用の procedure を `adminProcedures` 以外から作る抜け道ができても、認可が外れない。
 - 認可のテストは、server のルーターではなく contract の `admin` を列挙する。ルーターに遅延読み込みの枝が入っても、contract にある procedure は必ず検査される。
 - 想定外の失敗のログは、procedure を呼ぶ段階(`clientInterceptors`)で取る。リクエストを読む段階で取ると、壊れた JSON のような利用者の誤りまで、server の障害として記録されてしまう。
@@ -127,6 +129,11 @@ contract を3つのアクセス区分に分け、server ではそれぞれの ba
 - テンプレートを用意する関数と `migrateDatabase` は、migration のフォルダを受け取れる。テストでは、一時的なフォルダに書いた migration(`write-test-migrations.ts`)で、SQL が複製先の DB に入ること、失敗したらテンプレートを作らないことなどを確かめる。feature のテーブルをリポジトリに足さずに済む。
 
 ## 割り切ったこと
+
+- **`INTERNAL_HOST` のワイルドカード**:`INTERNAL_HOST` に `0.0.0.0` や `::` を渡すと、内部用のポートがすべてのインターフェースで待ち受ける。公開サイトを別のコンテナで動かすときは、コンテナの中で `0.0.0.0` にし、ポートをホストに公開しないのが普通なので、断らない。ホストで直に動かすときに外へ開かないようにするのは、置き方を決める人の責任にする。
+- **`INTERNAL_HOST` に付けたポート**:`127.0.0.1:8788` のようにポートを付けても、環境変数の検証は通る(IPv6 のアドレスと見分けにくい)。`Bun.serve` が起動の時点で失敗するので、黙って違う場所で待ち受けることは無い。
+- **`PORT=8788` の設定**:`PORT` に 8788 を書いていると、既定の `INTERNAL_PORT` とぶつかって起動しない(登録用 URL のコマンドも、同じ環境変数の検証を通るので止まる)。まだ本番が無く、`PORT` の既定は 8787 なので、`INTERNAL_PORT` を書けば済む。
+- **止める順のテスト**:2つのポートの受け付けを同時に止めることは、テストで確かめていない。片方に時間のかかるリクエストを残したまま止める必要があり、確かめる仕組みが重い。
 
 - **DB に渡さない `AbortSignal`**:リクエストの `AbortSignal` は DB まで渡していない。postgres.js には問い合わせを取り消す API(`.cancel()`)があるが、Drizzle を通して渡す仕組みが無く、platform にも無いため。利用者が待つのをやめても、問い合わせは最後まで流れるだけで、結果は捨てられる。渡すときは、接続を取り置くトランザクションの rollback まで確かめる。
 - **DB の接続を閉じること**:SIGTERM で止まるときに、DB の接続を閉じることはテストで確かめていない。確かめるには、子のプロセスの中の接続を、PostgreSQL の側から見張る仕組みが要る。閉じ損ねても、プロセスが終われば接続は切れ、PostgreSQL の側で片付くので、直さない。

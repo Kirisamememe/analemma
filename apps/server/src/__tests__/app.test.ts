@@ -129,7 +129,7 @@ describe("外部用のポートの応答のヘッダー", () => {
     expect(response.headers.get("x-frame-options")).toBe("DENY");
   });
 
-  test("別の origin からのフォームの送信を断ること", async () => {
+  test("別の origin からのフォームの送信を、procedure に届く前の CSRF の確認で断ること", async () => {
     await using server = await createTestClient();
     const response = await server.app.fetch(
       new Request(`${TEST_ORIGIN}/api/admin/session/get`, {
@@ -143,12 +143,14 @@ describe("外部用のポートの応答のヘッダー", () => {
     );
 
     expect(response.status).toBe(403);
+    expect(await response.text()).toBe("Forbidden");
+    expect(server.logs).toEqual([]);
   });
 
-  test("管理画面の origin からのフォームの送信は、CSRF の確認で止めないこと", async () => {
+  test("TLS を終端するリバースプロキシの後ろでも、管理画面の origin からのフォームの送信を、CSRF の確認で止めないこと", async () => {
     await using server = await createTestClient();
     const response = await server.app.fetch(
-      new Request(`${TEST_ORIGIN}/api/admin/session/get`, {
+      new Request("http://127.0.0.1:8787/api/admin/session/get", {
         method: "POST",
         headers: {
           "content-type": "application/x-www-form-urlencoded",

@@ -27,20 +27,23 @@ const context: AppContext = {
     lifetimeMs: CHALLENGE_LIFETIME_MS,
   }),
 };
-const external = Bun.serve({
-  fetch: createExternalApp(context).fetch,
-  port: env.port,
-});
-
-resources.defer(async () => external.stop());
-
 const internal = Bun.serve({
   fetch: createInternalApp(context).fetch,
   port: env.internal.port,
   hostname: env.internal.host,
 });
+const servers = [internal];
 
-resources.defer(async () => internal.stop());
+resources.defer(async () => {
+  await Promise.all(servers.map(async (server) => server.stop()));
+});
+
+const external = Bun.serve({
+  fetch: createExternalApp(context).fetch,
+  port: env.port,
+});
+
+servers.push(external);
 
 const stopRequested = new Promise<NodeJS.Signals>((resolve) => {
   process.once("SIGINT", resolve);
