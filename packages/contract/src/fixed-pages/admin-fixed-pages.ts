@@ -71,6 +71,24 @@ export const fixedPages = {
       }),
     )
     .output(fixedPageDetail),
+  publish: adminAccess
+    .errors({ NOT_FOUND: { status: 404 } })
+    .route({
+      method: "POST",
+      path: "/admin/fixed-pages/publish",
+      summary: "固定ページを公開する",
+    })
+    .input(byId)
+    .output(fixedPageSummary),
+  unpublish: adminAccess
+    .errors({ NOT_FOUND: { status: 404 } })
+    .route({
+      method: "POST",
+      path: "/admin/fixed-pages/unpublish",
+      summary: "固定ページを非公開に戻す",
+    })
+    .input(byId)
+    .output(fixedPageSummary),
   reorder: adminAccess
     .errors({ ORDER_MISMATCH: { status: 409 } })
     .route({

@@ -25,6 +25,10 @@ import { updateFixedPage } from "./features/fixed-pages/editing/update-fixed-pag
 import { getFixedPage } from "./features/fixed-pages/get-fixed-page";
 import { listFixedPages } from "./features/fixed-pages/list-fixed-pages";
 import { reorderFixedPages } from "./features/fixed-pages/ordering/reorder-fixed-pages";
+import { getPublishedFixedPage } from "./features/fixed-pages/published/get-published-fixed-page";
+import { listPublishedFixedPages } from "./features/fixed-pages/published/list-published-fixed-pages";
+import { publishFixedPage } from "./features/fixed-pages/publishing/publish-fixed-page";
+import { unpublishFixedPage } from "./features/fixed-pages/publishing/unpublish-fixed-page";
 import { getHealth } from "./features/health/get-health";
 import { getKind } from "./features/kinds/get-kind";
 import { listKinds } from "./features/kinds/list-kinds";
@@ -50,6 +54,8 @@ export const router = implement(contract)
         get: getFixedPage,
         create: createFixedPage,
         update: updateFixedPage,
+        publish: publishFixedPage,
+        unpublish: unpublishFixedPage,
         reorder: reorderFixedPages,
         delete: deleteFixedPage,
       },
@@ -73,5 +79,11 @@ export const router = implement(contract)
       login: { options: getLoginOptions, verify: logIn },
     }),
     deploy: deployProcedures.router({ kinds: { push: pushKinds } }),
-    public: { health: { get: getHealth } },
+    public: {
+      fixedPages: {
+        list: listPublishedFixedPages,
+        get: getPublishedFixedPage,
+      },
+      health: { get: getHealth },
+    },
   });

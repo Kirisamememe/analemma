@@ -75,6 +75,13 @@ describe("固定ページを作る", () => {
       "about",
       "now",
     ]);
+    expect(
+      await catchErrorCode(
+        server
+          .internal()
+          .public.fixedPages.get({ kind: "profile", slug: "about" }),
+      ),
+    ).toBe("NOT_FOUND");
   });
 
   test("中身が種類の定義に合わなければ、合わない場所を添えて INVALID_CONTENT で断ること", async () => {

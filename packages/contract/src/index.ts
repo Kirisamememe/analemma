@@ -1,5 +1,6 @@
 import { enrollment } from "./enrollment";
 import { fixedPages } from "./fixed-pages/admin-fixed-pages";
+import { publicFixedPages } from "./fixed-pages/public-fixed-pages";
 import { health } from "./health";
 import { kinds } from "./kinds/admin-kinds";
 import { deployKinds } from "./kinds/deploy-kinds";
@@ -44,5 +45,5 @@ export const contract = {
   admin: { deployTokens, fixedPages, kinds, passkeys, session },
   auth: { enrollment, login },
   deploy: { kinds: deployKinds },
-  public: { health },
+  public: { fixedPages: publicFixedPages, health },
 };
