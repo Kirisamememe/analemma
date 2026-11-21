@@ -21,3 +21,11 @@ export {
   type SelectOptions,
   select,
 } from "./kinds/select-field";
+export {
+  type AnalemmaClient,
+  type AnalemmaClientOptions,
+  type FixedPage,
+  type FixedPageFilter,
+  type FixedPageSummary,
+  createAnalemmaClient,
+} from "./fixed-pages/create-analemma-client";
