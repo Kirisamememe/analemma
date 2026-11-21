@@ -65,6 +65,33 @@
 - reduced motion では、base で transition だけを一律に止める。animation は、止めたときの見せ方(spinner をどう見せるかなど)が部品ごとに違うので、部品の中で `motion-reduce:` で決める。base で animation まで `!important` で止めると、部品で見せ方を作れない。
 - forced-colors では、役割の変数をシステムの色(`Highlight` など)に差し替える。
 
+## 部品の層
+
+| 置く所                | 中身                                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------------------ |
+| `tv.ts`               | theme.css の名前を merge の設定に入れた `tv` と `merge`                                                |
+| `typography.ts`       | 文字の役割と、目盛りの組と太さの対応(組を書けるのはここだけ)                                           |
+| `primitives/`         | ボタン・リンク・入力欄・知らせの帯など、いちばん小さな部品。React Aria Components を使えるのはここだけ |
+| `layout/`             | 並べ方(`Stack`・`Cluster`・`Center`・`AppShell`)と文字(`Text`・`Heading`)                              |
+| `patterns/`           | primitives と layout を組み合わせた、画面に共通の形(`PageHeader` など)                                 |
+| `features/<名前>/ui/` | 1つの画面だけの部品(`ui/` と同じ決まり)                                                                |
+
+- import の向きは、patterns → primitives・layout。layout は primitives と patterns を、primitives は patterns を import しない(lint で止まる)。layout は並べ方と文字だけを持つ層で、操作を持たない。
+- React Aria Components(`react-aria`・`react-stately`・`@react-aria/*`・`@react-stately/*`・`@internationalized/*` と、型だけの import も)を import できるのは `primitives/` だけ。primitives は、React Aria Components の props の型を extends せず、自分の props の型を持つ。画面のコードに、ライブラリの props(`className` の関数や、`data-*` の render props など)を見せない。ライブラリを替えるときに直すのは primitives だけになる。
+- `tailwind-variants` は `tv.ts` だけが import し、ほかは `tv.ts` の `tv` と `merge` を使う(lint で止まる)。既定の入口の `tv` は theme.css の名前を知らず、`text-base`(`base` は t-shirt の大きさの名前ではない)を色と取り違え、`text-fg text-base/2xl` の色を消す。
+- merge の設定には、theme.css の名前(色・文字の目盛り・角丸・影・重ね順・幅・動き)と `@utility` の名前を入れる。theme.css の名前ごとに「同じ組の2つを渡すと後だけが残る」ことと、`@utility` ごとに組の相手を決めてあることを、theme.css を読むテスト(`apps/admin/__tests__/tailwind-merge.test.ts`)で確かめる。名前の一覧と見比べるテストにすると、設定を写しただけになり、merge が本当に効くかを確かめない。`state-disabled` は透明度と押せなさを変えるだけで、hover や押した状態とは組にしない(組にすると、`state-hover state-disabled` で hover の見た目が消える)。
+- 文字の役割と組:`body`(`text-sm/xl`・400)・`body-long`(`text-sm/2xl`・400。長い文)・`caption`(`text-xs/lg`・400)・`label`(`text-sm/xl`・600)・`section`(`text-base/2xl`・600)・`page`(`text-xl/3xl`・700)・`display`(`text-3xl/5xl`・700)。`Heading` は段(h1〜h3)から役割の既定を決め(1 は `page`、2 と 3 は `section`)、見た目と段を別々に選べる。
+- `UiProvider`(`primitives/ui-provider.tsx`)が、React Aria Components に、html の `lang` から決めた言語(`I18nProvider`)と、TanStack Router での移り方(`RouterProvider`)を渡す。リンクは TanStack Router の型の付いた行き先だけを受け、画面を読み込み直さずに移る。
+
+### 部品の決まり
+
+- **塗りのボタン**:`border border-transparent` を付ける。forced-colors で、塗りが消えても線として残る。
+- **押せない・送信中**:見た目(`state-disabled` など)だけでなく、React Aria Components の props(`isDisabled`・`isPending`)で動きを止める。CSS の `pointer-events` はキーボードの操作を止めない。送信中のボタンは、focus を残したまま押せなくし、回る輪を出す(管理画面の「送信中はボタンを無効にする」)。
+- **リンク**:いつも下線を付ける。`primary` が中立色なので、色だけではリンクと分からない。
+- **入力欄**:見出し・補足・誤りの知らせを、React Aria Components の slot で入力欄に結びつけ、補足と誤りを入力欄の説明として読み上げさせる。server が断った入力は、`Form` の `validationErrors` で入力欄ごとに出す。
+- **知らせの帯**:誤り(`danger`)は `alert` にしてすぐに読み上げ、ほかは割り込まない `status` にする。
+- 選んだ状態・今いる場所・浮かぶもの(Dialog・Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし形でも示す、今いる場所は `aria-current` と形で示す、浮かぶものは border と `shadow-overlay` を付ける)。
+
 ## 検査
 
 どの決まりも、文書だけでは守られないので、lint とテストで止める(リポジトリの `DECISIONS.md` の「境界はツールで強制する」)。lint の設定は `tooling/lint/config/admin-classes.ts`、仕組みは `tooling/DECISIONS.md` にある。
@@ -98,5 +125,5 @@
 ## 割り切ったこと
 
 - **検査が見ない class の渡し方**:JSX の属性と、`tv`・`merge` などの呼び出しの中の文字列だけを検査する。DOM を直に触る `element.classList.add()` や `element.style`、`className` に渡した、`tv` で作っていない関数の戻り値は見ない。今の部品にはどれも無く、要る場面が出たら、そこで使える範囲を決める。参照先まで追う検査は、作る手間に見合わない。
-
+- **入力欄の枠の濃さ**:入力欄の枠は `line` で描き、地とのコントラストは 3:1 に届かない(未選択の Checkbox・Switch の枠は `fg-muted` で描くと決めたが、入力欄は決めていない)。入力欄は面(`surface`)と影と見出しで見分けられ、管理者1人が使う画面なので、今は受け入れる。見本の画面ができたら、ユーザーと見直す。
 - **Windows の和文の太さ**:Windows の和文の字体には 600 が無いものがあり、600 と 700 の区別がつかないことがある(実機では確かめていない)。管理画面は管理者1人が Mac で使うので、受け入れる(ユーザーが決めた)。公開サイトは、作るときに決める。

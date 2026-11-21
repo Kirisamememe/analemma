@@ -105,6 +105,34 @@ export const WORKSPACE_BUN_GLOBALS: readonly RestrictedGlobal[] = [
   { name: "Bun", message: WORKSPACE_BUN },
 ];
 
+/** 部品のライブラリ(React Aria Components と、その下の層)。 */
+export const UI_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
+  {
+    group: [
+      "react-aria-components",
+      "react-aria",
+      "react-stately",
+      "@react-aria/*",
+      "@react-stately/*",
+      "@internationalized/*",
+    ],
+    message:
+      "React Aria Components は ui/primitives/ の中でだけ使います。ほかの場所は primitives の部品を使います。",
+  },
+];
+
+/** merge の設定を入れていない、tailwind-variants の入口。 */
+export const VARIANT_LIBRARY_PATHS: readonly RestrictedPath[] = [
+  "tailwind-variants",
+  "tailwind-variants/lite",
+  "tailwind-variants/config",
+  "tailwind-merge",
+].map((name) => ({
+  name,
+  message:
+    "tv と merge は ui/tv.ts から import します。theme.css の名前を merge の設定に入れてあります。",
+}));
+
 /** 管理画面の `.ts` で止める、React。 */
 export const REACT_PATHS: readonly RestrictedPath[] = [
   { name: "react", message: REACT },

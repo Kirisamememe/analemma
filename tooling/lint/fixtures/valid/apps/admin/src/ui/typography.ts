@@ -1,4 +1,4 @@
-import { tv } from "tailwind-variants";
+import { tv } from "./tv";
 
 /** 文字の役割と、目盛りの組と太さの対応。 */
 export const text = tv({

@@ -1,0 +1,93 @@
+import type { OxlintOverride } from "oxlint";
+
+import {
+  REACT_PATHS,
+  UI_LIBRARY_PATTERNS,
+  VARIANT_LIBRARY_PATHS,
+  WORKSPACE_BUN_GLOBALS,
+  WORKSPACE_RUNTIME_PATTERNS,
+  restrictApis,
+  type RestrictedApis,
+} from "./restricted-apis.ts";
+
+/** ほかの層を import させない、相対パスの形。 */
+const layerPatterns = (layers: readonly string[], message: string) => [
+  {
+    group: layers.flatMap((layer) => [`**/${layer}`, `**/${layer}/**`]),
+    message,
+  },
+];
+
+const LAYOUT_LAYERS = layerPatterns(
+  ["primitives", "patterns"],
+  "ui/layout/ は primitives と patterns を import しません(並べ方と文字だけを持つ層)。",
+);
+
+const PRIMITIVE_LAYERS = layerPatterns(
+  ["patterns"],
+  "ui/primitives/ は patterns を import しません(patterns が primitives を組み合わせる)。",
+);
+
+const adminApis = (
+  logic: boolean,
+  { imports, globals }: RestrictedApis,
+): RestrictedApis => ({
+  imports: {
+    paths: [...(logic ? REACT_PATHS : []), ...(imports.paths ?? [])],
+    patterns: [...WORKSPACE_RUNTIME_PATTERNS, ...(imports.patterns ?? [])],
+  },
+  globals: [...WORKSPACE_BUN_GLOBALS, ...globals],
+});
+
+const byExtension = (
+  directory: string,
+  apis: RestrictedApis,
+): OxlintOverride[] => [
+  {
+    files: [`**/apps/admin/src/${directory}*.ts`],
+    rules: restrictApis(adminApis(true, apis)),
+  },
+  {
+    files: [`**/apps/admin/src/${directory}*.tsx`],
+    rules: restrictApis(adminApis(false, apis)),
+  },
+];
+
+/** 管理画面の境界を守る設定(後に書いたものが勝つ)。 */
+export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
+  { files: ["apps/admin/**"], env: { browser: true } },
+  ...byExtension("**/", {
+    imports: { paths: VARIANT_LIBRARY_PATHS, patterns: UI_LIBRARY_PATTERNS },
+    globals: [],
+  }),
+  ...byExtension("ui/primitives/**/", {
+    imports: { paths: VARIANT_LIBRARY_PATHS, patterns: PRIMITIVE_LAYERS },
+    globals: [],
+  }),
+  ...byExtension("ui/layout/**/", {
+    imports: {
+      paths: VARIANT_LIBRARY_PATHS,
+      patterns: [...UI_LIBRARY_PATTERNS, ...LAYOUT_LAYERS],
+    },
+    globals: [],
+  }),
+  {
+    files: ["**/apps/admin/src/ui/tv.ts"],
+    rules: restrictApis(
+      adminApis(true, {
+        imports: { patterns: UI_LIBRARY_PATTERNS },
+        globals: [],
+      }),
+    ),
+  },
+  {
+    files: ["**/apps/admin/src/**/*.ts"],
+    rules: { "project/require-sibling-test": "error" },
+  },
+  {
+    files: ["**/apps/admin/src/**/*.tsx"],
+    rules: {
+      "project/require-sibling-test": ["error", { branchingComponents: true }],
+    },
+  },
+];

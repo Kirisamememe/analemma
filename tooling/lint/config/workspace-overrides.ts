@@ -1,7 +1,6 @@
 import type { OxlintOverride } from "oxlint";
 
 import {
-  REACT_PATHS,
   WORKSPACE_BUN_GLOBALS,
   WORKSPACE_RUNTIME_PATTERNS,
   restrictApis,
@@ -78,19 +77,8 @@ export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
       "unicorn/prefer-type-error": "off",
     },
   },
-  { files: ["apps/admin/**"], env: { browser: true } },
   {
-    files: ["**/apps/admin/src/**/*.ts"],
-    rules: {
-      "project/require-sibling-test": "error",
-      ...restrictApis({
-        imports: { paths: REACT_PATHS, patterns: WORKSPACE_RUNTIME_PATTERNS },
-        globals: WORKSPACE_BUN_GLOBALS,
-      }),
-    },
-  },
-  {
-    files: ["**/packages/*/src/**", "**/apps/admin/src/**/*.tsx"],
+    files: ["**/packages/*/src/**"],
     rules: restrictApis({
       imports: { patterns: WORKSPACE_RUNTIME_PATTERNS },
       globals: WORKSPACE_BUN_GLOBALS,
@@ -124,11 +112,5 @@ export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
   {
     files: ["**/packages/client/src/cli/main.ts"],
     rules: { "node/no-process-env": "off" },
-  },
-  {
-    files: ["**/apps/admin/src/**/*.tsx"],
-    rules: {
-      "project/require-sibling-test": ["error", { branchingComponents: true }],
-    },
   },
 ];

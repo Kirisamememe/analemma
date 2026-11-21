@@ -1,7 +1,12 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { useLocation } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { useTranslation } from "../i18n/use-translation";
+import { Center } from "../ui/layout/center";
+import { Stack } from "../ui/layout/stack";
+import { Text } from "../ui/layout/text";
+import { PageHeader } from "../ui/patterns/page-header";
+import { Link } from "../ui/primitives/link";
 
 /** 無いパスを開いたときの画面。 */
 export const NotFoundPage = (): ReactNode => {
@@ -9,10 +14,16 @@ export const NotFoundPage = (): ReactNode => {
   const { pathname } = useLocation();
 
   return (
-    <>
-      <h1>{t("notFound.title")}</h1>
-      <p>{t("notFound.description", { path: pathname })}</p>
-      <Link to="/">{t("notFound.backHome")}</Link>
-    </>
+    <Center width="page">
+      <Stack gap={4}>
+        <PageHeader
+          description={t("notFound.description", { path: pathname })}
+          title={t("notFound.title")}
+        />
+        <Text>
+          <Link href="/">{t("notFound.backHome")}</Link>
+        </Text>
+      </Stack>
+    </Center>
   );
 };

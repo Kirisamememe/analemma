@@ -1,10 +1,16 @@
 import type { ReactNode } from "react";
 
 import { useTranslation } from "../i18n/use-translation";
+import { Center } from "../ui/layout/center";
+import { PageHeader } from "../ui/patterns/page-header";
 
 /** ログインした後に最初に開く画面。 */
 export const HomePage = (): ReactNode => {
   const t = useTranslation();
 
-  return <h1>{t("home.title")}</h1>;
+  return (
+    <Center width="page">
+      <PageHeader title={t("home.title")} />
+    </Center>
+  );
 };

@@ -12,7 +12,7 @@
 - `src/i18n/`:訳と言語。訳は `messages/` に言語ごとに1ファイル。
 - `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値。
 - `src/boot/`:最初の描画の前に流す script。
-- `src/ui/`:デザインシステム(`theme.css` と部品)。
+- `src/ui/`:デザインシステム。`theme.css`、`tv.ts`(merge の設定を入れた `tv`)、`typography.ts`(文字の役割)、`primitives/`(React Aria Components を包む部品)、`layout/`(並べ方と文字)、`patterns/`(組み合わせた形)。層と決まりは `src/ui/DECISIONS.md`。
 - `test-setup/`:管理画面のテストの前に読み込む、DOM の用意(happy-dom)。
 
 ## 書き方
@@ -27,6 +27,7 @@
 - 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/translate.ts` の `TRANSLATIONS` に足し、`messages/` にファイルを置く。
 - route の code splitting(`import()`)は使わない。`no-dynamic-import` はそのまま効かせる。
 - 画面のコード(`src/ui/` と `src/features/*/ui/` の外)には、見た目の class を書かない。書けるのは `grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only` だけで、`className` は文字列のリテラルにし、`style` は書かない。並べ方・文字・色は `ui/` の部品の props で決める(lint で止まる)。
+- 部品は、層の向き(patterns → primitives・layout)を守る。React Aria Components は `ui/primitives/` の中でだけ使い、primitives は自分の props の型を持つ(ライブラリの props の型を extends しない)。`tv` は `ui/tv.ts` から import する(どれも lint で止まる)。
 - `ui/` の部品の class は、theme.css の役割だけで書く。止める class と理由は `src/ui/DECISIONS.md` の「検査」。止められたら、部品や役割を足すかを考え、`[…]` や抑制で逃げない。
 
 ## 開発とテスト

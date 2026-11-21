@@ -10,6 +10,27 @@ describe("使える API と書き方", () => {
       rule: "eslint(no-restricted-imports)",
     },
     {
+      label: "管理画面の画面のコードでの React Aria Components の import",
+      file: "apps/admin/src/routes/uses-aria.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/layout/ からの primitives の import",
+      file: "apps/admin/src/ui/layout/uses-primitive.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/primitives/ からの patterns の import",
+      file: "apps/admin/src/ui/primitives/uses-pattern.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label:
+        "管理画面の、merge の設定を入れていない tailwind-variants の import",
+      file: "apps/admin/src/ui/primitives/uses-default-tv.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
       label: "contract での Node の API の import",
       file: "packages/contract/src/uses-node.ts",
       rule: "eslint(no-restricted-imports)",
