@@ -37,7 +37,7 @@
 - `package.json` の `exports`・`bin`・`files` を、`dist/` に書き出したものに向ける。リポジトリの中で client を import するワークスペースは無いので、`dist/` に向けても困らない。
 - JS は Bun で bundle する(SDK と CLI を別々に)。`zod` と `@orpc/*` は外に出し、contract は中に含める。Node は、拡張子の無い相対 import と、`node_modules` の中の TypeScript を読めないため。CLI には、ビルドのときに shebang を足す(ソースに書くと、単独の行のコメントとして lint に止められる)。
 - 型(`.d.ts`)は `tsc`(`tsconfig.build.json`)で書き出す。型は `@analemma/contract` を参照するので、client を公開するには、contract も公開する必要がある。
-- 公開するときは `bun publish` を使う。`package.json` の `workspace:*` を、公開する版の番号に書き換えるのは Bun だけで、`npm pack`・`npm publish` は `workspace:*` を残し、利用者の側で依存を解決できない(Codex のレビューで見つかった)。
+- 公開するときは `bun publish` を使う。`package.json` の `workspace:*` を、公開するバージョンに書き換えるのは Bun だけで、`npm pack`・`npm publish` は `workspace:*` を残し、利用者の側で依存を解決できない(Codex のレビューで見つかった)。
 - `private: true` は、公開するときに外す(ユーザーが決めるまで公開しない)。
 
 ## TypeScript の設定
