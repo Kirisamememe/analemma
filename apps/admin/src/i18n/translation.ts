@@ -26,3 +26,8 @@ export type MessageArgs<Key extends MessageKey> = [
 
 /** 英語以外の言語の訳(訳していないキーは省ける)。 */
 export type Translation = { readonly [Key in MessageKey]?: string };
+
+/** 引数を取らない訳のキー。 */
+export type PlainMessageKey = {
+  [Key in MessageKey]: MessageArgs<Key> extends [] ? Key : never;
+}[MessageKey];

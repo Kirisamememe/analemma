@@ -1,0 +1,126 @@
+import { cleanup, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, describe, expect, test } from "bun:test";
+
+import type { Authenticator } from "../../features/auth/webauthn/create-authenticator";
+import type { FakeReply, FakeRoutes } from "../../testing/create-fake-api";
+import { renderApp } from "../../testing/render-app";
+
+afterEach(cleanup);
+
+const CREDENTIAL = {
+  id: "credential-id",
+  type: "public-key" as const,
+  response: {
+    clientDataJSON: "AQ",
+    authenticatorData: "Ag",
+    signature: "Aw",
+    userHandle: "BA",
+  },
+};
+
+const answering: Authenticator = {
+  authenticate: () =>
+    Promise.resolve({ _tag: "Answered", credential: CREDENTIAL }),
+  register: () => Promise.resolve({ _tag: "Cancelled" }),
+};
+
+const cancelling: Authenticator = {
+  authenticate: () => Promise.resolve({ _tag: "Cancelled" }),
+  register: () => Promise.resolve({ _tag: "Cancelled" }),
+};
+
+const EXPIRY = { output: { expiresAt: "2026-01-08T00:00:00.000Z" } };
+
+const serverWith = (verify: FakeReply): FakeRoutes => {
+  let signedIn = false;
+
+  return {
+    "admin/session/get": () =>
+      signedIn ? EXPIRY : { error: "UNAUTHORIZED", status: 401 },
+    "auth/login/options": () => ({
+      output: {
+        challenge: "AQID",
+        rpId: "localhost",
+        allowCredentials: [],
+        userVerification: "required",
+        timeout: 300_000,
+      },
+    }),
+    "auth/login/verify": () => {
+      signedIn = "output" in verify;
+
+      return verify;
+    },
+  };
+};
+
+const pressLogIn = async (): Promise<void> => {
+  await userEvent.click(
+    await screen.findByRole("button", { name: "パスキーでログイン" }),
+  );
+};
+
+describe("LoginPage", () => {
+  test("ログインすると、ログインの前に開こうとした画面に戻る", async () => {
+    const { history } = renderApp({
+      path: "/login?redirect=%2Fmissing",
+      routes: serverWith(EXPIRY),
+      authenticator: answering,
+    });
+
+    await pressLogIn();
+
+    expect(
+      await screen.findByRole("heading", { name: "ページが見つかりません" }),
+    ).toBeDefined();
+    expect(history.location.pathname).toBe("/missing");
+  });
+
+  test("ログインの最中は、ほかの管理用 API を呼ばない", async () => {
+    const { calls } = renderApp({
+      path: "/login",
+      routes: serverWith(EXPIRY),
+      authenticator: answering,
+    });
+
+    await pressLogIn();
+    await screen.findByRole("heading", { name: "Stilus" });
+
+    expect(calls).toEqual([
+      "auth/login/options",
+      "auth/login/verify",
+      "admin/session/get",
+    ]);
+  });
+
+  test("知らないパスキーなら、そのことを知らせ、ログインの画面に留まる", async () => {
+    const { history } = renderApp({
+      path: "/login",
+      routes: serverWith({ error: "UNKNOWN_CREDENTIAL", status: 401 }),
+      authenticator: answering,
+    });
+
+    await pressLogIn();
+
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "このパスキーは登録されていません。消されたパスキーかもしれません。",
+    );
+    expect(history.location.pathname).toBe("/login");
+  });
+
+  test("認証器で取り消したら、割り込まずに知らせる", async () => {
+    renderApp({
+      path: "/login",
+      routes: serverWith(EXPIRY),
+      authenticator: cancelling,
+    });
+
+    await pressLogIn();
+
+    expect((await screen.findByRole("status")).textContent).toBe(
+      "ログインを取り消しました。",
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+});

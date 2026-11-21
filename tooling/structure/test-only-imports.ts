@@ -7,6 +7,7 @@ import type { SourceFile } from "./source-file";
 export const TEST_ONLY_DIRECTORIES = [
   "apps/server/src/test-client/",
   "apps/server/src/platform/test-database/",
+  "apps/admin/src/testing/",
 ];
 
 const TEST_DIRECTORY = "/__tests__/";
