@@ -36,15 +36,28 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 ## HTTP の層
 
 - **Hono を使う**:API の仕事(ルーティング、入力と出力の検証、型付きのエラー、認可の middleware)は oRPC が持つ。その外側の HTTP の仕事(セキュリティのヘッダー、CSRF の確認、リクエストの本文の大きさの上限、静的ファイル、ETag、Cookie)は、自分たちで書かずに Hono の middleware を使う。Hono は Web 標準で書かれていて Bun 以外でも動くので、「Web 標準で書く」方針に合う。Elysia は Bun 専用なので使わない。NestJS のような大きなフレームワークは、この規模には重い。
-- oRPC の handler は、Hono の `/api/*` のルートとしてつなぐ。今は oRPC のプロトコル(`RPCHandler`)だけを出す。contract から作る OpenAPI の handler は、公開サイトが API を使い始めるときに足す。
-- middleware は `secureHeaders`・`csrf`・`bodyLimit`(`/api` は 1MB まで)。管理画面の静的ファイルの配信は、管理画面ができてから足す。
+- oRPC の handler は、Hono の `/api/*` のルートとしてつなぐ。oRPC のプロトコル(`RPCHandler`)だけを出す。公開サイトも、client(oRPC の client)で公開 API を呼ぶので、contract から作る OpenAPI の handler は、今は足さない。
+- middleware は `secureHeaders`・`csrf`・`bodyLimit`(`/api` は 1MB まで)。管理画面の静的ファイルの配信は、管理画面ができてから足す。内部用のポートには `bodyLimit` だけを掛ける(「2つのポート」)。
 - バージョンは安定版で始める(Hono 4、oRPC 1)。Hono 5 と oRPC 2 は、まだ RC と beta。
+
+## 2つのポート
+
+CMS のプロセスが、外部用のポート(`PORT`、既定は 8787)と内部用のポート(`INTERNAL_PORT`、既定は 8788)の2つで待ち受ける(ユーザーと決めた)。
+
+- 外部用のポートでは、管理用 API と認証用 API(と、後で管理画面の静的ファイル)を受ける。リバースプロキシの向こうのブラウザから届く。
+- 内部用のポートでは、公開 API を受ける。同じサーバーで動く公開サイト(Amayadori)のサーバーだけが呼ぶ。サーバーの外には出さない。`INTERNAL_HOST`(既定は 127.0.0.1)で、待ち受けるアドレスを決める。公開サイトを別のコンテナで動かすときは、コンテナの内部のネットワークのアドレスにし、ポートをホストに公開しない。
+- リバースプロキシのパスの設定で分けない。設定を一つ誤ると、公開 API が外から届く。待ち受けるポートで分ければ、外に出さないための約束は「内部用のポートを公開しない」だけになる。
+- 公開 API を外に出さないことは、ユーザーと決めた。読む API が外に出ない方が安全で、CMS と同じサーバーで動く処理を持つサイトしか使えないことは受け入れた。
+- どちらのポートで、どの procedure を受けるかは、contract のアクセス区分で決める(`app.ts` の `externalRouter`・`internalRouter`)。外部用のポートに公開 API が無いこと、内部用のポートに管理用 API と認証用 API が無いことを、contract を列挙するテスト(`src/__tests__/app.test.ts`)で確かめる。
+- 内部用のポートには、ブラウザに向けた守り(`secureHeaders`・`csrf()`・Origin の確認)を掛けない。ブラウザから呼ぶものではなく、Cookie も使わない。本文の大きさの上限と、受けるメソッドの制限は、外部用のポートと同じに掛ける。
+- health(`public.health.get`)は公開 API なので、内部用のポートにだけ置く。コンテナの healthcheck は、同じマシンの中から呼ぶ。
+- `PORT` と `INTERNAL_PORT` が同じ番号なら、起動の時点で断る(どちらも `0` のときを除く)。`INTERNAL_PORT` も、`0` なら OS が空いているポートを選び、起動のログに実際のポートを書く。
 
 ## contract の分け方
 
 contract を3つのアクセス区分に分け、server ではそれぞれの base から実装する。
 
-- `public`(公開 API):誰でも呼べる。公開サイト向けの client には、`public` だけを含める。
+- `public`(公開 API):内部用のポートで受け、資格情報を求めない。公開サイトのサーバーからだけ呼ぶので、CORS も要らない。公開サイト向けの client には、`public` だけを含める。
 - `auth`(認証用 API):セッション無しで呼ぶ、ログインと登録用 URL からの登録。ログインの前に呼ぶので `admin` には置けないが、公開サイトには要らないので `public` にも置かない。`authProcedures` から作る。
 - `admin`(管理用 API):ログイン中の管理者だけ。
 

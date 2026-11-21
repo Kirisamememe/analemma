@@ -60,7 +60,7 @@ tsrs はまだ prerelease なので、型エラーの判定は公式の `tsc` �
 ## リポジトリの境界
 
 - client は contract にだけ依存する。server を import するワークスペースは無い。contract はどのワークスペースも import しない。client は npm で公開して公開サイトが使うので、contract が import したものは公開サイトとその型にまで届いてしまう。
-- 本番は server のプロセス1つで、`/api` と管理画面の静的ファイルを同じ origin で配信する。
+- 本番は server のプロセス1つで、外部用のポートから `/api` と管理画面の静的ファイルを同じ origin で配信する。公開 API は、内部用のポートでだけ受ける(`apps/server/DECISIONS.md` の「2つのポート」)。
 
 ## DB の形と API の形を分ける
 
