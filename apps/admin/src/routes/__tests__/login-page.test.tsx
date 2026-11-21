@@ -94,7 +94,7 @@ describe("LoginPage", () => {
     ]);
   });
 
-  test("知らないパスキーなら、そのことを知らせ、ログインの画面に留まる", async () => {
+  test("登録されていないパスキーなら、そのことを知らせ、ログインの画面に留まる", async () => {
     const { history } = renderApp({
       path: "/login",
       routes: serverWith({ error: "UNKNOWN_CREDENTIAL", status: 401 }),
@@ -104,12 +104,12 @@ describe("LoginPage", () => {
     await pressLogIn();
 
     expect((await screen.findByRole("alert")).textContent).toBe(
-      "このパスキーは登録されていません。消されたパスキーかもしれません。",
+      "このパスキーは登録されていません。削除されたパスキーかもしれません。",
     );
     expect(history.location.pathname).toBe("/login");
   });
 
-  test("認証器で取り消したら、割り込まずに知らせる", async () => {
+  test("認証器でキャンセルしたら、割り込まずに知らせる", async () => {
     renderApp({
       path: "/login",
       routes: serverWith(EXPIRY),
@@ -119,7 +119,7 @@ describe("LoginPage", () => {
     await pressLogIn();
 
     expect((await screen.findByRole("status")).textContent).toBe(
-      "ログインを取り消しました。",
+      "ログインをキャンセルしました。",
     );
     expect(screen.queryByRole("alert")).toBeNull();
   });

@@ -2,7 +2,7 @@ import type { PlainMessageKey } from "../../i18n/translation";
 import type { EnrollResult } from "./enroll";
 import type { LogInResult } from "./log-in";
 
-/** 画面に出す知らせの帯の中身。 */
+/** 画面に出す `Notice` の中身。 */
 export type AuthNotice = {
   /** 知らせの用途。 */
   readonly tone: "info" | "warning" | "danger";
@@ -10,7 +10,7 @@ export type AuthNotice = {
   readonly message: PlainMessageKey;
 };
 
-/** 想定していない失敗で終わったこと。 */
+/** 想定外の失敗で終わったこと。 */
 type Unexpected = "Unexpected";
 
 /** ログインの結果を、画面の知らせにする(知らせることが無ければ undefined)。 */

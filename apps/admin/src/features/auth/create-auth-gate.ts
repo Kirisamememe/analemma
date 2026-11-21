@@ -1,6 +1,6 @@
 import type { ApiClientOptions } from "../../api/create-api-client";
 
-/** ログインの最中に、管理用 API を送らせない門。 */
+/** ログインの最中に、管理用 API を送らせない gate。 */
 export type AuthGate = {
   /** 管理用 API を、ログインの最中なら終わるまで待ってから送る。 */
   readonly sendAdmin: <T>(send: () => Promise<T>) => Promise<T>;
@@ -10,7 +10,7 @@ export type AuthGate = {
 
 const ADMIN_PATH = "/api/admin/";
 
-/** ログインと管理用 API が重ならないようにする門を作る。 */
+/** ログインと管理用 API が重ならないようにする gate を作る。 */
 export const createAuthGate = (): AuthGate => {
   let inFlight = 0;
   let idle: PromiseWithResolvers<undefined> | undefined;
@@ -68,7 +68,7 @@ export const createAuthGate = (): AuthGate => {
   return { sendAdmin, authenticate };
 };
 
-/** 管理用 API のリクエストだけを、門を通して送る fetch にする。 */
+/** 管理用 API のリクエストだけを、gate を通して送る fetch にする。 */
 export const gateAdminRequests =
   (
     gate: AuthGate,

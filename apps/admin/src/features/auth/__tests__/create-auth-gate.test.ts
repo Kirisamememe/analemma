@@ -63,7 +63,7 @@ describe("createAuthGate", () => {
     ]);
   });
 
-  test("ログインが失敗しても、門を開ける", async () => {
+  test("ログインが失敗しても、gate を開ける", async () => {
     const gate = createAuthGate();
 
     expect(
@@ -76,7 +76,7 @@ describe("createAuthGate", () => {
 });
 
 describe("gateAdminRequests", () => {
-  test("管理用 API だけを門に通し、認証用 API はそのまま送る", async () => {
+  test("管理用 API だけを gate に通し、認証用 API はそのまま送る", async () => {
     const gate = createAuthGate();
     const sent: string[] = [];
     const fetch = gateAdminRequests(gate, (request) => {

@@ -48,7 +48,7 @@ describe("toAuthenticationCredential", () => {
 });
 
 describe("toRegistrationCredential", () => {
-  test("登録の応答を、通信の手段と一緒に送る形にする", () => {
+  test("登録の応答を、transports と一緒に送る形にする", () => {
     expect(
       toRegistrationCredential({
         id: "credential-id",

@@ -60,7 +60,7 @@ describe("router", () => {
     });
 
     expect((await screen.findByRole("alert")).textContent).toBe(
-      "ログインの状態を確かめられませんでした。もう一度試してください。",
+      "ログイン状態を確認できませんでした。もう一度試してください。",
     );
 
     reachable = true;

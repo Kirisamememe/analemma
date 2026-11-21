@@ -40,7 +40,7 @@ describe("toCreationOptions", () => {
     ]);
   });
 
-  test("ブラウザの型に無い通信の手段は渡さない", () => {
+  test("ブラウザの型に無い transports は渡さない", () => {
     expect(
       toCreationOptions(OPTIONS).excludeCredentials?.map(
         ({ transports }) => transports,
@@ -48,7 +48,7 @@ describe("toCreationOptions", () => {
     ).toEqual([["internal", "hybrid"]]);
   });
 
-  test("RP と user の名前と、認証器の選び方をそのまま渡す", () => {
+  test("RP と user の名前と、`authenticatorSelection` をそのまま渡す", () => {
     const options = toCreationOptions(OPTIONS);
 
     expect({

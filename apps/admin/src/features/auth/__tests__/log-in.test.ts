@@ -63,7 +63,7 @@ describe("logIn", () => {
     expect(server.sent()).toEqual(CREDENTIAL);
   });
 
-  test("認証器で取り消したら、server に確かめさせない", async () => {
+  test("認証器でキャンセルしたら、server に確かめさせない", async () => {
     const server = serverReplying({ output: {} });
 
     expect(await logIn({ api: server.api, authenticator: cancelling })).toEqual(

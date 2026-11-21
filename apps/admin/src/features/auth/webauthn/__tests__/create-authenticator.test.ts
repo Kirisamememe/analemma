@@ -97,7 +97,7 @@ describe("createAuthenticator", () => {
   });
 
   test.each(["NotAllowedError", "AbortError"])(
-    "利用者が取り消したとき(%s)は、取り消しとして返す",
+    "利用者がキャンセルしたとき(%s)は、キャンセルとして返す",
     async (name) => {
       const authenticator = createAuthenticator(storeThrowing(name));
 
@@ -120,7 +120,7 @@ describe("createAuthenticator", () => {
     });
   });
 
-  test("資格情報が返らなければ、取り消しとして返す", async () => {
+  test("資格情報が返らなければ、キャンセルとして返す", async () => {
     const authenticator = createAuthenticator(storeAnswering(null));
 
     expect(await authenticator.authenticate(AUTHENTICATION_OPTIONS)).toEqual({
@@ -128,7 +128,7 @@ describe("createAuthenticator", () => {
     });
   });
 
-  test("想定していない失敗は、そのまま throw する", () => {
+  test("想定外の失敗は、そのまま throw する", () => {
     const authenticator = createAuthenticator(storeThrowing("SecurityError"));
 
     expect(

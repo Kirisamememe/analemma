@@ -25,7 +25,7 @@ type Answered<Credential> = {
 
 /** 認証器が資格情報を返さなかったこと。 */
 type NotAnswered = {
-  /** 取り消されたか、登録済みの認証器だったか。 */
+  /** キャンセルされたか、登録済みの認証器だったか。 */
   readonly _tag: "Cancelled" | "AlreadyRegistered";
 };
 

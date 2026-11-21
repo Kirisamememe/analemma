@@ -27,7 +27,7 @@ export type RouterContext = {
   readonly api: ApiClient;
   /** パスキーの認証器。 */
   readonly authenticator: Authenticator;
-  /** ログインの最中に、管理用 API を送らせない門。 */
+  /** ログインの最中に、管理用 API を送らせない gate。 */
   readonly gate: AuthGate;
 };
 
