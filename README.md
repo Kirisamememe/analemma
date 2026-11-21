@@ -6,13 +6,13 @@
 
 ## 構成
 
-| 名前     | 役割                                           | 場所                                  |
-| -------- | ---------------------------------------------- | ------------------------------------- |
-| Analemma | CMS の本体。Bun で動く                         | `apps/server`                         |
-| Stilus   | 管理画面。React の SPA                         | `apps/admin`                          |
-| —        | API の contract(zod のスキーマと型)            | `packages/contract`                   |
-| —        | 公開サイト向けの型付き SDK(npm で公開する予定) | `packages/client`(`@analemma/client`) |
-| —        | 開発のツール(lint の自作のルール、git の hook) | `tooling`                             |
+| 名前     | 役割                                                                | 場所                                  |
+| -------- | ------------------------------------------------------------------- | ------------------------------------- |
+| Analemma | CMS の本体。Bun で動く                                              | `apps/server`                         |
+| Stilus   | 管理画面。React の SPA                                              | `apps/admin`                          |
+| —        | API の contract(zod のスキーマと型)                                 | `packages/contract`                   |
+| —        | 公開サイト向けの型付き SDK と、種類の定義を送る CLI(npm で公開する) | `packages/client`(`@analemma/client`) |
+| —        | 開発のツール(lint の自作のルール、git の hook)                      | `tooling`                             |
 
 - フォルダの名前とパッケージ名は役割の名前にする。Analemma・Stilus は愛称で、README・ログ・画面の表示に使う。
 - 公開サイト(Amayadori)は別のリポジトリで、`@analemma/client` だけを使う。

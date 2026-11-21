@@ -19,10 +19,27 @@
 - CMS へのリクエストは、リダイレクトを追わない(`redirect: "error"`)。内部用のポートの CMS はリダイレクトを返さず、返ったら設定の誤りなので、ほかの場所に送り直さない(Codex のレビューで見つかった)。
 - oRPC の client(RPC のプロトコル)で呼ぶ。contract の型をそのまま使え、OpenAPI の handler を server に足さずに済む。
 
+## CLI(`cli/`)
+
+- `analemma push-kinds <定義のファイル>` で、定義のファイルの default export の種類を、デプロイ用 API に送る。
+- 定義のファイルは、実行するときにしかパスが分からないので、`import()` で読み込む(`main.ts` の1か所だけ。`project/no-dynamic-import` を理由付きで抑制する)。抑制の理由のとおり、境界を守る `no-restricted-imports` を避けるためではない。
+- トークンは環境変数(`ANALEMMA_DEPLOY_TOKEN`)だけで受け取る。引数で受け取ると、シェルの履歴やプロセスの一覧に残る。URL は、環境変数(`ANALEMMA_URL`)か `--url` で受け取る。
+- 終了コードは、受け付けられたら 0、断られた(合わないページがある・トークンが違う・定義のファイルが読めない)ら 1、使い方の誤りなら 2。CMS に届かないときと、CMS の想定外の失敗は、Node が失敗を書いて 1 で終わる。
+- 入出力(引数・環境変数・読み込み・fetch・出力)は、`main.ts` が `runCli` に渡す。`runCli` のテストは、contract を実装した偽の CMS(`@orpc/server`)を相手に流す。
+- CLI だけは Node の API(`node:util` など)を使う。lint の設定で、`src/cli/` に Node の API を許し、`process.env` は `main.ts` でだけ読める(`tooling/DECISIONS.md`)。
+
+## npm で公開する形
+
+- `package.json` の `exports`・`bin`・`files` を、`dist/` に書き出したものに向ける。リポジトリの中で client を import するワークスペースは無いので、`dist/` に向けても困らない。
+- JS は Bun で bundle する(SDK と CLI を別々に)。`zod` と `@orpc/*` は外に出し、contract は中に含める。Node は、拡張子の無い相対 import と、`node_modules` の中の TypeScript を読めないため。CLI には、ビルドのときに shebang を足す(ソースに書くと、単独の行のコメントとして lint に止められる)。
+- 型(`.d.ts`)は `tsc`(`tsconfig.build.json`)で書き出す。型は `@analemma/contract` を参照するので、client を公開するには、contract も公開する必要がある。
+- `private: true` は、公開するときに外す(ユーザーが決めるまで公開しない)。
+
 ## TypeScript の設定
 
-- `tsconfig.json` はテストを含めて Bun の型を足す。`tsconfig.src.json` は、テストを除いた SDK を、Web 標準の型(fetch・URL など。TypeScript では `DOM` の lib にある)だけで検査する。Bun と Node の型を使うコードが SDK に入ると、ここで落ちる。ブラウザだけの API(`window` など)は、型付きの lint が `tsconfig.json`(`DOM` の lib を持たない)で読むので、error 型として止まる。
+- `tsconfig.json` はテストと CLI を含めて Bun の型を足す。`tsconfig.src.json` は、テストと CLI を除いた SDK を、Web 標準の型(fetch・URL など。TypeScript では `DOM` の lib にある)だけで検査する。Bun と Node の型を使うコードが SDK に入ると、ここで落ちる。ブラウザだけの API(`window` など)は、型付きの lint が `tsconfig.json`(`DOM` の lib を持たない)で読むので、error 型として止まる。
 
 ## 割り切ったこと
 
 - **返した定義とスキーマの書き換え**:`defineKind` が返す `definition` や、項目の関数が返す zod のスキーマ(`group` の `.shape` など)を、後から書き換えると、CMS に送る定義と、公開サイトの中身のスキーマが食い違う。公開サイトのコードを書くのはサイトの持ち主で、型も `definition` を書き換える使い方を想定していないので、凍結する(`Object.freeze`)ことまではしない(Codex のレビューで挙がった)。
+- **Node の `node16` の解決**:`.d.ts` の相対 import は拡張子を持たない(lint が拡張子を禁じている)。`moduleResolution` が `node16`・`nodenext` の利用者は、型を解決できない。公開サイト(SvelteKit)は `bundler` で解決するので、公開の手順を決めるときに見直す。
