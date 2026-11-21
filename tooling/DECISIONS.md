@@ -29,7 +29,7 @@
   - `no-dynamic-import`:`import()` による動的な import を禁止する。境界を守る `no-restricted-imports` は動的な import を見ないので、`import()` なら Drizzle や Bun の API を、決めた場所の外から読めてしまう。今のコードでは、client の CLI の入口(`packages/client/src/cli/main.ts`)の1か所だけで、理由付きで抑制している(利用者の定義のファイルは、実行するときにしかパスが分からない)。
 - **管理画面の Tailwind CSS の class の検査**(eslint-plugin-better-tailwindcss を、Oxlint の JS のプラグインで動かす。設定は `tooling/lint/config/admin-classes.ts`)
   - 管理画面の `src/` にだけプラグインを読み込む(`overrides` の `jsPlugins`)。server などのファイルで、Tailwind CSS の設定を読む時間を使わない。プラグインの設定(`settings`)は `overrides` に書けないので、直下に書く。`cwd` を `apps/admin` にし、`entryPoint` に管理画面の `src/ui/app.css` を渡して、theme.css に無い class を「無い class」として落とす。
-  - 使うルールは、無い class・止める class・効き目がぶつかる class・重なった class・古い class・余分な空白・正規の書き方・class の並び。行の折り返しは整形と食い違うので使わない。
+  - 使うルールは、無い class・止める class・効き目がぶつかる class・重なった class・古い class・余分な空白・canonical な class(`enforce-canonical-classes`)・class の並び。行の折り返しは整形と食い違うので使わない。
   - 止める class は、場所ごとに違う(画面のコード、`ui/` と `features/*/ui/`、文字の役割を決める `ui/typography.ts`)。`overrides` は同じルールの options を丸ごと置き換えるので、止める形を部品にして、場所ごとの一覧を組み立てる(「設定を TypeScript で組み立てる」)。何を止めるかと理由は `apps/admin/src/ui/DECISIONS.md` にある。
   - selectors は、プラグインの既定から、class と関係の無い変数の名前(`style`・`styles`・`classes`)を除き、名前が `ClassName` で終わる属性と変数(`contentClassName` など)と、`ui/tv.ts` の `merge` の呼び出しを足す。既定のままだと、`Intl.NumberFormat` に渡す `const style = "currency"` まで class として止めた。
   - theme.css の色にどれも使ってよい utility を決めてあることと、文字の役割の組が theme.css の目盛りの名前であることを、テスト(`tooling/lint/__tests__/styles.test.ts`)で確かめる。色を足したときに、決まりを書き忘れると落ちる。

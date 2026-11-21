@@ -112,9 +112,9 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
   {
     pattern: "(?:^|:|-)dark:",
     message:
-      "dark: は使いません。昼と夜は theme.css の light-dark() で決めます。",
+      "dark: は使いません。light と dark は theme.css の light-dark() で決めます。",
   },
-  { pattern: "(?:^|:)!|!$", message: "! で優先させません。" },
+  { pattern: "(?:^|:)!|!$", message: "!(!important)は使いません。" },
   {
     pattern: "(?:^|:|-)(?:data|aria)-",
     message: "状態は theme.css の is-*: の variant で書きます。",
@@ -134,12 +134,11 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
   },
   {
     pattern: `${VARIANTS}(?:m|my|mt|mb|mbs|mbe)-(?!(?:0|auto)$)`,
-    message:
-      "縦の間は、親の gap で空けます(上と下の正の margin は使いません)。",
+    message: "上下の正の margin は使わず、親の gap で空けます。",
   },
   {
     pattern: `${VARIANTS}-?space-[xy]-`,
-    message: "子の間は、親の gap で空けます。",
+    message: "space-x/y は使わず、親の gap で空けます。",
   },
   {
     pattern: `${VARIANTS}leading-`,

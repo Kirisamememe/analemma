@@ -45,16 +45,16 @@ describe("管理画面の部品の class", () => {
       [6, "CSS 変数を直接読める"],
       [7, "dark: は使いません"],
       [8, "dark: は使いません"],
-      [9, "! で優先させません"],
-      [10, "! で優先させません"],
+      [9, "!(!important)は使いません"],
+      [10, "!(!important)は使いません"],
       [11, "状態は theme.css の is-*:"],
       [12, "状態は theme.css の is-*:"],
       [13, "重ね順は"],
       [14, "outline-none の代わりに"],
       [15, "余白は"],
       [16, "余白は"],
-      [17, "縦の間は"],
-      [18, "子の間は"],
+      [17, "上下の正の margin は使わず"],
+      [18, "space-x/y は使わず"],
       [19, "行間は"],
       [20, "文字の大きさは、行間と組"],
       [21, "文字の大きさと太さは"],
@@ -70,7 +70,7 @@ describe("管理画面の部品の class", () => {
       [31, "focus は class にせず"],
       [32, "focus は class にせず"],
       [33, "状態は theme.css の is-*:"],
-      [34, "縦の間は"],
+      [34, "上下の正の margin は使わず"],
     ];
 
     expect(diagnosticsOf({ file, rule: RESTRICTED }, expected)).toEqual(
@@ -117,7 +117,7 @@ describe("管理画面の部品の class", () => {
 });
 
 describe("プラグインの、制限のほかのルール", () => {
-  test("効き目のぶつかり・重なり・古い class・余分な空白・正規の書き方・並びに診断を出すこと", () => {
+  test("効き目のぶつかり・重なり・古い class・余分な空白・canonical でない class・並びに診断を出すこと", () => {
     const rules = new Set(
       ruleIdsOf(lintFixture("invalid/apps/admin/src/ui/plugin-rules.tsx")),
     );

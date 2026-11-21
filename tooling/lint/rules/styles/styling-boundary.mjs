@@ -109,7 +109,7 @@ const stylingBoundary = {
     type: "problem",
     docs: {
       description:
-        "管理画面の画面のコードに、式の className と style を書かせず、ui/ の className を検査できる形に、style を CSS 変数だけにし、JSX の props の spread を止める。",
+        "画面のコードでは式の className と style を止め、ui/ では className を検査できる形に、style を CSS 変数だけに限る。どちらでも JSX の props の spread を止める。",
     },
     schema: [
       {

@@ -13,7 +13,7 @@ type ItemState = {
   readonly isSelected: boolean;
 };
 
-/** 知らせの帯に渡す値。 */
+/** `Notice` に渡す値。 */
 type NoticeProps = {
   /** 知らせの中身。 */
   readonly children: ReactNode;
@@ -21,7 +21,7 @@ type NoticeProps = {
   readonly progress: number;
 };
 
-/** 画面の中の知らせの帯。 */
+/** 画面の中に知らせを出す部品。 */
 export const Notice = ({ children, progress }: NoticeProps) => (
   <div
     className="flex gap-2 rounded-control border border-danger bg-danger/10 px-3 py-1.5 text-danger focus-ring is-hovered:state-hover"
