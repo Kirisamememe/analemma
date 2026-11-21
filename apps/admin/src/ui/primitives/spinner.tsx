@@ -4,6 +4,6 @@ import type { ReactNode } from "react";
 export const Spinner = (): ReactNode => (
   <span
     aria-hidden="true"
-    className="size-icon animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-pulse"
+    className="inline-block size-icon animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-pulse"
   />
 );
