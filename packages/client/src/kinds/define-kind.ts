@@ -46,12 +46,16 @@ export const defineKind = <
   fields,
   label,
   name,
-}: KindOptions<Name, Shape>): Kind<Name, Shape> => ({
-  name,
-  definition: kindDefinition.parse({
+}: KindOptions<Name, Shape>): Kind<Name, Shape> => {
+  const shape = { ...fields };
+
+  return {
     name,
-    label,
-    fields: toFieldDefinitions(fields),
-  }),
-  content: z.object({ ...fields }),
-});
+    definition: kindDefinition.parse({
+      name,
+      label,
+      fields: toFieldDefinitions(shape),
+    }),
+    content: z.object(shape),
+  };
+};

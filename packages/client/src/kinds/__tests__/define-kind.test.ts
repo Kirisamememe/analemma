@@ -179,6 +179,33 @@ describe("種類の定義", () => {
     ).toThrow();
   });
 
+  test("グループや繰り返しに渡した項目を後から書き換えても、CMS に送る定義と中身のスキーマが食い違わないこと", () => {
+    const fields: Record<string, ReturnType<typeof text>> = {
+      caption: text({ label: "説明" }),
+    };
+    const kind = defineKind({
+      name: "gallery",
+      label: "ギャラリー",
+      fields: { items: repeat({ label: "画像", fields }) },
+    });
+
+    fields["caption"] = text({ label: "説明" }).min(3);
+
+    expect(kind.content.safeParse({ items: [{ caption: "a" }] }).success).toBe(
+      true,
+    );
+  });
+
+  test("symbol の名前の項目は、使えないこと", () => {
+    expect(() =>
+      defineKind({
+        name: "about",
+        label: "自己紹介",
+        fields: { [Symbol("caption")]: text({ label: "説明" }) },
+      }),
+    ).toThrow("項目の名前には、symbol でなく文字列を使う");
+  });
+
   test("CMS が断る名前の種類は、定義した時点で失敗すること", () => {
     expect(() =>
       defineKind({

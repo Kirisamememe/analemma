@@ -15,22 +15,28 @@ export type NestedOptions<Shape extends FieldShape> = {
 export const group = <const Shape extends FieldShape>({
   fields,
   label,
-}: NestedOptions<Shape>) =>
-  registerField(z.object(fields), {
+}: NestedOptions<Shape>) => {
+  const shape = { ...fields };
+
+  return registerField(z.object(shape), {
     type: "group",
     label,
     optional: false,
-    fields: toFieldDefinitions(fields),
+    fields: toFieldDefinitions(shape),
   });
+};
 
 /** グループを並べた、繰り返しの項目。 */
 export const repeat = <const Shape extends FieldShape>({
   fields,
   label,
-}: NestedOptions<Shape>) =>
-  registerField(z.array(z.object(fields)), {
+}: NestedOptions<Shape>) => {
+  const shape = { ...fields };
+
+  return registerField(z.array(z.object(shape)), {
     type: "repeat",
     label,
     optional: false,
-    fields: toFieldDefinitions(fields),
+    fields: toFieldDefinitions(shape),
   });
+};
