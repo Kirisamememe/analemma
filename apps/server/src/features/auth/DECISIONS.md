@@ -137,6 +137,7 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
   - 追加:漏れたセッションの Cookie を持つ人が自分のパスキーを足すと、ログアウトの後も、期限の無いログインの手段が残る。足すときの UV は、新しい認証器を持つ人を確かめるだけで、管理者であることは確かめない。
   - 削除:漏れた Cookie を持つ人に、管理者のパスキーを消させない。
   - 名前の変更と、すべてのセッションからのログアウトには求めない。どちらも、ログインの手段を増やしも減らしもしないため。
+  - デプロイ用のトークンの発行にも求める。ログアウトの後も残る手段を増やすのは、パスキーの追加と同じため(`src/features/deploy-tokens/DECISIONS.md`)。
 - 再認証の options は `admin.session.reauthenticationOptions` が返し、challenge を求めたセッションに結びつける。再認証を求める操作で、options を取る procedure を1つにそろえる。パスキーの追加の options(`admin.passkeys.registrationOptions`)は、登録の options だけを返す。
 - 操作のリクエストに、再認証の資格情報(`assertion`)を一緒に送らせる。再認証の結果をセッションに覚えないので、1つの再認証で操作できるのは1回だけで、再認証と操作の間に別の操作を挟めない。
 - 再認証が通らなければ `REAUTHENTICATION_FAILED` を返し、logger に、求めた procedure と理由を書く。

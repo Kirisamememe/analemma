@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { contract } from "@analemma/contract";
 
+import { answerReauthentication } from "../../../test-client/answer-authentication";
 import {
   SUCCEEDED,
   catchErrorCode,
@@ -14,6 +15,7 @@ import {
 import { listProcedurePaths } from "../../../test-client/list-procedure-paths";
 import { issueTestDeployToken } from "../../../test-client/prepare-test-kinds";
 import { signInAsAdmin } from "../../../test-client/sign-in-as-admin";
+import { createFakeAuthenticator } from "../../auth/webauthn/fake-authenticator/create-fake-authenticator";
 
 const deployPaths = listProcedurePaths(contract.deploy, "deploy");
 
@@ -28,10 +30,10 @@ describe("デプロイ用のトークンの発行", () => {
     let now = TEST_NOW;
     await using server = await createTestClient({ clock: { now: () => now } });
 
-    await signInAsAdmin(server);
-
+    const { passkey } = await signInAsAdmin(server);
     const issued = await server.client.admin.deployTokens.issue({
       name: "  本番のデプロイ  ",
+      assertion: await answerReauthentication(server, passkey),
     });
 
     expect(issued).toEqual({
@@ -64,13 +66,49 @@ describe("デプロイ用のトークンの発行", () => {
   test("空の名前や制御文字のある名前では、発行しないこと", async () => {
     await using server = await createTestClient();
 
-    await signInAsAdmin(server);
+    const { passkey } = await signInAsAdmin(server);
 
     for (const name of ["   ", "a\nb", "あ".repeat(65)]) {
       expect(
-        await catchErrorCode(server.client.admin.deployTokens.issue({ name })),
+        await catchErrorCode(
+          server.client.admin.deployTokens.issue({
+            name,
+            assertion: await answerReauthentication(server, passkey),
+          }),
+        ),
       ).toBe("BAD_REQUEST");
     }
+  });
+
+  test("今のパスキーで確かめ直せなければ、REAUTHENTICATION_FAILED で断り、発行しないこと", async () => {
+    await using server = await createTestClient();
+    const { passkey } = await signInAsAdmin(server);
+    const assertion = await answerReauthentication(server, passkey);
+    const other = await createFakeAuthenticator();
+
+    await server.client.admin.deployTokens.issue({ name: "1", assertion });
+
+    expect(
+      await catchErrorCode(
+        server.client.admin.deployTokens.issue({ name: "2", assertion }),
+      ),
+    ).toBe("REAUTHENTICATION_FAILED");
+    expect(
+      await catchErrorCode(
+        server.client.admin.deployTokens.issue({
+          name: "3",
+          assertion: await answerReauthentication(server, {
+            ...passkey,
+            authenticator: other,
+          }),
+        }),
+      ),
+    ).toBe("REAUTHENTICATION_FAILED");
+    expect(
+      (await server.client.admin.deployTokens.list()).tokens.map(
+        ({ name }) => name,
+      ),
+    ).toEqual(["1"]);
   });
 });
 
@@ -78,10 +116,9 @@ describe("デプロイ用のトークンの取り消し", () => {
   test("取り消したトークンでは、定義を送れなくなること", async () => {
     await using server = await createTestClient();
 
-    await signInAsAdmin(server);
-
-    const token = await issueTestDeployToken(server);
-    const other = await issueTestDeployToken(server);
+    const { passkey } = await signInAsAdmin(server);
+    const token = await issueTestDeployToken(server, passkey);
+    const other = await issueTestDeployToken(server, passkey);
     const id = token.split(".")[0] ?? "";
 
     expect(await pushNothing(token, server)).toBe(SUCCEEDED);
@@ -106,9 +143,8 @@ describe("定義を送る API の入口", () => {
     async (path) => {
       await using server = await createTestClient();
 
-      await signInAsAdmin(server);
-
-      const token = await issueTestDeployToken(server);
+      const { passkey } = await signInAsAdmin(server);
+      const token = await issueTestDeployToken(server, passkey);
       const [id = ""] = token.split(".");
 
       for (const authorization of [

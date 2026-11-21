@@ -56,9 +56,8 @@ describe("種類の定義を送る", () => {
   test("まだ無い種類を作り、項目を送った順のまま、管理画面に返すこと", async () => {
     await using server = await createTestClient();
 
-    await signInAsAdmin(server);
-
-    const token = await issueTestDeployToken(server);
+    const { passkey } = await signInAsAdmin(server);
+    const token = await issueTestDeployToken(server, passkey);
 
     expect(
       await server.internal(token).deploy.kinds.push({ kinds: [about] }),
@@ -100,9 +99,10 @@ describe("種類の定義を送る", () => {
     let now = TEST_NOW;
     await using server = await createTestClient({ clock: { now: () => now } });
 
-    await signInAsAdmin(server);
-
-    const deploy = server.internal(await issueTestDeployToken(server)).deploy;
+    const { passkey } = await signInAsAdmin(server);
+    const deploy = server.internal(
+      await issueTestDeployToken(server, passkey),
+    ).deploy;
 
     await deploy.kinds.push({ kinds: [about, colophon] });
     now = new Date(TEST_NOW.getTime() + 60_000);
@@ -135,9 +135,10 @@ describe("種類の定義を送る", () => {
     let now = TEST_NOW;
     await using server = await createTestClient({ clock: { now: () => now } });
 
-    await signInAsAdmin(server);
-
-    const deploy = server.internal(await issueTestDeployToken(server)).deploy;
+    const { passkey } = await signInAsAdmin(server);
+    const deploy = server.internal(
+      await issueTestDeployToken(server, passkey),
+    ).deploy;
 
     await deploy.kinds.push({ kinds: [about, colophon] });
     now = new Date(TEST_NOW.getTime() + 60_000);
@@ -173,9 +174,8 @@ describe("種類の定義を送る", () => {
   test("受け取った定義と、送ったトークンを、ログに残すこと", async () => {
     await using server = await createTestClient();
 
-    await signInAsAdmin(server);
-
-    const token = await issueTestDeployToken(server);
+    const { passkey } = await signInAsAdmin(server);
+    const token = await issueTestDeployToken(server, passkey);
 
     await server.internal(token).deploy.kinds.push({ kinds: [colophon] });
 
@@ -293,9 +293,10 @@ describe("種類の定義を送る", () => {
     async ({ kinds }) => {
       await using server = await createTestClient();
 
-      await signInAsAdmin(server);
-
-      const deploy = server.internal(await issueTestDeployToken(server)).deploy;
+      const { passkey } = await signInAsAdmin(server);
+      const deploy = server.internal(
+        await issueTestDeployToken(server, passkey),
+      ).deploy;
 
       expect(await catchErrorCode(deploy.kinds.push({ kinds }))).toBe(
         "BAD_REQUEST",

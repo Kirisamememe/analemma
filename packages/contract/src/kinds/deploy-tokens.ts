@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { adminAccess } from "../access-errors";
+import { adminAccess, reauthenticatedAccess } from "../access-errors";
+import { reauthenticationAssertion } from "../webauthn";
 
 const tokenName = z
   .string()
@@ -34,13 +35,13 @@ export const deployTokens = {
       summary: "デプロイ用のトークンの一覧",
     })
     .output(z.object({ tokens: z.array(tokenSummary) })),
-  issue: adminAccess
+  issue: reauthenticatedAccess
     .route({
       method: "POST",
       path: "/admin/deploy-tokens",
-      summary: "デプロイ用のトークンを発行する",
+      summary: "今のパスキーで確かめ直してから、デプロイ用のトークンを発行する",
     })
-    .input(z.object({ name: tokenName }))
+    .input(z.object({ name: tokenName, assertion: reauthenticationAssertion }))
     .output(
       tokenSummary.extend({
         token: z.string().describe("トークン。表示は1回だけ。"),

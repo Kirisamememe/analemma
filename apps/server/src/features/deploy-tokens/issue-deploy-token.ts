@@ -1,25 +1,41 @@
 import { adminProcedures } from "../../procedures";
+import { reauthenticate } from "../auth/current-session/reauthenticate";
 import { issueSecretToken } from "../auth/secret-token/issue-secret-token";
-import { insertDeployToken } from "./insert-deploy-token.query";
+import { recordIssue } from "./record-issue.query";
 import { toDeployTokenSummary } from "./to-deploy-token-summary";
 
-/** デプロイ用のトークンを発行し、1回だけ token を返す procedure。 */
+/** 今のパスキーで確かめ直してから、デプロイ用のトークンを発行し、1回だけ token を返す procedure。 */
 export const issueDeployToken = adminProcedures.deployTokens.issue.handler(
-  async ({ context, input }) => {
+  async ({ context, errors, input }) => {
+    const sessionId = context.session.id;
+    const reauthenticated = await reauthenticate(context, {
+      action: "deployTokens.issue",
+      assertion: input.assertion,
+    });
+
+    if (reauthenticated._tag === "Rejected") {
+      throw errors.REAUTHENTICATION_FAILED();
+    }
+
     const issued = await issueSecretToken();
-    const row = await insertDeployToken(context.db, {
-      id: issued.id,
-      secretHash: issued.secretHash,
-      name: input.name,
-      now: context.clock.now(),
+    const recorded = await recordIssue(context.db, {
+      reauthentication: { sessionId, use: reauthenticated.use },
+      token: { id: issued.id, secretHash: issued.secretHash, name: input.name },
     });
 
-    context.logger.write({
-      level: "info",
-      message: "デプロイ用のトークンを発行した",
-      details: { deployTokenId: row.id },
-    });
+    switch (recorded._tag) {
+      case "SessionGone":
+        throw errors.UNAUTHORIZED();
+      case "PasskeyGone":
+        throw errors.REAUTHENTICATION_FAILED();
+      case "Issued":
+        context.logger.write({
+          level: "info",
+          message: "デプロイ用のトークンを発行した",
+          details: { deployTokenId: recorded.row.id, sessionId },
+        });
 
-    return { ...toDeployTokenSummary(row), token: issued.token };
+        return { ...toDeployTokenSummary(recorded.row), token: issued.token };
+    }
   },
 );
