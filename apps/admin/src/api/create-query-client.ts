@@ -29,7 +29,7 @@ export const createQueryClient = ({
         retry: (failures, error) =>
           !isUnauthorized(error) && failures < MAX_RETRIES,
       },
-      mutations: { retry: false },
+      mutations: { retry: false, networkMode: "always" },
     },
   });
 

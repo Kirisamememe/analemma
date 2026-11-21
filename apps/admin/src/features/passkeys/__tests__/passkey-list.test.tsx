@@ -9,8 +9,8 @@ afterEach(cleanup);
 describe("PasskeyList", () => {
   test("パスキーごとに、名前・同期されているか・登録と最後に使った日時を出す", async () => {
     const server = createPasskeyRoutes([
-      { id: "passkey-1", name: "MacBook", backedUp: true },
-      { id: "passkey-2", name: "YubiKey", backedUp: false },
+      { name: "MacBook", backedUp: true },
+      { name: "YubiKey", backedUp: false },
     ]);
 
     renderApp({ path: "/security", routes: server.routes, locale: "en" });

@@ -36,21 +36,32 @@ const fromError = (error: Error): AddPasskeyResult => {
   return { _tag: tag };
 };
 
+const SERVER_MARGIN_MS = 10_000;
+const MINIMUM_CREATION_MS = 30_000;
+
 /** 今のパスキーで確かめ直してから、新しいパスキーを作って足す。 */
 export const addPasskey = async (
   dependencies: ReauthenticateDependencies,
   name: string,
 ): Promise<AddPasskeyResult> => {
-  const { api, authenticator } = dependencies;
+  const { api, authenticator, now = Date.now } = dependencies;
   const confirmation = await reauthenticate(dependencies);
 
   if (confirmation._tag === "Cancelled") {
     return { _tag: "Cancelled" };
   }
 
-  const answer = await authenticator.register(
-    await api.admin.passkeys.registrationOptions(),
-  );
+  const options = await api.admin.passkeys.registrationOptions();
+  const remaining = confirmation.expiresAt - now() - SERVER_MARGIN_MS;
+
+  if (remaining < MINIMUM_CREATION_MS) {
+    return { _tag: "ChallengeExpired" };
+  }
+
+  const answer = await authenticator.register({
+    ...options,
+    timeout: Math.min(options.timeout, remaining),
+  });
 
   if (answer._tag !== "Answered") {
     return { _tag: answer._tag };

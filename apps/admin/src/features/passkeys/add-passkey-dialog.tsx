@@ -12,7 +12,7 @@ import { Notice } from "../../ui/primitives/notice";
 import { TextField } from "../../ui/primitives/text-field";
 import { checkPasskeyName } from "../auth/check-passkey-name";
 import { addPasskey } from "./add-passkey";
-import { PASSKEYS_QUERY_KEY } from "./passkeys-query";
+import { refreshPasskeys } from "./passkeys-query";
 import { type PasskeyNotice, toAddNotice } from "./to-passkey-notice";
 
 /** パスキーを足す画面に渡す値。 */
@@ -38,8 +38,13 @@ export const AddPasskeyDialog = ({
     mutationFn: async (name: string) =>
       addPasskey({ api, authenticator }, name),
     onSuccess: async ({ _tag }) => {
+      if (_tag === "Cancelled") {
+        return;
+      }
+
+      await refreshPasskeys(queryClient);
+
       if (_tag === "Added") {
-        await queryClient.invalidateQueries({ queryKey: PASSKEYS_QUERY_KEY });
         onAdded({ tone: "success", message: "passkeys.added" });
         onClose();
       }

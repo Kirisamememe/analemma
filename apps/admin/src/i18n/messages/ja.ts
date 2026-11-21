@@ -84,4 +84,5 @@ export const ja = {
   "sessions.logOutAllTitle": "すべてのセッションからログアウトしますか?",
   "sessions.logOutAllFailed":
     "ログアウトできませんでした。もう一度試してください。",
+  "passkeys.renamed": "パスキーの名前を変えました。",
 } satisfies Translation;

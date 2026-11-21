@@ -77,4 +77,5 @@ export const en = {
   "sessions.logOutAll": "Sign out everywhere",
   "sessions.logOutAllTitle": "Sign out everywhere?",
   "sessions.logOutAllFailed": "Could not sign out. Please try again.",
+  "passkeys.renamed": "The passkey was renamed.",
 } as const satisfies Readonly<Record<string, string>>;

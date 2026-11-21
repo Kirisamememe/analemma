@@ -71,4 +71,5 @@ export const zhHans = {
   "sessions.logOutAll": "退出所有会话",
   "sessions.logOutAllTitle": "要退出所有会话吗？",
   "sessions.logOutAllFailed": "无法退出登录，请重试。",
+  "passkeys.renamed": "已重命名通行密钥。",
 } satisfies Translation;

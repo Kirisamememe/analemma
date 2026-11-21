@@ -22,8 +22,16 @@ describe("reauthenticate", () => {
     });
 
     expect(
-      await reauthenticate({ api, authenticator: createFakeAuthenticator() }),
-    ).toEqual({ _tag: "Confirmed", assertion: FAKE_ASSERTION });
+      await reauthenticate({
+        api,
+        authenticator: createFakeAuthenticator(),
+        now: () => 1_000,
+      }),
+    ).toEqual({
+      _tag: "Confirmed",
+      assertion: FAKE_ASSERTION,
+      expiresAt: 301_000,
+    });
     expect(calls).toEqual(["admin/session/reauthenticationOptions"]);
   });
 

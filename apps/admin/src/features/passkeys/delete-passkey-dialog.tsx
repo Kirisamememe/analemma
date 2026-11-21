@@ -10,7 +10,7 @@ import { Dialog } from "../../ui/primitives/dialog";
 import { Notice } from "../../ui/primitives/notice";
 import { deletePasskey } from "./delete-passkey";
 import type { PasskeySummary } from "./passkey-list";
-import { PASSKEYS_QUERY_KEY } from "./passkeys-query";
+import { refreshPasskeys } from "./passkeys-query";
 import { type PasskeyNotice, toDeleteNotice } from "./to-passkey-notice";
 
 /** パスキーを消す画面に渡す値。 */
@@ -35,9 +35,11 @@ export const DeletePasskeyDialog = ({
   const deleting = useMutation({
     mutationFn: async () => deletePasskey({ api, authenticator }, passkey.id),
     onSuccess: async ({ _tag }) => {
-      if (_tag === "Deleted" || _tag === "NotFound") {
-        await queryClient.invalidateQueries({ queryKey: PASSKEYS_QUERY_KEY });
+      if (_tag === "Cancelled") {
+        return;
       }
+
+      await refreshPasskeys(queryClient);
 
       if (_tag === "Deleted") {
         onDeleted({ tone: "success", message: "passkeys.deleted" });

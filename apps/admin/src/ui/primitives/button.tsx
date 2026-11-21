@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { Button as AriaButton, ProgressBar } from "react-aria-components";
 
 import { useTranslation } from "../../i18n/use-translation";
@@ -36,6 +36,8 @@ type ButtonProps = {
   readonly isDisabled?: boolean;
   /** 押したときに呼ぶ関数。 */
   readonly onPress?: () => void;
+  /** ボタンの要素(focus を移すときに使う)。 */
+  readonly ref?: Ref<HTMLButtonElement>;
   /** ボタンの文言。 */
   readonly children: ReactNode;
 };
@@ -48,6 +50,7 @@ export const Button = ({
   isPending = false,
   isDisabled = false,
   onPress,
+  ref,
   children,
 }: ButtonProps): ReactNode => {
   const t = useTranslation();
@@ -62,6 +65,7 @@ export const Button = ({
       isDisabled={isDisabled}
       isPending={isPending}
       onPress={() => onPress?.()}
+      ref={ref}
       type={type}
     >
       {isPending && (

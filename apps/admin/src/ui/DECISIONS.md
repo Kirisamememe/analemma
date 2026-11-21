@@ -127,7 +127,7 @@
 
 ## 割り切ったこと
 
-- **後から出す `status` の知らせ**:`Notice` の `status` は、中身と一緒に描くので、スクリーンリーダーによっては読まれない(live region は、中身を変える前からあるものが確実に読まれる)。`Notice` はその場に残す知らせで、スクリーンリーダーへの割り込みは要らない。急ぎの誤りは `alert` で読まれ、操作の結果は Toast(React Aria Components が知らせ方を持つ)で知らせるので、受け入れる。
+- **後から出す `status` の知らせ**:`Notice` の `status` は、中身と一緒に描くので、スクリーンリーダーによっては読まれない(live region は、中身を変える前からあるものが確実に読まれる)。`Notice` はその場に残す知らせで、スクリーンリーダーへの割り込みは要らない。急ぎの誤りは `alert` で読まれる。操作の結果は Toast(React Aria Components が知らせ方を持つ)で知らせる決まりだが、Toast をまだ作っていないので、パスキーの画面では、操作の結果も `status` の知らせの帯で出している(足した・消した・名前を変えた)。管理者は1人で画面を見て使い、結果は一覧の変化でも分かるので、Toast を足すまでは受け入れる。
 - **層の検査が見ない import**:層の境界の lint は、import 文の名前だけを見る。`import("react-aria-components").LinkProps` のような型の中の import と、ほかの層を通した再 export は見ない。どちらも今のコードに無く、追うには依存の木を解く検査が要る。
 - **hash の履歴**:`UiProvider` のリンクの `href` は、TanStack Router の `buildLocation` の `href` をそのまま使い、hash の履歴(`createHashHistory`)や URL の書き換えには合わない。管理画面はブラウザの履歴(`createBrowserHistory`)だけを使う。使うときは、`history.createHref()` を通す。
 - **検査が見ない class の渡し方**:JSX の属性と、`tv`・`merge` などの呼び出しの中の文字列だけを検査する。DOM を直に触る `element.classList.add()` や `element.style`、`className` に渡した、`tv` で作っていない関数の戻り値は見ない。今の部品にはどれも無く、要る場面が出たら、そこで使える範囲を決める。参照先まで追う検査は、作る手間に見合わない。

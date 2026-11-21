@@ -11,8 +11,9 @@ import { Notice } from "../../ui/primitives/notice";
 import { TextField } from "../../ui/primitives/text-field";
 import { checkPasskeyName } from "../auth/check-passkey-name";
 import type { PasskeySummary } from "./passkey-list";
-import { PASSKEYS_QUERY_KEY } from "./passkeys-query";
+import { refreshPasskeys } from "./passkeys-query";
 import { renamePasskey } from "./rename-passkey";
+import type { PasskeyNotice } from "./to-passkey-notice";
 
 /** パスキーの名前を変える画面に渡す値。 */
 type RenamePasskeyDialogProps = {
@@ -20,12 +21,15 @@ type RenamePasskeyDialogProps = {
   readonly passkey: PasskeySummary;
   /** 閉じる関数。 */
   readonly onClose: () => void;
+  /** 名前を変えたことを知らせる関数。 */
+  readonly onRenamed: (notice: PasskeyNotice) => void;
 };
 
 /** パスキーの名前を変える画面。 */
 export const RenamePasskeyDialog = ({
   passkey,
   onClose,
+  onRenamed,
 }: RenamePasskeyDialogProps): ReactNode => {
   const t = useTranslation();
   const queryClient = useQueryClient();
@@ -34,9 +38,10 @@ export const RenamePasskeyDialog = ({
     mutationFn: async (name: string) =>
       renamePasskey(api, { id: passkey.id, name }),
     onSuccess: async ({ _tag }) => {
-      await queryClient.invalidateQueries({ queryKey: PASSKEYS_QUERY_KEY });
+      await refreshPasskeys(queryClient);
 
       if (_tag === "Renamed") {
+        onRenamed({ tone: "success", message: "passkeys.renamed" });
         onClose();
       }
     },

@@ -45,11 +45,11 @@ describe("LogOutAllSection", () => {
   test("ログアウトできなければ、確かめの画面に知らせる", async () => {
     const server = createPasskeyRoutes([]);
 
-    server.failNext("admin/session/logOutAll", {
+    server.replyNext("admin/session/logOutAll", () => ({
       error: "INTERNAL_SERVER_ERROR",
       status: 500,
       defined: false,
-    });
+    }));
     renderApp({ path: "/security", routes: server.routes });
 
     await confirmLogOutAll();
@@ -57,5 +57,26 @@ describe("LogOutAllSection", () => {
     expect((await screen.findByRole("alert")).textContent).toBe(
       "ログアウトできませんでした。もう一度試してください。",
     );
+  });
+
+  test("失敗してから閉じて開き直すと、前の失敗の知らせは出さない", async () => {
+    const server = createPasskeyRoutes([]);
+
+    server.replyNext("admin/session/logOutAll", () => ({
+      error: "INTERNAL_SERVER_ERROR",
+      status: 500,
+      defined: false,
+    }));
+    renderApp({ path: "/security", routes: server.routes });
+
+    await confirmLogOutAll();
+    await screen.findByRole("alert");
+    await userEvent.click(screen.getByRole("button", { name: "やめる" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "すべてのセッションからログアウト" }),
+    );
+    await screen.findByRole("dialog");
+
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 });

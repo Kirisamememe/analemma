@@ -21,9 +21,7 @@ const renameTo = async (name: string): Promise<void> => {
 
 describe("RenamePasskeyDialog", () => {
   test("今の名前を入れて開き、変えると一覧に出す", async () => {
-    const server = createPasskeyRoutes([
-      { id: "passkey-1", name: "MacBook", backedUp: true },
-    ]);
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
     renderApp({ path: "/security", routes: server.routes });
 
@@ -47,14 +45,12 @@ describe("RenamePasskeyDialog", () => {
   });
 
   test("もう無いパスキーなら、画面を開いたまま知らせる", async () => {
-    const server = createPasskeyRoutes([
-      { id: "passkey-1", name: "MacBook", backedUp: true },
-    ]);
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
-    server.failNext("admin/passkeys/rename", {
+    server.replyNext("admin/passkeys/rename", () => ({
       error: "NOT_FOUND",
       status: 404,
-    });
+    }));
     renderApp({ path: "/security", routes: server.routes });
 
     await renameTo("Mac mini");
@@ -63,5 +59,17 @@ describe("RenamePasskeyDialog", () => {
       await screen.findByText("このパスキーはもうありません。"),
     ).toBeDefined();
     expect(screen.getByRole("dialog")).toBeDefined();
+  });
+
+  test("名前を変えたら、そのことを知らせる", async () => {
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+
+    renderApp({ path: "/security", routes: server.routes });
+
+    await renameTo("Mac mini");
+
+    expect((await screen.findByRole("status")).textContent).toBe(
+      "パスキーの名前を変えました。",
+    );
   });
 });

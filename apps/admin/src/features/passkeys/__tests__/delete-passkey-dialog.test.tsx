@@ -23,8 +23,8 @@ const confirmDelete = async (): Promise<void> => {
 describe("DeletePasskeyDialog", () => {
   test("確かめ直して消すと、一覧から外し、ほかのブラウザのログインが終わったことを知らせる", async () => {
     const server = createPasskeyRoutes([
-      { id: "passkey-1", name: "MacBook", backedUp: true },
-      { id: "passkey-2", name: "iPhone", backedUp: true },
+      { name: "MacBook", backedUp: true },
+      { name: "iPhone", backedUp: true },
     ]);
 
     renderApp({
@@ -43,14 +43,7 @@ describe("DeletePasskeyDialog", () => {
   });
 
   test("最後のパスキーは消せないことを、画面を開いたまま知らせる", async () => {
-    const server = createPasskeyRoutes([
-      { id: "passkey-1", name: "MacBook", backedUp: true },
-    ]);
-
-    server.failNext("admin/passkeys/delete", {
-      error: "LAST_PASSKEY",
-      status: 409,
-    });
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
     renderApp({
       path: "/security",
       routes: server.routes,
@@ -66,9 +59,7 @@ describe("DeletePasskeyDialog", () => {
   });
 
   test("確かめ直しを取り消したら、消さずに知らせる", async () => {
-    const server = createPasskeyRoutes([
-      { id: "passkey-1", name: "MacBook", backedUp: true },
-    ]);
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
     renderApp({
       path: "/security",
@@ -84,5 +75,28 @@ describe("DeletePasskeyDialog", () => {
       await screen.findByText("パスキーの操作を取り消しました。"),
     ).toBeDefined();
     expect(server.passkeys()).toHaveLength(1);
+  });
+
+  test("消した後は、消えた行の代わりに「パスキーを足す」に focus を移す", async () => {
+    const server = createPasskeyRoutes([
+      { name: "MacBook", backedUp: true },
+      { name: "iPhone", backedUp: true },
+    ]);
+
+    renderApp({
+      path: "/security",
+      routes: server.routes,
+      authenticator: createFakeAuthenticator(),
+    });
+
+    await confirmDelete();
+    await screen.findByRole("status");
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "パスキーを足す" }),
+    );
   });
 });

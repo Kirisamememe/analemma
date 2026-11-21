@@ -9,6 +9,7 @@ import {
   FAKE_ATTESTATION,
   createFakeAuthenticator,
 } from "../../../testing/create-fake-authenticator";
+import type { Authenticator } from "../../auth/webauthn/create-authenticator";
 import { addPasskey } from "../add-passkey";
 
 const AUTHENTICATION_OPTIONS = {
@@ -153,5 +154,56 @@ describe("addPasskey", () => {
         "iPhone",
       ),
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  test("新しいパスキーを作る時間を、再認証の challenge が切れる前までに絞る", async () => {
+    const server = serverReplying({ output: SUMMARY });
+    const timeouts: number[] = [];
+    const fake = createFakeAuthenticator();
+    const authenticator: Authenticator = {
+      authenticate: fake.authenticate,
+      register: async (options) => {
+        timeouts.push(options.timeout);
+
+        return fake.register(options);
+      },
+    };
+    let clock = 0;
+
+    await addPasskey(
+      {
+        api: server.api,
+        authenticator,
+        now: () => {
+          clock += 60_000;
+
+          return clock;
+        },
+      },
+      "iPhone",
+    );
+
+    expect(timeouts).toEqual([230_000]);
+  });
+
+  test("再認証の challenge の残りが少なければ、パスキーを作らずに期限切れとして返す", async () => {
+    const server = serverReplying({ output: SUMMARY });
+    let clock = 0;
+
+    expect(
+      await addPasskey(
+        {
+          api: server.api,
+          authenticator: createFakeAuthenticator(),
+          now: () => {
+            clock += 270_000;
+
+            return clock;
+          },
+        },
+        "iPhone",
+      ),
+    ).toEqual({ _tag: "ChallengeExpired" });
+    expect(server.calls).not.toContain("admin/passkeys/register");
   });
 });

@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { useTranslation } from "../../i18n/use-translation";
 import { Cluster } from "../../ui/layout/cluster";
@@ -15,10 +15,19 @@ import type { PasskeyNotice } from "./to-passkey-notice";
 /** パスキーの一覧と、足す・名前を変える・消す操作。 */
 export const PasskeysSection = (): ReactNode => {
   const t = useTranslation();
+  const addButton = useRef<HTMLButtonElement>(null);
   const [notice, setNotice] = useState<PasskeyNotice>();
   const [isAdding, setAdding] = useState(false);
   const [renaming, setRenaming] = useState<PasskeySummary>();
   const [deleting, setDeleting] = useState<PasskeySummary>();
+  const focusAddAfterDelete = useRef(false);
+
+  useEffect(() => {
+    if (deleting === undefined && focusAddAfterDelete.current) {
+      focusAddAfterDelete.current = false;
+      addButton.current?.focus();
+    }
+  }, [deleting]);
 
   return (
     <Stack as="section" gap={4}>
@@ -29,6 +38,7 @@ export const PasskeysSection = (): ReactNode => {
             setNotice(undefined);
             setAdding(true);
           }}
+          ref={addButton}
           tone="primary"
         >
           {t("passkeys.add")}
@@ -42,20 +52,26 @@ export const PasskeysSection = (): ReactNode => {
           setNotice(undefined);
           setDeleting(passkey);
         }}
-        onRename={setRenaming}
-      />
-      <AddPasskeyDialog
-        isOpen={isAdding}
-        onAdded={setNotice}
-        onClose={() => {
-          setAdding(false);
+        onRename={(passkey) => {
+          setNotice(undefined);
+          setRenaming(passkey);
         }}
       />
+      {isAdding && (
+        <AddPasskeyDialog
+          isOpen
+          onAdded={setNotice}
+          onClose={() => {
+            setAdding(false);
+          }}
+        />
+      )}
       {renaming !== undefined && (
         <RenamePasskeyDialog
           onClose={() => {
             setRenaming(undefined);
           }}
+          onRenamed={setNotice}
           passkey={renaming}
         />
       )}
@@ -64,7 +80,10 @@ export const PasskeysSection = (): ReactNode => {
           onClose={() => {
             setDeleting(undefined);
           }}
-          onDeleted={setNotice}
+          onDeleted={(deleted) => {
+            setNotice(deleted);
+            focusAddAfterDelete.current = true;
+          }}
           passkey={deleting}
         />
       )}

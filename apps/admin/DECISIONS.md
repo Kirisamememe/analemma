@@ -71,6 +71,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - server の状態は TanStack Query で持つ。query client(`src/api/create-query-client.ts`)は、取得と送信のどちらかがセッションの無いこと(`UNAUTHORIZED`)を返したら、持っている状態を消して、ログインの画面に、今のパスを持たせて移す。セッションの無い失敗は、やり直さない。
 - 画面に focus が戻っても、取り直さない(`refetchOnWindowFocus: false`)。パスキーの操作は OS の画面を開くので、ログインの最中に focus が出入りし、取り直すと、ログインの最中にほかの管理用 API を呼ぶことになる(「server の認証に合わせること」)。
 - 送信の失敗は、やり直さない。登録やログインを2回送ると、使い切った challenge で失敗する。
+- 送信は、オフラインでも止めておかずに送り、失敗をその場で返す(`networkMode: "always"`)。TanStack Query の既定では、オフラインで確定した送信を止めておき、つながったときに確かめずに送る(すべてのセッションからのログアウトなどが、利用者の知らないうちに送られる。Codex のレビューで見つかった)。
 
 ## ログインとセッション
 
@@ -90,7 +91,10 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 画面は `/security`(セキュリティ)。パスキーの一覧・足す・名前を変える・消すと、すべてのセッションからのログアウトを置く。
 - 足すときと消すときは、操作の前に、今のパスキーで確かめ直す(再認証。`src/features/auth/reauthenticate.ts`)。足すときは、再認証の後に新しいパスキーを作り、2つの資格情報を一緒に送る。再認証の結果は server に覚えられないので、1つの再認証で1回だけ操作できる。名前の変更と、すべてのセッションからのログアウトには求めない(server の決まり)。
 - 消すことと、すべてのセッションからのログアウトは、取り消せないので、確かめの画面(Dialog)を出してから送る。足すときと名前を変えるときも、入力のために Dialog を使う。
-- 失敗(再認証できない・最後のパスキー・もう無いパスキーなど)は、Dialog を開いたまま、その中に知らせる。成功したら Dialog を閉じ、画面に知らせを残す(操作の結果を知らせる Toast を足したら、そちらに移す)。次の操作を始めたら、前の知らせは消す。
+- 失敗(再認証できない・最後のパスキー・もう無いパスキーなど)は、Dialog を開いたまま、その中に知らせる。成功したら Dialog を閉じ、画面に知らせを残す(操作の結果を知らせる Toast を足したら、そちらに移す)。次の操作を始めたら、前の知らせは消す。閉じてから開き直した Dialog には、前の失敗を出さない。
+- server が答えたら(取り消しのほかは)、成功でも失敗でも一覧を取り直す。再認証に使ったパスキーの最後に使った日時は、操作が断られても書き換わる。取り直す前に、送っている一覧の取得を取り消す。最初の取得が操作より前の一覧を読んで遅れて届くと、取り直しがその取得を使い回し、足したパスキーが一覧に出なかった(Codex のレビューで見つかった)。
+- パスキーを消したら、消えた行の操作の代わりに「パスキーを足す」に focus を移す。Dialog は閉じると開いたボタンに focus を戻すが、そのボタンは行ごと消えている。
+- パスキーを足すとき、新しいパスキーを作る時間(`timeout`)を、再認証の challenge が切れる時刻の手前までに絞り、残りが30秒より少なければ、作らずに期限切れとして返す。再認証と登録の challenge は別々に5分で、再認証に時間をかけると、パスキーを作れても server が再認証の期限切れで断り、認証器に使えないパスキーが残る。
 - パスキーの名前は、ログインの前の登録と同じく、contract の `passkeyName` で、作る前に確かめる。
 - パスキーを消すと、server は今のセッションのほかをすべてログアウトさせるので、そのことも知らせる。
 
@@ -104,7 +108,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 決まった文言を描画して確かめるだけのテストは lint を通ってしまうので、セルフレビューで見る。
 - 管理画面の `src/` のテストは、リポジトリの直下の `bun test` から外し(直下の `bunfig.toml`)、`apps/admin` で別に流す(`apps/admin/bunfig.toml` の `root` を `src` にする)。DOM(happy-dom)を用意する preload を、画面のコードのテストにだけ掛けるため。happy-dom は `fetch`・`Request`・`Response`・`setTimeout` などのグローバルを置き換えるので、直下で掛けると server のテストまで happy-dom の上で流れる。`bunfig.toml` は、`bun test` を流すフォルダのものだけが読まれる(手元で確かめた)。
 - Vite の設定とビルドのテスト(`apps/admin/__tests__/`)は、直下の `bun test` で、DOM なしで流す。Vite は Node の `setTimeout` を前提にしていて(`unref()` を呼ぶ)、happy-dom の上では開発のサーバーが起動しない。
-- 画面のテストは、`src/testing/render-app.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体(router・query client・言語)を描く。パスキーの画面のテストには、パスキーとセッションの procedure を状態ごと真似る作り物(`create-passkey-routes.ts`)と、決めた答えを返す作り物の認証器(`create-fake-authenticator.ts`)を使う。作り物の server(`create-fake-api.ts`)は、oRPC のプロトコルの応答(成功と、contract に定義した失敗と、定義していない失敗)を返し、無い procedure には本物の server と同じくテキストの 404(`text/plain`)を返す。client は本物を使う。画面・router・client のつなぎを、利用者に見える結果と、呼ばれた procedure の並びで確かめられる。`src/testing/` は、テストだけが import できる(`tooling/structure/` のテストが止める)。
+- 画面のテストは、`src/testing/render-app.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体(router・query client・言語)を描く。パスキーの画面のテストには、パスキーとセッションの procedure を状態ごと真似る作り物(`create-passkey-routes.ts`。1つの再認証で1回だけ操作できる・無いパスキーは `NOT_FOUND`・最後のパスキーは `LAST_PASSKEY`・すべてのセッションからログアウトした後は `UNAUTHORIZED`)と、決めた答えを返す作り物の認証器(`create-fake-authenticator.ts`)を使う。作り物の server(`create-fake-api.ts`)は、oRPC のプロトコルの応答(成功と、contract に定義した失敗と、定義していない失敗)を返し、無い procedure には本物の server と同じくテキストの 404(`text/plain`)を返す。client は本物を使う。画面・router・client のつなぎを、利用者に見える結果と、呼ばれた procedure の並びで確かめられる。`src/testing/` は、テストだけが import できる(`tooling/structure/` のテストが止める)。
 - tsconfig を2つに分ける。`tsconfig.app.json` は、テストを除いた `src/` を、Bun の型なしで検査する(画面のコードが Bun の API の型を読めないように)。`tsconfig.json` は、テスト・`vite.config.ts`・`test-setup/` を含めて Bun の型で検査し、型付きの lint もこちらを使う。
 
 ## server の認証に合わせること

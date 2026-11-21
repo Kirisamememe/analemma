@@ -43,7 +43,10 @@ export const LogOutAllSection = (): ReactNode => {
       <Dialog
         isOpen={isConfirming}
         isPending={logOutAll.isPending}
-        onOpenChange={setConfirming}
+        onOpenChange={(open) => {
+          logOutAll.reset();
+          setConfirming(open);
+        }}
         title={t("sessions.logOutAllTitle")}
       >
         <Text>{t("sessions.description")}</Text>
@@ -54,6 +57,7 @@ export const LogOutAllSection = (): ReactNode => {
           <Button
             isDisabled={logOutAll.isPending}
             onPress={() => {
+              logOutAll.reset();
               setConfirming(false);
             }}
           >

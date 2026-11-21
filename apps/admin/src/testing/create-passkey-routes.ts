@@ -1,13 +1,17 @@
 import type { FakeReply, FakeRoutes } from "./create-fake-api";
 
-/** 作り物の server が持つ、1つのパスキー。 */
-export type FakePasskey = {
-  /** 資格情報の ID。 */
-  readonly id: string;
+/** 作り物の server に最初に置く、1つのパスキー。 */
+export type FakePasskeySeed = {
   /** 名前。 */
   readonly name: string;
   /** ほかの端末へ同期されているか。 */
   readonly backedUp: boolean;
+};
+
+/** 作り物の server が持つ、1つのパスキー。 */
+export type FakePasskey = FakePasskeySeed & {
+  /** 資格情報の ID(base64url)。 */
+  readonly id: string;
 };
 
 /** 作り物の server の、パスキーとセッションの状態。 */
@@ -16,8 +20,11 @@ export type PasskeyServer = {
   readonly routes: FakeRoutes;
   /** 今あるパスキー。 */
   readonly passkeys: () => readonly FakePasskey[];
-  /** 次の操作で返す失敗(1回だけ)。 */
-  readonly failNext: (procedure: string, reply: FakeReply) => void;
+  /** 次の1回だけ、決めた procedure の応答を差し替える。 */
+  readonly replyNext: (
+    procedure: string,
+    reply: () => FakeReply | Promise<FakeReply>,
+  ) => void;
 };
 
 const DATE = "2026-01-02T03:04:00.000Z";
@@ -44,6 +51,13 @@ const REGISTRATION_OPTIONS = {
   attestation: "none",
 };
 
+const UNAUTHORIZED: FakeReply = { error: "UNAUTHORIZED", status: 401 };
+const REAUTHENTICATION_FAILED: FakeReply = {
+  error: "REAUTHENTICATION_FAILED",
+  status: 403,
+};
+const NOT_FOUND: FakeReply = { error: "NOT_FOUND", status: 404 };
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
@@ -59,67 +73,127 @@ const summaryOf = (passkey: FakePasskey) => ({
   lastUsedAt: DATE,
 });
 
-/** パスキーの管理の procedure を真似る、作り物の server の応答を作る。 */
+/** パスキーの管理の procedure を、状態ごと真似る作り物の server の応答を作る。 */
 export const createPasskeyRoutes = (
-  initial: readonly FakePasskey[],
+  seeds: readonly FakePasskeySeed[],
 ): PasskeyServer => {
-  let passkeys = [...initial];
-  const failures = new Map<string, FakeReply>();
-  const reply = (procedure: string, success: () => FakeReply): FakeReply => {
-    const failure = failures.get(procedure);
+  let created = 0;
+  const nextId = (): string => {
+    created += 1;
 
-    failures.delete(procedure);
+    return `pk${String(created)}`;
+  };
 
-    return failure ?? success();
+  let passkeys: FakePasskey[] = seeds.map((seed) => ({
+    ...seed,
+    id: nextId(),
+  }));
+  let signedIn = true;
+  let reauthentications = 0;
+  const overrides = new Map<string, () => FakeReply | Promise<FakeReply>>();
+
+  const handle =
+    (procedure: string, success: (input: unknown) => FakeReply) =>
+    async (input: unknown): Promise<FakeReply> => {
+      const override = overrides.get(procedure);
+
+      overrides.delete(procedure);
+
+      if (override !== undefined) {
+        return override();
+      }
+
+      return signedIn ? success(input) : UNAUTHORIZED;
+    };
+
+  const consumeReauthentication = (): boolean => {
+    if (reauthentications === 0) {
+      return false;
+    }
+
+    reauthentications -= 1;
+
+    return true;
   };
 
   return {
     routes: {
-      "admin/session/get": () => ({ output: { expiresAt: DATE } }),
-      "admin/session/reauthenticationOptions": () => ({
-        output: AUTHENTICATION_OPTIONS,
+      "admin/session/get": handle("admin/session/get", () => ({
+        output: { expiresAt: DATE },
+      })),
+      "admin/session/reauthenticationOptions": handle(
+        "admin/session/reauthenticationOptions",
+        () => {
+          reauthentications += 1;
+
+          return { output: AUTHENTICATION_OPTIONS };
+        },
+      ),
+      "admin/session/logOutAll": handle("admin/session/logOutAll", () => {
+        signedIn = false;
+
+        return { output: { loggedOut: 2 } };
       }),
-      "admin/session/logOutAll": () =>
-        reply("admin/session/logOutAll", () => ({ output: { loggedOut: 2 } })),
-      "admin/passkeys/list": () => ({
+      "admin/passkeys/list": handle("admin/passkeys/list", () => ({
         output: { passkeys: passkeys.map((passkey) => summaryOf(passkey)) },
+      })),
+      "admin/passkeys/registrationOptions": handle(
+        "admin/passkeys/registrationOptions",
+        () => ({ output: REGISTRATION_OPTIONS }),
+      ),
+      "admin/passkeys/register": handle("admin/passkeys/register", (input) => {
+        if (!consumeReauthentication()) {
+          return REAUTHENTICATION_FAILED;
+        }
+
+        const added = {
+          id: nextId(),
+          name: field(input, "name"),
+          backedUp: false,
+        };
+
+        passkeys = [...passkeys, added];
+
+        return { output: summaryOf(added) };
       }),
-      "admin/passkeys/registrationOptions": () => ({
-        output: REGISTRATION_OPTIONS,
+      "admin/passkeys/rename": handle("admin/passkeys/rename", (input) => {
+        const target = passkeys.find(({ id }) => id === field(input, "id"));
+
+        if (target === undefined) {
+          return NOT_FOUND;
+        }
+
+        const renamed = { ...target, name: field(input, "name") };
+
+        passkeys = passkeys.map((passkey) =>
+          passkey.id === renamed.id ? renamed : passkey,
+        );
+
+        return { output: summaryOf(renamed) };
       }),
-      "admin/passkeys/register": (input) =>
-        reply("admin/passkeys/register", () => {
-          const added = {
-            id: `passkey-${String(passkeys.length + 1)}`,
-            name: field(input, "name"),
-            backedUp: false,
-          };
+      "admin/passkeys/delete": handle("admin/passkeys/delete", (input) => {
+        if (!consumeReauthentication()) {
+          return REAUTHENTICATION_FAILED;
+        }
 
-          passkeys = [...passkeys, added];
+        const id = field(input, "id");
 
-          return { output: summaryOf(added) };
-        }),
-      "admin/passkeys/rename": (input) =>
-        reply("admin/passkeys/rename", () => {
-          const id = field(input, "id");
-          const name = field(input, "name");
+        if (!passkeys.some((passkey) => passkey.id === id)) {
+          return NOT_FOUND;
+        }
 
-          passkeys = passkeys.map((passkey) =>
-            passkey.id === id ? { ...passkey, name } : passkey,
-          );
+        if (passkeys.length === 1) {
+          return { error: "LAST_PASSKEY", status: 409 };
+        }
 
-          return { output: summaryOf({ id, name, backedUp: false }) };
-        }),
-      "admin/passkeys/delete": (input) =>
-        reply("admin/passkeys/delete", () => {
-          passkeys = passkeys.filter(({ id }) => id !== field(input, "id"));
+        passkeys = passkeys.filter((passkey) => passkey.id !== id);
 
-          return { output: undefined };
-        }),
+        return { output: undefined };
+      }),
     },
     passkeys: () => passkeys,
-    failNext: (procedure, failure) => {
-      failures.set(procedure, failure);
+    replyNext: (procedure, reply) => {
+      overrides.set(procedure, reply);
     },
   };
 };

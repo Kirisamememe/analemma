@@ -11,8 +11,8 @@ afterEach(cleanup);
 describe("PasskeysSection", () => {
   test("前の操作の知らせは、次の操作を始めると消す", async () => {
     const server = createPasskeyRoutes([
-      { id: "passkey-1", name: "MacBook", backedUp: true },
-      { id: "passkey-2", name: "iPhone", backedUp: true },
+      { name: "MacBook", backedUp: true },
+      { name: "iPhone", backedUp: true },
     ]);
 
     renderApp({

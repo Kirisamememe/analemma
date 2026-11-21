@@ -1,4 +1,5 @@
 import { ORPCError } from "@orpc/client";
+import { onlineManager } from "@tanstack/react-query";
 import { describe, expect, test } from "bun:test";
 
 import { createQueryClient } from "../create-query-client";
@@ -80,5 +81,30 @@ describe("createQueryClient", () => {
     expect(queryClient.getDefaultOptions().queries?.refetchOnWindowFocus).toBe(
       false,
     );
+  });
+
+  test("オフラインでも送信を止めておかず、その場で送って失敗を返す", async () => {
+    const queryClient = createQueryClient(countCalls());
+    let sent = 0;
+
+    onlineManager.setOnline(false);
+
+    try {
+      await queryClient
+        .getMutationCache()
+        .build(queryClient, {
+          mutationFn: () => {
+            sent += 1;
+
+            return Promise.reject(new TypeError("Failed to fetch"));
+          },
+        })
+        .execute(undefined)
+        .catch(() => undefined);
+    } finally {
+      onlineManager.setOnline(true);
+    }
+
+    expect(sent).toBe(1);
   });
 });
