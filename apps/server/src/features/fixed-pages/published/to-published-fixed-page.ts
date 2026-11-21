@@ -1,14 +1,8 @@
 import type { InferContractRouterOutputs } from "@orpc/contract";
 
-import {
-  type contract,
-  fixedPageContent,
-  toContentSchema,
-} from "@analemma/contract";
+import { type contract, fixedPageContent } from "@analemma/contract";
 
-import { readKindFields } from "../../kinds/read-kind-fields";
 import type { FixedPageRow } from "../find-fixed-page.query";
-import type { PublishedFixedPageRow } from "./find-published-fixed-page.query";
 
 type PublicOutputs = InferContractRouterOutputs<
   typeof contract
@@ -35,16 +29,10 @@ export const toPublishedSummary = (row: FixedPageRow): PublishedSummary => {
   };
 };
 
-/** 公開している固定ページを、今の定義にある項目だけの中身にして返す形にする。 */
-export const toPublishedFixedPage = ({
-  fields,
-  page,
-}: PublishedFixedPageRow): PublishedFixedPage => ({
-  ...toPublishedSummary(page),
-  content: fixedPageContent.parse(
-    toContentSchema({
-      fields: readKindFields(fields),
-      unknownKeys: "strip",
-    }).parse(page.content),
-  ),
+/** 公開している固定ページを、保存した中身のまま返す形にする。 */
+export const toPublishedFixedPage = (
+  row: FixedPageRow,
+): PublishedFixedPage => ({
+  ...toPublishedSummary(row),
+  content: fixedPageContent.parse(row.content),
 });

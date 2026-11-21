@@ -39,7 +39,7 @@ export const publicFixedPages = {
     .output(
       publishedSummary.extend({
         content: fixedPageContent.describe(
-          "今の種類の定義にある項目だけの中身。",
+          "保存した中身(今の種類の定義に無いキーも含む)。",
         ),
       }),
     ),

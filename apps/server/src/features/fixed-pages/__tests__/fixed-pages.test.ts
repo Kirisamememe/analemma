@@ -165,6 +165,32 @@ describe("固定ページを書き換える", () => {
     });
   });
 
+  test("同じ値のまま保存し直しても、更新した日時を進めないこと", async () => {
+    let now = TEST_NOW;
+    await using server = await createTestClient({ clock: { now: () => now } });
+
+    await prepareTestKinds(server, [profile]);
+
+    const admin = server.client.admin.fixedPages;
+    const page = await admin.create({
+      kind: "profile",
+      slug: "about",
+      title: "自己紹介",
+      content,
+    });
+
+    now = new Date(TEST_NOW.getTime() + 60_000);
+
+    const saved = await admin.update({
+      id: page.id,
+      slug: page.slug,
+      title: page.title,
+      content: page.content,
+    });
+
+    expect(saved.updatedAt).toBe(TEST_NOW.toISOString());
+  });
+
   test("無いページは NOT_FOUND、ほかのページの slug は SLUG_TAKEN、合わない中身は INVALID_CONTENT にすること", async () => {
     await using server = await createTestClient();
 

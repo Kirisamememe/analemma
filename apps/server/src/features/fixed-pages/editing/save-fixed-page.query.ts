@@ -85,7 +85,18 @@ const updatePage = async (
 ): Promise<FixedPageRow> => {
   const [row] = await db
     .update(fixedPage)
-    .set({ slug, title, content, updatedAt: now })
+    .set({
+      slug,
+      title,
+      content,
+      updatedAt: sql`case
+        when ${fixedPage.slug} is distinct from ${slug}
+          or ${fixedPage.title} is distinct from ${title}
+          or ${fixedPage.content} is distinct from ${JSON.stringify(content)}::text::jsonb
+        then ${now}::timestamptz
+        else ${fixedPage.updatedAt}
+      end`,
+    })
     .where(eq(fixedPage.id, id))
     .returning();
 

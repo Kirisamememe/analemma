@@ -155,7 +155,7 @@ describe("固定ページの公開", () => {
     });
   });
 
-  test("公開 API の中身には、今の定義に無い項目を含めないこと", async () => {
+  test("必須の項目を消した定義を送っても、公開 API は保存した中身をそのまま返すこと", async () => {
     await using server = await createTestClient();
     const token = await prepareTestKinds(server, [profile]);
     const admin = server.client.admin.fixedPages;
@@ -163,12 +163,12 @@ describe("固定ページの公開", () => {
       kind: "profile",
       slug: "about",
       title: "自己紹介",
-      content: { headline: "こんにちは", note: "古いメモ" },
+      content: { headline: "こんにちは", note: "メモ" },
     });
 
     await admin.publish({ id: page.id });
     await server.internal(token).deploy.kinds.push({
-      kinds: [{ ...profile, fields: profile.fields.slice(0, 1) }],
+      kinds: [{ ...profile, fields: profile.fields.slice(1) }],
     });
 
     expect(
@@ -177,10 +177,6 @@ describe("固定ページの公開", () => {
           .internal()
           .public.fixedPages.get({ kind: "profile", slug: "about" })
       ).content,
-    ).toEqual({ headline: "こんにちは" });
-    expect((await admin.get({ id: page.id })).content).toEqual({
-      headline: "こんにちは",
-      note: "古いメモ",
-    });
+    ).toEqual({ headline: "こんにちは", note: "メモ" });
   });
 });
