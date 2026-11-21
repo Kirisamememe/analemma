@@ -100,7 +100,7 @@ export const createExternalApp = (context: AppContext): Hono => {
   return app;
 };
 
-/** 公開 API と、定義を送る API を、同じサーバーの中から受けるアプリを作る。 */
+/** 公開 API とデプロイ用 API を、同じサーバーの中から受けるアプリを作る。 */
 export const createInternalApp = (context: AppContext): Hono => {
   const app = new Hono();
 

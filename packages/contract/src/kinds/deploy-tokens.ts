@@ -44,7 +44,11 @@ export const deployTokens = {
     .input(z.object({ name: tokenName, assertion: reauthenticationAssertion }))
     .output(
       tokenSummary.extend({
-        token: z.string().describe("トークン。表示は1回だけ。"),
+        token: z
+          .string()
+          .describe(
+            "`{id}.{secret}` の token。返すのは発行したときの1回だけ。",
+          ),
       }),
     ),
   revoke: adminAccess

@@ -18,13 +18,13 @@ export const longTextValue = z
   .string()
   .min(1)
   .max(100_000)
-  .regex(MULTI_LINE, { error: "改行とタブのほかの制御文字は使えない" })
+  .regex(MULTI_LINE, { error: "改行とタブを除く制御文字は使えない" })
   .refine(isWellFormed, { error: "対になっていないサロゲートは使えない" });
 
 /** 数値の項目の値。 */
 export const numberValue = z.number();
 
-/** 真偽の項目の値。 */
+/** 真偽値の項目の値。 */
 export const booleanValue = z.boolean();
 
 /** 日付の項目の値(`YYYY-MM-DD`)。 */

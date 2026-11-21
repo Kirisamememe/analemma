@@ -59,7 +59,7 @@ const issuesOf = (value: unknown): string[] =>
   keep.safeParse(value).error?.issues.map(({ path }) => path.join(".")) ?? [];
 
 describe("中身の検査", () => {
-  test("どの型の項目も、定義に合う値を受け付けること", () => {
+  test("どの型のプロパティも、定義に合う値を受け付けること", () => {
     expect(keep.parse(fullContent)).toEqual(fullContent);
   });
 
@@ -152,7 +152,7 @@ describe("中身の検査", () => {
   });
 });
 
-describe("項目の名前", () => {
+describe("項目のキー", () => {
   test.each(["constructor", "toString", "hasOwnProperty", "valueOf"])(
     "%s のような、オブジェクトが元から持つ名前は使えないこと",
     (key) => {

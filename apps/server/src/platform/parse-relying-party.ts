@@ -8,7 +8,7 @@ export type RelyingParty = {
 
 /** 環境変数から読み取れた origin と RP ID。 */
 export type ParsedRelyingParty = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Parsed";
   /** 管理画面の origin と RP ID。 */
   readonly relyingParty: RelyingParty;
@@ -16,7 +16,7 @@ export type ParsedRelyingParty = {
 
 /** origin と RP ID を読めなかったことと、どの変数か。 */
 export type InvalidRelyingParty = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Invalid";
   /** 誤りのある環境変数の名前。 */
   readonly variable: "AUTH_ORIGIN" | "AUTH_RP_ID";

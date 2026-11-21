@@ -27,7 +27,7 @@ export type DeployTokenIssue = {
 
 /** 発行したデプロイ用のトークンの行。 */
 export type IssuedDeployToken = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Issued";
   /** 作った行。 */
   readonly row: DeployTokenRow;

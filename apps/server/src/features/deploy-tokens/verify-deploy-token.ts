@@ -6,7 +6,7 @@ import { recordDeployTokenUse } from "./record-deploy-token-use.query";
 
 /** 確かめられたデプロイ用のトークン。 */
 export type VerifiedDeployToken = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Verified";
   /** token の前半の ID。 */
   readonly id: string;
@@ -14,7 +14,7 @@ export type VerifiedDeployToken = {
 
 /** デプロイ用のトークンを確かめられないこと。 */
 export type RejectedDeployToken = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Rejected";
   /** ログに書く、token の前半の ID(読めたときだけ)。 */
   readonly id: string | undefined;

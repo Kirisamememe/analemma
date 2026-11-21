@@ -196,7 +196,7 @@ describe("種類の定義を送る", () => {
     },
     { title: "種類の名前が重なる", kinds: [colophon, colophon] },
     {
-      title: "項目の名前が重なる",
+      title: "項目のキーが重なる",
       kinds: [
         {
           ...colophon,
@@ -208,7 +208,7 @@ describe("種類の定義を送る", () => {
       ],
     },
     {
-      title: "項目の名前が英字で始まらない",
+      title: "項目のキーが英字で始まらない",
       kinds: [
         {
           ...colophon,

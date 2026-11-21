@@ -130,7 +130,7 @@ export const publicProcedures = api.public;
 /** セッション無しで呼ぶ、ログインと登録の procedure を作る base。 */
 export const authProcedures = api.auth.use(requireAuthOrigin);
 
-/** デプロイ用のトークンを持つ公開サイトだけが呼べる procedure を作る base。 */
+/** 公開サイトのデプロイの仕組みが、デプロイ用のトークンで呼ぶ procedure を作る base。 */
 export const deployProcedures = api.deploy.use(requireDeployToken);
 
 /** ログイン中の管理者だけが呼べる procedure を作る base。 */

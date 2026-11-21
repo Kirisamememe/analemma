@@ -152,7 +152,7 @@ describe("デプロイ用のトークンの取り消し", () => {
   });
 });
 
-describe("定義を送る API の入口", () => {
+describe("デプロイ用 API の入口", () => {
   test("1つ以上あること", () => {
     expect(deployPaths.length).toBeGreaterThan(0);
   });

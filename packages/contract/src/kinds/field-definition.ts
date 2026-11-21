@@ -8,7 +8,7 @@ const isWellFormed = (value: string): boolean => value.isWellFormed();
 const isUnique = (values: readonly string[]): boolean =>
   new Set(values).size === values.length;
 
-/** 管理画面に出す、種類・項目・選択肢の名前。 */
+/** 管理画面に出す、種類・項目・選択肢のラベル。 */
 export const displayLabel = z
   .string()
   .trim()
@@ -16,9 +16,9 @@ export const displayLabel = z
   .max(100)
   .regex(SINGLE_LINE, { error: "改行と制御文字は使えない" })
   .refine(isWellFormed, { error: "対になっていないサロゲートは使えない" })
-  .describe("管理画面に出す名前。");
+  .describe("管理画面に出すラベル。");
 
-/** 項目の名前で、中身のオブジェクトのキーになるもの。 */
+/** 項目のキーで、中身のオブジェクトのキーになるもの。 */
 export const fieldKey = z
   .string()
   .max(64)
@@ -146,7 +146,7 @@ const nestedFields: z.ZodType<
   .min(1)
   .max(MAX_FIELDS)
   .refine((fields) => isUnique(fields.map(({ key }) => key)), {
-    error: "項目の名前が重なっている",
+    error: "項目のキーが重なっている",
   });
 
 /** 種類の直下に並べる項目の定義。 */
@@ -154,6 +154,6 @@ export const fieldDefinitions = z
   .array(fieldDefinition)
   .max(MAX_FIELDS)
   .refine((fields) => isUnique(fields.map(({ key }) => key)), {
-    error: "項目の名前が重なっている",
+    error: "項目のキーが重なっている",
   })
   .describe("フォームに並べる順の、項目の定義。");
