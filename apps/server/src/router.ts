@@ -19,6 +19,11 @@ import { renamePasskey } from "./features/auth/passkeys/rename-passkey";
 import { issueDeployToken } from "./features/deploy-tokens/issue-deploy-token";
 import { listDeployTokens } from "./features/deploy-tokens/list-deploy-tokens";
 import { revokeDeployToken } from "./features/deploy-tokens/revoke-deploy-token";
+import { createFixedPage } from "./features/fixed-pages/editing/create-fixed-page";
+import { deleteFixedPage } from "./features/fixed-pages/editing/delete-fixed-page";
+import { updateFixedPage } from "./features/fixed-pages/editing/update-fixed-page";
+import { getFixedPage } from "./features/fixed-pages/get-fixed-page";
+import { listFixedPages } from "./features/fixed-pages/list-fixed-pages";
 import { getHealth } from "./features/health/get-health";
 import { getKind } from "./features/kinds/get-kind";
 import { listKinds } from "./features/kinds/list-kinds";
@@ -38,6 +43,13 @@ export const router = implement(contract)
         list: listDeployTokens,
         issue: issueDeployToken,
         revoke: revokeDeployToken,
+      },
+      fixedPages: {
+        list: listFixedPages,
+        get: getFixedPage,
+        create: createFixedPage,
+        update: updateFixedPage,
+        delete: deleteFixedPage,
       },
       kinds: { list: listKinds, get: getKind },
       passkeys: {
