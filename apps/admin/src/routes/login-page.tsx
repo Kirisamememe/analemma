@@ -28,7 +28,7 @@ export const LoginPage = (): ReactNode => {
 
       queryClient.clear();
 
-      if (router.state.location.pathname.toLowerCase() === "/login") {
+      if (router.state.matches.some(({ routeId }) => routeId === "/login")) {
         router.history.push(redirect ?? "/");
       }
     },

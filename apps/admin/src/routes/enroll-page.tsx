@@ -50,7 +50,7 @@ export const EnrollPage = (): ReactNode => {
 
       queryClient.clear();
 
-      if (router.state.location.pathname.toLowerCase() === "/enroll") {
+      if (router.state.matches.some(({ routeId }) => routeId === "/enroll")) {
         router.history.replace("/");
       }
     },

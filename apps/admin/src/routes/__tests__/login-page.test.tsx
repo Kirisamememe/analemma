@@ -169,4 +169,19 @@ describe("LoginPage", () => {
       expect(history.location.pathname).toBe("/missing");
     },
   );
+
+  test("末尾に / の付いたログインの画面を、戻り先なしで開いても、ログインするとホームに移る", async () => {
+    const { history } = renderApp({
+      path: "/login/",
+      routes: serverWith(EXPIRY),
+      authenticator: answering,
+    });
+
+    await pressLogIn();
+
+    expect(
+      await screen.findByRole("heading", { name: "Stilus" }),
+    ).toBeDefined();
+    expect(history.location.pathname).toBe("/");
+  });
 });
