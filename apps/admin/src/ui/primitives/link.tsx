@@ -1,8 +1,6 @@
+import type { ToOptions } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import {
-  Link as AriaLink,
-  type LinkProps as AriaLinkProps,
-} from "react-aria-components";
+import { Link as AriaLink } from "react-aria-components";
 
 import { tv } from "../tv";
 
@@ -12,8 +10,8 @@ const link = tv({
 
 /** リンクに渡す値。 */
 type LinkProps = {
-  /** 管理画面の中の行き先。 */
-  readonly href: NonNullable<AriaLinkProps["href"]>;
+  /** 管理画面の中の行き先(TanStack Router の route のパス)。 */
+  readonly href: NonNullable<ToOptions["to"]>;
   /** リンクの文言。 */
   readonly children: ReactNode;
 };
