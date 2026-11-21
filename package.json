@@ -23,6 +23,7 @@
     "@commitlint/types": "21.2.3",
     "@stylistic/eslint-plugin": "6.0.1",
     "@types/bun": "1.4.5",
+    "eslint-plugin-better-tailwindcss": "4.11.0",
     "eslint-plugin-jsdoc": "65.5.0",
     "eslint-plugin-prefer-arrow-functions": "3.10.2",
     "oxc-parser": "0.159.0",
