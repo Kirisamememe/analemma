@@ -12,9 +12,9 @@ import { typography } from "../typography";
 const dialog = tv({
   slots: {
     overlay:
-      "fixed inset-0 z-overlay flex items-center justify-center bg-scrim/40 p-4",
+      "fixed top-0 left-0 z-overlay flex h-(--visual-viewport-height) w-full items-center justify-center bg-scrim/40 p-4",
     modal:
-      "w-full max-w-md rounded-surface border border-line bg-surface p-6 text-fg shadow-overlay",
+      "max-h-full w-full max-w-md overflow-y-auto rounded-surface border border-line bg-surface p-6 text-fg shadow-overlay",
     body: "flex flex-col gap-4 outline-hidden",
     title: "text-fg",
   },
