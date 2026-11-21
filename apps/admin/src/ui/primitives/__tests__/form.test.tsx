@@ -124,4 +124,25 @@ describe("Form", () => {
     expect(screen.queryByText("この名前は使えません")).toBeNull();
     expect(submissions.names).toEqual(["MacBook"]);
   });
+
+  test("送信が終わったら、また送れる", async () => {
+    const submissions = recordSubmissions();
+    const { rerender } = renderForm(submissions, { isPending: true });
+
+    rerender(
+      <Form isPending={false} onSubmit={submissions.onSubmit}>
+        <TextField label="パスキーの名前" name="name" />
+        <Button isPending={false} type="submit">
+          登録
+        </Button>
+      </Form>,
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "パスキーの名前" }),
+      "MacBook",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "登録" }));
+
+    expect(submissions.names).toEqual(["MacBook"]);
+  });
 });
