@@ -1,15 +1,32 @@
 import { describe, expect, test } from "bun:test";
 
-import { catchErrorCode } from "../../../test-client/catch-error-code";
+import { contract } from "@analemma/contract";
+
 import {
+  SUCCEEDED,
+  catchErrorCode,
+} from "../../../test-client/catch-error-code";
+import {
+  TEST_INTERNAL_URL,
   TEST_NOW,
   createTestClient,
 } from "../../../test-client/create-test-client";
+import { listProcedurePaths } from "../../../test-client/list-procedure-paths";
+import { issueTestDeployToken } from "../../../test-client/prepare-test-kinds";
 import { signInAsAdmin } from "../../../test-client/sign-in-as-admin";
+
+const deployPaths = listProcedurePaths(contract.deploy, "deploy");
+
+const pushNothing = async (
+  token: string | undefined,
+  server: Awaited<ReturnType<typeof createTestClient>>,
+): Promise<string> =>
+  catchErrorCode(server.internal(token).deploy.kinds.push({ kinds: [] }));
 
 describe("デプロイ用のトークンの発行", () => {
   test("token は発行したときだけ返し、一覧には名前と日時だけを出すこと", async () => {
-    await using server = await createTestClient();
+    let now = TEST_NOW;
+    await using server = await createTestClient({ clock: { now: () => now } });
 
     await signInAsAdmin(server);
 
@@ -25,13 +42,17 @@ describe("デプロイ用のトークンの発行", () => {
       token: issued.token,
     });
     expect(issued.token).toMatch(/^[\w\-]{22}\.[\w\-]{43}$/v);
+
+    now = new Date(TEST_NOW.getTime() + 60_000);
+    await server.internal(issued.token).deploy.kinds.push({ kinds: [] });
+
     expect(await server.client.admin.deployTokens.list()).toEqual({
       tokens: [
         {
           id: issued.id,
           name: "本番のデプロイ",
           createdAt: TEST_NOW.toISOString(),
-          lastUsedAt: null,
+          lastUsedAt: now.toISOString(),
         },
       ],
     });
@@ -54,25 +75,107 @@ describe("デプロイ用のトークンの発行", () => {
 });
 
 describe("デプロイ用のトークンの取り消し", () => {
-  test("取り消したトークンは一覧から消え、もう一度取り消すと NOT_FOUND になること", async () => {
+  test("取り消したトークンでは、定義を送れなくなること", async () => {
     await using server = await createTestClient();
 
     await signInAsAdmin(server);
 
-    const first = await server.client.admin.deployTokens.issue({ name: "1" });
-    const second = await server.client.admin.deployTokens.issue({ name: "2" });
+    const token = await issueTestDeployToken(server);
+    const other = await issueTestDeployToken(server);
+    const id = token.split(".")[0] ?? "";
 
-    await server.client.admin.deployTokens.revoke({ id: first.id });
+    expect(await pushNothing(token, server)).toBe(SUCCEEDED);
 
+    await server.client.admin.deployTokens.revoke({ id });
+
+    expect(await pushNothing(token, server)).toBe("UNAUTHORIZED");
+    expect(await pushNothing(other, server)).toBe(SUCCEEDED);
     expect(
-      (await server.client.admin.deployTokens.list()).tokens.map(
-        ({ id }) => id,
-      ),
-    ).toEqual([second.id]);
-    expect(
-      await catchErrorCode(
-        server.client.admin.deployTokens.revoke({ id: first.id }),
-      ),
+      await catchErrorCode(server.client.admin.deployTokens.revoke({ id })),
     ).toBe("NOT_FOUND");
+  });
+});
+
+describe("定義を送る API の入口", () => {
+  test("1つ以上あること", () => {
+    expect(deployPaths.length).toBeGreaterThan(0);
+  });
+
+  test.each(deployPaths)(
+    "%s は、トークンが無いか、違うか、形が崩れていると、401 と UNAUTHORIZED を返し、キャッシュさせないこと",
+    async (path) => {
+      await using server = await createTestClient();
+
+      await signInAsAdmin(server);
+
+      const token = await issueTestDeployToken(server);
+      const [id = ""] = token.split(".");
+
+      for (const authorization of [
+        undefined,
+        "",
+        `Basic ${token}`,
+        `Bearer ${id}.${"A".repeat(43)}`,
+        `Bearer ${"A".repeat(22)}.${"A".repeat(43)}`,
+        "Bearer broken",
+      ]) {
+        const response = await server.internalApp.fetch(
+          new Request(`${TEST_INTERNAL_URL}/api/${path}`, {
+            method: "POST",
+            headers:
+              authorization === undefined
+                ? { "content-type": "application/json" }
+                : { "content-type": "application/json", authorization },
+            body: JSON.stringify({ json: null }),
+          }),
+        );
+        const body: unknown = await response.json();
+
+        expect(response.status).toBe(401);
+        expect(body).toMatchObject({ json: { code: "UNAUTHORIZED" } });
+        expect(response.headers.get("cache-control")).toBe("no-store");
+        expect(response.headers.get("www-authenticate")).toBe("Bearer");
+      }
+    },
+  );
+
+  test("断ったときは、token の secret を書かずに、ログに残すこと", async () => {
+    await using server = await createTestClient();
+    const secret = "S".repeat(43);
+
+    expect(await pushNothing(`${"A".repeat(22)}.${secret}`, server)).toBe(
+      "UNAUTHORIZED",
+    );
+    expect(
+      server.logs.map(({ details, level, message }) => ({
+        level,
+        message,
+        details,
+      })),
+    ).toEqual([
+      {
+        level: "warn",
+        message: "デプロイ用のトークンを確かめられなかった",
+        details: { deployTokenId: "A".repeat(22) },
+      },
+    ]);
+    expect(JSON.stringify(server.logs)).not.toContain(secret);
+  });
+
+  test("セッションの Cookie では、定義を送れないこと", async () => {
+    await using server = await createTestClient();
+    const { browser } = await signInAsAdmin(server);
+    const response = await server.internalApp.fetch(
+      new Request(`${TEST_INTERNAL_URL}/api/deploy/kinds/push`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          cookie: browser.cookie(),
+        },
+        body: JSON.stringify({ json: { kinds: [] } }),
+      }),
+    );
+
+    expect(response.status).toBe(401);
   });
 });
