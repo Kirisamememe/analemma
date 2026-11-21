@@ -55,15 +55,14 @@ export type AnalemmaClient = {
 
 /** 公開サイトのサーバーから、CMS の公開 API を呼ぶ client を作る。 */
 export const createAnalemmaClient = ({
-  fetch,
+  fetch = async (request) => globalThis.fetch(request),
   url,
 }: AnalemmaClientOptions): AnalemmaClient => {
   const client: ContractRouterClient<PublicRouter> = createORPCClient(
     new RPCLink({
       url: new URL("/api", url).href,
-      ...(fetch === undefined
-        ? {}
-        : { fetch: async (request) => fetch(request) }),
+      fetch: async (request) =>
+        fetch(new Request(request, { redirect: "error" })),
     }),
   );
 

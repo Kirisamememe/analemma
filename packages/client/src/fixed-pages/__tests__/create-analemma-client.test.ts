@@ -116,6 +116,26 @@ describe("公開している固定ページを引く", () => {
   });
 });
 
+describe("CMS へのリクエスト", () => {
+  test("リダイレクトを追わず、失敗として扱わせること", async () => {
+    const redirects: string[] = [];
+    const fake = serveFakeCms({ headline: "a" });
+    const client = createAnalemmaClient({
+      url: "http://127.0.0.1:8788",
+      fetch: async (request) => {
+        redirects.push(request.redirect);
+
+        return fake(request);
+      },
+    });
+
+    await client.fixedPages.get(about, "about");
+    await client.fixedPages.list();
+
+    expect(redirects).toEqual(["error", "error"]);
+  });
+});
+
 describe("公開している固定ページの一覧", () => {
   test("種類で絞った一覧を返すこと", async () => {
     const client = clientFor({ headline: "a" });
