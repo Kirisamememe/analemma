@@ -196,14 +196,14 @@ describe("種類の定義", () => {
     );
   });
 
-  test("symbol の名前の項目は、使えないこと", () => {
+  test("symbol のキーの項目は、使えないこと", () => {
     expect(() =>
       defineKind({
         name: "about",
         label: "自己紹介",
         fields: { [Symbol("caption")]: text({ label: "説明" }) },
       }),
-    ).toThrow("項目の名前には、symbol でなく文字列を使う");
+    ).toThrow("項目のキーには、symbol でなく文字列を使う");
   });
 
   test("CMS が断る名前の種類は、定義した時点で失敗すること", () => {

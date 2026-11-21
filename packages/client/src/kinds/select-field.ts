@@ -6,15 +6,15 @@ import { registerField } from "./field-registry";
 export type SelectOption<Value extends string> = {
   /** 中身に入る値。 */
   readonly value: Value;
-  /** 管理画面に出す名前。 */
+  /** 管理画面に出すラベル。 */
   readonly label: string;
 };
 
-/** 選択肢から1つを選ぶ項目の、名前と選択肢。 */
+/** 選択肢から1つを選ぶ項目の、ラベルと選択肢。 */
 export type SelectOptions<Value extends string> = {
-  /** 管理画面のフォームに出す、項目の名前。 */
+  /** 管理画面のフォームに出す、項目のラベル。 */
   readonly label: string;
-  /** 選べる値と、その名前。 */
+  /** 選べる値と、そのラベル。 */
   readonly options: readonly SelectOption<Value>[];
 };
 

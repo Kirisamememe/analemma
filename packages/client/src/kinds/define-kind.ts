@@ -5,11 +5,11 @@ import { type KindDefinition, kindDefinition } from "@analemma/contract";
 import type { FieldShape } from "./field-registry";
 import { toFieldDefinitions } from "./to-field-definitions";
 
-/** 種類の名前・管理画面に出す名前・項目。 */
+/** 種類の名前・ラベル・項目。 */
 export type KindOptions<Name extends string, Shape extends FieldShape> = {
   /** 種類の名前(kebab-case)。 */
   readonly name: Name;
-  /** 管理画面に出す、種類の名前。 */
+  /** 管理画面に出す、種類のラベル。 */
   readonly label: string;
   /** フォームに並べる順の項目。 */
   readonly fields: Shape;

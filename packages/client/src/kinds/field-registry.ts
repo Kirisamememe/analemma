@@ -7,7 +7,7 @@ type WithoutKey<T> = T extends unknown ? Omit<T, "key"> : never;
 /** キーを除いた、項目の定義。 */
 export type FieldMeta = WithoutKey<FieldDefinition>;
 
-/** 項目の名前をキーにした、項目の値のスキーマの並び。 */
+/** 項目のキーと、項目の値のスキーマの組の並び。 */
 export type FieldShape = Readonly<Record<string, z.ZodType>>;
 
 const metas = new WeakMap<z.ZodType, FieldMeta>();

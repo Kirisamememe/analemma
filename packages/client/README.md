@@ -46,7 +46,7 @@ export type AboutContent = KindContent<typeof about>;
 
 ## 公開しているページを読む
 
-CMS の内部用のポートに、公開サイトのサーバーから呼ぶ。
+公開サイトのサーバーから、CMS の内部用のポートの公開 API を呼ぶ。
 
 ```ts
 import { createAnalemmaClient } from "@analemma/client";

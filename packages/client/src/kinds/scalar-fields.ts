@@ -12,9 +12,9 @@ import {
 
 import { registerField } from "./field-registry";
 
-/** 項目の関数に渡す、管理画面に出す名前。 */
+/** 項目の関数に渡す、管理画面に出すラベル。 */
 export type FieldOptions = {
-  /** 管理画面のフォームに出す、項目の名前。 */
+  /** 管理画面のフォームに出す、項目のラベル。 */
   readonly label: string;
 };
 
@@ -37,7 +37,7 @@ export const longText = defineScalar("longText", longTextValue);
 /** 数値の項目。 */
 export const number = defineScalar("number", numberValue);
 
-/** 真偽の項目。 */
+/** 真偽値の項目。 */
 export const boolean = defineScalar("boolean", booleanValue);
 
 /** 日付(`YYYY-MM-DD`)の項目。 */

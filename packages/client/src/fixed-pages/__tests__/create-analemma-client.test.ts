@@ -30,7 +30,7 @@ const PAGE = {
   updatedAt: "2026-01-02T00:00:00.000Z",
 };
 
-/** 偽の CMS に置く、公開している固定ページの中身。 */
+/** テスト用の CMS に置く、公開している固定ページの中身。 */
 type FakeContent = Record<string, string>;
 
 const os = implement({ public: contract.public });
@@ -52,7 +52,7 @@ const serveFakeCms = (
             }
 
             if (input.kind !== "about") {
-              throw new Error("偽の CMS の想定外の失敗");
+              throw new Error("テスト用の CMS の想定外の失敗");
             }
 
             return { ...PAGE, content };
