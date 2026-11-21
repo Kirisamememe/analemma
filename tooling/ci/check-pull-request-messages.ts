@@ -72,12 +72,12 @@ if (base === undefined || head === undefined || number === undefined) {
 
     if (failed.length > 0) {
       process.stderr.write(
-        `通らなかったメッセージ(コミットの SHA と、${TITLE_FILE} は PR のタイトル):\n${failed.join("\n")}\n`,
+        `通らなかったメッセージ(コミットは SHA で、PR のタイトルは ${TITLE_FILE} で示す):\n${failed.join("\n")}\n`,
       );
       process.exitCode = 1;
     } else {
       process.stdout.write(
-        `PR のコミット ${String(messages.length - 1)} 件のメッセージと、PR のタイトルが通った。\n`,
+        `PR のコミット ${String(messages.length - 1)} 件のメッセージと、PR のタイトルが通りました。\n`,
       );
     }
   } finally {

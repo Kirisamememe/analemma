@@ -193,7 +193,7 @@ describe("PR のコミットのメッセージ", () => {
     ).toEqual(pullRequest.commits.slice(1));
   });
 
-  test.concurrent("コミットのメッセージの中身も、commit-msg の hook と同じく探すこと", async () => {
+  test.concurrent("コミットのメッセージからも、commit-msg の hook と同じく、ほかのリポジトリの名前を探すこと", async () => {
     const pullRequest = makePullRequest("message-name", {
       base: [],
       pullRequest: ["docs: hidden-repo から写す"],
@@ -225,7 +225,7 @@ describe("PR のタイトル", () => {
     expect(result.stderr).toContain("pull-request-title");
   });
 
-  test.concurrent("タイトルの中身も、commit-msg の hook と同じく探すこと", async () => {
+  test.concurrent("タイトルからも、commit-msg の hook と同じく、ほかのリポジトリの名前を探すこと", async () => {
     const result = await checkPullRequest({
       pullRequest,
       title: "docs: hidden-repo から写す",

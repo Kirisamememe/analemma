@@ -161,7 +161,7 @@ git の `core.hooksPath` を、コミットしたフォルダ `tooling/git-hooks
 
 ## CI
 
-GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の名前(`check`・`commit-messages`)は、main の ruleset で通ることを必須にする名前なので、変えるときは ruleset も直す。
+GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の名前(`check`・`commit-messages`)は、main の ruleset で、通ることを必須にする check として登録した名前なので、変えるときは ruleset も直す。
 
 - **`check`**(`check.yml`):PR と main への push で、`bun install --frozen-lockfile` と `bun run check` を流す。手元と同じ手順で、テスト用の PostgreSQL も `bun run check` が Docker Compose で起動する(直下の `DECISIONS.md` の「PostgreSQL の用意」)。
 - **`commit-messages`**(`commit-messages.yml`):PR で、PR のコミットのメッセージと、PR のタイトルを確かめる。main は「Squash and merge」だけにする予定で、main に残るのはタイトルになるため。
@@ -170,18 +170,18 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 ### メッセージの検査
 
 - **同じ検査を2か所に書かない**:`tooling/ci/check-pull-request-messages.ts` は、メッセージを1件ずつ一時ファイルに書き、commit-msg の hook のスクリプト(`tooling/git-hooks/commit-msg.ts`)にそのまま渡す。hook の検査を変えれば、CI の検査も変わる。`#` で始まる行の扱いも hook と同じになる。
-- **範囲は PR のコミットだけ**:`git rev-list` で、PR のイベントの base から head までをたどる。main に入ったコミットは、入るときに確かめてある。検査を厳しくしても、過去のコミットで PR が落ちないようにするため。履歴をたどるので、checkout は `fetch-depth: 0` にする。
+- **範囲は PR のコミットだけ**:`git rev-list` で、`pull_request` イベントが渡す base の SHA から head の SHA までをたどる。main に入ったコミットは、入るときに確かめてある。検査を厳しくしても、過去のコミットで PR が落ちないようにするため。履歴をたどるので、checkout は `fetch-depth: 0` にする。
 - **PR のタイトルは、main に残る1行目として確かめる**:「Squash and merge」は、タイトルの後ろに ` (#番号)` を足して1行目にする。確かめるのは番号を足した1行目なので、半角に換算した幅は番号まで含めて数える。
 - **PR の本文は確かめない**:main に残るのはタイトルだけにする前提(squash のコミットのメッセージを、PR のタイトルだけにする設定)。本文も main に残す設定にするなら、本文も確かめる。
 - **タイトルは環境変数と標準入力で渡す**:`${{ }}` で `run` に直接書くと、タイトルがシェルのスクリプトの一部として展開され、タイトルに書いたコマンドが流れる(script injection)。引数でなく標準入力で渡すのは、`-` で始まるタイトルを option と読ませないため。
-- **ほかのリポジトリの名前は探さない**:CI には名前の一覧が無い(作りのとおり)。名前は、手元の `bun run check` とコミットのときの hook が探す。
+- **ほかのリポジトリの名前は探さない**:CI には名前の一覧が無い(一覧は手元にだけ置くため)。名前は、手元の `bun run check` とコミットのときの hook が探す。
 
 ### 守りの設定
 
 - **`permissions` は `contents: read` だけ**:どちらの job も、リポジトリを読むだけで何も書かない。既定の権限はリポジトリの設定で決まり、書き込みを含む設定にもできる。最上位で決めていることを、`tooling/structure/` のテストが確かめる。
 - **checkout の `persist-credentials: false`**:token を `.git/config` に残さない。後の step(依存の install で流れる script を含む)から token を読めないようにする。
 - **actions はコミットの SHA で固定する**:タグは付け替えられるので、同じタグでも別のコードが流れうる。SHA だけでは何のバージョンか読めないので、行末のコメントにバージョンを書く(設定ファイルにコメントを書かない約束の例外。直下の `DECISIONS.md`)。形は `tooling/structure/` のテストが確かめる。上げるときは、SHA とコメントを一緒に直す。
-- **`concurrency`**:PR は番号ごとにまとめ、新しい実行が古い実行を止める。main への push は SHA ごとに分け、止めない。main のどのコミットにも結果を残すため。
+- **`concurrency`**:PR は番号ごとにまとめ、新しい実行が古い実行を止める。main への push の実行は SHA ごとに分け、新しい実行で古い実行を止めない。main のどのコミットにも結果を残すため。
 - **runner を `ubuntu-26.04` に固定する**:`ubuntu-latest` は GitHub が切り替えるので、Docker や Compose のバージョンが知らないうちに変わる。
 - **`timeout-minutes`**:既定の6時間は長すぎる。`check` は15分、`commit-messages` は5分にする。
 - **依存を cache しない**:`bun install` は CI で1秒かからない(810ms。実測)。cache の action を足すほどではない。
