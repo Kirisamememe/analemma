@@ -38,4 +38,43 @@ export const en = {
   "sessionError.description": "Could not check your session. Please try again.",
   "sessionError.retry": "Try again",
   "passkeyName.invalid": "Use 1 to 64 characters, without line breaks.",
+  "home.security": "Security",
+  "security.title": "Security",
+  "security.description":
+    "Passkeys and sessions used to sign in to this admin.",
+  "passkeys.title": "Passkeys",
+  "passkeys.add": "Add a passkey",
+  "passkeys.addDescription":
+    "You will first confirm with a current passkey, then create the new one.",
+  "passkeys.created": "Registered {date}",
+  "passkeys.lastUsed": "Last used {date}",
+  "passkeys.synced": "Synced",
+  "passkeys.rename": "Rename",
+  "passkeys.renameTitle": "Rename the passkey",
+  "passkeys.delete": "Delete",
+  "passkeys.deleteTitle": "Delete “{name}”?",
+  "passkeys.deleteDescription":
+    "You will confirm with a current passkey. Other browsers will be signed out.",
+  "passkeys.cancel": "Cancel",
+  "passkeys.save": "Save",
+  "passkeys.loading": "Loading passkeys.",
+  "passkeys.loadFailed": "Could not load passkeys.",
+  "passkeys.added": "The passkey was added.",
+  "passkeys.deleted":
+    "The passkey was deleted. Other browsers were signed out.",
+  "passkeys.cancelled": "The passkey operation was cancelled.",
+  "passkeys.reauthenticationFailed":
+    "Could not confirm with a current passkey.",
+  "passkeys.expired": "It took too long. Please try again.",
+  "passkeys.alreadyRegistered":
+    "This authenticator already has a passkey for this admin.",
+  "passkeys.rejected": "The passkey could not be registered.",
+  "passkeys.lastPasskey": "The last passkey cannot be deleted.",
+  "passkeys.notFound": "This passkey no longer exists.",
+  "passkeys.failed": "Something went wrong. Please try again later.",
+  "sessions.title": "Sessions",
+  "sessions.description": "Sign out of every browser, including this one.",
+  "sessions.logOutAll": "Sign out everywhere",
+  "sessions.logOutAllTitle": "Sign out everywhere?",
+  "sessions.logOutAllFailed": "Could not sign out. Please try again.",
 } as const satisfies Readonly<Record<string, string>>;

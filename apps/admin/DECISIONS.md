@@ -85,6 +85,15 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - ログインした後の画面で、セッションを確かめる API が 401 以外で失敗したら(server が落ちているなど)、訳した知らせと、やり直すボタンを出す(router の既定の画面は英語で、やり直せない)。
 - ログアウトしたら、持っている状態を消して、ログインの画面に移る。
 
+## パスキーとセッションの管理
+
+- 画面は `/security`(セキュリティ)。パスキーの一覧・足す・名前を変える・消すと、すべてのセッションからのログアウトを置く。
+- 足すときと消すときは、操作の前に、今のパスキーで確かめ直す(再認証。`src/features/auth/reauthenticate.ts`)。足すときは、再認証の後に新しいパスキーを作り、2つの資格情報を一緒に送る。再認証の結果は server に覚えられないので、1つの再認証で1回だけ操作できる。名前の変更と、すべてのセッションからのログアウトには求めない(server の決まり)。
+- 消すことと、すべてのセッションからのログアウトは、取り消せないので、確かめの画面(Dialog)を出してから送る。足すときと名前を変えるときも、入力のために Dialog を使う。
+- 失敗(再認証できない・最後のパスキー・もう無いパスキーなど)は、Dialog を開いたまま、その中に知らせる。成功したら Dialog を閉じ、画面に知らせを残す(操作の結果を知らせる Toast を足したら、そちらに移す)。次の操作を始めたら、前の知らせは消す。
+- パスキーの名前は、ログインの前の登録と同じく、contract の `passkeyName` で、作る前に確かめる。
+- パスキーを消すと、server は今のセッションのほかをすべてログアウトさせるので、そのことも知らせる。
+
 ## テスト
 
 マークアップの作りをなぞるだけのテストは書かない。実装をなぞるテストは、実装を変えるたびに直すだけで、何も守らない。
@@ -95,7 +104,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 決まった文言を描画して確かめるだけのテストは lint を通ってしまうので、セルフレビューで見る。
 - 管理画面の `src/` のテストは、リポジトリの直下の `bun test` から外し(直下の `bunfig.toml`)、`apps/admin` で別に流す(`apps/admin/bunfig.toml` の `root` を `src` にする)。DOM(happy-dom)を用意する preload を、画面のコードのテストにだけ掛けるため。happy-dom は `fetch`・`Request`・`Response`・`setTimeout` などのグローバルを置き換えるので、直下で掛けると server のテストまで happy-dom の上で流れる。`bunfig.toml` は、`bun test` を流すフォルダのものだけが読まれる(手元で確かめた)。
 - Vite の設定とビルドのテスト(`apps/admin/__tests__/`)は、直下の `bun test` で、DOM なしで流す。Vite は Node の `setTimeout` を前提にしていて(`unref()` を呼ぶ)、happy-dom の上では開発のサーバーが起動しない。
-- 画面のテストは、`src/testing/render-app.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体(router・query client・言語)を描く。作り物の server(`create-fake-api.ts`)は、oRPC のプロトコルの応答(成功と、contract に定義した失敗と、定義していない失敗)を返し、無い procedure には本物の server と同じくテキストの 404(`text/plain`)を返す。client は本物を使う。画面・router・client のつなぎを、利用者に見える結果と、呼ばれた procedure の並びで確かめられる。`src/testing/` は、テストだけが import できる(`tooling/structure/` のテストが止める)。
+- 画面のテストは、`src/testing/render-app.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体(router・query client・言語)を描く。パスキーの画面のテストには、パスキーとセッションの procedure を状態ごと真似る作り物(`create-passkey-routes.ts`)と、決めた答えを返す作り物の認証器(`create-fake-authenticator.ts`)を使う。作り物の server(`create-fake-api.ts`)は、oRPC のプロトコルの応答(成功と、contract に定義した失敗と、定義していない失敗)を返し、無い procedure には本物の server と同じくテキストの 404(`text/plain`)を返す。client は本物を使う。画面・router・client のつなぎを、利用者に見える結果と、呼ばれた procedure の並びで確かめられる。`src/testing/` は、テストだけが import できる(`tooling/structure/` のテストが止める)。
 - tsconfig を2つに分ける。`tsconfig.app.json` は、テストを除いた `src/` を、Bun の型なしで検査する(画面のコードが Bun の API の型を読めないように)。`tsconfig.json` は、テスト・`vite.config.ts`・`test-setup/` を含めて Bun の型で検査し、型付きの lint もこちらを使う。
 
 ## server の認証に合わせること

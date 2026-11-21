@@ -43,4 +43,45 @@ export const ja = {
     "ログイン状態を確認できませんでした。もう一度試してください。",
   "sessionError.retry": "もう一度試す",
   "passkeyName.invalid": "1〜64文字で、改行などを使わずに付けてください。",
+  "home.security": "セキュリティ",
+  "security.title": "セキュリティ",
+  "security.description":
+    "この管理画面へのログインに使う、パスキーとセッション。",
+  "passkeys.title": "パスキー",
+  "passkeys.add": "パスキーを足す",
+  "passkeys.addDescription":
+    "まず今のパスキーで確かめ、それから新しいパスキーを作ります。",
+  "passkeys.created": "登録 {date}",
+  "passkeys.lastUsed": "最後に使用 {date}",
+  "passkeys.synced": "同期済み",
+  "passkeys.rename": "名前を変える",
+  "passkeys.renameTitle": "パスキーの名前を変える",
+  "passkeys.delete": "消す",
+  "passkeys.deleteTitle": "「{name}」を消しますか?",
+  "passkeys.deleteDescription":
+    "今のパスキーで確かめてから消します。ほかのブラウザのログインは終わります。",
+  "passkeys.cancel": "やめる",
+  "passkeys.save": "保存",
+  "passkeys.loading": "パスキーを読み込んでいます。",
+  "passkeys.loadFailed": "パスキーを読み込めませんでした。",
+  "passkeys.added": "パスキーを足しました。",
+  "passkeys.deleted":
+    "パスキーを消しました。ほかのブラウザのログインは終わりました。",
+  "passkeys.cancelled": "パスキーの操作を取り消しました。",
+  "passkeys.reauthenticationFailed": "今のパスキーで確かめられませんでした。",
+  "passkeys.expired": "時間がかかりすぎました。もう一度試してください。",
+  "passkeys.alreadyRegistered":
+    "この認証器には、この管理画面のパスキーがもうあります。",
+  "passkeys.rejected": "パスキーを登録できませんでした。",
+  "passkeys.lastPasskey": "最後のパスキーは消せません。",
+  "passkeys.notFound": "このパスキーはもうありません。",
+  "passkeys.failed":
+    "うまくいきませんでした。時間をおいて、もう一度試してください。",
+  "sessions.title": "セッション",
+  "sessions.description":
+    "この画面を含む、すべてのブラウザからログアウトします。",
+  "sessions.logOutAll": "すべてのセッションからログアウト",
+  "sessions.logOutAllTitle": "すべてのセッションからログアウトしますか?",
+  "sessions.logOutAllFailed":
+    "ログアウトできませんでした。もう一度試してください。",
 } satisfies Translation;

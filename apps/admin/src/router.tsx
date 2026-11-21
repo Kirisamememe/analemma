@@ -19,6 +19,7 @@ import { HomePage } from "./routes/home-page";
 import { LoginPage } from "./routes/login-page";
 import { NotFoundPage } from "./routes/not-found-page";
 import { RootLayout } from "./routes/root-layout";
+import { SecurityPage } from "./routes/security-page";
 import { SessionErrorPage } from "./routes/session-error-page";
 
 /** 画面が route から受け取る、server と認証器の窓口。 */
@@ -76,10 +77,16 @@ const homeRoute = createRoute({
   component: HomePage,
 });
 
+const securityRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/security",
+  component: SecurityPage,
+});
+
 const routeTree = rootRoute.addChildren([
   loginRoute,
   enrollRoute,
-  signedInRoute.addChildren([homeRoute]),
+  signedInRoute.addChildren([homeRoute, securityRoute]),
 ]);
 
 /** 管理画面を組み立てるときに渡す値。 */

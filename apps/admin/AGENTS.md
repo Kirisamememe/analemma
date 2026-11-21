@@ -26,6 +26,7 @@
 - 操作を送っている間は、そのボタンを無効にする。同じ操作を続けて送らせない。
 - パスキーでのログインの最中(options を取ってから、ログインの応答が届くまで)は、ほかの管理用 API を呼ばない。
 - 登録用 URL は `/enroll#{token}`。token は URL の `#` の後ろから読み、server に送るだけにする。登録したら、履歴から登録用 URL を消す(`replace`)。
+- パスキーを足す・消す操作は、再認証(`src/features/auth/reauthenticate.ts`)の資格情報と一緒に送る。取り消せない操作は、Dialog で確かめてから送る。
 - 画面のテストは、`src/testing/render-app.tsx` で、作り物の server(`create-fake-api.ts`)と作り物の認証器につないだ管理画面の全体を描いて、利用者に見える結果で確かめる。
 - 画面に出す文言は、すべて `src/i18n/messages/` の訳から `useTranslation` で引く。キーは英語の訳(`en.ts`)に足し、同じキーをほかの言語にも足す。引数は `{name}` で書き、どの言語も英語と同じ引数を持つ(テストで止まる)。
 - 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/translate.ts` の `TRANSLATIONS` に足し、`messages/` にファイルを置く。
