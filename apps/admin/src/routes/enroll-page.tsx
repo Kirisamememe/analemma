@@ -55,6 +55,7 @@ export const EnrollPage = (): ReactNode => {
           <Notice tone="danger">{t("enroll.missingToken")}</Notice>
         ) : (
           <Form
+            isPending={enrollment.isPending}
             onSubmit={(data) => {
               const name = data.get("name");
 

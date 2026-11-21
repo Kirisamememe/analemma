@@ -19,7 +19,9 @@ const devServer = {
   proxy: { [DEV_API_PATH]: { target: DEV_API_TARGET } },
 };
 
-const BOOT_ENTRY = fileURLToPath(new URL("src/boot/boot.ts", import.meta.url));
+const BOOT_ENTRY = fileURLToPath(
+  new URL("src/preferences/boot.ts", import.meta.url),
+);
 
 const bundleBootScript = async (): Promise<string> => {
   const output = await build({

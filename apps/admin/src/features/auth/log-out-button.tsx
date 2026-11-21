@@ -24,7 +24,7 @@ export const LogOutButton = (): ReactNode => {
   return (
     <Cluster gap={2}>
       {logOut.isError && (
-        <Text as="span" role="caption" tone="danger">
+        <Text as="span" tone="danger" variant="caption">
           {t("session.logOutFailed")}
         </Text>
       )}

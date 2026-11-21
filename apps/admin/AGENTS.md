@@ -5,13 +5,16 @@
 ## 構成
 
 - React + TanStack Router + TanStack Query の SPA。SSR しない。Vite でビルドし、server が同じ origin で静的ファイルとして配信する。
-- `index.html`:Vite の入口。`vite.config.ts` の plugin が、`src/boot/boot.ts` を1つの script にまとめて head に書き込む(言語と配色を、最初の描画の前に当てる)。
-- `src/main.tsx`:React を描き始める入口。
-- `src/router.tsx`:route の木と、router を作る関数。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
+- `index.html`:Vite の入口。`vite.config.ts` の plugin が、`src/preferences/boot.ts` を1つの script にまとめて head に書き込む(言語と配色を、最初の描画の前に当てる)。
+- `src/main.tsx`:React を描き始める入口。ブラウザの履歴・API の client・認証器を組み立てて渡す。
+- `src/app.tsx`:言語・server の状態(TanStack Query)・route をつないだ全体。
+- `src/router.tsx`:route の木と、router と query client を組み立てる関数(`createApp`)。ログインした後の画面は、開く前に server でセッションを確かめる。
+- `src/api/`:server の API の client(contract の型付き)と、query client。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
 - `src/routes/`:route ごとの画面。
 - `src/i18n/`:訳と言語。訳は `messages/` に言語ごとに1ファイル。
-- `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値。
-- `src/boot/`:最初の描画の前に流す script。
+- `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値と、最初の描画の前に流す script(`boot.ts`)。
+- `src/features/<名前>/`:画面をまたぐ、ひとまとまりの事柄(ログインと登録の判断、WebAuthn の変換など)。1つの画面だけの部品は `features/<名前>/ui/`。
+- `src/testing/`:テストの部品(作り物の server と、管理画面の全体を描く関数)。テストだけが import できる(`tooling/structure/` のテストが止める)。
 - `src/ui/`:デザインシステム。`theme.css`、`tv.ts`(merge の設定を入れた `tv`)、`typography.ts`(文字の役割)、`primitives/`(React Aria Components を包む部品)、`layout/`(並べ方と文字)、`patterns/`(組み合わせた形)。層と決まりは `src/ui/DECISIONS.md`。
 - `test-setup/`:管理画面のテストの前に読み込む、DOM の用意(happy-dom)。
 
@@ -22,7 +25,8 @@
 - server との通信には contract の型を使い、応答の型を手で書かない。
 - 操作を送っている間は、そのボタンを無効にする。同じ操作を続けて送らせない。
 - パスキーでのログインの最中(options を取ってから、ログインの応答が届くまで)は、ほかの管理用 API を呼ばない。
-- 登録用 URL(今は仮に `/enroll#{token}`)の画面を作る。token は URL の `#` の後ろから読み、server に送るだけにする。
+- 登録用 URL は `/enroll#{token}`。token は URL の `#` の後ろから読み、server に送るだけにする。登録したら、履歴から登録用 URL を消す(`replace`)。
+- 画面のテストは、`src/testing/render-app.tsx` で、作り物の server(`create-fake-api.ts`)と作り物の認証器につないだ管理画面の全体を描いて、利用者に見える結果で確かめる。
 - 画面に出す文言は、すべて `src/i18n/messages/` の訳から `useTranslation` で引く。キーは英語の訳(`en.ts`)に足し、同じキーをほかの言語にも足す。引数は `{name}` で書き、どの言語も英語と同じ引数を持つ(テストで止まる)。
 - 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/translate.ts` の `TRANSLATIONS` に足し、`messages/` にファイルを置く。
 - route の code splitting(`import()`)は使わない。`no-dynamic-import` はそのまま効かせる。

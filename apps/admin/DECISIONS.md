@@ -34,8 +34,8 @@ route ごとの `lazy(() => import(…))` は使わず、`no-dynamic-import` を
 
 html の `lang` と `data-theme` は、React が描き始める前に、`index.html` の head の script で当てる。React の中で当てると、利用者が OS と違う配色を選んでいたときに、最初の描画が OS の配色で出てから切り替わる。
 
-- 当てる値は、`localStorage` に利用者が選んだ値があればそれ、無ければ言語はブラウザの言語の並びから選び、配色は OS に従う(`data-theme` を付けない)。決める関数(`src/boot/resolve-preferences.ts`)は純粋関数にしてテストする。
-- script は `src/boot/boot.ts` を、`vite.config.ts` の plugin が、Vite の lib のビルドで1つの IIFE にまとめ、head に直接書き込む。TypeScript のまま書いてテストでき、`src/i18n/` と同じ言語の判定を使える。module の script は後回しに流れるので、最初の描画の前に流すには、module でない script にする必要がある。
+- 当てる値は、`localStorage` に利用者が選んだ値があればそれ、無ければ言語はブラウザの言語の並びから選び、配色は OS に従う(`data-theme` を付けない)。決める関数(`src/preferences/resolve-preferences.ts`)は純粋関数にしてテストする。
+- script は `src/preferences/boot.ts` を、`vite.config.ts` の plugin が、Vite の lib のビルドで1つの IIFE にまとめ、head に直接書き込む。TypeScript のまま書いてテストでき、`src/i18n/` と同じ言語の判定を使える。module の script は後回しに流れるので、最初の描画の前に流すには、module でない script にする必要がある。
 - 外部のファイルにせず、head に直接書き込む。ファイルにすると、ビルドの出力の名前を head に書き戻す仕組みが要る。server が CSP の `script-src` を決めるときには、この script の hash を許すか、ファイルに分けるかを決める(server の「入口の守り」で、CSP のほかの directive は、管理画面の配信を足すときに決めることになっている)。
 - React は、html の `lang` を読んで言語を決める(`src/i18n/locales.ts` の `toLocale`)。言語を決める出どころを、head の script の1か所にする。React Aria Components の `I18nProvider` にも、同じ値を渡す。
 - 本番のビルドの出力で、head の script がアプリの script より前にあることと、作り物の `localStorage`・`navigator` の上で流すと値を当てることを、テスト(`__tests__/vite-config.test.ts`)で確かめる。ビルドの出力そのものを流すので、まとめ方を誤って module の構文が残れば落ちる。
@@ -65,6 +65,22 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 本番のビルドを確かめる `vite preview` も、開発のサーバーと同じ origin(`http://localhost:5173`)とプロキシにする。preview は既定では別のポート(4173)で開くのに、開発のプロキシをそのまま引き継ぐ。origin が `AUTH_ORIGIN` と食い違うと POST は断られる一方、Cookie はポートを区別しないので、開発でログインした Cookie で GET は通ってしまう(Codex のレビューで見つかった)。2つは同時には動かせない。
 - 公開 API とデプロイ用 API は、管理画面からは呼ばない。server が内部用のポートを持ったら(server の PR で足す)、そちらで受けるので、開発のプロキシからも届かなくなる。
 
+## server の API の呼び方
+
+- server の API は、contract の型を付けた oRPC の client(`src/api/create-api-client.ts`)で、同じ origin の `/api` に、oRPC のプロトコルで呼ぶ。応答の型を手で書かない。
+- server の状態は TanStack Query で持つ。query client(`src/api/create-query-client.ts`)は、取得と送信のどちらかがセッションの無いこと(`UNAUTHORIZED`)を返したら、持っている状態を消して、ログインの画面に、今のパスを持たせて移す。セッションの無い失敗は、やり直さない。
+- 画面に focus が戻っても、取り直さない(`refetchOnWindowFocus: false`)。パスキーの操作は OS の画面を開くので、ログインの最中に focus が出入りし、取り直すと、ログインの最中にほかの管理用 API を呼ぶことになる(「server の認証に合わせること」)。
+- 送信の失敗は、やり直さない。登録やログインを2回送ると、使い切った challenge で失敗する。
+
+## ログインとセッション
+
+- route を、ログインの前の画面(`/login`・`/enroll`)と、ログインした後の画面(`signed-in` の下)に分ける。ログインした後の画面は、開く前に `admin.session.get` でセッションを確かめ、無ければログインの画面に、元のパスを `redirect` に持たせて移る。移るたびに確かめるのは、管理者が1人で数が少なく、切れたことにすぐ気づけるため。
+- ログインした後は、`redirect` のパスに戻る。管理画面の中のパス(`/` で始まり、`//`・`/\`・`/login` で始まらない)だけを受け付け、ほかは捨てる(外のサイトに移させない)。
+- ログインと登録の流れ(`src/features/auth/log-in.ts`・`enroll.ts`)は、server の API と認証器を受け取る関数にし、作り物で単体テストする。server の失敗のうち、利用者に伝えるもの(期限切れ・知らないパスキーなど)は `_tag` の結果にし、origin の食い違いのような設定の誤りは throw する(画面には「ログインできませんでした」と出る)。
+- 認証器(`src/features/auth/webauthn/create-authenticator.ts`)は、`navigator.credentials` を受け取り、options と資格情報を、server の base64url の形とブラウザの形のあいだで変える。`PublicKeyCredential.parseRequestOptionsFromJSON()` と `toJSON()` は使わない。どちらも出てから日が浅く、`toJSON()` の戻り値には型が無い(`any`)。取り消し(`NotAllowedError`・`AbortError`)と、登録済みの認証器(`InvalidStateError`)は、想定内の結果として返す。
+- **登録用 URL の形**:`{AUTH_ORIGIN}/enroll#{token}` に決めた(server のコマンドが出す形のまま)。登録できたら、履歴を `replace` で書き換え、戻るで登録用 URL を開き直させない。登録用 URL はもう使えず、開き直しても誤りが出るだけになる。
+- ログアウトしたら、持っている状態を消して、ログインの画面に移る。
+
 ## テスト
 
 マークアップの作りをなぞるだけのテストは書かない。実装をなぞるテストは、実装を変えるたびに直すだけで、何も守らない。
@@ -75,6 +91,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 決まった文言を描画して確かめるだけのテストは lint を通ってしまうので、セルフレビューで見る。
 - 管理画面の `src/` のテストは、リポジトリの直下の `bun test` から外し(直下の `bunfig.toml`)、`apps/admin` で別に流す(`apps/admin/bunfig.toml` の `root` を `src` にする)。DOM(happy-dom)を用意する preload を、画面のコードのテストにだけ掛けるため。happy-dom は `fetch`・`Request`・`Response`・`setTimeout` などのグローバルを置き換えるので、直下で掛けると server のテストまで happy-dom の上で流れる。`bunfig.toml` は、`bun test` を流すフォルダのものだけが読まれる(手元で確かめた)。
 - Vite の設定とビルドのテスト(`apps/admin/__tests__/`)は、直下の `bun test` で、DOM なしで流す。Vite は Node の `setTimeout` を前提にしていて(`unref()` を呼ぶ)、happy-dom の上では開発のサーバーが起動しない。
+- 画面のテストは、`src/testing/render-app.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体(router・query client・言語)を描く。作り物の server(`create-fake-api.ts`)は、oRPC のプロトコルの応答(成功と、contract に定義した失敗)を返し、client は本物を使う。画面・router・client のつなぎを、利用者に見える結果と、呼ばれた procedure の並びで確かめられる。`src/testing/` は、テストだけが import できる(`tooling/structure/` のテストが止める)。
 - tsconfig を2つに分ける。`tsconfig.app.json` は、テストを除いた `src/` を、Bun の型なしで検査する(画面のコードが Bun の API の型を読めないように)。`tsconfig.json` は、テスト・`vite.config.ts`・`test-setup/` を含めて Bun の型で検査し、型付きの lint もこちらを使う。
 
 ## server の認証に合わせること
@@ -83,9 +100,9 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 
 - **送信中はボタンを無効にする**:パスキーの削除などを続けて送ると、先のリクエストで成功しても、後のリクエストが失敗を返すことがある(使い切った再認証の資格情報、消えたセッションなど)。server ではそろえないので、画面の表示と結果が食い違わないよう、送らせない。
 - **ログインの最中に、ほかの管理用 API を呼ばない**:期限を延ばした応答と、ログインし直した応答が逆の順で届くと、新しい Cookie が古い token で上書きされうる。server では防がないので、ログインの最中に、期限を延ばしうるリクエストを送らない。
-- **登録用 URL の画面**:最初の登録と復旧は、server のコマンドが出す登録用 URL で行う。token を `#` の後ろに置くのは、server のアクセスログや Referer に残さないため。画面は、token を読んで options を取り、パスキーを作らせて登録する。URL の形は仮で、この画面を作るときに決める。
+- **登録用 URL の画面**:最初の登録と復旧は、server のコマンドが出す登録用 URL で行う。token を `#` の後ろに置くのは、server のアクセスログや Referer に残さないため。画面は、token を読んで options を取り、パスキーを作らせて登録する。
 
 ## 割り切ったこと
 
-- **開発のときの head の script**:開発のサーバーは、HTML を返すたびに、head の script を Vite の lib のビルドでまとめ直す(数十ミリ秒)。まとめた結果を使い回すと、`src/boot/` を直したときに開発のサーバーを起動し直す必要がある。待ち時間が気になったら、依存が変わったときだけまとめ直す形にする。
+- **開発のときの head の script**:開発のサーバーは、HTML を返すたびに、head の script を Vite の lib のビルドでまとめ直す(数十ミリ秒)。まとめた結果を使い回すと、`src/preferences/boot.ts` と、それが読むファイルを直したときに開発のサーバーを起動し直す必要がある。待ち時間が気になったら、依存が変わったときだけまとめ直す形にする。
 - **`localStorage` が使えないブラウザ**:head の script は、`localStorage` を読めないと(ストレージを切った設定など)throw し、言語と配色を当てずに終わる。React は html の `lang` が無ければ英語にするので、画面は英語で出る。管理者が自分のブラウザで使うだけなので、受け入れる。
