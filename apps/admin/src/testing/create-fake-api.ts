@@ -135,12 +135,16 @@ const sendEarlyReply = api.middleware(
   },
 );
 
+const deployTokens = api.admin.deployTokens.use(sendEarlyReply);
 const fixedPages = api.admin.fixedPages.use(sendEarlyReply);
 const kinds = api.admin.kinds.use(sendEarlyReply);
 const passkeys = api.admin.passkeys.use(sendEarlyReply);
 const session = api.admin.session.use(sendEarlyReply);
 
 const procedures = {
+  "admin/deployTokens/issue": bindReply(deployTokens.issue),
+  "admin/deployTokens/list": bindReply(deployTokens.list),
+  "admin/deployTokens/revoke": bindReply(deployTokens.revoke),
   "admin/fixedPages/create": bindReply(fixedPages.create),
   "admin/fixedPages/delete": bindReply(fixedPages.delete),
   "admin/fixedPages/get": bindReply(fixedPages.get),

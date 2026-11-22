@@ -31,6 +31,11 @@ const GROUPS: readonly NavigationGroup[] = [
     heading: "navigation.settings",
     items: [
       { href: "/security", label: "security.title", icon: "shield-check" },
+      {
+        href: "/deploy-tokens",
+        label: "deployTokens.title",
+        icon: "key-round",
+      },
     ],
   },
 ];

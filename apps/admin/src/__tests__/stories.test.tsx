@@ -9,9 +9,11 @@ import preview from "../../.storybook/preview";
 import * as componentsPasskeyNameField from "@/components/__stories__/passkey-name-field.stories";
 import * as componentsFormFields from "@/components/forms/__stories__/form-fields.stories";
 import * as componentsForm from "@/components/forms/__stories__/form.stories";
+import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
 import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/__stories__/login-page.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
+import * as routesDeployTokensPage from "@/routes/deploy-tokens/__stories__/deploy-tokens-page.stories";
 import * as routesFixedPagesPage from "@/routes/fixed-pages/__stories__/fixed-pages-page.stories";
 import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
 import * as layoutCenter from "@/ui/layout/__stories__/center.stories";
@@ -51,9 +53,13 @@ const MODULES = {
   "components/forms/__stories__/form-fields.stories.tsx": componentsFormFields,
   "components/__stories__/passkey-name-field.stories.tsx":
     componentsPasskeyNameField,
+  "features/deploy-tokens/ui/__stories__/token-value.stories.tsx":
+    featuresDeployTokensTokenValue,
   "routes/__stories__/enroll-page.stories.tsx": routesEnrollPage,
   "routes/__stories__/login-page.stories.tsx": routesLoginPage,
   "routes/__stories__/security-page.stories.tsx": routesSecurityPage,
+  "routes/deploy-tokens/__stories__/deploy-tokens-page.stories.tsx":
+    routesDeployTokensPage,
   "routes/fixed-pages/__stories__/fixed-pages-page.stories.tsx":
     routesFixedPagesPage,
   "ui/layout/__stories__/app-shell.stories.tsx": layoutAppShell,

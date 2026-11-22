@@ -27,6 +27,7 @@ export {
   textValue,
   urlValue,
 } from "./kinds/content-values";
+export { deployTokenName } from "./kinds/deploy-tokens";
 export {
   type FieldDefinition,
   type FieldDefinitionInput,

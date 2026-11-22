@@ -11,6 +11,7 @@ const NAMES: readonly IconName[] = [
   "file-text",
   "grip-vertical",
   "house",
+  "key-round",
   "shield-check",
   "log-out",
   "menu",
