@@ -176,13 +176,19 @@ const review = ({ base, head, perspective }: ReviewRequest): number => {
     return 1;
   }
 
-  const workspace = prepareWorkspace({ base, head });
+  const pinned = {
+    base: git("rev-parse", `${base}^{commit}`).trim(),
+    head: git("rev-parse", `refs/heads/${head}`).trim(),
+  };
+  const workspace = prepareWorkspace(pinned);
   const name = join(results, `${perspective.id}-${String(next.round)}`);
   const result = `${name}.md`;
   const prompt = buildPrompt({
     perspective,
     base,
     head,
+    baseCommit: pinned.base,
+    headCommit: pinned.head,
     paths: {
       tree: workspace.tree,
       diff: workspace.diff,
@@ -190,7 +196,7 @@ const review = ({ base, head, perspective }: ReviewRequest): number => {
     },
     scope: readFileSync(join(PROMPTS, `${perspective.id}.md`), "utf8"),
     rules: readFileSync(join(PROMPTS, "common.md"), "utf8"),
-    tradeOffs: collectTradeOffs({ head, tree: workspace.tree }),
+    tradeOffs: collectTradeOffs({ head: pinned.head, tree: workspace.tree }),
   });
 
   writeFileSync(`${name}.prompt.md`, prompt);

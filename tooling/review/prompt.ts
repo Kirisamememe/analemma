@@ -26,6 +26,10 @@ export type PromptMaterial = {
   readonly base: string;
   /** レビューするブランチ。 */
   readonly head: string;
+  /** 比べる元のブランチの、今のコミットの SHA。 */
+  readonly baseCommit: string;
+  /** レビューするブランチの、今のコミットの SHA。 */
+  readonly headCommit: string;
   /** レビューする側が読むファイルの場所。 */
   readonly paths: PromptPaths;
   /** 観点ごとの prompt。 */
@@ -54,7 +58,9 @@ const tradeOffSection = (tradeOffs: readonly TradeOffSection[]): string =>
 /** 観点ごとの prompt に、読むものと「割り切ったこと」を添えて、prompt を組み立てる。 */
 export const buildPrompt = ({
   base,
+  baseCommit,
   head,
+  headCommit,
   paths,
   perspective,
   rules,
@@ -64,7 +70,7 @@ export const buildPrompt = ({
   [
     `# レビューの依頼:「${perspective.label}」の観点`,
     "",
-    `個人サイトのためのヘッドレス CMS「Analemma」のリポジトリで、ブランチ ${code(head)} の変更を、${code(base)} と比べて、「${perspective.label}」の観点だけでレビューする。`,
+    `個人サイトのためのヘッドレス CMS「Analemma」のリポジトリで、ブランチ ${code(head)}(コミット ${code(headCommit)})の変更を、${code(base)}(コミット ${code(baseCommit)})と比べて、「${perspective.label}」の観点だけでレビューする。`,
     "",
     "## 読むもの",
     "",
