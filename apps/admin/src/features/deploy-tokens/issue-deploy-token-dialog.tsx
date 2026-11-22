@@ -108,23 +108,27 @@ export const IssueDeployTokenDialog = ({
     send: async (name: string) => {
       const result = await issueDeployToken({ api, authenticator }, name);
 
-      if (result._tag === "Issued") {
-        setIssued({ name: result.name, token: result.token });
-        showToast({
-          tone: "success",
-          message: t("deployTokens.issued", { name: result.name }),
-        });
+      if (result._tag !== "Issued") {
+        return result;
       }
 
-      return result._tag;
+      setIssued({ name: result.name, token: result.token });
+
+      return { _tag: result._tag, name: result.name };
     },
-    onSuccess: async (outcome) => {
-      if (outcome === "Issued") {
-        await refresh(DEPLOY_TOKENS_QUERY_KEY);
+    onSuccess: async (result) => {
+      if (result._tag !== "Issued") {
+        return;
       }
+
+      showToast({
+        tone: "success",
+        message: t("deployTokens.issued", { name: result.name }),
+      });
+      await refresh(DEPLOY_TOKENS_QUERY_KEY);
     },
   });
-  const outcome = issuing.isError ? "Unexpected" : issuing.data;
+  const outcome = issuing.isError ? "Unexpected" : issuing.data?._tag;
   const notice =
     outcome === undefined || outcome === "Issued"
       ? undefined
