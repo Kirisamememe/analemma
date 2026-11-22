@@ -38,6 +38,7 @@ type Comment = {
   readonly end: number;
 };
 
+const BOM = /^\uFEFF/v;
 const DIVIDER_LINE = /^\s*-{10,}\s*$/v;
 const HAS_WORD = /[\p{L}\p{N}]/v;
 
@@ -47,7 +48,9 @@ const blankOutComments = (text: string, comments: readonly Comment[]) =>
       blanked.slice(0, comment.start) +
       blanked
         .slice(comment.start, comment.end)
-        .replaceAll(/[^\n\r\p{Zl}\p{Zp}]/gv, " ") +
+        .replaceAll(/[^\n\r\p{Zl}\p{Zp}]/gv, (character) =>
+          " ".repeat(character.length),
+        ) +
       blanked.slice(comment.end),
     text,
   );
@@ -140,7 +143,11 @@ const directiveProblems = (comments: readonly Comment[]): string[] =>
   });
 
 /** ソースのファイル1つについて、抑制できない約束の違反を集める。 */
-export const checkSourceFile = ({ path, text }: SourceFile): string[] => {
+export const checkSourceFile = ({
+  path,
+  text: source,
+}: SourceFile): string[] => {
+  const text = source.replace(BOM, "");
   const comments: readonly Comment[] = parseSync(path, text).comments;
   const lines = countCodeLines(text, comments);
   const lengthProblems =
