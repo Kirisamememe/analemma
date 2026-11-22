@@ -1,14 +1,11 @@
-import type { InferContractRouterInputs } from "@orpc/contract";
-
-import type { contract } from "@analemma/contract";
+import type { ContractInputs } from "@analemma/contract";
 
 import { keepKnownTransports } from "@/features/auth/registration/keep-known-transports";
 import type { RegistrationResponse } from "@/features/auth/webauthn/verify-registration";
 
 /** 登録の資格情報の入力。 */
-export type RegistrationCredentialInput = InferContractRouterInputs<
-  typeof contract
->["auth"]["enrollment"]["register"]["credential"];
+export type RegistrationCredentialInput =
+  ContractInputs["auth"]["enrollment"]["register"]["credential"];
 
 /** バイト列に戻した登録の資格情報。 */
 export type DecodedRegistrationCredential = {

@@ -169,16 +169,24 @@ describe("使える API と書き方", () => {
   });
 });
 
-describe("管理画面の feature の import", () => {
+describe("feature の import", () => {
   test.each([
-    { file: "dependencies.ts", lines: [1, 2, 3, 4] },
-    { file: "dependencies.tsx", lines: [1, 2, 3, 5, 6] },
-    { file: "ui-libraries.tsx", lines: [1, 2, 3, 4] },
+    { app: "admin", file: "dependencies.ts", lines: [1, 2, 3, 4] },
+    { app: "admin", file: "dependencies.tsx", lines: [1, 2, 3, 5, 6] },
+    { app: "admin", file: "ui-libraries.tsx", lines: [1, 2, 3, 4] },
+    { app: "server", file: "external-imports.ts", lines: [1, 2, 3, 4, 6] },
+    {
+      app: "server",
+      file: "queries/external-imports.query.ts",
+      lines: [1, 3, 4],
+    },
+    { app: "server", file: "misplaced.query.ts", lines: [1] },
+    { app: "server", file: "queries/not-a-query.ts", lines: [1, 5] },
   ])(
-    "$file の外部 import に、import ごとに診断を1件ずつ出すこと",
-    ({ file, lines }) => {
+    "$app の $file の外部 import に、import ごとに診断を1件ずつ出すこと",
+    ({ app, file, lines }) => {
       const { diagnostics } = lintFixture(
-        `invalid/apps/admin/src/features/dependencies/${file}`,
+        `invalid/apps/${app}/src/features/dependencies/${file}`,
       );
       const restrictedImports = diagnostics.filter(
         ({ code }) => code === "eslint(no-restricted-imports)",
@@ -191,6 +199,13 @@ describe("管理画面の feature の import", () => {
       ).toEqual([...lines]);
     },
   );
+  test("queries/ の外で Drizzle の型を書く import() に診断を出すこと", () => {
+    const result = lintFixture(
+      "invalid/apps/server/src/features/dependencies/misplaced.query.ts",
+    );
+
+    expect(ruleIdsOf(result)).toContain("typescript(consistent-type-imports)");
+  });
 });
 
 describe("失敗を受け止める場所", () => {

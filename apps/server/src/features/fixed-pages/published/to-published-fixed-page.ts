@@ -1,15 +1,11 @@
-import type { InferContractRouterOutputs } from "@orpc/contract";
-
-import { type contract, fixedPageContent } from "@analemma/contract";
+import { type ContractOutputs, fixedPageContent } from "@analemma/contract";
 
 import type {
   FixedPageRow,
   FixedPageSummaryRow,
 } from "@/features/fixed-pages/queries/fixed-pages.query";
 
-type PublicOutputs = InferContractRouterOutputs<
-  typeof contract
->["public"]["fixedPages"];
+type PublicOutputs = ContractOutputs["public"]["fixedPages"];
 
 /** 公開サイトに返す、公開している固定ページの一覧の1件。 */
 export type PublishedSummary = PublicOutputs["list"]["pages"][number];

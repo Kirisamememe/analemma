@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { toSessionCookie } from "@/features/auth/session/to-session-cookie";
+import { toSessionCookie } from "@/platform/session-cookie";
 
 test("https の管理画面では、__Host- を付けた名前で Secure にすること", () => {
   expect(toSessionCookie("https://cms.example.com")).toEqual({

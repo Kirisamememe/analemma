@@ -1,5 +1,3 @@
-import { getCookie } from "@orpc/server/helpers";
-
 import { recordLogin } from "@/features/auth/login/queries/record-login.query";
 import {
   type LoginFailure,
@@ -11,8 +9,11 @@ import {
   readSecretToken,
 } from "@/features/auth/secret-token/secret-token";
 import { toSessionExpiry } from "@/features/auth/session/decide-session";
-import { toSessionCookie } from "@/features/auth/session/to-session-cookie";
-import { writeSessionCookie } from "@/features/auth/session/write-session-cookie";
+import {
+  readSessionCookie,
+  toSessionCookie,
+  writeSessionCookie,
+} from "@/platform/session-cookie";
 import { authProcedures } from "@/procedures";
 
 const LOGIN_ERRORS = {
@@ -47,7 +48,7 @@ export const logIn = authProcedures.login.verify.handler(
     writeLoginWarnings(context.logger, verified);
 
     const cookie = toSessionCookie(context.relyingParty.origin);
-    const previousToken = getCookie(context.headers, cookie.name);
+    const previousToken = readSessionCookie(context.headers, cookie);
     const previous =
       previousToken === undefined
         ? undefined

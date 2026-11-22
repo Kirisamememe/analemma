@@ -105,6 +105,7 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
 - 同じサイトの別の origin(`blog.example.com` など)のページは、ブラウザに、`SameSite=Strict` の Cookie を付けたリクエストを送らせることができる。GET は Origin の確認を通らないので、`Sec-Fetch-Site` が `same-origin` でなければ、無いときも含めて、GET でも断る(`procedures.ts`)。ほかのページに、セッションの期限を延ばさせない。対応するブラウザ(最新の Chrome と WebKit)はどれも `Sec-Fetch-Site` を付け、ブラウザでない client は管理用 API と認証用 API を呼ばない。
   - アドレスバーから API を開く GET(`none`)も断る。管理用 API は、管理画面から fetch で呼ぶもの。
   - 断ったときは、Origin と `Sec-Fetch-Site` をログに書く。
+- セッションの Cookie を読む、書く、消す処理は `src/platform/session-cookie.ts` に置く。base と feature は、そこで決めた名前と属性を使う。HTTP ヘッダーの解析と組み立ては oRPC の helper に任せる。
 - Cookie は `HttpOnly`・`SameSite=Strict`・`Path=/`。管理画面は同じ origin の SPA で、ほかのサイトからのリンクで開いても、静的ファイルに Cookie は要らない。
   - https では名前を `__Host-analemma_session` にして `Secure` を付ける(ユーザーと決めた)。ブラウザは `__Host-` の Cookie を、`Secure`・`Path=/`・`Domain` 無しで書かれたときしか受け付けない。RP ID を上位のドメインにしたときに、ほかのサブドメインのページが `Domain` 付きで同じ名前の Cookie を書き、攻撃する側のセッションを、管理者に使わせること(ログインの CSRF)を防ぐ。
   - 開発の http の localhost では `analemma_session` にし、`Secure` を付けない。`__Host-` の Cookie には `Secure` が要り、http の localhost で `Secure` の Cookie を受け付けるかは、ブラウザによって違う。

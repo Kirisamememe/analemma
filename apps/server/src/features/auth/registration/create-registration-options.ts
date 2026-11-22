@@ -1,6 +1,4 @@
-import type { InferContractRouterOutputs } from "@orpc/contract";
-
-import type { contract } from "@analemma/contract";
+import type { ContractOutputs } from "@analemma/contract";
 
 import { CHALLENGE_LIFETIME_MS } from "@/features/auth/challenge/create-challenge-store";
 import {
@@ -11,9 +9,8 @@ import {
 } from "@/features/auth/registration/passkey-policy";
 
 /** 登録の options の出力。 */
-export type RegistrationOptions = InferContractRouterOutputs<
-  typeof contract
->["auth"]["enrollment"]["options"];
+export type RegistrationOptions =
+  ContractOutputs["auth"]["enrollment"]["options"];
 
 /** 登録の options に並べる、登録済みのパスキー。 */
 export type RegisteredPasskey = {

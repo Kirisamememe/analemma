@@ -1,6 +1,4 @@
-import type { InferContractRouterOutputs } from "@orpc/contract";
-
-import { type contract, fixedPageContent } from "@analemma/contract";
+import { type ContractOutputs, fixedPageContent } from "@analemma/contract";
 
 import { isPublished } from "@/features/fixed-pages/published/queries/published-fixed-pages.query";
 import type {
@@ -8,9 +6,7 @@ import type {
   FixedPageSummaryRow,
 } from "@/features/fixed-pages/queries/fixed-pages.query";
 
-type FixedPageOutputs = InferContractRouterOutputs<
-  typeof contract
->["admin"]["fixedPages"];
+type FixedPageOutputs = ContractOutputs["admin"]["fixedPages"];
 
 /** 管理画面に返す、固定ページの一覧の1件。 */
 export type FixedPageSummary = FixedPageOutputs["list"]["pages"][number];
