@@ -16,13 +16,13 @@ const git = (cwd: string, ...args: string[]): string => {
   const result = spawnSync(
     "env",
     [
+      "GIT_AUTHOR_NAME=test",
+      "GIT_AUTHOR_EMAIL=test@example.invalid",
       "GIT_AUTHOR_DATE=1000000000 +0000",
+      "GIT_COMMITTER_NAME=test",
+      "GIT_COMMITTER_EMAIL=test@example.invalid",
       "GIT_COMMITTER_DATE=1000000000 +0000",
       "git",
-      "-c",
-      "user.name=test",
-      "-c",
-      "user.email=test@example.invalid",
       "-c",
       "commit.gpgsign=false",
       "-c",
