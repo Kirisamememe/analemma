@@ -30,7 +30,7 @@ const ARIA_LOCALES: Readonly<Record<Locale, string>> = {
 /** `UiProvider` に渡す値。 */
 type UiProviderProps = {
   /** 管理画面の中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 部品に、i18next の言語と TanStack Router の navigate を渡す Provider。 */

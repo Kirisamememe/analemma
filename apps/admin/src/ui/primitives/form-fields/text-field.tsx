@@ -15,21 +15,21 @@ import { typography } from "@/ui/typography";
 /** 1行の入力欄に渡す値。 */
 type TextFieldProps = {
   /** 入力欄の名前(フォームのキー)。 */
-  readonly name: string;
+  name: string;
   /** 入力欄のラベル。 */
-  readonly label: string;
+  label: string;
   /** 入力欄の補足。 */
-  readonly description?: string | undefined;
+  description?: string | undefined;
   /** 入力が要るか。 */
-  readonly isRequired?: boolean;
+  isRequired?: boolean;
   /** 文字の数の上限。 */
-  readonly maxLength?: number | undefined;
+  maxLength?: number | undefined;
   /** ブラウザの自動入力の種類。 */
-  readonly autoComplete?: string;
+  autoComplete?: string;
   /** 最初に入れておく値。 */
-  readonly defaultValue?: string;
+  defaultValue?: string;
   /** 送る前に値を確かめ、誤りの知らせを返す関数(合っていれば undefined)。 */
-  readonly validate?: (value: string) => string | undefined;
+  validate?: (value: string) => string | undefined;
 };
 
 /** ラベルと補足と誤りの知らせを持つ、1行の入力欄。 */

@@ -32,7 +32,7 @@ const GROUPS: readonly NavigationGroup[] = [
 /** ログインした後の画面のナビに渡す値。 */
 type AppNavigationProps = {
   /** 今いる画面へのリンクかを返す関数。 */
-  readonly isCurrent: (href: NavigationLink["href"]) => boolean;
+  isCurrent: (href: NavigationLink["href"]) => boolean;
 };
 
 /** ログインした後の画面のナビ。 */

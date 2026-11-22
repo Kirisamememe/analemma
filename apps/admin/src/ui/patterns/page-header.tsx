@@ -5,11 +5,11 @@ import { Cluster, Heading, Stack, Text } from "@/ui/layout";
 /** 画面の見出しに渡す値。 */
 type PageHeaderProps = {
   /** 画面の名前。 */
-  readonly title: ReactNode;
+  title: ReactNode;
   /** 画面の補足。 */
-  readonly description?: string | undefined;
+  description?: string | undefined;
   /** 画面の全体に掛かる操作(ボタンなど)。 */
-  readonly actions?: ReactNode;
+  actions?: ReactNode;
 };
 
 const isShown = (node: ReactNode): boolean =>

@@ -17,15 +17,15 @@ const tone = tv({
 /** Text に渡す値。 */
 type TextProps = {
   /** 文字の役割。 */
-  readonly variant?: "body" | "body-long" | "caption" | "label";
+  variant?: "body" | "body-long" | "caption" | "label";
   /** 文字の色の用途。 */
-  readonly tone?: "default" | "muted" | "danger";
+  tone?: "default" | "muted" | "danger";
   /** 文字を包む要素。 */
-  readonly as?: "p" | "span" | "div";
+  as?: "p" | "span" | "div";
   /** 中身の言語(画面と違うときだけ)。 */
-  readonly lang?: string;
+  lang?: string;
   /** テキストの中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 文字の役割で大きさと太さを決めたテキスト。 */

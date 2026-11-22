@@ -8,11 +8,11 @@ import { TextField } from "@/ui/primitives/form-fields";
 /** パスキーの名前の入力欄に渡す値。 */
 type PasskeyNameFieldProps = {
   /** 名前の変更を始めるときに入っている名前。 */
-  readonly defaultValue?: string;
+  defaultValue?: string;
   /** 入力できる文字数の上限。 */
-  readonly maxLength?: number;
+  maxLength?: number;
   /** 名前の付け方の補足を出すか。 */
-  readonly showDescription?: boolean;
+  showDescription?: boolean;
 };
 
 /** パスキーの名前を入力し、contract の決まりに合うか確かめる欄。 */

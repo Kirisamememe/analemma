@@ -25,21 +25,21 @@ const FORMAT_OPTIONS: Intl.NumberFormatOptions = {
 /** 数値の入力欄に渡す値。 */
 type NumberFieldProps = {
   /** 入力欄の名前(フォームのキー)。 */
-  readonly name: string;
+  name: string;
   /** 入力欄のラベル。 */
-  readonly label: string;
+  label: string;
   /** 入力欄の補足。 */
-  readonly description?: string;
+  description?: string;
   /** 最初に入れておく値。 */
-  readonly defaultValue?: number;
+  defaultValue?: number;
   /** 入力が要るか。 */
-  readonly isRequired?: boolean;
+  isRequired?: boolean;
   /** 入力欄が無効か。 */
-  readonly isDisabled?: boolean;
+  isDisabled?: boolean;
   /** 読み取り専用か。 */
-  readonly isReadOnly?: boolean;
+  isReadOnly?: boolean;
   /** 送る前に値を確かめ、誤りの知らせを返す関数(合っていれば undefined)。 */
-  readonly validate?: (value: number) => string | undefined;
+  validate?: (value: number) => string | undefined;
 };
 
 /** 数値の入力欄。 */
@@ -96,7 +96,7 @@ export const NumberField = ({
 /** 増減ボタンに渡す値。 */
 type StepButtonProps = {
   /** React Aria Components の slot。 */
-  readonly slot: "decrement" | "increment";
+  slot: "decrement" | "increment";
 };
 
 const StepButton = ({ slot }: StepButtonProps): ReactNode => (
