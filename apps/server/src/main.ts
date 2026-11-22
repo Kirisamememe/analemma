@@ -18,10 +18,9 @@ const prepareAdminDist = async (directory: string) => {
   try {
     return await loadAdminDist(directory);
   } catch (cause) {
-    throw new Error(
-      "ADMIN_DIST_DIR から管理画面のビルドを読み込めませんでした",
-      { cause },
-    );
+    throw new Error("ADMIN_DIST_DIR から管理画面のビルドを読み込めなかった。", {
+      cause,
+    });
   }
 };
 
