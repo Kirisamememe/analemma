@@ -88,7 +88,7 @@ bun --cwd=apps/admin run dev
 
 ## 本番の形で試す
 
-本番の置き場所はまだ決めていない(`AGENTS.md` の「まだ決めていないこと」)。ここにあるのは、手元の Mac で、本番と同じ形(ビルドした管理画面を server が外部用のポートで配り、公開サイト Amayadori のサーバーが内部用のポートの公開 API を読む)を試す手順。開発の DB とは別のコンテナの PostgreSQL を使い、データはコンテナを消すと消える。Amayadori は、このリポジトリの隣(`../amayadori`)に checkout しておく。
+本番の置き場所はまだ決めていない。ここにあるのは、手元の Mac で、本番と同じ形(ビルドした管理画面を server が外部用のポートで配り、公開サイト Amayadori のサーバーが内部用のポートの公開 API を呼ぶ)を試す手順。開発用の PostgreSQL(`postgres`)とは別のコンテナの PostgreSQL を使い、データはコンテナを消すと消える。Amayadori は、このリポジトリの隣(`../amayadori`)に checkout しておく。
 
 | ポート | 中身                                                                 |
 | ------ | -------------------------------------------------------------------- |
@@ -109,7 +109,7 @@ bun --cwd=apps/admin run dev
    env | grep -E '^(DATABASE_URL|AUTH_ORIGIN|AUTH_RP_ID|PORT|INTERNAL_PORT|INTERNAL_HOST|ADMIN_DIST_DIR|ANALEMMA_INTERNAL_URL|ANALEMMA_URL|HOST)='
    ```
 
-2. PostgreSQL を起動する。migration は superuser でないロールで流すので、DB の持ち主のロールを最初に作る。
+2. PostgreSQL を起動する。migration は superuser でないロールで適用するので、DB の持ち主のロールを最初に作る。
 
    ```bash
    printf '%s\n' "CREATE ROLE analemma LOGIN PASSWORD 'analemma-trial';" "CREATE DATABASE analemma OWNER analemma;" > ~/analemma-trial/create-app-role.sql
@@ -150,8 +150,8 @@ bun --cwd=apps/admin run dev
    bun --cwd=apps/server --env-file="$HOME/analemma-trial/analemma.env" run passkey:enroll
    ```
 
-6. 管理画面の「デプロイ用のトークン」で、トークンを発行して写す。
-7. Amayadori で、環境変数のファイル `~/analemma-trial/amayadori.env` を書く。
+6. 管理画面の「デプロイ用のトークン」で、デプロイ用のトークンを発行し、token を写す。
+7. Amayadori の環境変数を `~/analemma-trial/amayadori.env` に書く。
 
    ```text
    ANALEMMA_INTERNAL_URL=http://127.0.0.1:18788
@@ -159,7 +159,7 @@ bun --cwd=apps/admin run dev
    HOST=127.0.0.1
    ```
 
-8. Amayadori で、client をビルドして依存を入れ、ビルドし、種類の定義を送ってから起動する。トークンは、シェルの履歴に残さないよう `read` で受け、`kinds:push` にだけ渡す(export しない。起動したサーバーに渡さないため)。`kinds:push` が 0 で終わらなければ、起動しない。
+8. Amayadori のフォルダで、client をビルドして依存を入れ、Amayadori をビルドし、種類の定義を送ってから起動する。token は、シェルの履歴に残さないよう `read` で受け、`kinds:push` にだけ渡す(export しない。起動したサーバーに渡さないため)。`kinds:push` の終了コードが 0 でなければ、起動しない。
 
    ```bash
    bun --cwd=../analemma/packages/client run build && bun install

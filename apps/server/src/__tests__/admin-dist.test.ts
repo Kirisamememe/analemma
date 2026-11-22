@@ -130,7 +130,7 @@ describe("管理画面の静的ファイル", () => {
       body: "<svg/>",
     },
   ])(
-    "$path には種類に合う Content-Type と Cache-Control が付くこと",
+    "$path には拡張子に合う Content-Type と Cache-Control が付くこと",
     async ({ path, mime, cache, body }) => {
       const response = await app.request(path);
       expect(response.status).toBe(200);
@@ -142,7 +142,7 @@ describe("管理画面の静的ファイル", () => {
   );
 
   test.each(["/assets/index-abc.js", "/fixed-pages/abc"])(
-    "HEAD %s には GET と同じヘッダーが付き、本文は空になること",
+    "HEAD %s には、CSP の nonce のほかは GET と同じヘッダーが付き、本文は空になること",
     async (path) => {
       const get = await app.request(path);
       const head = await app.request(path, { method: "HEAD" });
@@ -186,7 +186,7 @@ describe("管理画面の静的ファイル", () => {
   );
 
   test.each(["POST", "PATCH", "OPTIONS"])(
-    "%s ではフォームの Origin を問わず 405 を返すこと",
+    "%s では、Origin や Content-Type を問わず 405 を返すこと",
     async (method) => {
       const response = await app.request("/fixed-pages/abc", {
         method,
