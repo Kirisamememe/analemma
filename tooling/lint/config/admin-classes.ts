@@ -50,7 +50,7 @@ export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
   info: ["bg", "text", "border", "fill", "stroke"],
   success: ["bg", "text", "border", "fill", "stroke"],
   warning: ["bg", "text", "border", "fill", "stroke"],
-  danger: ["bg", "text", "border", "fill", "stroke"],
+  danger: ["bg", "text", "border", "outline", "fill", "stroke"],
   "on-info": ["text", "fill", "stroke"],
   "on-success": ["text", "fill", "stroke"],
   "on-warning": ["text", "fill", "stroke"],
