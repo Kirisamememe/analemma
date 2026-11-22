@@ -3,13 +3,18 @@ import type { Translation } from "../translation";
 /** 日本語の訳。 */
 export const ja = {
   "app.name": "Stilus",
-  "home.title": "Stilus",
+  "home.title": "ホーム",
+  "navigation.main": "メイン",
+  "navigation.drawer": "ナビ",
+  "navigation.settings": "設定",
   "notFound.title": "ページが見つかりません",
   "notFound.description": "{{path}} にページはありません。",
   "notFound.backHome": "ホームに戻る",
   "ui.pending": "処理中",
   "ui.numberField.decrease": "{{label}}の値を減らす",
   "ui.numberField.increase": "{{label}}の値を増やす",
+  "ui.openNav": "ナビを開く",
+  "ui.closeNav": "ナビを閉じる",
   "login.title": "Stilus にログイン",
   "login.description": "この管理画面に登録したパスキーを使います。",
   "login.submit": "パスキーでログイン",
@@ -45,7 +50,6 @@ export const ja = {
     "ログイン状態を確認できませんでした。もう一度試してください。",
   "sessionError.retry": "もう一度試す",
   "passkeyName.invalid": "1〜64文字で、改行などを使わずに付けてください。",
-  "home.security": "セキュリティ",
   "security.title": "セキュリティ",
   "security.description":
     "この管理画面へのログインに使う、パスキーとセッション。",

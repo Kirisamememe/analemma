@@ -20,7 +20,8 @@ describe("PasskeyList", () => {
 
     renderApp({ path: "/security", routes: server.routes, locale: "en" });
 
-    const [macbook, yubikey] = await screen.findAllByRole("listitem");
+    const main = within(await screen.findByRole("main"));
+    const [macbook, yubikey] = await main.findAllByRole("listitem");
 
     expect(within(macbook!).getByText("MacBook")).toBeDefined();
     expect(within(macbook!).getByText("Synced")).toBeDefined();

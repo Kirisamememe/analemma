@@ -13,21 +13,25 @@ const SIGNED_IN = {
 };
 
 describe("router", () => {
-  test("無いパスを開くと、選んだ言語の 404 を出し、ホームへ戻れる", async () => {
-    const { history } = renderApp({ path: "/missing", routes: SIGNED_IN });
+  test.each(["/missing", "/security/missing"])(
+    "無いパス %s ではナビを出さず、訳した 404 からホームへ戻れる",
+    async (path) => {
+      const { history } = renderApp({ path, routes: SIGNED_IN });
 
-    expect(
-      await screen.findByRole("heading", { name: "ページが見つかりません" }),
-    ).toBeDefined();
-    expect(screen.getByText("/missing にページはありません。")).toBeDefined();
+      expect(
+        await screen.findByRole("heading", { name: "ページが見つかりません" }),
+      ).toBeDefined();
+      expect(screen.getByText(`${path} にページはありません。`)).toBeDefined();
+      expect(screen.queryByRole("navigation")).toBeNull();
 
-    await userEvent.click(screen.getByRole("link", { name: "ホームに戻る" }));
+      await userEvent.click(screen.getByRole("link", { name: "ホームに戻る" }));
 
-    expect(
-      await screen.findByRole("heading", { name: "Stilus" }),
-    ).toBeDefined();
-    expect(history.location.pathname).toBe("/");
-  });
+      expect(
+        await screen.findByRole("heading", { name: "ホーム" }),
+      ).toBeDefined();
+      expect(history.location.pathname).toBe("/");
+    },
+  );
 
   test("ログインしていなければ、ログインの画面に、元のパスを持たせて移る", async () => {
     const { history } = renderApp({
@@ -62,12 +66,13 @@ describe("router", () => {
     expect((await screen.findByRole("alert")).textContent).toBe(
       "ログイン状態を確認できませんでした。もう一度試してください。",
     );
+    expect(screen.queryByRole("navigation")).toBeNull();
 
     reachable = true;
     await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
 
     expect(
-      await screen.findByRole("heading", { name: "Stilus" }),
+      await screen.findByRole("heading", { name: "ホーム" }),
     ).toBeDefined();
   });
 });

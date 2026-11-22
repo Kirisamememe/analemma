@@ -15,17 +15,22 @@ import * as layoutHeading from "../ui/layout/__stories__/heading.stories";
 import * as layoutStack from "../ui/layout/__stories__/stack.stories";
 import * as layoutText from "../ui/layout/__stories__/text.stories";
 import * as patternsPageHeader from "../ui/patterns/__stories__/page-header.stories";
+import * as patternsSideNav from "../ui/patterns/__stories__/side-nav.stories";
 import * as primitivesBadge from "../ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "../ui/primitives/__stories__/button.stories";
 import * as primitivesDialog from "../ui/primitives/__stories__/dialog.stories";
 import * as primitivesFocusScope from "../ui/primitives/__stories__/focus-scope.stories";
 import * as primitivesForm from "../ui/primitives/__stories__/form.stories";
-import * as primitivesLink from "../ui/primitives/__stories__/link.stories";
 import * as primitivesNotice from "../ui/primitives/__stories__/notice.stories";
-import * as primitivesSpinner from "../ui/primitives/__stories__/spinner.stories";
 import * as primitivesNumberField from "../ui/primitives/form-fields/__stories__/number-field.stories";
 import * as primitivesTextArea from "../ui/primitives/form-fields/__stories__/text-area.stories";
 import * as primitivesTextField from "../ui/primitives/form-fields/__stories__/text-field.stories";
+import * as primitivesAppMark from "../ui/primitives/graphics/__stories__/app-mark.stories";
+import * as primitivesIcon from "../ui/primitives/graphics/__stories__/icon.stories";
+import * as primitivesSpinner from "../ui/primitives/graphics/__stories__/spinner.stories";
+import * as primitivesLink from "../ui/primitives/navigation/__stories__/link.stories";
+import * as primitivesNavDrawer from "../ui/primitives/navigation/__stories__/nav-drawer.stories";
+import * as primitivesNavItem from "../ui/primitives/navigation/__stories__/nav-item.stories";
 import * as specimensColors from "../ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "../ui/specimens/__stories__/typography.stories";
 
@@ -40,20 +45,27 @@ const MODULES = {
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.tsx": layoutText,
   "ui/patterns/__stories__/page-header.stories.tsx": patternsPageHeader,
+  "ui/patterns/__stories__/side-nav.stories.tsx": patternsSideNav,
   "ui/primitives/__stories__/badge.stories.tsx": primitivesBadge,
   "ui/primitives/__stories__/button.stories.tsx": primitivesButton,
   "ui/primitives/__stories__/dialog.stories.tsx": primitivesDialog,
   "ui/primitives/__stories__/focus-scope.stories.tsx": primitivesFocusScope,
   "ui/primitives/__stories__/form.stories.tsx": primitivesForm,
-  "ui/primitives/__stories__/link.stories.tsx": primitivesLink,
   "ui/primitives/__stories__/notice.stories.tsx": primitivesNotice,
-  "ui/primitives/__stories__/spinner.stories.tsx": primitivesSpinner,
   "ui/primitives/form-fields/__stories__/number-field.stories.tsx":
     primitivesNumberField,
   "ui/primitives/form-fields/__stories__/text-area.stories.tsx":
     primitivesTextArea,
   "ui/primitives/form-fields/__stories__/text-field.stories.tsx":
     primitivesTextField,
+  "ui/primitives/graphics/__stories__/app-mark.stories.tsx": primitivesAppMark,
+  "ui/primitives/graphics/__stories__/icon.stories.tsx": primitivesIcon,
+  "ui/primitives/graphics/__stories__/spinner.stories.tsx": primitivesSpinner,
+  "ui/primitives/navigation/__stories__/link.stories.tsx": primitivesLink,
+  "ui/primitives/navigation/__stories__/nav-drawer.stories.tsx":
+    primitivesNavDrawer,
+  "ui/primitives/navigation/__stories__/nav-item.stories.tsx":
+    primitivesNavItem,
   "ui/specimens/__stories__/colors.stories.tsx": specimensColors,
   "ui/specimens/__stories__/typography.stories.tsx": specimensTypography,
 };

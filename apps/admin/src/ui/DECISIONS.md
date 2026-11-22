@@ -65,7 +65,7 @@
 - hover と pressed は、その要素の文字の色(`currentColor`)を薄く重ねる utility(`state-hover`・`state-pressed`)で表す。塗りのボタンでも、透明な行でも、どの面の上でも同じに働く。`background-image` を使うので、`bg-linear-*` と一緒には使えない。
 - 状態の variant(`is-hovered`・`is-selected`・`is-disabled` など)は、部品のライブラリが付ける属性に名前を付けたもの。`theme.css` に、勝たせたい順に並べ、無効を最後に置く。生の `data-*:` の variant は名前の順に並ぶので、`data-disabled:` が一番弱くなる。値を持つ属性(並べ替えの向き・placement・orientation など)は variant にせず、部品の render props から渡す。公開サイトでは、そちらの部品のライブラリの属性に合わせて、同じ名前で定義し直す。
 - `is-current` は `aria-current` も見るので、`:where()` で包んで、ほかの variant と詳細度をそろえる。包まないと `is-disabled` に勝つ。
-- reduced motion では、base で transition を一律に止める。animation は見せ方が部品ごとに違うので、部品が使う class で決める。spinner は `motion-reduce:` で `animate-pulse` に替え、Dialog は `animation.css` で scale を `1` にする。
+- reduced motion では、base で transition を一律に止める。animation は見せ方が部品ごとに違うので、部品が使う class で決める。spinner は `motion-reduce:` で `animate-pulse` に替える。`animation.css` で Dialog の scale を `1` に固定し、引き出したナビは opacity だけを変える。
 - forced-colors では、役割の変数をシステムの色(`Highlight` など)に差し替える。塗りの `danger-strong` と `on-danger-strong` は、`primary` と `on-primary` と同じく `Highlight` と `HighlightText` にする。
 
 ## 部品の層
@@ -82,6 +82,7 @@
 
 - import の向きは、patterns → primitives・layout。layout は primitives と patterns を、primitives は patterns を import しない(lint で止まる)。layout は並べ方と文字だけを持つ層で、操作を持たない。
 - React Aria Components(`react-aria`・`react-stately`・`@react-aria/*`・`@react-stately/*`・`@internationalized/*` と、型だけの import も)を import できるのは `primitives/` だけ。primitives は、React Aria Components の props の型を extends せず、自分の props の型を持つ。画面のコードに、ライブラリの props(`className` の関数や、`data-*` の render props など)を見せない。ライブラリを替えるときに直すのは primitives だけになる。
+- UI の外部ライブラリは `ui/` で中継する。lucide-react を import できるのは `primitives/` だけで、ほかの層は `Icon` に名前を渡す(ユーザーが決めた)。
 - `tailwind-variants` は `tv.ts` だけが import し、ほかは `tv.ts` の `tv` と `merge` を使う(lint で止まる)。既定の入口の `tv` は theme.css の名前を知らず、`z-sticky z-overlay` のような theme.css の名前の組を merge できずに両方残す(後から渡した class で上書きできない)。
 - merge の設定には、`theme.css` と `animation.css` の名前を入れる。名前ごとに「同じ組の2つを渡すと後だけが残る」ことと、`@utility` ごとに組の相手を決めてあることを、CSS を読むテスト(`apps/admin/__tests__/tailwind-merge.test.ts`)で確かめる。名前が1つしかない組(`grid-cols-thumbnails`・`aspect-photo`)は、Tailwind CSS の既定の class を相手にする。`tv` の variant を通しても merge が効くことを確かめる。`state-disabled` は透明度と押せるかどうかを変えるだけなので、hover や pressed とは組にしない(組にすると、`state-hover state-disabled` で hover の見た目が消える)。
 - 文字の役割と組:`body`(`text-sm/xl`・400)・`body-long`(`text-sm/2xl`・400。長い文)・`caption`(`text-xs/lg`・400)・`label`(`text-sm/xl`・600)・`section`(`text-base/2xl`・600)・`page`(`text-xl/3xl`・700)・`display`(`text-3xl/5xl`・700)。`Text` と `Heading` は、文字の役割を `variant` で受ける(`role` にすると、ARIA の `role` と取り違える)。`Heading` は見出しのレベル(h1〜h3)から役割の既定を決め(レベル 1 は `page`、2 と 3 は `section`)、見た目とレベルを別々に選べる。
@@ -101,9 +102,13 @@
 - **縁の線**:border を使うのは、背景の色とコンテンツの色をはっきり見分けられるときだけにする(`Badge`・`Notice` のように、意味の色の `/10` の面に同じ色の線を引くときなど)。背景と近い色の面(白い Dialog が明るい地の上にあるときなど)の縁は、半透明の線(`outline`、`fg` の 10%)で描く。面の縁の線は、offset を付けず、塗りの外側の地の上に重ねる(地の色が透けて、縁がくっきり出る)。色の見本の正方形のように、塗りそのものの縁を見せるときは、内側(`-outline-offset-1`)に重ねる。不透明の border は背景の色と混ざってぼやけ、塗りの外に枠を足したように見えた(ユーザーが決めた)。
 - **overlay**(`Dialog`):地の上に重ねる半透明の線と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、半透明の線で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
 - **`Dialog` の animation**:開くときは 200ms、閉じるときは 150ms。本体は opacity と `0.97` から `1` までの scale で出入りする。backdrop は `background-color` の透明度を変えて、本体とは別に濃さを変える。reduced motion では scale を `1` に固定する。React Aria Components は `is-entering` と `is-exiting` の animation が終わるのを待ち、閉じるときは、終わるまで Dialog を取り除かない。閉じ始めたら中身を `inert` にして再送を防ぐ。
+- **引き出したナビの animation**:開くときは 200ms、閉じるときは 150ms。面は `translate` で幅の分だけ左へ動かし、backdrop は Dialog と同じように濃さを変える。reduced motion では、面の位置を固定して opacity だけを変える。閉じ始めたら中身を `inert` にし、backdrop の押下による閉鎖も止める。
 - **`FocusScope`**:`FocusScope` の中から開いた Dialog を閉じ終えたとき、Dialog を開いたボタンが消えていれば(行ごと削除したなど)、React Aria Components は外側の `FocusScope` の最初の要素に focus を移す。行と一緒に消えるボタンから Dialog を開く欄は `FocusScope` で包み、欄の最初の要素を戻す先にする。`react-aria-components` は `FocusScope` を export しないので、`react-aria` を依存に足す。バージョンは `react-aria-components` が依存するものにそろえる。ずれると `react-aria` が2つ入り、それぞれが別の `FocusScope` の木を持つので、Dialog が外側の `FocusScope` を見つけられない(パスキーの focus のテストで落ちる)。
 - **バッジ**(`Badge`):状態を短く示す。用途(`tone`)ごとの色の組は、`Notice` と同じく `/10` の面と、同じ色の線と文字。
-- 選んだ状態・今いる場所・ほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す、今いる場所は `aria-current` と形で示す、overlay は地の上に重ねる半透明の線と `shadow-overlay` を付ける)。
+- **ナビと本文**:広い画面では、`surface-sunken` の地にナビを置き、隣の `surface` の本文を角丸・影・半透明の縁で浮かせる。本文は document を scroll し、ナビは sticky で残して中だけ scroll できるようにする。狭い画面では sticky の帯の下に全幅の本文を置き、ナビは左の全高の drawer に収める。閉じるボタンは、帯の開くボタンと同じ位置に置く。
+- **ナビの左端**:広い画面では、アプリの印・まとまりの見出し・リンクのアイコンを左から24px にそろえ、アプリ名とリンクの文言を48px にそろえる。狭い画面では、本文の左端と開くボタンのアイコンを24px にそろえる。
+- **今いる場所**:`aria-current="page"` を付け、ナビの地に `surface` の行を影と半透明の縁で浮かせ、文字を `label` にする。縁は `::after` に描き、行の focus ring と両方見えるようにする。forced-colors でも縁を残す。
+- 選んだ状態とほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す。overlay は地の上に重ねる半透明の線と `shadow-overlay` を付ける)。
 
 ## 検査
 
@@ -149,4 +154,5 @@
 - **閉じる animation の間の Tab**:Dialog を閉じ始めると、中身を `inert` にして focus が外れ、React Aria Components は背後の画面の `inert` と focus の閉じ込めを外す。開いたボタンに focus を戻すのは、閉じる animation が終わって Dialog を取り除いたとき。その間(150ms)に Tab を押すと、focus は開いたボタンの次でなく文書の先頭の側へ移り、開いたボタンには戻らない(Chrome と WebKit で確かめた)。閉じる animation の間も focus を Dialog に残すには React Aria Components の振る舞いに逆らう作りが要り、150ms のうちに Tab を押すことは少ないので受け入れる(ユーザーが決めた)。
 - **数値として成立しない入力の送信**:数値の入力欄で、保存済みの値を `-` のような未完成の入力に置き換えて送ると、入力欄は直前に確定した値に戻り、その値が送られる(React Aria Components の仕様。Chrome と WebKit で確かめた)。送られる値は、戻った入力欄に見える値と同じで、画面と保存した値はずれない。必須の欄を空にした場合は、必須の誤りになり、送られない。直すには、入力中の文字列を自分で持って検査する必要があり、ライブラリに任せる作りに逆らうので、受け入れる。
 - **長いテキストの改行コード**:`CRLF` や `CR` を含む保存済みの本文を `TextArea` の `defaultValue` に渡すと、ブラウザの textarea が改行を `LF` にそろえるので、編集せずに送っても `LF` の本文が送られる(Chrome と WebKit で確かめた)。管理画面で入力した本文は `LF` だけなので、`CRLF` や `CR` が入るのは API で直に保存した本文に限り、文字は変わらず、改行の表し方だけが変わる。元の文字列を持って比べる作りは、textarea の仕様に逆らうので、受け入れる。
+- **引き出したナビの閉じる animation の間**:Dialog の上の2件と同じ作りなので、引き出したナビでも同じことが起きる。タッチでリンクかログアウトのボタンを長押しして離し、80ms のうちに Escape か backdrop で閉じると、そのリンクの行き先へ移るか、ログアウトする(ログインし直せば戻れる)。閉じる animation の間(150ms)に Tab を押すと、閉じ終えても開くボタンに focus が戻らない。Dialog と同じ理由で受け入れる。
 - **Windows の和文の太さ**:Windows の和文の字体には 600 が無いものがあり、600 と 700 の区別がつかないことがある(実機では確かめていない)。管理画面は管理者1人が Mac で使うので、受け入れる(ユーザーが決めた)。公開サイトは、作るときに決める。

@@ -12,6 +12,7 @@ import { checkPasskeyName } from "../features/auth/check-passkey-name";
 import { type EnrollInput, enroll } from "../features/auth/enroll";
 import { readEnrollmentToken } from "../features/auth/read-enrollment-token";
 import { toEnrollNotice } from "../features/auth/to-auth-notice";
+import { AppShell } from "../ui/layout/app-shell";
 import { Center } from "../ui/layout/center";
 import { Stack } from "../ui/layout/stack";
 import { Text } from "../ui/layout/text";
@@ -19,7 +20,7 @@ import { PageHeader } from "../ui/patterns/page-header";
 import { Button } from "../ui/primitives/button";
 import { Form } from "../ui/primitives/form";
 import { TextField } from "../ui/primitives/form-fields/text-field";
-import { Link } from "../ui/primitives/link";
+import { Link } from "../ui/primitives/navigation/link";
 import { Notice } from "../ui/primitives/notice";
 
 const PASSKEY_NAME_MAX_LENGTH = 64;
@@ -61,58 +62,60 @@ export const EnrollPage = (): ReactNode => {
   const notice = outcome === undefined ? undefined : toEnrollNotice(outcome);
 
   return (
-    <Center width="sm">
-      {hash !== "" && <Navigate replace to="/enroll" />}
-      <Stack gap={6}>
-        <PageHeader
-          description={t("enroll.description")}
-          title={t("enroll.title")}
-        />
-        {token === undefined ? (
-          <Notice tone="danger">{t("enroll.missingToken")}</Notice>
-        ) : (
-          <Form
-            isPending={enrollment.isPending}
-            onSubmit={(data) => {
-              const name = data.get("name");
-
-              enrollment.mutate({
-                token,
-                name: typeof name === "string" ? name : "",
-              });
-            }}
-          >
-            <TextField
-              autoComplete="off"
-              description={t("enroll.nameDescription")}
-              isRequired
-              label={t("enroll.name")}
-              maxLength={PASSKEY_NAME_MAX_LENGTH}
-              name="name"
-              validate={(value) => {
-                const problem = checkPasskeyName(value);
-
-                return problem === undefined ? undefined : t(problem);
-              }}
-            />
-            {notice !== undefined && (
-              <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-            )}
-            {outcome === "AlreadyRegistered" && (
-              <Text>
-                <Link href="/login">{t("enroll.signIn")}</Link>
-              </Text>
-            )}
-            <Button
+    <AppShell>
+      <Center width="sm">
+        {hash !== "" && <Navigate replace to="/enroll" />}
+        <Stack gap={6}>
+          <PageHeader
+            description={t("enroll.description")}
+            title={t("enroll.title")}
+          />
+          {token === undefined ? (
+            <Notice tone="danger">{t("enroll.missingToken")}</Notice>
+          ) : (
+            <Form
               isPending={enrollment.isPending}
-              tone="primary"
-              type="submit"
+              onSubmit={(data) => {
+                const name = data.get("name");
+
+                enrollment.mutate({
+                  token,
+                  name: typeof name === "string" ? name : "",
+                });
+              }}
             >
-              {t("enroll.submit")}
-            </Button>
-          </Form>
-        )}
-      </Stack>
-    </Center>
+              <TextField
+                autoComplete="off"
+                description={t("enroll.nameDescription")}
+                isRequired
+                label={t("enroll.name")}
+                maxLength={PASSKEY_NAME_MAX_LENGTH}
+                name="name"
+                validate={(value) => {
+                  const problem = checkPasskeyName(value);
+
+                  return problem === undefined ? undefined : t(problem);
+                }}
+              />
+              {notice !== undefined && (
+                <Notice tone={notice.tone}>{t(notice.message)}</Notice>
+              )}
+              {outcome === "AlreadyRegistered" && (
+                <Text>
+                  <Link href="/login">{t("enroll.signIn")}</Link>
+                </Text>
+              )}
+              <Button
+                isPending={enrollment.isPending}
+                tone="primary"
+                type="submit"
+              >
+                {t("enroll.submit")}
+              </Button>
+            </Form>
+          )}
+        </Stack>
+      </Center>
+    </AppShell>
   );
 };
