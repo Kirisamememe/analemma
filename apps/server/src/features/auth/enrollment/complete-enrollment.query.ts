@@ -3,6 +3,7 @@ import { and, eq, gt } from "drizzle-orm";
 import { passkeyEnrollment } from "../../../db/schema/passkey-enrollment";
 import type { DatabaseExecutor } from "../../../platform/database";
 import { lockAdminUser } from "../admin-user/lock-admin-user.query";
+import { deleteAllSessions } from "../current-session/delete-all-sessions.query";
 import {
   type PasskeyInsert,
   type PasskeyRow,
@@ -40,7 +41,7 @@ export type IncompleteEnrollment =
       readonly _tag: "Duplicate";
     };
 
-/** 登録用の token を1回だけ使って、パスキーを保存し、セッションを始める。 */
+/** 登録用の token を1回だけ使ってパスキーを保存し、ほかのセッションを消して、セッションを始める。 */
 export const completeEnrollment = async (
   db: DatabaseExecutor,
   { enrollmentId, passkey, session }: EnrollmentCompletion,
@@ -72,6 +73,7 @@ export const completeEnrollment = async (
     await tx
       .delete(passkeyEnrollment)
       .where(eq(passkeyEnrollment.id, enrollmentId));
+    await deleteAllSessions(tx, passkey.adminUserId);
     await insertSession(tx, {
       id: session.id,
       secretHash: session.secretHash,
