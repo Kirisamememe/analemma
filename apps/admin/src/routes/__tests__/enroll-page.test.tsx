@@ -3,8 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import type { Authenticator } from "@/features/auth/webauthn";
-import { createEnrollmentRoutes } from "@/testing/create-enrollment-routes";
 import { wrapFakeRoute } from "@/testing/create-fake-api";
+import { createEnrollmentRoutes } from "@/testing/fake-routes/create-enrollment-routes";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);

@@ -2,7 +2,7 @@ import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { createPasskeyRoutes } from "@/testing/create-passkey-routes";
+import { createPasskeyRoutes } from "@/testing/fake-routes/create-passkey-routes";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
