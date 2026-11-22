@@ -16,7 +16,7 @@
 - `src/features/<名前>/`:画面をまたぐ、ひとまとまりの事柄(ログインと登録の判断、WebAuthn の変換など)。1つの画面だけの部品は `features/<名前>/ui/`。
 - `.storybook/`:Storybook の設定(`main.ts`・`preview.tsx`)と、story を管理画面と同じ言語・配色・router の中で描く枠(`story-frame.tsx`)。
 - `src/testing/`:テストの部品(作り物の server と、管理画面の全体を描く関数と、部品を i18next の instance の下で描く関数)。テストだけが import できる(`tooling/structure/` のテストが止める)。
-- `src/ui/`:デザインシステム。`theme.css`、`tv.ts`(merge の設定を入れた `tv`)、`typography.ts`(文字の役割)、`primitives/`(React Aria Components を包む部品)、`layout/`(並べ方と文字)、`patterns/`(組み合わせた形)、`specimens/`(色と文字の見本)。層と決まりは `src/ui/DECISIONS.md`。
+- `src/ui/`:デザインシステム。`theme.css`、`tv.ts`(merge の設定を入れた `tv`)、`typography.ts`(文字の役割)、`primitives/`(React Aria Components を包む部品)、`layout/`(並べ方と文字)、`patterns/`(組み合わせた形)、`specimens/`(色と文字の見本。本番のコードからは import できない)。層と決まりは `src/ui/DECISIONS.md`。
 - `test-setup/`:管理画面のテストの前に読み込む、DOM の用意(happy-dom)。
 
 ## 書き方

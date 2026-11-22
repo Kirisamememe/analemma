@@ -12,8 +12,12 @@ export const TEST_ONLY_DIRECTORIES = [
 
 const TEST_SIDE_DIRECTORIES = ["/__tests__/", "/__stories__/", "/.storybook/"];
 
-/** story と Storybook の設定だけが import できるもの(色と文字の見本と、story のファイル)。 */
-const STORY_ONLY = ["apps/admin/src/ui/specimens/", "/__stories__/"];
+/** テストの側・story・Storybook の設定だけが import できるもの。 */
+const STORY_ONLY = [
+  "apps/admin/src/ui/specimens/",
+  "/__stories__/",
+  "/.storybook/",
+];
 
 const isInside = (path: string): boolean =>
   TEST_ONLY_DIRECTORIES.some((directory) => `${path}/`.startsWith(directory));
