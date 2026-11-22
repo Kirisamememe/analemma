@@ -11,18 +11,16 @@ import { Button } from "@/ui/primitives/button";
 export const FixedPagesPage = (): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const create = (): void => {
+    void navigate({ to: "/fixed-pages/new" });
+  };
 
   return (
     <Center width="form">
       <Stack gap={8}>
         <PageHeader
           actions={
-            <Button
-              onPress={() => {
-                void navigate({ to: "/fixed-pages/new" });
-              }}
-              tone="primary"
-            >
+            <Button onPress={create} tone="primary">
               {t("fixedPages.create")}
             </Button>
           }
@@ -30,6 +28,7 @@ export const FixedPagesPage = (): ReactNode => {
           title={t("fixedPages.title")}
         />
         <FixedPagesSection
+          onCreate={create}
           onEdit={(id) => {
             void navigate({ to: "/fixed-pages/$id", params: { id } });
           }}

@@ -48,6 +48,34 @@ describe("DeleteFixedPageDialog", () => {
     expect(server.pages().map(({ slug }) => slug)).toEqual(["colophon"]);
   });
 
+  test("最後の1件を削除したら、中身の無い欄の作成のボタンに focus を戻す", async () => {
+    setUp();
+
+    for (const title of ["About", "Colophon"]) {
+      const dialog = await openDelete(title);
+
+      await userEvent.click(
+        within(dialog).getByRole("button", { name: "削除" }),
+      );
+      await waitFor(() => {
+        expect(screen.queryByRole("dialog")).toBeNull();
+      });
+    }
+
+    const empty = await screen.findByRole("heading", {
+      name: "固定ページはまだありません",
+    });
+    const creates = screen.getAllByRole("button", {
+      name: "新しい固定ページ",
+    });
+
+    expect(empty).toBeDefined();
+    expect(creates).toHaveLength(2);
+    await waitFor(() => {
+      expect(document.activeElement).toBe(creates[1] ?? null);
+    });
+  });
+
   test("キャンセルしたら、削除しない", async () => {
     const { server, calls } = setUp();
     const dialog = await openDelete("Colophon");

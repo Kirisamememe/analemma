@@ -18,6 +18,7 @@ import { orderPages } from "@/features/fixed-pages/list/order-pages";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { EmptyState } from "@/ui/patterns";
+import { Button } from "@/ui/primitives/button";
 import { ReorderableList } from "@/ui/primitives/collections";
 import { Spinner } from "@/ui/primitives/graphics";
 import { Notice } from "@/ui/primitives/notice";
@@ -27,11 +28,14 @@ import { FocusScope, useShowToast } from "@/ui/primitives/overlays";
 type FixedPagesSectionProps = {
   /** 固定ページの編集の画面を開く関数。 */
   onEdit: (id: string) => void;
+  /** 固定ページの作成の画面を開く関数。 */
+  onCreate: () => void;
 };
 
 /** 固定ページの一覧と、並べ直し・公開と非公開・削除の操作。 */
 export const FixedPagesSection = ({
   onEdit,
+  onCreate,
 }: FixedPagesSectionProps): ReactNode => {
   const t = useTranslate();
   const showToast = useShowToast();
@@ -86,6 +90,11 @@ export const FixedPagesSection = ({
     if (rows.length === 0) {
       return (
         <EmptyState
+          actions={
+            <Button onPress={onCreate} tone="primary">
+              {t("fixedPages.create")}
+            </Button>
+          }
           description={t("fixedPages.emptyDescription")}
           icon="file-text"
           title={t("fixedPages.emptyTitle")}
