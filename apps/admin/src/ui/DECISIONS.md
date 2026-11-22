@@ -20,6 +20,11 @@
 - `@theme static` の先頭で `--*: initial` にして、Tailwind の既定の変数を全部消し、要るものだけを書き戻す。既定が残ると、`font-serif`・`tracking-*`・`drop-shadow-*` のような、デザインシステムに無い class が作られる。
 - `static` にして、使っていない変数も出力する。役割の色はパレットの変数を `light-dark()` で参照するので、部品の中の `var()` からも読める必要がある。
 
+## 幅
+
+- 最大幅は `--max-width-*` で定義し、`max-w-*` で使う。Container query の段は `--container-*` で定義し、`@sm:`(24rem)・`@md:`(28rem)・`@lg:`(32rem) で使う。最大幅と container query の段を個別に調整できるようにする。
+- `AppShell` の本文を `@container` にする。本文の中の部品は、サイドバーと本文の padding を除いた幅に合わせられる。ナビの帯とサイドバーの切り替えは viewport の `md:`(48rem) で決める。
+
 ## 色
 
 不透明な色を22個だけ持つ。

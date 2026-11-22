@@ -140,14 +140,18 @@
   --z-index-overlay: 40;
   --z-index-toast: 50;
 
-  --container-sm: 24rem;
-  --container-md: 28rem;
-  --container-lg: 32rem;
-  --container-form: 40rem;
-  --container-page: 72rem;
+  --max-width-sm: 24rem;
+  --max-width-md: 28rem;
+  --max-width-lg: 32rem;
+  --max-width-form: 40rem;
+  --max-width-page: 72rem;
 
   --grid-template-columns-thumbnails: repeat(auto-fill, minmax(10rem, 1fr));
   --aspect-photo: 3 / 2;
+
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
 
   --breakpoint-md: 48rem;
   --breakpoint-lg: 64rem;
