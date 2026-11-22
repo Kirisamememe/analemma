@@ -3,16 +3,16 @@ import { useRouteContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Cluster } from "../../ui/layout/cluster";
-import { Text } from "../../ui/layout/text";
-import { Button } from "../../ui/primitives/button";
-import { Notice } from "../../ui/primitives/notice";
-import { Dialog } from "../../ui/primitives/overlays/dialog";
-import { useShowToast } from "../../ui/primitives/overlays/toast-context";
-import { deletePasskey } from "./delete-passkey";
-import type { PasskeySummary } from "./passkey-list";
-import { refreshPasskeys } from "./passkeys-query";
-import { toDeleteNotice } from "./to-passkey-notice";
+import { deletePasskey } from "@/features/passkeys/delete-passkey";
+import type { PasskeySummary } from "@/features/passkeys/passkey-list";
+import { refreshPasskeys } from "@/features/passkeys/passkeys-query";
+import { toDeleteNotice } from "@/features/passkeys/to-passkey-notice";
+import { Cluster } from "@/ui/layout/cluster";
+import { Text } from "@/ui/layout/text";
+import { Button } from "@/ui/primitives/button";
+import { Notice } from "@/ui/primitives/notice";
+import { Dialog } from "@/ui/primitives/overlays/dialog";
+import { useShowToast } from "@/ui/primitives/overlays/toast-context";
 
 /** パスキーを削除する Dialog に渡す値。 */
 type DeletePasskeyDialogProps = {

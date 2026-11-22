@@ -1,7 +1,7 @@
 import type { ParseKeysWithoutVariables } from "i18next";
 
-import type { AddPasskeyResult } from "./add-passkey";
-import type { DeletePasskeyResult } from "./delete-passkey";
+import type { AddPasskeyResult } from "@/features/passkeys/add-passkey";
+import type { DeletePasskeyResult } from "@/features/passkeys/delete-passkey";
 
 type PasskeyNotice = {
   /** 知らせの用途。 */

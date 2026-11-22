@@ -1,4 +1,4 @@
-import type { Translation } from "../translation";
+import type { Translation } from "@/i18n/translation";
 
 /** 簡体字中国語の訳。 */
 export const zhHans = {

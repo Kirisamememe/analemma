@@ -3,18 +3,18 @@ import { useRouteContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Cluster } from "../../ui/layout/cluster";
-import { Text } from "../../ui/layout/text";
-import { Button } from "../../ui/primitives/button";
-import { Form } from "../../ui/primitives/form";
-import { TextField } from "../../ui/primitives/form-fields/text-field";
-import { Notice } from "../../ui/primitives/notice";
-import { Dialog } from "../../ui/primitives/overlays/dialog";
-import { useShowToast } from "../../ui/primitives/overlays/toast-context";
-import { checkPasskeyName } from "../auth/check-passkey-name";
-import { addPasskey } from "./add-passkey";
-import { refreshPasskeys } from "./passkeys-query";
-import { toAddNotice } from "./to-passkey-notice";
+import { checkPasskeyName } from "@/features/auth/check-passkey-name";
+import { addPasskey } from "@/features/passkeys/add-passkey";
+import { refreshPasskeys } from "@/features/passkeys/passkeys-query";
+import { toAddNotice } from "@/features/passkeys/to-passkey-notice";
+import { Cluster } from "@/ui/layout/cluster";
+import { Text } from "@/ui/layout/text";
+import { Button } from "@/ui/primitives/button";
+import { Form } from "@/ui/primitives/form";
+import { TextField } from "@/ui/primitives/form-fields/text-field";
+import { Notice } from "@/ui/primitives/notice";
+import { Dialog } from "@/ui/primitives/overlays/dialog";
+import { useShowToast } from "@/ui/primitives/overlays/toast-context";
 
 /** パスキーを追加する Dialog に渡す値。 */
 type AddPasskeyDialogProps = {

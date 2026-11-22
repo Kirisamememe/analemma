@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 
-import { merge, tv } from "../src/ui/tv";
+import { merge, tv } from "@/ui/tv";
 
 const css = (
   await Promise.all(

@@ -1,4 +1,4 @@
-import type { Translation } from "../translation";
+import type { Translation } from "@/i18n/translation";
 
 /** 日本語の訳。 */
 export const ja = {

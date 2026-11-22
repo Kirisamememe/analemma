@@ -11,9 +11,9 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, jest, test } from "bun:test";
 import type { ReactNode } from "react";
 
-import { renderWithI18n } from "../../../../testing/render-with-i18n";
-import { ToastProvider } from "../toast";
-import { useShowToast } from "../toast-context";
+import { renderWithI18n } from "@/testing/render-with-i18n";
+import { ToastProvider } from "@/ui/primitives/overlays/toast";
+import { useShowToast } from "@/ui/primitives/overlays/toast-context";
 
 const ToastControls = (): ReactNode => {
   const showToast = useShowToast();

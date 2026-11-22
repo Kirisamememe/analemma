@@ -1,15 +1,18 @@
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Cluster } from "../../ui/layout/cluster";
-import { Heading } from "../../ui/layout/heading";
-import { Stack } from "../../ui/layout/stack";
-import { Button } from "../../ui/primitives/button";
-import { FocusScope } from "../../ui/primitives/focus-scope";
-import { AddPasskeyDialog } from "./add-passkey-dialog";
-import { DeletePasskeyDialog } from "./delete-passkey-dialog";
-import { PasskeyList, type PasskeySummary } from "./passkey-list";
-import { RenamePasskeyDialog } from "./rename-passkey-dialog";
+import { AddPasskeyDialog } from "@/features/passkeys/add-passkey-dialog";
+import { DeletePasskeyDialog } from "@/features/passkeys/delete-passkey-dialog";
+import {
+  PasskeyList,
+  type PasskeySummary,
+} from "@/features/passkeys/passkey-list";
+import { RenamePasskeyDialog } from "@/features/passkeys/rename-passkey-dialog";
+import { Cluster } from "@/ui/layout/cluster";
+import { Heading } from "@/ui/layout/heading";
+import { Stack } from "@/ui/layout/stack";
+import { Button } from "@/ui/primitives/button";
+import { FocusScope } from "@/ui/primitives/focus-scope";
 
 type PasskeyDialog = "add" | "rename" | "delete";
 

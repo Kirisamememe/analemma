@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 import { type ReactNode, useState } from "react";
 
-import { Dialog } from "../dialog";
+import { Dialog } from "@/ui/primitives/overlays/dialog";
 
 afterEach(cleanup);
 

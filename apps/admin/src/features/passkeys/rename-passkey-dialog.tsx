@@ -3,17 +3,17 @@ import { useRouteContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Cluster } from "../../ui/layout/cluster";
-import { Button } from "../../ui/primitives/button";
-import { Form } from "../../ui/primitives/form";
-import { TextField } from "../../ui/primitives/form-fields/text-field";
-import { Notice } from "../../ui/primitives/notice";
-import { Dialog } from "../../ui/primitives/overlays/dialog";
-import { useShowToast } from "../../ui/primitives/overlays/toast-context";
-import { checkPasskeyName } from "../auth/check-passkey-name";
-import type { PasskeySummary } from "./passkey-list";
-import { refreshPasskeys } from "./passkeys-query";
-import { renamePasskey } from "./rename-passkey";
+import { checkPasskeyName } from "@/features/auth/check-passkey-name";
+import type { PasskeySummary } from "@/features/passkeys/passkey-list";
+import { refreshPasskeys } from "@/features/passkeys/passkeys-query";
+import { renamePasskey } from "@/features/passkeys/rename-passkey";
+import { Cluster } from "@/ui/layout/cluster";
+import { Button } from "@/ui/primitives/button";
+import { Form } from "@/ui/primitives/form";
+import { TextField } from "@/ui/primitives/form-fields/text-field";
+import { Notice } from "@/ui/primitives/notice";
+import { Dialog } from "@/ui/primitives/overlays/dialog";
+import { useShowToast } from "@/ui/primitives/overlays/toast-context";
 
 /** パスキーの名前を変更する Dialog に渡す値。 */
 type RenamePasskeyDialogProps = {

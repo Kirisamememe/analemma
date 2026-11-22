@@ -1,8 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { type ReactNode, useCallback } from "react";
 
-import { Button } from "../../button";
-import { type ToastMessage, useShowToast } from "../toast-context";
+import { Button } from "@/ui/primitives/button";
+import {
+  type ToastMessage,
+  useShowToast,
+} from "@/ui/primitives/overlays/toast-context";
 
 type ToastPreviewProps = {
   /** 見本の知らせ。 */

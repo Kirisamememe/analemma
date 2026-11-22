@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
-import { toAddNotice, toDeleteNotice } from "../to-passkey-notice";
+import {
+  toAddNotice,
+  toDeleteNotice,
+} from "@/features/passkeys/to-passkey-notice";
 
 describe("toAddNotice", () => {
   test.each([

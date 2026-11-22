@@ -10,11 +10,13 @@ import {
 import { flushSync } from "react-dom";
 import { useTranslation } from "react-i18next";
 
-import { tv } from "../../tv";
-import { typography } from "../../typography";
-import { ShowToastContext, type ToastMessage } from "./toast-context";
-
 import { Icon } from "@/ui/primitives/graphics/icon";
+import {
+  ShowToastContext,
+  type ToastMessage,
+} from "@/ui/primitives/overlays/toast-context";
+import { tv } from "@/ui/tv";
+import { typography } from "@/ui/typography";
 
 const toastStyle = tv({
   slots: {
