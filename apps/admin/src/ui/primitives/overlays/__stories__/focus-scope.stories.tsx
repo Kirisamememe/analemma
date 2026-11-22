@@ -3,8 +3,8 @@ import { type ReactNode, useState } from "react";
 
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { FocusScope } from "@/ui/primitives/focus-scope";
 import { Dialog } from "@/ui/primitives/overlays";
+import { FocusScope } from "@/ui/primitives/overlays/focus-scope";
 
 const PASSKEYS = ["MacBook Air", "iPhone", "iPad"];
 

@@ -1,4 +1,4 @@
-import { type Middleware, ORPCError, implement } from "@orpc/server";
+import { ORPCError, implement } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 
 import { contract } from "@analemma/contract";
@@ -19,6 +19,8 @@ type Reply<Output, Code extends string> =
       readonly error: Code;
       /** contract に定義した失敗か。 */
       readonly defined?: true;
+      /** 失敗に添える値(contract が失敗ごとに決める形)。 */
+      readonly data?: unknown;
     }
   | {
       /** contract に定義していない失敗の code。 */
@@ -51,39 +53,54 @@ export const wrapFakeRoute = <Input, Output, Code extends string>(
     : Object.assign((input: Input) => handle(input), { replyBeforeInput });
 };
 
-type ErrorFactory = (
-  options?: Partial<Pick<Error, "message">>,
-) => ORPCError<string, unknown>;
+type ErrorStatus = {
+  /** 失敗の HTTP のステータス。 */
+  readonly status?: number | undefined;
+};
 
-type HandlerOptions<Input, Code extends string> = {
+type ErrorStatuses<Code extends string> = Readonly<
+  Record<Code, ErrorStatus | undefined>
+>;
+
+type HandlerOptions<Input> = {
   /** procedure の入力。 */
   readonly input: Input;
-  /** contract に定義した失敗を作る関数。 */
-  readonly errors: Record<Code, ErrorFactory>;
 };
 
 type ProcedureBuilder<Input, Output, Code extends string, Procedure> = {
+  /** contract の定義。 */
+  readonly "~orpc": {
+    /** contract に定義した失敗。 */
+    readonly errorMap: ErrorStatuses<Code>;
+  };
   /** handler から procedure を作る関数。 */
   readonly handler: (
-    handle: (options: HandlerOptions<Input, Code>) => Promise<Output>,
+    handle: (options: HandlerOptions<Input>) => Promise<Output>,
   ) => Procedure;
 };
 
 const unwrapReply = <Output, Code extends string>(
   reply: Reply<Output, Code>,
-  errors: Partial<Record<Code, ErrorFactory>>,
+  errorMap: Partial<ErrorStatuses<Code>>,
 ): Output => {
   if ("output" in reply) {
     return reply.output;
   }
 
-  const options = { message: reply.error };
+  const message = reply.error;
 
   if (reply.defined === false) {
-    throw new ORPCError(reply.error, options);
+    throw new ORPCError(reply.error, { message });
   }
 
-  throw errors[reply.error]?.(options) ?? new ORPCError(reply.error, options);
+  const defined = errorMap[reply.error];
+
+  throw new ORPCError(reply.error, {
+    message,
+    defined: defined !== undefined,
+    ...(defined?.status === undefined ? {} : { status: defined.status }),
+    data: reply.data,
+  });
 };
 
 const bindReply =
@@ -93,8 +110,8 @@ const bindReply =
   (reply: ReplyHandler<Input, Output, Code> | undefined) =>
     reply === undefined
       ? undefined
-      : builder.handler(async ({ input, errors }) =>
-          unwrapReply(await reply(input), errors),
+      : builder.handler(async ({ input }) =>
+          unwrapReply(await reply(input), builder["~orpc"].errorMap),
         );
 
 type FakeContext = {
@@ -105,25 +122,35 @@ type FakeContext = {
 const api = implement(contract, {
   initialOutputValidationIndex: -1,
 }).$context<FakeContext>();
-const sendEarlyReply: Middleware<
-  FakeContext,
-  object,
-  unknown,
-  unknown,
-  Record<string, ErrorFactory>,
-  Record<string, unknown>
-> = async ({ context, errors, next, path }) => {
-  const reply = context.replyBeforeInput(path.join("/"));
+const sendEarlyReply = api.middleware(
+  async ({ context, next, path, procedure }) => {
+    const reply = context.replyBeforeInput(path.join("/"));
 
-  return reply === undefined
-    ? next()
-    : { output: unwrapReply(await reply, errors), context: {} };
-};
+    return reply === undefined
+      ? next()
+      : {
+          output: unwrapReply(await reply, procedure["~orpc"].errorMap),
+          context: {},
+        };
+  },
+);
 
+const fixedPages = api.admin.fixedPages.use(sendEarlyReply);
+const kinds = api.admin.kinds.use(sendEarlyReply);
 const passkeys = api.admin.passkeys.use(sendEarlyReply);
 const session = api.admin.session.use(sendEarlyReply);
 
 const procedures = {
+  "admin/fixedPages/create": bindReply(fixedPages.create),
+  "admin/fixedPages/delete": bindReply(fixedPages.delete),
+  "admin/fixedPages/get": bindReply(fixedPages.get),
+  "admin/fixedPages/list": bindReply(fixedPages.list),
+  "admin/fixedPages/publish": bindReply(fixedPages.publish),
+  "admin/fixedPages/reorder": bindReply(fixedPages.reorder),
+  "admin/fixedPages/unpublish": bindReply(fixedPages.unpublish),
+  "admin/fixedPages/update": bindReply(fixedPages.update),
+  "admin/kinds/get": bindReply(kinds.get),
+  "admin/kinds/list": bindReply(kinds.list),
   "admin/passkeys/delete": bindReply(passkeys.delete),
   "admin/passkeys/list": bindReply(passkeys.list),
   "admin/passkeys/register": bindReply(passkeys.register),
