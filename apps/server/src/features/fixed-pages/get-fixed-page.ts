@@ -1,4 +1,4 @@
-import { findFixedPage } from "@/features/fixed-pages/fixed-pages.query";
+import { findFixedPage } from "@/features/fixed-pages/queries/fixed-pages.query";
 import { toFixedPageDetail } from "@/features/fixed-pages/to-fixed-page-detail";
 import { adminProcedures } from "@/procedures";
 

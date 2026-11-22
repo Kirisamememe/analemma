@@ -1,4 +1,4 @@
-import { listDeployTokens as listDeployTokenRows } from "@/features/deploy-tokens/deploy-tokens.query";
+import { listDeployTokens as listDeployTokenRows } from "@/features/deploy-tokens/queries/deploy-tokens.query";
 import { toDeployTokenSummary } from "@/features/deploy-tokens/to-deploy-token-summary";
 import { adminProcedures } from "@/procedures";
 

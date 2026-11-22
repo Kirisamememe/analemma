@@ -1,5 +1,5 @@
 import { checkEnrollment } from "@/features/auth/enrollment/check-enrollment";
-import { completeEnrollment } from "@/features/auth/enrollment/complete-enrollment.query";
+import { completeEnrollment } from "@/features/auth/enrollment/queries/complete-enrollment.query";
 import { REGISTRATION_ERRORS } from "@/features/auth/registration/registration-errors";
 import { verifyPasskeyRegistration } from "@/features/auth/registration/verify-passkey-registration";
 import { issueSecretToken } from "@/features/auth/secret-token/secret-token";

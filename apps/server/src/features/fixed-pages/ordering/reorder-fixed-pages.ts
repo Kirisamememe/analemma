@@ -1,9 +1,9 @@
-import { listFixedPages } from "@/features/fixed-pages/fixed-pages.query";
 import { coversAllPages } from "@/features/fixed-pages/ordering/covers-all-pages";
 import {
   lockFixedPageIds,
   updatePositions,
-} from "@/features/fixed-pages/ordering/fixed-page-positions.query";
+} from "@/features/fixed-pages/ordering/queries/fixed-page-positions.query";
+import { listFixedPages } from "@/features/fixed-pages/queries/fixed-pages.query";
 import { toFixedPageSummary } from "@/features/fixed-pages/to-fixed-page-detail";
 import { adminProcedures } from "@/procedures";
 

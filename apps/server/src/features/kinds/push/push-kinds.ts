@@ -6,8 +6,8 @@ import {
   insertNewKinds,
   lockKinds,
   updateKinds,
-} from "@/features/kinds/push/kinds.query";
-import { listKindPages } from "@/features/kinds/push/list-kind-pages.query";
+} from "@/features/kinds/push/queries/kinds.query";
+import { listKindPages } from "@/features/kinds/push/queries/list-kind-pages.query";
 import {
   type KindChange,
   toKindChanges,

@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 
 import { fixedPage } from "@/db/schema/fixed-page";
-import type { FixedPageRow } from "@/features/fixed-pages/fixed-pages.query";
+import type { FixedPageRow } from "@/features/fixed-pages/queries/fixed-pages.query";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** 公開するか非公開に戻すかと、その日時。 */

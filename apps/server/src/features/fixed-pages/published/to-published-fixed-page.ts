@@ -5,7 +5,7 @@ import { type contract, fixedPageContent } from "@analemma/contract";
 import type {
   FixedPageRow,
   FixedPageSummaryRow,
-} from "@/features/fixed-pages/fixed-pages.query";
+} from "@/features/fixed-pages/queries/fixed-pages.query";
 
 type PublicOutputs = InferContractRouterOutputs<
   typeof contract

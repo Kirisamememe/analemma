@@ -1,4 +1,4 @@
-import { listPublishedFixedPages as listPublishedRows } from "@/features/fixed-pages/published/published-fixed-pages.query";
+import { listPublishedFixedPages as listPublishedRows } from "@/features/fixed-pages/published/queries/published-fixed-pages.query";
 import { toPublishedSummary } from "@/features/fixed-pages/published/to-published-fixed-page";
 import { publicProcedures } from "@/procedures";
 

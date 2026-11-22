@@ -57,6 +57,17 @@ test("フォルダの名前が kebab-case であること", () => {
   expect(findBadDirectories(paths)).toEqual([]);
 });
 
+test("server の `*.query.ts` は用途ごとの `queries/` に置くこと", () => {
+  expect(
+    paths.filter(
+      (path) =>
+        path.startsWith("apps/server/src/") &&
+        path.endsWith(".query.ts") &&
+        path.split("/").at(-2) !== "queries",
+    ),
+  ).toEqual([]);
+});
+
 test("__stories__ には story のファイルだけを置くこと", () => {
   expect(findStrayStoryFiles(paths)).toEqual([]);
 });

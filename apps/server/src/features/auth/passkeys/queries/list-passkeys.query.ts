@@ -1,7 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 
 import { passkey } from "@/db/schema/passkey";
-import type { PasskeyRow } from "@/features/auth/registration/insert-passkey.query";
+import type { PasskeyRow } from "@/features/auth/registration/queries/insert-passkey.query";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** 管理者のパスキーを、登録した順に並べる。 */

@@ -266,6 +266,10 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **結果の最後の行**:`VERDICT: LGTM` か `VERDICT: CHANGES_REQUESTED` のどちらかにさせ、スクリプトが読んで判定を出す。形から外れたら、読めなかったと出して終了コード1で終える。崩れた形を推し量って読むと、LGTM でないものを LGTM と取り違えうる。
 - **失敗**:外の CLI が失敗したときや、結果が空のときは、結果のファイルを消し、その回を数えない。外の CLI の出力は `.log` に残す。
 
+## query のファイルの置き場所
+
+`tooling/structure/__tests__/repository.test.ts` は、server の `src/` にある `*.query.ts` が `queries/` の直下にあることを確かめる。ほかの query を呼ぶファイルも同じ場所に置くので、Drizzle の import の有無にかかわらず名前で検査する。
+
 ## 割り切ったこと
 
 - **TSDoc の言い回しの検査**:`tsdoc-role-only` は条件・例・補足・理由の言い回しを正規表現で見るので、すり抜けも誤検知もある。文の意味を読むには、日本語の構文の解析が要る。すり抜けはセルフレビューで見て、誤検知は言い回しを外して直す。

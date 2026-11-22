@@ -1,4 +1,4 @@
-import { findKind } from "@/features/kinds/kinds.query";
+import { findKind } from "@/features/kinds/queries/kinds.query";
 import { toKindDetail } from "@/features/kinds/to-kind-detail";
 import { adminProcedures } from "@/procedures";
 

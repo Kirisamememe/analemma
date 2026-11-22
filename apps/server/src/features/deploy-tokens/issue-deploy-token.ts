@@ -1,6 +1,6 @@
 import { reauthenticate } from "@/features/auth/current-session/reauthenticate";
 import { issueSecretToken } from "@/features/auth/secret-token/secret-token";
-import { recordIssue } from "@/features/deploy-tokens/deploy-tokens.query";
+import { recordIssue } from "@/features/deploy-tokens/queries/deploy-tokens.query";
 import { toDeployTokenSummary } from "@/features/deploy-tokens/to-deploy-token-summary";
 import { adminProcedures } from "@/procedures";
 

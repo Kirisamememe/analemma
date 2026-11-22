@@ -1,5 +1,5 @@
-import { lockKindFields } from "@/features/fixed-pages/editing/lock-kind-fields.query";
-import { saveFixedPage } from "@/features/fixed-pages/editing/save-fixed-page.query";
+import { lockKindFields } from "@/features/fixed-pages/editing/queries/lock-kind-fields.query";
+import { saveFixedPage } from "@/features/fixed-pages/editing/queries/save-fixed-page.query";
 import { toFixedPageDetail } from "@/features/fixed-pages/to-fixed-page-detail";
 import { checkContent } from "@/features/kinds/check-content";
 import { adminProcedures } from "@/procedures";

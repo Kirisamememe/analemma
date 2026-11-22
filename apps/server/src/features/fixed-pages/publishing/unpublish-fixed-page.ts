@@ -1,4 +1,4 @@
-import { setPublished } from "@/features/fixed-pages/publishing/set-published.query";
+import { setPublished } from "@/features/fixed-pages/publishing/queries/set-published.query";
 import { toFixedPageSummary } from "@/features/fixed-pages/to-fixed-page-detail";
 import { adminProcedures } from "@/procedures";
 

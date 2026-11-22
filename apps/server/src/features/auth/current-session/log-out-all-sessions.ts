@@ -1,4 +1,4 @@
-import { deleteAllSessions } from "@/features/auth/current-session/delete-all-sessions.query";
+import { deleteAllSessions } from "@/features/auth/current-session/queries/delete-all-sessions.query";
 import { toSessionCookie } from "@/features/auth/session/to-session-cookie";
 import { clearSessionCookie } from "@/features/auth/session/write-session-cookie";
 import { adminProcedures } from "@/procedures";

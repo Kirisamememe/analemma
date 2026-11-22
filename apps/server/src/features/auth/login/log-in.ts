@@ -1,6 +1,6 @@
 import { getCookie } from "@orpc/server/helpers";
 
-import { recordLogin } from "@/features/auth/login/record-login.query";
+import { recordLogin } from "@/features/auth/login/queries/record-login.query";
 import {
   type LoginFailure,
   verifyLogin,

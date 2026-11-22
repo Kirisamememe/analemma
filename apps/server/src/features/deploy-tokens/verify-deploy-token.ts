@@ -5,7 +5,7 @@ import {
 import {
   findDeployToken,
   recordDeployTokenUse,
-} from "@/features/deploy-tokens/deploy-tokens.query";
+} from "@/features/deploy-tokens/queries/deploy-tokens.query";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** 確かめられたデプロイ用のトークン。 */

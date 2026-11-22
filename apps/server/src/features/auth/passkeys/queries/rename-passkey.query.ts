@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 
 import { passkey } from "@/db/schema/passkey";
-import type { PasskeyRow } from "@/features/auth/registration/insert-passkey.query";
+import type { PasskeyRow } from "@/features/auth/registration/queries/insert-passkey.query";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** 名前を変えるパスキーと、新しい名前。 */

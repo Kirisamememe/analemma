@@ -6,7 +6,7 @@ import {
   type Reauthentication,
   type ReauthenticationGone,
   recordReauthentication,
-} from "@/features/auth/current-session/record-reauthentication.query";
+} from "@/features/auth/current-session/queries/record-reauthentication.query";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** 消すパスキーと、消す前の再認証。 */

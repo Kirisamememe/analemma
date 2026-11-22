@@ -1,4 +1,4 @@
-import { findPublishedFixedPage } from "@/features/fixed-pages/published/published-fixed-pages.query";
+import { findPublishedFixedPage } from "@/features/fixed-pages/published/queries/published-fixed-pages.query";
 import { toPublishedFixedPage } from "@/features/fixed-pages/published/to-published-fixed-page";
 import { publicProcedures } from "@/procedures";
 

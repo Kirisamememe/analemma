@@ -1,4 +1,4 @@
-import { findAdminUser } from "@/features/auth/admin-user/admin-user.query";
+import { findAdminUser } from "@/features/auth/admin-user/queries/admin-user.query";
 import { listPasskeys } from "@/features/auth/passkeys/queries/list-passkeys.query";
 import { createRegistrationOptions } from "@/features/auth/registration/create-registration-options";
 import { adminProcedures } from "@/procedures";

@@ -1,4 +1,4 @@
-import { deleteDeployToken } from "@/features/deploy-tokens/deploy-tokens.query";
+import { deleteDeployToken } from "@/features/deploy-tokens/queries/deploy-tokens.query";
 import { adminProcedures } from "@/procedures";
 
 /** デプロイ用のトークンを取り消す procedure。 */

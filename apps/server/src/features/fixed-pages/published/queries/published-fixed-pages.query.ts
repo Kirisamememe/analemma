@@ -5,7 +5,7 @@ import {
   type FixedPageRow,
   type FixedPageSummaryRow,
   fixedPageSummaryColumns,
-} from "@/features/fixed-pages/fixed-pages.query";
+} from "@/features/fixed-pages/queries/fixed-pages.query";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** 公開状態を決める、固定ページの列。 */

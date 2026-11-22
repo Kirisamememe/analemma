@@ -1,4 +1,4 @@
-import { findEnrollment } from "@/features/auth/enrollment/find-enrollment.query";
+import { findEnrollment } from "@/features/auth/enrollment/queries/find-enrollment.query";
 import {
   equalSecretHashes,
   readSecretToken,

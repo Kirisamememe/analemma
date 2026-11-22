@@ -1,4 +1,4 @@
-import { listKinds as listKindRows } from "@/features/kinds/kinds.query";
+import { listKinds as listKindRows } from "@/features/kinds/queries/kinds.query";
 import { toKindSummary } from "@/features/kinds/to-kind-detail";
 import { adminProcedures } from "@/procedures";
 

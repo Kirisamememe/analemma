@@ -7,7 +7,7 @@ import {
   deleteExpiredSession,
   findSession,
   refreshSession,
-} from "@/features/auth/session/session.query";
+} from "@/features/auth/session/queries/session.query";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** ログイン中の管理者のセッション。 */

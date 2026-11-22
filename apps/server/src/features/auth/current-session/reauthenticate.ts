@@ -1,6 +1,6 @@
 import type { RequestContext } from "@/context";
 import type { AuthenticationCredentialInput } from "@/features/auth/login/decode-authentication-credential";
-import type { PasskeyUse } from "@/features/auth/login/record-passkey-use.query";
+import type { PasskeyUse } from "@/features/auth/login/queries/record-passkey-use.query";
 import { verifyLogin } from "@/features/auth/login/verify-login";
 import { writeLoginWarnings } from "@/features/auth/login/write-login-warnings";
 import type { Session } from "@/features/auth/session/resume-session";

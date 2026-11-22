@@ -5,7 +5,7 @@ import {
   type Reauthentication,
   type ReauthenticationGone,
   recordReauthentication,
-} from "@/features/auth/current-session/record-reauthentication.query";
+} from "@/features/auth/current-session/queries/record-reauthentication.query";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** デプロイ用のトークンの行。 */

@@ -1,13 +1,13 @@
 import { and, eq } from "drizzle-orm";
 
 import { session } from "@/db/schema/session";
-import { lockAdminUser } from "@/features/auth/admin-user/admin-user.query";
+import { lockAdminUser } from "@/features/auth/admin-user/queries/admin-user.query";
 import {
   type PasskeyUse,
   recordPasskeyUse,
-} from "@/features/auth/login/record-passkey-use.query";
+} from "@/features/auth/login/queries/record-passkey-use.query";
 import type { SecretTokenParts } from "@/features/auth/secret-token/secret-token";
-import { insertSession } from "@/features/auth/session/session.query";
+import { insertSession } from "@/features/auth/session/queries/session.query";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** ログインに使ったパスキーと、始めるセッション。 */

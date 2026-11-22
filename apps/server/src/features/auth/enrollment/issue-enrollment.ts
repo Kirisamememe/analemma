@@ -1,4 +1,4 @@
-import { replaceEnrollment } from "@/features/auth/enrollment/replace-enrollment.query";
+import { replaceEnrollment } from "@/features/auth/enrollment/queries/replace-enrollment.query";
 import { toEnrollmentUrl } from "@/features/auth/enrollment/to-enrollment-url";
 import { issueSecretToken } from "@/features/auth/secret-token/secret-token";
 import type { DatabaseExecutor } from "@/platform/database";

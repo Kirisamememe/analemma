@@ -9,7 +9,7 @@ import {
 import {
   type LoginPasskey,
   findLoginPasskey,
-} from "@/features/auth/login/find-login-passkey.query";
+} from "@/features/auth/login/queries/find-login-passkey.query";
 import { parseClientData } from "@/features/auth/webauthn/client-data/parse-client-data";
 import { verifyAuthentication } from "@/features/auth/webauthn/verify-authentication";
 import type { DatabaseExecutor } from "@/platform/database";

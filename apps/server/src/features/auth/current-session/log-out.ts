@@ -1,4 +1,4 @@
-import { deleteSession } from "@/features/auth/session/session.query";
+import { deleteSession } from "@/features/auth/session/queries/session.query";
 import { toSessionCookie } from "@/features/auth/session/to-session-cookie";
 import { clearSessionCookie } from "@/features/auth/session/write-session-cookie";
 import { adminProcedures } from "@/procedures";
