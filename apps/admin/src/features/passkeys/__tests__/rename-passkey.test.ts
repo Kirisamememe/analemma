@@ -30,7 +30,7 @@ describe("renamePasskey", () => {
 
   test("もう無いパスキーなら、そのことを返す", async () => {
     const { api } = createFakeApi({
-      "admin/passkeys/rename": () => ({ error: "NOT_FOUND", status: 404 }),
+      "admin/passkeys/rename": () => ({ error: "NOT_FOUND" }),
     });
 
     expect(await renamePasskey(api, { id: "passkey", name: "iPad" })).toEqual({

@@ -9,7 +9,7 @@ afterEach(cleanup);
 
 const EXPIRY = { output: { expiresAt: "2026-01-08T00:00:00.000Z" } };
 
-const renderHome = (logOut: FakeReply) =>
+const renderHome = (logOut: FakeReply<"admin/session/logOut">) =>
   renderApp({
     path: "/",
     routes: {
@@ -40,7 +40,6 @@ describe("LogOutButton", () => {
   test("ログアウトできなければ、そのことを出し、画面に留まる", async () => {
     const { history } = renderHome({
       error: "INTERNAL_SERVER_ERROR",
-      status: 500,
       defined: false,
     });
 
@@ -53,7 +52,7 @@ describe("LogOutButton", () => {
   });
 
   test("セッションが切れていたら、ログインの画面に移る", async () => {
-    const { history } = renderHome({ error: "UNAUTHORIZED", status: 401 });
+    const { history } = renderHome({ error: "UNAUTHORIZED" });
 
     await pressLogOut();
 

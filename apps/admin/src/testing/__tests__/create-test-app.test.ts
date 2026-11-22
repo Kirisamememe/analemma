@@ -7,7 +7,7 @@ describe("createTestApp", () => {
     const { history, calls, router } = createTestApp({
       path: "/security",
       routes: {
-        "admin/session/get": () => ({ error: "UNAUTHORIZED", status: 401 }),
+        "admin/session/get": () => ({ error: "UNAUTHORIZED" }),
       },
     });
 

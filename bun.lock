@@ -38,6 +38,7 @@
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "21.0.4",
+        "@orpc/server": "1.16.4",
         "@storybook/addon-a11y": "10.6.8",
         "@storybook/builder-vite": "10.6.8",
         "@storybook/react-vite": "10.6.8",
