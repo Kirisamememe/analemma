@@ -20,14 +20,14 @@ afterEach(() => {
 });
 
 describe("syncLocale", () => {
-  test("切り替えた言語を、html の lang に入れ、利用者が選んだ言語として置く", async () => {
+  test("切り替えた言語を、html の lang に入れ、利用者が選んだ言語として localStorage に置く", async () => {
     await setUp("en").changeLanguage("zh-Hans");
 
     expect(document.documentElement.lang).toBe("zh-Hans");
     expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("zh-Hans");
   });
 
-  test("対応していない言語に切り替えたら、英語を入れて置く", async () => {
+  test("対応していない言語に切り替えたら、html の lang に英語を入れ、localStorage にも英語を置く", async () => {
     await setUp("ja").changeLanguage("fr");
 
     expect(document.documentElement.lang).toBe("en");

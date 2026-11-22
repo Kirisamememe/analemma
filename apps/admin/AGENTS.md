@@ -27,7 +27,7 @@
 - パスキーでのログインの最中(options を取ってから、ログインの応答が届くまで)は、ほかの管理用 API を呼ばない。
 - 登録用 URL は `/enroll#{token}`。token は URL の `#` の後ろから読み、server に送るだけにする。登録したら、履歴から登録用 URL を消す(`replace`)。
 - パスキーの追加と削除は、再認証(`src/features/auth/reauthenticate.ts`)の資格情報と一緒に送る。取り消せない操作は、確認の Dialog を出してから送る。
-- 画面のテストは、`src/testing/render-app.tsx` で、作り物の server(`create-fake-api.ts`)と作り物の認証器につないだ管理画面の全体を描いて、利用者に見える結果で確かめる。訳を使う部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で描く。
+- 画面のテストは、`src/testing/render-app.tsx` で、作り物の server(`create-fake-api.ts`)と作り物の認証器につないだ管理画面の全体を描いて、利用者に見える結果で確かめる。`App` を通さずに部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で、i18next の instance の下で描く。
 - 画面に出す文言は、すべて `src/i18n/messages/` の訳から、react-i18next の `useTranslation` で引く。キーは英語の訳(`en.ts`)に足し、同じキーをほかの言語にも足す。引数は `{{name}}` で書き、どの言語も英語と同じ引数を持つ(テストで止まる)。引数を取らないキーを値として持つ型は、i18next の `ParseKeysWithoutVariables` にする。
 - 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/resources.ts` の `RESOURCES` に足し、`messages/` にファイルを置く。
 - 言語は i18next の `changeLanguage` で切り替える。html の `lang` と `localStorage` は、`sync-locale.ts` がそろえる。
