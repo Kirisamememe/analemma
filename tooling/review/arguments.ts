@@ -4,7 +4,7 @@ import { PERSPECTIVES, type Perspective } from "./perspectives";
 
 /** 読み取れた引数。 */
 export type ReviewArguments = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Parsed";
   /** レビューの観点。 */
   readonly perspective: Perspective;
@@ -16,7 +16,7 @@ export type ReviewArguments = {
 
 /** 引数を読めなかったこと。 */
 export type InvalidArguments = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Invalid";
   /** 読めなかった理由。 */
   readonly problem: string;

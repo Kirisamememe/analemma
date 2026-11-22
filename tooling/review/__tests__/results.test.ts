@@ -34,7 +34,7 @@ describe("次の回を決めること", () => {
     });
   });
 
-  test("依頼文と出力のファイル、ほかの観点の結果は数えないこと", () => {
+  test("prompt と外の CLI の出力(`.log`)のファイル、ほかの観点の結果は数えないこと", () => {
     expect(
       decideNextRound({
         perspective: UI,

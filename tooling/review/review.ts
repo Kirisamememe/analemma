@@ -69,7 +69,7 @@ type Range = {
 
 /** レビューする側に渡すファイルを書き出した場所。 */
 type Workspace = {
-  /** 一時のフォルダ。 */
+  /** 一時フォルダ。 */
   readonly root: string;
   /** レビューするブランチの中身。 */
   readonly tree: string;
@@ -245,10 +245,10 @@ const review = ({ base, head, perspective }: ReviewRequest): number => {
   if (reviewer.runner === "subagent") {
     say(
       [
-        `「${perspective.label}」の観点の ${String(next.round)} 回目は、Claude の subagent でレビューする。依頼文を書き出した。`,
-        `- 依頼文:${name}.prompt.md`,
+        `「${perspective.label}」の観点の ${String(next.round)} 回目は、Claude の subagent でレビューする。prompt を書き出した。`,
+        `- prompt:${name}.prompt.md`,
         `- 結果を書く先:${result}`,
-        `subagent に依頼文のファイルを読ませ、返ってきた結果を、そのまま結果を書く先に書いてください。依頼文が読ませるファイルは ${workspace.root} に残してある。`,
+        `subagent に prompt のファイルを読ませ、返ってきた結果を、そのまま結果を書く先に書いてください。prompt で読ませるファイル(ブランチの中身・差分・コミットのメッセージ)は ${workspace.root} に残してある。`,
       ].join("\n"),
     );
 

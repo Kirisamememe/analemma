@@ -31,7 +31,7 @@ const MATERIAL: PromptMaterial = {
   ],
 };
 
-describe("依頼文を組み立てること", () => {
+describe("prompt を組み立てること", () => {
   test("観点の名前と、比べるブランチを書くこと", () => {
     const prompt = buildPrompt(MATERIAL);
 
@@ -43,10 +43,12 @@ describe("依頼文を組み立てること", () => {
     );
   });
 
-  test("変更後のファイル・差分・コミットのメッセージの場所を書くこと", () => {
+  test("ブランチの中身・差分・コミットのメッセージの場所を書くこと", () => {
     const prompt = buildPrompt(MATERIAL);
 
-    expect(prompt).toContain("変更後のファイル:`/tmp/review/tree`");
+    expect(prompt).toContain(
+      "レビューするブランチの中身:`/tmp/review/tree`。ブランチ `claude/pages` にコミットしたすべてのファイル",
+    );
     expect(prompt).toContain(
       "差分:`/tmp/review/context/diff.patch`(`git diff phase/1...claude/pages`)",
     );
@@ -55,7 +57,16 @@ describe("依頼文を組み立てること", () => {
     );
   });
 
-  test("各 DECISIONS.md の割り切ったことを、パスの見出しの下に並べること", () => {
+  test("「直下」が、レビューするブランチの中身のフォルダの直下を指すと書くこと", () => {
+    const prompt = buildPrompt(MATERIAL);
+
+    expect(prompt).toContain("以下の「直下」は、このフォルダの直下を指す。");
+    expect(prompt).toContain(
+      "リポジトリの約束:このフォルダの直下の `AGENTS.md`・`DECISIONS.md`・`GLOSSARY.md`",
+    );
+  });
+
+  test("各 DECISIONS.md の「割り切ったこと」を、パスの見出しの下に並べること", () => {
     expect(buildPrompt(MATERIAL)).toContain(
       [
         "## 割り切ったこと",
@@ -73,7 +84,7 @@ describe("依頼文を組み立てること", () => {
     );
   });
 
-  test("観点ごとの範囲、割り切ったこと、共通の約束の順に並べ、出力の形で終えること", () => {
+  test("観点ごとの範囲、「割り切ったこと」、共通の約束の順に並べ、出力の形で終えること", () => {
     const prompt = buildPrompt(MATERIAL);
     const order = [
       "## 見る範囲",

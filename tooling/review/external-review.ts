@@ -45,7 +45,7 @@ export const chooseReviewer = (
   });
 
   return model === undefined
-    ? `Cursor で、${reviewer.models.join("・")} のどれも使えない。モデルを変えるかを、ユーザーに聞いてください。`
+    ? `Cursor の \`cursor-agent models\` に、${reviewer.models.join("・")} が無い。モデルを変えるかを、ユーザーに聞いてください。`
     : { runner: "cursor", model };
 };
 
@@ -57,7 +57,7 @@ type ExternalReview = {
   readonly paths: ReviewPaths;
   /** 外の CLI の出力を書くファイル。 */
   readonly log: string;
-  /** 依頼文。 */
+  /** prompt。 */
   readonly prompt: string;
 };
 
@@ -117,7 +117,7 @@ export const runExternalReview = ({
 
   process.stdout.write(
     verdict === "lgtm"
-      ? "判定:LGTM(高と中の指摘が無い)\n"
+      ? "判定:LGTM(重要度が高と中の指摘が無い)\n"
       : "判定:直してほしいことがある\n",
   );
 

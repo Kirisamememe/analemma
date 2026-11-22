@@ -10,7 +10,7 @@ type RoundQuery = {
 
 /** 次に流す回。 */
 export type NextRound = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Next";
   /** 次の回の番号で、1から数える。 */
   readonly round: number;
@@ -18,7 +18,7 @@ export type NextRound = {
 
 /** 決めた回数を流し終えたこと。 */
 export type RoundsExhausted = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Exhausted";
   /** 流し終えた回数。 */
   readonly rounds: number;

@@ -53,7 +53,7 @@ describe("Cursor のモデルを選ぶこと", () => {
 });
 
 describe("レビューのコマンドを組み立てること", () => {
-  test("Codex は、読むだけの sandbox で、依頼文を標準入力から読み、結果をファイルに書くこと", () => {
+  test("Codex は、読み取り専用の sandbox で、prompt を標準入力から読み、結果をファイルに書くこと", () => {
     expect(
       buildReviewCommand({
         reviewer: { runner: "codex", model: "gpt-6.2-sol", effort: "xhigh" },
@@ -80,7 +80,7 @@ describe("レビューのコマンドを組み立てること", () => {
     });
   });
 
-  test("Cursor は、読むだけの ask モードで、差分のフォルダも読めるようにし、結果を標準出力に出すこと", () => {
+  test("Cursor は、読み取り専用の ask モードで、差分とコミットのメッセージのフォルダも読めるようにし、結果を標準出力に出すこと", () => {
     expect(
       buildReviewCommand({
         reviewer: { runner: "cursor", model: "grok-4.7-xhigh" },

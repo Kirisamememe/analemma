@@ -7,7 +7,7 @@ import { PERSPECTIVES } from "../perspectives";
 const PROMPTS = join(import.meta.dirname, "../prompts");
 
 describe("観点とモデルの割り当て", () => {
-  test("観点ごとに、ユーザーと決めたモデルで流すこと", () => {
+  test("観点ごとに、決めたモデルで流すこと", () => {
     expect(PERSPECTIVES.map(({ id, reviewer }) => ({ id, reviewer }))).toEqual([
       {
         id: "logic",
@@ -52,7 +52,7 @@ describe("観点とモデルの割り当て", () => {
   });
 
   test.each(PERSPECTIVES.map(({ id }) => id))(
-    "観点 %s の依頼文に、見る範囲と見ない範囲があること",
+    "観点 %s の prompt に、見る範囲と見ない範囲があること",
     (id) => {
       const scope = readFileSync(join(PROMPTS, `${id}.md`), "utf8");
 
@@ -61,7 +61,7 @@ describe("観点とモデルの割り当て", () => {
     },
   );
 
-  test("どの観点にも共通の依頼文に、重要度の付け方と出力の形があること", () => {
+  test("どの観点にも共通の prompt に、重要度の付け方と出力の形があること", () => {
     const rules = readFileSync(join(PROMPTS, "common.md"), "utf8");
 
     expect(rules).toContain("## 重要度");

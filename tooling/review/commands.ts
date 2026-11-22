@@ -52,7 +52,7 @@ type CommandRequest = {
   readonly paths: ReviewPaths;
 };
 
-/** 外の CLI を、読むだけのモードで呼ぶコマンド。 */
+/** 外の CLI を、読み取り専用で呼ぶコマンド。 */
 export type ReviewCommand = {
   /** 実行するファイル。 */
   readonly command: string;
@@ -62,7 +62,7 @@ export type ReviewCommand = {
   readonly output: "file" | "stdout";
 };
 
-/** 観点に割り当てたモデルを、読むだけのモードで呼ぶコマンドを組み立てる。 */
+/** 観点に割り当てたモデルを、読み取り専用で呼ぶコマンドを組み立てる。 */
 export const buildReviewCommand = ({
   paths,
   reviewer,

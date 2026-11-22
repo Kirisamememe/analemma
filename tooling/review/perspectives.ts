@@ -4,7 +4,7 @@ export type CodexReviewer = {
   readonly runner: "codex";
   /** モデルの ID。 */
   readonly model: string;
-  /** 推論の強さ。 */
+  /** reasoning effort(`model_reasoning_effort`)。 */
   readonly effort: string;
 };
 
@@ -16,7 +16,7 @@ export type CursorReviewer = {
   readonly models: readonly string[];
 };
 
-/** 依頼文を書き出し、Claude の subagent に渡すレビュー。 */
+/** prompt を書き出し、Claude の subagent に渡すレビュー。 */
 export type SubagentReviewer = {
   /** レビューを流すもの。 */
   readonly runner: "subagent";
@@ -27,7 +27,7 @@ export type Reviewer = CodexReviewer | CursorReviewer | SubagentReviewer;
 
 /** レビューの観点。 */
 export type Perspective = {
-  /** `--perspective` に渡す名前で、依頼文のファイルの名前。 */
+  /** `--perspective` に渡す名前で、prompt のファイルの名前。 */
   readonly id: string;
   /** 観点の名前。 */
   readonly label: string;
