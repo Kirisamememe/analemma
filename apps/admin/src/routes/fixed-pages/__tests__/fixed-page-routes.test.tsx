@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
@@ -184,4 +184,59 @@ test("保存した直後にほかの画面へ移って戻っても、保存し�
     (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
       .value,
   ).toBe("New title");
+});
+
+test("保存の応答を待つ間に画面を離れたら、届いた応答を残さず、開き直したときに読み直す", async () => {
+  const user = userEvent.setup();
+  const saving = Promise.withResolvers<undefined>();
+  const reloading = Promise.withResolvers<undefined>();
+  const server = createFixedPageRoutes({
+    kinds: [{ name: "page", label: "基本のページ", fields: [] }],
+    pages: [{ kind: "page", slug: "about", title: "Original" }],
+  });
+  const [stored] = server.pages();
+  const id = String(stored?.id);
+  const update = server.routes["admin/fixedPages/update"];
+  const get = server.routes["admin/fixedPages/get"];
+  let gets = 0;
+  const { history } = renderApp({
+    path: "/fixed-pages/" + id,
+    routes: {
+      ...server.routes,
+      "admin/fixedPages/get": async (input) => {
+        gets += 1;
+
+        if (gets > 1) await reloading.promise;
+
+        return get(input);
+      },
+      "admin/fixedPages/update": async (input) => {
+        await saving.promise;
+
+        return update(input);
+      },
+    },
+  });
+  const title = await screen.findByRole("textbox", { name: "タイトル" });
+
+  await user.clear(title);
+  await user.type(title, "Saved");
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  history.push("/");
+  await screen.findByRole("heading", { name: "ホーム" });
+  saving.resolve(undefined);
+  await waitFor(() => {
+    expect(server.pages()[0]?.title).toBe("Saved");
+  });
+  update({ id, slug: "about", title: "Other tab", content: {} });
+  history.push("/fixed-pages/" + id);
+  await waitFor(() => {
+    expect(gets).toBe(2);
+  });
+  reloading.resolve(undefined);
+
+  expect(
+    (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
+      .value,
+  ).toBe("Other tab");
 });

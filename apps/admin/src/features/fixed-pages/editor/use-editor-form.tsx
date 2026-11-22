@@ -91,7 +91,9 @@ export const useEditorForm = ({
       }),
     onSuccess: async (result) => {
       if (result._tag === "Succeeded") {
-        if (root.current !== null) {
+        const isOpen = root.current !== null;
+
+        if (isOpen) {
           toast({
             tone: "success",
             message: t(
@@ -103,7 +105,7 @@ export const useEditorForm = ({
           onSaved(result.data);
         }
 
-        if (page !== undefined) {
+        if (isOpen && page !== undefined) {
           await replace(fixedPageQueryKey(page.id), {
             _tag: "Succeeded",
             data: result.data,
