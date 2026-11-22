@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { withI18n } from "../../testing/hook-wrappers";
+import { withI18n } from "../../testing/render-with-i18n";
 import { createI18n } from "../create-i18n";
 import type { Locale } from "../locales";
 import { type MessageKey, useLocale, useTranslate } from "../use-translate";

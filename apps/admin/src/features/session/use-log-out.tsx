@@ -1,17 +1,17 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext, useRouter } from "@tanstack/react-router";
+import { useAppContext, useGoToLogin } from "@/api/app-context";
+import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 
 /** 今のセッションからログアウトする操作。 */
 export const useLogOut = () => {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { api } = useRouteContext({ from: "__root__" });
+  const goToLogin = useGoToLogin();
+  const { clear } = useApiCache();
+  const { api } = useAppContext();
 
-  return useMutation({
-    mutationFn: async () => api.admin.session.logOut(),
+  return useApiMutation({
+    send: () => api.admin.session.logOut(),
     onSuccess: () => {
-      queryClient.clear();
-      void router.navigate({ to: "/login" });
+      clear();
+      goToLogin();
     },
   });
 };
