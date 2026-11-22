@@ -49,7 +49,7 @@
 - テスト用の認証器(`webauthn/fake-authenticator/`)は、WebCrypto で ES256・Ed25519・RS256 の鍵を作り、CBOR を組んで署名する。手順を1つずつ破った応答が拒まれることを確かめる。
 - テスト用の認証器は自分で書いたものなので、検証の側と同じ思い込みで間違えうる。仕様の作者が作った例として、W3C WebAuthn Level 3 の16章「Test Vectors」(https://www.w3.org/TR/webauthn-3/#sctn-test-vectors)の8例を、16進の文字列のまま `webauthn/w3c-test-vectors.ts` に写した。どの例も RP ID は `example.org`。
   - UV が立っていない例があるので、UV を求めるかは検証の関数に渡す。製品のコードは常に求める。
-- テスト用の認証器と W3C の例はテストだけが使うが、`__tests__` にはテストのファイルしか置けないので、別のフォルダとファイルに置く。
+- テスト用の認証器と W3C の例はテストだけが使うが、`__tests__` にはテストのファイルしか置けないので、別のフォルダとファイルに置く。本番のコードからは import できない(`tooling/structure/` のテストが止める)。
 
 ### 型付きの lint の不具合への対処
 

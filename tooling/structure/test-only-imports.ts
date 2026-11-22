@@ -3,10 +3,12 @@ import { parseSync } from "oxc-parser";
 
 import type { SourceFile } from "./source-file";
 
-/** テストとテストの部品だけが import できるフォルダ。 */
+/** テストとテストの部品だけが import できる場所。 */
 export const TEST_ONLY_DIRECTORIES = [
   "apps/server/src/test-client/",
   "apps/server/src/platform/test-database/",
+  "apps/server/src/features/auth/webauthn/fake-authenticator/",
+  "apps/server/src/features/auth/webauthn/w3c-test-vectors/",
   "apps/admin/src/testing/",
 ];
 
