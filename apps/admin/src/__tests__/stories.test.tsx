@@ -14,6 +14,7 @@ import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/__stories__/login-page.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
 import * as routesDeployTokensPage from "@/routes/deploy-tokens/__stories__/deploy-tokens-page.stories";
+import * as routesFixedPageEditor from "@/routes/fixed-pages/__stories__/fixed-page-editor.stories";
 import * as routesFixedPagesPage from "@/routes/fixed-pages/__stories__/fixed-pages-page.stories";
 import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
 import * as layoutCenter from "@/ui/layout/__stories__/center.stories";
@@ -60,6 +61,8 @@ const MODULES = {
   "routes/__stories__/security-page.stories.tsx": routesSecurityPage,
   "routes/deploy-tokens/__stories__/deploy-tokens-page.stories.tsx":
     routesDeployTokensPage,
+  "routes/fixed-pages/__stories__/fixed-page-editor.stories.tsx":
+    routesFixedPageEditor,
   "routes/fixed-pages/__stories__/fixed-pages-page.stories.tsx":
     routesFixedPagesPage,
   "ui/layout/__stories__/app-shell.stories.tsx": layoutAppShell,

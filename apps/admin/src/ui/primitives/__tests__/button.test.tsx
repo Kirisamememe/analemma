@@ -74,4 +74,13 @@ describe("Button", () => {
 
     expect(counter.count()).toBe(0);
   });
+
+  test("アクセシブルな名前を渡すと、文言の代わりにその名前で探せる", () => {
+    renderWithI18n(<Button aria-label="リンク 2 を上へ">上へ</Button>);
+
+    expect(
+      screen.getByRole("button", { name: "リンク 2 を上へ" }),
+    ).toBeDefined();
+    expect(screen.queryByRole("button", { name: "上へ" })).toBeNull();
+  });
 });

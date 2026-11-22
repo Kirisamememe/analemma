@@ -62,6 +62,33 @@ describe("callApi", () => {
     expect(failure).toBe(expected);
   });
 
+  test("INVALID_CONTENT の code から型の付いた issues を読める", async () => {
+    const issues = [
+      { path: ["name"], code: "invalid_type", message: "Invalid input" },
+    ];
+    const { api } = createFakeApi({
+      "admin/fixedPages/create": () => ({
+        error: "INVALID_CONTENT",
+        data: { issues },
+      }),
+    });
+    const result = await callApi(
+      api.admin.fixedPages.create({
+        kind: "about",
+        slug: "about",
+        title: "紹介",
+        content: {},
+      }),
+      ["SLUG_TAKEN", "INVALID_CONTENT"],
+    );
+
+    if (result._tag !== "Failed" || result.error.code !== "INVALID_CONTENT") {
+      throw new Error("中身の誤りがありません");
+    }
+
+    expect(result.error.data.issues).toEqual(issues);
+  });
+
   test("procedure の contract に無い code は型の誤りにする", async () => {
     const { api } = createFakeApi({
       "admin/passkeys/list": () => ({ output: { passkeys: [] } }),

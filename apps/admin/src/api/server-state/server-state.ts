@@ -7,6 +7,8 @@ type QueryOptions<Data> = {
   readonly key: readonly unknown[];
   /** データを取得する関数。 */
   readonly load: () => Promise<Data>;
+  /** 使う画面が無くなったときに、取得したデータを捨てるか。 */
+  readonly discardWhenUnused?: boolean;
 };
 
 type QueryResult<Data> =
@@ -50,6 +52,8 @@ type MutationResult<Input, Data> = {
 type ApiCache = {
   /** 取得を中断してから取り直す関数。 */
   readonly refresh: (key: readonly unknown[]) => Promise<void>;
+  /** 取得を中断し、取り直さずにデータを差し替える関数。 */
+  readonly replace: (key: readonly unknown[], data: unknown) => Promise<void>;
   /** 取得と送信のキャッシュを消す関数。 */
   readonly clear: () => void;
 };
@@ -58,8 +62,13 @@ type ApiCache = {
 export const useApiQuery = <Data>({
   key,
   load,
+  discardWhenUnused = false,
 }: QueryOptions<Data>): QueryResult<Data> => {
-  const query = useQuery({ queryKey: key, queryFn: () => load() });
+  const query = useQuery({
+    queryKey: key,
+    queryFn: () => load(),
+    ...(discardWhenUnused ? { gcTime: 0 } : {}),
+  });
 
   if (query.isPending) {
     return { _tag: "Loading" };
@@ -107,6 +116,10 @@ export const useApiCache = (): ApiCache => {
     refresh: async (key) => {
       await client.cancelQueries({ queryKey: key });
       await client.invalidateQueries({ queryKey: key });
+    },
+    replace: async (key, data) => {
+      await client.cancelQueries({ queryKey: key });
+      client.setQueryData(key, data);
     },
     clear: () => {
       client.clear();

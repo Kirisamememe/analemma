@@ -2,6 +2,51 @@ import type { Translation } from "@/i18n/translation";
 
 /** 日本語の訳。 */
 export const ja = {
+  "fixedPageEditor.new": "新しい固定ページ",
+  "fixedPageEditor.edit": "固定ページを編集",
+  "fixedPageEditor.chooseKind": "種類を選択",
+  "fixedPageEditor.emptyKinds": "選べる種類がありません",
+  "fixedPageEditor.kindGone": "この種類はもうありません。",
+  "fixedPageEditor.pageGone": "この固定ページはもうありません。",
+  "fixedPageEditor.loading": "読み込んでいます。",
+  "fixedPageEditor.loadFailed": "読み込めませんでした。",
+  "fixedPageEditor.slug": "slug",
+  "fixedPageEditor.title": "タイトル",
+  "fixedPageEditor.slugHint":
+    "半角の英小文字と数字を使い、語の間はハイフン1つでつなげます。100文字までです。",
+  "fixedPageEditor.invalidSlug": "slug の文字と長さを確認してください。",
+  "fixedPageEditor.invalidTitle":
+    "タイトルは1〜200文字で、改行を使わずに入力してください。",
+  "fixedPageEditor.slugTaken": "この slug は、ほかの固定ページが使っています。",
+  "fixedPageEditor.save": "保存",
+  "fixedPageEditor.saved": "固定ページを更新しました。",
+  "fixedPageEditor.created": "固定ページを作成しました。",
+  "fixedPageEditor.saveFailed": "保存できませんでした。",
+  "fixedPageEditor.changedKind":
+    "種類の定義が変わった可能性があります。読み込み直して項目を確認してください。",
+  "fixedPageEditor.issue.type": "入力してください。",
+  "fixedPageEditor.issue.format": "値の形式を確認してください。",
+  "fixedPageEditor.issue.choice": "選択肢から選んでください。",
+  "fixedPageEditor.issue.large": "長すぎます。",
+  "fixedPageEditor.issue.small": "短すぎます。",
+  "fixedPageEditor.issue.other": "値を確認してください。",
+  "fixedPageEditor.item": "{{label}} {{position}}",
+  "fixedPageEditor.up": "{{label}} {{position}} を上へ",
+  "fixedPageEditor.down": "{{label}} {{position}} を下へ",
+  "fixedPageEditor.remove": "{{label}} {{position}} を削除",
+  "fixedPageEditor.add": "{{label}}を追加",
+  "fixedPageEditor.backToList": "固定ページの一覧",
+  "fixedPageEditor.urlHint": "http:// か https:// で始まる URL を入力します。",
+  "fixedPageEditor.unboundIssue": "({{path}}:{{message}})",
+  "fixedPageEditor.moveUp": "上へ",
+  "fixedPageEditor.moveDown": "下へ",
+  "fixedPageEditor.removeItem": "削除",
+  "fixedPageEditor.newDescription":
+    "種類を選び、slug・タイトル・中身を入力します。",
+  "fixedPageEditor.kindOf": "種類:{{kind}}",
+  "fixedPageEditor.emptyKindsDescription":
+    "公開サイトのデプロイで種類の定義を送ると、ここに並びます。",
+  "fixedPageEditor.chooseAgain": "種類を選び直す",
   "app.name": "Stilus",
   "home.title": "ホーム",
   "navigation.main": "メイン",
@@ -159,6 +204,8 @@ export const ja = {
     "「{{title}}」はもうありません。一覧を読み込み直しました。",
   "fixedPages.publicationFailed":
     "「{{title}}」の公開状態を変えられませんでした。もう一度試してください。",
+  "fixedPages.edit": "編集",
+  "fixedPages.create": "新しい固定ページ",
   "fixedPages.delete": "削除",
   "fixedPages.deleteTitle": "「{{title}}」を削除しますか?",
   "fixedPages.deleteDescription":

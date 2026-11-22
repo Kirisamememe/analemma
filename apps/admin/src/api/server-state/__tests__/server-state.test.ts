@@ -14,6 +14,36 @@ afterEach(cleanup);
 
 const KEY = ["admin", "passkeys", "list"] as const;
 
+/** 取得を描いて終わるまで待ち、取り除いた後に、最初に返した結果を返す。 */
+const openAndClose = async (
+  client: QueryClient,
+  discardWhenUnused: boolean,
+) => {
+  const hook = renderHook(
+    () =>
+      useApiQuery({
+        key: KEY,
+        load: () => Promise.resolve(["MacBook"]),
+        discardWhenUnused,
+      }),
+    { wrapper: withQueryClient(client) },
+  );
+  const first = hook.result.current;
+
+  await waitFor(() => {
+    expect(hook.result.current).toEqual({
+      _tag: "Loaded",
+      data: ["MacBook"],
+    });
+  });
+  hook.unmount();
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 0);
+  });
+
+  return first;
+};
+
 describe("useApiQuery", () => {
   test("読み込み中の後、取得したデータを返す", async () => {
     const response = Promise.withResolvers<string[]>();
@@ -46,6 +76,20 @@ describe("useApiQuery", () => {
     await waitFor(() => {
       expect(result.current).toEqual({ _tag: "Failed" });
     });
+  });
+
+  test("使う画面が無くなったら捨てる指定では、開き直したときに古いデータを返さない", async () => {
+    const keeping = new QueryClient();
+    const discarding = new QueryClient();
+
+    await openAndClose(keeping, false);
+    expect(await openAndClose(keeping, false)).toEqual({
+      _tag: "Loaded",
+      data: ["MacBook"],
+    });
+
+    await openAndClose(discarding, true);
+    expect(await openAndClose(discarding, true)).toEqual({ _tag: "Loading" });
   });
 
   test("再取得が失敗したら、前のデータの代わりに失敗を返す", async () => {
@@ -215,6 +259,52 @@ describe("useApiCache", () => {
         _tag: "Loaded",
         data: ["MacBook", "iPhone"],
       });
+    });
+  });
+
+  test("送っている取得を中断し、取り直さずにデータを差し替える", async () => {
+    const pending = Promise.withResolvers<string[]>();
+    let fetches = 0;
+    const { result } = renderHook(
+      () => ({
+        query: useApiQuery({
+          key: KEY,
+          load: () => {
+            fetches += 1;
+
+            return fetches === 1
+              ? Promise.resolve(["MacBook"])
+              : pending.promise;
+          },
+        }),
+        cache: useApiCache(),
+      }),
+      { wrapper: withQueryClient(new QueryClient()) },
+    );
+
+    await waitFor(() => {
+      expect(result.current.query).toEqual({
+        _tag: "Loaded",
+        data: ["MacBook"],
+      });
+    });
+    void result.current.cache.refresh(KEY);
+    await waitFor(() => {
+      expect(fetches).toBe(2);
+    });
+    await act(async () => {
+      await result.current.cache.replace(KEY, ["iPhone"]);
+    });
+    await act(async () => {
+      pending.resolve(["古い一覧"]);
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 0);
+      });
+    });
+
+    expect(result.current.query).toEqual({
+      _tag: "Loaded",
+      data: ["iPhone"],
     });
   });
 

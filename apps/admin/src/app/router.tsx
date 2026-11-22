@@ -16,6 +16,10 @@ import { isPublicPath, toLoginSearch } from "@/features/auth/login-search";
 import type { Authenticator } from "@/features/auth/webauthn";
 import { DeployTokensPage } from "@/routes/deploy-tokens/deploy-tokens-page";
 import { EnrollPage } from "@/routes/enroll-page";
+import {
+  EditFixedPage,
+  NewFixedPage,
+} from "@/routes/fixed-pages/fixed-page-routes";
 import { FixedPagesPage } from "@/routes/fixed-pages/fixed-pages-page";
 import { HomePage } from "@/routes/home-page";
 import { LoginPage } from "@/routes/login-page";
@@ -93,6 +97,32 @@ const securityRoute = createRoute({
   component: SecurityPage,
 });
 
+type NewFixedPageSearch = {
+  /** 選んだ種類の名前。 */
+  kind?: string;
+};
+
+const newFixedPageRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/fixed-pages/new",
+  validateSearch: ({ kind }): NewFixedPageSearch => {
+    if (typeof kind === "string") return { kind };
+
+    if (typeof kind === "boolean" || kind === null) {
+      return { kind: String(kind) };
+    }
+
+    return {};
+  },
+  component: NewFixedPage,
+});
+
+const editFixedPageRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/fixed-pages/$id",
+  component: EditFixedPage,
+});
+
 const deployTokensRoute = createRoute({
   getParentRoute: () => signedInRoute,
   path: "/deploy-tokens",
@@ -105,6 +135,8 @@ const routeTree = rootRoute.addChildren([
   signedInRoute.addChildren([
     homeRoute,
     fixedPagesRoute,
+    newFixedPageRoute,
+    editFixedPageRoute,
     securityRoute,
     deployTokensRoute,
   ]),
