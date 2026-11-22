@@ -62,7 +62,7 @@ describe("LogOutButton", () => {
     expect(history.location.pathname).toBe("/");
   });
 
-  test("送信中はナビを閉じず、応答が届いたらログインの画面に移る", async () => {
+  test("送信中は Escape と閉じるボタンでナビを閉じず、応答が届いたらログインの画面に移る", async () => {
     const reply = Promise.withResolvers<FakeReply<"admin/session/logOut">>();
     const { calls, history } = renderHome(reply.promise);
 
