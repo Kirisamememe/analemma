@@ -45,9 +45,9 @@ tsrs はまだ prerelease なので、型エラーの判定は公式の `tsc` �
 - **init の SQL を変えたとき**:公式 image は、データのフォルダが空のときにだけ init の SQL を流す。`configs` の `content` を変えてもコンテナは作り直されない。テスト用は `docker compose up -d --force-recreate postgres-test` で作り直す(tmpfs なので、作り直せば init から流れる)。開発用は、volume ごと消す(`docker compose down -v`)か、変えた分の SQL を手で流す。
 - **healthcheck**:`pg_isready` ではなく、`analemma` ロールで `analemma` DB に `psql` でつなぐ。`pg_isready` は、init が途中で失敗してロールや DB が無くても成功する。127.0.0.1 につなぐのは、init の間に一時的に動く server(unix socket だけで待ち受ける)を、準備ができたと見なさないため。確かめるのは、ロールと DB があることまで。コンテナの中のループバックは trust なので、パスワードの認証は確かめていない。
 - **ロール**:image が作る superuser(`postgres`)とは別に、superuser でないロール `analemma` を init で作る。開発とテストでは、server も migration も `analemma`(DB の持ち主で、DDL も使える)でつなぐ。本番で実行用のロールを DML だけに絞るかは、本番の置き場所と一緒に決める。手元だけの値なので、パスワードはファイルに書き、ポートは 127.0.0.1 にだけ開く(開発用は 55432、テスト用は 55433。5432 は手元の別の PostgreSQL とぶつかりやすい)。ポートとロールは、`compose.yaml` と、テストの定数(`to-test-database-target.ts`)・`apps/server/.env.example` の両方に書くので、そろっていることをテストで確かめる。
-- **`bun run check` には Docker が要る**:テストの前に、スクリプトが `docker compose up` でテスト用の PostgreSQL を起動する。Docker が無いときや動いていないときは、分かる文言で失敗させ、`bun test` は1件も流さない。DB を使うテストを黙って飛ばすと、check が通っても何も確かめていないことになる。image の取得で黙って固まって見えないよう、起動の前に1行出す。
+- **server のテストには Docker が要る**:server のテストの前に、スクリプトが `docker compose up` でテスト用の PostgreSQL を起動する。Docker が無いときや動いていないときは、分かる文言で失敗させ、`bun test` は1件も流さない。DB を使うテストを黙って飛ばすと、check が通っても何も確かめていないことになる。手元の `bun run check` が server のテストを流さないのは、server に関わるファイルに触れていないと分かったときだけで、流さないことを1行出す(`tooling/DECISIONS.md` の「手元の検査」)。image の取得で黙って固まって見えないよう、起動の前に1行出す。
 - **Codex の sandbox からは Docker を使わない**:Codex の既定の sandbox(`workspace-write`)からは Docker のソケットに届かず、`bun run test` は `test:prepare` で止まる(実測)。sandbox に network を許せば届くが、許さない。Docker を使えると、Docker Desktop が既定で共有する `/Users` をコンテナから読み書きでき、sandbox の守りがほぼ無くなるため。届かない環境では、テストを飛ばす抜け道を作らず、届かなかったことを報告して終える(`AGENTS.md` の「作業の確認」)。
-- **CI**:GitHub Actions の Linux の runner(`ubuntu-26.04`)には Docker と Compose が入っていて、`bun run check` が自分で Compose を起動するので、workflow には何も足さない。`services:` を使わないのは、`compose.yaml` の設定を workflow に写すことになるため。
+- **CI**:GitHub Actions の Linux の runner(`ubuntu-26.04`)には Docker と Compose が入っていて、`bun run check --all` が自分で Compose を起動するので、workflow には何も足さない。`services:` を使わないのは、`compose.yaml` の設定を workflow に写すことになるため。
 
 ## TypeScript の設定
 

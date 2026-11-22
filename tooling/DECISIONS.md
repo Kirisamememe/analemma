@@ -85,6 +85,21 @@
 - **fixture のテスト**:`tooling/lint/__tests__/` に、ルールの分類ごとのテストのファイルを置く。lint の実行と結果の読み取りは `tooling/lint/fixture-lint.ts` にまとめる。正常系は、診断が0件であることに加えて、fixture を全部 lint したことも確かめる。分割の見出しのように、同じルールが何通りもの診断を出すものは、診断の文言と件数まで確かめる。
 - **fixture**:ルールの分類ごとのフォルダ(`comments/`(TSDoc は `comments/tsdoc/`)・`jsdoc/`・`functions/`・`imports/`・`syntax/`・`tests/`)に分け、server や管理画面だけに掛かるルールの fixture は、`apps/server/src/` のように同じパスを再現したフォルダに置く。`tooling/lint/fixtures/` は `bun test` の対象から外す(`bunfig.toml` の `pathIgnorePatterns`)。描画するライブラリを import する fixture など、実行できないものを置くため。
 
+## 手元の検査
+
+`bun run check` は `tooling/check/check.ts` が流す。
+
+- **server のテストを流すか**(ユーザーが決めた):`apps/server/`・`packages/`・`compose.yaml` のどれかに触れた変更でだけ、server のテスト(テスト用の PostgreSQL の用意を含む)を流す。管理画面や tooling だけのブランチで、毎回 server のテストを待たないため。流さないときは、そのことを1行出す。CI は `--all` で、いつも全部流す。
+- **server のテストをまとめて外す**:server のテストには、DB を使うものと使わないものが混ざっていて、パスでは分けられない。どちらも `apps/server/` と、それが import する `packages/` しか読まないので、そこに触れていなければ、DB を使わないテストの結果も変わらない。
+- **変えたファイル**:一番近いフェーズのブランチか main(`origin/phase/*` と `origin/main` のうち、HEAD にあってそこに無いコミットが一番少ないもの)から分かれた後の、コミット・ステージ・作業ツリーの変更と、git に入れていない新しいファイル。stack の子のブランチでは、下のブランチの変更も数える。移したファイルは、移す前のパスも数える(server から外へ移したときも流す)。パスは `-z` で読む(既定では、日本語のパスを引用符で囲んで出し、前方一致で比べられない)。比べる元が見つからないときは、全部流す。
+- **bunfig.toml の除外を引き継ぐ**:`bun test` の `--path-ignore-patterns` は、bunfig.toml の `pathIgnorePatterns` に足されず、置き換わる(確かめた)。server を外すときは、bunfig.toml を読み、その除外に `apps/server/**` を足して渡す。除外を2か所に書かないため。
+- **段を同時に流さない**:整形の確認・lint・型検査・テストを同時に流すのは、短くなるなら入れる(ユーザーが決めた)としたが、測ると、ほとんど縮まなかったので入れなかった。時間のほとんどはテストの段で、lint と型検査は合わせて4秒ほどしかない。段ごとの時間は、整形の確認 0.1 秒・lint 2.5 秒・型検査 1.4 秒・server を除く直下の `bun test` 64.6 秒(うち `tooling/lint` の fixture のテストが 53.2 秒)・管理画面のテスト 8.5 秒・server のテスト 23.2 秒(DB の用意を含む)。
+
+  | 10コアの手元で2回ずつ     | 順に          | 同時に        |
+  | ------------------------- | ------------- | ------------- |
+  | server のテストも流す     | 98.1・94.2 秒 | 92.2・95.8 秒 |
+  | server のテストを流さない | 71.4・71.2 秒 | 69.6・69.6 秒 |
+
 ## Stop hook
 
 Claude Code では、作業の終わりに `tooling/hooks/stop-check.ts` が `bun run check` を流す(設定は `.claude/settings.json`)。エージェントは終わりの手順を忘れやすい。失敗したら作業を止めて直させ、2回目も失敗したら止め続けずに警告を出す。直せないまま堂々巡りになるのを防ぐため。
@@ -187,7 +202,7 @@ git の `core.hooksPath` を、コミットしたフォルダ `tooling/git-hooks
 
 GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の名前(`check`・`commit-messages`)は、main とフェーズのブランチの ruleset で、通ることを必須にする check として登録した名前なので、変えるときは ruleset も直す。
 
-- **`check`**(`check.yml`):PR と main への push で、`bun install --frozen-lockfile` と `bun run check` を流す。手元と同じ手順で、テスト用の PostgreSQL も `bun run check` が Docker Compose で起動する(直下の `DECISIONS.md` の「PostgreSQL の用意」)。
+- **`check`**(`check.yml`):PR と main への push で、`bun install --frozen-lockfile` と `bun run check --all` を流す。手元と違い、変えたファイルにかかわらず server のテストも流す(「手元の検査」)。テスト用の PostgreSQL は、手元と同じく `bun run check` が Docker Compose で起動する(直下の `DECISIONS.md` の「PostgreSQL の用意」)。
 - **`commit-messages`**(`commit-messages.yml`):PR で、PR のコミットのメッセージと、PR のタイトルを確かめる。merge の方法は、merge commit・squash・rebase のどれも許す(直下の `DECISIONS.md` の「ブランチとレビュー」)。merge commit と squash では PR のタイトルが入れた先に残るコミットの1行目になり、merge commit と rebase では PR のコミットもそのまま残るため。
 - **workflow を分ける**:`commit-messages` は、PR のタイトルを直したとき(`edited`)にも流す必要がある。`check` を同じ workflow に置くと、タイトルや本文を直すたびに `check` も流れる。job の `if` で `check` を飛ばすと、飛ばした job は通ったものとして扱われ、落ちていた `check` が、タイトルを直しただけで通ったことになる。同じ理由で、本文だけを直したときも `commit-messages` を飛ばさない。
 
@@ -229,6 +244,7 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 
 ## 割り切ったこと
 
+- **直下の共有の設定だけを変えたとき**:`bun.lock`・`bunfig.toml`・`tsconfig.base.json` のような、全部のワークスペースが読む直下のファイルだけを変えても、手元の `bun run check` は server のテストを流さない。依存を足したり上げたりするときは、使うワークスペースの package.json も変わるので流れる。それ以外は CI が全部流すので、merge の前に止まる。
 - **エディタの設定の読み直し**:エディタの Oxlint(LSP)は `oxlint.config.ts` だけを監視し、`tooling/lint/config/` のモジュールを直しても、読み直さない(Node のモジュールのキャッシュに残る)。CLI と CI は毎回新しいプロセスで読むので、困るのは開いているエディタだけ。設定を直したら、エディタで `Oxc: Restart oxlint Server` を実行する。監視する範囲は Oxlint の側でしか変えられない。
 - **TSDoc の言い回しの検査**:`tsdoc-role-only` は条件・例・補足・理由の言い回しを正規表現で見るので、すり抜けも誤検知もある。文の意味を読むには、日本語の構文の解析が要る。すり抜けはセルフレビューで見て、誤検知は言い回しを外して直す。
 - **字下げのコードのブロック**:用語集の検査は、Markdown の、4つの空白で字下げしたコードのブロックを扱わない。コードはフェンスで書くので、受け入れる。
