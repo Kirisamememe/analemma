@@ -15,7 +15,7 @@ const field = tv({
     root: "flex flex-col gap-1.5",
     label: "text-fg",
     input:
-      "h-control w-full rounded-control border border-line bg-surface px-3 text-fg shadow-control outline-hidden is-focused:focus-ring is-invalid:border-danger is-disabled:state-disabled",
+      "h-control w-full rounded-control border border-line bg-surface px-3 text-fg shadow-control outline-hidden is-focused:focus-ring is-invalid:border-danger not-forced-colors:is-invalid:outline-danger is-disabled:state-disabled",
     description: "text-fg-muted",
     error: "text-danger",
   },

@@ -34,9 +34,14 @@
   - 止める class は、場所ごとに違う(画面のコード、`ui/` と `features/*/ui/`、文字の役割を決める `ui/typography.ts`)。`overrides` は同じルールの options を丸ごと置き換えるので、止める形を部品にして、場所ごとの一覧を組み立てる(「設定を TypeScript で組み立てる」)。何を止めるかと理由は `apps/admin/src/ui/DECISIONS.md` にある。
   - selectors は、プラグインの既定から、class と関係の無い変数の名前(`style`・`styles`・`classes`)を除き、名前が `ClassName` で終わる属性と変数(`contentClassName` など)と、`ui/tv.ts` の `merge` の呼び出しを足す。既定のままだと、`Intl.NumberFormat` に渡す `const style = "currency"` まで class として止めた。
   - theme.css の色にどれも使ってよい utility を決めてあることと、文字の役割の組が theme.css の目盛りの名前であることを、テスト(`tooling/lint/__tests__/styles.test.ts`)で確かめる。色を足したときに、決まりを書き忘れると落ちる。
+  - Storybook の story(`__stories__`)は、`ui/` の中にあっても、画面のコードと同じ決まりで検査する。`ui/` の決まりは部品を作るためのもので、story は部品を組んで見せるだけなので、色や class を選ばせない。story で決まりから外れたくなったら、部品を足すことになる。
+  - 色の見本(`ui/specimens/color-specimen.tsx`)だけ、色ごとに使える utility の決まりを外す。色の見本は、どの色も `bg-` で塗って並べる必要がある(`focus` や `line` は、ふだん `bg-` に使えない)。ほかの決まり(任意の値・不透明度・文字の役割など)は外さない。
+  - story の import の決まりは、置いた層(primitives・layout)の決まりでなく、画面のコードと同じにする(React Aria Components を直に使えず、ほかの層の部品は使える)。story は描くだけなので、`require-sibling-test` も外す(全部の story を描くテストがある)。
+- **Storybook の設定のファイル**(`apps/admin/.storybook/`):`main.ts` は Storybook が Node で読むので、相対 import に `.ts` を付ける(oxlint の設定と同じく、`import/extensions` を変える)。`.storybook/` の中は、型付きの lint が tsconfig の `noPropertyAccessFromIndexSignature` を読まないように振る舞う(`dataset["x"]` を `dot-notation` が止め、`dataset.x` を tsc が止める。`no-floating-promises` などのほかの型付きのルールは効く)。TypeScript の方を取り、ぶつかる `story-frame.tsx` だけ `dot-notation` を外す。`setAttribute("data-theme", …)` で書くと、こんどは `unicorn/prefer-dom-node-dataset` が止める。tsrs の振る舞いなので、tsrs を上げたら、外したままでよいかを見直す。
 - **TSDoc のタグの検査**(eslint-plugin-jsdoc):`@param` の名前が引数と合うこと(`check-param-names`)、1つでも書いたら全部の引数に書くこと(`require-param`)、何も返さない関数に `@returns` を書かないこと(`require-returns-check`)、タグに型を書かないこと(`no-types`。型は TypeScript が持つ)。
 - **使える API の制限**
-  - `node:*` と Bun 専用のモジュールは、contract・client・管理画面で import できない。Node と Bun のグローバルも、server と tooling だけで有効にする。
+  - `node:*` と Bun 専用のモジュールは、contract・client・管理画面で import できない。Node と Bun のグローバルも、server と tooling だけで有効にする。目的は、ブラウザ(や Node でないところ)でも動かすコードに、Node や Bun でしか動かない API を入れさせないこと。`node:fs/promises` のようなサブパスも止める(`node:*` だけではサブパスが pattern をすり抜けた。本番のコードでは、管理画面も contract と client の SDK も、Node の型を持たない tsconfig で tsc が止める)。
+  - 管理画面のテスト(`src/**/__tests__/`)では、Node と Bun の import とグローバルを許す。テストは Bun で動くので、上の目的に当たらない(theme.css を読むテストなど)。
   - 管理画面の `.ts` から `react`・`react-dom` を import できない。フックやコンポーネントは `.tsx` に置き、`.ts` をテストできるロジックだけにする。
   - `console`(ログは context で渡す logger を使う)、`process.env`(環境変数は起動時に検証する1か所だけで読む)、引数のプロパティの書き換えを禁止する。
 - **足したルール**:`no-unnecessary-condition`(要らない `?.` や条件)、`no-abusive-eslint-disable`(ルールを指定しない抑制)、React の `only-export-components`・`no-danger`・`button-has-type`。
@@ -78,7 +83,7 @@
 - **import の並び**:oxfmt の `sortImports` に任せ、eslint-plugin-perfectionist は外した。並びは整形の仕事で、保存のたびに直る。`{ }` の中の並びは見た目だけなので揃えない。
 - **ファイル名**:`unicorn/filename-case` で kebab-case を求める。
 - **fixture のテスト**:`tooling/lint/__tests__/` に、ルールの分類ごとのテストのファイルを置く。lint の実行と結果の読み取りは `tooling/lint/fixture-lint.ts` にまとめる。正常系は、診断が0件であることに加えて、fixture を全部 lint したことも確かめる。分割の見出しのように、同じルールが何通りもの診断を出すものは、診断の文言と件数まで確かめる。
-- **fixture**:ルールの分類ごとのフォルダ(`comments/`・`tsdoc/`・`jsdoc/`・`functions/`・`imports/`・`syntax/`・`tests/`)に分け、server や管理画面だけに掛かるルールの fixture は、`apps/server/src/` のように同じパスを再現したフォルダに置く。`tooling/lint/fixtures/` は `bun test` の対象から外す(`bunfig.toml` の `pathIgnorePatterns`)。描画するライブラリを import する fixture など、実行できないものを置くため。
+- **fixture**:ルールの分類ごとのフォルダ(`comments/`(TSDoc は `comments/tsdoc/`)・`jsdoc/`・`functions/`・`imports/`・`syntax/`・`tests/`)に分け、server や管理画面だけに掛かるルールの fixture は、`apps/server/src/` のように同じパスを再現したフォルダに置く。`tooling/lint/fixtures/` は `bun test` の対象から外す(`bunfig.toml` の `pathIgnorePatterns`)。描画するライブラリを import する fixture など、実行できないものを置くため。
 
 ## Stop hook
 
@@ -131,10 +136,12 @@ lint のルールは、書いているときにすぐ気づくための早めの
 
 `tooling/structure/` のテストが、リポジトリの全ファイル(`git ls-files` で一覧にしたもの)を見て検査する。フォルダの中身を数えるには全体を見る必要があり、1ファイルずつ見る lint には向かない。
 
-- 1つのフォルダに置けるのは10件まで。`__tests__` と、`AGENTS.md`・`CLAUDE.md`・`DECISIONS.md`・`README.md` は数えない。リポジトリの直下と、`.` で始まるフォルダの中は検査しない(設定ファイルの置き場所がツールで決まっているため)。`.` で始まるフォルダも、親のフォルダでは1件と数える。
-- フォルダの名前は kebab-case(`__tests__` は除く)。`__tests__` の中にフォルダは作れない。
+- 1つのフォルダに置けるのは10件まで。`__tests__`・`__stories__` と、`AGENTS.md`・`CLAUDE.md`・`DECISIONS.md`・`README.md` は数えない。story は、テストと同じく部品の隣の `__stories__` に置き、部品のフォルダの件数を使わない(部品が多いフォルダほど story も多い)。`__stories__` を置けるのは管理画面の `src/` の下だけで、中には `*.stories.tsx` だけを置ける。`*.stories.tsx` を `__stories__` の外に置くと、Storybook にもテストにも載らないので、それも止める。どこにでも置けると、ふつうのファイルを `__stories__` に入れて、件数の検査をすり抜けられる(Codex のレビューで見つかった)。リポジトリの直下と、`.` で始まるフォルダの中は検査しない(設定ファイルの置き場所がツールで決まっているため)。`.` で始まるフォルダも、親のフォルダでは1件と数える。
+- フォルダの名前は kebab-case(`__tests__`・`__stories__` は除く)。`__tests__` と `__stories__` の中にフォルダは作れない。
 - 一覧は `git ls-files -z` で取る。日本語のファイル名が引用符付きで返ってくるのを避けるため。作業ツリーから消したファイルは数えない。
 - わざと約束を破る fixture を置く `tooling/lint/fixtures/invalid/` は、この検査から外す。
+- 色と文字の見本(`apps/admin/src/ui/specimens/`)・story(`__stories__`)・Storybook の設定(`.storybook/`)は、テストの側(テストとテストの部品)・story・Storybook の設定だけが import できる(本番のコードから読むと、色ごとの utility の決まりの外の部品や、Storybook の依存が本番に入る)。テストの部品(`src/testing/`)と同じ検査で止める。
+- テストの部品(`apps/admin/src/testing/` など)を import できるのは、テストと、管理画面の story(`__stories__`)だけ。画面の story は、テストと同じ作り物の server と認証器で動かす。story は本番のビルドに入らない(Storybook だけが読む)。
 - drizzle-kit が migration を書き出す `apps/server/src/db/migrations/` と、その下のフォルダは、名前と数の検査から外す。drizzle-kit は migration を1件ごとに `20261121073110_create-notes/` のようなフォルダに書き、名前と数はこちらで変えられない。名前の先頭の日時が適用する順番を表すので、kebab-case にもそろえられず、migration は増える一方なので10件にも収まらない。外すのはこのフォルダの下だけで、親の `apps/server/src/db/` では、ほかと同じく1件と数える。
 - 同じ理由で、migration のフォルダは oxfmt の整形からも外す(`.oxfmtrc.json` の `ignorePatterns`)。drizzle-kit が書く `snapshot.json` の配列の折り返しが oxfmt と違い、`bun run check` の整形の確認で落ちた(使い捨ての migration で確かめた)。生成物を整形し直すと、生成し直すたびに差分が出る。SQL と JSON は Oxlint の対象ではないので、lint の設定は変えない。
 - 並べ替えでは `localeCompare` を使わない。テストを書いている途中で、`localeCompare` が実行環境のロケールで順番を変え、テストの期待と食い違った。文字コードの順で並べる。

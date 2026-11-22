@@ -94,7 +94,7 @@ export const SERVER_BUN_GLOBALS: readonly RestrictedGlobal[] = BUN_GLOBALS.map(
 export const WORKSPACE_RUNTIME_PATTERNS: readonly RestrictedPattern[] = [
   { group: BUN_MODULES, message: WORKSPACE_BUN },
   {
-    group: ["node:*"],
+    group: ["node:*", "node:*/**"],
     message:
       "Node の API は server と tooling だけで使います。ここは Bun・Node・ブラウザのどれでも動くコードです。",
   },

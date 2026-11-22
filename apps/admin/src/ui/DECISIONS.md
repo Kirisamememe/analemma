@@ -22,22 +22,24 @@
 
 ## 色
 
-不透明な色を15個だけ持つ。
+不透明な色を21個だけ持つ。
 
-| 種類                       | 名前                                                                                                |
-| -------------------------- | --------------------------------------------------------------------------------------------------- |
-| 面                         | `canvas`(画面の地)・`surface`(カード・ダイアログ・入力欄)・`surface-sunken`(サイドバー・表の見出し) |
-| 文字と線                   | `fg`・`fg-muted`(補足と placeholder)・`line`(線の既定)・`focus`                                     |
-| 塗り                       | `primary`・`on-primary`                                                                             |
-| 意味                       | `info`・`success`・`warning`・`danger`                                                              |
-| light と dark で変わらない | `scrim`(写真や画面の上に重ねて暗くする色)・`on-media`(写真の上の文字)                               |
+| 種類                       | 名前                                                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 面                         | `canvas`(画面の地)・`surface`(カード・ダイアログ・入力欄)・`surface-sunken`(サイドバー・表の見出し)                |
+| 文字と線                   | `fg`・`fg-muted`(補足と placeholder)・`line`(線の既定)・`focus`                                                    |
+| 塗り                       | `primary`・`on-primary`・`danger-strong`・`on-danger-strong`(取り消せない操作のボタン)                             |
+| 意味                       | `info`・`success`・`warning`・`danger` と、その塗りの上の文字の `on-info`・`on-success`・`on-warning`・`on-danger` |
+| light と dark で変わらない | `scrim`(写真や画面の上に重ねて暗くする色)・`on-media`(写真の上の文字)                                              |
 
 - 透明度付きの色の変数は作らない。薄い色は、部品の中で Tailwind の不透明度の修飾(`bg-danger/10` など)で作る。透明度付きの変数を足していくと、同じような色の変数が増える。
 - 面の色は不透明にする。`surface-sunken` は sticky の見出しにも使うので、下が透けない。
-- 意味の色の塗りの上の文字は `text-canvas` にする(light では白、dark では黒になる)。dark の意味の色は明るいので、白い文字では読めない。
+- 意味の色の塗りの上の文字は、色ごとの `on-*`(`on-info` など)にする。今の値はどれも `canvas` と同じ(light では白、dark では黒)。dark の意味の色は明るく、白い文字では読めないため。色ごとに名前を分けておき、塗りによって文字の色を変えたくなったときに、部品を書き換えずに済むようにする(ユーザーが決めた)。
+- 取り消せない操作(削除・すべてのセッションからのログアウトなど)のボタン(`Button` の `danger`)は、`danger` と別の塗り `danger-strong`(light でも dark でも red-700)に、白い文字 `on-danger-strong` を載せる。dark では、暗い面の上の赤い文字が 4.5:1 に届くには明るい赤(red-400)が要り、塗りの上の白い文字が 4.5:1 に届くには濃い赤が要るので、1つの赤では両立できない。red-400 の塗りに黒い文字では色が薄く見えたので、濃い赤の塗りに白い文字にした(ユーザーが決めた)。dark でも red-700 にし、押している間(pressed で文字の色を 12% 重ねる)も 4.5:1 を割らないようにする。`danger` は、文字・枠・薄い面(`Notice`・`Badge`・入力欄の誤り)の色として残す。名前は `primary` と `on-primary` に合わせる(`on-X` は、`X` の塗りの上に載せる文字の色)。
 - `black`・`white` という名前は使わず、用途の名前(`scrim`・`on-media`)にする。`bg-white` をカードに、`text-white` を塗りの上に、と書かれやすく、dark の意味の色の塗りの上の白い文字は、コントラストが 1.7〜2.9:1 しかない。
 - パレットの値は、shadcn/ui の neutral に合わせる。管理画面の `primary` は白と黒。役割の名前は、自分たちの名前(`canvas`・`surface`・`fg` など)を使う。
 - light の意味の色は、薄い面の上の文字でも 4.5:1(WCAG の AA)に届く段にする(red-700・green-800・amber-800・blue-700)。
+- コントラストは、theme.css を読むテスト(`apps/admin/__tests__/theme-contrast.test.ts`)で確かめる。塗りと、その上の文字の組(`on-*`)は、hover と pressed の重ねも含めて 4.5:1 に届く。意味の色は、面(`canvas`・`surface`・`surface-sunken`)と、その上の `/10` の薄い面の上の文字として、light でも dark でも 4.5:1 に届く。OKLCH を sRGB に直し、sRGB に入らない色は 0〜1 に clamp して計算する。計算は役割の色の定義を読むので、同じテストで、役割の色をほかの場所で上書きしないこと(forced-colors のシステムの色を除く)、`on-*` が、`on-` を除いた名前の塗りと組になること(写真の上の `on-media` を除く)、hover と pressed の重ねが文字の色を透明と混ぜたものであることも確かめる。上書きは forced-colors の中だけに許し、そこでは塗りを `Highlight` に、その上の文字を `HighlightText` に差し替えること、パレットの色も1か所だけで定義すること、hover と pressed の utility が1か所だけであることも確かめる(CSS のコメントは除いて読む)。どれかが崩れると、計算した色と実際の色が食い違う(Codex と Cursor のレビューで見つかった)。
 - dark の `surface-sunken` は、`surface` と別の段(neutral-950)にする。同じ色だと、dark のサイドバーで、今いる場所が見分けられない。
 - light の `focus` は neutral-500 にする。白に対して 3:1 に届く。
 - 未選択の Checkbox・Switch の off のような部品の枠は、`fg-muted` で描く。部品の枠には 3:1 が要り、`line` では届かない。色は足さない。
@@ -47,7 +49,7 @@
 - 役割の色は、`light-dark()` で、light と dark にパレットのどの段を使うかを1つの定義に持つ。`dark:` の variant は使わない。1つの定義なら、light だけ直して dark を直し忘れることがない。
 - 利用者が配色を選んだら、html の `data-theme` で `color-scheme` を固定する。選んでいなければ OS に従う。
 - 部分だけを dark(light)にするときは `scheme-dark`(`scheme-light`)を使う。`color-scheme` を変えるだけでは、`:root` から継いだ文字の色が評価し直されないので、文字の色も入れ直す。
-- Vite の `build.cssTarget` を `chrome123`・`safari17.5`・`firefox128` にする。既定のターゲットでは、圧縮のときに Lightning CSS が `light-dark()` を `--lightningcss-light`・`--lightningcss-dark` の変数に書き換え、`scheme-dark` で部分だけを dark にすると効かなくなる。下限は `light-dark()` を読めるブラウザで、Firefox だけは Tailwind CSS v4 の公式の下限(128)に合わせる。本番のビルドの出力に `--lightningcss-` が無いことを、テスト(`apps/admin/__tests__/vite-config.test.ts`)で確かめる。
+- Vite の `build.cssTarget` は、管理画面の対象のブラウザ(`apps/admin/DECISIONS.md`)に合わせて `esnext` にする。`build.target` と `build.cssTarget` の両方を書かずに Vite の既定(`baseline-widely-available` の古いブラウザ)に任せると、圧縮のときに Lightning CSS が `light-dark()` を `--lightningcss-light`・`--lightningcss-dark` の変数に書き換え、`scheme-dark` で部分だけを dark にすると効かなくなる。本番のビルドの出力に `--lightningcss-` が無いことを、テスト(`apps/admin/__tests__/vite-config.test.ts`)で確かめる。
 
 ## 文字
 
@@ -55,7 +57,7 @@
 - 本文・見出し・補足といった文字の役割は、CSS の変数にしない。`Text`・`Heading` の部品が、役割ごとに目盛りの組と太さを選んで守る。
 - 太さは 400・600・700(`font-normal`・`font-semibold`・`font-bold`)だけ(ユーザーが決めた)。
 - 和文を主役に組む。`:lang()` で言語ごとに字体を切り替え、本文を出す要素には本文の言語の `lang` を付ける。`lang` の付いた要素では、字体を一度既定に戻してから言語ごとに上書きする。規則の無い言語(`ko` や繁体字など)が、親の和文の字体を継がないようにするため。
-- 禁則(`line-break: strict`)・和文と欧文の間の空き(`text-autospace`)・日本語の文節での改行(`word-break: auto-phrase`)は CSS に任せる。等幅の要素(`code`・`kbd`・`samp`・`pre`)では、空きを入れると桁がずれるので切る。
+- 禁則(`line-break: strict`)・和文と欧文の間の空き(`text-autospace`)・日本語の文節での改行(`word-break: auto-phrase`)は CSS に任せる。等幅の要素(`code`・`kbd`・`samp`・`pre`)では、空きを入れると桁がずれるので `text-autospace` を切る。日本語では、行頭の始め括弧(「 など)の前の空きを詰める(`text-spacing-trim: trim-start`)。`lang` の付いた要素では既定に戻してから言語ごとに当て(字体と同じ)、等幅の要素では詰めない(桁がずれる)。等幅の要素の指定は、`:lang(ja)` より詳細度を上げる(`:is(code, kbd, samp, pre):lang(ja)`)。要素の名前だけで書くと、`:lang(ja)` の `trim-start` に負けた(Copilot のレビューで見つかった)。既定では行頭の「が全角の幅のままで、「で始まる見出しが、本文より半角ぶん右に寄って見えた(Storybook の Dialog で見つけた)。
 
 ## 状態
 
@@ -63,7 +65,7 @@
 - 状態の variant(`is-hovered`・`is-selected`・`is-disabled` など)は、部品のライブラリが付ける属性に名前を付けたもの。`theme.css` に、勝たせたい順に並べ、無効を最後に置く。生の `data-*:` の variant は名前の順に並ぶので、`data-disabled:` が一番弱くなる。値を持つ属性(並べ替えの向き・placement・orientation など)は variant にせず、部品の render props から渡す。公開サイトでは、そちらの部品のライブラリの属性に合わせて、同じ名前で定義し直す。
 - `is-current` は `aria-current` も見るので、`:where()` で包んで、ほかの variant と詳細度をそろえる。包まないと `is-disabled` に勝つ。
 - reduced motion では、base で transition だけを一律に止める。animation は、止めたときの見せ方(spinner をどう見せるかなど)が部品ごとに違うので、部品の中で `motion-reduce:` で決める。base で animation まで `!important` で止めると、部品で見せ方を作れない。
-- forced-colors では、役割の変数をシステムの色(`Highlight` など)に差し替える。
+- forced-colors では、役割の変数をシステムの色(`Highlight` など)に差し替える。塗りの `danger-strong` と `on-danger-strong` は、`primary` と `on-primary` と同じく `Highlight` と `HighlightText` にする。
 
 ## 部品の層
 
@@ -75,13 +77,14 @@
 | `layout/`             | 並べ方(`Stack`・`Cluster`・`Center`・`AppShell`)と文字(`Text`・`Heading`)                             |
 | `patterns/`           | primitives と layout を組み合わせた、画面に共通の形(`PageHeader` など)                                |
 | `features/<名前>/ui/` | 1つの画面だけの部品(`ui/` と同じ決まり)                                                               |
+| `specimens/`          | 色と文字の見本と、story の展示用の枠(`story-stage.tsx`)。Storybook で見る                             |
 
 - import の向きは、patterns → primitives・layout。layout は primitives と patterns を、primitives は patterns を import しない(lint で止まる)。layout は並べ方と文字だけを持つ層で、操作を持たない。
 - React Aria Components(`react-aria`・`react-stately`・`@react-aria/*`・`@react-stately/*`・`@internationalized/*` と、型だけの import も)を import できるのは `primitives/` だけ。primitives は、React Aria Components の props の型を extends せず、自分の props の型を持つ。画面のコードに、ライブラリの props(`className` の関数や、`data-*` の render props など)を見せない。ライブラリを替えるときに直すのは primitives だけになる。
 - `tailwind-variants` は `tv.ts` だけが import し、ほかは `tv.ts` の `tv` と `merge` を使う(lint で止まる)。既定の入口の `tv` は theme.css の名前を知らず、`z-sticky z-overlay` のような theme.css の名前の組を merge できずに両方残す(後から渡した class で上書きできない)。
 - merge の設定には、theme.css の名前(色・文字の目盛り・角丸・影・重ね順・幅・動き)と `@utility` の名前を入れる。theme.css の名前ごとに「同じ組の2つを渡すと後だけが残る」ことと、`@utility` ごとに組の相手を決めてあることを、theme.css を読むテスト(`apps/admin/__tests__/tailwind-merge.test.ts`)で確かめる。名前が1つしかない組(`grid-cols-thumbnails`・`aspect-photo`)は、Tailwind CSS の既定の class を相手にする。`tv` の variant を通しても merge が効くことも確かめる。名前の一覧と見比べるテストにすると、設定を写しただけになり、merge が本当に効くかを確かめない。`state-disabled` は透明度と押せるかどうかを変えるだけで、hover や pressed とは組にしない(組にすると、`state-hover state-disabled` で hover の見た目が消える)。
 - 文字の役割と組:`body`(`text-sm/xl`・400)・`body-long`(`text-sm/2xl`・400。長い文)・`caption`(`text-xs/lg`・400)・`label`(`text-sm/xl`・600)・`section`(`text-base/2xl`・600)・`page`(`text-xl/3xl`・700)・`display`(`text-3xl/5xl`・700)。`Text` と `Heading` は、文字の役割を `variant` で受ける(`role` にすると、ARIA の `role` と取り違える)。`Heading` は見出しのレベル(h1〜h3)から役割の既定を決め(レベル 1 は `page`、2 と 3 は `section`)、見た目とレベルを別々に選べる。
-- `UiProvider`(`primitives/ui-provider.tsx`)が、React Aria Components に、html の `lang` から決めた言語(`I18nProvider`)と、TanStack Router の navigate(`RouterProvider`)を渡す。リンクは TanStack Router の型の付いた行き先だけを受け、画面を読み込み直さずに移る。
+- `UiProvider`(`primitives/ui-provider.tsx`)が、React Aria Components に、i18next の今の言語(`I18nProvider`)と、TanStack Router の navigate(`RouterProvider`)を渡す。リンクは TanStack Router の型の付いた行き先だけを受け、画面を読み込み直さずに移る。
 
 ### 部品の決まり
 
@@ -89,12 +92,13 @@
 - **押せない・送信中**:見た目(`state-disabled` など)だけでなく、React Aria Components の props(`isDisabled`・`isPending`)で動きを止める。CSS の `pointer-events` はキーボードの操作を止めない。送信中のボタンは、focus を残したまま押せなくし、spinner を、訳した名前の付いた `ProgressBar` の中に出して、待っていることをスクリーンリーダーに伝える(spinner だけでは、スクリーンリーダーはボタンの名前しか読まない)。spinner は `block` にし、`ProgressBar` の箱を spinner の大きさにして、ボタンの `items-center` で文字の中心にそろえる(`inline-block` では、行の高さの箱の中で baseline に載り、文字より 2〜3px 上にずれる)。React Aria Components は送信中のボタンを `type="button"` に変えるので、入力欄の Enter がフォームを送り直せる。`Form` にも `isPending` を渡し、送信中は送らない(管理画面の「送信中はボタンを無効にする」)。
 - **長い語の折り返し**:`Text`・`Heading`・Dialog の見出しは `wrap-anywhere`(`overflow-wrap: anywhere`)にする。パスキーの名前のような利用者が付けた文字列は、空白の無い長い英数字でもよいので、語の途中でも折り返し、狭い画面や拡大で横にはみ出さないようにする(flex の中でも、min-content の幅が縮む)。happy-dom は配置を計算しないので、テストでは確かめない(Copilot のレビューで見つかった)。
 - **リンク**:いつも下線を付ける。`primary` が中立色なので、色だけではリンクと分からない。
-- **入力欄**:ラベル・補足・誤りの知らせを、React Aria Components の slot で入力欄に結びつけ、補足と誤りを入力欄の説明として読み上げさせる。server が断った入力は、`Form` の `validationErrors` で入力欄ごとに出す。
+- **入力欄**:ラベル・補足・誤りの知らせを、React Aria Components の slot で入力欄に結びつけ、補足と誤りを入力欄の説明として読み上げさせる。誤り(invalid)のときは、枠も focus の ring も `danger` にする(forced-colors では、ring をシステムの `Highlight` のままにする。`danger` で上書きすると、focus の前後で見分けられなくなる)。ring だけ `focus` の灰色のままだと、赤い枠の外に灰色の輪が重なって見えた(Storybook でユーザーが見つけた)。server が断った入力は、`Form` の `validationErrors` で入力欄ごとに出す。
 - **`Notice`**:誤り(`danger`)は `alert` にしてすぐに読み上げ、ほかは割り込まない `status` にする。`Notice` は、その場に残す知らせ(送信の誤りや、読み込めなかったことなど)に使い、保存したなどの操作の結果は Toast で知らせる(Toast を足すときに作る)。
-- **見出しの操作と補足**:`PageHeader` は、`false`・`null` の操作と、空の補足を、無いものとして扱う(条件で出さない操作のために、空の要素が余白を取らないように)。
-- **overlay**(`Dialog`):border と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、border で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
+- **見出しの操作と補足**:`PageHeader` は、`false`・`null` の操作と、空の補足を、無いものとして扱う(条件で出さない操作のために、空の要素が余白を取らないように)。操作のボタンの中心は、見出しの1行目の中心にそろえる。上にそろえると、ボタン(`h-control` の 36px)が見出しの行(`page` の 28px)より高いぶん、4px 下にずれた(Storybook で見つけた)。見出しの上を `pt-1`(差の半分)空け、見出しの位置は、操作の有無で変えない。操作を負の margin で上げると、狭い画面で操作が次の行に折り返したときに、見出しとの間が詰まる(Codex のレビューで見つかった)。
+- **縁の線**:border を使うのは、背景の色とコンテンツの色をはっきり見分けられるときだけにする(`Badge`・`Notice` のように、意味の色の `/10` の面に同じ色の線を引くときなど)。背景と近い色の面(白い Dialog が明るい地の上にあるときなど)の縁は、半透明の線(`outline`、`fg` の 10%)で描く。面の縁の線は、offset を付けず、塗りの外側の地の上に重ねる(地の色が透けて、縁がくっきり出る)。色の見本の正方形のように、塗りそのものの縁を見せるときは、内側(`-outline-offset-1`)に重ねる。不透明の border は背景の色と混ざってぼやけ、塗りの外に枠を足したように見えた(ユーザーが決めた)。
+- **overlay**(`Dialog`):地の上に重ねる半透明の線と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、半透明の線で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
 - **バッジ**(`Badge`):状態を短く示す。用途(`tone`)ごとの色の組は、`Notice` と同じく `/10` の面と、同じ色の線と文字。
-- 選んだ状態・今いる場所・ほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す、今いる場所は `aria-current` と形で示す、overlay は border と `shadow-overlay` を付ける)。
+- 選んだ状態・今いる場所・ほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す、今いる場所は `aria-current` と形で示す、overlay は地の上に重ねる半透明の線と `shadow-overlay` を付ける)。
 
 ## 検査
 
@@ -117,7 +121,8 @@
 - `leading-*` と、行間を付けない `text-*`(文字の大きさ)。文字の大きさと太さ(`text-sm/xl`・`font-semibold` など)は、`ui/typography.ts` の文字の役割の対応にだけ書く。対応の中で使える組は、役割で使う6つ(`xs/lg`・`sm/xl`・`sm/2xl`・`base/2xl`・`xl/3xl`・`3xl/5xl`)だけ。`text-sm/5` のような数の行間は、`--spacing` の倍数として通ってしまうので止める。
 - `--*: initial` の後も Tailwind CSS が作る class(`duration-150`・`delay-*`・`ease-linear`・`ring-2`・`opacity-50`・`bg-linear-*`・`from-*` など)。`opacity-0` と `opacity-100` は、出入りの動きに使うので許す。
 - 色の不透明度の修飾は 5・10・15・20・30・40・60・80 だけ(theme.css の色のほか、`current`・`transparent`・CSS 変数の色にも)。面の色(`canvas`・`surface`・`surface-sunken`)には付けない。面は不透明にすると決めているため。
-- 色ごとに、使ってよい utility を決める。`surface`・`surface-sunken`・`scrim` は `bg-` だけ、`canvas` は `bg-` と、意味の色の塗りの上の `text-`、`line` は `border-`・`divide-`・`outline-` だけ、`focus` は `focus-ring` の中だけ、など(一覧は `admin-classes.ts` の `COLOR_USAGE`)。色を取る utility を列挙すると漏れる(`ring-offset-*`・`text-shadow-*` など)ので、末尾が色の名前の class をすべて見て、決めた utility の外を止める。角丸の `rounded-surface` は、色でないので除く。色を足したら、ここにも決まりを足す(テストで止まる)。
+- 色の見本(`specimens/color-specimen.tsx`)だけは、色ごとに使ってよい utility の決まりを外す。どの色も `bg-` で塗って並べるため。見本の正方形の縁は、外周の border でなく、塗りの上に重ねる半透明の線(内側に1px の `outline`、`fg` の 10%)で描く。不透明な `line` の border だと、塗りの外に枠が足されて見えた(ユーザーが決めた)。見本が theme.css の色をすべて並べることを、テスト(`specimens/__tests__/color-specimen.test.tsx`)で確かめる。
+- 色ごとに、使ってよい utility を決める。`canvas`・`surface`・`surface-sunken`・`scrim`・`danger-strong` は `bg-` だけ、`line` は `border-`・`divide-`・`outline-` だけ、`danger` は invalid の focus の ring のために `outline-` も、`fg` は面の縁の半透明の線のために `outline-` も、`focus` は `focus-ring` の中だけ、など(一覧は `admin-classes.ts` の `COLOR_USAGE`)。色を取る utility を列挙すると漏れる(`ring-offset-*`・`text-shadow-*` など)ので、末尾が色の名前の class をすべて見て、決めた utility の外を止める。角丸の `rounded-surface` は、色でないので除く。色を足したら、ここにも決まりを足す(テストで止まる)。
 - `className` には、文字列のリテラルか、`tv` などで作った関数の呼び出しを渡す。React Aria Components の render props で値を持つ属性を渡すときは、呼び出しを返す関数(`({ placement }) => popover({ placement })`)にする。変数や条件の式を渡すと、class の検査が中身を読めない。
 - `style` には、その場で書いたオブジェクトだけを渡し、キーは `--` で始まる CSS 変数だけにする。見た目は class で書き、`style` は実行時に決まる値を CSS 変数として渡すためだけに使う。画像の縦横比は `width`・`height` の属性で付ける。
 
@@ -133,4 +138,8 @@
 - **hash の履歴**:`UiProvider` のリンクの `href` は、TanStack Router の `buildLocation` の `href` をそのまま使い、hash の履歴(`createHashHistory`)や URL の書き換えには合わない。管理画面はブラウザの履歴(`createBrowserHistory`)だけを使う。使うときは、`history.createHref()` を通す。
 - **検査が見ない class の渡し方**:JSX の属性と、`tv`・`merge` などの呼び出しの中の文字列だけを検査する。DOM を直に触る `element.classList.add()` や `element.style`、`className` に渡した、`tv` で作っていない関数の戻り値は見ない。今の部品にはどれも無く、要る場面が出たら、そこで使える範囲を決める。参照先まで追う検査は、作る手間に見合わない。
 - **入力欄の枠の濃さ**:入力欄の枠は `line` で描き、地とのコントラストは 3:1 に届かない(未選択の Checkbox・Switch の枠は `fg-muted` で描くと決めたが、入力欄は決めていない)。入力欄は面(`surface`)と影とラベルで見分けられ、管理者1人が使う画面なので、今は受け入れる。見本の画面ができたら、ユーザーと見直す。
+- **部品の配色の取り違え**:コントラストのテストは theme.css の色の組を確かめ、部品がどの組を使うかは確かめない。`Button` の `danger` を `bg-danger text-on-danger` に戻しても、テストは通る(どちらの組も lint で許す)。happy-dom は CSS を読まないので、描いた色を確かめるにはブラウザでのテストが要り、class の名前で確かめるとマークアップをなぞるテストになる。部品の見た目は Storybook で見る(Codex のレビューで見つかった)。
+- **sRGB に入らない色のコントラスト**:コントラストのテストは、sRGB に入らない色(red-700 など)を 0〜1 に clamp して計算する。CSS Color 4 の gamut mapping(彩度を落として収める)で計算すると、4.5:1 の境目の色では、コントラスト比が 0.2 ほど変わることがある(今の塗りは、どれも境目から離れている。`danger-strong` の白い文字は、pressed でも 5.7:1)。gamut mapping をテストに入れる手間に見合わないので、境目に近い色を足すときは、両方の計算で確かめる(Codex のレビューで見つかった)。
+- **色の見本の塗りの取り違え**:色の見本のテストは、theme.css の色の名前が light と dark の欄にそろっていることだけを確かめ、塗りの色が名前と合っているかは確かめない。happy-dom は CSS を読まないので、塗りを確かめるにはブラウザでのテストが要り、class の名前で確かめるとマークアップをなぞるテストになる。見本は見て使うもので、取り違えれば見て分かる(Codex のレビューで見つかった)。
+- **等幅の要素の子の行頭の括弧**:日本語の中の `code` などの子要素(`<code><span>「…」</span></code>`)では、`:lang(ja)` の `trim-start` が子に当たり、行頭の括弧が詰まる。今の画面に等幅の中で括弧から始まる文は無く、詰めない指定を子にまで広げると、字体の切り替えの決まりも組み直しになる(Cursor のレビューで見つかった)。
 - **Windows の和文の太さ**:Windows の和文の字体には 600 が無いものがあり、600 と 700 の区別がつかないことがある(実機では確かめていない)。管理画面は管理者1人が Mac で使うので、受け入れる(ユーザーが決めた)。公開サイトは、作るときに決める。

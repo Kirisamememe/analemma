@@ -27,6 +27,40 @@ describe("テストだけのフォルダからの import", () => {
     }
   });
 
+  test("本番のコードは、色と文字の見本と story を import できないこと", () => {
+    const text = [
+      'import { ColorSpecimen } from "../ui/specimens/color-specimen";',
+      'import * as stories from "../ui/__stories__/button.stories";',
+    ].join("\n");
+
+    expect(
+      findTestOnlyImports({ path: "apps/admin/src/routes/page.tsx", text }),
+    ).toEqual([
+      "apps/admin/src/ui/specimens/color-specimen",
+      "apps/admin/src/ui/__stories__/button.stories",
+    ]);
+    expect(
+      findTestOnlyImports({ path: "apps/admin/.storybook/preview.tsx", text }),
+    ).toEqual([]);
+  });
+
+  test("管理画面の story は、テストの部品を import できること", () => {
+    const text = 'import { AppPreview } from "../../testing/app-preview";';
+
+    expect(
+      findTestOnlyImports({
+        path: "apps/admin/src/routes/__stories__/login-page.stories.tsx",
+        text,
+      }),
+    ).toEqual([]);
+    expect(
+      findTestOnlyImports({
+        path: "apps/admin/src/routes/login/page.tsx",
+        text,
+      }),
+    ).toEqual(["apps/admin/src/testing/app-preview"]);
+  });
+
   test("名前が似ているだけのフォルダと、パッケージ名での import は数えないこと", () => {
     expect(
       findTestOnlyImports({

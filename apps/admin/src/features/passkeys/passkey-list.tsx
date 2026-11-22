@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
-import { type ReactNode, use } from "react";
+import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { ApiOutputs } from "../../api/api-types";
 import { formatDateTime } from "../../i18n/format-date-time";
-import { LocaleContext } from "../../i18n/locale-context";
-import { useTranslation } from "../../i18n/use-translation";
+import { toLocale } from "../../i18n/locales";
 import { Cluster } from "../../ui/layout/cluster";
 import { Stack } from "../../ui/layout/stack";
 import { Text } from "../../ui/layout/text";
@@ -31,8 +31,8 @@ export const PasskeyList = ({
   onRename,
   onDelete,
 }: PasskeyListProps): ReactNode => {
-  const t = useTranslation();
-  const locale = use(LocaleContext);
+  const { t, i18n } = useTranslation();
+  const locale = toLocale(i18n.language);
   const { api } = useRouteContext({ from: "__root__" });
   const passkeys = useQuery({
     queryKey: PASSKEYS_QUERY_KEY,

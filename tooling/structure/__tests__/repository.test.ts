@@ -21,6 +21,7 @@ import {
   SOFT_LIMIT_RULE,
   checkSourceFile,
 } from "../source-file";
+import { findStrayStoryFiles } from "../story-files";
 import { findTestOnlyImports } from "../test-only-imports";
 
 const repoRoot = join(import.meta.dirname, "../../..");
@@ -54,6 +55,10 @@ test(`どのフォルダも、中身が ${String(DIRECTORY_ENTRY_LIMIT)} 件以�
 
 test("フォルダの名前が kebab-case であること", () => {
   expect(findBadDirectories(paths)).toEqual([]);
+});
+
+test("__stories__ には story のファイルだけを置くこと", () => {
+  expect(findStrayStoryFiles(paths)).toEqual([]);
 });
 
 const DECISIONS_FILE = /(?:^|\/)DECISIONS\.md$/v;

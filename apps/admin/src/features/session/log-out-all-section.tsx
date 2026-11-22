@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { type ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { useTranslation } from "../../i18n/use-translation";
 import { Cluster } from "../../ui/layout/cluster";
 import { Heading } from "../../ui/layout/heading";
 import { Stack } from "../../ui/layout/stack";
@@ -13,7 +13,7 @@ import { Notice } from "../../ui/primitives/notice";
 
 /** すべてのセッションからログアウトする操作。 */
 export const LogOutAllSection = (): ReactNode => {
-  const t = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { api } = useRouteContext({ from: "__root__" });

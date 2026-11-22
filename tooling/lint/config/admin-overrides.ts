@@ -97,4 +97,24 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
       "project/require-sibling-test": ["error", { branchingComponents: true }],
     },
   },
+  ...byExtension("**/__stories__/", {
+    imports: {
+      patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
+    },
+    globals: [],
+  }),
+  {
+    files: ["**/apps/admin/src/**/__stories__/**"],
+    rules: { "project/require-sibling-test": "off" },
+  },
+  ...(["ts", "tsx"] as const).map((extension) => ({
+    files: [`**/apps/admin/src/**/__tests__/*.${extension}`],
+    rules: restrictApis({
+      imports: {
+        paths: extension === "ts" ? REACT_PATHS : [],
+        patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
+      },
+      globals: [],
+    }),
+  })),
 ];

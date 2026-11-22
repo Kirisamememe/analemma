@@ -68,6 +68,8 @@
     var(--palette-neutral-50),
     var(--palette-neutral-900)
   );
+  --color-danger-strong: var(--palette-red-700);
+  --color-on-danger-strong: oklch(1 0 0);
   --color-info: light-dark(var(--palette-blue-700), var(--palette-blue-400));
   --color-success: light-dark(
     var(--palette-green-800),
@@ -78,6 +80,22 @@
     var(--palette-amber-400)
   );
   --color-danger: light-dark(var(--palette-red-700), var(--palette-red-400));
+  --color-on-info: light-dark(
+    var(--palette-neutral-0),
+    var(--palette-neutral-950)
+  );
+  --color-on-success: light-dark(
+    var(--palette-neutral-0),
+    var(--palette-neutral-950)
+  );
+  --color-on-warning: light-dark(
+    var(--palette-neutral-0),
+    var(--palette-neutral-950)
+  );
+  --color-on-danger: light-dark(
+    var(--palette-neutral-0),
+    var(--palette-neutral-950)
+  );
   --color-scrim: oklch(0 0 0);
   --color-on-media: oklch(1 0 0);
 
@@ -269,6 +287,8 @@
 
   [lang] {
     --font-sans: --theme(--font-sans inline);
+    text-spacing-trim: normal;
+    word-break: normal;
   }
 
   :lang(ja) {
@@ -276,6 +296,7 @@
       ui-sans-serif, system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP",
       sans-serif;
     word-break: auto-phrase;
+    text-spacing-trim: trim-start;
   }
 
   :lang(zh-Hans),
@@ -317,6 +338,11 @@
   samp,
   pre {
     text-autospace: no-autospace;
+    text-spacing-trim: space-all;
+  }
+
+  :is(code, kbd, samp, pre):lang(ja) {
+    text-spacing-trim: space-all;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -331,6 +357,8 @@
     :root {
       --color-primary: Highlight;
       --color-on-primary: HighlightText;
+      --color-danger-strong: Highlight;
+      --color-on-danger-strong: HighlightText;
       --color-focus: Highlight;
       --color-line: CanvasText;
     }

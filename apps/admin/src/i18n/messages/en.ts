@@ -3,7 +3,7 @@ export const en = {
   "app.name": "Stilus",
   "home.title": "Stilus",
   "notFound.title": "Page not found",
-  "notFound.description": "There is no page at {path}.",
+  "notFound.description": "There is no page at {{path}}.",
   "notFound.backHome": "Back to home",
   "ui.pending": "Working",
   "login.title": "Sign in to Stilus",
@@ -46,12 +46,12 @@ export const en = {
   "passkeys.add": "Add a passkey",
   "passkeys.addDescription":
     "You will first confirm with a current passkey, then create the new one.",
-  "passkeys.dates": "Registered {created} · Last used {lastUsed}",
+  "passkeys.dates": "Registered {{created}} · Last used {{lastUsed}}",
   "passkeys.synced": "Synced",
   "passkeys.rename": "Rename",
   "passkeys.renameTitle": "Rename the passkey",
   "passkeys.delete": "Delete",
-  "passkeys.deleteTitle": "Delete “{name}”?",
+  "passkeys.deleteTitle": "Delete “{{name}}”?",
   "passkeys.deleteDescription":
     "You will confirm with a current passkey. Other browsers will be signed out.",
   "passkeys.cancel": "Cancel",

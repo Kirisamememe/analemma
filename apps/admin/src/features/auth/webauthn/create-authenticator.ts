@@ -1,19 +1,22 @@
 import {
-  type RegistrationOptions,
-  toCreationOptions,
-} from "./to-creation-options";
-import {
-  type Assertion,
-  type Attestation,
-  type AuthenticationCredential,
-  type RegistrationCredential,
-  toAuthenticationCredential,
-  toRegistrationCredential,
-} from "./to-credentials";
-import {
-  type AuthenticationOptions,
-  toRequestOptions,
-} from "./to-request-options";
+  authenticationCredential,
+  registrationCredential,
+} from "@analemma/contract";
+
+import type { ApiInputs, ApiOutputs } from "../../../api/api-types";
+
+/** server が返す、ログインと再認証の options。 */
+export type AuthenticationOptions = ApiOutputs["auth"]["login"]["options"];
+
+/** server が返す、パスキーの登録の options。 */
+export type RegistrationOptions = ApiOutputs["auth"]["enrollment"]["options"];
+
+/** server に送る、ログインの資格情報。 */
+export type AuthenticationCredential = ApiInputs["auth"]["login"]["verify"];
+
+/** server に送る、登録の資格情報。 */
+export type RegistrationCredential =
+  ApiInputs["auth"]["enrollment"]["register"]["credential"];
 
 /** 認証器が資格情報を返したこと。 */
 type Answered<Credential> = {
@@ -47,43 +50,56 @@ export type Authenticator = {
   ) => Promise<AuthenticatorAnswer<RegistrationCredential>>;
 };
 
-/** ブラウザの `navigator.credentials` のうち、使うもの。 */
-export type CredentialStore = {
-  /** 今のパスキーで確かめる。 */
-  readonly get: (options: CredentialRequestOptions) => Promise<unknown>;
-  /** 新しいパスキーを作る。 */
-  readonly create: (options: CredentialCreationOptions) => Promise<unknown>;
+/** ブラウザの WebAuthn のうち、使うもの(資格情報は `toJSON()` の値で返す)。 */
+export type WebAuthn = {
+  /** JSON の options で、今のパスキーで確かめる。 */
+  readonly get: (
+    options: PublicKeyCredentialRequestOptionsJSON,
+  ) => Promise<unknown>;
+  /** JSON の options で、新しいパスキーを作る。 */
+  readonly create: (
+    options: PublicKeyCredentialCreationOptionsJSON,
+    signal?: AbortSignal,
+  ) => Promise<unknown>;
 };
 
-const isAssertion = (credential: unknown): credential is Assertion =>
-  typeof credential === "object" &&
-  credential !== null &&
-  "id" in credential &&
-  "response" in credential &&
-  typeof credential.response === "object" &&
-  credential.response !== null &&
-  "authenticatorData" in credential.response;
-
-const isAttestation = (credential: unknown): credential is Attestation =>
-  typeof credential === "object" &&
-  credential !== null &&
-  "id" in credential &&
-  "response" in credential &&
-  typeof credential.response === "object" &&
-  credential.response !== null &&
-  "attestationObject" in credential.response;
+/** 認証器の応答を、server に送る形として読んだ結果。 */
+type Decoded<Credential> =
+  | {
+      /** 読めたか。 */
+      readonly success: true;
+      /** 読んだ資格情報。 */
+      readonly data: Credential;
+    }
+  | {
+      /** 読めたか。 */
+      readonly success: false;
+      /** 読めなかった理由。 */
+      readonly error: unknown;
+    };
 
 const CANCELLED = new Set(["NotAllowedError", "AbortError", "TimeoutError"]);
 
 const ask = async <Credential>(
-  request: () => Promise<Credential | undefined>,
+  request: () => Promise<unknown>,
+  decode: (json: unknown) => Decoded<Credential>,
 ): Promise<AuthenticatorAnswer<Credential>> => {
   try {
-    const credential = await request();
+    const json = await request();
 
-    return credential === undefined
-      ? { _tag: "Cancelled" }
-      : { _tag: "Answered", credential };
+    if (json === null) {
+      return { _tag: "Cancelled" };
+    }
+
+    const decoded = decode(json);
+
+    if (!decoded.success) {
+      throw new Error("認証器の応答を、server に送る資格情報として読めません", {
+        cause: decoded.error,
+      });
+    }
+
+    return { _tag: "Answered", credential: decoded.data };
   } catch (error) {
     if (error instanceof DOMException && CANCELLED.has(error.name)) {
       return { _tag: "Cancelled" };
@@ -98,26 +114,15 @@ const ask = async <Credential>(
 };
 
 /** ブラウザの認証器に尋ねる窓口を作る。 */
-export const createAuthenticator = (store: CredentialStore): Authenticator => ({
+export const createAuthenticator = (webAuthn: WebAuthn): Authenticator => ({
   authenticate: async (options) =>
-    ask(async () => {
-      const credential = await store.get({
-        publicKey: toRequestOptions(options),
-      });
-
-      return isAssertion(credential)
-        ? toAuthenticationCredential(credential)
-        : undefined;
-    }),
+    ask(
+      async () => webAuthn.get(options),
+      (json) => authenticationCredential.safeParse(json),
+    ),
   register: async (options, signal) =>
-    ask(async () => {
-      const credential = await store.create({
-        publicKey: toCreationOptions(options),
-        ...(signal === undefined ? {} : { signal }),
-      });
-
-      return isAttestation(credential)
-        ? toRegistrationCredential(credential)
-        : undefined;
-    }),
+    ask(
+      async () => webAuthn.create(options, signal),
+      (json) => registrationCredential.safeParse(json),
+    ),
 });

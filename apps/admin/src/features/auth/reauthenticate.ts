@@ -1,6 +1,8 @@
 import type { ApiClient } from "../../api/api-types";
-import type { Authenticator } from "./webauthn/create-authenticator";
-import type { AuthenticationCredential } from "./webauthn/to-credentials";
+import type {
+  AuthenticationCredential,
+  Authenticator,
+} from "./webauthn/create-authenticator";
 
 /** 再認証に使うもの。 */
 export type ReauthenticateDependencies = {

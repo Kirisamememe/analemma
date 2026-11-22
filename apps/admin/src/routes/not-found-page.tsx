@@ -1,7 +1,7 @@
 import { useLocation } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
-import { useTranslation } from "../i18n/use-translation";
 import { Center } from "../ui/layout/center";
 import { Stack } from "../ui/layout/stack";
 import { Text } from "../ui/layout/text";
@@ -10,7 +10,7 @@ import { Link } from "../ui/primitives/link";
 
 /** 無いパスを開いたときの画面。 */
 export const NotFoundPage = (): ReactNode => {
-  const t = useTranslation();
+  const { t } = useTranslation();
   const { pathname } = useLocation();
 
   return (

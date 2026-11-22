@@ -1,7 +1,7 @@
 import { useRouter } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
-import { useTranslation } from "../i18n/use-translation";
 import { Center } from "../ui/layout/center";
 import { Stack } from "../ui/layout/stack";
 import { PageHeader } from "../ui/patterns/page-header";
@@ -10,7 +10,7 @@ import { Notice } from "../ui/primitives/notice";
 
 /** セッションを確かめられなかったときの画面。 */
 export const SessionErrorPage = (): ReactNode => {
-  const t = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
 
   return (

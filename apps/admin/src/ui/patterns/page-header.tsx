@@ -25,12 +25,14 @@ export const PageHeader = ({
   actions,
 }: PageHeaderProps): ReactNode => (
   <Cluster align="start" gap={4} justify="between">
-    <Stack gap={1}>
-      <Heading level={1}>{title}</Heading>
-      {description !== undefined && description !== "" && (
-        <Text tone="muted">{description}</Text>
-      )}
-    </Stack>
+    <div className="pt-1">
+      <Stack gap={1}>
+        <Heading level={1}>{title}</Heading>
+        {description !== undefined && description !== "" && (
+          <Text tone="muted">{description}</Text>
+        )}
+      </Stack>
+    </div>
     {isShown(actions) && <Cluster gap={2}>{actions}</Cluster>}
   </Cluster>
 );

@@ -73,6 +73,8 @@ describe("管理画面の部品の class", () => {
       [34, "上下の正の margin は使わず"],
       [35, "文字の大きさは、theme.css の目盛りで"],
       [36, "文字の太さは"],
+      [37, "danger-strong は bg"],
+      [38, "on-danger-strong は text"],
     ];
 
     expect(diagnosticsOf({ file, rule: RESTRICTED }, expected)).toEqual(
@@ -193,6 +195,40 @@ describe("管理画面の画面のコードの class", () => {
     ];
 
     expect(diagnosticsOf({ file, rule: BOUNDARY }, expected)).toEqual(expected);
+  });
+
+  test("部品の __stories__ でも、画面のコードと同じく、決めた class の外と style に診断を出すこと", () => {
+    const stories = "invalid/apps/admin/src/ui/__stories__/styled.stories.tsx";
+    const classes: Expected[] = [
+      [3, "画面のコードは"],
+      [3, "画面のコードは"],
+    ];
+    const boundary: Expected[] = [[5, "style は ui/ の部品"]];
+
+    expect(diagnosticsOf({ file: stories, rule: RESTRICTED }, classes)).toEqual(
+      classes,
+    );
+    expect(diagnosticsOf({ file: stories, rule: BOUNDARY }, boundary)).toEqual(
+      boundary,
+    );
+  });
+
+  test("色の見本でも、色ごとの決まりのほか(任意の値・文字の役割・面の不透明度)には診断を出すこと", () => {
+    const expected: Expected[] = [
+      [4, "任意の値"],
+      [5, "文字の大きさと太さは"],
+      [6, "面の色"],
+    ];
+
+    expect(
+      diagnosticsOf(
+        {
+          file: "invalid/apps/admin/src/ui/specimens/loose.tsx",
+          rule: RESTRICTED,
+        },
+        expected,
+      ),
+    ).toEqual(expected);
   });
 
   test("feature の ui/ の外では、部品の class に診断を出すこと", () => {

@@ -1,8 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { ApiOutputs } from "../../api/api-types";
-import { useTranslation } from "../../i18n/use-translation";
 import { Cluster } from "../../ui/layout/cluster";
 import { Heading } from "../../ui/layout/heading";
 import { Stack } from "../../ui/layout/stack";
@@ -17,7 +17,7 @@ import type { PasskeyNotice } from "./to-passkey-notice";
 
 /** パスキーの一覧と、追加・名前の変更・削除の操作。 */
 export const PasskeysSection = (): ReactNode => {
-  const t = useTranslation();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const addButton = useRef<HTMLButtonElement>(null);
   const [notice, setNotice] = useState<PasskeyNotice>();

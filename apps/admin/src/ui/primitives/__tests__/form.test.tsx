@@ -1,7 +1,8 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { renderWithI18n } from "../../../testing/render-with-i18n";
 import { Button } from "../button";
 import { Form } from "../form";
 import { TextField } from "../text-field";
@@ -45,7 +46,7 @@ const renderForm = (
   submissions: Submissions,
   { isPending = false, isRequired = false, validationErrors }: FormCase = {},
 ) =>
-  render(
+  renderWithI18n(
     <Form
       isPending={isPending}
       onSubmit={submissions.onSubmit}

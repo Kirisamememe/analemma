@@ -17,6 +17,7 @@
 | 見た目         | Tailwind CSS v4 + tailwind-variants                          | 理由は `src/ui/DECISIONS.md`。                                                                                                         |
 | 部品の振る舞い | React Aria Components                                        | キーボードの操作・focus・ARIA を、部品ごとに自分で書かずに済む。shadcn/ui は使わない(ユーザーが決めた。見た目は自分たちの規則で持つ)。 |
 | テストの DOM   | happy-dom(`@happy-dom/global-registrator`)と Testing Library | Bun の公式の案内にある組み合わせ。                                                                                                     |
+| i18n           | i18next 27 + react-i18next                                   | ユーザーが決めた。理由は「i18n」。                                                                                                     |
 
 ## route はコードで定義する
 
@@ -28,7 +29,14 @@ TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen
 
 ## code splitting はしない
 
-route ごとの `lazy(() => import(…))` は使わず、`no-dynamic-import` をそのまま効かせる。管理画面を使うのは管理者1人で、全部を1つの bundle にしても大きくない(React と TanStack Router で約 300 KB、gzip で約 96 KB)。`import()` を許すと、境界を守る `no-restricted-imports` を動的な import ですり抜けられる(`tooling/DECISIONS.md`)。エディタのような大きなライブラリを入れるときに、決め直す。
+route ごとの `lazy(() => import(…))` は使わず、`no-dynamic-import` をそのまま効かせる。管理画面を使うのは管理者1人で、全部を1つの bundle にしても大きくない(i18next を足した今の bundle で約 710 KB、gzip で約 224 KB)。`import()` を許すと、境界を守る `no-restricted-imports` を動的な import ですり抜けられる(`tooling/DECISIONS.md`)。エディタのような大きなライブラリを入れるときに、決め直す。
+
+## 対象のブラウザ
+
+最新の Chrome と WebKit だけで動けばよい。古いブラウザには対応せず、Firefox にも必要以上に合わせない(ユーザーが決めた)。新しい CSS・HTML・JS の API は、出てから日が浅くても、UI と UX に役立つなら使う。
+
+- Vite の `build.target` と `build.cssTarget` を `esnext` にし、古いブラウザのための書き換えをさせない(最初の描画の前に流す script のビルドも同じ)。`modulePreload` の polyfill も入れない。
+- Storybook の Vite にも、同じ対象を入れる(`.storybook/adapt-vite-config.ts`。Storybook は `vite.config.ts` の `build` を `target` しか引き継がない)。
 
 ## 言語と配色を最初の描画の前に当てる
 
@@ -37,19 +45,28 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 当てる値は、`localStorage` に利用者が選んだ値があればそれ、無ければ言語はブラウザの言語の並びから選び、配色は OS に従う(`data-theme` を付けない)。決める関数(`src/preferences/resolve-preferences.ts`)は純粋関数にしてテストする。
 - script は `src/preferences/boot.ts` を、`vite.config.ts` の plugin が、Vite の lib のビルドで1つの IIFE にまとめ、head に直接書き込む。TypeScript のまま書いてテストでき、`src/i18n/` と同じ言語の判定を使える。module の script は後回しに流れるので、最初の描画の前に流すには、module でない script にする必要がある。
 - 外部のファイルにせず、head に直接書き込む。ファイルにすると、ビルドの出力の名前を head に書き戻す仕組みが要る。server が CSP の `script-src` を決めるときには、この script の hash を許すか、ファイルに分けるかを決める(server の「入口の守り」で、CSP のほかの directive は、管理画面の配信を足すときに決めることになっている)。
-- React は、html の `lang` を読んで言語を決める(`src/i18n/locales.ts` の `toLocale`)。言語を決める出どころを、head の script の1か所にする。React Aria Components の `I18nProvider` にも、同じ値を渡す。
+- React は、html の `lang` を読み(`src/i18n/locales.ts` の `toLocale`)、i18next の `lng` に渡す。言語を決める出どころを、head の script の1か所にする。i18next の language detector は使わない。
+- 言語の切り替えは i18next の `changeLanguage` で行い、画面を読み込み直さない。`languageChanged` の event で、html の `lang` と `localStorage` を同じ値にする(`src/preferences/sync-locale.ts`)。html の `lang` は、theme.css の `:lang()` による、言語ごとの字体の切り替えに効く。`useTranslation` を使う部品は、切り替えのたびに描き直されるので、React Aria Components の `I18nProvider`(`UiProvider`)にも、i18next の今の言語が渡る。React Aria Components の辞書は、文字体系ではなく地域で分かれていて(`zh-CN`・`zh-TW`)、`zh-Hans` を渡すと、`zh-` で始まる辞書のうち、並びが先のものを使う。並びに頼らないよう、地域を付けた言語(`zh-CN` など)にして渡す。instance を作ったときの言語は `localStorage` に置かない。head の script がブラウザの言語から選んだ値なので、置くと、ブラウザの言語を変えても追従しなくなる。
 - 本番のビルドの出力で、head の script がアプリの script より前にあることと、作り物の `localStorage`・`navigator` の上で流すと値を当てることを、テスト(`__tests__/vite-config.test.ts`)で確かめる。ビルドの出力そのものを流すので、まとめ方を誤って module の構文が残れば落ちる。
 
 ## i18n
 
-`en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `TRANSLATIONS` に足し、`messages/` にファイルを置くだけにする。
+`en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `RESOURCES`(`src/i18n/resources.ts`)と、React Aria Components に渡す地域を付けた言語(`src/ui/primitives/ui-provider.tsx` の `ARIA_LOCALES`)に足し、`messages/` にファイルを置くだけにする。
 
-- ライブラリを使わず、小さく自分で持つ。今の画面の文言は、引数を入れるだけで足りる。複数形や性の出し分けが要る文言が出てきたら、ICU の書き方を読めるライブラリにするかを決める。
-- 訳は言語ごとに1ファイルで、キーは `"notFound.title"` のような1段のキーにする。入れ子にしないので、キーの一覧と型をそのまま比べられる。
-- 英語の訳(`en.ts`)を `as const` で書き、キーと、`{name}` の引数の型を、英語の文字列から作る。ほかの言語は、英語のキーだけを持てる形(`Translation`)にし、訳していないキーは省ける。省けないと、キーを英語に足した時点で、ほかの言語を訳すまで型検査が通らない。
-- 全部の言語が英語と同じキーと同じ引数を持ち、空の訳を持たないことを、テスト(`src/i18n/__tests__/messages.test.ts`)で確かめる。型で省けても、check を通る前に訳がそろう。
-- それでも訳が無いキーは、英語にする(`pick-message.ts`)。訳しかけの開発の途中でも、画面が壊れない。
-- 引数は `{name}` の形で、名前は英字で始まる英数字にする。訳の中の `{` と `}` は引数にだけ使えることも、テストで確かめる。型は `{` と `}` の間をそのまま名前として読むので、`{}` のような書き損じがあると、型と実行時で引数の読み方が食い違う。
+訳を引くのは、i18next 27 と react-i18next にする(ユーザーが決めた)。コードの生成も、訳を取りに行く通信も要らず、v27 からキーと引数に厳しく型が付き(`strictInterpolationChecks` が既定で有効)、複数形と fallback を扱える。公開サイトの i18n は、公開サイトを作るときに決める。
+
+- 訳は言語ごとに1ファイルの TypeScript で書き、英語の訳(`en.ts`)は `as const` で書く。JSON を import すると、TypeScript が訳を `string` に広げるので、i18next の型が引数の名前を読めない。英語の訳を `CustomTypeOptions` の `resources` に登録し(`resources.ts`)、キーと引数の型の出どころにする。`strictKeyChecks` も有効にし、`t` に `defaultValue` を渡したときも、キーと引数を確かめる(既定では、`defaultValue` を渡すと確かめない)。訳に無いキーと引数の渡し忘れが型の誤りになることは、`@ts-expect-error` を書いたテスト(`create-i18n.test.ts`)で確かめる。型の登録が外れると、`@ts-expect-error` の方が型検査で落ちる。ほかの言語は、英語のキーだけを持てる形(`Translation`)にし、訳していないキーは省ける。省けないと、キーを英語に足した時点で、ほかの言語を訳すまで型検査が通らない。
+- キーは `"notFound.title"` のような1段のキーにし、`keySeparator` と `nsSeparator` を、実行時と型の両方で `false` にする。`.` を入れ子の区切りとして読まないので、キーの一覧と型をそのまま比べられる。namespace は既定の1つだけを使う。
+- 引数は i18next の既定の `{{name}}` で書く。全部の言語が英語と同じキーと同じ引数を持ち、空の訳を持たないことを、テスト(`src/i18n/__tests__/messages.test.ts`)で確かめる。型で省けても、check を通る前に訳がそろう。訳の中の `{` と `}` は、英字で始まる名前の引数 `{{name}}` にだけ使えることも確かめる。`{name}` のような書き損じは、i18next にも型にも引数と読まれず、そのまま画面に出る。
+- 複数形は、`key_one`・`key_other` のキーに分け、`count` を渡す(i18next が `Intl.PluralRules` で選ぶ)。言語ごとに複数形の分け方(CLDR の plural category)が違う(日本語は `other` だけ)ので、複数形の訳を足すときは、キーを比べるテストを、その言語の分け方に合わせて直す。
+- `fallbackLng` を英語にし、訳が無いキーと空の訳を英語で出す(v27 から、既定では fallback しない。空の訳を訳が無いとみなすのは v27 の既定)。訳しかけの開発の途中でも、画面が壊れない。
+- `supportedLngs` に `LOCALES` を渡す。i18next は、対応していない tag を、言語の部分(`zh` など)が同じ、対応する言語に寄せ(`zh-TW` も `zh-Hans` になる)、それも無ければ英語にする。ブラウザの言語の並びから選ぶときの判定(下)とは違うので、`changeLanguage` には `LOCALES` の値だけを渡し、ブラウザの言語を渡さない。
+- React が値を escape するので、i18next の escape は切る(`escapeValue: false`)。二重に escape すると、`&` が `&amp;` のまま画面に出る。
+- 訳は bundle に入れ、instance を作るときに渡す。読み込みを待たないので、`init` と `changeLanguage` はその場で終わり、`useTranslation` が Suspense で止まらない。
+- instance は、言語を受けて `createInstance` で作る(`src/i18n/create-i18n.ts`)。訳は instance ごとに `structuredClone` で複製して渡す。i18next は渡した object をそのまま store にし、`addResource` などで書き換えるので、複製しないと、ある instance(テストや story)で書き換えた訳が、ほかの instance に漏れる。i18next の既定の instance と `initReactI18next` は使わず、`I18nextProvider` で渡す(`App`)。テストや Storybook が、描くたびに別の言語の instance を作れる。`App` を通さずに部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で、i18next の instance の下で描く。
+- 日付と時刻は、i18next の formatting を使わず、`Intl.DateTimeFormat` の関数(`format-date-time.ts`)に、i18next の今の言語を渡して書く。書式(`dateStyle: medium`・`timeStyle: short`)は画面の決めごとで、言語ごとに変えない。formatting にすると、全部の言語の訳に `{{created, datetime(dateStyle: medium; timeStyle: short)}}` のような書式を写すことになり、API が返す ISO 8601 の文字列を `Date` に直す手間も要る。
+- 英語の訳を `as const` で書くので、`t` の戻り値の型は、英語の訳の文字列のリテラルになる(i18next の型の仕様)。実行時には、今の言語の訳が返る。テストで戻り値を英語以外の文字列と比べるときは、`expect<string>` で `string` に広げる。
+- 引数を取らないキーを値として持つ型(知らせの訳のキーなど)は、i18next の `ParseKeysWithoutVariables` にする。`t(key)` に、そのまま渡せる。ただし、複数形の形(`key_one`・`key_other`)だけを持ち、どの形も引数を取らないキーも受け付ける。`count` を渡さずに引くと、訳ではなくキーがそのまま返る(`{{count}}` を含む形があれば、型の誤りになる)。知らせに複数形を使うときは、`count` も渡せる形にする。
 - ブラウザの言語の並びから選ぶときは、`Intl.Locale` の `maximize()` で言語と文字体系の組にしてから比べる。`zh-CN`・`zh-SG`・`zh` は `zh-Hans`、`ja-JP` は `ja` になる。`zh-TW`・`zh-HK` は文字体系が違う(繁体字)ので、`zh-Hans` に寄せず、並びの次の言語に進む。どれにも対応していなければ英語にする。
 - `Intl.Locale` が読めない tag(`i-klingon` など。BCP 47 では正しくても、Intl が受け付けないものがある)は、飛ばして次の言語に進む。head の script の中で throw すると、言語と配色のどちらも当たらなくなる(Codex のレビューで見つかった)。
 - 利用者が選んだ言語と配色は、`localStorage` の `analemma:locale`・`analemma:theme` に置く。server には送らない。管理者は1人で、端末ごとに違ってよい。
@@ -79,7 +96,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - ログインした後は、まだログインの画面にいるときだけ、`redirect` のパスに戻る(応答を待つ間に履歴でほかの画面へ移っていたら、そこから動かさない)。ログインの画面にいるかは、パスを比べずに、router が今の route として選んだかで確かめる。router は大文字と小文字を区別せず、末尾の `/` も受け付けるので、パスを比べると `/LOGIN` や `/login/` で食い違った(Copilot のレビューで見つかった)。登録用 URL の画面も同じ。管理画面の中の、ログインした後の画面のパス(`/` で始まり、`//`・`/\` で始まらず、ログインと登録用 URL の画面でないもの。大文字と小文字は区別しない。router が区別せずに照らし合わせるので)だけを受け付け、ほかは捨てる(外のサイトに移させない)。
 - セッションが無いという応答(401)が、ログインの前の画面(`/login`・`/enroll`)を開いているときに届いたら(前の画面から遅れて届いた 401)、状態を消すだけで、ログインの画面には移らない。登録用 URL の画面から移ると、`redirect` に URL の `#` の後ろの token まで入り、URL の search params として server に届いてしまう(Codex のレビューで見つかった)。
 - ログインと登録の流れ(`src/features/auth/log-in.ts`・`enroll.ts`)は、server の API と認証器を受け取る関数にし、作り物で単体テストする。server の失敗のうち、利用者に伝えるもの(期限切れ・登録されていないパスキーなど)は `_tag` の結果にし、origin の食い違いのような設定の誤りは throw する(画面には「ログインできませんでした」と出る)。
-- 認証器(`src/features/auth/webauthn/create-authenticator.ts`)は、`navigator.credentials` を受け取り、options と資格情報を、server の base64url の形とブラウザの形のあいだで変える。base64url の変換は `atob`・`btoa` で書く。`Uint8Array` の `fromBase64`・`toBase64` は Safari 18.2 からで、CSS の下限(Safari 17.5)のブラウザでログインできなくなる。`PublicKeyCredential.parseRequestOptionsFromJSON()` と `toJSON()` は使わない。どちらも出てから日が浅く、`toJSON()` の戻り値には型が無い(`any`)。キャンセル(`NotAllowedError`・`AbortError`、`AbortSignal.timeout()` で止めたときの `TimeoutError`)と、登録済みの認証器(`InvalidStateError`)は、想定内の結果として返す。
+- 認証器(`src/features/auth/webauthn/create-authenticator.ts`)は、server の options(base64url の JSON)を、そのままブラウザに渡し、ブラウザが返した資格情報の `toJSON()` の値を、contract の zod(`authenticationCredential`・`registrationCredential`)で読んで server に送る。JSON とブラウザの形のあいだの変換は、ブラウザの `PublicKeyCredential.parseRequestOptionsFromJSON()`・`parseCreationOptionsFromJSON()`・`toJSON()` に任せ、自前の base64url の変換を持たない。`toJSON()` の戻り値の型(ログインと登録の共用体で、`userHandle` は省略できる)は contract より広いので、contract の zod で、必須の項目と値の制約を実行時に確かめ、server に送る形にそろえる(`rawId` などの余分な項目は落とす)。形が合わなければ、zod の誤りを `cause` に付けて想定外の失敗として throw する。ブラウザの API を呼ぶつなぎ(`create-browser-web-authn.ts`)は、`navigator.credentials` の `get`・`create` と、JSON をパースする関数を受け取る関数にし、作り物でテストする。`main.tsx` は、`navigator.credentials` の結果を `PublicKeyCredential` に狭めて渡すつなぎと、`PublicKeyCredential` の parse の関数(`parseRequestOptionsFromJSON` など)を渡すだけにする。キャンセル(`NotAllowedError`・`AbortError`、`AbortSignal.timeout()` で止めたときの `TimeoutError`)と、登録済みの認証器(`InvalidStateError`)は、想定内の結果として返す。
 - **登録用 URL の形**:`{AUTH_ORIGIN}/enroll#{token}` に決めた(server のコマンドが出す形のまま)。
 - 登録用 URL の画面は、開いたらすぐに token をメモリに移し、URL と履歴から `#` の後ろを消す(`replace`)。登録の最中に履歴を移ってから成功の `replace` が走ると、移った先の履歴を書き換えてしまうので、成功したときは、登録の画面にいるときだけホームに移る。開き直すと token は無いので、コマンドで出し直す。開いたまま新しい登録用 URL を開いたときは(`#` の後ろだけが変わるので、ブラウザは読み込み直さない)、新しい token に替え、前の登録の知らせを消す。期限切れの URL の後に出し直した URL を同じタブに貼ると、こうなる。
 - パスキーの名前は、認証器でパスキーを作る前に、contract と同じスキーマ(`passkeyName`)で確かめ、入力欄に誤りを出す。作った後で server に名前を断られると、認証器に、ログインに使えないパスキーが残る。
@@ -108,8 +125,25 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 決まった文言を描画して確かめるだけのテストは lint を通ってしまうので、セルフレビューで見る。
 - 管理画面の `src/` のテストは、リポジトリの直下の `bun test` から外し(直下の `bunfig.toml`)、`apps/admin` で別に流す(`apps/admin/bunfig.toml` の `root` を `src` にする)。DOM(happy-dom)を用意する preload を、画面のコードのテストにだけ掛けるため。happy-dom は `fetch`・`Request`・`Response`・`setTimeout` などのグローバルを置き換えるので、直下で掛けると server のテストまで happy-dom の上で流れる。`bunfig.toml` は、`bun test` を流すフォルダのものだけが読まれる(手元で確かめた)。
 - Vite の設定とビルドのテスト(`apps/admin/__tests__/`)は、直下の `bun test` で、DOM なしで流す。Vite は Node の `setTimeout` を前提にしていて(`unref()` を呼ぶ)、happy-dom の上では開発のサーバーが起動しない。
-- 画面のテストは、`src/testing/render-app.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体(router・query client・言語)を描く。パスキーの画面のテストには、パスキーとセッションの procedure を状態ごと真似る作り物(`create-passkey-routes.ts`。1つの再認証で1回だけ操作できる・無いパスキーは `NOT_FOUND`・最後のパスキーは `LAST_PASSKEY`・すべてのセッションからログアウトした後は `UNAUTHORIZED`)と、決めた答えを返す作り物の認証器(`create-fake-authenticator.ts`)を使う。作り物の server(`create-fake-api.ts`)は、oRPC のプロトコルの応答(成功と、contract に定義した失敗と、定義していない失敗)を返し、無い procedure には本物の server と同じくテキストの 404(`text/plain`)を返す。client は本物を使う。画面・router・client のつなぎを、利用者に見える結果と、呼ばれた procedure の並びで確かめられる。`src/testing/` は、テストだけが import できる(`tooling/structure/` のテストが止める)。
+- 画面のテストは、`src/testing/render-app.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体(router・query client・言語)を描く。パスキーの画面のテストには、パスキーとセッションの procedure を状態ごと真似る作り物(`create-passkey-routes.ts`。1つの再認証で1回だけ操作できる・無いパスキーは `NOT_FOUND`・最後のパスキーは `LAST_PASSKEY`・すべてのセッションからログアウトした後は `UNAUTHORIZED`)と、決めた答えを返す作り物の認証器(`create-fake-authenticator.ts`)を使う。作り物の server(`create-fake-api.ts`)は、oRPC のプロトコルの応答(成功と、contract に定義した失敗と、定義していない失敗)を返し、無い procedure には本物の server と同じくテキストの 404(`text/plain`)を返す。client は本物を使う。画面・router・client のつなぎを、利用者に見える結果と、呼ばれた procedure の並びで確かめられる。作り物の server は、ログイン(`create-sign-in-routes.ts`)と登録用 URL(`create-enrollment-routes.ts`)のものも `src/testing/` に置き、テストと画面の story で使い回す。router と query client の組み立ては `create-test-app.ts` にまとめ、テストの `render-app.tsx` と story の `app-preview.tsx` が使う。`src/testing/` は、テストと story だけが import できる(`tooling/structure/` のテストが止める)。
 - tsconfig を2つに分ける。`tsconfig.app.json` は、テストを除いた `src/` を、Bun の型なしで検査する(画面のコードが Bun の API の型を読めないように)。`tsconfig.json` は、テスト・`vite.config.ts`・`test-setup/` を含めて Bun の型で検査し、型付きの lint もこちらを使う。
+
+## Storybook
+
+部品と画面を、light と dark、言語ごとに見比べるために使う(ユーザーが決めた)。Storybook 10.6(`storybook`・`@storybook/react-vite`・`@storybook/addon-a11y`)で、`bun run storybook` で `http://localhost:6006` に起動する。
+
+- story は CSF 3 で書く。Storybook の文書が勧める形で、CSF Next(factories)は preview の扱いで API が変わりうる。
+- story は、部品の隣の `__stories__` に `<名前>.stories.tsx` で置く。title は `primitives/Button` のように書き、フォルダの名前(`__stories__`)を入れない。story の中の文は、見本の文なので訳を通さずに書く。
+- Storybook の Vite は `vite.config.ts` を読むが、`build` は `target` しか引き継がず、`server` は上書きする(10.6.8 の配布物で確かめた)。`viteFinal` で `build.target` と `build.cssTarget` を `vite.config.ts` と同じ `BROWSER_TARGET` に入れ直す。入れないと、`storybook build` で `light-dark()` が書き換えられ、`scheme-dark` が効かなくなる(`src/ui/DECISIONS.md` の「light と dark」)。開発のサーバーの port・`strictPort`・`/api` の proxy は Storybook が上書きするので、ぶつからない。
+- head に script を書き込む plugin は、Storybook では外す(`withoutVitePlugins`)。言語と配色はツールバーで選ぶ(既定は light と日本語)。story を包む枠(`.storybook/story-frame.tsx`)が、i18next の instance(ツールバーで変えたら `changeLanguage`)と、それを読む React Aria Components の `I18nProvider` にはツールバーの言語を、html の `lang` には story に見える文の言語を、`data-theme` には配色を入れる。i18n の仕組みを替えるときは、この枠を直す。
+- 部品の story の見本の文は日本語なので、html の `lang` を `ja` にする(`parameters.contentLang`)。ツールバーの言語を `lang` にすると、zh-Hans で、かなが中国語の字体で描かれた(ユーザーが見つけた)。画面の story は訳を出すので、`contentLang: null` にして、ツールバーの言語を `lang` にする(`contentLang` を書かないと、既定の `ja` を引き継ぐ)。文字の見本は、見本の文ごとに `lang` を付ける。言語を付けないと、日本語の字体に無い簡体字だけが別の字体に替わり、1つの文の中で字体が混ざった。
+- 部品の story は、既定で、Storybook の真ん中に置いた展示用の枠(`src/ui/specimens/story-stage.tsx`。面の色と、地の上に重ねる半透明の線)の中に描く(`parameters.stage`)。小さい部品は枠を中身の大きさにし、幅で見え方が変わる部品(`Notice`・入力欄・`Form`・`Text`・`Stack` など)は決めた幅(`w-lg`)にする。画面全体の story(画面・`AppShell`・`Center`)と色・文字の見本は、枠を付けない。枠も寄せも無いと、小さい部品が左上の隅に集まって見えにくかった(ユーザーの指摘)。
+- 枠は TanStack Router の route を描かず、`Link` が読む router だけを `RouterContextProvider` で渡す(router は枠ごとに作り、story のあいだで履歴を持ち越さない)。route を描くと、route の境界が story の想定外の失敗を受け止め、Storybook にもテストにも上がらない。
+- a11y は `@storybook/addon-a11y` の panel で見る(コントラストを含む)。Vitest を入れていないので、a11y の誤りで落とすテストにはしない。
+- 全部の story を `composeStories` で happy-dom の上に描き、想定外の失敗も `console.error` も出さないことを、テスト(`src/__tests__/stories.test.tsx`)で確かめる。ツールバーの値が html の `lang`・`data-theme` と部品の訳に届くことと、`viteFinal` が `cssTarget` を入れて head の script の plugin を外すことも、テストで確かめる。CI では Storybook を起動もビルドもしないので、壊れた story に気づけるのはこのテストだけ。手間は、story のファイルを足すたびに import を1行足すことで、足し忘れると、一覧と `__stories__` のファイルを比べるテストで落ちる。happy-dom は配置を計算しないので、見た目(並び・中心・余白)は Storybook をブラウザで開いて測る(セルフレビューの観点)。
+- 画面の story(`src/routes/__stories__/`)は、`src/testing/app-preview.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体を描く。テストと同じ作り物なので、ボタンを押せば、作り物の server の答えで画面が進む。server の状態は、story を開いたときに作る(`createRoutes`。Controls で変えても作り直さないので、`path` などは Controls から外す)。ログインと登録の story は、成功した後にパスキーの画面まで進めるよう、パスキーの作り物の server もつなぐ。ボタンを押してから出る状態(ログインのキャンセル・使えない登録用 URL など)は、story ごとに作り物の server と認証器の答えを決めておき、story を開いて押すと見られるようにする。play で押させると、Storybook が操作を React の `act` の中で流し、router の suspend とぶつかって、入力した名前が消えた画面に描き直された。そのため play は使わない。押した後の状態は、画面のテストが確かめている。
+- 画面の story は訳を出すので、html の `lang` をツールバーの言語にする(`contentLang: null`)。
+- telemetry は切る(`core.disableTelemetry`)。
 
 ## server の認証に合わせること
 
@@ -121,6 +155,13 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 
 ## 割り切ったこと
 
+- **画面の story の作り物の server の状態**:ログインと登録の story は、ログインの作り物とパスキーの作り物をつないだだけなので、ログインの状態とパスキーの一覧の状態が別々に動く(すべてのセッションからログアウトした後の再ログインや、登録した名前の一覧への反映が合わない)。story は画面を見るためのもので、流れのつながりは画面のテストが確かめる(Codex のレビューで見つかった)。
+- **secure context でない origin**:`main.tsx` は起動のときに `PublicKeyCredential` を読むので、`localhost` 以外の HTTP で開くと、描く前に止まる。管理画面は HTTPS と `localhost` でだけ使う(Codex のレビューで見つかった)。
+- **画面の story を描くテストの待ち時間**:全部の story を描くテストは、画面の story を描いてから 50ms 待って確かめる。一覧を読めない story は、query の再試行のあとで知らせが出るので、テストは読み込み中の画面で通る。それぞれの状態は、画面のテストが確かめている(Codex のレビューで見つかった)。
+- **Storybook の狭い画面**:幅を決めた展示用の枠(`w-lg`)は、Storybook の画面が 544px より狭いと、横にはみ出す(Storybook の `centered` の箱が、子の幅を最小の幅にする)。Storybook は管理者がデスクトップのブラウザで見るので、受け入れる(Codex と Cursor のレビューで見つかった)。
+- **空の story**:全部の story を描くテストは、story が何も描かなくても、展示用の枠を数えて通る。部品の story は Storybook で見て確かめる(Codex と Cursor のレビューで見つかった)。
 - **開発のときの head の script**:開発のサーバーは、HTML を返すたびに、head の script を Vite の lib のビルドでまとめ直す(数十ミリ秒)。まとめた結果を使い回すと、`src/preferences/boot.ts` と、それが読むファイルを直したときに開発のサーバーを起動し直す必要がある。待ち時間が気になったら、依存が変わったときだけまとめ直す形にする。
-- **`localStorage` が使えないブラウザ**:head の script は、`localStorage` を読めないと(ストレージを切った設定など)throw し、言語と配色を当てずに終わる。React は html の `lang` が無ければ英語にするので、画面は英語で出る。管理者が自分のブラウザで使うだけなので、受け入れる。
+- **`localStorage` が使えない設定**:head の script は、`localStorage` を読めないと(ストレージを切った設定など)throw し、言語と配色を当てずに終わる。React は html の `lang` が無ければ英語にするので、画面は英語で出る。言語を切り替えたときも、`languageChanged` の event の中で `localStorage` に置けずに throw し、後に登録した listener(画面の描き直し)まで event が届かない。管理者が自分のブラウザで使うだけなので、受け入れる。
+- **言語の切り替えのつなぎ**:`main.tsx` が `syncLocale` を呼ぶことは、テストで確かめていない(Codex のレビューで挙がった)。`main.tsx` は、ほかのつなぎ(認証の gate・認証器など)と同じく、入口として確かめない。`syncLocale` と、切り替えで画面の訳と React Aria Components が出す文言が変わることは、それぞれのテストで確かめている。
+- **入力欄の誤りの知らせの言語**:入力欄の誤りの知らせを出したまま言語を切り替えると、知らせは前の言語のまま残る(Codex のレビューで挙がった。happy-dom では、送り直しても残った)。React Aria Components が、値を確かめたときの文字列を持ち続けるため。Dialog や画面を開き直すと、部品を作り直すので、今の言語になる。言語を切り替える画面はまだ無く、Dialog を開いている間は Dialog の外を操作できないので、今は起きない。直すには、入力欄の部品が訳のキーを受け取り、描くときに訳す形に変える必要があるので、切り替える画面を作るときに決める。
 - **ほかのタブの管理用 API**:ログインの最中に管理用 API を送らせない gate は、タブごとにある。ほかのタブが同じ時に管理用 API を送ると、その応答の `Set-Cookie`(期限を延ばした古い token、または切れたセッションを消す指示)が、ログインした応答の後に届き、新しい Cookie を上書きしうる。起きても、次の操作が 401 になってログインし直すだけで、管理者は1人で、ログインの最中にほかのタブを操作することは少ない。タブをまたいで止めるには、Web Locks API などで管理用 API を全部くるむ必要があり、手間に見合わないので受け入れる。

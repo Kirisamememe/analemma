@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext, useRouter, useSearch } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { logIn } from "../features/auth/log-in";
 import { toLogInNotice } from "../features/auth/to-auth-notice";
-import { useTranslation } from "../i18n/use-translation";
 import { Center } from "../ui/layout/center";
 import { Stack } from "../ui/layout/stack";
 import { PageHeader } from "../ui/patterns/page-header";
@@ -13,7 +13,7 @@ import { Notice } from "../ui/primitives/notice";
 
 /** パスキーでログインする画面。 */
 export const LoginPage = (): ReactNode => {
-  const t = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { api, authenticator, gate } = useRouteContext({ from: "/login" });

@@ -39,7 +39,11 @@ export {
   type UnknownKeys,
   toContentSchema,
 } from "./kinds/to-content-schema";
-export { passkeyName } from "./webauthn";
+export {
+  authenticationCredential,
+  passkeyName,
+  registrationCredential,
+} from "./webauthn";
 
 /** Analemma の API 全体の contract。 */
 export const contract = {

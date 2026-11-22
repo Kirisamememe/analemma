@@ -1,7 +1,12 @@
-import { cleanup, screen, within } from "@testing-library/react";
+import { act, cleanup, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { createPasskeyRoutes } from "../../../testing/create-passkey-routes";
+import { formatDateTime } from "../../../i18n/format-date-time";
+import {
+  PASSKEY_CREATED_AT,
+  PASSKEY_LAST_USED_AT,
+  createPasskeyRoutes,
+} from "../../../testing/create-passkey-routes";
 import { renderApp } from "../../../testing/render-app";
 
 afterEach(cleanup);
@@ -24,6 +29,29 @@ describe("PasskeyList", () => {
     ).toBeDefined();
     expect(within(yubikey!).getByText("YubiKey")).toBeDefined();
     expect(within(yubikey!).queryByText("Synced")).toBeNull();
+  });
+
+  test("言語を切り替えると、登録と最後に使った日時を、その言語の書き方で出し直す", async () => {
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+    const { i18n } = renderApp({
+      path: "/security",
+      routes: server.routes,
+      locale: "en",
+    });
+
+    expect(
+      await screen.findByText(
+        `Registered ${formatDateTime("en", PASSKEY_CREATED_AT)} · Last used ${formatDateTime("en", PASSKEY_LAST_USED_AT)}`,
+      ),
+    ).toBeDefined();
+
+    await act(async () => i18n.changeLanguage("ja"));
+
+    expect(
+      screen.getByText(
+        `登録 ${formatDateTime("ja", PASSKEY_CREATED_AT)}・最終使用 ${formatDateTime("ja", PASSKEY_LAST_USED_AT)}`,
+      ),
+    ).toBeDefined();
   });
 
   test("一覧を読み込めなければ、そのことを知らせる", async () => {

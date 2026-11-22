@@ -12,6 +12,12 @@ export const DEV_API_TARGET = "http://localhost:8787";
 /** 開発のときに server へ流すパスの形。 */
 export const DEV_API_PATH = "^/api/";
 
+/** 出力の JS と CSS の対象のブラウザ。 */
+export const BROWSER_TARGET = "esnext";
+
+/** html の head に、最初の描画の前に流す script を書き込む plugin の名前。 */
+export const BOOT_SCRIPT_PLUGIN = "analemma:inline-boot-script";
+
 const devServer = {
   host: "localhost",
   port: Number(new URL(DEV_ORIGIN).port),
@@ -31,6 +37,7 @@ const bundleBootScript = async (): Promise<string> => {
     build: {
       write: false,
       minify: true,
+      target: BROWSER_TARGET,
       lib: { entry: BOOT_ENTRY, formats: ["iife"], name: "boot" },
     },
   });
@@ -46,7 +53,7 @@ const bundleBootScript = async (): Promise<string> => {
 };
 
 const inlineBootScript = (): Plugin => ({
-  name: "analemma:inline-boot-script",
+  name: BOOT_SCRIPT_PLUGIN,
   transformIndexHtml: {
     order: "pre",
     handler: async () => [
@@ -60,6 +67,8 @@ export default defineConfig({
   server: devServer,
   preview: devServer,
   build: {
-    cssTarget: ["chrome123", "safari17.5", "firefox128"],
+    target: BROWSER_TARGET,
+    cssTarget: BROWSER_TARGET,
+    modulePreload: { polyfill: false },
   },
 });

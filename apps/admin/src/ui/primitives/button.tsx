@@ -1,7 +1,7 @@
 import type { ReactNode, Ref } from "react";
 import { Button as AriaButton, ProgressBar } from "react-aria-components";
+import { useTranslation } from "react-i18next";
 
-import { useTranslation } from "../../i18n/use-translation";
 import { tv } from "../tv";
 import { typography } from "../typography";
 import { Spinner } from "./spinner";
@@ -13,7 +13,8 @@ const button = tv({
       primary: "border-transparent bg-primary text-on-primary shadow-control",
       secondary: "border-line bg-surface text-fg shadow-control",
       quiet: "border-transparent text-fg",
-      danger: "border-transparent bg-danger text-canvas shadow-control",
+      danger:
+        "border-transparent bg-danger-strong text-on-danger-strong shadow-control",
     },
     size: {
       md: "h-control px-4",
@@ -53,7 +54,7 @@ export const Button = ({
   ref,
   children,
 }: ButtonProps): ReactNode => {
-  const t = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <AriaButton
