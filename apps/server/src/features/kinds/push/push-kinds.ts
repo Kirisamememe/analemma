@@ -1,32 +1,78 @@
 import { deployProcedures } from "../../../procedures";
+import {
+  type IncompatiblePage,
+  findIncompatiblePages,
+} from "./find-incompatible-pages";
 import { insertNewKinds } from "./insert-new-kinds.query";
-import { toKindChanges } from "./to-kind-changes";
+import { listKindPages } from "./list-kind-pages.query";
+import { lockKinds } from "./lock-kinds.query";
+import { type KindChange, toKindChanges } from "./to-kind-changes";
 import { updateKinds } from "./update-kinds.query";
+
+/** 送られた定義を受け付けたか、既存のページに合わずに断ったか。 */
+type PushOutcome =
+  | {
+      /** どの結果か。 */
+      readonly _tag: "Accepted";
+      /** 種類ごとの変わり方。 */
+      readonly kinds: KindChange[];
+    }
+  | {
+      /** どの結果か。 */
+      readonly _tag: "Incompatible";
+      /** 送られた定義に合わない固定ページ。 */
+      readonly pages: IncompatiblePage[];
+    };
 
 /** 公開サイトのデプロイのときに、種類の定義を受け取る procedure。 */
 export const pushKinds = deployProcedures.kinds.push.handler(
-  async ({ context, input }) => {
+  async ({ context, errors, input }) => {
     const now = context.clock.now();
-    const kinds = await context.db.transaction(async (tx) => {
-      const created = await insertNewKinds(tx, { kinds: input.kinds, now });
-      const updated = await updateKinds(tx, {
-        kinds: input.kinds.filter(({ name }) => !created.has(name)),
-        now,
+    const names = input.kinds.map(({ name }) => name);
+    const result = await context.db.transaction(
+      async (tx): Promise<PushOutcome> => {
+        const existing = await lockKinds(tx, names);
+        const incompatible = findIncompatiblePages({
+          pages: await listKindPages(tx, existing),
+          definitions: input.kinds,
+        });
+
+        if (incompatible.length > 0) {
+          return { _tag: "Incompatible", pages: incompatible };
+        }
+
+        const created = await insertNewKinds(tx, { kinds: input.kinds, now });
+        const updated = await updateKinds(tx, {
+          kinds: input.kinds.filter(({ name }) => !created.has(name)),
+          now,
+        });
+
+        return {
+          _tag: "Accepted",
+          kinds: toKindChanges({ names, created, updated }),
+        };
+      },
+    );
+
+    if (result._tag === "Incompatible") {
+      context.logger.write({
+        level: "warn",
+        message: "既存の固定ページに合わない種類の定義を断った",
+        details: {
+          deployTokenId: context.deployToken.id,
+          pages: result.pages.map(({ id, kind }) => ({ id, kind })),
+        },
       });
 
-      return toKindChanges({
-        names: input.kinds.map(({ name }) => name),
-        created,
-        updated,
-      });
-    });
+      throw errors.INCOMPATIBLE_PAGES({ data: { pages: result.pages } });
+    }
 
     context.logger.write({
       level: "info",
       message: "種類の定義を受け取った",
-      details: { deployTokenId: context.deployToken.id, kinds },
+      details: { deployTokenId: context.deployToken.id, kinds: result.kinds },
     });
 
-    return { kinds };
+    return { kinds: result.kinds };
   },
 );
