@@ -1,8 +1,8 @@
-import { type ReactNode, use, useState } from "react";
+import { type ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { App } from "../app";
 import type { Authenticator } from "../features/auth/webauthn/create-authenticator";
-import { LocaleContext } from "../i18n/locale-context";
 import type { FakeRoutes } from "./create-fake-api";
 import { createTestApp } from "./create-test-app";
 
@@ -16,13 +16,13 @@ type AppPreviewProps = {
   readonly authenticator?: Authenticator;
 };
 
-/** 作り物の server と認証器につないだ管理画面を、story の言語で描く。 */
+/** 作り物の server と認証器につないだ管理画面を、story の i18next の instance で描く。 */
 export const AppPreview = ({
   path,
   createRoutes,
   authenticator,
 }: AppPreviewProps): ReactNode => {
-  const locale = use(LocaleContext);
+  const { i18n } = useTranslation();
   const [{ router, queryClient }] = useState(() =>
     createTestApp({
       path,
@@ -31,5 +31,5 @@ export const AppPreview = ({
     }),
   );
 
-  return <App locale={locale} queryClient={queryClient} router={router} />;
+  return <App i18n={i18n} queryClient={queryClient} router={router} />;
 };

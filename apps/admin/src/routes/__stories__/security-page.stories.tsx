@@ -23,6 +23,11 @@ const meta = {
     createRoutes: () => createPasskeyRoutes(PASSKEYS).routes,
     authenticator: createFakeAuthenticator(),
   },
+  argTypes: {
+    path: { control: false },
+    createRoutes: { control: false },
+    authenticator: { control: false },
+  },
   parameters: { layout: "fullscreen", contentLang: null, stage: null },
 } satisfies Meta<typeof AppPreview>;
 

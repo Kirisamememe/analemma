@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { AppPreview } from "../../testing/app-preview";
 import { createFakeAuthenticator } from "../../testing/create-fake-authenticator";
+import { createPasskeyRoutes } from "../../testing/create-passkey-routes";
 import { createSignInRoutes } from "../../testing/create-sign-in-routes";
 
 const EXPIRY = { output: { expiresAt: "2026-01-08T00:00:00.000Z" } };
@@ -11,9 +12,17 @@ const meta = {
   component: AppPreview,
   args: {
     path: "/login",
-    /** ログインの検証が成功する server。 */
-    createRoutes: () => createSignInRoutes(EXPIRY),
+    /** ログインの検証が成功し、その後のパスキーの画面も開ける server。 */
+    createRoutes: () => ({
+      ...createPasskeyRoutes([{ name: "MacBook Air", backedUp: true }]).routes,
+      ...createSignInRoutes(EXPIRY),
+    }),
     authenticator: createFakeAuthenticator(),
+  },
+  argTypes: {
+    path: { control: false },
+    createRoutes: { control: false },
+    authenticator: { control: false },
   },
   parameters: { layout: "fullscreen", contentLang: null, stage: null },
 } satisfies Meta<typeof AppPreview>;
