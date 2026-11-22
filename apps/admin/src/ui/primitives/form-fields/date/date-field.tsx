@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { type DateInputProps, DateRoot, DateSegments } from "./date-input";
+import { useDateDraft } from "./use-date-draft";
 
 import {
   FieldDescription,
@@ -41,32 +42,27 @@ export const DateField = ({
   validate,
 }: DateFieldProps): ReactNode => {
   const { t } = useTranslation();
-  const [incomplete, setIncomplete] = useState(false);
-  const message = incomplete ? t("ui.dateField.incomplete") : errorMessage;
+  const draft = useDateDraft({ value, onBlur, onChange });
+  const message = draft.incomplete
+    ? t("ui.dateField.incomplete")
+    : errorMessage;
 
   return (
     <DateRoot
       defaultValue={defaultValue}
+      incomplete={draft.incomplete}
       isDisabled={isDisabled}
       isInvalid={message === undefined ? undefined : true}
       isReadOnly={isReadOnly}
       isRequired={isRequired}
       name={name}
-      onChange={(next) => {
-        setIncomplete(false);
-        onChange?.(next);
-      }}
+      onChange={draft.onChange}
       validate={validate}
-      validationBehavior={incomplete ? "native" : validationBehavior}
+      validationBehavior={validationBehavior}
       value={value}
     >
       <FieldLabel>{label}</FieldLabel>
-      <DateSegments
-        onBlur={(isIncomplete) => {
-          setIncomplete(isIncomplete);
-          onBlur?.();
-        }}
-      />
+      <DateSegments onBlur={draft.onBlur} />
       {description !== undefined && (
         <FieldDescription>{description}</FieldDescription>
       )}

@@ -8,6 +8,8 @@ import {
   DateSegment,
 } from "react-aria-components";
 
+import { useDateDraft } from "./use-date-draft";
+
 import {
   fieldControl,
   fieldRoot,
@@ -42,7 +44,9 @@ export type DateInputProps = {
   validate?: ((value: string) => string | undefined) | undefined;
 };
 
-type DateRootProps = DateInputProps & {
+type DateRootProps = Omit<DateInputProps, "onBlur"> & {
+  /** 日付が未完か。 */
+  incomplete: boolean;
   /** 日付の入力を構成する部品。 */
   children: ReactNode;
 };
@@ -57,7 +61,7 @@ export const DateRoot = ({
   isDisabled = false,
   isReadOnly = false,
   isInvalid,
-  onBlur,
+  incomplete,
   onChange,
   validationBehavior,
   validate,
@@ -71,12 +75,14 @@ export const DateRoot = ({
     () => (defaultValue === undefined ? null : parseDate(defaultValue)),
     [defaultValue],
   );
+  const invalid = incomplete ? true : isInvalid;
+  const behavior = incomplete ? "native" : validationBehavior;
   const state = {
     ...(ariaLabel === undefined ? {} : { "aria-label": ariaLabel }),
     ...(name === undefined ? {} : { name }),
     ...(date === undefined ? {} : { value: date }),
-    ...(isInvalid === undefined ? {} : { isInvalid }),
-    ...(validationBehavior === undefined ? {} : { validationBehavior }),
+    ...(invalid === undefined ? {} : { isInvalid: invalid }),
+    ...(behavior === undefined ? {} : { validationBehavior: behavior }),
   };
 
   return (
@@ -87,9 +93,6 @@ export const DateRoot = ({
       isDisabled={isDisabled}
       isReadOnly={isReadOnly}
       isRequired={isRequired}
-      onBlur={() => {
-        onBlur?.();
-      }}
       onChange={(next) => {
         onChange?.(next?.toString() ?? null);
       }}
@@ -158,21 +161,25 @@ export const DateInput = ({
   validationBehavior,
   isReadOnly,
   validate,
-}: DateInputProps): ReactNode => (
-  <DateRoot
-    aria-label={ariaLabel}
-    name={name}
-    defaultValue={defaultValue}
-    value={value}
-    isDisabled={isDisabled}
-    isInvalid={isInvalid}
-    isRequired={isRequired}
-    onBlur={onBlur}
-    onChange={onChange}
-    validationBehavior={validationBehavior}
-    isReadOnly={isReadOnly}
-    validate={validate}
-  >
-    <DateSegments />
-  </DateRoot>
-);
+}: DateInputProps): ReactNode => {
+  const draft = useDateDraft({ value, onBlur, onChange });
+
+  return (
+    <DateRoot
+      aria-label={ariaLabel}
+      defaultValue={defaultValue}
+      incomplete={draft.incomplete}
+      isDisabled={isDisabled}
+      isInvalid={isInvalid}
+      isReadOnly={isReadOnly}
+      isRequired={isRequired}
+      name={name}
+      onChange={draft.onChange}
+      validate={validate}
+      validationBehavior={validationBehavior}
+      value={value}
+    >
+      <DateSegments onBlur={draft.onBlur} />
+    </DateRoot>
+  );
+};

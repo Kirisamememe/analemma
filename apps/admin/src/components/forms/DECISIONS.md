@@ -48,6 +48,8 @@ return (
 
 `field.Checkbox` はチェックを外した値を `false` として渡す。初期値が `null` なら未操作の間はその値を保つ。`field.Select` は選択を解除した値を `null`、`field.DateField` は入力した日付を `YYYY-MM-DD` で渡す。
 
-日付が未完の間は、React Aria Components の確定値に直前の日付が残る。日付欄は focus が外れた時点で年・月・日の状態を調べ、未完のときだけ React Aria Components の native の検証で送信を止める。TanStack Form が受け取った誤りは、ほかの入力と同じように表示する。
+日付が未完の間は、React Aria Components の確定値に直前の日付が残る。単独の DateInput とラベル付きの DateField は、focus が外れた時点で同じ処理で年・月・日の状態を調べ、未完のときだけ React Aria Components の native の検証で送信を止める。TanStack Form が受け取った誤りは、ほかの入力と同じように表示する。呼び出し元が別の日付を渡したら、前の日付の未完の状態は引き継がない。
 
 ## 割り切ったこと
+
+- **年 `0000` の日付**。contract が受け付ける年 `0000` は、今回の日付入力の範囲から外す(ユーザーが決めた)。React Aria Components が日付に使う `CalendarDate` で扱うには、別の入力表現を決める必要がある。
