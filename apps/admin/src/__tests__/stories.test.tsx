@@ -7,6 +7,7 @@ import type { ComponentType } from "react";
 import preview from "../../.storybook/preview";
 
 import * as componentsPasskeyNameField from "@/components/__stories__/passkey-name-field.stories";
+import * as componentsForm from "@/components/forms/__stories__/form.stories";
 import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/__stories__/login-page.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
@@ -26,6 +27,7 @@ import * as primitivesNotice from "@/ui/primitives/__stories__/notice.stories";
 import * as primitivesNumberField from "@/ui/primitives/form-fields/__stories__/number-field.stories";
 import * as primitivesTextArea from "@/ui/primitives/form-fields/__stories__/text-area.stories";
 import * as primitivesTextField from "@/ui/primitives/form-fields/__stories__/text-field.stories";
+import * as primitivesTextInput from "@/ui/primitives/form-fields/__stories__/text-input.stories";
 import * as primitivesAppMark from "@/ui/primitives/graphics/__stories__/app-mark.stories";
 import * as primitivesIcon from "@/ui/primitives/graphics/__stories__/icon.stories";
 import * as primitivesSpinner from "@/ui/primitives/graphics/__stories__/spinner.stories";
@@ -38,6 +40,7 @@ import * as specimensColors from "@/ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "@/ui/specimens/__stories__/typography.stories";
 
 const MODULES = {
+  "components/forms/__stories__/form.stories.tsx": componentsForm,
   "components/__stories__/passkey-name-field.stories.tsx":
     componentsPasskeyNameField,
   "routes/__stories__/enroll-page.stories.tsx": routesEnrollPage,
@@ -62,6 +65,8 @@ const MODULES = {
     primitivesTextArea,
   "ui/primitives/form-fields/__stories__/text-field.stories.tsx":
     primitivesTextField,
+  "ui/primitives/form-fields/__stories__/text-input.stories.tsx":
+    primitivesTextInput,
   "ui/primitives/graphics/__stories__/app-mark.stories.tsx": primitivesAppMark,
   "ui/primitives/graphics/__stories__/icon.stories.tsx": primitivesIcon,
   "ui/primitives/graphics/__stories__/spinner.stories.tsx": primitivesSpinner,
