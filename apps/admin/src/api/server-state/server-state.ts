@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { isUnauthorized } from "@/api/api-errors";
+
 type QueryOptions<Data> = {
   /** query のキー。 */
   readonly key: readonly unknown[];
@@ -30,6 +32,8 @@ type MutationOptions<Input, Data> = {
   readonly send: (input: Input) => Promise<Data>;
   /** `send` の Promise が resolve した後に呼ぶ関数。 */
   readonly onSuccess: (data: Data) => void | Promise<void>;
+  /** 送信か送信後の処理が、セッション切れのほかの失敗で終わったときに呼ぶ関数。 */
+  readonly onError?: () => void;
 };
 
 type MutationResult<Input, Data> = {
@@ -79,10 +83,16 @@ export const useApiQuery = <Data>({
 export const useApiMutation = <Data, Input = void>({
   send,
   onSuccess,
+  onError,
 }: MutationOptions<Input, Data>): MutationResult<Input, Data> => {
   const { mutate, reset, isPending, isError, data } = useMutation({
     mutationFn: (input: Input) => send(input),
     onSuccess: (result) => onSuccess(result),
+    onError: (error) => {
+      if (!isUnauthorized(error)) {
+        onError?.();
+      }
+    },
   });
 
   return {

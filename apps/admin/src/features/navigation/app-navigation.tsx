@@ -22,9 +22,20 @@ type NavigationGroup = {
 const GROUPS: readonly NavigationGroup[] = [
   { items: [{ href: "/", label: "home.title", icon: "house" }] },
   {
+    heading: "navigation.content",
+    items: [
+      { href: "/fixed-pages", label: "fixedPages.title", icon: "file-text" },
+    ],
+  },
+  {
     heading: "navigation.settings",
     items: [
       { href: "/security", label: "security.title", icon: "shield-check" },
+      {
+        href: "/deploy-tokens",
+        label: "deployTokens.title",
+        icon: "key-round",
+      },
     ],
   },
 ];

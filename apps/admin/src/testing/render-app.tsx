@@ -1,3 +1,4 @@
+import type { QueryClient } from "@tanstack/react-query";
 import type { RouterHistory } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 import type { i18n as I18n } from "i18next";
@@ -19,6 +20,8 @@ export type RenderedApp = {
   readonly history: RouterHistory;
   /** 呼ばれた procedure のパスの並び。 */
   readonly calls: readonly string[];
+  /** server の状態を持つ query client(何を持っているかを確かめるときに使う)。 */
+  readonly queryClient: QueryClient;
   /** 画面の言語と訳を持つ i18next の instance。 */
   readonly i18n: I18n;
 };
@@ -33,5 +36,5 @@ export const renderApp = ({
 
   render(<App i18n={i18n} queryClient={queryClient} router={router} />);
 
-  return { history, calls, i18n };
+  return { history, calls, queryClient, i18n };
 };

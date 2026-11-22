@@ -51,6 +51,7 @@ export const ja = {
   "navigation.main": "メイン",
   "navigation.drawer": "ナビ",
   "navigation.settings": "設定",
+  "navigation.content": "コンテンツ",
   "notFound.title": "ページが見つかりません",
   "notFound.description": "{{path}} にページはありません。",
   "notFound.backHome": "ホームに戻る",
@@ -138,4 +139,78 @@ export const ja = {
   "sessions.logOutAllFailed":
     "ログアウトできませんでした。もう一度試してください。",
   "passkeys.renamed": "パスキーの名前を変更しました。",
+  "deployTokens.title": "デプロイ用のトークン",
+  "deployTokens.description":
+    "公開サイトのデプロイで、種類の定義を送るときに使うトークン。トークンの値は、発行した直後に一度だけ表示します。",
+  "deployTokens.listTitle": "発行したトークン",
+  "deployTokens.issue": "トークンを発行",
+  "deployTokens.issueDescription":
+    "発行の前に、登録済みのパスキーで本人確認をします。",
+  "deployTokens.name": "トークンの名前",
+  "deployTokens.nameDescription":
+    "どこで使うかが分かる名前(本番のデプロイなど)。",
+  "deployTokens.invalidName": "1〜64文字で、改行などを使わずに付けてください。",
+  "deployTokens.cancel": "キャンセル",
+  "deployTokens.issued": "「{{name}}」を発行しました。",
+  "deployTokens.issuedTitle": "新しいトークンをコピー",
+  "deployTokens.shownOnce":
+    "トークンの値を表示するのは今だけです。閉じる前にコピーしてください。",
+  "deployTokens.value": "「{{name}}」のトークン",
+  "deployTokens.copy": "コピー",
+  "deployTokens.copied": "トークンをクリップボードにコピーしました。",
+  "deployTokens.copyFailed":
+    "コピーできませんでした。トークンを選んで、手でコピーしてください。",
+  "deployTokens.close": "閉じる",
+  "deployTokens.dates": "発行 {{created}}・最終使用 {{lastUsed}}",
+  "deployTokens.datesUnused": "発行 {{created}}・未使用",
+  "deployTokens.loading": "トークンを読み込んでいます。",
+  "deployTokens.loadFailed": "トークンを読み込めませんでした。",
+  "deployTokens.emptyTitle": "トークンはまだありません",
+  "deployTokens.emptyDescription":
+    "公開サイトのデプロイに使うトークンを発行してください。",
+  "deployTokens.revoke": "取り消す",
+  "deployTokens.revokeTitle": "「{{name}}」を取り消しますか?",
+  "deployTokens.revokeDescription":
+    "このトークンを使うデプロイは、種類の定義を送れなくなります。取り消したトークンは元に戻せません。",
+  "deployTokens.revoked": "「{{name}}」を取り消しました。",
+  "deployTokens.cancelled": "トークンの発行をキャンセルしました。",
+  "deployTokens.reauthenticationFailed": "本人確認ができませんでした。",
+  "deployTokens.notFound": "このトークンはもうありません。",
+  "deployTokens.failed":
+    "操作できませんでした。時間をおいて、もう一度試してください。",
+  "fixedPages.title": "固定ページ",
+  "fixedPages.description": "About など、公開サイトに置くページ。",
+  "fixedPages.loading": "固定ページを読み込んでいます。",
+  "fixedPages.loadFailed": "固定ページを読み込めませんでした。",
+  "fixedPages.emptyTitle": "固定ページはまだありません",
+  "fixedPages.emptyDescription": "作った固定ページは、ここに並びます。",
+  "fixedPages.reorderHint":
+    "左の取っ手をドラッグすると、並び順を変えられます。",
+  "fixedPages.savingOrder": "並び順を保存しています",
+  "fixedPages.reordered": "並び順を保存しました。",
+  "fixedPages.orderMismatch":
+    "ほかで固定ページが増えたか減ったため、並び順を保存できませんでした。一覧を読み込み直したので、もう一度並べ直してください。",
+  "fixedPages.reorderFailed":
+    "並び順を保存できませんでした。もう一度試してください。",
+  "fixedPages.published": "公開中",
+  "fixedPages.unpublished": "非公開",
+  "fixedPages.details": "{{slug}}・{{kind}}・{{updated}} に更新",
+  "fixedPages.publish": "公開する",
+  "fixedPages.unpublish": "非公開にする",
+  "fixedPages.publishDone": "「{{title}}」を公開しました。",
+  "fixedPages.unpublishDone": "「{{title}}」を非公開にしました。",
+  "fixedPages.gone":
+    "「{{title}}」はもうありません。一覧を読み込み直しました。",
+  "fixedPages.publicationFailed":
+    "「{{title}}」の公開状態を変えられませんでした。もう一度試してください。",
+  "fixedPages.delete": "削除",
+  "fixedPages.deleteTitle": "「{{title}}」を削除しますか?",
+  "fixedPages.deleteDescription":
+    "削除した固定ページは元に戻せません。公開サイトからも見えなくなります。",
+  "fixedPages.cancel": "キャンセル",
+  "fixedPages.deleted": "「{{title}}」を削除しました。",
+  "fixedPages.notFound":
+    "この固定ページはもうありません。一覧を読み込み直しました。",
+  "fixedPages.deleteFailed":
+    "固定ページを削除できませんでした。もう一度試してください。",
 } satisfies Translation;
