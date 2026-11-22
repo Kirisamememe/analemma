@@ -13,6 +13,7 @@ export const TEST_ONLY_DIRECTORIES = [
 ];
 
 const TEST_SIDE_DIRECTORIES = ["/__tests__/", "/__stories__/", "/.storybook/"];
+const SOURCE_EXTENSION = /\.(?:[cm]?[jt]s|[jt]sx)$/v;
 
 /** テストの側・story・Storybook の設定だけが import できるもの。 */
 const STORY_ONLY = [
@@ -49,6 +50,8 @@ export const findTestOnlyImports = ({ path, text }: SourceFile): string[] => {
 
   return requests
     .filter((request) => request.startsWith("."))
-    .map((request) => posix.join(posix.dirname(path), request))
+    .map((request) =>
+      posix.join(posix.dirname(path), request).replace(SOURCE_EXTENSION, ""),
+    )
     .filter((target) => isInside(target) || isStoryOnly(target));
 };
