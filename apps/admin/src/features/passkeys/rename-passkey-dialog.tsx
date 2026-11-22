@@ -16,11 +16,11 @@ import { Dialog, useShowToast } from "@/ui/primitives/overlays";
 /** パスキーの名前を変更する Dialog に渡す値。 */
 type RenamePasskeyDialogProps = {
   /** 開いているか。 */
-  readonly isOpen: boolean;
+  isOpen: boolean;
   /** 名前を変更するパスキー。 */
-  readonly passkey: PasskeySummary;
+  passkey: PasskeySummary;
   /** 閉じる関数。 */
-  readonly onClose: () => void;
+  onClose: () => void;
 };
 
 /** パスキーの名前を変更する Dialog。 */

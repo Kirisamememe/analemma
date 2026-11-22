@@ -23,15 +23,15 @@ const navItem = tv({
 /** ナビのリンクに渡す値。 */
 export type NavLinkProps = {
   /** 管理画面の中の行き先。 */
-  readonly href: LinkProps["href"];
+  href: LinkProps["href"];
   /** リンクの文言。 */
-  readonly children: ReactNode;
+  children: ReactNode;
   /** リンクに添えるアイコン。 */
-  readonly icon: IconName;
+  icon: IconName;
   /** 今いる画面へのリンクか。 */
-  readonly isCurrent: boolean;
+  isCurrent: boolean;
   /** 押したときに呼ぶ関数。 */
-  readonly onPress?: (() => void) | undefined;
+  onPress?: (() => void) | undefined;
 };
 
 /** ナビのリンク。 */
@@ -59,13 +59,13 @@ export const NavLink = ({
 /** ナビのボタンに渡す値。 */
 type NavButtonProps = {
   /** ボタンの文言。 */
-  readonly children: ReactNode;
+  children: ReactNode;
   /** ボタンに添えるアイコン。 */
-  readonly icon: IconName;
+  icon: IconName;
   /** 送信中か。 */
-  readonly isPending?: boolean;
+  isPending?: boolean;
   /** 押したときに呼ぶ関数。 */
-  readonly onPress?: () => void;
+  onPress?: () => void;
 };
 
 /** ナビに置く操作のボタン。 */

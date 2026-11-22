@@ -9,11 +9,11 @@ import type { AppRouter } from "./router";
 /** 管理画面の全体に渡す値。 */
 type AppProps = {
   /** 画面の言語と訳を持つ i18next の instance。 */
-  readonly i18n: I18n;
+  i18n: I18n;
   /** 管理画面の router。 */
-  readonly router: AppRouter;
+  router: AppRouter;
   /** server の状態を持つ query client。 */
-  readonly queryClient: QueryClient;
+  queryClient: QueryClient;
 };
 
 /** 言語・server の状態・route をつないだ、管理画面の全体。 */

@@ -10,7 +10,7 @@ afterEach(cleanup);
 /** 開いた状態から始める Dialog に渡す値。 */
 type OpenDialogProps = {
   /** 送信中か。 */
-  readonly isPending: boolean;
+  isPending: boolean;
 };
 
 const OpenDialog = ({ isPending }: OpenDialogProps): ReactNode => {

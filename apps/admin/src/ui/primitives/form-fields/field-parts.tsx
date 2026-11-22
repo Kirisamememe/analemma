@@ -6,7 +6,7 @@ import { typography } from "@/ui/typography";
 /** 入力欄の文言。 */
 type FieldTextProps = {
   /** ラベルまたは補足の文言。 */
-  readonly children: string;
+  children: string;
 };
 
 /** 入力欄のラベル。 */

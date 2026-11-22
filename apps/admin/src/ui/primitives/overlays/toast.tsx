@@ -71,7 +71,7 @@ const createQueue = (): AriaToastQueue<ToastMessage> => {
 
 type ToastProviderProps = {
   /** 管理画面の中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** Toast の queue と region を持つ Provider。 */

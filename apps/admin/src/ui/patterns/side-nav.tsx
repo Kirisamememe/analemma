@@ -31,23 +31,23 @@ type SideNavGroup = {
 /** ナビに渡す値。 */
 type SideNavProps = {
   /** アプリの名前。 */
-  readonly appName: string;
+  appName: string;
   /** ナビの名前。 */
-  readonly label: string;
+  label: string;
   /** drawer の Dialog の名前。 */
-  readonly drawerLabel: string;
+  drawerLabel: string;
   /** drawer の操作を送信中か。 */
-  readonly isDrawerPending?: boolean;
+  isDrawerPending?: boolean;
   /** ナビのリンクのまとまり。 */
-  readonly groups: readonly SideNavGroup[];
+  groups: readonly SideNavGroup[];
   /** 下の段に置く操作。 */
-  readonly footer: ReactNode;
+  footer: ReactNode;
 };
 
 /** ナビの中身に渡す値。 */
 type SideNavContentProps = Pick<SideNavProps, "label" | "groups" | "footer"> & {
   /** リンクを押したときに呼ぶ関数。 */
-  readonly onPress?: (() => void) | undefined;
+  onPress?: (() => void) | undefined;
 };
 
 /** ナビのリンクのまとまりに渡す値。 */

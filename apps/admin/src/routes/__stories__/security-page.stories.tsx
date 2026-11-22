@@ -6,7 +6,7 @@ import { createFakeAuthenticator } from "@/testing/create-fake-authenticator";
 import {
   createPasskeyRoutes,
   type FakePasskeySeed,
-} from "@/testing/create-passkey-routes";
+} from "@/testing/fake-routes/create-passkey-routes";
 
 const PASSKEYS: readonly FakePasskeySeed[] = [
   { name: "MacBook Air", backedUp: true },

@@ -24,13 +24,13 @@ const createStoryRouter = () =>
 /** `StoryFrame` に渡す値。 */
 type StoryFrameProps = {
   /** 訳と部品が使う言語。 */
-  readonly locale: Locale;
+  locale: Locale;
   /** story に見える文の言語(訳でない見本の文のとき)。 */
-  readonly contentLang: string | undefined;
+  contentLang: string | undefined;
   /** 配色。 */
-  readonly theme: Exclude<Theme, "system">;
+  theme: Exclude<Theme, "system">;
   /** story の中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** story を、管理画面と同じ言語・配色・router の中で描く枠。 */
@@ -56,9 +56,9 @@ export const StoryFrame = ({
 /** `Staged` に渡す値。 */
 type StagedProps = {
   /** 展示用の枠の幅(無ければ枠を付けない)。 */
-  readonly width: "fit" | "fill" | undefined;
+  width: "fit" | "fill" | undefined;
   /** story の中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** story を、展示用の枠に入れて見せる部品。 */

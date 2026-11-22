@@ -19,9 +19,9 @@ const badge = tv({
 /** バッジに渡す値。 */
 type BadgeProps = {
   /** バッジの用途。 */
-  readonly tone: "neutral" | "info" | "success" | "warning" | "danger";
+  tone: "neutral" | "info" | "success" | "warning" | "danger";
   /** バッジの文言。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 状態を短く示すバッジ。 */

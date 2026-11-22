@@ -15,11 +15,11 @@ import { Dialog, useShowToast } from "@/ui/primitives/overlays";
 /** パスキーを削除する Dialog に渡す値。 */
 type DeletePasskeyDialogProps = {
   /** 開いているか。 */
-  readonly isOpen: boolean;
+  isOpen: boolean;
   /** 削除するパスキー。 */
-  readonly passkey: PasskeySummary;
+  passkey: PasskeySummary;
   /** 閉じる関数。 */
-  readonly onClose: () => void;
+  onClose: () => void;
 };
 
 /** 再認証をしてから、パスキーを削除する Dialog。 */

@@ -6,7 +6,7 @@ import type { AppRouter } from "@/app";
 
 type WrapperProps = {
   /** 描く部品。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** hook のテストに query client を渡す。 */

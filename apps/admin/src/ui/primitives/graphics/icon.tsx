@@ -25,7 +25,7 @@ export type IconName = keyof typeof ICONS;
 /** アイコンに渡す値。 */
 type IconProps = {
   /** アイコンの名前。 */
-  readonly name: IconName;
+  name: IconName;
 };
 
 /** 文字や操作に添える装飾のアイコン。 */
