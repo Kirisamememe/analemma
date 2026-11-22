@@ -8,7 +8,10 @@ import {
   createAuthGate,
   gateAdminRequests,
 } from "./features/auth/create-auth-gate";
-import { createAuthenticator } from "./features/auth/webauthn/create-authenticator";
+import {
+  type WebAuthn,
+  createAuthenticator,
+} from "./features/auth/webauthn/create-authenticator";
 import { createI18n } from "./i18n/create-i18n";
 import { toLocale } from "./i18n/locales";
 import { syncLocale } from "./preferences/sync-locale";
@@ -25,6 +28,25 @@ const i18n = createI18n(toLocale(document.documentElement.lang));
 
 syncLocale(i18n);
 
+const toJson = (credential: Credential | null): unknown =>
+  credential instanceof PublicKeyCredential ? credential.toJSON() : null;
+
+const webAuthn: WebAuthn = {
+  get: async (options) =>
+    toJson(
+      await navigator.credentials.get({
+        publicKey: PublicKeyCredential.parseRequestOptionsFromJSON(options),
+      }),
+    ),
+  create: async (options, signal) =>
+    toJson(
+      await navigator.credentials.create({
+        publicKey: PublicKeyCredential.parseCreationOptionsFromJSON(options),
+        ...(signal === undefined ? {} : { signal }),
+      }),
+    ),
+};
+
 const gate = createAuthGate();
 const { router, queryClient } = createApp({
   history: createBrowserHistory(),
@@ -34,7 +56,7 @@ const { router, queryClient } = createApp({
       fetch(request, init),
     ),
   }),
-  authenticator: createAuthenticator(navigator.credentials),
+  authenticator: createAuthenticator(webAuthn),
   gate,
 });
 

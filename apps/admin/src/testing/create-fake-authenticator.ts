@@ -1,11 +1,9 @@
 import type {
+  AuthenticationCredential,
   Authenticator,
   AuthenticatorAnswer,
-} from "../features/auth/webauthn/create-authenticator";
-import type {
-  AuthenticationCredential,
   RegistrationCredential,
-} from "../features/auth/webauthn/to-credentials";
+} from "../features/auth/webauthn/create-authenticator";
 
 /** 作り物の認証器が返す答え。 */
 export type FakeAnswers = {
