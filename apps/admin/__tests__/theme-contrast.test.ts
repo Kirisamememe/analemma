@@ -11,6 +11,9 @@ const SCHEMES = ["light", "dark"] as const;
 const SURFACES = ["canvas", "surface", "surface-sunken"] as const;
 const MEANINGS = ["info", "success", "warning", "danger"] as const;
 const TINT = 0.1;
+const WITHOUT_FILL = ["on-media"];
+const SYSTEM_COLOR =
+  /^(?:Canvas|CanvasText|LinkText|VisitedText|ActiveText|ButtonFace|ButtonText|ButtonBorder|Field|FieldText|Highlight|HighlightText|SelectedItem|SelectedItemText|Mark|MarkText|GrayText|AccentColor|AccentColorText)$/v;
 
 /** sRGB の、0〜1 の光の強さ(gamma を外した値)。 */
 type LinearRgb = readonly [number, number, number];
@@ -26,17 +29,18 @@ type Layer = {
   readonly alpha: number;
 };
 
-const definitionsOf = (prefix: string): Map<string, string> => {
-  const definitions = new Map<string, string>();
+const definitionsOf = (prefix: string): Map<string, string[]> => {
+  const definitions = new Map<string, string[]>();
 
   for (const { groups } of theme.matchAll(
     new RegExp(`--${prefix}-(?<name>[a-z0-9\\-]+):\\s*(?<value>[^;]+);`, "gv"),
   )) {
     const name = groups?.["name"] ?? "";
 
-    if (!definitions.has(name)) {
-      definitions.set(name, (groups?.["value"] ?? "").trim());
-    }
+    definitions.set(name, [
+      ...(definitions.get(name) ?? []),
+      (groups?.["value"] ?? "").trim(),
+    ]);
   }
 
   return definitions;
@@ -78,12 +82,12 @@ const resolve = (value: string): LinearRgb => {
   return fromOklch(
     variable === null
       ? value
-      : (palette.get(variable.groups?.["name"] ?? "") ?? ""),
+      : (palette.get(variable.groups?.["name"] ?? "")?.[0] ?? ""),
   );
 };
 
 const colorOf = (name: string, scheme: Scheme): LinearRgb => {
-  const value = colors.get(name) ?? "";
+  const value = colors.get(name)?.[0] ?? "";
   const both = /^light-dark\((?<light>[^,]+),(?<dark>[^,]+)\)$/v.exec(value);
 
   return resolve((both?.groups?.[scheme] ?? value).trim());
@@ -114,24 +118,45 @@ const contrast = (first: LinearRgb, second: LinearRgb): number => {
 
 const HOVER =
   Number(
-    /@utility state-hover \{[^\}]*currentColor (?<percent>\d+)%/v.exec(theme)
-      ?.groups?.["percent"],
+    /@utility state-hover \{\s*background-image: linear-gradient\(\s*color-mix\(in oklab, currentColor (?<percent>\d+)%, transparent\) 0 0\s*\);\s*\}/v.exec(
+      theme,
+    )?.groups?.["percent"],
   ) / 100;
 
-const FILLS = [...colors.keys()].flatMap((name) => {
-  const fill = name.replace(/^on-/v, "");
+const TEXTS_ON_FILLS = [...colors.keys()].filter((name) =>
+  name.startsWith("on-"),
+);
 
-  return name.startsWith("on-") && colors.has(fill)
-    ? SCHEMES.map((scheme) => ({ text: name, fill, scheme }))
+const FILLS = TEXTS_ON_FILLS.flatMap((text) => {
+  const fill = text.replace(/^on-/v, "");
+
+  return colors.has(fill)
+    ? SCHEMES.map((scheme) => ({ text, fill, scheme }))
     : [];
 });
 
-describe("theme.css の色のコントラスト(WCAG の AA)", () => {
-  test("塗りと、その上の文字の組(on-*)を読み取れている", () => {
-    expect(FILLS.map(({ fill }) => fill)).toContain("danger-strong");
-    expect(HOVER).toBeGreaterThan(0);
+describe("theme.css の色の定義", () => {
+  test("役割の色は1か所で定義し、ほかで上書きするのは forced-colors のシステムの色だけ", () => {
+    expect(
+      [...colors].filter(
+        ([, [, ...overrides]]) =>
+          !overrides.every((value) => SYSTEM_COLOR.test(value)),
+      ),
+    ).toEqual([]);
   });
 
+  test("on-* の色は、どれも同じ名前の塗りの色と組になる(写真の上の文字を除く)", () => {
+    expect(
+      TEXTS_ON_FILLS.filter((text) => !colors.has(text.replace(/^on-/v, ""))),
+    ).toEqual(WITHOUT_FILL);
+  });
+
+  test("hover の重ねは、文字の色を透明と混ぜたものとして読み取れる", () => {
+    expect(HOVER).toBeGreaterThan(0);
+  });
+});
+
+describe("theme.css の色のコントラスト(WCAG の AA)", () => {
   test.each(FILLS)(
     "$scheme の $fill の塗りの上で、$text の文字が 4.5:1 に届く(hover の重ねも)",
     ({ text, fill, scheme }) => {
