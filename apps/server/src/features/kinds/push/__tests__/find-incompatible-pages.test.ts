@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 
 import { kindDefinition } from "@analemma/contract";
 
-import { findIncompatiblePages } from "../find-incompatible-pages";
+import { findIncompatiblePages } from "@/features/kinds/push/find-incompatible-pages";
 
 const profile = kindDefinition.parse({
   name: "profile",

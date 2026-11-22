@@ -6,8 +6,8 @@ import { bodyLimit } from "hono/body-limit";
 import { csrf } from "hono/csrf";
 import { secureHeaders } from "hono/secure-headers";
 
-import type { AppContext } from "./context";
-import { router } from "./router";
+import type { AppContext } from "@/context";
+import { router } from "@/router";
 
 const API_PREFIX = "/api";
 const API_BODY_LIMIT = 1024 * 1024;

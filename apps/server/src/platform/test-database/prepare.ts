@@ -1,9 +1,9 @@
-import { stdoutLogger } from "../logger";
-import { prepareTestTemplate } from "./prepare-test-template";
+import { stdoutLogger } from "@/platform/logger";
+import { prepareTestTemplate } from "@/platform/test-database/prepare-test-template";
 import {
   type StartTestPostgresResult,
   startTestPostgres,
-} from "./start-test-postgres";
+} from "@/platform/test-database/start-test-postgres";
 
 const FAILURE_MESSAGES: Record<
   Exclude<StartTestPostgresResult["_tag"], "Started">,

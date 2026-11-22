@@ -1,31 +1,37 @@
 import { describe, expect, test } from "bun:test";
 
-import { decodeCbor, isCborMap } from "../cbor/decode-cbor";
-import { COSE_ALGORITHM } from "../cose-key/cose-algorithm";
+import {
+  decodeCbor,
+  isCborMap,
+} from "@/features/auth/webauthn/cbor/decode-cbor";
+import { COSE_ALGORITHM } from "@/features/auth/webauthn/cose-key/cose-algorithm";
 import {
   AUTHENTICATOR_FLAG,
   buildAuthenticatorData,
   hashRpId,
-} from "../fake-authenticator/build-authenticator-data";
+} from "@/features/auth/webauthn/fake-authenticator/build-authenticator-data";
 import {
   type FakeAuthenticator,
   createFakeAuthenticator,
-} from "../fake-authenticator/create-fake-authenticator";
+} from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
 import {
   type FakeRegistrationInput,
   createFakeRegistration,
-} from "../fake-authenticator/create-fake-registration";
-import { type CborInput, encodeCbor } from "../fake-authenticator/encode-cbor";
+} from "@/features/auth/webauthn/fake-authenticator/create-fake-registration";
+import {
+  type CborInput,
+  encodeCbor,
+} from "@/features/auth/webauthn/fake-authenticator/encode-cbor";
 import {
   type RegistrationExpectation,
   type RegistrationResponse,
   verifyRegistration,
-} from "../verify-registration";
+} from "@/features/auth/webauthn/verify-registration";
 import {
   W3C_RELYING_PARTY,
   W3C_TEST_VECTORS,
   type W3cTestVector,
-} from "../w3c-test-vectors";
+} from "@/features/auth/webauthn/w3c-test-vectors";
 
 const F = AUTHENTICATOR_FLAG;
 const ORIGIN = "https://analemma.test";

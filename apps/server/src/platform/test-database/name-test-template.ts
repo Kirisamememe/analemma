@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
 
-import type { MigrationFingerprint } from "../../db/read-migrations";
+import type { MigrationFingerprint } from "@/db/read-migrations";
 
 const HASH_LENGTH = 16;
 

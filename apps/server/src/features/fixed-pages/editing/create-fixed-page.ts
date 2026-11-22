@@ -1,8 +1,8 @@
-import { adminProcedures } from "../../../procedures";
-import { checkContent } from "../../kinds/check-content";
-import { toFixedPageDetail } from "../to-fixed-page-detail";
-import { lockKindFields } from "./lock-kind-fields.query";
-import { saveFixedPage } from "./save-fixed-page.query";
+import { lockKindFields } from "@/features/fixed-pages/editing/queries/lock-kind-fields.query";
+import { saveFixedPage } from "@/features/fixed-pages/editing/queries/save-fixed-page.query";
+import { toFixedPageDetail } from "@/features/fixed-pages/to-fixed-page-detail";
+import { checkContent } from "@/features/kinds/check-content";
+import { adminProcedures } from "@/procedures";
 
 /** 選んだ種類が無いこと。 */
 type UnknownKind = {

@@ -1,7 +1,7 @@
 import { pgTable, smallint, text, timestamp } from "drizzle-orm/pg-core";
 
-import { adminUser } from "./admin-user";
-import { bytes } from "./bytes";
+import { adminUser } from "@/db/schema/admin-user";
+import { bytes } from "@/db/schema/bytes";
 
 /** 1回きりの登録用 URL の token のテーブル。 */
 export const passkeyEnrollment = pgTable("passkey_enrollment", {

@@ -3,7 +3,7 @@ import type { PgAsyncDatabase } from "drizzle-orm/pg-core/async/db";
 import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js/session";
 import { z } from "zod";
 
-import type { MigrationFingerprint } from "./read-migrations";
+import type { MigrationFingerprint } from "@/db/read-migrations";
 
 const appliedSchema = z.array(
   z.object({ name: z.string().nullable(), hash: z.string() }),

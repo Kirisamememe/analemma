@@ -1,7 +1,13 @@
-import type { CborMap } from "../cbor/decode-cbor";
-import { type WebAuthnRejection, reject } from "../rejection";
-import { COSE_ALGORITHM, type CoseAlgorithm } from "./cose-algorithm";
-import { readDerSignature } from "./read-der-signature";
+import type { CborMap } from "@/features/auth/webauthn/cbor/decode-cbor";
+import {
+  COSE_ALGORITHM,
+  type CoseAlgorithm,
+} from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import { readDerSignature } from "@/features/auth/webauthn/cose-key/read-der-signature";
+import {
+  type WebAuthnRejection,
+  reject,
+} from "@/features/auth/webauthn/rejection";
 
 /** JWK の形の公開鍵。 */
 export type PublicJwk = {

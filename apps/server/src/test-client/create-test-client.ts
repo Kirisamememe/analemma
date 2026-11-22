@@ -8,17 +8,17 @@ import {
   createInternalApp,
   type externalRouter,
   type internalRouter,
-} from "../app";
+} from "@/app";
 import {
   CHALLENGE_CAPACITY,
   CHALLENGE_LIFETIME_MS,
   createChallengeStore,
-} from "../features/auth/challenge/create-challenge-store";
-import { issueEnrollment } from "../features/auth/enrollment/issue-enrollment";
-import type { Clock } from "../platform/clock";
-import type { LogEntry, Logger } from "../platform/logger";
-import { createTestDatabase } from "../platform/test-database/create-test-database";
-import { createCookieJar } from "./create-cookie-jar";
+} from "@/features/auth/challenge/create-challenge-store";
+import { issueEnrollment } from "@/features/auth/enrollment/issue-enrollment";
+import type { Clock } from "@/platform/clock";
+import type { LogEntry, Logger } from "@/platform/logger";
+import { createTestDatabase } from "@/platform/test-database/create-test-database";
+import { createCookieJar } from "@/test-client/create-cookie-jar";
 
 /** テストで差し替える依存と、最初から持たせる Cookie。 */
 export type TestClientOptions = {

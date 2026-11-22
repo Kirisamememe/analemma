@@ -1,15 +1,18 @@
 import type postgres from "postgres";
 
-import { migrateDatabase } from "../../db/migrate-database";
+import { migrateDatabase } from "@/db/migrate-database";
 import {
   MIGRATIONS_FOLDER,
   type MigrationFingerprint,
   readMigrations,
-} from "../../db/read-migrations";
-import type { Logger } from "../logger";
-import { connectTestAdmin } from "./connect-test-admin";
-import { nameTestTemplate } from "./name-test-template";
-import { TEST_POSTGRES, toTestDatabaseTarget } from "./to-test-database-target";
+} from "@/db/read-migrations";
+import type { Logger } from "@/platform/logger";
+import { connectTestAdmin } from "@/platform/test-database/connect-test-admin";
+import { nameTestTemplate } from "@/platform/test-database/name-test-template";
+import {
+  TEST_POSTGRES,
+  toTestDatabaseTarget,
+} from "@/platform/test-database/to-test-database-target";
 
 /** テンプレートの DB を用意するための設定。 */
 export type PrepareTestTemplateOptions = {

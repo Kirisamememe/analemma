@@ -1,11 +1,18 @@
-import { deployProcedures } from "../../../procedures";
 import {
   type IncompatiblePage,
   findIncompatiblePages,
-} from "./find-incompatible-pages";
-import { insertNewKinds, lockKinds, updateKinds } from "./kinds.query";
-import { listKindPages } from "./list-kind-pages.query";
-import { type KindChange, toKindChanges } from "./to-kind-changes";
+} from "@/features/kinds/push/find-incompatible-pages";
+import {
+  insertNewKinds,
+  lockKinds,
+  updateKinds,
+} from "@/features/kinds/push/queries/kinds.query";
+import { listKindPages } from "@/features/kinds/push/queries/list-kind-pages.query";
+import {
+  type KindChange,
+  toKindChanges,
+} from "@/features/kinds/push/to-kind-changes";
+import { deployProcedures } from "@/procedures";
 
 /** 送られた定義を受け付けたか、既存のページに合わずに断ったか。 */
 type PushOutcome =

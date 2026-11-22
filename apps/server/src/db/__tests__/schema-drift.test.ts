@@ -4,7 +4,7 @@ import { cp, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { MIGRATIONS_FOLDER } from "../read-migrations";
+import { MIGRATIONS_FOLDER } from "@/db/read-migrations";
 
 const SERVER_ROOT = join(import.meta.dirname, "../../..");
 const DRIZZLE_KIT = join(SERVER_ROOT, "node_modules/.bin/drizzle-kit");

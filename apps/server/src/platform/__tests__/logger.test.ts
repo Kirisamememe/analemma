@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { formatLogLine } from "../logger";
+import { formatLogLine } from "@/platform/logger";
 
 test("1件のログを、改行で終わる1行の JSON にすること", () => {
   const line = formatLogLine({

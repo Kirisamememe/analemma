@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { findChangedMigrations } from "../find-changed-migrations";
+import { findChangedMigrations } from "@/db/find-changed-migrations";
 
 const applied = [
   { name: "20260101000000_create-notes", hash: "a" },

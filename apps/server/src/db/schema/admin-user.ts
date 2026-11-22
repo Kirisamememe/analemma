@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { check, pgTable, smallint, timestamp } from "drizzle-orm/pg-core";
 
-import { bytes } from "./bytes";
+import { bytes } from "@/db/schema/bytes";
 
 /** 管理者の行を指す、ただ1つの ID。 */
 export const ADMIN_USER_ID = 1;

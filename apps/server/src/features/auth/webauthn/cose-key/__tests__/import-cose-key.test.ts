@@ -1,18 +1,21 @@
 import { describe, expect, test } from "bun:test";
 
-import { type CborMap, decodeCbor } from "../../cbor/decode-cbor";
-import { convertToDerSignature } from "../../fake-authenticator/convert-to-der-signature";
+import {
+  type CborMap,
+  decodeCbor,
+} from "@/features/auth/webauthn/cbor/decode-cbor";
+import { COSE_ALGORITHM } from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import { importCoseKey } from "@/features/auth/webauthn/cose-key/import-cose-key";
+import { convertToDerSignature } from "@/features/auth/webauthn/fake-authenticator/convert-to-der-signature";
 import {
   type CborInput,
   encodeCbor,
-} from "../../fake-authenticator/encode-cbor";
-import { encodeCoseKey } from "../../fake-authenticator/encode-cose-key";
+} from "@/features/auth/webauthn/fake-authenticator/encode-cbor";
+import { encodeCoseKey } from "@/features/auth/webauthn/fake-authenticator/encode-cose-key";
 import {
   SIGN_PARAMS,
   generateTestKeyPair,
-} from "../../fake-authenticator/generate-test-key-pair";
-import { COSE_ALGORITHM } from "../cose-algorithm";
-import { importCoseKey } from "../import-cose-key";
+} from "@/features/auth/webauthn/fake-authenticator/generate-test-key-pair";
 
 const es256Map = async (): Promise<CborMap> => {
   const pair = await generateTestKeyPair(COSE_ALGORITHM.ES256);

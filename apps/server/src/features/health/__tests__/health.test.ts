@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { createTestClient } from "../../../test-client/create-test-client";
+import { createTestClient } from "@/test-client";
 
 test("ログインしていなくても、server の状態を返すこと", async () => {
   await using server = await createTestClient();

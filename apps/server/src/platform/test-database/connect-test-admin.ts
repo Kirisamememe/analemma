@@ -1,6 +1,6 @@
 import postgres from "postgres";
 
-import { toTestDatabaseTarget } from "./to-test-database-target";
+import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
 
 /** テスト用の PostgreSQL への、superuser の接続。 */
 export type TestAdminConnection = AsyncDisposable & {

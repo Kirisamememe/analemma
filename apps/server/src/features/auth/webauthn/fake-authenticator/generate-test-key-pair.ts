@@ -1,4 +1,7 @@
-import { COSE_ALGORITHM, type CoseAlgorithm } from "../cose-key/cose-algorithm";
+import {
+  COSE_ALGORITHM,
+  type CoseAlgorithm,
+} from "@/features/auth/webauthn/cose-key/cose-algorithm";
 
 /** WebCrypto で鍵ペアを作るアルゴリズム。 */
 type GenerateParams = {

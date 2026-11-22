@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { createChallengeStore } from "../create-challenge-store";
+import { createChallengeStore } from "@/features/auth/challenge/create-challenge-store";
 
 const NOW = new Date("2026-01-01T00:00:00.000Z");
 const LOGIN = { kind: "login" } as const;

@@ -1,4 +1,4 @@
-import type { RegistrationFailure } from "./verify-passkey-registration";
+import type { RegistrationFailure } from "@/features/auth/registration/verify-passkey-registration";
 
 /** 登録を受け付けなかった理由ごとの、contract の失敗の名前。 */
 export const REGISTRATION_ERRORS = {

@@ -1,4 +1,4 @@
-import type { MigrationFingerprint } from "./read-migrations";
+import type { MigrationFingerprint } from "@/db/read-migrations";
 
 /** 適用した後に、フォルダの側で変わった migration の名前。 */
 export type ChangedMigrations = {

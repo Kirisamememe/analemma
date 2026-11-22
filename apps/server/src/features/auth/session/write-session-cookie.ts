@@ -4,7 +4,7 @@ import {
   setCookie,
 } from "@orpc/server/helpers";
 
-import type { SessionCookie } from "./to-session-cookie";
+import type { SessionCookie } from "@/features/auth/session/to-session-cookie";
 
 /** 応答に書くセッションの Cookie。 */
 export type SessionCookieWrite = {

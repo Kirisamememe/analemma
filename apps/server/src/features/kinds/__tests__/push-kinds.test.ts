@@ -2,13 +2,13 @@ import { describe, expect, test } from "bun:test";
 
 import type { KindDefinitionInput } from "@analemma/contract";
 
-import { catchErrorCode } from "../../../test-client/catch-error-code";
 import {
+  catchErrorCode,
   TEST_NOW,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { issueTestDeployToken } from "../../../test-client/prepare-test-kinds";
-import { signInAsAdmin } from "../../../test-client/sign-in-as-admin";
+  issueTestDeployToken,
+  signInAsAdmin,
+} from "@/test-client";
 
 const about: KindDefinitionInput = {
   name: "about",

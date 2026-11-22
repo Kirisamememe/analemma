@@ -1,16 +1,19 @@
 import { getCookie } from "@orpc/server/helpers";
 
-import { authProcedures } from "../../../procedures";
+import { recordLogin } from "@/features/auth/login/queries/record-login.query";
+import {
+  type LoginFailure,
+  verifyLogin,
+} from "@/features/auth/login/verify-login";
+import { writeLoginWarnings } from "@/features/auth/login/write-login-warnings";
 import {
   issueSecretToken,
   readSecretToken,
-} from "../secret-token/secret-token";
-import { toSessionExpiry } from "../session/decide-session";
-import { toSessionCookie } from "../session/to-session-cookie";
-import { writeSessionCookie } from "../session/write-session-cookie";
-import { recordLogin } from "./record-login.query";
-import { type LoginFailure, verifyLogin } from "./verify-login";
-import { writeLoginWarnings } from "./write-login-warnings";
+} from "@/features/auth/secret-token/secret-token";
+import { toSessionExpiry } from "@/features/auth/session/decide-session";
+import { toSessionCookie } from "@/features/auth/session/to-session-cookie";
+import { writeSessionCookie } from "@/features/auth/session/write-session-cookie";
+import { authProcedures } from "@/procedures";
 
 const LOGIN_ERRORS = {
   ChallengeExpired: "CHALLENGE_EXPIRED",

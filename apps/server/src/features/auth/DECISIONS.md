@@ -158,7 +158,7 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
 
 ## 同時の書き込み
 
-次の操作のトランザクションは、先に管理者の行のロック(`FOR NO KEY UPDATE`)を取る(`admin-user/admin-user.query.ts` の `lockAdminUser`)。管理者は1人なので、これらの書き込みは1つずつ進む。
+次の操作のトランザクションは、先に管理者の行のロック(`FOR NO KEY UPDATE`)を取る(`admin-user/queries/admin-user.query.ts` の `lockAdminUser`)。管理者は1人なので、これらの書き込みは1つずつ進む。
 
 - ログイン(パスキーの使用を書き、セッションを作る)と、登録用 URL からの登録:セッションの整理から挿入までが重ならず、10個を超えない。
 - 登録用 URL を出すこと:コマンドを同時に動かしても、使える URL は1つだけになる。
@@ -179,6 +179,10 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
 - テストの client は、ブラウザと同じく Set-Cookie を覚えて送り返す。別のブラウザを開けるので、すべてのセッションからのログアウトや、セッションの上限を確かめられる。
 - 時刻は、テストの client に渡す clock で進める。セッションの期限や challenge の寿命は、本物の時間を待たずに確かめる。
 - 想定外の失敗が 500 とログになることは、throw する clock で確かめる。セッションを続ける処理が、DB に問い合わせる前に時刻を読むため。
+
+## ルーターから読む入口
+
+- ログイン・登録用 URL からの登録・セッションの操作・パスキーの管理は、それぞれの `index.ts` でルーターが使う procedure を export する。auth 直下は10件あるので、入口は既存の用途ごとのフォルダに置く。パスキーの管理も、query を `passkeys/queries/` に置くと、入口を含めて10件以内に収まる。
 
 ## 割り切ったこと
 

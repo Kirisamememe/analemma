@@ -1,27 +1,19 @@
 import { describe, expect, test } from "bun:test";
 
+import { createFakeAuthenticator } from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
 import {
   addTestPasskey,
   passkeyIdOf as idOf,
-} from "../../../../test-client/add-test-passkey";
-import {
   answerAuthentication,
   answerReauthentication,
-} from "../../../../test-client/answer-authentication";
-import { answerRegistration } from "../../../../test-client/answer-registration";
-import {
+  answerRegistration,
   SUCCEEDED,
   catchErrorCode,
-} from "../../../../test-client/catch-error-code";
-import {
   TEST_NOW,
   createTestClient,
-} from "../../../../test-client/create-test-client";
-import {
   logInWithPasskey,
   signInAsAdmin,
-} from "../../../../test-client/sign-in-as-admin";
-import { createFakeAuthenticator } from "../../webauthn/fake-authenticator/create-fake-authenticator";
+} from "@/test-client";
 
 describe("パスキーの一覧", () => {
   test("名前・日時・同期されているかだけを返し、公開鍵などは返さないこと", async () => {

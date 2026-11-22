@@ -1,7 +1,7 @@
-import { adminProcedures } from "../../../procedures";
-import { toSessionCookie } from "../session/to-session-cookie";
-import { clearSessionCookie } from "../session/write-session-cookie";
-import { deleteAllSessions } from "./delete-all-sessions.query";
+import { deleteAllSessions } from "@/features/auth/current-session/queries/delete-all-sessions.query";
+import { toSessionCookie } from "@/features/auth/session/to-session-cookie";
+import { clearSessionCookie } from "@/features/auth/session/write-session-cookie";
+import { adminProcedures } from "@/procedures";
 
 /** 今のセッションも含めて、すべてのセッションからログアウトする procedure。 */
 export const logOutAllSessions = adminProcedures.session.logOutAll.handler(

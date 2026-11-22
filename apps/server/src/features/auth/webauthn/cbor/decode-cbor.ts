@@ -1,4 +1,7 @@
-import { type WebAuthnRejection, reject } from "../rejection";
+import {
+  type WebAuthnRejection,
+  reject,
+} from "@/features/auth/webauthn/rejection";
 
 /** 読める CBOR の値。 */
 export type CborValue =

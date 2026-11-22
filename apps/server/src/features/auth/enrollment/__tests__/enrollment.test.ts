@@ -1,26 +1,22 @@
 import { describe, expect, test } from "bun:test";
 
-import { answerRegistration } from "../../../../test-client/answer-registration";
+import { COSE_ALGORITHM } from "@/features/auth/webauthn/cose-key/cose-algorithm";
 import {
+  type FakeAuthenticator,
+  createFakeAuthenticator,
+} from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
+import {
+  answerRegistration,
   SUCCEEDED,
   catchErrorCode,
-} from "../../../../test-client/catch-error-code";
-import {
   TEST_NOW,
   TEST_ORIGIN,
   TEST_RP_ID,
   type TestClient,
   createTestClient,
-} from "../../../../test-client/create-test-client";
-import {
   logInWithPasskey,
   signInAsAdmin,
-} from "../../../../test-client/sign-in-as-admin";
-import { COSE_ALGORITHM } from "../../webauthn/cose-key/cose-algorithm";
-import {
-  type FakeAuthenticator,
-  createFakeAuthenticator,
-} from "../../webauthn/fake-authenticator/create-fake-authenticator";
+} from "@/test-client";
 
 const MINUTE = 60 * 1000;
 

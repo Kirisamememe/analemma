@@ -1,5 +1,5 @@
-import type { Logger } from "../../../platform/logger";
-import type { VerifiedLogin } from "./verify-login";
+import type { VerifiedLogin } from "@/features/auth/login/verify-login";
+import type { Logger } from "@/platform/logger";
 
 /** 確かめたログインか再認証の、拒まずに知らせることを logger に書く。 */
 export const writeLoginWarnings = (

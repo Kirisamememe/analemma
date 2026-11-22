@@ -4,9 +4,9 @@ import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { z } from "zod";
 
-import type { LogEntry } from "../platform/logger";
-import { createTestDatabase } from "../platform/test-database/create-test-database";
-import { toTestDatabaseUrl } from "../platform/test-database/to-test-database-url";
+import type { LogEntry } from "@/platform/logger";
+import { createTestDatabase } from "@/platform/test-database/create-test-database";
+import { toTestDatabaseUrl } from "@/platform/test-database/to-test-database-url";
 
 const MAIN = join(import.meta.dirname, "../main.ts");
 const STOP_DEADLINE_MS = 5000;

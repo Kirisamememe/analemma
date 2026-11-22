@@ -2,7 +2,7 @@ import type { InferContractRouterOutputs } from "@orpc/contract";
 
 import type { contract } from "@analemma/contract";
 
-import { CHALLENGE_LIFETIME_MS } from "../challenge/create-challenge-store";
+import { CHALLENGE_LIFETIME_MS } from "@/features/auth/challenge/create-challenge-store";
 
 /** パスキーでのログインの options の出力。 */
 export type LoginOptions = InferContractRouterOutputs<

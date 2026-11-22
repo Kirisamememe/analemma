@@ -1,15 +1,15 @@
 import { describe, expect, test } from "bun:test";
 
+import { parseAuthenticatorData } from "@/features/auth/webauthn/authenticator-data/parse-authenticator-data";
 import {
   AUTHENTICATOR_FLAG,
   buildAuthenticatorData,
   hashRpId,
-} from "../../fake-authenticator/build-authenticator-data";
+} from "@/features/auth/webauthn/fake-authenticator/build-authenticator-data";
 import {
   type CborInput,
   encodeCbor,
-} from "../../fake-authenticator/encode-cbor";
-import { parseAuthenticatorData } from "../parse-authenticator-data";
+} from "@/features/auth/webauthn/fake-authenticator/encode-cbor";
 
 const F = AUTHENTICATOR_FLAG;
 

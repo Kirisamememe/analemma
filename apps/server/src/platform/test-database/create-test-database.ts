@@ -1,9 +1,12 @@
-import { readMigrations } from "../../db/read-migrations";
-import { type DatabaseConnection, openDatabase } from "../database";
-import type { Logger } from "../logger";
-import { connectTestAdmin } from "./connect-test-admin";
-import { nameTestTemplate } from "./name-test-template";
-import { TEST_POSTGRES, toTestDatabaseTarget } from "./to-test-database-target";
+import { readMigrations } from "@/db/read-migrations";
+import { type DatabaseConnection, openDatabase } from "@/platform/database";
+import type { Logger } from "@/platform/logger";
+import { connectTestAdmin } from "@/platform/test-database/connect-test-admin";
+import { nameTestTemplate } from "@/platform/test-database/name-test-template";
+import {
+  TEST_POSTGRES,
+  toTestDatabaseTarget,
+} from "@/platform/test-database/to-test-database-target";
 
 /** 1つのテストのために作った DB の接続。 */
 export type TestDatabase = DatabaseConnection & {

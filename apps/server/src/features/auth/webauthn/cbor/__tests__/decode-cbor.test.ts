@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
-import { encodeCbor } from "../../fake-authenticator/encode-cbor";
-import { decodeCbor } from "../decode-cbor";
+import { decodeCbor } from "@/features/auth/webauthn/cbor/decode-cbor";
+import { encodeCbor } from "@/features/auth/webauthn/fake-authenticator/encode-cbor";
 
 const bytes = (...values: number[]): Uint8Array<ArrayBuffer> =>
   new Uint8Array(values);

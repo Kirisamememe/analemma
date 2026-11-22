@@ -1,26 +1,26 @@
 import { describe, expect, test } from "bun:test";
 
-import { COSE_ALGORITHM } from "../cose-key/cose-algorithm";
-import { AUTHENTICATOR_FLAG } from "../fake-authenticator/build-authenticator-data";
+import { COSE_ALGORITHM } from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import { AUTHENTICATOR_FLAG } from "@/features/auth/webauthn/fake-authenticator/build-authenticator-data";
 import {
   type FakeAuthenticationInput,
   createFakeAuthentication,
-} from "../fake-authenticator/create-fake-authentication";
+} from "@/features/auth/webauthn/fake-authenticator/create-fake-authentication";
 import {
   type FakeAuthenticator,
   createFakeAuthenticator,
-} from "../fake-authenticator/create-fake-authenticator";
+} from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
 import {
   type AuthenticationExpectation,
   type AuthenticationResponse,
   verifyAuthentication,
-} from "../verify-authentication";
-import { verifyRegistration } from "../verify-registration";
+} from "@/features/auth/webauthn/verify-authentication";
+import { verifyRegistration } from "@/features/auth/webauthn/verify-registration";
 import {
   W3C_RELYING_PARTY,
   W3C_TEST_VECTORS,
   type W3cTestVector,
-} from "../w3c-test-vectors";
+} from "@/features/auth/webauthn/w3c-test-vectors";
 
 const F = AUTHENTICATOR_FLAG;
 const ORIGIN = "https://analemma.test";

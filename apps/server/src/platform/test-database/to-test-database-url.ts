@@ -1,4 +1,7 @@
-import { type TestRole, toTestDatabaseTarget } from "./to-test-database-target";
+import {
+  type TestRole,
+  toTestDatabaseTarget,
+} from "@/platform/test-database/to-test-database-target";
 
 /** テスト用の PostgreSQL の DB につなぐ URL を、DATABASE_URL の形で作る。 */
 export const toTestDatabaseUrl = (

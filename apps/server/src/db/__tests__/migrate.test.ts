@@ -3,10 +3,10 @@ import { sql } from "drizzle-orm";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
-import type { Database } from "../../platform/database";
-import type { LogEntry } from "../../platform/logger";
-import { createTestDatabase } from "../../platform/test-database/create-test-database";
-import { toTestDatabaseUrl } from "../../platform/test-database/to-test-database-url";
+import type { Database } from "@/platform/database";
+import type { LogEntry } from "@/platform/logger";
+import { createTestDatabase } from "@/platform/test-database/create-test-database";
+import { toTestDatabaseUrl } from "@/platform/test-database/to-test-database-url";
 
 const MIGRATE = join(import.meta.dirname, "../migrate.ts");
 
