@@ -1,7 +1,7 @@
-import type { DatabaseExecutor } from "../../../platform/database";
-import { issueSecretToken } from "../secret-token/secret-token";
-import { replaceEnrollment } from "./replace-enrollment.query";
-import { toEnrollmentUrl } from "./to-enrollment-url";
+import { replaceEnrollment } from "@/features/auth/enrollment/replace-enrollment.query";
+import { toEnrollmentUrl } from "@/features/auth/enrollment/to-enrollment-url";
+import { issueSecretToken } from "@/features/auth/secret-token/secret-token";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 登録用 URL が使える時間(10分)。 */
 export const ENROLLMENT_LIFETIME_MS = 10 * 60 * 1000;

@@ -1,6 +1,6 @@
-import { passkey } from "../../../db/schema/passkey";
-import type { DatabaseExecutor } from "../../../platform/database";
-import type { NewPasskey } from "./verify-passkey-registration";
+import { passkey } from "@/db/schema/passkey";
+import type { NewPasskey } from "@/features/auth/registration/verify-passkey-registration";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** パスキーの行。 */
 export type PasskeyRow = typeof passkey.$inferSelect;

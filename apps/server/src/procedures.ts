@@ -3,14 +3,14 @@ import { getCookie } from "@orpc/server/helpers";
 
 import { contract } from "@analemma/contract";
 
-import type { RequestContext } from "./context";
-import { resumeSession } from "./features/auth/session/resume-session";
-import { toSessionCookie } from "./features/auth/session/to-session-cookie";
+import type { RequestContext } from "@/context";
+import { resumeSession } from "@/features/auth/session/resume-session";
+import { toSessionCookie } from "@/features/auth/session/to-session-cookie";
 import {
   clearSessionCookie,
   writeSessionCookie,
-} from "./features/auth/session/write-session-cookie";
-import { verifyDeployToken } from "./features/deploy-tokens/verify-deploy-token";
+} from "@/features/auth/session/write-session-cookie";
+import { verifyDeployToken } from "@/features/deploy-tokens/verify-deploy-token";
 
 const api = implement(contract).$context<RequestContext>();
 

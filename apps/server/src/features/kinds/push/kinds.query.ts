@@ -2,8 +2,8 @@ import { asc, inArray, sql } from "drizzle-orm";
 
 import type { KindDefinition } from "@analemma/contract";
 
-import { kind } from "../../../db/schema/kind";
-import type { DatabaseExecutor } from "../../../platform/database";
+import { kind } from "@/db/schema/kind";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** すでにある種類の行のロックを、名前の順に取り、その名前を返す。 */
 export const lockKinds = async (

@@ -1,7 +1,7 @@
 import { eq, asc } from "drizzle-orm";
 
-import { kind } from "../../db/schema/kind";
-import type { DatabaseExecutor } from "../../platform/database";
+import { kind } from "@/db/schema/kind";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 種類の行。 */
 export type KindRow = typeof kind.$inferSelect;

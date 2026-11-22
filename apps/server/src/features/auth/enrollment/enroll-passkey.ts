@@ -1,12 +1,12 @@
-import { authProcedures } from "../../../procedures";
-import { REGISTRATION_ERRORS } from "../registration/registration-errors";
-import { verifyPasskeyRegistration } from "../registration/verify-passkey-registration";
-import { issueSecretToken } from "../secret-token/secret-token";
-import { toSessionExpiry } from "../session/decide-session";
-import { toSessionCookie } from "../session/to-session-cookie";
-import { writeSessionCookie } from "../session/write-session-cookie";
-import { checkEnrollment } from "./check-enrollment";
-import { completeEnrollment } from "./complete-enrollment.query";
+import { checkEnrollment } from "@/features/auth/enrollment/check-enrollment";
+import { completeEnrollment } from "@/features/auth/enrollment/complete-enrollment.query";
+import { REGISTRATION_ERRORS } from "@/features/auth/registration/registration-errors";
+import { verifyPasskeyRegistration } from "@/features/auth/registration/verify-passkey-registration";
+import { issueSecretToken } from "@/features/auth/secret-token/secret-token";
+import { toSessionExpiry } from "@/features/auth/session/decide-session";
+import { toSessionCookie } from "@/features/auth/session/to-session-cookie";
+import { writeSessionCookie } from "@/features/auth/session/write-session-cookie";
+import { authProcedures } from "@/procedures";
 
 /** 登録用 URL の token でパスキーを登録し、ログインする procedure。 */
 export const enrollPasskey = authProcedures.enrollment.register.handler(

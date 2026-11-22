@@ -1,4 +1,4 @@
-import type { DatabaseTarget } from "./database";
+import type { DatabaseTarget } from "@/platform/database";
 
 /** DATABASE_URL から読み取れた接続先。 */
 export type ParsedDatabaseUrl = {

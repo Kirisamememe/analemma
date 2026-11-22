@@ -8,8 +8,8 @@ import {
   TEST_ORIGIN,
   type TestClient,
   createTestClient,
-} from "../test-client/create-test-client";
-import { listProcedurePaths } from "../test-client/list-procedure-paths";
+  listProcedurePaths,
+} from "@/test-client";
 
 const PORTS = [
   {

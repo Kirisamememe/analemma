@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
-import { fixedPage } from "../../../db/schema/fixed-page";
-import type { DatabaseExecutor } from "../../../platform/database";
+import { fixedPage } from "@/db/schema/fixed-page";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 固定ページの行を消し、消せたかを返す。 */
 export const deleteFixedPage = async (

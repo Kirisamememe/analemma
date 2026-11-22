@@ -1,14 +1,14 @@
-import type { DatabaseExecutor } from "../../../platform/database";
 import {
   type Reauthentication,
   type ReauthenticationGone,
   recordReauthentication,
-} from "../current-session/record-reauthentication.query";
+} from "@/features/auth/current-session/record-reauthentication.query";
 import {
   type PasskeyInsert,
   type PasskeyRow,
   insertPasskey,
-} from "../registration/insert-passkey.query";
+} from "@/features/auth/registration/insert-passkey.query";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 足す前の再認証と、足すパスキー。 */
 export type PasskeyAddition = {

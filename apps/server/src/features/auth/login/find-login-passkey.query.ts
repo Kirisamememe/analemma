@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 
-import { adminUser } from "../../../db/schema/admin-user";
-import { passkey } from "../../../db/schema/passkey";
-import type { DatabaseExecutor } from "../../../platform/database";
+import { adminUser } from "@/db/schema/admin-user";
+import { passkey } from "@/db/schema/passkey";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** ログインの検証に使う、保存したパスキーと持ち主の user handle。 */
 export type LoginPasskey = {

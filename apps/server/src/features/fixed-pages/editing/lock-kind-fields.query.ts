@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 
 import type { FieldDefinition } from "@analemma/contract";
 
-import { kind } from "../../../db/schema/kind";
-import type { DatabaseExecutor } from "../../../platform/database";
-import { readKindFields } from "../../kinds/read-kind-fields";
+import { kind } from "@/db/schema/kind";
+import { readKindFields } from "@/features/kinds/read-kind-fields";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 種類の行の共有ロックを取り、項目の定義を返す。 */
 export const lockKindFields = async (

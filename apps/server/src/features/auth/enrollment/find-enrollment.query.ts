@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
-import { passkeyEnrollment } from "../../../db/schema/passkey-enrollment";
-import type { DatabaseExecutor } from "../../../platform/database";
+import { passkeyEnrollment } from "@/db/schema/passkey-enrollment";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 登録用の token の行。 */
 export type EnrollmentRow = typeof passkeyEnrollment.$inferSelect;

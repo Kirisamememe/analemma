@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-import { type WebAuthnRejection, reject } from "../rejection";
+import {
+  type WebAuthnRejection,
+  reject,
+} from "@/features/auth/webauthn/rejection";
 
 /** clientDataJSON のうち、検証に使う値。 */
 export type ClientData = {

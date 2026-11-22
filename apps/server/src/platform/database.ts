@@ -3,7 +3,7 @@ import { type PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js/session";
 import postgres from "postgres";
 
-import type { Logger } from "./logger";
+import type { Logger } from "@/platform/logger";
 
 /** Drizzle で問い合わせる DB。 */
 export type Database = PostgresJsDatabase;

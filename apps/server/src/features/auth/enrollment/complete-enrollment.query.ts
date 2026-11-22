@@ -1,16 +1,16 @@
 import { and, eq, gt } from "drizzle-orm";
 
-import { passkeyEnrollment } from "../../../db/schema/passkey-enrollment";
-import type { DatabaseExecutor } from "../../../platform/database";
-import { lockAdminUser } from "../admin-user/admin-user.query";
-import { deleteAllSessions } from "../current-session/delete-all-sessions.query";
+import { passkeyEnrollment } from "@/db/schema/passkey-enrollment";
+import { lockAdminUser } from "@/features/auth/admin-user/admin-user.query";
+import { deleteAllSessions } from "@/features/auth/current-session/delete-all-sessions.query";
 import {
   type PasskeyInsert,
   type PasskeyRow,
   insertPasskey,
-} from "../registration/insert-passkey.query";
-import type { SecretTokenParts } from "../secret-token/secret-token";
-import { insertSession } from "../session/session.query";
+} from "@/features/auth/registration/insert-passkey.query";
+import type { SecretTokenParts } from "@/features/auth/secret-token/secret-token";
+import { insertSession } from "@/features/auth/session/session.query";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 登録用の token で保存するパスキーと、始めるセッション。 */
 export type EnrollmentCompletion = {

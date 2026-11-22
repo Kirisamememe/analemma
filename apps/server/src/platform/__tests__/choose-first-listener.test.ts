@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { chooseFirstListener } from "../choose-first-listener";
+import { chooseFirstListener } from "@/platform/choose-first-listener";
 
 test.each([
   {

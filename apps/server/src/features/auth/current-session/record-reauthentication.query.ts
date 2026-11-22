@@ -1,10 +1,10 @@
-import type { DatabaseExecutor } from "../../../platform/database";
-import { lockAdminUser } from "../admin-user/admin-user.query";
+import { lockAdminUser } from "@/features/auth/admin-user/admin-user.query";
 import {
   type PasskeyUse,
   recordPasskeyUse,
-} from "../login/record-passkey-use.query";
-import { lockSession } from "../session/session.query";
+} from "@/features/auth/login/record-passkey-use.query";
+import { lockSession } from "@/features/auth/session/session.query";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 再認証を求めたセッションと、再認証に使ったパスキー。 */
 export type Reauthentication = {

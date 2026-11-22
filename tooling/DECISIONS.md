@@ -17,7 +17,7 @@
   - `max-code-lines`・`file-length-limit`:ファイルのコードの行数(空行とコメントだけの行を除く)に上限を設ける。同じ実装を、400行(`max-code-lines`。1行目に理由付きで抑制できる)と800行(`file-length-limit`。抑制できない)の2つの名前で使う。Oxlint の `eslint/max-lines` は、複数行のコメントや CR だけの改行で数え方が食い違ったので使わない。
   - `require-disable-reason`:lint の抑制に、ルールの名前と `--` の後の理由を求める。ルールの名前と説明の区切りは、Oxlint と同じ読み方にする(カンマと空白で区切り、`--` か前後に空白のある `-` から説明が始まる。`/` の無い名前はプラグイン名を除いた部分で照らし合わせる)。抑制できないルール(`file-length-limit`・`no-standalone-comment`・このルール自身)の抑制を止め、`max-code-lines` の抑制は1行目の `// oxlint-disable` の形だけを許す。
   - `no-focused-test`:`test.only`・`describe.skip`・`test.todo`・`test.if` などを禁止する。
-  - `no-cross-workspace-import`:相対パスと管理画面の `@/` が自分のワークスペース(`apps/<名前>`・`packages/<名前>`)の外を指す import と re-export を止める。Bun の isolated linker が依存を制限するのはパッケージ名での import なので、ファイルを直接指すパスはこのルールで検査する。
+  - `no-cross-workspace-import`:相対パスと server・管理画面の `@/` が自分のワークスペース(`apps/<名前>`・`packages/<名前>`)の外を指す import と re-export を止める。Bun の isolated linker が依存を制限するのはパッケージ名での import なので、ファイルを直接指すパスはこのルールで検査する。
   - `require-sibling-test`:管理画面の `.ts` が関数を export するなら、同じフォルダの `__tests__` に `.test.ts` を求める。表示を出し分ける `.tsx`(JSX を返す条件分岐がある)には、`__tests__` に `.test.tsx` を求める。テストのファイルは、中に `test(` か `it(` があるときだけ数える。lint を通すためだけの空のファイルやフォルダでは通らない。
   - `test-location`:テストのファイルを `__tests__` の直下に置かせ、`__tests__` にはテストのファイルだけを置かせ、`__tests__` の中にフォルダを作らせない。テストがテストするコードと同じフォルダにあるかまでは見ない(API 越しのテストは、1つのファイルに対応しないため)。
   - `max-exported-functions`:コードの行数(空行とコメントだけの行を除く)が200行を超えるファイルは、export できる関数を2つまでにする(型は数えない)。200行以下なら、数は問わない(ユーザーが決めた。理由は直下の `DECISIONS.md` の「ファイルの長さ」)。境目の200行は、分割の見出しを使える行数と同じ値を、`tooling/lint/config/project-rules.ts` の1か所から渡す。数えるのは、arrow function・function 宣言・function 式だけで、呼び出しの結果(oRPC の procedure や、関数を返す関数の戻り値)は数えない。server の「1ファイルに、1つの procedure か1つの関数」のうち、この上限で抑えるのは関数の数だけで、procedure の数は抑えない。
@@ -177,7 +177,7 @@ lint のルールは、書いているときにすぐ気づくための早めの
 - わざと約束を破る fixture を置く `tooling/lint/fixtures/invalid/` は、この検査から外す。
 - 色と文字の見本(`apps/admin/src/ui/specimens/`)・story(`__stories__`)・Storybook の設定(`.storybook/`)は、テストの側(テストとテストの部品)・story・Storybook の設定だけが import できる(本番のコードから読むと、色ごとの utility の決まりの外の部品や、Storybook の依存が本番に入る)。テストの部品(`src/testing/`)と同じ検査で止める。
 - テストの部品(`apps/admin/src/testing/` など)を import できるのは、テストと、管理画面の story(`__stories__`)だけ。画面の story は、テストと同じ作り物の server と認証器で動かす。story は本番のビルドに入らない(Storybook だけが読む)。
-- 管理画面の `@/` で始まる import と re-export は、`apps/admin/src/` からのパスに直して検査する。相対パスと同じ場所を指せるので、同じ制限をかける。
+- server と管理画面の `@/` で始まる import と re-export は、それぞれの `src/` からのパスに直して検査する。相対パスと同じ場所を指せるので、同じ制限をかける。
 - drizzle-kit が migration を書き出す `apps/server/src/db/migrations/` と、その下のフォルダは、名前と数の検査から外す。drizzle-kit は migration を1件ごとに `20261121073110_create-notes/` のようなフォルダに書き、名前と数はこちらで変えられない。名前の先頭の日時が適用する順番を表すので、kebab-case にもそろえられず、migration は増える一方なので10件にも収まらない。外すのはこのフォルダの下だけで、親の `apps/server/src/db/` では、ほかと同じく1件と数える。
 - 同じ理由で、migration のフォルダは oxfmt の整形からも外す(`.oxfmtrc.json` の `ignorePatterns`)。drizzle-kit が書く `snapshot.json` の配列の折り返しが oxfmt と違い、`bun run check` の整形の確認で落ちた(使い捨ての migration で確かめた)。生成物を整形し直すと、生成し直すたびに差分が出る。SQL と JSON は Oxlint の対象ではないので、lint の設定は変えない。
 - 並べ替えでは `localeCompare` を使わない。テストを書いている途中で、`localeCompare` が実行環境のロケールで順番を変え、テストの期待と食い違った。文字コードの順で並べる。
@@ -285,4 +285,4 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **言葉の観点の判定**:言葉の観点の結果は、頼んだエージェントが、subagent の返した結果を写して書く。写さずに書き換えても、確かめる手段は無い(subagent に書かせても、頼んだ側が後から書き換えられる)。言葉の指摘は、直したコミットとして PR に残り、確かめる仕組みを作るほどの害が無いので受け入れる。
 - **SHA を先に決めることのテスト**:先に決めた SHA の組が、ブランチが進んだ後も同じ差分を指すことはテストで確かめる。スクリプト全体で、差分の判定から材料の書き出しまで同じ組を使うことは、途中でブランチを進めて確かめる仕組みが要る。スクリプトが差分の判定と材料の書き出しで別々の組を使うようになると、モデルを選ぶ数秒の間に base が head を取り込んだとき、空の差分のレビューが1回流れ、回数を1回使う。この害に対して、仕組みを足す手間が見合わないので受け入れる。
 - **Cursor の `--trust`**:書き出したコミットの中身を、Cursor に信頼させて読ませる(`--trust` が無いと、信頼するかを尋ねて止まる)。中身に Cursor の hook の設定があれば、Cursor が流しうる。レビューするのは、このリポジトリでエージェントとユーザーが作ったブランチのコミットで、同じ中身を `bun run check` と CI も流すので、受け入れる。MCP の server は、`--approve-mcps` を渡さないので動かない。外から来た PR をレビューするなら、`.cursor/`・`.claude/` などの設定のフォルダを除いてから渡す。
-- **管理画面の `@/` の、区切りを細工した import**:`no-cross-workspace-import` と `tooling/structure/` のテストは、`@/` の後ろの文字列をそのまま `src/` に足して行き先を決める。`@//preferences/…` のように `/` を重ねた指定は、管理画面の中を指すのに lint が外と見なして止める。`\` を区切りに使った指定は、Bun では外のファイルを指せるが、macOS の lint は診断を出さない。人が書かない形で、ルールは絶対パスの import も見ないので、直さない。
+- **`@/` の、区切りを細工した import**:`no-cross-workspace-import` と `tooling/structure/` のテストは、`@/` の後ろの文字列をそのまま `src/` に足して行き先を決める。`@//preferences/…` のように `/` を重ねた指定は、ワークスペースの中を指すのに lint が外と見なして止める。`\` を区切りに使った指定は、Bun では外のファイルを指せるが、macOS の lint は診断を出さない。人が書かない形で、ルールは絶対パスの import も見ないので、直さない。

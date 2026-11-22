@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { decideSession } from "../decide-session";
+import { decideSession } from "@/features/auth/session/decide-session";
 
 const LOGIN = new Date("2026-01-01T00:00:00.000Z");
 const HOUR = 60 * 60 * 1000;

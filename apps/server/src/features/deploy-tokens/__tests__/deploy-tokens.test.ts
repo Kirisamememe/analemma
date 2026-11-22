@@ -2,20 +2,18 @@ import { describe, expect, test } from "bun:test";
 
 import { contract } from "@analemma/contract";
 
-import { answerReauthentication } from "../../../test-client/answer-authentication";
+import { createFakeAuthenticator } from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
 import {
+  answerReauthentication,
   SUCCEEDED,
   catchErrorCode,
-} from "../../../test-client/catch-error-code";
-import {
   TEST_INTERNAL_URL,
   TEST_NOW,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { listProcedurePaths } from "../../../test-client/list-procedure-paths";
-import { issueTestDeployToken } from "../../../test-client/prepare-test-kinds";
-import { signInAsAdmin } from "../../../test-client/sign-in-as-admin";
-import { createFakeAuthenticator } from "../../auth/webauthn/fake-authenticator/create-fake-authenticator";
+  listProcedurePaths,
+  issueTestDeployToken,
+  signInAsAdmin,
+} from "@/test-client";
 
 const deployPaths = listProcedurePaths(contract.deploy, "deploy");
 

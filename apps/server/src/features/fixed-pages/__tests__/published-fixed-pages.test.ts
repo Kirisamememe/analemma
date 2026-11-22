@@ -2,12 +2,12 @@ import { describe, expect, test } from "bun:test";
 
 import type { KindDefinitionInput } from "@analemma/contract";
 
-import { catchErrorCode } from "../../../test-client/catch-error-code";
 import {
+  catchErrorCode,
   TEST_NOW,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { prepareTestKinds } from "../../../test-client/prepare-test-kinds";
+  prepareTestKinds,
+} from "@/test-client";
 
 const profile: KindDefinitionInput = {
   name: "profile",

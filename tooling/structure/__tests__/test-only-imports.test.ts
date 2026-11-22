@@ -111,12 +111,28 @@ describe("テストだけのフォルダからの import", () => {
     ]);
   });
 
-  test("テストの側と server では、`@/` での import を数えないこと", () => {
+  test("server の本番のコードからの、`@/` でのテスト専用の import と re-export を見つけること", () => {
+    expect(
+      findTestOnlyImports({
+        path: "apps/server/src/app.ts",
+        text: [
+          'import { createTestClient } from "@/test-client";',
+          'export { createTestDatabase } from "@/platform/test-database/create-test-database";',
+          'import { router } from "@/router";',
+        ].join("\n"),
+      }),
+    ).toEqual([
+      "apps/server/src/test-client",
+      "apps/server/src/platform/test-database/create-test-database",
+    ]);
+  });
+
+  test("テストの側からの、`@/` での import を数えないこと", () => {
     for (const path of [
       "apps/admin/src/routes/__tests__/page.test.tsx",
       "apps/admin/src/routes/__stories__/page.stories.tsx",
       "apps/admin/.storybook/preview.tsx",
-      "apps/server/src/app.ts",
+      "apps/server/src/__tests__/app.test.ts",
     ]) {
       expect(findTestOnlyImports({ path, text: aliasedText })).toEqual([]);
     }

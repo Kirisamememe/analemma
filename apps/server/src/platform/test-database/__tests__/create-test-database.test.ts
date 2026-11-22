@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { sql } from "drizzle-orm";
 
-import type { Database } from "../../database";
-import type { LogEntry } from "../../logger";
-import { connectTestAdmin } from "../connect-test-admin";
-import { createTestDatabase } from "../create-test-database";
+import type { Database } from "@/platform/database";
+import type { LogEntry } from "@/platform/logger";
+import { connectTestAdmin } from "@/platform/test-database/connect-test-admin";
+import { createTestDatabase } from "@/platform/test-database/create-test-database";
 
 const logs: LogEntry[] = [];
 const logger = {

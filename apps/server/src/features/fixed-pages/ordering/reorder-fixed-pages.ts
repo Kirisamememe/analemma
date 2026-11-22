@@ -1,11 +1,11 @@
-import { adminProcedures } from "../../../procedures";
-import { listFixedPages } from "../fixed-pages.query";
-import { toFixedPageSummary } from "../to-fixed-page-detail";
-import { coversAllPages } from "./covers-all-pages";
+import { listFixedPages } from "@/features/fixed-pages/fixed-pages.query";
+import { coversAllPages } from "@/features/fixed-pages/ordering/covers-all-pages";
 import {
   lockFixedPageIds,
   updatePositions,
-} from "./fixed-page-positions.query";
+} from "@/features/fixed-pages/ordering/fixed-page-positions.query";
+import { toFixedPageSummary } from "@/features/fixed-pages/to-fixed-page-detail";
+import { adminProcedures } from "@/procedures";
 
 /** すべての固定ページを、渡した順に並べ直す procedure。 */
 export const reorderFixedPages = adminProcedures.fixedPages.reorder.handler(

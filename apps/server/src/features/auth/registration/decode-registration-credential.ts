@@ -2,8 +2,8 @@ import type { InferContractRouterInputs } from "@orpc/contract";
 
 import type { contract } from "@analemma/contract";
 
-import type { RegistrationResponse } from "../webauthn/verify-registration";
-import { keepKnownTransports } from "./keep-known-transports";
+import { keepKnownTransports } from "@/features/auth/registration/keep-known-transports";
+import type { RegistrationResponse } from "@/features/auth/webauthn/verify-registration";
 
 /** 登録の資格情報の入力。 */
 export type RegistrationCredentialInput = InferContractRouterInputs<

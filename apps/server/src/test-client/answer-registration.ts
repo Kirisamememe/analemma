@@ -5,12 +5,12 @@ import type {
 
 import type { contract } from "@analemma/contract";
 
-import type { FakeAuthenticator } from "../features/auth/webauthn/fake-authenticator/create-fake-authenticator";
+import type { FakeAuthenticator } from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
 import {
   type FakeRegistrationInput,
   createFakeRegistration,
-} from "../features/auth/webauthn/fake-authenticator/create-fake-registration";
-import { TEST_ORIGIN } from "./create-test-client";
+} from "@/features/auth/webauthn/fake-authenticator/create-fake-registration";
+import { TEST_ORIGIN } from "@/test-client/create-test-client";
 
 /** 登録の資格情報の入力。 */
 export type RegistrationCredentialJson = InferContractRouterInputs<

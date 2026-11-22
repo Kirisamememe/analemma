@@ -1,12 +1,12 @@
 import { type SQL, isNotNull, and, eq, asc } from "drizzle-orm";
 
-import { fixedPage } from "../../../db/schema/fixed-page";
-import type { DatabaseExecutor } from "../../../platform/database";
+import { fixedPage } from "@/db/schema/fixed-page";
 import {
   type FixedPageRow,
   type FixedPageSummaryRow,
   fixedPageSummaryColumns,
-} from "../fixed-pages.query";
+} from "@/features/fixed-pages/fixed-pages.query";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 公開状態を決める、固定ページの列。 */
 export type PublishState = {

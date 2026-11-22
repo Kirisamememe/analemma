@@ -1,10 +1,10 @@
+import { parseClientData } from "@/features/auth/webauthn/client-data/parse-client-data";
 import {
   PASSED,
   type WebAuthnPassed,
   type WebAuthnRejection,
   reject,
-} from "../rejection";
-import { parseClientData } from "./parse-client-data";
+} from "@/features/auth/webauthn/rejection";
 
 /** clientDataJSON と照らし合わせる値。 */
 export type ClientDataExpectation = {

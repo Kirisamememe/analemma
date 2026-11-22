@@ -11,8 +11,8 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { adminUser } from "./admin-user";
-import { bytes } from "./bytes";
+import { adminUser } from "@/db/schema/admin-user";
+import { bytes } from "@/db/schema/bytes";
 
 /** 管理者のパスキーのテーブル。 */
 export const passkey = pgTable(

@@ -9,12 +9,10 @@ import type {
 import {
   SUCCEEDED,
   catchErrorCode,
-} from "../../../test-client/catch-error-code";
-import {
   type TestClient,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { prepareTestKinds } from "../../../test-client/prepare-test-kinds";
+  prepareTestKinds,
+} from "@/test-client";
 
 const headline: FieldDefinitionInput = {
   key: "headline",

@@ -2,8 +2,8 @@ import type { InferContractRouterOutputs } from "@orpc/contract";
 
 import type { contract } from "@analemma/contract";
 
-import type { KindRow, KindSummaryRow } from "./kinds.query";
-import { readKindFields } from "./read-kind-fields";
+import type { KindRow, KindSummaryRow } from "@/features/kinds/kinds.query";
+import { readKindFields } from "@/features/kinds/read-kind-fields";
 
 type KindOutputs = InferContractRouterOutputs<
   typeof contract

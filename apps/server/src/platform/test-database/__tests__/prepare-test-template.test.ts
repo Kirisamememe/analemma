@@ -3,12 +3,12 @@ import { sql } from "drizzle-orm";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import type { Database } from "../../database";
-import type { LogEntry } from "../../logger";
-import { connectTestAdmin } from "../connect-test-admin";
-import { createTestDatabase } from "../create-test-database";
-import { prepareTestTemplate } from "../prepare-test-template";
-import { writeTestMigrations } from "../write-test-migrations";
+import type { Database } from "@/platform/database";
+import type { LogEntry } from "@/platform/logger";
+import { connectTestAdmin } from "@/platform/test-database/connect-test-admin";
+import { createTestDatabase } from "@/platform/test-database/create-test-database";
+import { prepareTestTemplate } from "@/platform/test-database/prepare-test-template";
+import { writeTestMigrations } from "@/platform/test-database/write-test-migrations";
 
 const logs: LogEntry[] = [];
 const logger = {

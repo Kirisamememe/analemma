@@ -1,7 +1,8 @@
 import { dirname, resolve, sep } from "node:path";
 
 const WORKSPACE_GROUPS = new Set(["apps", "packages"]);
-const ADMIN_ALIAS = "@/";
+const SOURCE_ALIAS = "@/";
+const SOURCE_ALIAS_WORKSPACES = new Set(["apps/admin", "apps/server"]);
 
 const workspaceRoot = (filename) => {
   const segments = filename.split(sep);
@@ -18,7 +19,7 @@ const noCrossWorkspaceImport = {
     type: "problem",
     docs: {
       description:
-        "相対パスと管理画面の別名で、ワークスペースの外にあるファイルを import することを禁止する。",
+        "相対パスと @/ で、ワークスペースの外にあるファイルを import することを禁止する。",
     },
     schema: [],
     messages: {
@@ -35,15 +36,17 @@ const noCrossWorkspaceImport = {
     }
 
     const directory = dirname(context.filename);
-    const isAdmin = root.split(sep).slice(-2).join("/") === "apps/admin";
+    const usesSourceAlias = SOURCE_ALIAS_WORKSPACES.has(
+      root.split(sep).slice(-2).join("/"),
+    );
 
     const resolveImport = (source) => {
       if (source.startsWith(".")) {
         return resolve(directory, source);
       }
 
-      if (isAdmin && source.startsWith(ADMIN_ALIAS)) {
-        return resolve(root, "src", source.slice(ADMIN_ALIAS.length));
+      if (usesSourceAlias && source.startsWith(SOURCE_ALIAS)) {
+        return resolve(root, "src", source.slice(SOURCE_ALIAS.length));
       }
 
       return undefined;

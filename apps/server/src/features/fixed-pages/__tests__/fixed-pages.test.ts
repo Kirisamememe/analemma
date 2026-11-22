@@ -5,12 +5,10 @@ import type { FixedPageContent, KindDefinitionInput } from "@analemma/contract";
 import {
   SUCCEEDED,
   catchErrorCode,
-} from "../../../test-client/catch-error-code";
-import {
   TEST_NOW,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { prepareTestKinds } from "../../../test-client/prepare-test-kinds";
+  prepareTestKinds,
+} from "@/test-client";
 
 const profile: KindDefinitionInput = {
   name: "profile",

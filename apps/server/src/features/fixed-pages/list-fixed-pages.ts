@@ -1,6 +1,6 @@
-import { adminProcedures } from "../../procedures";
-import { listFixedPages as listFixedPageRows } from "./fixed-pages.query";
-import { toFixedPageSummary } from "./to-fixed-page-detail";
+import { listFixedPages as listFixedPageRows } from "@/features/fixed-pages/fixed-pages.query";
+import { toFixedPageSummary } from "@/features/fixed-pages/to-fixed-page-detail";
+import { adminProcedures } from "@/procedures";
 
 /** すべての固定ページを、並び順に返す procedure。 */
 export const listFixedPages = adminProcedures.fixedPages.list.handler(

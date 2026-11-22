@@ -2,14 +2,14 @@ import { sql } from "drizzle-orm";
 import { readMigrationFiles } from "drizzle-orm/migrator";
 import { migrate } from "drizzle-orm/pg-core/async/session";
 
-import { type DatabaseTarget, openDatabase } from "../platform/database";
-import type { Logger } from "../platform/logger";
-import { findChangedMigrations } from "./find-changed-migrations";
-import { readAppliedMigrations } from "./read-applied-migrations";
+import { findChangedMigrations } from "@/db/find-changed-migrations";
+import { readAppliedMigrations } from "@/db/read-applied-migrations";
 import {
   MIGRATIONS_FOLDER,
   type MigrationFingerprint,
-} from "./read-migrations";
+} from "@/db/read-migrations";
+import { type DatabaseTarget, openDatabase } from "@/platform/database";
+import type { Logger } from "@/platform/logger";
 
 /** migration を適用するための設定。 */
 export type MigrateDatabaseOptions = {

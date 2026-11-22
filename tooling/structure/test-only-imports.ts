@@ -14,7 +14,8 @@ export const TEST_ONLY_DIRECTORIES = [
 
 const TEST_SIDE_DIRECTORIES = ["/__tests__/", "/__stories__/", "/.storybook/"];
 const SOURCE_EXTENSION = /\.(?:[cm]?[jt]s|[jt]sx)$/v;
-const ADMIN_ALIAS = "@/";
+const SOURCE_ALIAS = "@/";
+const SOURCE_ALIAS_WORKSPACES = ["apps/admin", "apps/server"];
 
 /** テストの側・story・Storybook の設定だけが import できるもの。 */
 const STORY_ONLY = [
@@ -41,8 +42,14 @@ const resolveLocalPath = (
     return posix.join(posix.dirname(path), request);
   }
 
-  if (path.startsWith("apps/admin/") && request.startsWith(ADMIN_ALIAS)) {
-    return posix.join("apps/admin/src", request.slice(ADMIN_ALIAS.length));
+  if (request.startsWith(SOURCE_ALIAS)) {
+    const workspace = SOURCE_ALIAS_WORKSPACES.find((root) =>
+      path.startsWith(`${root}/`),
+    );
+
+    if (workspace !== undefined) {
+      return posix.join(workspace, "src", request.slice(SOURCE_ALIAS.length));
+    }
   }
 
   return undefined;

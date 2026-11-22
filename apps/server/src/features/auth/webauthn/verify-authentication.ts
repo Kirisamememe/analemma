@@ -1,11 +1,14 @@
-import { parseAuthenticatorData } from "./authenticator-data/parse-authenticator-data";
+import { parseAuthenticatorData } from "@/features/auth/webauthn/authenticator-data/parse-authenticator-data";
 import {
   type AuthenticatorExpectation,
   verifyAuthenticatorFlags,
-} from "./authenticator-data/verify-authenticator-flags";
-import { verifyClientData } from "./client-data/verify-client-data";
-import { importCoseKey } from "./cose-key/import-cose-key";
-import { type WebAuthnRejection, reject } from "./rejection";
+} from "@/features/auth/webauthn/authenticator-data/verify-authenticator-flags";
+import { verifyClientData } from "@/features/auth/webauthn/client-data/verify-client-data";
+import { importCoseKey } from "@/features/auth/webauthn/cose-key/import-cose-key";
+import {
+  type WebAuthnRejection,
+  reject,
+} from "@/features/auth/webauthn/rejection";
 
 /** ログインで届く、ブラウザの `AuthenticatorAssertionResponse` の中身。 */
 export type AuthenticationResponse = {

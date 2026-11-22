@@ -1,6 +1,6 @@
-import { adminProcedures } from "../../../procedures";
-import { reauthenticate } from "../current-session/reauthenticate";
-import { deletePasskey as deletePasskeyRow } from "./delete-passkey.query";
+import { reauthenticate } from "@/features/auth/current-session/reauthenticate";
+import { deletePasskey as deletePasskeyRow } from "@/features/auth/passkeys/queries/delete-passkey.query";
+import { adminProcedures } from "@/procedures";
 
 /** 再認証の後で、最後の1つでないパスキーを消し、ほかのセッションからログアウトさせる procedure。 */
 export const deletePasskey = adminProcedures.passkeys.delete.handler(

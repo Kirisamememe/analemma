@@ -1,8 +1,11 @@
 import type { KindDefinitionInput } from "@analemma/contract";
 
-import { answerReauthentication } from "./answer-authentication";
-import type { TestClient } from "./create-test-client";
-import { type TestPasskey, signInAsAdmin } from "./sign-in-as-admin";
+import { answerReauthentication } from "@/test-client/answer-authentication";
+import type { TestClient } from "@/test-client/create-test-client";
+import {
+  type TestPasskey,
+  signInAsAdmin,
+} from "@/test-client/sign-in-as-admin";
 
 /** テストのために、ログイン中の管理者として、確かめ直してからデプロイ用のトークンを発行する。 */
 export const issueTestDeployToken = async (

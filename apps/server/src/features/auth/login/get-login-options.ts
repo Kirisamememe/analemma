@@ -1,5 +1,5 @@
-import { authProcedures } from "../../../procedures";
-import { createLoginOptions } from "./create-login-options";
+import { createLoginOptions } from "@/features/auth/login/create-login-options";
+import { authProcedures } from "@/procedures";
 
 /** パスキーでログインするための options を返す procedure。 */
 export const getLoginOptions = authProcedures.login.options.handler(

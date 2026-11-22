@@ -1,12 +1,12 @@
 import { asc, eq, sql } from "drizzle-orm";
 
-import { deployToken } from "../../db/schema/deploy-token";
-import type { DatabaseExecutor } from "../../platform/database";
+import { deployToken } from "@/db/schema/deploy-token";
 import {
   type Reauthentication,
   type ReauthenticationGone,
   recordReauthentication,
-} from "../auth/current-session/record-reauthentication.query";
+} from "@/features/auth/current-session/record-reauthentication.query";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** デプロイ用のトークンの行。 */
 export type DeployTokenRow = typeof deployToken.$inferSelect;

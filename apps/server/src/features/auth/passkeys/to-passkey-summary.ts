@@ -2,7 +2,7 @@ import type { InferContractRouterOutputs } from "@orpc/contract";
 
 import type { contract } from "@analemma/contract";
 
-import type { PasskeyRow } from "../registration/insert-passkey.query";
+import type { PasskeyRow } from "@/features/auth/registration/insert-passkey.query";
 
 /** 管理画面に返すパスキー。 */
 export type PasskeySummary = InferContractRouterOutputs<

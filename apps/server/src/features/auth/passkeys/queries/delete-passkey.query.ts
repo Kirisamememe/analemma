@@ -1,13 +1,13 @@
 import { and, eq, ne } from "drizzle-orm";
 
-import { passkey } from "../../../db/schema/passkey";
-import { session } from "../../../db/schema/session";
-import type { DatabaseExecutor } from "../../../platform/database";
+import { passkey } from "@/db/schema/passkey";
+import { session } from "@/db/schema/session";
 import {
   type Reauthentication,
   type ReauthenticationGone,
   recordReauthentication,
-} from "../current-session/record-reauthentication.query";
+} from "@/features/auth/current-session/record-reauthentication.query";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 消すパスキーと、消す前の再認証。 */
 export type PasskeyDeletion = {

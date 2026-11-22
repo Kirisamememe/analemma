@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
 
-import { readMigrations } from "../../../db/read-migrations";
-import { nameTestTemplate } from "../name-test-template";
-import { writeTestMigrations } from "../write-test-migrations";
+import { readMigrations } from "@/db/read-migrations";
+import { nameTestTemplate } from "@/platform/test-database/name-test-template";
+import { writeTestMigrations } from "@/platform/test-database/write-test-migrations";
 
 const CREATE_NOTES = "20260101000000_create-notes";
 

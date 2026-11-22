@@ -180,6 +180,11 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
 - 時刻は、テストの client に渡す clock で進める。セッションの期限や challenge の寿命は、本物の時間を待たずに確かめる。
 - 想定外の失敗が 500 とログになることは、throw する clock で確かめる。セッションを続ける処理が、DB に問い合わせる前に時刻を読むため。
 
+## ルーターから読む入口
+
+- ログイン・登録用 URL からの登録・セッションの操作・パスキーの管理は、それぞれの `index.ts` でルーターが使う procedure を export する。auth 直下は10件あるので、入口は既存の用途ごとのフォルダに置く。
+- パスキーを管理する query は `passkeys/queries/` に置く。procedure と DB の操作をフォルダで区別し、`passkeys/` に入口を置いた上で10件以内に収める。
+
 ## 割り切ったこと
 
 - **壊れた clientDataJSON**:clientDataJSON が JSON として読めないと、`JSON.parse` が throw し、500 と error のログ1行になる。ブラウザは壊れた clientDataJSON を作らず、細工したリクエストでだけ起きる。`auth.login.verify` はログインしていなくても呼べるので、誰でも error のログを出せる。error のログを監視で知らせるようにするときは、この失敗を除くか、IP ごとの回数の制限(server の「まだ決めていないこと」)と一緒に見る。challenge を取り出す前で DB にも触れないので、try/catch や `.catch()` で受け止めて、`Rejected` に変えることはしない(ユーザーが決めた)。

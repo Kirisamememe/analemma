@@ -1,6 +1,6 @@
-import { adminProcedures } from "../../../procedures";
-import { renamePasskey as renamePasskeyRow } from "./rename-passkey.query";
-import { toPasskeySummary } from "./to-passkey-summary";
+import { renamePasskey as renamePasskeyRow } from "@/features/auth/passkeys/queries/rename-passkey.query";
+import { toPasskeySummary } from "@/features/auth/passkeys/to-passkey-summary";
+import { adminProcedures } from "@/procedures";
 
 /** 管理者のパスキーの名前を変える procedure。 */
 export const renamePasskey = adminProcedures.passkeys.rename.handler(

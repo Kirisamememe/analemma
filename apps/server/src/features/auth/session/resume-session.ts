@@ -1,14 +1,14 @@
-import type { DatabaseExecutor } from "../../../platform/database";
 import {
   equalSecretHashes,
   readSecretToken,
-} from "../secret-token/secret-token";
-import { decideSession } from "./decide-session";
+} from "@/features/auth/secret-token/secret-token";
+import { decideSession } from "@/features/auth/session/decide-session";
 import {
   deleteExpiredSession,
   findSession,
   refreshSession,
-} from "./session.query";
+} from "@/features/auth/session/session.query";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** ログイン中の管理者のセッション。 */
 export type Session = {

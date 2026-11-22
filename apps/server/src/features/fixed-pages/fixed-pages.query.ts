@@ -1,7 +1,7 @@
 import { eq, asc } from "drizzle-orm";
 
-import { fixedPage } from "../../db/schema/fixed-page";
-import type { DatabaseExecutor } from "../../platform/database";
+import { fixedPage } from "@/db/schema/fixed-page";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 固定ページの行。 */
 export type FixedPageRow = typeof fixedPage.$inferSelect;

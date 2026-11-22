@@ -24,6 +24,12 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 - **canonical URL は server が作る**:公開サイトが日付などから URL を組み立てると、時刻帯などのずれで壊れる。
 - **見つからないものと、公開していないものは区別しない**:下書きや予約中の記事も「無い」として返し、存在を漏らさない。
 
+## import の別名と入口
+
+- server の `src/` の中を指すモジュールは、`tsconfig.json` の `paths` に置いた `@/` で import する。ファイルを別のフォルダへ移しても、そのファイルが参照する先への `../` の段数を直さずに済む。Bun と TypeScript は同じ設定を読む。
+- ルーターが同じ feature から複数の procedure を登録するときは、その procedure を `index.ts` で明示的に export する。ルーターを読むと、どの feature が API を実装するかが分かる。procedure を組み立てる `procedures.ts` は、認可で使うセッションとデプロイ用のトークンのファイルを直接読む。feature の中や、ほかの feature の query と純粋関数を使うときも、実装を持つファイルを指定する。
+- API 越しのテストが使う `test-client/` の部品は `@/test-client` にまとめる。テストを読むと、どこからアプリの組み立てと操作を持ってくるかが分かる。`test-client/` の中では、部品を持つファイルを直接読む。
+
 ## エラーと依存(Effect から取り入れた考え方)
 
 - 想定内の失敗は `_tag` 付きの判別共用体で返し、想定外の失敗は throw して入口で 500 とログにする。どの失敗かが型に出るので、扱い忘れを `switch` の網羅性の検査で見つけられる。try/catch と `.catch()` は、入口と dispatcher の外では lint で止める(入口に数える場所は `tooling/DECISIONS.md`)。

@@ -5,8 +5,8 @@ import { contract } from "@analemma/contract";
 import {
   TEST_ORIGIN,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { listProcedurePaths } from "../../../test-client/list-procedure-paths";
+  listProcedurePaths,
+} from "@/test-client";
 
 const adminPaths = listProcedurePaths(contract.admin, "admin");
 const authPaths = listProcedurePaths(contract.auth, "auth");

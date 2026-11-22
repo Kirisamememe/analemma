@@ -2,13 +2,13 @@ import type { InferContractRouterOutputs } from "@orpc/contract";
 
 import type { contract } from "@analemma/contract";
 
-import { CHALLENGE_LIFETIME_MS } from "../challenge/create-challenge-store";
+import { CHALLENGE_LIFETIME_MS } from "@/features/auth/challenge/create-challenge-store";
 import {
   ADMIN_DISPLAY_NAME,
   ADMIN_USER_NAME,
   PASSKEY_ALGORITHMS,
   RP_NAME,
-} from "./passkey-policy";
+} from "@/features/auth/registration/passkey-policy";
 
 /** 登録の options の出力。 */
 export type RegistrationOptions = InferContractRouterOutputs<

@@ -9,7 +9,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { kind } from "./kind";
+import { kind } from "@/db/schema/kind";
 
 /** 固定ページのテーブル。 */
 export const fixedPage = pgTable(

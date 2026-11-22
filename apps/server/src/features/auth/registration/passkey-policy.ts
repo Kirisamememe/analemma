@@ -1,7 +1,7 @@
 import {
   COSE_ALGORITHM,
   type CoseAlgorithm,
-} from "../webauthn/cose-key/cose-algorithm";
+} from "@/features/auth/webauthn/cose-key/cose-algorithm";
 
 /** パスワードマネージャーに出るサイトの名前。 */
 export const RP_NAME = "Analemma";

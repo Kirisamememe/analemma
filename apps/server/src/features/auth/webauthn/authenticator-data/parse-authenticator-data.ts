@@ -1,5 +1,11 @@
-import { decodeCbor, isCborMap } from "../cbor/decode-cbor";
-import { type WebAuthnRejection, reject } from "../rejection";
+import {
+  decodeCbor,
+  isCborMap,
+} from "@/features/auth/webauthn/cbor/decode-cbor";
+import {
+  type WebAuthnRejection,
+  reject,
+} from "@/features/auth/webauthn/rejection";
 
 /** authenticatorData の flags。 */
 export type AuthenticatorFlags = {

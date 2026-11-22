@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { sql } from "drizzle-orm";
 
-import type { Database } from "../../platform/database";
-import type { LogEntry } from "../../platform/logger";
-import { createTestDatabase } from "../../platform/test-database/create-test-database";
-import { toTestDatabaseTarget } from "../../platform/test-database/to-test-database-target";
-import { writeTestMigrations } from "../../platform/test-database/write-test-migrations";
-import { migrateDatabase } from "../migrate-database";
+import { migrateDatabase } from "@/db/migrate-database";
+import type { Database } from "@/platform/database";
+import type { LogEntry } from "@/platform/logger";
+import { createTestDatabase } from "@/platform/test-database/create-test-database";
+import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
+import { writeTestMigrations } from "@/platform/test-database/write-test-migrations";
 
 const logs: LogEntry[] = [];
 const logger = {

@@ -4,7 +4,7 @@ import {
   equalSecretHashes,
   issueSecretToken,
   readSecretToken,
-} from "../secret-token";
+} from "@/features/auth/secret-token/secret-token";
 
 describe("token", () => {
   test("作った token を読むと、同じ ID と secret のハッシュに戻ること", async () => {

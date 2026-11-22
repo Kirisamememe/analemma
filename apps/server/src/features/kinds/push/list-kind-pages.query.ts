@@ -1,7 +1,7 @@
 import { asc, inArray } from "drizzle-orm";
 
-import { fixedPage } from "../../../db/schema/fixed-page";
-import type { DatabaseExecutor } from "../../../platform/database";
+import { fixedPage } from "@/db/schema/fixed-page";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 定義を確かめ直す、固定ページの中身。 */
 export type KindPage = {

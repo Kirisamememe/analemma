@@ -1,27 +1,21 @@
 import { describe, expect, test } from "bun:test";
 
+import { AUTHENTICATOR_FLAG } from "@/features/auth/webauthn/fake-authenticator/build-authenticator-data";
+import type { FakeAuthenticationInput } from "@/features/auth/webauthn/fake-authenticator/create-fake-authentication";
+import { createFakeAuthenticator } from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
 import {
   answerAuthentication,
   type AuthenticationCredentialJson,
-} from "../../../../test-client/answer-authentication";
-import {
   SUCCEEDED,
   catchErrorCode,
-} from "../../../../test-client/catch-error-code";
-import {
   TEST_NOW,
   TEST_ORIGIN,
   TEST_RP_ID,
   type TestClient,
   createTestClient,
-} from "../../../../test-client/create-test-client";
-import {
   type TestPasskey,
   signInAsAdmin,
-} from "../../../../test-client/sign-in-as-admin";
-import { AUTHENTICATOR_FLAG } from "../../webauthn/fake-authenticator/build-authenticator-data";
-import type { FakeAuthenticationInput } from "../../webauthn/fake-authenticator/create-fake-authentication";
-import { createFakeAuthenticator } from "../../webauthn/fake-authenticator/create-fake-authenticator";
+} from "@/test-client";
 
 /** テスト用の認証器で答えるパスキーと、壊すときの値。 */
 type Answer = {

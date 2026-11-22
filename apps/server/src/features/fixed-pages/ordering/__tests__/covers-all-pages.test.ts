@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { coversAllPages } from "../covers-all-pages";
+import { coversAllPages } from "@/features/fixed-pages/ordering/covers-all-pages";
 
 test.each([
   {

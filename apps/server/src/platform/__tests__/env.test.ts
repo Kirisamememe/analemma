@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { readDatabaseEnv, readEnv } from "../env";
+import { readDatabaseEnv, readEnv } from "@/platform/env";
 
 const AUTH = {
   AUTH_ORIGIN: "https://cms.example.com",

@@ -1,7 +1,10 @@
 import type { KindDefinition } from "@analemma/contract";
 
-import { type ContentIssue, createContentCheck } from "../check-content";
-import type { KindPage } from "./list-kind-pages.query";
+import {
+  type ContentIssue,
+  createContentCheck,
+} from "@/features/kinds/check-content";
+import type { KindPage } from "@/features/kinds/push/list-kind-pages.query";
 
 /** 新しい定義に合わない固定ページと、その理由。 */
 export type IncompatiblePage = {

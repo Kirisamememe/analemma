@@ -1,7 +1,7 @@
 import { asc, sql } from "drizzle-orm";
 
-import { fixedPage } from "../../../db/schema/fixed-page";
-import type { DatabaseExecutor } from "../../../platform/database";
+import { fixedPage } from "@/db/schema/fixed-page";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** すべての固定ページの行のロックを、ID の順に取り、ID を返す。 */
 export const lockFixedPageIds = async (

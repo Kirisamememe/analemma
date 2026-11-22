@@ -1,30 +1,22 @@
 import { describe, expect, test } from "bun:test";
 
+import { createFakeAuthenticator } from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
 import {
   addTestPasskey,
   passkeyIdOf,
-} from "../../../../test-client/add-test-passkey";
-import {
   type AuthenticationCredentialJson,
   answerAuthentication,
   answerReauthentication,
-} from "../../../../test-client/answer-authentication";
-import { answerRegistration } from "../../../../test-client/answer-registration";
-import {
+  answerRegistration,
   SUCCEEDED,
   catchErrorCode,
-} from "../../../../test-client/catch-error-code";
-import {
   TEST_RP_ID,
   type TestBrowser,
   createTestClient,
-} from "../../../../test-client/create-test-client";
-import {
   type TestPasskey,
   logInWithPasskey,
   signInAsAdmin,
-} from "../../../../test-client/sign-in-as-admin";
-import { createFakeAuthenticator } from "../../webauthn/fake-authenticator/create-fake-authenticator";
+} from "@/test-client";
 
 /** 再認証を求める操作の対象。 */
 type Target = {

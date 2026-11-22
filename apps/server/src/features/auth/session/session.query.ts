@@ -1,11 +1,11 @@
 import { eq, and, type SQL, lte, or, desc, notInArray, lt } from "drizzle-orm";
 
-import { session } from "../../../db/schema/session";
-import type { DatabaseExecutor } from "../../../platform/database";
+import { session } from "@/db/schema/session";
 import {
   SESSION_ABSOLUTE_LIMIT_MS,
   SESSION_IDLE_LIMIT_MS,
-} from "./decide-session";
+} from "@/features/auth/session/decide-session";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** セッションの行。 */
 export type SessionRow = typeof session.$inferSelect;

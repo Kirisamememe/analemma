@@ -1,15 +1,15 @@
-import { createExternalApp, createInternalApp } from "./app";
-import type { AppContext } from "./context";
+import { createExternalApp, createInternalApp } from "@/app";
+import type { AppContext } from "@/context";
 import {
   CHALLENGE_CAPACITY,
   CHALLENGE_LIFETIME_MS,
   createChallengeStore,
-} from "./features/auth/challenge/create-challenge-store";
-import { chooseFirstListener } from "./platform/choose-first-listener";
-import { systemClock } from "./platform/clock";
-import { openDatabase } from "./platform/database";
-import { readEnv } from "./platform/env";
-import { stdoutLogger } from "./platform/logger";
+} from "@/features/auth/challenge/create-challenge-store";
+import { chooseFirstListener } from "@/platform/choose-first-listener";
+import { systemClock } from "@/platform/clock";
+import { openDatabase } from "@/platform/database";
+import { readEnv } from "@/platform/env";
+import { stdoutLogger } from "@/platform/logger";
 
 const env = readEnv();
 

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
-import { convertToDerSignature } from "../../fake-authenticator/convert-to-der-signature";
-import { readDerSignature } from "../read-der-signature";
+import { readDerSignature } from "@/features/auth/webauthn/cose-key/read-der-signature";
+import { convertToDerSignature } from "@/features/auth/webauthn/fake-authenticator/convert-to-der-signature";
 
 describe("ES256 の署名の DER から r‖s への変換", () => {
   test("上の位のビットが立つ値と、短い値を、32 バイトずつに戻すこと", () => {

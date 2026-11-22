@@ -1,8 +1,8 @@
 import { and, eq } from "drizzle-orm";
 
-import { passkey } from "../../../db/schema/passkey";
-import type { DatabaseExecutor } from "../../../platform/database";
-import type { PasskeyRow } from "../registration/insert-passkey.query";
+import { passkey } from "@/db/schema/passkey";
+import type { PasskeyRow } from "@/features/auth/registration/insert-passkey.query";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 名前を変えるパスキーと、新しい名前。 */
 export type PasskeyRename = {

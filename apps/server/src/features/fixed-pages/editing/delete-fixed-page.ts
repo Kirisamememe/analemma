@@ -1,5 +1,5 @@
-import { adminProcedures } from "../../../procedures";
-import { deleteFixedPage as deleteFixedPageRow } from "./delete-fixed-page.query";
+import { deleteFixedPage as deleteFixedPageRow } from "@/features/fixed-pages/editing/delete-fixed-page.query";
+import { adminProcedures } from "@/procedures";
 
 /** 固定ページを消す procedure。 */
 export const deleteFixedPage = adminProcedures.fixedPages.delete.handler(

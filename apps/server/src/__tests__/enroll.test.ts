@@ -2,14 +2,15 @@ import { expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
-import { systemClock } from "../platform/clock";
-import { toTestDatabaseUrl } from "../platform/test-database/to-test-database-url";
-import { SUCCEEDED, catchErrorCode } from "../test-client/catch-error-code";
+import { systemClock } from "@/platform/clock";
+import { toTestDatabaseUrl } from "@/platform/test-database/to-test-database-url";
 import {
+  SUCCEEDED,
+  catchErrorCode,
   TEST_ORIGIN,
   TEST_RP_ID,
   createTestClient,
-} from "../test-client/create-test-client";
+} from "@/test-client";
 
 const ENROLL = join(import.meta.dirname, "../enroll.ts");
 
