@@ -113,7 +113,7 @@ test("行を動かし、追加・削除して保存しても各段の古いキ�
   );
   await waitFor(() => {
     expect(document.activeElement).toBe(
-      screen.getByRole("button", { name: "行 1 を上へ" }),
+      screen.getByRole("button", { name: "行 1 を下へ" }),
     );
   });
   await userEvent.click(screen.getByRole("button", { name: "行 2 を削除" }));
@@ -132,7 +132,7 @@ test("行を動かし、追加・削除して保存しても各段の古いキ�
   await save();
   const invalid = await screen.findByRole("textbox", {
     name: "名前",
-    description: "値が大きすぎます。",
+    description: "長すぎます。",
   });
   expect(invalid).toBe(screen.getByDisplayValue("B"));
   expect(sent).toEqual({
@@ -164,11 +164,11 @@ test("行を動かし、追加・削除して保存しても各段の古いキ�
   await userEvent.click(screen.getByRole("button", { name: "行 1 を下へ" }));
   expect(
     within(screen.getByRole("group", { name: "行 2" })).getByRole("textbox", {
-      description: "値が大きすぎます。",
+      description: "長すぎます。",
     }),
   ).toBe(invalid);
   await userEvent.type(invalid, "2");
-  expect(screen.queryByText("値が大きすぎます。")).toBeNull();
+  expect(screen.queryByText("長すぎます。")).toBeNull();
 });
 
 test.each([
@@ -188,13 +188,15 @@ test("slug の重複は入力欄で知らせ、変更すると消す", async () 
   await save();
   const input = await screen.findByRole("textbox", {
     name: "slug",
-    description: /この slug はすでに使われています。/v,
+    description: /この slug は、ほかの固定ページが使っています。/v,
   });
   await waitFor(() => {
     expect(document.activeElement).toBe(input);
   });
   await userEvent.type(input, "-2");
-  expect(screen.queryByText("この slug はすでに使われています。")).toBeNull();
+  expect(
+    screen.queryByText("この slug は、ほかの固定ページが使っています。"),
+  ).toBeNull();
 });
 
 test("slug は blur、空のタイトルは送信時に知らせ、種類が消えた場合は作成時に知らせる", async () => {

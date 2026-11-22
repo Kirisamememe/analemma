@@ -7,9 +7,51 @@ import { useAppContext } from "@/api/app-context";
 import { callApi } from "@/api/call-api";
 import { useApiQuery } from "@/api/server-state/server-state";
 import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor";
-import { Center, Heading, Stack } from "@/ui/layout";
+import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
+import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Notice } from "@/ui/primitives/notice";
+
+type Page = ApiOutputs["admin"]["fixedPages"]["get"];
+
+type ScreenProps = {
+  /** 画面の名前。 */
+  title: string;
+  /** 画面の補足。 */
+  description?: string | undefined;
+  /** 見出しの下に置く中身。 */
+  children: ReactNode;
+};
+
+const Screen = ({ title, description, children }: ScreenProps): ReactNode => (
+  <Center width="form">
+    <Stack gap={8}>
+      <PageHeader description={description} title={title} />
+      {children}
+    </Stack>
+  </Center>
+);
+
+const Loading = (): ReactNode => {
+  const { t } = useTranslation();
+
+  return <Text tone="muted">{t("fixedPageEditor.loading")}</Text>;
+};
+
+const LoadFailed = (): ReactNode => {
+  const { t } = useTranslation();
+
+  return <Notice tone="danger">{t("fixedPageEditor.loadFailed")}</Notice>;
+};
+
+const useKind = (name: string) => {
+  const { api } = useAppContext();
+
+  return useApiQuery({
+    key: ["admin", "kinds", "get", name],
+    load: () => callApi(api.admin.kinds.get({ name }), ["NOT_FOUND"]),
+  });
+};
 
 const KindPicker = (): ReactNode => {
   const { api } = useAppContext();
@@ -20,79 +62,93 @@ const KindPicker = (): ReactNode => {
     load: () => api.admin.kinds.list(),
   });
 
-  if (query._tag === "Loading") {
-    return <Notice tone="info">{t("fixedPages.loading")}</Notice>;
-  }
+  if (query._tag === "Loading") return <Loading />;
 
-  if (query._tag === "Failed") {
-    return <Notice tone="danger">{t("fixedPages.loadFailed")}</Notice>;
-  }
+  if (query._tag === "Failed") return <LoadFailed />;
 
   return (
-    <Stack gap={4}>
-      <Heading level={2}>{t("fixedPages.chooseKind")}</Heading>
-      {query.data.kinds.length === 0 && (
-        <Notice tone="info">{t("fixedPages.emptyKinds")}</Notice>
+    <Stack gap={3}>
+      <Heading level={2}>{t("fixedPageEditor.chooseKind")}</Heading>
+      {query.data.kinds.length === 0 ? (
+        <Notice tone="info">
+          {t("fixedPageEditor.emptyKinds")}{" "}
+          {t("fixedPageEditor.emptyKindsDescription")}
+        </Notice>
+      ) : (
+        <Cluster gap={2}>
+          {query.data.kinds.map((kind) => (
+            <Button
+              key={kind.name}
+              onPress={() => {
+                void navigate({
+                  to: "/fixed-pages/new",
+                  search: { kind: kind.name },
+                });
+              }}
+            >
+              {kind.label}
+            </Button>
+          ))}
+        </Cluster>
       )}
-      {query.data.kinds.map((kind) => (
-        <Button
-          key={kind.name}
-          onPress={() => {
-            void navigate({
-              to: "/fixed-pages/new",
-              search: { kind: kind.name },
-            });
-          }}
-        >
-          {kind.label}
-        </Button>
-      ))}
     </Stack>
   );
 };
 
-type KindEditorProps = {
-  /** 種類の名前。 */
+type NewPageEditorProps = {
+  /** 選んだ種類の名前。 */
   name: string;
-  /** 編集する固定ページ。 */
-  page?: ApiOutputs["admin"]["fixedPages"]["get"];
 };
-const KindEditor = ({ name, page }: KindEditorProps): ReactNode => {
-  const { api } = useAppContext();
+
+const NewPageEditor = ({ name }: NewPageEditorProps): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const query = useApiQuery({
-    key: ["admin", "kinds", "get", name],
-    load: () => callApi(api.admin.kinds.get({ name }), ["NOT_FOUND"]),
-  });
+  const kind = useKind(name);
+  const loaded = kind._tag === "Loaded" ? kind.data : undefined;
+  const choose = (): void => {
+    void navigate({ to: "/fixed-pages/new", search: {} });
+  };
 
-  if (query._tag === "Loading") {
-    return <Notice tone="info">{t("fixedPages.loading")}</Notice>;
-  }
+  let body: ReactNode;
 
-  if (query._tag === "Failed") {
-    return <Notice tone="danger">{t("fixedPages.loadFailed")}</Notice>;
-  }
-
-  if (query.data._tag === "Failed") {
-    return <Notice tone="warning">{t("fixedPages.kindGone")}</Notice>;
-  }
-
-  return (
-    <FixedPageEditor
-      key={page?.id ?? name}
-      kind={query.data.data}
-      page={page}
-      onSaved={(saved) => {
-        if (page === undefined) {
+  if (kind._tag === "Loading") {
+    body = <Loading />;
+  } else if (kind._tag === "Failed") {
+    body = <LoadFailed />;
+  } else if (kind.data._tag === "Failed") {
+    body = (
+      <Stack align="start" gap={3}>
+        <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
+        <Button onPress={choose}>{t("fixedPageEditor.chooseAgain")}</Button>
+      </Stack>
+    );
+  } else {
+    body = (
+      <FixedPageEditor
+        key={name}
+        kind={kind.data.data}
+        onSaved={(saved) => {
           void navigate({
             to: "/fixed-pages/$id",
             params: { id: saved.id },
             replace: true,
           });
-        }
-      }}
-    />
+        }}
+      />
+    );
+  }
+
+  return (
+    <Screen
+      description={
+        loaded?._tag === "Succeeded"
+          ? t("fixedPageEditor.kindOf", { kind: loaded.data.label })
+          : undefined
+      }
+      title={t("fixedPageEditor.new")}
+    >
+      {body}
+    </Screen>
   );
 };
 
@@ -101,13 +157,54 @@ export const NewFixedPage = (): ReactNode => {
   const { t } = useTranslation();
   const { kind } = useSearch({ from: "/signed-in/fixed-pages/new" });
 
+  return kind === undefined ? (
+    <Screen
+      description={t("fixedPageEditor.newDescription")}
+      title={t("fixedPageEditor.new")}
+    >
+      <KindPicker />
+    </Screen>
+  ) : (
+    <NewPageEditor name={kind} />
+  );
+};
+
+type PageEditorProps = {
+  /** 編集する固定ページ。 */
+  page: Page;
+};
+
+const PageEditor = ({ page }: PageEditorProps): ReactNode => {
+  const { t } = useTranslation();
+  const kind = useKind(page.kind);
+  let body: ReactNode;
+  let kindLabel = page.kind;
+
+  if (kind._tag === "Loading") {
+    body = <Loading />;
+  } else if (kind._tag === "Failed") {
+    body = <LoadFailed />;
+  } else if (kind.data._tag === "Failed") {
+    body = <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>;
+  } else {
+    kindLabel = kind.data.data.label;
+    body = (
+      <FixedPageEditor
+        key={page.id}
+        kind={kind.data.data}
+        onSaved={() => undefined}
+        page={page}
+      />
+    );
+  }
+
   return (
-    <Center width="form">
-      <Stack gap={6}>
-        <Heading level={1}>{t("fixedPages.new")}</Heading>
-        {kind === undefined ? <KindPicker /> : <KindEditor name={kind} />}
-      </Stack>
-    </Center>
+    <Screen
+      description={t("fixedPageEditor.kindOf", { kind: kindLabel })}
+      title={t("fixedPageEditor.edit")}
+    >
+      {body}
+    </Screen>
   );
 };
 
@@ -120,24 +217,18 @@ export const EditFixedPage = (): ReactNode => {
     key: ["admin", "fixedPages", "get", id],
     load: () => callApi(api.admin.fixedPages.get({ id }), ["NOT_FOUND"]),
   });
-  let body: ReactNode;
 
-  if (query._tag === "Loading") {
-    body = <Notice tone="info">{t("fixedPages.loading")}</Notice>;
-  } else if (query._tag === "Failed") {
-    body = <Notice tone="danger">{t("fixedPages.loadFailed")}</Notice>;
-  } else if (query.data._tag === "Failed") {
-    body = <Notice tone="warning">{t("fixedPages.pageGone")}</Notice>;
-  } else {
-    body = <KindEditor name={query.data.data.kind} page={query.data.data} />;
+  if (query._tag === "Loaded" && query.data._tag === "Succeeded") {
+    return <PageEditor page={query.data.data} />;
   }
 
   return (
-    <Center width="form">
-      <Stack gap={6}>
-        <Heading level={1}>{t("fixedPages.edit")}</Heading>
-        {body}
-      </Stack>
-    </Center>
+    <Screen title={t("fixedPageEditor.edit")}>
+      {query._tag === "Loading" && <Loading />}
+      {query._tag === "Failed" && <LoadFailed />}
+      {query._tag === "Loaded" && (
+        <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
+      )}
+    </Screen>
   );
 };

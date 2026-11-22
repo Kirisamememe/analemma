@@ -43,13 +43,13 @@ test("要素の誤りを見出しに結び、修正すると消し、最後の�
   await userEvent.click(await screen.findByRole("button", { name: "保存" }));
   const row = await screen.findByRole("group", {
     name: "行 1",
-    description: "この項目に合う値を入力してください。",
+    description: "入力してください。",
   });
   await userEvent.type(
     within(row).getByRole("textbox", { name: "名前" }),
     "記入",
   );
-  expect(screen.queryByText("この項目に合う値を入力してください。")).toBeNull();
+  expect(screen.queryByText("入力してください。")).toBeNull();
   await userEvent.click(
     within(row).getByRole("button", { name: "行 1 を削除" }),
   );

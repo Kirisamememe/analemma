@@ -17,6 +17,8 @@ import { session } from "./session";
 export {
   type FixedPageContent,
   fixedPageContent,
+  fixedPageSlug,
+  fixedPageTitle,
 } from "./fixed-pages/fixed-page-values";
 export { type ContentIssue, contentIssues } from "./kinds/content-issues";
 export {

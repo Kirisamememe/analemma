@@ -62,9 +62,12 @@ export const RepeatField = ({
               const label = { label: definition.label, position: index + 1 };
               const move = (direction: -1 | 1) => {
                 const next = ids.toSpliced(index, 1);
-                next.splice(index + direction, 0, id);
+                const to = index + direction;
+                const atEdge = to === 0 || to === ids.length - 1;
+
+                next.splice(to, 0, id);
                 update(next);
-                focus(id + (direction === 1 ? "down" : "up"));
+                focus(id + ((direction === 1) === atEdge ? "up" : "down"));
               };
 
               return (
@@ -72,31 +75,29 @@ export const RepeatField = ({
                   key={id}
                   name={"content." + item}
                   error={errors["content." + item]}
-                  label={t("fixedPages.item", label)}
+                  label={t("fixedPageEditor.item", label)}
                 >
                   {children(item)}
                   <Cluster gap={2}>
                     <Button
                       ref={remember(id + "up")}
                       size="sm"
-                      allowFocusWhenDisabled
                       isDisabled={index === 0}
                       onPress={() => {
                         move(-1);
                       }}
                     >
-                      {t("fixedPages.up", label)}
+                      {t("fixedPageEditor.up", label)}
                     </Button>
                     <Button
                       ref={remember(id + "down")}
                       size="sm"
-                      allowFocusWhenDisabled
                       isDisabled={index === ids.length - 1}
                       onPress={() => {
                         move(1);
                       }}
                     >
-                      {t("fixedPages.down", label)}
+                      {t("fixedPageEditor.down", label)}
                     </Button>
                     <Button
                       ref={remember(id + "remove")}
@@ -107,7 +108,7 @@ export const RepeatField = ({
                         focus(next === undefined ? "add" : next + "remove");
                       }}
                     >
-                      {t("fixedPages.remove", label)}
+                      {t("fixedPageEditor.remove", label)}
                     </Button>
                   </Cluster>
                 </ContentGroup>
@@ -134,7 +135,7 @@ export const RepeatField = ({
                   update([...ids, id]);
                 }}
               >
-                {t("fixedPages.add", { label: definition.label })}
+                {t("fixedPageEditor.add", { label: definition.label })}
               </Button>
             </Cluster>
           </Stack>

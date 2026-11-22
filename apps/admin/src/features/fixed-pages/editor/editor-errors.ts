@@ -7,17 +7,17 @@ import type { MessageKey } from "@/i18n/use-translate";
 const issueMessage = (code: string): MessageKey => {
   switch (code) {
     case "invalid_type":
-      return "fixedPages.issue.type";
+      return "fixedPageEditor.issue.type";
     case "invalid_format":
-      return "fixedPages.issue.format";
+      return "fixedPageEditor.issue.format";
     case "invalid_value":
-      return "fixedPages.issue.choice";
+      return "fixedPageEditor.issue.choice";
     case "too_big":
-      return "fixedPages.issue.large";
+      return "fixedPageEditor.issue.large";
     case "too_small":
-      return "fixedPages.issue.small";
+      return "fixedPageEditor.issue.small";
     default:
-      return "fixedPages.issue.other";
+      return "fixedPageEditor.issue.other";
   }
 };
 
@@ -50,7 +50,7 @@ export const contentErrors = (
 
   return {
     fields,
-    notice: [t("fixedPages.changedKind"), ...messages].join(" "),
+    notice: [t("fixedPageEditor.changedKind"), ...messages].join(" "),
   };
 };
 

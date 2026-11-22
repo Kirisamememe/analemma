@@ -4,7 +4,6 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
 
 afterEach(cleanup);
 
@@ -61,31 +60,6 @@ describe("Button", () => {
     await userEvent.click(screen.getByRole("button", { name: "保存" }));
 
     expect(counter.count()).toBe(0);
-  });
-
-  test("focus を受け取れる無効なボタンは、Tab で移れても Enter や Space で操作できない", async () => {
-    const counter = countPresses();
-    const user = userEvent.setup();
-    const submits = countPresses();
-    renderWithI18n(
-      <Form onSubmit={submits.onPress}>
-        <Button
-          type="submit"
-          isDisabled
-          allowFocusWhenDisabled
-          onPress={counter.onPress}
-        >
-          上へ
-        </Button>
-      </Form>,
-    );
-    const button = screen.getByRole("button", { name: "上へ" });
-    await user.tab();
-    expect(document.activeElement).toBe(button);
-    expect(button.getAttribute("aria-disabled")).toBe("true");
-    await user.keyboard("{Enter} ");
-    expect(counter.count()).toBe(0);
-    expect(submits.count()).toBe(0);
   });
 
   test("押せないときは、押しても onPress を呼ばない", async () => {

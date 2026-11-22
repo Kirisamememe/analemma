@@ -23,7 +23,7 @@ test("種類を読み込んでいる間と選べる種類が無いときの知�
   });
   expect(await screen.findByText("読み込んでいます。")).toBeDefined();
   pending.resolve(undefined);
-  expect(await screen.findByText("選べる種類がありません。")).toBeDefined();
+  expect(await screen.findByText(/選べる種類がありません。/v)).toBeDefined();
 });
 test("選んだ種類が無いときはフォームを出さずに知らせる", async () => {
   renderApp({

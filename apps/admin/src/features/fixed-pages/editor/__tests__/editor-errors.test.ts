@@ -20,10 +20,11 @@ test("同じ項目の issue をまとめ、値を変えたらその項目と親�
     (key) => key,
   );
   expect(errors.fields["content.hero/name"]).toBe(
-    "fixedPages.issue.format fixedPages.issue.large",
+    "fixedPageEditor.issue.format fixedPageEditor.issue.large",
   );
   expect(clearChangedErrors(errors, "content.hero/name")).toEqual({
-    fields: { "content.hero/link": "fixedPages.issue.format" },
-    notice: "fixedPages.changedKind hero/name — fixedPages.issue.format",
+    fields: { "content.hero/link": "fixedPageEditor.issue.format" },
+    notice:
+      "fixedPageEditor.changedKind hero/name — fixedPageEditor.issue.format",
   });
 });

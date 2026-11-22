@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-import { contract } from "@analemma/contract";
+import { fixedPageSlug, fixedPageTitle } from "@analemma/contract";
 
 import { createContentForm } from "../content-form";
 import {
@@ -28,7 +28,7 @@ export type FixedPageEditorProps = {
   /** 保存できたときに呼ぶ関数。 */
   onSaved: (page: Page) => void;
 };
-const shape = contract.admin.fixedPages.create["~orpc"].inputSchema?.shape;
+const SCHEMAS = { slug: fixedPageSlug, title: fixedPageTitle };
 
 const focusError = (root: HTMLElement | null, names: readonly string[]) => {
   const targets = root?.querySelectorAll<HTMLElement>("[data-field]");
@@ -57,7 +57,6 @@ export const useEditorForm = ({
   const toast = useShowToast();
   const { refresh } = useApiCache();
   const root = useRef<HTMLDivElement>(null);
-  const pendingFocus = useRef<string[]>([]);
   const [initial] = useState(() => {
     const { content, items, unknownKeys } = flattenContent(
       createContentForm(kind.fields, page?.content),
@@ -94,7 +93,9 @@ export const useEditorForm = ({
           toast({
             tone: "success",
             message: t(
-              page === undefined ? "fixedPages.created" : "fixedPages.saved",
+              page === undefined
+                ? "fixedPageEditor.created"
+                : "fixedPageEditor.saved",
             ),
           });
           onSaved(result.data);
@@ -109,21 +110,25 @@ export const useEditorForm = ({
 
       switch (result._tag) {
         case "SLUG_TAKEN":
-          next = { fields: { slug: t("fixedPages.slugTaken") } };
+          next = { fields: { slug: t("fixedPageEditor.slugTaken") } };
           break;
         case "InvalidContent":
           next = contentErrors(result.issues, t);
           break;
         case "NOT_FOUND":
-          next = { fields: {}, notice: t("fixedPages.pageGone") };
+          next = { fields: {}, notice: t("fixedPageEditor.pageGone") };
           break;
         case "UNKNOWN_KIND":
-          next = { fields: {}, notice: t("fixedPages.kindGone") };
+          next = { fields: {}, notice: t("fixedPageEditor.kindGone") };
           break;
       }
 
-      pendingFocus.current = Object.keys(next.fields);
+      const names = Object.keys(next.fields);
+
       setErrors(next);
+      requestAnimationFrame(() => {
+        focusError(root.current, names);
+      });
     },
   });
   const form = useAppForm({
@@ -145,29 +150,15 @@ export const useEditorForm = ({
   const check =
     (key: "slug" | "title") =>
     ({ value }: Record<"value", string>) =>
-      shape?.[key].safeParse(value).success === true
+      SCHEMAS[key].safeParse(value).success
         ? undefined
         : t(
             key === "slug"
-              ? "fixedPages.invalidSlug"
-              : "fixedPages.invalidTitle",
+              ? "fixedPageEditor.invalidSlug"
+              : "fixedPageEditor.invalidTitle",
           );
   const changed = (name: string) => {
     setErrors((previous) => clearChangedErrors(previous, name));
-  };
-
-  const attachRoot = (element: HTMLDivElement | null) => {
-    root.current = element;
-
-    if (
-      element !== null &&
-      !saving.isPending &&
-      pendingFocus.current.length > 0
-    ) {
-      const names = pendingFocus.current;
-      pendingFocus.current = [];
-      focusError(element, names);
-    }
   };
 
   return {
@@ -176,7 +167,7 @@ export const useEditorForm = ({
     errors,
     changed,
     check,
-    attachRoot,
+    root,
     saving,
   };
 };
