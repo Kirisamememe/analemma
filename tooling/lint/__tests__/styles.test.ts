@@ -213,6 +213,24 @@ describe("管理画面の画面のコードの class", () => {
     );
   });
 
+  test("色の見本でも、色ごとの決まりのほか(任意の値・文字の役割・面の不透明度)には診断を出すこと", () => {
+    const expected: Expected[] = [
+      [4, "任意の値"],
+      [5, "文字の大きさと太さは"],
+      [6, "面の色"],
+    ];
+
+    expect(
+      diagnosticsOf(
+        {
+          file: "invalid/apps/admin/src/ui/specimens/loose.tsx",
+          rule: RESTRICTED,
+        },
+        expected,
+      ),
+    ).toEqual(expected);
+  });
+
   test("feature の ui/ の外では、部品の class に診断を出すこと", () => {
     const expected: Expected[] = [
       [2, "画面のコードは"],

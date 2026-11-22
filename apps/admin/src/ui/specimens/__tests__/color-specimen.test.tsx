@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 
@@ -17,14 +17,21 @@ const COLORS = [
       ({ groups }) => groups?.["name"] ?? "",
     ),
   ),
-];
+].toSorted();
 
-test("theme.css の色を、どれも light と dark の両方に並べる", () => {
-  render(<ColorSpecimen />);
+test.each(["light", "dark"])(
+  "%s の欄に、theme.css の色をどれも1回ずつ並べる",
+  (scheme) => {
+    render(<ColorSpecimen />);
 
-  expect(COLORS.length).toBeGreaterThan(0);
-  expect(
-    COLORS.filter((color) => screen.queryAllByText(color).length !== 2),
-  ).toEqual([]);
-  expect(screen.getAllByRole("listitem")).toHaveLength(COLORS.length * 2);
-});
+    const panel = within(screen.getByRole("region", { name: scheme }));
+
+    expect(COLORS.length).toBeGreaterThan(0);
+    expect(
+      panel
+        .getAllByRole("listitem")
+        .map((item) => item.textContent)
+        .toSorted(),
+    ).toEqual(COLORS);
+  },
+);

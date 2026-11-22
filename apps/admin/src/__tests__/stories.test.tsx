@@ -1,5 +1,5 @@
 import { composeStories, setProjectAnnotations } from "@storybook/react-vite";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { readdir } from "node:fs/promises";
 import type { ComponentType } from "react";
@@ -68,6 +68,18 @@ describe("story", () => {
     expect(files.filter((path) => STORY_FILE.test(path)).toSorted()).toEqual(
       Object.keys(MODULES).toSorted(),
     );
+  });
+
+  test("ツールバーの配色と言語を、html の属性と部品の訳に渡す(見本の文の言語は lang に残す)", () => {
+    const { Pending } = composeStories(primitivesButton, {
+      initialGlobals: { theme: "dark", locale: "zh-Hans" },
+    });
+
+    render(<Pending />);
+
+    expect(document.documentElement.dataset["theme"]).toBe("dark");
+    expect(document.documentElement.lang).toBe("ja");
+    expect(screen.getByRole("progressbar", { name: "正在处理" })).toBeDefined();
   });
 
   test.each(STORIES)("$file の $name を、誤りを出さずに描ける", ({ Story }) => {

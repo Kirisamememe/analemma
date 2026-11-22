@@ -3,7 +3,8 @@
   "compilerOptions": {
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": ["bun", "vite/client"],
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true
   },
   "include": ["src", "__tests__", "test-setup", "vite.config.ts", ".storybook"]
 }

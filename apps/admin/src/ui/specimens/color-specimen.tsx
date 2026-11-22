@@ -64,7 +64,7 @@ const SCHEMES = ["light", "dark"] as const;
 export const ColorSpecimen = (): ReactNode => (
   <div className="flex flex-wrap gap-6">
     {SCHEMES.map((scheme) => (
-      <section className={panel({ scheme })} key={scheme}>
+      <section aria-label={scheme} className={panel({ scheme })} key={scheme}>
         <Heading level={2}>{scheme}</Heading>
         {GROUPS.map(({ name, colors }) => (
           <div className="flex flex-col gap-2" key={name}>

@@ -52,7 +52,7 @@ export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
       "oxlint.config.ts",
       "oxlint.fixtures.config.ts",
       "**/tooling/lint/config/**/*.ts",
-      "**/apps/admin/.storybook/main.ts",
+      "**/apps/admin/.storybook/*.ts",
     ],
     rules: {
       "import/extensions": [
@@ -67,7 +67,7 @@ export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
     },
   },
   {
-    files: ["**/apps/admin/.storybook/**"],
+    files: ["**/apps/admin/.storybook/story-frame.tsx"],
     rules: { "typescript/dot-notation": "off" },
   },
   {

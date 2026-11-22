@@ -287,6 +287,7 @@
 
   [lang] {
     --font-sans: --theme(--font-sans inline);
+    text-spacing-trim: normal;
   }
 
   :lang(ja) {
@@ -336,6 +337,7 @@
   samp,
   pre {
     text-autospace: no-autospace;
+    text-spacing-trim: space-all;
   }
 
   @media (prefers-reduced-motion: reduce) {

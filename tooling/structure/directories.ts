@@ -12,6 +12,9 @@ const UNCOUNTED_ENTRIES = new Set([
 
 const SIDE_DIRECTORIES = new Set(["__tests__", "__stories__"]);
 
+/** story を置けるフォルダ(この下の `__stories__` だけを認める)。 */
+export const STORY_ROOT = "apps/admin/src/";
+
 const DIRECTORY_NAME = /^(?:[a-z0-9]+(?:-[a-z0-9]+)*|__tests__|__stories__)$/v;
 
 /** 生成物を置くので、名前と数を検査しないフォルダ。 */
@@ -85,7 +88,11 @@ const isBadDirectory = (directory: string): boolean => {
     .slice(0, -1)
     .some((segment) => SIDE_DIRECTORIES.has(segment));
 
-  return nestedInSide || !DIRECTORY_NAME.test(segments.at(-1) ?? "");
+  const name = segments.at(-1) ?? "";
+  const strayStories =
+    name === "__stories__" && !directory.startsWith(STORY_ROOT);
+
+  return nestedInSide || strayStories || !DIRECTORY_NAME.test(name);
 };
 
 /** 名前の決まりに合わないフォルダと、__tests__・__stories__ の中のフォルダを集める。 */
