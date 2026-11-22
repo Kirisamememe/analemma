@@ -2,10 +2,10 @@ import type { RouterHistory } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 import type { i18n as I18n } from "i18next";
 
-import { App } from "../app";
-import { createI18n } from "../i18n/create-i18n";
-import type { Locale } from "../i18n/locales";
-import { type TestAppOptions, createTestApp } from "./create-test-app";
+import { App } from "@/app";
+import { createI18n } from "@/i18n/create-i18n";
+import type { Locale } from "@/i18n/locales";
+import { type TestAppOptions, createTestApp } from "@/testing/create-test-app";
 
 /** 描く管理画面の条件。 */
 export type RenderAppOptions = TestAppOptions & {

@@ -8,20 +8,20 @@ import {
   type RouterHistory,
 } from "@tanstack/react-router";
 
-import { isUnauthorized } from "./api/api-errors";
-import type { ApiClient } from "./api/api-types";
-import { createQueryClient } from "./api/create-query-client";
-import type { AuthGate } from "./features/auth/create-auth-gate";
-import { isPublicPath, toLoginSearch } from "./features/auth/login-search";
-import type { Authenticator } from "./features/auth/webauthn/create-authenticator";
-import { EnrollPage } from "./routes/enroll-page";
-import { HomePage } from "./routes/home-page";
-import { LoginPage } from "./routes/login-page";
-import { NotFoundPage } from "./routes/not-found-page";
-import { RootLayout } from "./routes/root-layout";
-import { SecurityPage } from "./routes/security-page";
-import { SessionErrorPage } from "./routes/session-error-page";
-import { SignedInLayout } from "./routes/signed-in-layout";
+import { isUnauthorized } from "@/api/api-errors";
+import type { ApiClient } from "@/api/api-types";
+import { createQueryClient } from "@/api/create-query-client";
+import type { AuthGate } from "@/features/auth/create-auth-gate";
+import { isPublicPath, toLoginSearch } from "@/features/auth/login-search";
+import type { Authenticator } from "@/features/auth/webauthn/create-authenticator";
+import { EnrollPage } from "@/routes/enroll-page";
+import { HomePage } from "@/routes/home-page";
+import { LoginPage } from "@/routes/login-page";
+import { NotFoundPage } from "@/routes/not-found-page";
+import { RootLayout } from "@/routes/root-layout";
+import { SecurityPage } from "@/routes/security-page";
+import { SessionErrorPage } from "@/routes/session-error-page";
+import { SignedInLayout } from "@/routes/signed-in-layout";
 
 /** 画面が route から受け取る、server と認証器の窓口。 */
 export type RouterContext = {

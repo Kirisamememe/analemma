@@ -1,6 +1,9 @@
 import type { FieldDefinition, FixedPageContent } from "@analemma/contract";
 
-import { type ContentForm, isFormGroup } from "./content-form";
+import {
+  type ContentForm,
+  isFormGroup,
+} from "@/features/fixed-pages/content-form";
 
 type GroupContent = {
   /** この段から送る中身。 */

@@ -3,7 +3,7 @@ import type {
   FakeOutput,
   FakeReply,
   FakeRoutes,
-} from "./create-fake-api";
+} from "@/testing/create-fake-api";
 
 /** 作り物の server に最初に置く、1つのパスキー。 */
 export type FakePasskeySeed = {

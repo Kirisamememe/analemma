@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/client";
 import { describe, expect, test } from "bun:test";
 
-import { isUnauthorized } from "../api-errors";
+import { isUnauthorized } from "@/api/api-errors";
 
 describe("isUnauthorized", () => {
   test("UNAUTHORIZED の失敗を、セッションが無いことと見分ける", () => {

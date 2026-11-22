@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { isTheme } from "../theme";
+import { isTheme } from "@/preferences/theme";
 
 describe("isTheme", () => {
   test.each(["system", "light", "dark"])(

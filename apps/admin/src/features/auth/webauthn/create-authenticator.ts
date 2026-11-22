@@ -3,7 +3,7 @@ import {
   registrationCredential,
 } from "@analemma/contract";
 
-import type { ApiInputs, ApiOutputs } from "../../../api/api-types";
+import type { ApiInputs, ApiOutputs } from "@/api/api-types";
 
 /** server が返す、ログインと再認証の options。 */
 export type AuthenticationOptions = ApiOutputs["auth"]["login"]["options"];

@@ -1,7 +1,7 @@
 import { createInstance, type i18n as I18n } from "i18next";
 
-import { FALLBACK_LOCALE, LOCALES, type Locale } from "./locales";
-import { RESOURCES } from "./resources";
+import { FALLBACK_LOCALE, LOCALES, type Locale } from "@/i18n/locales";
+import { RESOURCES } from "@/i18n/resources";
 
 /** 訳を読み込み終えた i18next の instance を、言語を決めて作る。 */
 export const createI18n = (locale: Locale): I18n => {

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { FieldError, Label, Text } from "react-aria-components";
 
-import { typography } from "../../typography";
+import { typography } from "@/ui/typography";
 
 /** 入力欄の文言。 */
 type FieldTextProps = {

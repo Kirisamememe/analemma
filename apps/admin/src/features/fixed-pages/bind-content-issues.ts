@@ -1,6 +1,9 @@
 import type { FieldDefinition, contentIssues } from "@analemma/contract";
 
-import { type ContentForm, isFormGroup } from "./content-form";
+import {
+  type ContentForm,
+  isFormGroup,
+} from "@/features/fixed-pages/content-form";
 
 type ContentIssue = ReturnType<typeof contentIssues.parse>[number];
 

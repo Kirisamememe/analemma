@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { createI18n } from "../create-i18n";
+import { createI18n } from "@/i18n/create-i18n";
 
 const TITLE = {
   en: "Page not found",

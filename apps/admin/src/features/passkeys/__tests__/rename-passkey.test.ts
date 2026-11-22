@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
-import { createFakeApi } from "../../../testing/create-fake-api";
-import { renamePasskey } from "../rename-passkey";
+import { renamePasskey } from "@/features/passkeys/rename-passkey";
+import { createFakeApi } from "@/testing/create-fake-api";
 
 describe("renamePasskey", () => {
   test("ID と新しい名前を送り、名前を変更する", async () => {

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import { tv } from "../tv";
-import type { Space } from "./space";
+import type { Space } from "@/ui/layout/space";
+import { tv } from "@/ui/tv";
 
 const stack = tv({
   base: "flex flex-col",

@@ -2,9 +2,9 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { renderWithI18n } from "../../../../testing/render-with-i18n";
-import { Form } from "../../form";
-import { NumberField } from "../number-field";
+import { renderWithI18n } from "@/testing/render-with-i18n";
+import { Form } from "@/ui/primitives/form";
+import { NumberField } from "@/ui/primitives/form-fields/number-field";
 
 afterEach(cleanup);
 

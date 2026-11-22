@@ -1,14 +1,11 @@
 import { describe, expect, test } from "bun:test";
 
-import {
-  createFakeApi,
-  type FakeReply,
-} from "../../../testing/create-fake-api";
+import { deletePasskey } from "@/features/passkeys/delete-passkey";
+import { createFakeApi, type FakeReply } from "@/testing/create-fake-api";
 import {
   FAKE_ASSERTION,
   createFakeAuthenticator,
-} from "../../../testing/create-fake-authenticator";
-import { deletePasskey } from "../delete-passkey";
+} from "@/testing/create-fake-authenticator";
 
 const serverReplying = (reply: FakeReply<"admin/passkeys/delete">) => {
   let sent: unknown;

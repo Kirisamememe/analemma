@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { fieldDefinitions } from "@analemma/contract";
 
-import { createContentForm } from "../content-form";
+import { createContentForm } from "@/features/fixed-pages/content-form";
 
 const flag = { type: "boolean", key: "flag", label: "表示" };
 const fields = fieldDefinitions.parse([

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Center } from "../center";
-import { Text } from "../text";
+import { Center } from "@/ui/layout/center";
+import { Text } from "@/ui/layout/text";
 
 const meta = {
   title: "layout/Center",

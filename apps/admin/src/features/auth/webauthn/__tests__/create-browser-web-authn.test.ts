@@ -4,7 +4,7 @@ import {
   type CredentialsApi,
   type OptionsParser,
   createBrowserWebAuthn,
-} from "../create-browser-web-authn";
+} from "@/features/auth/webauthn/create-browser-web-authn";
 
 const REQUEST: PublicKeyCredentialRequestOptionsJSON = {
   challenge: "AQID",

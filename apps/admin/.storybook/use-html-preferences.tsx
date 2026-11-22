@@ -1,6 +1,6 @@
 import { useLayoutEffect } from "react";
 
-import type { Theme } from "../src/preferences/theme";
+import type { Theme } from "@/preferences/theme";
 
 /** html に story の言語と配色を当てる。 */
 export const useHtmlPreferences = (

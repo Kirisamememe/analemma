@@ -4,7 +4,7 @@ import {
   FAKE_ASSERTION,
   FAKE_ATTESTATION,
   createFakeAuthenticator,
-} from "../create-fake-authenticator";
+} from "@/testing/create-fake-authenticator";
 
 const OPTIONS = {
   challenge: "AQID",

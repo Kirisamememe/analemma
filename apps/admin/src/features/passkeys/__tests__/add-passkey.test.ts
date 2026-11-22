@@ -1,17 +1,17 @@
 import { describe, expect, test } from "bun:test";
 
+import type { Authenticator } from "@/features/auth/webauthn/create-authenticator";
+import { addPasskey } from "@/features/passkeys/add-passkey";
 import {
   createFakeApi,
   type FakeOutput,
   type FakeReply,
-} from "../../../testing/create-fake-api";
+} from "@/testing/create-fake-api";
 import {
   FAKE_ASSERTION,
   FAKE_ATTESTATION,
   createFakeAuthenticator,
-} from "../../../testing/create-fake-authenticator";
-import type { Authenticator } from "../../auth/webauthn/create-authenticator";
-import { addPasskey } from "../add-passkey";
+} from "@/testing/create-fake-authenticator";
 
 const AUTHENTICATION_OPTIONS: FakeOutput<"admin/session/reauthenticationOptions"> =
   {

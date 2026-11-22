@@ -1,14 +1,11 @@
 import { describe, expect, test } from "bun:test";
 
-import {
-  createFakeApi,
-  type FakeOutput,
-} from "../../../testing/create-fake-api";
+import { reauthenticate } from "@/features/auth/reauthenticate";
+import { createFakeApi, type FakeOutput } from "@/testing/create-fake-api";
 import {
   FAKE_ASSERTION,
   createFakeAuthenticator,
-} from "../../../testing/create-fake-authenticator";
-import { reauthenticate } from "../reauthenticate";
+} from "@/testing/create-fake-authenticator";
 
 const OPTIONS: FakeOutput<"admin/session/reauthenticationOptions"> = {
   challenge: "AQID",

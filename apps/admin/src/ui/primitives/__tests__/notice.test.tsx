@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { Notice } from "../notice";
+import { Notice } from "@/ui/primitives/notice";
 
 afterEach(cleanup);
 

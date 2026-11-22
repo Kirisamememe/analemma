@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
-import { Heading } from "../layout/heading";
-import { Text } from "../layout/text";
-import { tv } from "../tv";
+import { Heading } from "@/ui/layout/heading";
+import { Text } from "@/ui/layout/text";
+import { tv } from "@/ui/tv";
 
 const swatch = tv({
   base: "size-control shrink-0 rounded-control outline -outline-offset-1 outline-fg/10",

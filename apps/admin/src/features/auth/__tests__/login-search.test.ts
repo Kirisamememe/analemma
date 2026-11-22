@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { isPublicPath, toLoginSearch } from "../login-search";
+import { isPublicPath, toLoginSearch } from "@/features/auth/login-search";
 
 describe("toLoginSearch", () => {
   test("管理画面の中のパスは、ログインした後の行き先として残す", () => {

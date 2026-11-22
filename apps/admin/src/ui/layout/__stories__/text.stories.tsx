@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Text } from "../text";
+import { Text } from "@/ui/layout/text";
 
 const meta = {
   title: "layout/Text",

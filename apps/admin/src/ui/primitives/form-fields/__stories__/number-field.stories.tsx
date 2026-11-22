@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
-import { Form } from "../../form";
-import { NumberField } from "../number-field";
+import { Form } from "@/ui/primitives/form";
+import { NumberField } from "@/ui/primitives/form-fields/number-field";
 
 const meta = {
   title: "primitives/NumberField",

@@ -1,6 +1,6 @@
-import type { MessageKey } from "../../i18n/use-translate";
-import type { EnrollResult } from "./enroll";
-import type { LogInResult } from "./log-in";
+import type { EnrollResult } from "@/features/auth/enroll";
+import type { LogInResult } from "@/features/auth/log-in";
+import type { MessageKey } from "@/i18n/use-translate";
 
 /** 画面に出す `Notice` の中身。 */
 export type AuthNotice = {

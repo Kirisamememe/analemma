@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { toEnrollNotice, toLogInNotice } from "../to-auth-notice";
+import { toEnrollNotice, toLogInNotice } from "@/features/auth/to-auth-notice";
 
 describe("toLogInNotice", () => {
   test("ログインできたら、何も知らせない", () => {

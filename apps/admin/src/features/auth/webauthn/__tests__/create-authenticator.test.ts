@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
-import { type WebAuthn, createAuthenticator } from "../create-authenticator";
+import {
+  type WebAuthn,
+  createAuthenticator,
+} from "@/features/auth/webauthn/create-authenticator";
 
 const AUTHENTICATION_OPTIONS = {
   challenge: "AQID",

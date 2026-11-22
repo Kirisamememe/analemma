@@ -1,4 +1,4 @@
-import { tv } from "./tv";
+import { tv } from "@/ui/tv";
 
 /** 文字の役割ごとの、目盛りの組と太さ。 */
 export const typography = tv({

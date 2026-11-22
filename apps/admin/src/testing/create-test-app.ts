@@ -3,14 +3,14 @@ import {
   type RouterHistory,
 } from "@tanstack/react-router";
 
-import { createApiClient } from "../api/create-api-client";
+import { createApiClient } from "@/api/create-api-client";
 import {
   createAuthGate,
   gateAdminRequests,
-} from "../features/auth/create-auth-gate";
-import type { Authenticator } from "../features/auth/webauthn/create-authenticator";
-import { type AppParts, createApp } from "../router";
-import { type FakeRoutes, createFakeApi } from "./create-fake-api";
+} from "@/features/auth/create-auth-gate";
+import type { Authenticator } from "@/features/auth/webauthn/create-authenticator";
+import { type AppParts, createApp } from "@/router";
+import { type FakeRoutes, createFakeApi } from "@/testing/create-fake-api";
 
 /** 組み立てる管理画面の条件。 */
 export type TestAppOptions = {

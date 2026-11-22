@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { formatDateTime } from "../format-date-time";
+import { formatDateTime } from "@/i18n/format-date-time";
 
 describe("formatDateTime", () => {
   test("言語ごとの書き方で、日付と時刻を出す", () => {

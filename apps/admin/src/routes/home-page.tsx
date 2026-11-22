@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Center } from "../ui/layout/center";
-import { PageHeader } from "../ui/patterns/page-header";
+import { Center } from "@/ui/layout/center";
+import { PageHeader } from "@/ui/patterns/page-header";
 
 /** ログインした後に最初に開く画面。 */
 export const HomePage = (): ReactNode => {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { isLocale, toLocale } from "../locales";
+import { isLocale, toLocale } from "@/i18n/locales";
 
 describe("isLocale", () => {
   test.each(["en", "ja", "zh-Hans"])("対応する言語 %s を受け付ける", (tag) => {

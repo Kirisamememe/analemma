@@ -1,6 +1,10 @@
 import { contract } from "@analemma/contract";
 
-import type { FakeInput, FakeReply, FakeRoutes } from "./create-fake-api";
+import type {
+  FakeInput,
+  FakeReply,
+  FakeRoutes,
+} from "@/testing/create-fake-api";
 
 const EXPIRY = { output: { expiresAt: "2026-01-08T00:00:00.000Z" } };
 

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { tv } from "../tv";
+import { tv } from "@/ui/tv";
 
 const shell = tv({
   slots: {

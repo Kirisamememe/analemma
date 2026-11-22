@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { AppShell } from "../app-shell";
-import { Center } from "../center";
-import { Heading } from "../heading";
-import { Stack } from "../stack";
-import { Text } from "../text";
+import { AppShell } from "@/ui/layout/app-shell";
+import { Center } from "@/ui/layout/center";
+import { Heading } from "@/ui/layout/heading";
+import { Stack } from "@/ui/layout/stack";
+import { Text } from "@/ui/layout/text";
 
 const meta = {
   title: "layout/AppShell",
