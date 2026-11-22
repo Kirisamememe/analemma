@@ -8,8 +8,8 @@ import { Heading } from "../../ui/layout/heading";
 import { Stack } from "../../ui/layout/stack";
 import { Text } from "../../ui/layout/text";
 import { Button } from "../../ui/primitives/button";
-import { Dialog } from "../../ui/primitives/dialog";
 import { Notice } from "../../ui/primitives/notice";
+import { Dialog } from "../../ui/primitives/overlays/dialog";
 
 /** すべてのセッションからログアウトする操作。 */
 export const LogOutAllSection = (): ReactNode => {

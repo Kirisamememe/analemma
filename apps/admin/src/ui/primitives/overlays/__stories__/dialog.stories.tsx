@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { type ReactNode, useState } from "react";
 
-import { Cluster } from "../../layout/cluster";
-import { Text } from "../../layout/text";
-import { Button } from "../button";
+import { Cluster } from "../../../layout/cluster";
+import { Text } from "../../../layout/text";
+import { Button } from "../../button";
+import { Notice } from "../../notice";
 import { Dialog } from "../dialog";
-import { Notice } from "../notice";
 
 /** `DeleteDialog` に渡す値。 */
 type DeleteDialogProps = {

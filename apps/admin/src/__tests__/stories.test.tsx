@@ -18,7 +18,6 @@ import * as patternsPageHeader from "../ui/patterns/__stories__/page-header.stor
 import * as patternsSideNav from "../ui/patterns/__stories__/side-nav.stories";
 import * as primitivesBadge from "../ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "../ui/primitives/__stories__/button.stories";
-import * as primitivesDialog from "../ui/primitives/__stories__/dialog.stories";
 import * as primitivesFocusScope from "../ui/primitives/__stories__/focus-scope.stories";
 import * as primitivesForm from "../ui/primitives/__stories__/form.stories";
 import * as primitivesNotice from "../ui/primitives/__stories__/notice.stories";
@@ -31,6 +30,8 @@ import * as primitivesSpinner from "../ui/primitives/graphics/__stories__/spinne
 import * as primitivesLink from "../ui/primitives/navigation/__stories__/link.stories";
 import * as primitivesNavDrawer from "../ui/primitives/navigation/__stories__/nav-drawer.stories";
 import * as primitivesNavItem from "../ui/primitives/navigation/__stories__/nav-item.stories";
+import * as primitivesDialog from "../ui/primitives/overlays/__stories__/dialog.stories";
+import * as primitivesToast from "../ui/primitives/overlays/__stories__/toast.stories";
 import * as specimensColors from "../ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "../ui/specimens/__stories__/typography.stories";
 
@@ -48,7 +49,6 @@ const MODULES = {
   "ui/patterns/__stories__/side-nav.stories.tsx": patternsSideNav,
   "ui/primitives/__stories__/badge.stories.tsx": primitivesBadge,
   "ui/primitives/__stories__/button.stories.tsx": primitivesButton,
-  "ui/primitives/__stories__/dialog.stories.tsx": primitivesDialog,
   "ui/primitives/__stories__/focus-scope.stories.tsx": primitivesFocusScope,
   "ui/primitives/__stories__/form.stories.tsx": primitivesForm,
   "ui/primitives/__stories__/notice.stories.tsx": primitivesNotice,
@@ -66,6 +66,8 @@ const MODULES = {
     primitivesNavDrawer,
   "ui/primitives/navigation/__stories__/nav-item.stories.tsx":
     primitivesNavItem,
+  "ui/primitives/overlays/__stories__/dialog.stories.tsx": primitivesDialog,
+  "ui/primitives/overlays/__stories__/toast.stories.tsx": primitivesToast,
   "ui/specimens/__stories__/colors.stories.tsx": specimensColors,
   "ui/specimens/__stories__/typography.stories.tsx": specimensTypography,
 };
@@ -116,6 +118,15 @@ describe("story", () => {
     expect(document.documentElement.dataset["theme"]).toBe("dark");
     expect(document.documentElement.lang).toBe("ja");
     expect(screen.getByRole("progressbar", { name: "正在处理" })).toBeDefined();
+  });
+
+  test("Toast の Stacked は、開いた時点で3つの知らせが見える", async () => {
+    const { Stacked } = composeStories(primitivesToast);
+
+    render(<Stacked />);
+    await screen.findByText("本文を保存しました。");
+
+    expect(screen.getAllByRole("alert")).toHaveLength(3);
   });
 
   test.each(STORIES)(

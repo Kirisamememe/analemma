@@ -5,10 +5,10 @@ import { useTranslation } from "react-i18next";
 
 import { Cluster } from "../../ui/layout/cluster";
 import { Button } from "../../ui/primitives/button";
-import { Dialog } from "../../ui/primitives/dialog";
 import { Form } from "../../ui/primitives/form";
 import { TextField } from "../../ui/primitives/form-fields/text-field";
 import { Notice } from "../../ui/primitives/notice";
+import { Dialog } from "../../ui/primitives/overlays/dialog";
 import { checkPasskeyName } from "../auth/check-passkey-name";
 import type { PasskeySummary } from "./passkey-list";
 import { refreshPasskeys } from "./passkeys-query";

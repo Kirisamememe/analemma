@@ -5,8 +5,8 @@ import { Cluster } from "../../layout/cluster";
 import { Stack } from "../../layout/stack";
 import { Text } from "../../layout/text";
 import { Button } from "../button";
-import { Dialog } from "../dialog";
 import { FocusScope } from "../focus-scope";
+import { Dialog } from "../overlays/dialog";
 
 const PASSKEYS = ["MacBook Air", "iPhone", "iPad"];
 

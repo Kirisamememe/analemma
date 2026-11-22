@@ -6,8 +6,8 @@ import {
   ModalOverlay,
 } from "react-aria-components";
 
-import { tv } from "../tv";
-import { typography } from "../typography";
+import { tv } from "../../tv";
+import { typography } from "../../typography";
 
 const dialog = tv({
   slots: {

@@ -15,6 +15,7 @@ export const zhHans = {
   "ui.numberField.increase": "增大{{label}}的值",
   "ui.openNav": "打开导航",
   "ui.closeNav": "关闭导航",
+  "ui.close": "关闭",
   "login.title": "登录 Stilus",
   "login.description": "使用为此管理后台注册的通行密钥。",
   "login.submit": "使用通行密钥登录",

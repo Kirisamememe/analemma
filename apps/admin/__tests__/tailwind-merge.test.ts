@@ -84,6 +84,7 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "dialog-backdrop-animation": null,
   "dialog-panel-animation": null,
   "nav-drawer-panel-animation": null,
+  "toast-animation": null,
 };
 
 describe("デザインシステムの class の merge", () => {
