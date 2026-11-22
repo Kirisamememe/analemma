@@ -1,13 +1,18 @@
 /** 英語の訳で、ほかの言語のキーと引数の出どころ。 */
 export const en = {
   "app.name": "Stilus",
-  "home.title": "Stilus",
+  "home.title": "Home",
+  "navigation.main": "Main",
+  "navigation.drawer": "Navigation",
+  "navigation.settings": "Settings",
   "notFound.title": "Page not found",
   "notFound.description": "There is no page at {{path}}.",
   "notFound.backHome": "Back to home",
   "ui.pending": "Working",
   "ui.numberField.decrease": "Decrease {{label}}",
   "ui.numberField.increase": "Increase {{label}}",
+  "ui.openNav": "Open navigation",
+  "ui.closeNav": "Close navigation",
   "login.title": "Sign in to Stilus",
   "login.description": "Use a passkey you registered for this admin panel.",
   "login.submit": "Sign in with a passkey",
@@ -40,7 +45,6 @@ export const en = {
   "sessionError.description": "Could not check your session. Please try again.",
   "sessionError.retry": "Try again",
   "passkeyName.invalid": "Use 1 to 64 characters, without line breaks.",
-  "home.security": "Security",
   "security.title": "Security",
   "security.description":
     "Passkeys and sessions used to sign in to this admin panel.",

@@ -26,6 +26,16 @@ describe("使える API と書き方", () => {
       rule: "eslint(no-restricted-imports)",
     },
     {
+      label: "管理画面の画面のコードでの lucide-react の import",
+      file: "apps/admin/src/routes/uses-lucide.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の画面のコードでの lucide-react のサブパスの import",
+      file: "apps/admin/src/routes/uses-lucide-subpath.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
       label: "管理画面の、tailwind-variants の merge の入口の import",
       file: "apps/admin/src/ui/primitives/uses-merge-entry.ts",
       rule: "eslint(no-restricted-imports)",

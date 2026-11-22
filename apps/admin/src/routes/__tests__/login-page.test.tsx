@@ -62,7 +62,7 @@ describe("LoginPage", () => {
     });
 
     await pressLogIn();
-    await screen.findByRole("heading", { name: "Stilus" });
+    await screen.findByRole("heading", { name: "ホーム" });
 
     expect(calls).toEqual([
       "auth/login/options",
@@ -157,7 +157,7 @@ describe("LoginPage", () => {
     await pressLogIn();
 
     expect(
-      await screen.findByRole("heading", { name: "Stilus" }),
+      await screen.findByRole("heading", { name: "ホーム" }),
     ).toBeDefined();
     expect(history.location.pathname).toBe("/");
   });

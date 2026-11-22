@@ -21,6 +21,7 @@ import { NotFoundPage } from "./routes/not-found-page";
 import { RootLayout } from "./routes/root-layout";
 import { SecurityPage } from "./routes/security-page";
 import { SessionErrorPage } from "./routes/session-error-page";
+import { SignedInLayout } from "./routes/signed-in-layout";
 
 /** 画面が route から受け取る、server と認証器の窓口。 */
 export type RouterContext = {
@@ -53,6 +54,7 @@ const enrollRoute = createRoute({
 const signedInRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "signed-in",
+  component: SignedInLayout,
   errorComponent: SessionErrorPage,
   beforeLoad: async ({ context, location }) => {
     const [error] = await safe(context.api.admin.session.get());

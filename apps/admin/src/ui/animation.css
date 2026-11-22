@@ -45,6 +45,26 @@
   }
 }
 
+@utility nav-drawer-panel-animation {
+  --nav-drawer-closed-translate: -100%;
+  --nav-drawer-closed-opacity: 1;
+
+  @media (prefers-reduced-motion: reduce) {
+    --nav-drawer-closed-translate: 0%;
+    --nav-drawer-closed-opacity: 0;
+  }
+
+  @variant is-entering {
+    animation: nav-drawer-in var(--transition-duration-normal)
+      var(--ease-standard);
+  }
+
+  @variant is-exiting {
+    animation: nav-drawer-out var(--dialog-exit-duration) var(--ease-exit)
+      forwards;
+  }
+}
+
 @keyframes backdrop-in {
   from {
     background-color: transparent;
@@ -68,5 +88,19 @@
   to {
     opacity: 0;
     scale: var(--dialog-closed-scale);
+  }
+}
+
+@keyframes nav-drawer-in {
+  from {
+    translate: var(--nav-drawer-closed-translate);
+    opacity: var(--nav-drawer-closed-opacity);
+  }
+}
+
+@keyframes nav-drawer-out {
+  to {
+    translate: var(--nav-drawer-closed-translate);
+    opacity: var(--nav-drawer-closed-opacity);
   }
 }

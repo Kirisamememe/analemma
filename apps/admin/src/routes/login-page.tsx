@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { logIn } from "@/features/auth/log-in";
 import { toLogInNotice } from "@/features/auth/to-auth-notice";
+import { AppShell } from "@/ui/layout/app-shell";
 import { Center } from "@/ui/layout/center";
 import { Stack } from "@/ui/layout/stack";
 import { PageHeader } from "@/ui/patterns/page-header";
@@ -37,25 +38,27 @@ export const LoginPage = (): ReactNode => {
   const notice = outcome === undefined ? undefined : toLogInNotice(outcome);
 
   return (
-    <Center width="sm">
-      <Stack gap={6}>
-        <PageHeader
-          description={t("login.description")}
-          title={t("login.title")}
-        />
-        {notice !== undefined && (
-          <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-        )}
-        <Button
-          isPending={login.isPending}
-          onPress={() => {
-            login.mutate();
-          }}
-          tone="primary"
-        >
-          {t("login.submit")}
-        </Button>
-      </Stack>
-    </Center>
+    <AppShell>
+      <Center width="sm">
+        <Stack gap={6}>
+          <PageHeader
+            description={t("login.description")}
+            title={t("login.title")}
+          />
+          {notice !== undefined && (
+            <Notice tone={notice.tone}>{t(notice.message)}</Notice>
+          )}
+          <Button
+            isPending={login.isPending}
+            onPress={() => {
+              login.mutate();
+            }}
+            tone="primary"
+          >
+            {t("login.submit")}
+          </Button>
+        </Stack>
+      </Center>
+    </AppShell>
   );
 };

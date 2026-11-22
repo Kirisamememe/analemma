@@ -48,7 +48,7 @@ describe("EnrollPage", () => {
     await submitName("MacBook");
 
     expect(
-      await screen.findByRole("heading", { name: "Stilus" }),
+      await screen.findByRole("heading", { name: "ホーム" }),
     ).toBeDefined();
     expect(server.registered()).toEqual({
       token: "abc.def",
@@ -118,7 +118,7 @@ describe("EnrollPage", () => {
     expect(history.length).toBe(1);
 
     await submitName("MacBook");
-    await screen.findByRole("heading", { name: "Stilus" });
+    await screen.findByRole("heading", { name: "ホーム" });
 
     expect(server.registered()).toMatchObject({ token: "abc.def" });
   });
@@ -171,7 +171,7 @@ describe("EnrollPage", () => {
     await userEvent.click(
       screen.getByRole("button", { name: "パスキーを登録" }),
     );
-    await screen.findByRole("heading", { name: "Stilus" });
+    await screen.findByRole("heading", { name: "ホーム" });
 
     expect(server.registered()).toMatchObject({ token: "new.token" });
   });

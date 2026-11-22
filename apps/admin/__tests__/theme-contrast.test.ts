@@ -124,15 +124,12 @@ const contrast = (first: LinearRgb, second: LinearRgb): number => {
   return (Math.max(one, other) + 0.05) / (Math.min(one, other) + 0.05);
 };
 
-const overlayOf = (utility: string): number =>
+const HOVER_OVERLAY =
   Number(
-    new RegExp(
-      `@utility ${utility} \\{\\s*background-image: linear-gradient\\(\\s*color-mix\\(in oklab, currentColor (?<percent>\\d+)%, transparent\\) 0 0\\s*\\);\\s*\\}`,
-      "v",
-    ).exec(source)?.groups?.["percent"],
+    /@utility state-hover \{\s*background-image: linear-gradient\(\s*color-mix\(in oklab, currentColor (?<percent>\d+)%, transparent\) 0 0\s*\);\s*\}/v.exec(
+      source,
+    )?.groups?.["percent"],
   ) / 100;
-
-const OVERLAYS = [overlayOf("state-hover"), overlayOf("state-pressed")];
 
 const TEXTS_ON_FILLS = [...colors.keys()].filter((name) =>
   name.startsWith("on-"),
@@ -178,30 +175,28 @@ describe("theme.css の色の定義", () => {
     ).toEqual(WITHOUT_FILL);
   });
 
-  test("hover と pressed の重ねは、1か所だけで、文字の色を透明と混ぜたものとして読み取れる", () => {
-    expect(
-      ["state-hover", "state-pressed"].map(
-        (utility) => source.split(`@utility ${utility} `).length - 1,
-      ),
-    ).toEqual([1, 1]);
-    expect(OVERLAYS.every((alpha) => alpha > 0 && alpha < 1)).toBe(true);
+  test("hover の重ねは、1か所だけで、文字の色を透明と混ぜたものとして読み取れる", () => {
+    expect(source.split("@utility state-hover ")).toHaveLength(2);
+    expect(HOVER_OVERLAY).toBeGreaterThan(0);
+    expect(HOVER_OVERLAY).toBeLessThan(1);
   });
 });
 
 describe("theme.css の色のコントラスト(WCAG の AA)", () => {
   test.each(FILLS)(
-    "$scheme の $fill の塗りの上で、$text の文字が 4.5:1 に届く(hover と pressed の重ねも)",
+    "$scheme の $fill の塗りの上で、$text の文字が 4.5:1 に届く(hover の重ねも)",
     ({ text, fill, scheme }) => {
       const foreground = colorOf(text, scheme);
       const background = colorOf(fill, scheme);
 
       expect(contrast(foreground, background)).toBeGreaterThanOrEqual(AA);
 
-      for (const alpha of OVERLAYS) {
-        expect(
-          contrast(foreground, over({ color: foreground, alpha }, background)),
-        ).toBeGreaterThanOrEqual(AA);
-      }
+      expect(
+        contrast(
+          foreground,
+          over({ color: foreground, alpha: HOVER_OVERLAY }, background),
+        ),
+      ).toBeGreaterThanOrEqual(AA);
     },
   );
 

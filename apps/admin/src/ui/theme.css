@@ -201,9 +201,7 @@
 }
 
 @utility state-pressed {
-  background-image: linear-gradient(
-    color-mix(in oklab, currentColor 12%, transparent) 0 0
-  );
+  translate: 0 1px;
 }
 
 @utility state-disabled {
@@ -268,6 +266,10 @@
     line-break: strict;
     text-autospace: normal;
     -webkit-font-smoothing: antialiased;
+
+    @variant max-md {
+      scroll-padding-top: --spacing(15);
+    }
   }
 
   :root[data-theme="light"] {

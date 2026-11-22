@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -9,7 +9,11 @@ afterEach(cleanup);
 
 const EXPIRY = { output: { expiresAt: "2026-01-08T00:00:00.000Z" } };
 
-const renderHome = (logOut: FakeReply<"admin/session/logOut">) =>
+const renderHome = (
+  logOut:
+    | FakeReply<"admin/session/logOut">
+    | Promise<FakeReply<"admin/session/logOut">>,
+) =>
   renderApp({
     path: "/",
     routes: {
@@ -19,9 +23,15 @@ const renderHome = (logOut: FakeReply<"admin/session/logOut">) =>
   });
 
 const pressLogOut = async (): Promise<void> => {
-  await userEvent.click(
-    await screen.findByRole("button", { name: "ログアウト" }),
-  );
+  const sidebar = within(await screen.findByRole("complementary"));
+  await userEvent.click(sidebar.getByRole("button", { name: "ログアウト" }));
+};
+
+const openDrawer = async () => {
+  const banner = within(await screen.findByRole("banner"));
+  await userEvent.click(banner.getByRole("button", { name: "ナビを開く" }));
+
+  return screen.findByRole("dialog", { name: "ナビ" });
 };
 
 describe("LogOutButton", () => {
@@ -37,18 +47,47 @@ describe("LogOutButton", () => {
     expect(history.location.pathname).toBe("/login");
   });
 
-  test("ログアウトできなければ、そのことを出し、画面に留まる", async () => {
+  test("ログアウトできなければ、引き出したナビの中に知らせる", async () => {
     const { history } = renderHome({
       error: "INTERNAL_SERVER_ERROR",
       defined: false,
     });
 
-    await pressLogOut();
+    const drawer = within(await openDrawer());
+    await userEvent.click(drawer.getByRole("button", { name: "ログアウト" }));
 
-    expect((await screen.findByRole("alert")).textContent).toBe(
+    expect((await drawer.findByRole("alert")).textContent).toBe(
       "ログアウトできませんでした。もう一度試してください。",
     );
     expect(history.location.pathname).toBe("/");
+  });
+
+  test("送信中は Escape と閉じるボタンでナビを閉じず、応答が届いたらログインの画面に移る", async () => {
+    const reply = Promise.withResolvers<FakeReply<"admin/session/logOut">>();
+    const { calls, history } = renderHome(reply.promise);
+
+    const dialog = await openDrawer();
+    const drawer = within(dialog);
+    await userEvent.click(drawer.getByRole("button", { name: "ログアウト" }));
+    await drawer.findByRole("progressbar", { name: "処理中" });
+
+    await userEvent.keyboard("{Escape}");
+    expect(screen.getByRole("dialog", { name: "ナビ" })).toBe(dialog);
+
+    const close = drawer.getByRole("button", { name: "ナビを閉じる" });
+    expect(close).toHaveProperty("disabled", true);
+    await userEvent.click(close);
+    expect(screen.getByRole("dialog", { name: "ナビ" })).toBe(dialog);
+    expect(drawer.getByRole("progressbar", { name: "処理中" })).toBeDefined();
+
+    await userEvent.click(drawer.getByRole("button", { name: "ログアウト" }));
+    expect(
+      calls.filter((call) => call === "admin/session/logOut"),
+    ).toHaveLength(1);
+
+    reply.resolve({ output: undefined });
+    await screen.findByRole("heading", { name: "Stilus にログイン" });
+    expect(history.location.pathname).toBe("/login");
   });
 
   test("セッションが切れていたら、ログインの画面に移る", async () => {
