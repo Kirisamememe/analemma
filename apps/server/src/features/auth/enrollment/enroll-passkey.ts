@@ -1,7 +1,7 @@
 import { authProcedures } from "../../../procedures";
 import { REGISTRATION_ERRORS } from "../registration/registration-errors";
 import { verifyPasskeyRegistration } from "../registration/verify-passkey-registration";
-import { issueSecretToken } from "../secret-token/issue-secret-token";
+import { issueSecretToken } from "../secret-token/secret-token";
 import { toSessionExpiry } from "../session/decide-session";
 import { toSessionCookie } from "../session/to-session-cookie";
 import { writeSessionCookie } from "../session/write-session-cookie";

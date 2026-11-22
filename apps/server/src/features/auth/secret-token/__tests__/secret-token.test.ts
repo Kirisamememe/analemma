@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
-import { equalSecretHashes } from "../equal-secret-hashes";
-import { issueSecretToken } from "../issue-secret-token";
-import { readSecretToken } from "../read-secret-token";
+import {
+  equalSecretHashes,
+  issueSecretToken,
+  readSecretToken,
+} from "../secret-token";
 
 describe("token", () => {
   test("作った token を読むと、同じ ID と secret のハッシュに戻ること", async () => {

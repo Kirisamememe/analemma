@@ -24,7 +24,7 @@
 ## 公開状態
 
 - 新しいページは、公開していない状態で作る。データが入って公開するまで、公開 API からは見えない(ユーザーと決めた)。見つからないものと公開していないものは区別しない。
-- 公開状態は `publishedAt` の有無で持つ。公開状態の判定は、`published/match-published.query.ts` の `isPublished`(行を見る)と `matchPublished`(SQL の条件)だけで行う。
+- 公開状態は `publishedAt` の有無で持つ。公開状態の判定は、`published/published-fixed-pages.query.ts` の `isPublished`(行を見る)と `matchPublished`(SQL の条件)だけで行う。
 - 公開し直しても `publishedAt` は変えず、非公開に戻すと消す。公開した日時は公開サイトに出しうる値で、公開を押し直すたびに変わると困る。
 - `updatedAt` は、タイトル・slug・中身を変えたときだけ進め、公開と並び順の変更では進めない。公開サイトに「最終更新」として出せるように。同じ値のまま保存し直したときも進めない(書き換えの UPDATE の中で、前の値と比べる。Codex のレビューで見つかった)。
 

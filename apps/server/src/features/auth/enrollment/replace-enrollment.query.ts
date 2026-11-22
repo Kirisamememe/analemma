@@ -1,7 +1,6 @@
 import { passkeyEnrollment } from "../../../db/schema/passkey-enrollment";
 import type { DatabaseExecutor } from "../../../platform/database";
-import { ensureAdminUser } from "../admin-user/ensure-admin-user.query";
-import { lockAdminUser } from "../admin-user/lock-admin-user.query";
+import { ensureAdminUser, lockAdminUser } from "../admin-user/admin-user.query";
 
 /** 新しく出す登録用の token。 */
 export type NewEnrollment = {

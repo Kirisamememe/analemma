@@ -2,7 +2,7 @@ import { and, eq, ne, sql } from "drizzle-orm";
 
 import { fixedPage } from "../../../db/schema/fixed-page";
 import type { DatabaseExecutor } from "../../../platform/database";
-import type { FixedPageRow } from "../find-fixed-page.query";
+import type { FixedPageRow } from "../fixed-pages.query";
 
 /** 保存する固定ページの値。 */
 export type FixedPageSave = {

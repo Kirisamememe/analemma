@@ -1,5 +1,5 @@
 import { adminProcedures } from "../../procedures";
-import { deleteDeployToken } from "./delete-deploy-token.query";
+import { deleteDeployToken } from "./deploy-tokens.query";
 
 /** デプロイ用のトークンを取り消す procedure。 */
 export const revokeDeployToken = adminProcedures.deployTokens.revoke.handler(

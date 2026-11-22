@@ -1,5 +1,5 @@
 import { adminProcedures } from "../../procedures";
-import { findKind } from "./find-kind.query";
+import { findKind } from "./kinds.query";
 import { toKindDetail } from "./to-kind-detail";
 
 /** 管理画面のフォームを作るための、種類の定義を返す procedure。 */

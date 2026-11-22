@@ -2,7 +2,7 @@ import { eq, sql } from "drizzle-orm";
 
 import { fixedPage } from "../../../db/schema/fixed-page";
 import type { DatabaseExecutor } from "../../../platform/database";
-import type { FixedPageRow } from "../find-fixed-page.query";
+import type { FixedPageRow } from "../fixed-pages.query";
 
 /** 公開するか非公開に戻すかと、その日時。 */
 export type PublishChange = {

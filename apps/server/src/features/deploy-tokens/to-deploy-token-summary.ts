@@ -2,7 +2,7 @@ import type { InferContractRouterOutputs } from "@orpc/contract";
 
 import type { contract } from "@analemma/contract";
 
-import type { DeployTokenRow } from "./find-deploy-token.query";
+import type { DeployTokenRow } from "./deploy-tokens.query";
 
 /** 管理画面に返す、デプロイ用のトークン。 */
 export type DeployTokenSummary = InferContractRouterOutputs<

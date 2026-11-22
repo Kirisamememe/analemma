@@ -1,5 +1,5 @@
 import type { DatabaseExecutor } from "../../../platform/database";
-import { issueSecretToken } from "../secret-token/issue-secret-token";
+import { issueSecretToken } from "../secret-token/secret-token";
 import { replaceEnrollment } from "./replace-enrollment.query";
 import { toEnrollmentUrl } from "./to-enrollment-url";
 

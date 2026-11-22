@@ -1,7 +1,7 @@
 import { adminProcedures } from "../../procedures";
 import { reauthenticate } from "../auth/current-session/reauthenticate";
-import { issueSecretToken } from "../auth/secret-token/issue-secret-token";
-import { recordIssue } from "./record-issue.query";
+import { issueSecretToken } from "../auth/secret-token/secret-token";
+import { recordIssue } from "./deploy-tokens.query";
 import { toDeployTokenSummary } from "./to-deploy-token-summary";
 
 /** 今のパスキーで確かめ直してから、デプロイ用のトークンを発行し、1回だけ token を返す procedure。 */
