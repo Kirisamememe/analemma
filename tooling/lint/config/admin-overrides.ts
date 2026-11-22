@@ -107,4 +107,13 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     files: ["**/apps/admin/src/**/__stories__/**"],
     rules: { "project/require-sibling-test": "off" },
   },
+  {
+    files: ["**/apps/admin/src/**/__tests__/**"],
+    rules: restrictApis({
+      imports: {
+        patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
+      },
+      globals: [],
+    }),
+  },
 ];

@@ -10,6 +10,11 @@ describe("使える API と書き方", () => {
       rule: "eslint(no-restricted-imports)",
     },
     {
+      label: "管理画面の本番のコードでの、Node の API のサブパスの import",
+      file: "apps/admin/src/uses-node-subpath.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
       label: "管理画面の画面のコードでの React Aria Components の import",
       file: "apps/admin/src/routes/uses-aria.tsx",
       rule: "eslint(no-restricted-imports)",

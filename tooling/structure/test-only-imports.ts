@@ -10,15 +10,22 @@ export const TEST_ONLY_DIRECTORIES = [
   "apps/admin/src/testing/",
 ];
 
-const TEST_DIRECTORY = "/__tests__/";
+const TEST_SIDE_DIRECTORIES = ["/__tests__/", "/__stories__/", "/.storybook/"];
+
+/** story と Storybook の設定だけが import できるもの(色と文字の見本と、story のファイル)。 */
+const STORY_ONLY = ["apps/admin/src/ui/specimens/", "/__stories__/"];
 
 const isInside = (path: string): boolean =>
   TEST_ONLY_DIRECTORIES.some((directory) => `${path}/`.startsWith(directory));
 
-const isTestSide = (path: string): boolean =>
-  path.includes(TEST_DIRECTORY) || isInside(path);
+const isStoryOnly = (path: string): boolean =>
+  STORY_ONLY.some((part) => `${path}/`.includes(part));
 
-/** テストの外のファイルが、テストだけのフォルダから import している先を返す。 */
+const isTestSide = (path: string): boolean =>
+  TEST_SIDE_DIRECTORIES.some((directory) => path.includes(directory)) ||
+  isInside(path);
+
+/** テストと story の外のファイルが、テストと story だけのものから import している先を返す。 */
 export const findTestOnlyImports = ({ path, text }: SourceFile): string[] => {
   if (isTestSide(path)) {
     return [];
@@ -37,5 +44,5 @@ export const findTestOnlyImports = ({ path, text }: SourceFile): string[] => {
   return requests
     .filter((request) => request.startsWith("."))
     .map((request) => posix.join(posix.dirname(path), request))
-    .filter((target) => isInside(target));
+    .filter((target) => isInside(target) || isStoryOnly(target));
 };
