@@ -19,7 +19,7 @@
   - `no-catch-outside-entry`:try/catch の catch 節と、`.catch()` の呼び出しを禁止する(server だけ)。想定外の失敗は throw して入口で 500 とログにする約束で、これまで lint で止めていなかったので、WebCrypto の鍵の読み込みの `.catch(() => undefined)` が約束をすり抜けていた。`finally` だけの try は、後始末のために許す。`.then(a, b)` の2つ目の引数は、`promise/prefer-catch` が `.catch()` に書き直させるので、ここで止まる。
     - 入口と dispatcher では、`.oxlintrc.json` の `overrides` でこのルールを外す。入口に数えるのは、HTTP の入口(`src/app.ts`)、コマンドの入口(`src/main.ts`・`src/enroll.ts`・`src/db/migrate.ts`)、起動のときの環境変数の検証(`src/platform/parse-database-url.ts`)。環境変数の検証は、起動の入口で外からの値をデコードする場所なので入口に数える。`.env` のパスワードの `%` のような、人が普通にする書き間違いを、パスワードを出さない決まった文言で知らせるため、`decodeURIComponent` の失敗を受け止める。dispatcher(ビジネスイベントを配る場所)は、作るときに足す。
     - テストのファイルと、テストの部品(`src/test-client/`・`src/platform/test-database/`)でも外す。テストは失敗を値として受け取って確かめるので、握りつぶしではない。本番のコードは、この2つのフォルダを import できない(`tooling/structure/` のテストが止める)。import できると、`catchErrorCode` のような部品を通して、このルールをすり抜けられる。
-  - `no-dynamic-import`:`import()` による動的な import を禁止する。境界を守る `no-restricted-imports` は動的な import を見ないので、`import()` なら Drizzle や Bun の API を、決めた場所の外から読めてしまう。今のコードには1つも無い。
+  - `no-dynamic-import`:`import()` による動的な import を禁止する。境界を守る `no-restricted-imports` は動的な import を見ないので、`import()` なら Drizzle や Bun の API を、決めた場所の外から読めてしまう。今のコードでは、client の CLI の入口(`packages/client/src/cli/main.ts`)の1か所だけで、理由付きで抑制している(利用者の定義のファイルは、実行するときにしかパスが分からない)。
 - **TSDoc のタグの検査**(eslint-plugin-jsdoc):`@param` の名前が引数と合うこと(`check-param-names`)、1つでも書いたら全部の引数に書くこと(`require-param`)、何も返さない関数に `@returns` を書かないこと(`require-returns-check`)、タグに型を書かないこと(`no-types`。型は TypeScript が持つ)。
 - **使える API の制限**
   - `node:*` と Bun 専用のモジュールは、contract・client・管理画面で import できない。Node と Bun のグローバルも、server と tooling だけで有効にする。
@@ -51,6 +51,8 @@
   - Bun 専用の API(`Bun` と `HTMLRewriter` のグローバル、`globalThis.Bun`、`bun` と `bun:*` のモジュール、`hono/bun`)を使えるのは、`src/platform/` と `src/main.ts` だけ。テストのための `bun:test` はどこでも使える。
   - 素の oRPC の builder(`implement`・`os`・`Builder`)を値として使えるのは、`src/procedures.ts` と `src/router.ts` だけ。型だけの import は許す。
   - contract・client・管理画面にも、同じ形で Bun の API と `node:*` の禁止を掛ける。
+  - ただし、client の CLI(`packages/client/src/cli/`)は Node で動かすコマンドなので、`node:*` の import と Node のグローバルを許す(Bun の API は禁じたまま)。`process.env` は、CLI の入口の `main.ts` でだけ読める。CLI では `node:process` の import を禁じ、グローバルの `process` を使わせる(下の `node/no-process-env` の穴をふさぐため。Codex のレビューで挙がった)。fixture は `packages/client/src/` の下に置く。
+  - `node/no-process-env` は、グローバルの `process` の `env` だけを見る。`import process from "node:process"` で読み込んだ `process` の `env` には診断を出さない(fixture を書いていて分かった)。今は server と CLI のどちらも、そう書いていない。
 - **TypeScript の検査と lint のルールがぶつかったら、TypeScript の方を取る**(ユーザーが決めた):型の正しさを決めるのは `tsc` で、lint のルールは、書いているときにすぐ気づくための早めの知らせ。lint に合わせると、型の検査が既に保証していることのために、余計な `return` や `default` やキャストを書かされ、かえって型の検査を弱める。
 - **tsrs の不具合**:tsrs は、tsc が Bun の型から読める WebCrypto の型の名前(`JsonWebKey` など)を解決できず、error 型として `no-unsafe-*` の診断を出す。TypeScript の検査とルールのぶつかりではなく、tsrs の不具合なので、ルールは外さない。使う項目だけの型を手で書き、tsrs が読めるようになったら標準の型に戻す(`src/features/auth/DECISIONS.md`)。
 - **外したルール**

@@ -76,5 +76,5 @@ Next.js、Better Auth、Effect(考え方だけを取り入れる)、ESLint と t
 - 和文の全文検索(pg_bigm・PGroonga など)。
 - 本番の Postgres の置き場所とバックアップ。実行用のロールを DML だけに絞るか。
 - ライセンス。
-- contract と client を npm に公開する方法。
+- contract と client を npm で公開する。細かい手順はライセンスと一緒に決める。
 - 管理画面のスタイリングとデザインシステム。

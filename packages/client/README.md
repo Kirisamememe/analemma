@@ -1,9 +1,9 @@
 # @analemma/client
 
-公開サイトが使う、型付きの SDK。npm で公開する(公開の手順は、ライセンスと一緒に決める)。
+公開サイトが使う、型付きの SDK と、種類の定義を送る CLI。npm で公開する(公開の手順は、ライセンスと一緒に決める)。
 
 - `@analemma/contract` にだけ依存し、server のコードを含まない。公開サイトが server の内部を import できないことを、パッケージの依存で保証する。
-- Bun・Node・ブラウザのどれでも動くコードで書く(Node は TypeScript のソースを直に読めないので、npm で公開する形にするときにビルドを足す)。
+- SDK は Bun・Node・ブラウザのどれでも動く(npm の形では、ビルドした JS を読む)。CLI(`analemma`)は Node で動かす。
 
 ## 種類を定義する
 
@@ -56,3 +56,24 @@ const page = await cms.fixedPages.get(about, "about");
 ```
 
 公開していないページと、無いページは、どちらも `undefined` になる。
+
+## 種類の定義を送る
+
+本番のデプロイのときに、新しいサイトに切り替える前に流す。定義のファイルは、`defineKind` で作った種類の配列を default export する。
+
+```bash
+analemma push-kinds ./src/lib/kinds.ts --url http://127.0.0.1:8788
+```
+
+- `ANALEMMA_DEPLOY_TOKEN` に、管理画面で発行したデプロイ用のトークンを入れておく。デプロイの仕組み(CI の secret など)から渡し、コマンドラインに書かない(シェルの履歴に残る)。
+- URL は、`--url` か環境変数 `ANALEMMA_URL` で渡す。
+- CMS が断ると(既存のページが新しい定義に合わないときなど)、合わないページを標準エラーに書き、0 でない終了コードで終わる。その終了コードで、デプロイが止まる。
+- 定義のファイルを TypeScript で書くときは、Node 22.18 以上で流す(型を取り除いて読み込む)。定義のファイルの import は、Node が読める形(パッケージ名か、拡張子付きの相対パス)にする。
+
+## 開発
+
+```bash
+bun run build
+```
+
+`dist/` に、SDK(`index.js` と型)と CLI(`cli/main.js`)を書き出す。開発の間は、公開サイトから、このフォルダをつないで使う。
