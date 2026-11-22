@@ -4,7 +4,7 @@
 
 ## 構成
 
-- React + TanStack Router + TanStack Query の SPA。SSR しない。Vite でビルドし、server が同じ origin で静的ファイルとして配信する。
+- React + TanStack Router + TanStack Query の SPA。SSR しない。Vite でビルドし、server が同じ origin で静的ファイルとして配信する(配信は、まだ無い。本番の置き場所を決めるときに作る)。
 - `index.html`:Vite の入口。`vite.config.ts` の plugin が、`src/preferences/boot.ts` を1つの script にまとめて head に書き込む(言語と配色を、最初の描画の前に当てる)。
 - `src/main.tsx`:React を描き始める入口。i18next の instance・ブラウザの履歴・API の client・認証器を組み立てて渡す。
 - `src/app.tsx`:i18next の instance・server の状態(TanStack Query)・route をつないだ全体。
@@ -32,7 +32,7 @@
 - 画面に出す文言は、すべて `src/i18n/messages/` の訳から、react-i18next の `useTranslation` で引く。キーは英語の訳(`en.ts`)に足し、同じキーをほかの言語にも足す。引数は `{{name}}` で書き、どの言語も英語と同じ引数を持つ(テストで止まる)。引数を取らないキーを値として持つ型は、i18next の `ParseKeysWithoutVariables` にする。
 - 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/resources.ts` の `RESOURCES` と、`src/ui/primitives/ui-provider.tsx` の `ARIA_LOCALES`(React Aria Components に渡す地域を付けた言語)に足し、`messages/` にファイルを置く。
 - 言語は i18next の `changeLanguage` で切り替える。html の `lang` と `localStorage` は、`sync-locale.ts` がそろえる。
-- route の code splitting(`import()`)は使わない。`no-dynamic-import` はそのまま効かせる。
+- route の code splitting(`import()`)は使わない。`no-dynamic-import` は、今はそのまま効かせる。
 - 画面のコード(`src/ui/` と `src/features/*/ui/` の外)には、見た目の class を書かない。書けるのは `grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only` だけで、`className` は文字列のリテラルにし、`style` は書かない。並べ方・文字・色は `ui/` の部品の props で決める(lint で止まる)。
 - 部品は、層の向き(patterns → primitives・layout)を守る。React Aria Components は `ui/primitives/` の中でだけ使い、`tv` は `ui/tv.ts` から import する(ここまでは lint で止まる)。primitives は自分の props の型を持ち、ライブラリの props の型を extends しない(lint では止まらないので、セルフレビューで見る)。
 - 文字の役割は `Text`・`Heading` の `variant` で選ぶ。

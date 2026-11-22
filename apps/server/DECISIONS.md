@@ -37,7 +37,7 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 
 - **Hono を使う**:API の仕事(ルーティング、入力と出力の検証、型付きのエラー、認可の middleware)は oRPC が持つ。その外側の HTTP の仕事(セキュリティのヘッダー、CSRF の確認、リクエストの本文の大きさの上限、静的ファイル、ETag、Cookie)は、自分たちで書かずに Hono の middleware を使う。Hono は Web 標準で書かれていて Bun 以外でも動くので、「Web 標準で書く」方針に合う。Elysia は Bun 専用なので使わない。NestJS のような大きなフレームワークは、この規模には重い。
 - oRPC の handler は、Hono の `/api/*` のルートとしてつなぐ。oRPC のプロトコル(`RPCHandler`)だけを出す。公開サイトも、client(oRPC の client)で公開 API を呼ぶので、contract から作る OpenAPI の handler は、今は足さない。
-- middleware は `secureHeaders`・`csrf`・`bodyLimit`(`/api` は 1MB まで)。管理画面の静的ファイルの配信は、管理画面ができてから足す。内部用のポートには `bodyLimit` だけを掛ける(「2つのポート」)。
+- middleware は `secureHeaders`・`csrf`・`bodyLimit`(`/api` は 1MB まで)。管理画面の静的ファイルの配信は、まだ無い。本番の置き場所を決めるときに足す(それまでは、作っても本番の形で確かめられない)。内部用のポートには `bodyLimit` だけを掛ける(「2つのポート」)。
 - バージョンは安定版で始める(Hono 4、oRPC 1)。Hono 5 と oRPC 2 は、まだ RC と beta。
 
 ## 2つのポート

@@ -37,12 +37,12 @@
 - 意味の色の塗りの上の文字は、色ごとの `on-*`(`on-info` など)にする。今の値はどれも `canvas` と同じ(light では白、dark では黒)。dark の意味の色は明るく、白い文字では読めないため。色ごとに名前を分けておき、塗りによって文字の色を変えたくなったときに、部品を書き換えずに済むようにする(ユーザーが決めた)。
 - 取り消せない操作(削除・すべてのセッションからのログアウトなど)のボタン(`Button` の `danger`)は、`danger` と別の塗り `danger-strong`(light でも dark でも red-700)に、白い文字 `on-danger-strong` を載せる。dark では、暗い面の上の赤い文字が 4.5:1 に届くには明るい赤(red-400)が要り、塗りの上の白い文字が 4.5:1 に届くには濃い赤が要るので、1つの赤では両立できない。red-400 の塗りに黒い文字では色が薄く見えたので、濃い赤の塗りに白い文字にした(ユーザーが決めた)。dark でも red-700 にし、押している間(pressed で文字の色を 12% 重ねる)も 4.5:1 を割らないようにする。`danger` は、文字・枠・薄い面(`Notice`・`Badge`・入力欄の誤り)の色として残す。名前は `primary` と `on-primary` に合わせる(`on-X` は、`X` の塗りの上に載せる文字の色)。
 - `black`・`white` という名前は使わず、用途の名前(`scrim`・`on-media`)にする。`bg-white` をカードに、`text-white` を塗りの上に、と書かれやすく、dark の意味の色の塗りの上の白い文字は、コントラストが 1.7〜2.9:1 しかない。
-- パレットの値は、shadcn/ui の neutral に合わせる。管理画面の `primary` は白と黒。役割の名前は、自分たちの名前(`canvas`・`surface`・`fg` など)を使う。
+- パレットの無彩色は、Tailwind CSS の neutral と同じ値にする。管理画面の `primary` は白と黒。役割の名前は、自分たちの名前(`canvas`・`surface`・`fg` など)を使う。
 - light の意味の色は、薄い面の上の文字でも 4.5:1(WCAG の AA)に届く段にする(red-700・green-800・amber-800・blue-700)。
 - コントラストは、theme.css を読むテスト(`apps/admin/__tests__/theme-contrast.test.ts`)で確かめる。塗りと、その上の文字の組(`on-*`)は、hover と pressed の重ねも含めて 4.5:1 に届く。意味の色は、面(`canvas`・`surface`・`surface-sunken`)と、その上の `/10` の薄い面の上の文字として、light でも dark でも 4.5:1 に届く。OKLCH を sRGB に直し、sRGB に入らない色は 0〜1 に clamp して計算する。計算は役割の色の定義を読むので、同じテストで、役割の色をほかの場所で上書きしないこと(forced-colors のシステムの色を除く)、`on-*` が、`on-` を除いた名前の塗りと組になること(写真の上の `on-media` を除く)、hover と pressed の重ねが文字の色を透明と混ぜたものであることも確かめる。上書きは forced-colors の中だけに許し、そこでは塗りを `Highlight` に、その上の文字を `HighlightText` に差し替えること、パレットの色も1か所だけで定義すること、hover と pressed の utility が1か所だけであることも確かめる(CSS のコメントは除いて読む)。どれかが崩れると、計算した色と実際の色が食い違う(Codex と Cursor のレビューで見つかった)。
 - dark の `surface-sunken` は、`surface` と別の段(neutral-950)にする。同じ色だと、dark のサイドバーで、今いる場所が見分けられない。
 - light の `focus` は neutral-500 にする。白に対して 3:1 に届く。
-- 線の色は2つ。区切りの線やカードの枠は `line`(light で neutral-300、dark で neutral-700)、入力を受ける部品(入力欄・Checkbox・Radio・Switch・Select など)の枠は `line-strong`(light で neutral-400、dark で neutral-600)で描く。どちらの値も、ユーザーが試作で濃さを見比べて選んだ。文字の色の `fg-muted` を枠に流用しない(役割を混ぜない。ユーザーが決めた)。
+- 線の色は2つ。区切りの線やカードの枠は `line`(light で neutral-300、dark で neutral-700)、入力を受ける部品(入力欄・Checkbox・Radio・Switch・Select など)の枠は `line-strong`(light で neutral-400、dark で neutral-600)で描く。どちらの値も、ユーザーが決めた。文字の色の `fg-muted` を枠に流用しない(役割を混ぜない。ユーザーが決めた)。
 - `line-strong` は、入力を受ける部品の専用にする(ユーザーが決めた)。入力を受ける部品は React Aria Components を包むので、どれも `primitives/` にある。`line-strong` の class を書けるのは `primitives/` だけで、patterns・layout・`features/*/ui/` では書けない(lint で止まる)。
 
 ## light と dark
@@ -136,11 +136,9 @@
 
 - **後から出す `status` の知らせ**:`Notice` の `status` は、中身と一緒に描くので、スクリーンリーダーによっては読まれない(live region は、中身を変える前からあるものが確実に読まれる)。`Notice` はその場に残す知らせで、スクリーンリーダーへの割り込みは要らない。急ぎの誤りは `alert` で読まれる。操作の結果は Toast(React Aria Components が知らせ方を持つ)で知らせる決まりだが、Toast をまだ作っていないので、パスキーの画面では、操作の結果も `status` の `Notice` で出している(追加・削除・名前の変更)。管理者は1人で画面を見て使い、結果は一覧の変化でも分かるので、Toast を足すまでは受け入れる。
 - **層の検査が見ない import**:層の境界の lint は、import 文の名前だけを見る。`import("react-aria-components").LinkProps` のような型の中の import と、ほかの層を通した再 export は見ない。どちらも今のコードに無く、追うには依存の木を解く検査が要る。
-- **hash の履歴**:`UiProvider` のリンクの `href` は、TanStack Router の `buildLocation` の `href` をそのまま使い、hash の履歴(`createHashHistory`)や URL の書き換えには合わない。管理画面はブラウザの履歴(`createBrowserHistory`)だけを使う。使うときは、`history.createHref()` を通す。
 - **検査が見ない class の渡し方**:JSX の属性と、`tv`・`merge` などの呼び出しの中の文字列だけを検査する。DOM を直に触る `element.classList.add()` や `element.style`、`className` に渡した、`tv` で作っていない関数の戻り値は見ない。今の部品にはどれも無く、要る場面が出たら、そこで使える範囲を決める。参照先まで追う検査は、作る手間に見合わない。
-- **入力を受ける部品の枠の濃さ**:入力を受ける部品の枠(`line-strong`)は、地とのコントラストが、部品の枠に要る 3:1 に届かない(light の白の上で約 2.6:1、dark の `surface` の上で約 2.3:1)。ユーザーが、3:1 に届く濃さ(パレットに無い灰色と、`fg-muted` の濃さ)と試作で見比べたうえで、この濃さを選んだ。入力欄は面(`surface`)と影とラベルでも見分けられ、管理者1人が使う画面なので受け入れる。
-- **部品の配色の取り違え**:コントラストのテストは theme.css の色の組を確かめ、部品がどの組を使うかは確かめない。`Button` の `danger` を `bg-danger text-on-danger` に戻しても、テストは通る(どちらの組も lint で許す)。happy-dom は CSS を読まないので、描いた色を確かめるにはブラウザでのテストが要り、class の名前で確かめるとマークアップをなぞるテストになる。部品の見た目は Storybook で見る(Codex のレビューで見つかった)。
+- **入力を受ける部品の枠の濃さ**:入力を受ける部品の枠(`line-strong`)は、地とのコントラストが、部品の枠に要る 3:1 に届かない(light の白の上で約 2.6:1、dark の `surface` の上で約 2.3:1)。3:1 に届く濃さ(パレットに無い灰色や、`fg-muted` の濃さ)より、この濃さをユーザーが選んだ。入力欄は面(`surface`)と影とラベルでも見分けられ、管理者1人が使う画面なので受け入れる。
+- **部品と見本の配色の取り違え**:コントラストのテストは theme.css の色の組を確かめ、部品がどの組を使うかは確かめない。`Button` の `danger` を `bg-danger text-on-danger` に戻しても、テストは通る(どちらの組も lint で許す)。色の見本のテストも、theme.css の色の名前が light と dark の欄にそろっていることだけを確かめ、塗りの色が名前と合っているかは確かめない。happy-dom は CSS を読まないので、描いた色を確かめるにはブラウザでのテストが要り、class の名前で確かめるとマークアップをなぞるテストになる。部品と見本の見た目は Storybook で見る。
 - **sRGB に入らない色のコントラスト**:コントラストのテストは、sRGB に入らない色(red-700 など)を 0〜1 に clamp して計算する。CSS Color 4 の gamut mapping(彩度を落として収める)で計算すると、4.5:1 の境目の色では、コントラスト比が 0.2 ほど変わることがある(今の塗りは、どれも境目から離れている。`danger-strong` の白い文字は、pressed でも 5.7:1)。gamut mapping をテストに入れる手間に見合わないので、境目に近い色を足すときは、両方の計算で確かめる(Codex のレビューで見つかった)。
-- **色の見本の塗りの取り違え**:色の見本のテストは、theme.css の色の名前が light と dark の欄にそろっていることだけを確かめ、塗りの色が名前と合っているかは確かめない。happy-dom は CSS を読まないので、塗りを確かめるにはブラウザでのテストが要り、class の名前で確かめるとマークアップをなぞるテストになる。見本は見て使うもので、取り違えれば見て分かる(Codex のレビューで見つかった)。
 - **等幅の要素の子の行頭の括弧**:日本語の中の `code` などの子要素(`<code><span>「…」</span></code>`)では、`:lang(ja)` の `trim-start` が子に当たり、行頭の括弧が詰まる。今の画面に等幅の中で括弧から始まる文は無く、詰めない指定を子にまで広げると、字体の切り替えの決まりも組み直しになる(Cursor のレビューで見つかった)。
 - **Windows の和文の太さ**:Windows の和文の字体には 600 が無いものがあり、600 と 700 の区別がつかないことがある(実機では確かめていない)。管理画面は管理者1人が Mac で使うので、受け入れる(ユーザーが決めた)。公開サイトは、作るときに決める。
