@@ -3,6 +3,7 @@
 理由は同じフォルダの `DECISIONS.md` にある。
 
 - lint の設定は直下の `oxlint.config.ts` で、中身は `tooling/lint/config/` に分けて置く(ルールの一覧、ワークスペースごとの `overrides`、server の `overrides`、API の制限の部品)。設定のファイルは Node が TypeScript のまま読むので、相対 import に `.ts` を付ける。自作のルールは `tooling/lint/rules/` の `comments/`・`errors/`・`tests/`・`modules/`・`styles/`(`tooling/lint/plugin.mjs` がまとめる)。管理画面の Tailwind CSS の class の検査は `tooling/lint/config/admin-classes.ts`。
+- `tooling/lint/config/` のモジュールを直したら、エディタで `Oxc: Restart oxlint Server` を実行する。エディタの Oxlint(LSP)は `oxlint.config.ts` だけを監視し、ほかのモジュールを直しても読み直さない(CLI と CI は毎回読み直す)。
 - フォルダの中身の数と名前は、lint ではなく `tooling/structure/` のテストが検査する(1ファイルずつ見る lint では、フォルダ全体を数えられない)。
 - `GLOSSARY.md` の「機械で探す語」に挙げた表記は、`tooling/structure/` のテストが文書・コメント・文字列から探す。コミットのメッセージからは、commit-msg の hook が探す。表記を足すときは、別の概念を指す正しい文まで落とさないかを確かめ、落としそうな文を `tooling/structure/__tests__/repository.test.ts` の例に足す。「機械で探す語」の表の見出しや書き方を変えるときは、`tooling/structure/glossary.ts` も合わせて直す。
 - ほかのリポジトリの名前は、`tooling/structure/` のテストが、リポジトリの全ファイル(パスと中身)から探す。コミットのときは、git の hook が、ステージしたファイル(パスと中身)とコミットのメッセージからも探す。名前の一覧は、メインの checkout の `.private/other-repositories.txt` に置き、コミットしない(`.private/` は `.gitignore` にある)。worktree からは `git rev-parse --git-common-dir` でたどる。1行に1つの名前を書き、空行と `#` で始まる行は読まない。大文字と小文字は区別しない。一覧が無いときは何も探さない。名前そのものは、コミットするファイルに書かない。
@@ -21,5 +22,5 @@
 - CI は `.github/workflows/` にある(理由は `tooling/DECISIONS.md` の「CI」)。job の `check`(`check.yml`)は、PR と main への push で `bun install --frozen-lockfile` と `bun run check --all` を流す。job の `commit-messages`(`commit-messages.yml`)は、PR で、PR のコミットのメッセージと、PR のタイトル(merge commit か squash で入れたときの1行目。` (#番号)` を足したもの)を、`tooling/ci/check-pull-request-messages.ts` で確かめる。
 - job の名前(`check`・`commit-messages`)は、main とフェーズのブランチの ruleset で、通ることを必須にする check として登録した名前。変えるときは、ruleset も直す(ユーザーに頼む)。
 - `commit-messages` は、メッセージを commit-msg の hook のスクリプトに1件ずつ渡すだけ。メッセージの検査を変えるときは `tooling/git-hooks/` を直し、CI の側に検査を書き足さない。
-- 手元との違い:CI には、ほかのリポジトリの名前の一覧が無いので、名前を探さない(ファイルからも、メッセージからも)。名前を探すのは、手元の `bun run check` とコミットのときの hook だけ。PR のタイトルと、GitHub の画面で作ったコミットのメッセージは hook を通らないので、名前が無いかを自分で見る。
+- 手元との違い:CI には、ほかのリポジトリの名前の一覧が無いので、名前を探さない(ファイルからも、メッセージからも)。名前を探すのは、手元の `bun run check` とコミットのときの hook だけ。PR のタイトルは hook を通らないので、PR を作る前に、手元で `printf '%s' '<タイトル>' | bun tooling/ci/check-pull-request-messages.ts --base <base のブランチ> --head HEAD --number <番号の見込み>` に通す。PR の本文はどの検査も読まず、GitHub の画面で作ったコミットのメッセージは名前を探す検査を通らないので、名前が無いかを自分で見る。
 - workflow では、actions をコミットの SHA で固定し、行末のコメントにバージョンを書く(`uses: owner/repo@<SHA> # v1.2.3`)。`permissions` は最上位に書き、必要最小限にする。どちらも `tooling/structure/` のテストが確かめる。PR のタイトルのような外から来る値は、`${{ }}` で `run` に直接書かず、環境変数で渡す。
