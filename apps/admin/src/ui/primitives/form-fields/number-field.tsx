@@ -40,9 +40,9 @@ export type NumberFieldProps = {
   isReadOnly?: boolean | undefined;
   /** 入力欄の検証の伝え方。 */
   validationBehavior?: "aria" | "native";
-  /** 呼び出し元で管理する入力値(空は NaN)。 */
+  /** 呼び出し元で管理する入力値。 */
   value?: number;
-  /** 入力値が変わったときに呼ぶ関数(空は NaN)。 */
+  /** 入力値が変わったときに呼ぶ関数。 */
   onChange?: (value: number) => void;
   /** 入力欄から focus が外れたときに呼ぶ関数。 */
   onBlur?: () => void;

@@ -50,6 +50,10 @@ blur で出る誤りと、送信時に受け取る誤りと、入力すると送
 
 日付が未完の間は、React Aria Components の確定値に直前の日付が残る。単独の DateInput とラベル付きの DateField は、focus が外れた時点で同じ処理で年・月・日の状態を調べ、未完のときだけ React Aria Components の native の検証で送信を止める。TanStack Form が受け取った誤りは、ほかの入力と同じように表示する。呼び出し元が別の日付を渡したら、前の日付の未完の状態は引き継がない。
 
+## NumberField、TextArea
+
+`field.NumberField` は空の欄を `null` として渡す。React Aria Components の NumberField は空を `NaN` で表すので、入力欄に渡すときは `null` を `NaN` に、受け取るときは `NaN` を `null` に替える。`0` は入力した値として残る。`field.TextArea` は `field.TextField` と同じく、空の欄を空の文字列として渡す。
+
 ## 割り切ったこと
 
 - 応答が遅い非同期の validator を使う field では、検証の応答を待つ間に入力を変えると、検証した値と異なる値が `onSubmit` に渡る。今の使い方は即時に答える validator だけで、再現する画面が無い。そのような field を作るときに、検証中は入力を止めるかを決める。

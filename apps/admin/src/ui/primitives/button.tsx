@@ -39,7 +39,7 @@ type ButtonProps = {
   onPress?: () => void;
   /** ボタンの要素(focus を移すときに使う)。 */
   ref?: Ref<HTMLButtonElement>;
-  /** 文言だけでは何の操作か分からないときの、アクセシブルな名前(文言を含める)。 */
+  /** アクセシブルな名前。 */
   "aria-label"?: string | undefined;
   /** ボタンの文言。 */
   children: ReactNode;
