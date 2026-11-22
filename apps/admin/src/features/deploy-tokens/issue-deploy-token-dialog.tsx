@@ -39,9 +39,9 @@ const focusOnMount = (button: HTMLButtonElement | null): void => {
 /** 発行したトークンの値と、コピーの操作に渡す値。 */
 type IssuedTokenContentProps = {
   /** 発行したトークン。 */
-  readonly issued: IssuedToken;
+  issued: IssuedToken;
   /** Dialog を閉じる関数。 */
-  readonly onClose: () => void;
+  onClose: () => void;
 };
 
 const IssuedTokenContent = ({
@@ -89,9 +89,9 @@ const IssuedTokenContent = ({
 /** デプロイ用のトークンを発行する Dialog に渡す値。 */
 type IssueDeployTokenDialogProps = {
   /** 開いているか。 */
-  readonly isOpen: boolean;
+  isOpen: boolean;
   /** 閉じる関数。 */
-  readonly onClose: () => void;
+  onClose: () => void;
 };
 
 /** 名前を入れ、再認証をしてから、デプロイ用のトークンを発行して1回だけ見せる Dialog。 */

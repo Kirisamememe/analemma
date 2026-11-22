@@ -17,9 +17,9 @@ const { root, label: labelSlot, value: valueSlot } = tokenValue();
 /** トークンの値の表示に渡す値。 */
 type TokenValueProps = {
   /** 値の名前。 */
-  readonly label: string;
+  label: string;
   /** 表示するトークンの値。 */
-  readonly value: string;
+  value: string;
 };
 
 /** 発行したトークンの値を、等幅の字体で、1回の選択で全体を選べるように表示する。 */

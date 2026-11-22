@@ -17,11 +17,11 @@ import { Dialog, useShowToast } from "@/ui/primitives/overlays";
 /** デプロイ用のトークンを取り消す Dialog に渡す値。 */
 type RevokeDeployTokenDialogProps = {
   /** 開いているか。 */
-  readonly isOpen: boolean;
+  isOpen: boolean;
   /** 取り消すトークン。 */
-  readonly token: DeployTokenSummary;
+  token: DeployTokenSummary;
   /** 閉じる関数。 */
-  readonly onClose: () => void;
+  onClose: () => void;
 };
 
 /** 名前を見せて確かめてから、デプロイ用のトークンを取り消す Dialog。 */

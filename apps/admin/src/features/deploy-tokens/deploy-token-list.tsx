@@ -15,7 +15,7 @@ import { Notice } from "@/ui/primitives/notice";
 /** デプロイ用のトークンの一覧に渡す値。 */
 type DeployTokenListProps = {
   /** 取り消しを始める関数。 */
-  readonly onRevoke: (token: DeployTokenSummary) => void;
+  onRevoke: (token: DeployTokenSummary) => void;
 };
 
 /** 発行したデプロイ用のトークンの一覧。 */
