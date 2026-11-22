@@ -1,6 +1,6 @@
 # 決めたことと理由(デザインシステム)
 
-管理画面と公開サイト(Amayadori)で、同じデザインシステムを使う(ユーザーが決めた)。全部の変数の原本は `theme.css`。アプリごとに変えるのは1層目のパレットだけで、2層目から下(役割の名前・文字の目盛り・状態・規則)はそろえる。公開サイトへの配り方は、まだ決めていない(リポジトリの `AGENTS.md` の「まだ決めていないこと」)。
+管理画面と公開サイト(Amayadori)で、同じデザインシステムを使う(ユーザーが決めた)。色や文字などの役割は `theme.css`、animation の class と keyframes は `animation.css` に置く。アプリごとに変えるのは1層目のパレットだけで、2層目から下(役割の名前・文字の目盛り・状態・規則)はそろえる。公開サイトへの配り方は、まだ決めていない(リポジトリの `AGENTS.md` の「まだ決めていないこと」)。
 
 ## 考え方
 
@@ -65,14 +65,14 @@
 - hover と pressed は、その要素の文字の色(`currentColor`)を薄く重ねる utility(`state-hover`・`state-pressed`)で表す。塗りのボタンでも、透明な行でも、どの面の上でも同じに働く。`background-image` を使うので、`bg-linear-*` と一緒には使えない。
 - 状態の variant(`is-hovered`・`is-selected`・`is-disabled` など)は、部品のライブラリが付ける属性に名前を付けたもの。`theme.css` に、勝たせたい順に並べ、無効を最後に置く。生の `data-*:` の variant は名前の順に並ぶので、`data-disabled:` が一番弱くなる。値を持つ属性(並べ替えの向き・placement・orientation など)は variant にせず、部品の render props から渡す。公開サイトでは、そちらの部品のライブラリの属性に合わせて、同じ名前で定義し直す。
 - `is-current` は `aria-current` も見るので、`:where()` で包んで、ほかの variant と詳細度をそろえる。包まないと `is-disabled` に勝つ。
-- reduced motion では、base で transition だけを一律に止める。animation は、止めたときの見せ方(spinner をどう見せるかなど)が部品ごとに違うので、部品の中で `motion-reduce:` で決める。base で animation まで `!important` で止めると、部品で見せ方を作れない。
+- reduced motion では、base で transition を一律に止める。animation は見せ方が部品ごとに違うので、部品が使う class で決める。spinner は `motion-reduce:` で `animate-pulse` に替え、Dialog は `animation.css` で scale を `1` にする。
 - forced-colors では、役割の変数をシステムの色(`Highlight` など)に差し替える。塗りの `danger-strong` と `on-danger-strong` は、`primary` と `on-primary` と同じく `Highlight` と `HighlightText` にする。
 
 ## 部品の層
 
 | 置く所                | 中身                                                                                                  |
 | --------------------- | ----------------------------------------------------------------------------------------------------- |
-| `tv.ts`               | theme.css の名前を merge の設定に入れた `tv` と `merge`                                               |
+| `tv.ts`               | デザインシステムの class の組を設定した `tv` と `merge`                                               |
 | `typography.ts`       | 文字の役割と、目盛りの組と太さの対応(組を書けるのはここだけ)                                          |
 | `primitives/`         | ボタン・リンク・入力欄・`Notice` など、いちばん小さな部品。React Aria Components を使えるのはここだけ |
 | `layout/`             | 並べ方(`Stack`・`Cluster`・`Center`・`AppShell`)と文字(`Text`・`Heading`)                             |
@@ -83,7 +83,7 @@
 - import の向きは、patterns → primitives・layout。layout は primitives と patterns を、primitives は patterns を import しない(lint で止まる)。layout は並べ方と文字だけを持つ層で、操作を持たない。
 - React Aria Components(`react-aria`・`react-stately`・`@react-aria/*`・`@react-stately/*`・`@internationalized/*` と、型だけの import も)を import できるのは `primitives/` だけ。primitives は、React Aria Components の props の型を extends せず、自分の props の型を持つ。画面のコードに、ライブラリの props(`className` の関数や、`data-*` の render props など)を見せない。ライブラリを替えるときに直すのは primitives だけになる。
 - `tailwind-variants` は `tv.ts` だけが import し、ほかは `tv.ts` の `tv` と `merge` を使う(lint で止まる)。既定の入口の `tv` は theme.css の名前を知らず、`z-sticky z-overlay` のような theme.css の名前の組を merge できずに両方残す(後から渡した class で上書きできない)。
-- merge の設定には、theme.css の名前(色・文字の目盛り・角丸・影・重ね順・幅・動き)と `@utility` の名前を入れる。theme.css の名前ごとに「同じ組の2つを渡すと後だけが残る」ことと、`@utility` ごとに組の相手を決めてあることを、theme.css を読むテスト(`apps/admin/__tests__/tailwind-merge.test.ts`)で確かめる。名前が1つしかない組(`grid-cols-thumbnails`・`aspect-photo`)は、Tailwind CSS の既定の class を相手にする。`tv` の variant を通しても merge が効くことも確かめる。名前の一覧と見比べるテストにすると、設定を写しただけになり、merge が本当に効くかを確かめない。`state-disabled` は透明度と押せるかどうかを変えるだけで、hover や pressed とは組にしない(組にすると、`state-hover state-disabled` で hover の見た目が消える)。
+- merge の設定には、`theme.css` と `animation.css` の名前を入れる。名前ごとに「同じ組の2つを渡すと後だけが残る」ことと、`@utility` ごとに組の相手を決めてあることを、CSS を読むテスト(`apps/admin/__tests__/tailwind-merge.test.ts`)で確かめる。名前が1つしかない組(`grid-cols-thumbnails`・`aspect-photo`)は、Tailwind CSS の既定の class を相手にする。`tv` の variant を通しても merge が効くことを確かめる。`state-disabled` は透明度と押せるかどうかを変えるだけなので、hover や pressed とは組にしない(組にすると、`state-hover state-disabled` で hover の見た目が消える)。
 - 文字の役割と組:`body`(`text-sm/xl`・400)・`body-long`(`text-sm/2xl`・400。長い文)・`caption`(`text-xs/lg`・400)・`label`(`text-sm/xl`・600)・`section`(`text-base/2xl`・600)・`page`(`text-xl/3xl`・700)・`display`(`text-3xl/5xl`・700)。`Text` と `Heading` は、文字の役割を `variant` で受ける(`role` にすると、ARIA の `role` と取り違える)。`Heading` は見出しのレベル(h1〜h3)から役割の既定を決め(レベル 1 は `page`、2 と 3 は `section`)、見た目とレベルを別々に選べる。
 - `UiProvider`(`primitives/ui-provider.tsx`)が、React Aria Components に、i18next の今の言語(`I18nProvider`)と、TanStack Router の navigate(`RouterProvider`)を渡す。リンクは TanStack Router の型の付いた行き先だけを受け、画面を読み込み直さずに移る。
 
@@ -98,6 +98,8 @@
 - **見出しの操作と補足**:`PageHeader` は、`false`・`null` の操作と、空の補足を、無いものとして扱う(条件で出さない操作のために、空の要素が余白を取らないように)。操作のボタンの中心は、見出しの1行目の中心にそろえる。上にそろえると、ボタン(`h-control` の 36px)が見出しの行(`page` の 28px)より高いぶん、4px 下にずれた(Storybook で見つけた)。見出しの上を `pt-1`(差の半分)空け、見出しの位置は、操作の有無で変えない。操作を負の margin で上げると、狭い画面で操作が次の行に折り返したときに、見出しとの間が詰まる(Codex のレビューで見つかった)。
 - **縁の線**:border を使うのは、背景の色とコンテンツの色をはっきり見分けられるときだけにする(`Badge`・`Notice` のように、意味の色の `/10` の面に同じ色の線を引くときなど)。背景と近い色の面(白い Dialog が明るい地の上にあるときなど)の縁は、半透明の線(`outline`、`fg` の 10%)で描く。面の縁の線は、offset を付けず、塗りの外側の地の上に重ねる(地の色が透けて、縁がくっきり出る)。色の見本の正方形のように、塗りそのものの縁を見せるときは、内側(`-outline-offset-1`)に重ねる。不透明の border は背景の色と混ざってぼやけ、塗りの外に枠を足したように見えた(ユーザーが決めた)。
 - **overlay**(`Dialog`):地の上に重ねる半透明の線と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、半透明の線で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
+- **`Dialog` の animation**:開くときは 200ms、閉じるときは 150ms。本体は opacity と `0.97` から `1` までの scale で出入りする。backdrop は `background-color` の透明度を変えて、本体とは別に濃さを変える。reduced motion では scale を `1` に固定する。React Aria Components は `is-entering` と `is-exiting` の animation が終わるのを待ち、閉じるときは、終わるまで Dialog を取り除かない。閉じ始めたら中身を `inert` にして再送を防ぐ。
+- **`FocusScope`**:`FocusScope` の中から開いた Dialog を閉じ終えたとき、Dialog を開いたボタンが消えていれば(行ごと削除したなど)、React Aria Components は外側の `FocusScope` の最初の要素に focus を移す。行と一緒に消えるボタンから Dialog を開く欄は `FocusScope` で包み、欄の最初の要素を戻す先にする。`react-aria-components` は `FocusScope` を export しないので、`react-aria` を依存に足す。バージョンは `react-aria-components` が依存するものにそろえる。ずれると `react-aria` が2つ入り、それぞれが別の `FocusScope` の木を持つので、Dialog が外側の `FocusScope` を見つけられない(パスキーの focus のテストで落ちる)。
 - **バッジ**(`Badge`):状態を短く示す。用途(`tone`)ごとの色の組は、`Notice` と同じく `/10` の面と、同じ色の線と文字。
 - 選んだ状態・今いる場所・ほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す、今いる場所は `aria-current` と形で示す、overlay は地の上に重ねる半透明の線と `shadow-overlay` を付ける)。
 
@@ -114,7 +116,7 @@
 
 ### 部品(`ui/` と `features/*/ui/`)
 
-- theme.css に無い class(Tailwind CSS の既定の色や目盛りなど)。
+- `app.css` を入口にした Tailwind CSS の設定で生成できない class(Tailwind CSS の既定の色や目盛りなど)。`app.css` は `theme.css` と `animation.css` を読む。
 - `[…]` の付く class(任意の値・任意のプロパティ・任意の variant)。値は theme.css の役割か、部品の props で決める。`[&>svg]:size-icon` のような子を選ぶ variant も止める。子の大きさは、子の部品の props で決める。
 - `(--name)` で CSS 変数を直接読むこと。読めるのは、実行時に決まる値を渡す変数(React Aria Components の `--trigger-width`・`--visual-viewport-height`、`--progress`・`--media-aspect`・`--media-color`・`--focal-x`・`--focal-y`)だけ。型の付いた読み方(`stroke-(length:--progress)`)も許す。部品が `style` で渡せるのは、`css-variables.tsx` で React の型に足した変数だけ。
 - `dark:`(light と dark は `light-dark()` で決める。`not-dark:` のような組み合わせた variant の中も)、`!`(variant の後ろも)、生の `data-*:`・`aria-*:`(状態は `is-*:` の variant を使う。生の variant は名前の順に並び、`data-disabled:` が一番弱くなる。打ち間違いも CSS を出すので、無い class でも止まらない。`group-not-aria-*:` のような組み合わせの中も)、数値の `z-*`(`z-10` など)、型を付けた CSS 変数の文字の大きさ(`text-(length:--x)`。色の `text-(color:--x)` は除く)、数値の `font-*`(`font-500` など)、`outline-none`(`outline-hidden` を使う。forced-colors で線が残る)。
@@ -141,4 +143,6 @@
 - **部品と見本の配色の取り違え**:コントラストのテストは theme.css の色の組を確かめ、部品がどの組を使うかは確かめない。`Button` の `danger` を `bg-danger text-on-danger` に戻しても、テストは通る(どちらの組も lint で許す)。色の見本のテストも、theme.css の色の名前が light と dark の欄にそろっていることだけを確かめ、塗りの色が名前と合っているかは確かめない。happy-dom は CSS を読まないので、描いた色を確かめるにはブラウザでのテストが要り、class の名前で確かめるとマークアップをなぞるテストになる。部品と見本の見た目は Storybook で見る。
 - **sRGB に入らない色のコントラスト**:コントラストのテストは、sRGB に入らない色(red-700 など)を 0〜1 に clamp して計算する。CSS Color 4 の gamut mapping(彩度を落として収める)で計算すると、4.5:1 の境目の色では、コントラスト比が 0.2 ほど変わることがある(今の塗りは、どれも境目から離れている。`danger-strong` の白い文字は、pressed でも 5.7:1)。gamut mapping をテストに入れる手間に見合わないので、境目に近い色を足すときは、両方の計算で確かめる(Codex のレビューで見つかった)。
 - **等幅の要素の子の行頭の括弧**:日本語の中の `code` などの子要素(`<code><span>「…」</span></code>`)では、`:lang(ja)` の `trim-start` が子に当たり、行頭の括弧が詰まる。今の画面に等幅の中で括弧から始まる文は無く、詰めない指定を子にまで広げると、字体の切り替えの決まりも組み直しになる(Cursor のレビューで見つかった)。
+- **閉じ始めた Dialog に遅れて届く click**:タッチで Dialog の確認のボタンを長押しして離すと、ブラウザが click を出さないので、React Aria Components が 80ms 後に `click()` を呼ぶ。その 80ms のうちに Escape か backdrop で閉じると、閉じる animation の間に残ったボタンに `click()` が届き、中身を `inert` にしていても、押した操作が送られる。マウス・キーボード・普通のタップでは起きず、送られるのは確認のボタンで押した操作そのもの(削除なら、再認証の OS の画面で止められる)。起きる条件が狭いので受け入れる(ユーザーが決めた)。
+- **閉じる animation の間の Tab**:Dialog を閉じ始めると、中身を `inert` にして focus が外れ、React Aria Components は背後の画面の `inert` と focus の閉じ込めを外す。開いたボタンに focus を戻すのは、閉じる animation が終わって Dialog を取り除いたとき。その間(150ms)に Tab を押すと、focus は開いたボタンの次でなく文書の先頭の側へ移り、開いたボタンには戻らない(Chrome と WebKit で確かめた)。閉じる animation の間も focus を Dialog に残すには React Aria Components の振る舞いに逆らう作りが要り、150ms のうちに Tab を押すことは少ないので受け入れる(ユーザーが決めた)。
 - **Windows の和文の太さ**:Windows の和文の字体には 600 が無いものがあり、600 と 700 の区別がつかないことがある(実機では確かめていない)。管理画面は管理者1人が Mac で使うので、受け入れる(ユーザーが決めた)。公開サイトは、作るときに決める。

@@ -7,6 +7,7 @@ import maxExportedFunctions from "./rules/modules/max-exported-functions.mjs";
 import noCrossWorkspaceImport from "./rules/modules/no-cross-workspace-import.mjs";
 import noDynamicImport from "./rules/modules/no-dynamic-import.mjs";
 import noInlineParameterType from "./rules/modules/no-inline-parameter-type.mjs";
+import noEffectOutsideAllowedHook from "./rules/react/no-effect-outside-allowed-hook.mjs";
 import stylingBoundary from "./rules/styles/styling-boundary.mjs";
 import noFocusedTest from "./rules/tests/no-focused-test.mjs";
 import noMarkupTest from "./rules/tests/no-markup-test.mjs";
@@ -24,6 +25,7 @@ const plugin = {
     "no-catch-outside-entry": noCatchOutsideEntry,
     "no-cross-workspace-import": noCrossWorkspaceImport,
     "no-dynamic-import": noDynamicImport,
+    "no-effect-outside-allowed-hook": noEffectOutsideAllowedHook,
     "no-focused-test": noFocusedTest,
     "no-inline-parameter-type": noInlineParameterType,
     "no-markup-test": noMarkupTest,

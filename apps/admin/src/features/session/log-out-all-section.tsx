@@ -33,6 +33,7 @@ export const LogOutAllSection = (): ReactNode => {
       <Cluster>
         <Button
           onPress={() => {
+            logOutAll.reset();
             setConfirming(true);
           }}
           tone="danger"
@@ -43,10 +44,7 @@ export const LogOutAllSection = (): ReactNode => {
       <Dialog
         isOpen={isConfirming}
         isPending={logOutAll.isPending}
-        onOpenChange={(open) => {
-          logOutAll.reset();
-          setConfirming(open);
-        }}
+        onOpenChange={setConfirming}
         title={t("sessions.logOutAllTitle")}
       >
         <Text>{t("sessions.description")}</Text>
@@ -57,7 +55,6 @@ export const LogOutAllSection = (): ReactNode => {
           <Button
             isDisabled={logOutAll.isPending}
             onPress={() => {
-              logOutAll.reset();
               setConfirming(false);
             }}
           >

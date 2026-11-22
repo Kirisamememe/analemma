@@ -57,8 +57,8 @@ const MERGE_CONFIG: TWMergeConfig = {
   },
 };
 
-/** theme.css の名前を入れた、class を merge する関数。 */
+/** デザインシステムの名前を入れた、class を merge する関数。 */
 export const merge = createTwMerge(MERGE_CONFIG);
 
-/** theme.css の名前を入れた merge を使う、tailwind-variants の `tv`。 */
+/** デザインシステムの名前を入れた merge を使う、tailwind-variants の `tv`。 */
 export const tv = createTV({ twMergeConfig: MERGE_CONFIG });

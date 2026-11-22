@@ -10,6 +10,8 @@ import {
   type RestrictedApis,
 } from "./restricted-apis.ts";
 
+const ADMIN_EFFECT_HOOKS = ["useHtmlPreferences"];
+
 /** ほかの層を import させないパスの形。 */
 const layerPatterns = (layers: readonly string[], message: string) => [
   {
@@ -56,6 +58,15 @@ const byExtension = (
 /** 管理画面の境界を守る設定(後に書いたものが勝つ)。 */
 export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   { files: ["apps/admin/**"], env: { browser: true } },
+  {
+    files: ["**/apps/admin/**"],
+    rules: {
+      "project/no-effect-outside-allowed-hook": [
+        "error",
+        { allowedHooks: ADMIN_EFFECT_HOOKS },
+      ],
+    },
+  },
   ...byExtension("**/", {
     imports: {
       patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
