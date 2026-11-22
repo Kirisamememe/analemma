@@ -1,33 +1,36 @@
 import type { ReactNode } from "react";
-import { TextField as AriaTextField, Input } from "react-aria-components";
+import { TextField as AriaTextField } from "react-aria-components";
 
-import {
-  fieldControl,
-  fieldRoot,
-} from "@/ui/primitives/form-fields/field-control";
-import {
-  FieldDescription,
-  FieldErrorMessage,
-  FieldLabel,
-} from "@/ui/primitives/form-fields/field-parts";
-import { typography } from "@/ui/typography";
+import { fieldRoot } from "./field-control";
+import { FieldDescription, FieldErrorMessage, FieldLabel } from "./field-parts";
+import { TextInput } from "./text-input";
 
 /** 1行の入力欄に渡す値。 */
-type TextFieldProps = {
+export type TextFieldProps = {
   /** 入力欄の名前(フォームのキー)。 */
   name: string;
   /** 入力欄のラベル。 */
   label: string;
   /** 入力欄の補足。 */
   description?: string | undefined;
+  /** 入力欄の検証の伝え方。 */
+  validationBehavior?: "aria" | "native";
   /** 入力が要るか。 */
-  isRequired?: boolean;
+  isRequired?: boolean | undefined;
   /** 文字の数の上限。 */
   maxLength?: number | undefined;
   /** ブラウザの自動入力の種類。 */
-  autoComplete?: string;
+  autoComplete?: string | undefined;
   /** 最初に入れておく値。 */
   defaultValue?: string;
+  /** 呼び出し元で管理する入力値。 */
+  value?: string;
+  /** 入力値が変わったときに呼ぶ関数。 */
+  onChange?: (value: string) => void;
+  /** 入力欄から focus が外れたときに呼ぶ関数。 */
+  onBlur?: () => void;
+  /** 呼び出し元から渡す誤りの知らせ。 */
+  errorMessage?: string | undefined;
   /** 送る前に値を確かめ、誤りの知らせを返す関数(合っていれば undefined)。 */
   validate?: (value: string) => string | undefined;
 };
@@ -35,30 +38,47 @@ type TextFieldProps = {
 /** ラベルと補足と誤りの知らせを持つ、1行の入力欄。 */
 export const TextField = ({
   name,
-  label: title,
-  description: help,
+  label,
+  description,
+  validationBehavior,
   isRequired = false,
   maxLength,
   autoComplete,
   defaultValue = "",
+  value,
+  onChange,
+  onBlur,
+  errorMessage,
   validate,
-}: TextFieldProps): ReactNode => (
-  <AriaTextField
-    className={fieldRoot()}
-    defaultValue={defaultValue}
-    validate={(value) => validate?.(value)}
-    isRequired={isRequired}
-    name={name}
-  >
-    <FieldLabel>{title}</FieldLabel>
-    <Input
-      autoComplete={autoComplete}
-      className={fieldControl({
-        className: ["h-control px-3", typography({ role: "body" })],
-      })}
-      maxLength={maxLength}
-    />
-    {help !== undefined && <FieldDescription>{help}</FieldDescription>}
-    <FieldErrorMessage />
-  </AriaTextField>
-);
+}: TextFieldProps): ReactNode => {
+  const fieldState = {
+    ...(errorMessage === undefined ? {} : { isInvalid: true }),
+    ...(validationBehavior === undefined ? {} : { validationBehavior }),
+    ...(value === undefined ? {} : { value }),
+  };
+
+  return (
+    <AriaTextField
+      className={fieldRoot()}
+      defaultValue={defaultValue}
+      isRequired={isRequired}
+      name={name}
+      onBlur={() => {
+        onBlur?.();
+      }}
+      onChange={(next) => {
+        onChange?.(next);
+      }}
+      validate={(next) => validate?.(next)}
+      // oxlint-disable-next-line project/styling-boundary -- React Aria の未指定の props を省く。見た目の props は含まない。
+      {...fieldState}
+    >
+      <FieldLabel>{label}</FieldLabel>
+      <TextInput autoComplete={autoComplete} maxLength={maxLength} />
+      {description !== undefined && (
+        <FieldDescription>{description}</FieldDescription>
+      )}
+      <FieldErrorMessage>{errorMessage}</FieldErrorMessage>
+    </AriaTextField>
+  );
+};

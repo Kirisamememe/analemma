@@ -26,9 +26,18 @@ export const FieldDescription = ({ children }: FieldTextProps): ReactNode => (
   </Text>
 );
 
+type FieldErrorMessageProps = {
+  /** 呼び出し元から渡す誤りの知らせ。 */
+  children?: string | undefined;
+};
+
 /** 入力欄の誤りの知らせ。 */
-export const FieldErrorMessage = (): ReactNode => (
+export const FieldErrorMessage = ({
+  children,
+}: FieldErrorMessageProps): ReactNode => (
   <FieldError
     className={typography({ role: "caption", className: "text-danger" })}
-  />
+  >
+    {children}
+  </FieldError>
 );
