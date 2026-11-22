@@ -19,6 +19,7 @@ type FormCaseProps = {
 
 const FormCase = ({ onSubmit }: FormCaseProps): ReactNode => {
   const form = useAppForm({
+    canSubmitWhenInvalid: true,
     defaultValues: { title: "" },
     validators: {
       onSubmitAsync: ({ value }) =>
@@ -90,14 +91,24 @@ describe("TanStack Form の TextField", () => {
         .getAttribute("aria-invalid"),
     ).toBe("true");
 
-    await userEvent.click(screen.getByRole("button", { name: "保存" }));
-    expect(onSubmit).not.toHaveBeenCalled();
-
     await userEvent.type(input, "更新履歴{Enter}");
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith("更新履歴");
     });
     expect(screen.queryByText(MISSING_TITLE)).toBeNull();
+  });
+
+  test("空欄のまま最初に Enter を押すと誤りが出て、送信を止めること", async () => {
+    const onSubmit = mock((_title: string) => undefined);
+
+    renderWithI18n(<FormCase onSubmit={onSubmit} />);
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "タイトル" }),
+      "{Enter}",
+    );
+
+    await screen.findByText(MISSING_TITLE);
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   test("送信時の外部エラーを入力欄に結び付け、値を直すと再送できること", async () => {

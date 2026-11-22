@@ -6,14 +6,18 @@
 - `TextField` は `TextInput` にラベル・補足・誤りの知らせを結び付ける。関連付けには React Aria Components の slot を使う。単独の呼び出し元は `defaultValue` と `validate` を使える。外から状態を管理するときは `value`・`onChange`・`onBlur`・`errorMessage` を使う。
 - `@/components/forms` の `useAppForm` は TanStack Form の `createFormHook` で部品を登録する。feature は `form.AppField` の中で、項目の値の型に対応する部品を選ぶ。`field.TextField` は文字列の項目の値・変更・blur と、validator が返した文字列の誤りの知らせを `TextField` に渡す。
 
-`Form` の送信には `form.handleSubmit` を渡し、`form.Subscribe` で送信中の状態を反映する。`field.TextField` は React Aria Components の `validationBehavior="aria"` を指定する。必須の状態を伝えながら、ブラウザが送信を先に止めるのを防ぎ、TanStack Form の validator が出す誤りの知らせを入力欄に結び付ける。
+`Form` の送信には `form.handleSubmit` を渡し、`form.Subscribe` で送信中の状態を反映する。`field.TextField` は React Aria Components の `validationBehavior="aria"` を指定する。必須の状態を伝えながら、ブラウザが送信を先に止めるのを防ぎ、TanStack Form の validator が出す誤りの知らせを入力欄に結び付ける。blur で出た誤りを直した直後の Enter でも、現在の値を検証して送れるように `canSubmitWhenInvalid` を使う。
 
 ```tsx
 import { useAppForm } from "@/components/forms";
 import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
 
-const form = useAppForm({ defaultValues: { title: "" }, onSubmit });
+const form = useAppForm({
+  canSubmitWhenInvalid: true,
+  defaultValues: { title: "" },
+  onSubmit,
+});
 
 return (
   <form.Subscribe selector={(state) => state.isSubmitting}>
