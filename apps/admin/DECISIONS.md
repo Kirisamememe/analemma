@@ -19,6 +19,12 @@
 | テストの DOM   | happy-dom(`@happy-dom/global-registrator`)と Testing Library | Bun の公式の案内にある組み合わせ。                                                                                                     |
 | i18n           | i18next 27 + react-i18next                                   | ユーザーが決めた。理由は「i18n」。                                                                                                     |
 
+## import の別名
+
+管理画面では `@/ui/...` のように、`@/` を `src/` の起点として使う。離れたフォルダを参照する import でも、ファイルを移すたびに `../` の段数を直さずに済む。別名は `tsconfig.json`(テストを含め、Bun の型で検査する。Bun のテストもこの `paths` で解決する)と `tsconfig.app.json`(テストを除き、ブラウザ向けに検査する)の `paths` の両方に置き、どちらでも同じ import を書けるようにする(ユーザーが決めた)。
+
+Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・開発のサーバー・head の script をまとめるビルドで同じ別名を解決する。Storybook は管理画面の Vite の設定から `resolve` を引き継ぐ。Vite は `include` に当たるファイルにだけ `paths` を効かせる。Storybook の preview とその部品からも別名を使えるよう、`tsconfig.json` の `include` には、フォルダ名の `.storybook` ではなく `.storybook/**/*` を書く(フォルダ名だけでは、`story-frame.tsx` から別名を解決できなかった)。
+
 ## route はコードで定義する
 
 TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen.ts` を生成する plugin)は使わず、`src/router.tsx` で `createRoute` を組む。

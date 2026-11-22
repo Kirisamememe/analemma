@@ -14,6 +14,7 @@ export const TEST_ONLY_DIRECTORIES = [
 
 const TEST_SIDE_DIRECTORIES = ["/__tests__/", "/__stories__/", "/.storybook/"];
 const SOURCE_EXTENSION = /\.(?:[cm]?[jt]s|[jt]sx)$/v;
+const ADMIN_ALIAS = "@/";
 
 /** テストの側・story・Storybook の設定だけが import できるもの。 */
 const STORY_ONLY = [
@@ -32,6 +33,21 @@ const isTestSide = (path: string): boolean =>
   TEST_SIDE_DIRECTORIES.some((directory) => path.includes(directory)) ||
   isInside(path);
 
+const resolveLocalPath = (
+  path: string,
+  request: string,
+): string | undefined => {
+  if (request.startsWith(".")) {
+    return posix.join(posix.dirname(path), request);
+  }
+
+  if (path.startsWith("apps/admin/") && request.startsWith(ADMIN_ALIAS)) {
+    return posix.join("apps/admin/src", request.slice(ADMIN_ALIAS.length));
+  }
+
+  return undefined;
+};
+
 /** テストと story の外のファイルが、テストと story だけのものから import している先を返す。 */
 export const findTestOnlyImports = ({ path, text }: SourceFile): string[] => {
   if (isTestSide(path)) {
@@ -49,9 +65,8 @@ export const findTestOnlyImports = ({ path, text }: SourceFile): string[] => {
   ];
 
   return requests
-    .filter((request) => request.startsWith("."))
-    .map((request) =>
-      posix.join(posix.dirname(path), request).replace(SOURCE_EXTENSION, ""),
-    )
+    .map((request) => resolveLocalPath(path, request))
+    .filter((target) => target !== undefined)
+    .map((target) => target.replace(SOURCE_EXTENSION, ""))
     .filter((target) => isInside(target) || isStoryOnly(target));
 };

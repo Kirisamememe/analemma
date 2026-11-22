@@ -12,7 +12,7 @@ import {
 
 const ADMIN_EFFECT_HOOKS = ["useHtmlPreferences"];
 
-/** ほかの層を import させない、相対パスの形。 */
+/** ほかの層を import させないパスの形。 */
 const layerPatterns = (layers: readonly string[], message: string) => [
   {
     group: layers.flatMap((layer) => [`**/${layer}`, `**/${layer}/**`]),

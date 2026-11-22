@@ -7,12 +7,13 @@ import {
 import { type ReactNode, useMemo, useState } from "react";
 import { I18nextProvider } from "react-i18next";
 
-import { createI18n } from "../src/i18n/create-i18n";
-import type { Locale } from "../src/i18n/locales";
-import type { Theme } from "../src/preferences/theme";
-import { UiProvider } from "../src/ui/primitives/ui-provider";
-import { StoryStage } from "../src/ui/specimens/story-stage";
 import { useHtmlPreferences } from "./use-html-preferences";
+
+import { createI18n } from "@/i18n/create-i18n";
+import type { Locale } from "@/i18n/locales";
+import type { Theme } from "@/preferences/theme";
+import { UiProvider } from "@/ui/primitives/ui-provider";
+import { StoryStage } from "@/ui/specimens/story-stage";
 
 const createStoryRouter = () =>
   createRouter({
