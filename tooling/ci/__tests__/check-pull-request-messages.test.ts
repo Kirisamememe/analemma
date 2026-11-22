@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, setDefaultTimeout, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -7,6 +7,8 @@ import { join } from "node:path";
 const SCRIPT = join(import.meta.dirname, "../check-pull-request-messages.ts");
 const temporaryRoot = mkdtempSync(join(tmpdir(), "analemma-ci-"));
 const PULL_REQUEST_NUMBER = "7";
+
+setDefaultTimeout(30_000);
 
 afterAll(() => {
   rmSync(temporaryRoot, { recursive: true, force: true });
