@@ -4,7 +4,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import { createFakeApi, wrapFakeRoute } from "@/testing/create-fake-api";
 import { FAKE_ASSERTION } from "@/testing/create-fake-authenticator";
-import { createPasskeyRoutes } from "@/testing/create-passkey-routes";
+import { createPasskeyRoutes } from "@/testing/fake-routes/create-passkey-routes";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);

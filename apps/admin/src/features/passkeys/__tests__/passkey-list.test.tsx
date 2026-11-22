@@ -6,7 +6,7 @@ import {
   PASSKEY_CREATED_AT,
   PASSKEY_LAST_USED_AT,
   createPasskeyRoutes,
-} from "@/testing/create-passkey-routes";
+} from "@/testing/fake-routes/create-passkey-routes";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
