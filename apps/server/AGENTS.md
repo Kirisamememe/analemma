@@ -33,7 +33,7 @@
 - 想定内の失敗(slug の重複など)は `_tag` 付きの判別共用体で返す。想定外の失敗は throw し、入口で 500 とログにする。try/catch や `.catch()` で握りつぶさない(書けるのは、入口と dispatcher だけ。lint で止まる)。
 - 依存(db・clock・storage・events・logger など)は oRPC の context で渡す。グローバルなシングルトンを作らない。
 - 入力は入口でデコードしてブランド型にし、内側で検証し直さない。
-- リソースの後始末は `await using` で保証する。リクエストの `AbortSignal` は、DB や外部への呼び出しの渡せるところまで渡す。
+- リソースの後始末は `await using` で保証する。リクエストの `AbortSignal` は、外部への呼び出し(`fetch` など)に渡す。DB には渡さない(`DECISIONS.md` の「割り切ったこと」)。
 - 再試行の方針(Webhook の再送など)は設定のデータとして書く。環境変数は起動時にスキーマで検証し、不正なら起動しない。
 - `pipe`・`flatMap`・`andThen` のような汎用の合成関数や、メソッドを持つ Result 型を作らない。
 
