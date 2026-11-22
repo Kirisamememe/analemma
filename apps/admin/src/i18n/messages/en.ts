@@ -6,6 +6,8 @@ export const en = {
   "notFound.description": "There is no page at {{path}}.",
   "notFound.backHome": "Back to home",
   "ui.pending": "Working",
+  "ui.numberField.decrease": "Decrease {{label}}",
+  "ui.numberField.increase": "Increase {{label}}",
   "login.title": "Sign in to Stilus",
   "login.description": "Use a passkey you registered for this admin panel.",
   "login.submit": "Sign in with a passkey",
