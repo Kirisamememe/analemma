@@ -1,7 +1,5 @@
 import { spawnSync } from "node:child_process";
 import {
-  copyFileSync,
-  existsSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
@@ -55,10 +53,6 @@ const say = (message: string): void => {
   process.stdout.write(`${message}\n`);
 };
 
-//------------------------------------------------------------
-// レビューする側に渡すファイル
-//------------------------------------------------------------
-
 /** 比べるブランチ。 */
 type Range = {
   /** 比べる元のブランチ。 */
@@ -73,7 +67,7 @@ type Workspace = {
   readonly root: string;
   /** レビューするブランチの中身。 */
   readonly tree: string;
-  /** 差分・コミットのメッセージ・前の回の結果。 */
+  /** 差分とコミットのメッセージ。 */
   readonly context: string;
   /** 差分のファイル。 */
   readonly diff: string;
@@ -93,7 +87,7 @@ const prepareWorkspace = ({ base, head }: Range): Workspace => {
   const archive = join(root, "tree.tar");
 
   mkdirSync(workspace.tree);
-  mkdirSync(join(workspace.context, "previous"), { recursive: true });
+  mkdirSync(workspace.context);
   git("archive", "--format=tar", "-o", archive, head);
 
   const extracted = execute("tar", ["-x", "-f", archive, "-C", workspace.tree]);
@@ -127,41 +121,6 @@ const collectTradeOffs = ({
 
       return body === undefined || body === "" ? [] : [{ path, body }];
     });
-
-/** 前の回の結果を写す材料。 */
-type PreviousResults = {
-  /** 結果のフォルダ。 */
-  readonly results: string;
-  /** 写す先のフォルダ。 */
-  readonly context: string;
-  /** レビューの観点。 */
-  readonly perspective: Perspective;
-  /** 今の回の番号。 */
-  readonly round: number;
-};
-
-const copyPreviousResults = ({
-  context,
-  perspective,
-  results,
-  round,
-}: PreviousResults): string[] =>
-  Array.from(
-    { length: round - 1 },
-    (_, index) => `${perspective.id}-${String(index + 1)}.md`,
-  )
-    .filter((name) => existsSync(join(results, name)))
-    .map((name) => {
-      const target = join(context, "previous", name);
-
-      copyFileSync(join(results, name), target);
-
-      return target;
-    });
-
-//------------------------------------------------------------
-// 入口
-//------------------------------------------------------------
 
 /** 流すレビュー。 */
 type ReviewRequest = Range & {
@@ -228,12 +187,6 @@ const review = ({ base, head, perspective }: ReviewRequest): number => {
       tree: workspace.tree,
       diff: workspace.diff,
       commits: workspace.commits,
-      previous: copyPreviousResults({
-        results,
-        context: workspace.context,
-        perspective,
-        round: next.round,
-      }),
     },
     scope: readFileSync(join(PROMPTS, `${perspective.id}.md`), "utf8"),
     rules: readFileSync(join(PROMPTS, "common.md"), "utf8"),

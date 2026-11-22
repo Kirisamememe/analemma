@@ -17,7 +17,6 @@ const MATERIAL: PromptMaterial = {
     tree: "/tmp/review/tree",
     diff: "/tmp/review/context/diff.patch",
     commits: "/tmp/review/context/commits.txt",
-    previous: [],
   },
   scope:
     "## 見る範囲\n\n- 観点ごとの範囲。\n\n## 見ない範囲\n\n- ほかの観点。\n",
@@ -97,23 +96,5 @@ describe("prompt を組み立てること", () => {
     expect(order.every((index) => index > 0)).toBe(true);
     expect(order).toEqual(order.toSorted((left, right) => left - right));
     expect(prompt).toEndWith("最後の行の約束。\n");
-  });
-
-  test("前の回の結果が無ければ、前の回に触れないこと", () => {
-    expect(buildPrompt(MATERIAL)).not.toContain("前の回");
-  });
-
-  test("前の回の結果があれば、その場所と、直ったかを確かめることを書くこと", () => {
-    const prompt = buildPrompt({
-      ...MATERIAL,
-      paths: {
-        ...MATERIAL.paths,
-        previous: ["/tmp/review/context/previous/logic-1.md"],
-      },
-    });
-
-    expect(prompt).toContain(
-      "前の回の結果:`/tmp/review/context/previous/logic-1.md`。前の回の指摘が直ったかも確かめる。",
-    );
   });
 });

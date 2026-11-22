@@ -16,8 +16,6 @@ export type PromptPaths = {
   readonly diff: string;
   /** コミットのメッセージのファイル。 */
   readonly commits: string;
-  /** 同じ観点の、前の回の結果のファイル。 */
-  readonly previous: readonly string[];
 };
 
 /** prompt を組み立てる材料。 */
@@ -39,13 +37,6 @@ export type PromptMaterial = {
 };
 
 const code = (text: string): string => `\`${text}\``;
-
-const previousLine = (previous: readonly string[]): string[] =>
-  previous.length === 0
-    ? []
-    : [
-        `- 前の回の結果:${previous.map((path) => code(path)).join("、")}。前の回の指摘が直ったかも確かめる。直さずに「割り切ったこと」に書いたものは、指摘し直さない。`,
-      ];
 
 const tradeOffSection = (tradeOffs: readonly TradeOffSection[]): string =>
   [
@@ -81,7 +72,6 @@ export const buildPrompt = ({
     `- 差分:${code(paths.diff)}(${code(`git diff ${base}...${head}`)})`,
     `- コミットのメッセージ:${code(paths.commits)}`,
     "- リポジトリの約束:このフォルダの直下の `AGENTS.md`・`DECISIONS.md`・`GLOSSARY.md` と、変更したファイルに近いフォルダの `AGENTS.md`・`DECISIONS.md`",
-    ...previousLine(paths.previous),
     "",
     scope.trim(),
     "",
