@@ -87,15 +87,20 @@ describe("createPasskeyRoutes", () => {
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 
-  test("すべてのセッションからログアウトしたら、管理用 API は UNAUTHORIZED を返す", async () => {
-    const { api } = setUp(["MacBook"]);
+  test.each(["logOut", "logOutAll"] as const)(
+    "%s でログアウトしたら、管理用 API は UNAUTHORIZED を返す",
+    async (procedure) => {
+      const { api } = setUp(["MacBook"]);
 
-    await api.admin.session.logOutAll();
+      await api.admin.session[procedure]();
 
-    expect(api.admin.session.get()).rejects.toMatchObject({
-      code: "UNAUTHORIZED",
-    });
-  });
+      const failure: unknown = await api.admin.session
+        .get()
+        .catch((error: unknown) => error);
+
+      expect(failure).toMatchObject({ code: "UNAUTHORIZED", status: 401 });
+    },
+  );
 
   test.each(["追加", "削除"])(
     "ログアウトとパスキーの%sが重なり、ログアウトが先に成立したら一覧が変わらないこと",

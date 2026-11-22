@@ -26,6 +26,7 @@ type PasskeyPath =
   | "admin/passkeys/registrationOptions"
   | "admin/passkeys/rename"
   | "admin/session/get"
+  | "admin/session/logOut"
   | "admin/session/logOutAll"
   | "admin/session/reauthenticationOptions";
 
@@ -146,6 +147,11 @@ export const createPasskeyRoutes = (seeds: readonly FakePasskeySeed[]) => {
           return { output: AUTHENTICATION_OPTIONS };
         },
       ),
+      "admin/session/logOut": handle("admin/session/logOut", () => {
+        signedIn = false;
+
+        return { output: undefined };
+      }),
       "admin/session/logOutAll": handle("admin/session/logOutAll", () => {
         signedIn = false;
 
