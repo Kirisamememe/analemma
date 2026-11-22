@@ -52,6 +52,7 @@ export const AppNavigation = (): ReactNode => {
           isCurrent: matchRoute({ to: href, fuzzy: href !== "/" }) !== false,
         })),
       }))}
+      isDrawerPending={logOut.isPending}
       label={t("navigation.main")}
     />
   );

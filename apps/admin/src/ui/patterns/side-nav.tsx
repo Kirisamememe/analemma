@@ -25,7 +25,7 @@ type SideNavGroup = {
   readonly items: readonly SideNavItem[];
 };
 
-/** サイドナビに渡す値。 */
+/** ナビに渡す値。 */
 type SideNavProps = {
   /** アプリの名前。 */
   readonly appName: string;
@@ -33,13 +33,15 @@ type SideNavProps = {
   readonly label: string;
   /** drawer の Dialog の名前。 */
   readonly drawerLabel: string;
+  /** drawer の操作を送信中か。 */
+  readonly isDrawerPending?: boolean;
   /** ナビのリンクのまとまり。 */
   readonly groups: readonly SideNavGroup[];
   /** 下の段に置く操作。 */
   readonly footer: ReactNode;
 };
 
-/** サイドナビの中身に渡す値。 */
+/** ナビの中身に渡す値。 */
 type SideNavContentProps = Pick<SideNavProps, "label" | "groups" | "footer"> & {
   /** リンクを押したときに呼ぶ関数。 */
   readonly onPress?: (() => void) | undefined;
@@ -110,11 +112,12 @@ const SideNavContent = ({
   </>
 );
 
-/** 広い画面のサイドナビと、狭い画面で開けるナビ。 */
+/** 広い画面に置くナビと、狭い画面で引き出すナビ。 */
 export const SideNav = ({
   appName,
   label,
   drawerLabel,
+  isDrawerPending = false,
   groups,
   footer,
 }: SideNavProps): ReactNode => {
@@ -141,6 +144,7 @@ export const SideNav = ({
         <NavDrawer
           heading={heading}
           isOpen={isOpen}
+          isPending={isDrawerPending}
           label={drawerLabel}
           onOpenChange={setIsOpen}
         >

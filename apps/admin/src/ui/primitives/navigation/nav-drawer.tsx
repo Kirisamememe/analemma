@@ -12,17 +12,19 @@ import { tv } from "../../tv";
 import { Icon } from "../graphics/icon";
 
 const iconButton = tv({
-  base: "flex size-10 shrink-0 items-center justify-center rounded-control text-fg outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed",
+  base: "flex size-10 shrink-0 items-center justify-center rounded-control text-fg outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-disabled:state-disabled",
 });
 
 /** ナビの drawer に渡す値。 */
 export type NavDrawerProps = {
   /** Dialog の名前。 */
   readonly label: string;
-  /** 上の段に置く名前。 */
+  /** 閉じるボタンと並べて、上の段に描く見出し。 */
   readonly heading: ReactNode;
   /** 開いているか。 */
   readonly isOpen: boolean;
+  /** 送信中か。 */
+  readonly isPending?: boolean;
   /** 開け閉めを知らせる関数。 */
   readonly onOpenChange: (isOpen: boolean) => void;
   /** drawer の中身。 */
@@ -34,6 +36,7 @@ export const NavDrawer = ({
   label,
   heading,
   isOpen,
+  isPending = false,
   onOpenChange,
   children,
 }: NavDrawerProps): ReactNode => {
@@ -46,7 +49,8 @@ export const NavDrawer = ({
       </AriaButton>
       <ModalOverlay
         className="fixed top-0 left-0 z-overlay flex h-(--visual-viewport-height) w-full dialog-backdrop-animation bg-scrim/40"
-        isDismissable={isOpen}
+        isDismissable={isOpen && !isPending}
+        isKeyboardDismissDisabled={isPending}
       >
         <Modal className="h-full w-sidebar max-w-full nav-drawer-panel-animation overflow-y-auto rounded-e-surface bg-surface-sunken text-fg shadow-overlay outline outline-fg/10">
           <Dialog
@@ -58,6 +62,7 @@ export const NavDrawer = ({
               <AriaButton
                 aria-label={t("ui.closeNav")}
                 className={iconButton()}
+                isDisabled={isPending}
                 slot="close"
               >
                 <Icon name="x" />
