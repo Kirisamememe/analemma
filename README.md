@@ -103,6 +103,12 @@ bun --cwd=apps/admin run dev
    mkdir -p ~/analemma-trial
    ```
 
+   シェルに同じ名前の環境変数があると、`--env-file` のファイルより優先され、別の DB に migration を流しうる。次のコマンドが何も出さないことを確かめる(出たら `unset` する)。
+
+   ```bash
+   env | grep -E '^(DATABASE_URL|AUTH_ORIGIN|AUTH_RP_ID|PORT|INTERNAL_PORT|INTERNAL_HOST|ADMIN_DIST_DIR|ANALEMMA_INTERNAL_URL|ANALEMMA_URL|HOST)='
+   ```
+
 2. PostgreSQL を起動する。migration は superuser でないロールで流すので、DB の持ち主のロールを最初に作る。
 
    ```bash
@@ -153,7 +159,7 @@ bun --cwd=apps/admin run dev
    HOST=127.0.0.1
    ```
 
-8. Amayadori で、client をビルドして依存を入れ、ビルドし、種類の定義を送ってから起動する。トークンはシェルの履歴に残さないよう、`read` で受ける。`kinds:push` が 0 で終わらなければ、起動しない。
+8. Amayadori で、client をビルドして依存を入れ、ビルドし、種類の定義を送ってから起動する。トークンは、シェルの履歴に残さないよう `read` で受け、`kinds:push` にだけ渡す(export しない。起動したサーバーに渡さないため)。`kinds:push` が 0 で終わらなければ、起動しない。
 
    ```bash
    bun --cwd=../analemma/packages/client run build && bun install
@@ -164,11 +170,11 @@ bun --cwd=apps/admin run dev
    ```
 
    ```bash
-   read -rs ANALEMMA_DEPLOY_TOKEN && export ANALEMMA_DEPLOY_TOKEN
+   read -rs ANALEMMA_DEPLOY_TOKEN
    ```
 
    ```bash
-   bun --env-file="$HOME/analemma-trial/amayadori.env" run kinds:push
+   ANALEMMA_DEPLOY_TOKEN="$ANALEMMA_DEPLOY_TOKEN" bun --env-file="$HOME/analemma-trial/amayadori.env" run kinds:push && unset ANALEMMA_DEPLOY_TOKEN
    ```
 
    ```bash
