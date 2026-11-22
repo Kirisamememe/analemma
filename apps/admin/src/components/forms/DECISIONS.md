@@ -46,7 +46,7 @@ return (
 
 `CheckboxInput`・`SelectInput`・`DateInput` は、単独で使うときのアクセシブルな名前を呼び出し元から受け取る。ラベル付きの部品も同じ React Aria Components の root と入力の部品を組み合わせる。Checkbox のラベルはクリックして切り替えられるように CheckboxButton の中に置く。
 
-`field.Checkbox` はチェックを外した値を `false` として渡す。初期値が `null` なら未操作の間はその値を保つ。`field.Select` は選択を解除した値を `null`、`field.DateField` は入力した日付を `YYYY-MM-DD` で渡す。
+`field.Checkbox` はチェックを外した値を `false` として渡す。初期値が `null` なら未操作の間はその値を保つ。`field.Select` は選択を解除した値を `null` で渡す。任意の Select では `null` のときも「選択なし」を選択中として表示し、その選択肢から矢印キーで移れるようにする。`field.DateField` は入力した日付を `YYYY-MM-DD` で渡す。
 
 日付が未完の間は、React Aria Components の確定値に直前の日付が残る。単独の DateInput とラベル付きの DateField は、focus が外れた時点で同じ処理で年・月・日の状態を調べ、未完のときだけ React Aria Components の native の検証で送信を止める。TanStack Form が受け取った誤りは、ほかの入力と同じように表示する。呼び出し元が別の日付を渡したら、前の日付の未完の状態は引き継がない。
 

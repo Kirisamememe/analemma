@@ -70,10 +70,11 @@ export const SelectRoot = ({
   validationBehavior,
   children,
 }: SelectRootProps): ReactNode => {
+  const selectedValue = value === null && !isRequired ? "" : value;
   const state = {
     ...(ariaLabel === undefined ? {} : { "aria-label": ariaLabel }),
     ...(name === undefined ? {} : { name }),
-    ...(value === undefined ? {} : { value }),
+    ...(selectedValue === undefined ? {} : { value: selectedValue }),
     ...(isInvalid === undefined ? {} : { isInvalid }),
     ...(validationBehavior === undefined ? {} : { validationBehavior }),
   };

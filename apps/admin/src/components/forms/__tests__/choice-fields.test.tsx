@@ -86,6 +86,13 @@ describe("TanStack Form の Checkbox と Select", () => {
     await user.keyboard(" ");
     await user.click(select);
     await user.click(screen.getByRole("option", { name: "選択なし" }));
+    expect(select.textContent).toBe("選択なし");
+
+    await user.keyboard("{ArrowRight}");
+    expect(select.textContent).toBe("春");
+
+    await user.click(select);
+    await user.click(screen.getByRole("option", { name: "選択なし" }));
     await user.click(screen.getByRole("button", { name: "保存" }));
 
     await waitFor(() => {
