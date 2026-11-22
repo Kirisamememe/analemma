@@ -59,7 +59,7 @@
 - 判断に迷う指摘があったら、直してレビューし直さず、ユーザーに報告する。
 - GitHub の Copilot のレビューは、ユーザーが頼んだときだけ使う。
 - すべての観点で LGTM になり、CI(`check`・`commit-messages`)が通ったら、エージェントが子のブランチをフェーズのブランチへ merge してよい。merge する前に、PR の本文に「## エージェントが判断したこと」の節を書き(merge の方法も書く。形は `.github/pull_request_template.md`)、label `agent-merged` を付ける。
-- 子のブランチがすべて入ったら、フェーズのブランチを「つながりと一貫性」の観点で1〜2回レビューする(`bun run review -- --perspective coherence --base main --head phase/<番号>`)。main への PR の「## エージェントが判断したこと」には、label `agent-merged` の PR ごとに、PR へのリンクと、直さなかった指摘・判断に迷った指摘・ほかに決めたことをまとめ、「つながりと一貫性」のレビューの結果を添える。main への merge は、ユーザーが判断する。
+- 子のブランチがすべて入ったら、フェーズのブランチを「つながりと一貫性」の観点で1〜2回レビューする(`bun run review -- --perspective coherence --base main --head phase/<番号>`)。main への PR の「## エージェントが判断したこと」には、label `agent-merged` の PR ごとの判断を、PR へのリンク付きでまとめ、「つながりと一貫性」のレビューの結果を添える(形は同じ `.github/pull_request_template.md`)。main への merge は、ユーザーが判断する。
 
 ## 使わないもの
 
