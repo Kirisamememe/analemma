@@ -32,6 +32,23 @@ describe("createI18n", () => {
     expect<string>(i18n.t("notFound.title")).toBe(TITLE.en);
   });
 
+  test("訳に無いキーは英語にし、訳のあるキーはその言語のまま引く", () => {
+    const i18n = createI18n("ja");
+
+    i18n.removeResourceBundle("ja", "translation");
+    i18n.addResource(
+      "ja",
+      "translation",
+      "notFound.description",
+      "{{path}} にはありません。",
+    );
+
+    expect<string>(i18n.t("notFound.title")).toBe(TITLE.en);
+    expect<string>(i18n.t("notFound.description", { path: "/a" })).toBe(
+      "/a にはありません。",
+    );
+  });
+
   test("切り替えた言語の訳を、読み込みを待たずに引ける", () => {
     const i18n = createI18n("en");
 

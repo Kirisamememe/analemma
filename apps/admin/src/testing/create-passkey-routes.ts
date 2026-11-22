@@ -27,7 +27,13 @@ export type PasskeyServer = {
   ) => void;
 };
 
-const DATE = "2026-01-02T03:04:00.000Z";
+const SESSION_EXPIRES_AT = "2026-01-02T03:04:00.000Z";
+
+/** 作り物のパスキーを登録した日時。 */
+export const PASSKEY_CREATED_AT = "2026-01-02T03:04:00.000Z";
+
+/** 作り物のパスキーを最後に使った日時。 */
+export const PASSKEY_LAST_USED_AT = "2026-02-03T04:05:00.000Z";
 
 const AUTHENTICATION_OPTIONS = {
   challenge: "AQID",
@@ -69,8 +75,8 @@ const field = (input: unknown, name: string): string => {
 
 const summaryOf = (passkey: FakePasskey) => ({
   ...passkey,
-  createdAt: DATE,
-  lastUsedAt: DATE,
+  createdAt: PASSKEY_CREATED_AT,
+  lastUsedAt: PASSKEY_LAST_USED_AT,
 });
 
 /** パスキーの管理の procedure を、状態ごと真似る作り物の server の応答を作る。 */
@@ -119,7 +125,7 @@ export const createPasskeyRoutes = (
   return {
     routes: {
       "admin/session/get": handle("admin/session/get", () => ({
-        output: { expiresAt: DATE },
+        output: { expiresAt: SESSION_EXPIRES_AT },
       })),
       "admin/session/reauthenticationOptions": handle(
         "admin/session/reauthenticationOptions",
