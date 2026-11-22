@@ -1,9 +1,9 @@
 import { safe } from "@orpc/client";
 import { describe, expect, test } from "bun:test";
 
-import { createEnrollmentRoutes } from "../create-enrollment-routes";
-import { createFakeApi } from "../create-fake-api";
-import { FAKE_ATTESTATION } from "../create-fake-authenticator";
+import { createEnrollmentRoutes } from "@/testing/create-enrollment-routes";
+import { createFakeApi } from "@/testing/create-fake-api";
+import { FAKE_ATTESTATION } from "@/testing/create-fake-authenticator";
 
 const EXPIRY = { expiresAt: "2026-01-08T00:00:00.000Z" };
 const REGISTRATION = {

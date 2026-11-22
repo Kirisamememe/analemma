@@ -1,5 +1,5 @@
-import type { ApiClient } from "../../api/api-types";
-import { callApi } from "../../api/call-api";
+import type { ApiClient } from "@/api/api-types";
+import { callApi } from "@/api/call-api";
 
 /** パスキーの名前を変更するときに渡す値。 */
 export type RenamePasskeyInput = {

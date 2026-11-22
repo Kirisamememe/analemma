@@ -1,9 +1,12 @@
 import { ORPCError } from "@orpc/client";
 import { describe, expect, test } from "bun:test";
 
-import { createFakeApi, wrapFakeRoute } from "../create-fake-api";
-import { FAKE_ASSERTION, FAKE_ATTESTATION } from "../create-fake-authenticator";
-import { createPasskeyRoutes } from "../create-passkey-routes";
+import { createFakeApi, wrapFakeRoute } from "@/testing/create-fake-api";
+import {
+  FAKE_ASSERTION,
+  FAKE_ATTESTATION,
+} from "@/testing/create-fake-authenticator";
+import { createPasskeyRoutes } from "@/testing/create-passkey-routes";
 
 const setUp = (names: readonly string[]) => {
   const server = createPasskeyRoutes(

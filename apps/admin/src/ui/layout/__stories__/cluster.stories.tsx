@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Cluster } from "../cluster";
-import { Text } from "../text";
+import { Cluster } from "@/ui/layout/cluster";
+import { Text } from "@/ui/layout/text";
 
 const ITEMS = (
   <>

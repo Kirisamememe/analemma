@@ -2,9 +2,9 @@ import type { ReactNode, Ref } from "react";
 import { Button as AriaButton, ProgressBar } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { tv } from "../tv";
-import { typography } from "../typography";
-import { Spinner } from "./graphics/spinner";
+import { Spinner } from "@/ui/primitives/graphics/spinner";
+import { tv } from "@/ui/tv";
+import { typography } from "@/ui/typography";
 
 const button = tv({
   base: "inline-flex items-center justify-center gap-2 rounded-control border outline-hidden transition is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-pending:cursor-wait is-disabled:state-disabled",

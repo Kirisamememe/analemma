@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Stack } from "../stack";
-import { Text } from "../text";
+import { Stack } from "@/ui/layout/stack";
+import { Text } from "@/ui/layout/text";
 
 const ITEMS = (
   <>

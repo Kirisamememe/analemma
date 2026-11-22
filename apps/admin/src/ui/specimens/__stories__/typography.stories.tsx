@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { TypeSpecimen } from "../type-specimen";
+import { TypeSpecimen } from "@/ui/specimens/type-specimen";
 
 const meta = {
   title: "theme/Typography",

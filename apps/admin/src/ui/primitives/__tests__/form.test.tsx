@@ -2,10 +2,10 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { renderWithI18n } from "../../../testing/render-with-i18n";
-import { Button } from "../button";
-import { Form } from "../form";
-import { TextField } from "../form-fields/text-field";
+import { renderWithI18n } from "@/testing/render-with-i18n";
+import { Button } from "@/ui/primitives/button";
+import { Form } from "@/ui/primitives/form";
+import { TextField } from "@/ui/primitives/form-fields/text-field";
 
 afterEach(cleanup);
 

@@ -8,20 +8,20 @@ import {
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { checkPasskeyName } from "../features/auth/check-passkey-name";
-import { type EnrollInput, enroll } from "../features/auth/enroll";
-import { readEnrollmentToken } from "../features/auth/read-enrollment-token";
-import { toEnrollNotice } from "../features/auth/to-auth-notice";
-import { AppShell } from "../ui/layout/app-shell";
-import { Center } from "../ui/layout/center";
-import { Stack } from "../ui/layout/stack";
-import { Text } from "../ui/layout/text";
-import { PageHeader } from "../ui/patterns/page-header";
-import { Button } from "../ui/primitives/button";
-import { Form } from "../ui/primitives/form";
-import { TextField } from "../ui/primitives/form-fields/text-field";
-import { Link } from "../ui/primitives/navigation/link";
-import { Notice } from "../ui/primitives/notice";
+import { checkPasskeyName } from "@/features/auth/check-passkey-name";
+import { type EnrollInput, enroll } from "@/features/auth/enroll";
+import { readEnrollmentToken } from "@/features/auth/read-enrollment-token";
+import { toEnrollNotice } from "@/features/auth/to-auth-notice";
+import { AppShell } from "@/ui/layout/app-shell";
+import { Center } from "@/ui/layout/center";
+import { Stack } from "@/ui/layout/stack";
+import { Text } from "@/ui/layout/text";
+import { PageHeader } from "@/ui/patterns/page-header";
+import { Button } from "@/ui/primitives/button";
+import { Form } from "@/ui/primitives/form";
+import { TextField } from "@/ui/primitives/form-fields/text-field";
+import { Link } from "@/ui/primitives/navigation/link";
+import { Notice } from "@/ui/primitives/notice";
 
 const PASSKEY_NAME_MAX_LENGTH = 64;
 

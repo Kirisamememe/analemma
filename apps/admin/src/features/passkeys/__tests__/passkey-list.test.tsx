@@ -1,13 +1,13 @@
 import { act, cleanup, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { formatDateTime } from "../../../i18n/format-date-time";
+import { formatDateTime } from "@/i18n/format-date-time";
 import {
   PASSKEY_CREATED_AT,
   PASSKEY_LAST_USED_AT,
   createPasskeyRoutes,
-} from "../../../testing/create-passkey-routes";
-import { renderApp } from "../../../testing/render-app";
+} from "@/testing/create-passkey-routes";
+import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
 

@@ -1,10 +1,10 @@
 import { ORPCError, createORPCClient } from "@orpc/client";
 import { describe, expect, test } from "bun:test";
 
-import { createFakeApi } from "../../testing/create-fake-api";
-import { FAKE_ASSERTION } from "../../testing/create-fake-authenticator";
-import type { ApiClient, ApiOutputs } from "../api-types";
-import { callApi } from "../call-api";
+import type { ApiClient, ApiOutputs } from "@/api/api-types";
+import { callApi } from "@/api/call-api";
+import { createFakeApi } from "@/testing/create-fake-api";
+import { FAKE_ASSERTION } from "@/testing/create-fake-authenticator";
 
 const INPUT = { id: "current-passkey", assertion: FAKE_ASSERTION };
 

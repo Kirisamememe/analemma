@@ -1,4 +1,4 @@
-import { tv } from "../../tv";
+import { tv } from "@/ui/tv";
 
 export const { root: fieldRoot, control: fieldControl } = tv({
   slots: {

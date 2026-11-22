@@ -2,7 +2,7 @@ import { ORPCError } from "@orpc/client";
 import { onlineManager } from "@tanstack/react-query";
 import { describe, expect, test } from "bun:test";
 
-import { createQueryClient } from "../create-query-client";
+import { createQueryClient } from "@/api/create-query-client";
 
 /** セッションが無いと知らされた回数を数えるもの。 */
 type Counter = {

@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { AppPreview } from "../../testing/app-preview";
-import type { FakeReply, FakeRoutes } from "../../testing/create-fake-api";
-import { createFakeAuthenticator } from "../../testing/create-fake-authenticator";
+import { AppPreview } from "@/testing/app-preview";
+import type { FakeReply, FakeRoutes } from "@/testing/create-fake-api";
+import { createFakeAuthenticator } from "@/testing/create-fake-authenticator";
 import {
   createPasskeyRoutes,
   type FakePasskeySeed,
-} from "../../testing/create-passkey-routes";
+} from "@/testing/create-passkey-routes";
 
 const PASSKEYS: readonly FakePasskeySeed[] = [
   { name: "MacBook Air", backedUp: true },

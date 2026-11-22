@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Button } from "../../primitives/button";
-import { PageHeader } from "../page-header";
+import { PageHeader } from "@/ui/patterns/page-header";
+import { Button } from "@/ui/primitives/button";
 
 const meta = {
   title: "patterns/PageHeader",

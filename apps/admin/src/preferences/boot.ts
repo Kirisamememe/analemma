@@ -1,5 +1,8 @@
-import { resolvePreferences } from "./resolve-preferences";
-import { LOCALE_STORAGE_KEY, THEME_STORAGE_KEY } from "./storage-keys";
+import { resolvePreferences } from "@/preferences/resolve-preferences";
+import {
+  LOCALE_STORAGE_KEY,
+  THEME_STORAGE_KEY,
+} from "@/preferences/storage-keys";
 
 const { locale, theme } = resolvePreferences(
   {

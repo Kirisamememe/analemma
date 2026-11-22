@@ -7,9 +7,16 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { typography } from "../../typography";
-import { fieldControl, fieldRoot } from "./field-control";
-import { FieldDescription, FieldErrorMessage, FieldLabel } from "./field-parts";
+import {
+  fieldControl,
+  fieldRoot,
+} from "@/ui/primitives/form-fields/field-control";
+import {
+  FieldDescription,
+  FieldErrorMessage,
+  FieldLabel,
+} from "@/ui/primitives/form-fields/field-parts";
+import { typography } from "@/ui/typography";
 
 const FORMAT_OPTIONS: Intl.NumberFormatOptions = {
   maximumSignificantDigits: 17,

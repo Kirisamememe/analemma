@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
 
+import { enroll } from "@/features/auth/enroll";
+import type { Authenticator } from "@/features/auth/webauthn/create-authenticator";
 import {
   createFakeApi,
   type FakeOutput,
   type FakeReply,
-} from "../../../testing/create-fake-api";
-import { enroll } from "../enroll";
-import type { Authenticator } from "../webauthn/create-authenticator";
+} from "@/testing/create-fake-api";
 
 const OPTIONS: FakeOutput<"auth/enrollment/options"> = {
   challenge: "AQID",

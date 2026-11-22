@@ -1,6 +1,6 @@
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 
-import type { RouterContext } from "../router";
+import type { RouterContext } from "@/router";
 
 /** 管理画面の API・認証器・gate を返す。 */
 export const useAppContext = (): RouterContext =>

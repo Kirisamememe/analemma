@@ -2,8 +2,8 @@ import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import type { FakeReply } from "../../../testing/create-fake-api";
-import { renderApp } from "../../../testing/render-app";
+import type { FakeReply } from "@/testing/create-fake-api";
+import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
 

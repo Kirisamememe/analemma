@@ -3,8 +3,8 @@ import type { i18n as I18n } from "i18next";
 import type { ReactElement, ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
 
-import { createI18n } from "../i18n/create-i18n";
-import type { Locale } from "../i18n/locales";
+import { createI18n } from "@/i18n/create-i18n";
+import type { Locale } from "@/i18n/locales";
 
 /** `wrapper` に渡す値。 */
 type WrapperProps = {

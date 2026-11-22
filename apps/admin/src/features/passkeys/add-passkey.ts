@@ -1,8 +1,8 @@
-import { callApi } from "../../api/call-api";
+import { callApi } from "@/api/call-api";
 import {
   type ReauthenticateDependencies,
   reauthenticate,
-} from "../auth/reauthenticate";
+} from "@/features/auth/reauthenticate";
 
 /** パスキーを追加した結果。 */
 export type AddPasskeyResult = {

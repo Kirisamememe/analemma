@@ -1,9 +1,16 @@
 import type { ReactNode } from "react";
 import { TextField as AriaTextField, Input } from "react-aria-components";
 
-import { typography } from "../../typography";
-import { fieldControl, fieldRoot } from "./field-control";
-import { FieldDescription, FieldErrorMessage, FieldLabel } from "./field-parts";
+import {
+  fieldControl,
+  fieldRoot,
+} from "@/ui/primitives/form-fields/field-control";
+import {
+  FieldDescription,
+  FieldErrorMessage,
+  FieldLabel,
+} from "@/ui/primitives/form-fields/field-parts";
+import { typography } from "@/ui/typography";
 
 /** 1行の入力欄に渡す値。 */
 type TextFieldProps = {

@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 
-import { createFakeApi } from "../create-fake-api";
-import { FAKE_ASSERTION } from "../create-fake-authenticator";
-import { createSignInRoutes } from "../create-sign-in-routes";
+import { createFakeApi } from "@/testing/create-fake-api";
+import { FAKE_ASSERTION } from "@/testing/create-fake-authenticator";
+import { createSignInRoutes } from "@/testing/create-sign-in-routes";
 
 const EXPIRY = { expiresAt: "2026-01-08T00:00:00.000Z" };
 

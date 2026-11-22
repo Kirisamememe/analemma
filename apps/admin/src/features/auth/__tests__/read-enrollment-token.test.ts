@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { readEnrollmentToken } from "../read-enrollment-token";
+import { readEnrollmentToken } from "@/features/auth/read-enrollment-token";
 
 describe("readEnrollmentToken", () => {
   test("# の後ろを token として読む", () => {

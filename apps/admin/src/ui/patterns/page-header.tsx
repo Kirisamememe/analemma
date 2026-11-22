@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
-import { Cluster } from "../layout/cluster";
-import { Heading } from "../layout/heading";
-import { Stack } from "../layout/stack";
-import { Text } from "../layout/text";
+import { Cluster } from "@/ui/layout/cluster";
+import { Heading } from "@/ui/layout/heading";
+import { Stack } from "@/ui/layout/stack";
+import { Text } from "@/ui/layout/text";
 
 /** 画面の見出しに渡す値。 */
 type PageHeaderProps = {

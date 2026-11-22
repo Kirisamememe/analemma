@@ -2,8 +2,8 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { renderWithI18n } from "../../../testing/render-with-i18n";
-import { Button } from "../button";
+import { renderWithI18n } from "@/testing/render-with-i18n";
+import { Button } from "@/ui/primitives/button";
 
 afterEach(cleanup);
 

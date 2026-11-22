@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { resolvePreferences } from "../resolve-preferences";
+import { resolvePreferences } from "@/preferences/resolve-preferences";
 
 describe("resolvePreferences", () => {
   test("何も置いていなければ、ブラウザの言語と OS の配色に従う", () => {

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { tv } from "../tv";
+import { tv } from "@/ui/tv";
 
 const stage = tv({
   base: "flex max-w-full flex-col gap-4 rounded-surface bg-surface p-8 outline outline-fg/10",

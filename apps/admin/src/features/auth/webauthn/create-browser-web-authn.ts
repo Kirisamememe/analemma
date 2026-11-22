@@ -1,4 +1,4 @@
-import type { WebAuthn } from "./create-authenticator";
+import type { WebAuthn } from "@/features/auth/webauthn/create-authenticator";
 
 /** ブラウザが返す、JSON にできる公開鍵の資格情報。 */
 export type JsonCredential = {

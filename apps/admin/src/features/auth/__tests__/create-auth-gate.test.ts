@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
-import { createAuthGate, gateAdminRequests } from "../create-auth-gate";
+import {
+  createAuthGate,
+  gateAdminRequests,
+} from "@/features/auth/create-auth-gate";
 
 const tick = async (): Promise<void> =>
   new Promise((resolve) => {

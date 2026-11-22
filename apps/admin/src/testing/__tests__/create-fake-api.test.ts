@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/client";
 import { describe, expect, test } from "bun:test";
 
-import { createFakeApi, type FakeOutput } from "../create-fake-api";
+import { createFakeApi, type FakeOutput } from "@/testing/create-fake-api";
 
 const ENROLLMENT_OPTIONS: FakeOutput<"auth/enrollment/options"> = {
   challenge: "AQID",

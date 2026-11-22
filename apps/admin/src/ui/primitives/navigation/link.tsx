@@ -2,7 +2,7 @@ import type { ToOptions } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Link as AriaLink } from "react-aria-components";
 
-import { tv } from "../../tv";
+import { tv } from "@/ui/tv";
 
 const link = tv({
   base: "rounded-xs text-fg underline underline-offset-2 outline-hidden is-hovered:decoration-2 is-focus-shown:focus-ring",

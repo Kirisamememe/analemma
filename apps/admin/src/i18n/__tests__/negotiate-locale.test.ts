@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { negotiateLocale } from "../negotiate-locale";
+import { negotiateLocale } from "@/i18n/negotiate-locale";
 
 describe("negotiateLocale", () => {
   test.each([

@@ -2,8 +2,8 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { Form } from "../../form";
-import { TextArea } from "../text-area";
+import { Form } from "@/ui/primitives/form";
+import { TextArea } from "@/ui/primitives/form-fields/text-area";
 
 afterEach(cleanup);
 

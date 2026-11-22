@@ -1,8 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { Form } from "../../form";
-import { TextField } from "../text-field";
+import { Form } from "@/ui/primitives/form";
+import { TextField } from "@/ui/primitives/form-fields/text-field";
 
 afterEach(cleanup);
 

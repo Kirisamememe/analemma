@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { ColorSpecimen } from "../color-specimen";
+import { ColorSpecimen } from "@/ui/specimens/color-specimen";
 
 const meta = {
   title: "theme/Colors",

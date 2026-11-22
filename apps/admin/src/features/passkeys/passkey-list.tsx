@@ -1,17 +1,17 @@
 import type { ReactNode } from "react";
 
-import type { ApiOutputs } from "../../api/api-types";
-import { useAppContext } from "../../api/app-context";
-import { useApiQuery } from "../../api/server-state/server-state";
-import { formatDateTime } from "../../i18n/format-date-time";
-import { useLocale, useTranslate } from "../../i18n/use-translate";
-import { Cluster } from "../../ui/layout/cluster";
-import { Stack } from "../../ui/layout/stack";
-import { Text } from "../../ui/layout/text";
-import { Badge } from "../../ui/primitives/badge";
-import { Button } from "../../ui/primitives/button";
-import { Notice } from "../../ui/primitives/notice";
-import { PASSKEYS_QUERY_KEY } from "./passkeys-query";
+import type { ApiOutputs } from "@/api/api-types";
+import { useAppContext } from "@/api/app-context";
+import { useApiQuery } from "@/api/server-state/server-state";
+import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/passkeys-query";
+import { formatDateTime } from "@/i18n/format-date-time";
+import { useLocale, useTranslate } from "@/i18n/use-translate";
+import { Cluster } from "@/ui/layout/cluster";
+import { Stack } from "@/ui/layout/stack";
+import { Text } from "@/ui/layout/text";
+import { Badge } from "@/ui/primitives/badge";
+import { Button } from "@/ui/primitives/button";
+import { Notice } from "@/ui/primitives/notice";
 
 /** 一覧に出す、1つのパスキー。 */
 export type PasskeySummary =

@@ -1,6 +1,6 @@
-import type { ApiClient } from "../../api/api-types";
-import { callApi } from "../../api/call-api";
-import type { Authenticator } from "./webauthn/create-authenticator";
+import type { ApiClient } from "@/api/api-types";
+import { callApi } from "@/api/call-api";
+import type { Authenticator } from "@/features/auth/webauthn/create-authenticator";
 
 /** ログインに使うもの。 */
 export type LogInDependencies = {

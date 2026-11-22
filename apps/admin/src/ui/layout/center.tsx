@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { tv } from "../tv";
+import { tv } from "@/ui/tv";
 
 const center = tv({
   base: "mx-auto w-full px-4",

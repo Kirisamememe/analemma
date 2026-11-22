@@ -2,12 +2,12 @@ import { useRouter } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { AppShell } from "../ui/layout/app-shell";
-import { Center } from "../ui/layout/center";
-import { Stack } from "../ui/layout/stack";
-import { PageHeader } from "../ui/patterns/page-header";
-import { Button } from "../ui/primitives/button";
-import { Notice } from "../ui/primitives/notice";
+import { AppShell } from "@/ui/layout/app-shell";
+import { Center } from "@/ui/layout/center";
+import { Stack } from "@/ui/layout/stack";
+import { PageHeader } from "@/ui/patterns/page-header";
+import { Button } from "@/ui/primitives/button";
+import { Notice } from "@/ui/primitives/notice";
 
 /** セッションを確かめられなかったときの画面。 */
 export const SessionErrorPage = (): ReactNode => {

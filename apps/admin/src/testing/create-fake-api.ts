@@ -3,11 +3,11 @@ import { RPCHandler } from "@orpc/server/fetch";
 
 import { contract } from "@analemma/contract";
 
-import type { ApiClient } from "../api/api-types";
+import type { ApiClient } from "@/api/api-types";
 import {
   type ApiClientOptions,
   createApiClient,
-} from "../api/create-api-client";
+} from "@/api/create-api-client";
 
 type Reply<Output, Code extends string> =
   | {

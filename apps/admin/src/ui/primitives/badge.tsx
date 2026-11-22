@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import { tv } from "../tv";
-import { typography } from "../typography";
+import { tv } from "@/ui/tv";
+import { typography } from "@/ui/typography";
 
 const badge = tv({
   base: "inline-flex items-center rounded-xs border px-1.5",

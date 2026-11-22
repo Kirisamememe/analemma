@@ -1,9 +1,9 @@
 import { cleanup, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { renderWithI18n } from "../../../testing/render-with-i18n";
-import { Button } from "../../primitives/button";
-import { PageHeader } from "../page-header";
+import { renderWithI18n } from "@/testing/render-with-i18n";
+import { PageHeader } from "@/ui/patterns/page-header";
+import { Button } from "@/ui/primitives/button";
 
 afterEach(cleanup);
 
