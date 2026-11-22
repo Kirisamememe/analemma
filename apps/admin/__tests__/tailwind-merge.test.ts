@@ -70,6 +70,8 @@ const SINGLE_NAME_GROUPS: readonly SingleNameGroup[] = [
 const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "h-control": "h-full",
   "h-control-sm": "h-full",
+  "h-nav-bar": "h-full",
+  "top-toast": "top-0",
   "size-icon": "size-full",
   "size-control": "size-full",
   "object-focal": "object-center",

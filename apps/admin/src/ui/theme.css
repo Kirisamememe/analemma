@@ -166,6 +166,7 @@
   --size-control-sm: 2rem;
   --size-icon: 1rem;
   --size-sidebar: 15rem;
+  --size-nav-bar: --spacing(14);
 }
 
 @utility h-control {
@@ -192,6 +193,17 @@
 
 @utility w-sidebar {
   width: var(--size-sidebar);
+}
+
+@utility h-nav-bar {
+  height: var(--size-nav-bar);
+}
+
+@utility top-toast {
+  top: calc(
+    max(var(--viewport-top-inset, 0px), env(safe-area-inset-top, 0px)) +
+      --spacing(4)
+  );
 }
 
 @utility state-hover {
@@ -288,9 +300,12 @@
     line-break: strict;
     text-autospace: normal;
     -webkit-font-smoothing: antialiased;
+  }
 
+  :root:has([data-top-bar]) {
     @variant max-md {
-      scroll-padding-top: --spacing(15);
+      --viewport-top-inset: var(--size-nav-bar);
+      scroll-padding-top: calc(var(--viewport-top-inset) + --spacing(1));
     }
   }
 
