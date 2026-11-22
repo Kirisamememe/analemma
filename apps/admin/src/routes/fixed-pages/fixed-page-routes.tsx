@@ -50,6 +50,7 @@ const useKind = (name: string) => {
   return useApiQuery({
     key: ["admin", "kinds", "get", name],
     load: () => callApi(api.admin.kinds.get({ name }), ["NOT_FOUND"]),
+    discardWhenUnused: true,
   });
 };
 
@@ -216,6 +217,7 @@ export const EditFixedPage = (): ReactNode => {
   const query = useApiQuery({
     key: ["admin", "fixedPages", "get", id],
     load: () => callApi(api.admin.fixedPages.get({ id }), ["NOT_FOUND"]),
+    discardWhenUnused: true,
   });
 
   if (query._tag === "Loaded" && query.data._tag === "Succeeded") {

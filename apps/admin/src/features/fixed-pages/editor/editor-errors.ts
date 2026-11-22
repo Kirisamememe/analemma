@@ -23,7 +23,7 @@ const issueMessage = (code: string): MessageKey => {
 
 /** 入力欄とフォーム全体に出す、訳した誤りの知らせ。 */
 export type EditorErrors = {
-  /** 項目の場所ごとの知らせ。 */
+  /** slug・タイトルと、中身の場所ごとの知らせ。 */
   fields: Record<string, string>;
   /** フォーム全体の知らせ。 */
   notice?: string;

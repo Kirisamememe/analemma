@@ -139,6 +139,7 @@ effect を使う hook の表は、次のとおり。
 - server の API は、contract の型を付けた oRPC の client(`src/api/create-api-client.ts`)で、同じ origin の `/api` に、oRPC のプロトコルで呼ぶ。応答の型を手で書かない。
 - server の状態は TanStack Query で持つ。query client(`src/api/create-query-client.ts`)は、取得と送信のどちらかがセッションの無いこと(`UNAUTHORIZED`)を返したら、持っている状態を消して、ログインの画面に、今のパスを持たせて移す。セッションの無い失敗は、やり直さない。
 - 画面に focus が戻っても、取り直さない(`refetchOnWindowFocus: false`)。パスキーの操作は OS の画面を開くので、ログインの最中に focus が出入りし、取り直すと、ログインの最中にほかの管理用 API を呼ぶことになる(「server の認証に合わせること」)。
+- 取得したデータは、使う画面が無くなっても、TanStack Query の既定どおり5分は持ち、画面を開き直したときにまず描く。固定ページの編集のように、開いたときの値からフォームを作る画面では、`useApiQuery` の `discardWhenUnused` で、使う画面が無くなったらすぐに捨てる。持っていた古い値からフォームを作ると、ほかのタブで書き換えた中身を、保存で古い値に戻してしまう。
 - 送信の失敗は、やり直さない。登録やログインを2回送ると、使い切った challenge で失敗する。
 - 送信と取得は、オフラインでも保留せずに送り、失敗をその場で返す(`networkMode: "always"`)。TanStack Query の既定では、オフラインのときの送信を保留し、つながったときに確かめずに送る(すべてのセッションからのログアウトなどが、利用者の知らないうちに送られる。Codex のレビューで見つかった)。取得も保留すると、送信の後に一覧を取り直す処理が待ったままになり、送信が終わらない(Copilot のレビューで見つかった)。
 
@@ -210,7 +211,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - 枠は TanStack Router の route を描かず、`Link` が読む router だけを `RouterContextProvider` で渡す(router は枠ごとに作り、story のあいだで履歴を持ち越さない)。route を描くと、route の境界が story の想定外の失敗を受け止め、Storybook にもテストにも上がらない。
 - a11y は `@storybook/addon-a11y` の panel で見る(コントラストを含む)。Vitest を入れていないので、a11y の誤りで落とすテストにはしない。
 - 全部の story を `composeStories` で happy-dom の上に描き、想定外の失敗も `console.error` も出さないことを、テスト(`src/__tests__/stories.test.tsx`)で確かめる。ツールバーの値が html の `lang`・`data-theme` と部品の訳に届くことと、`viteFinal` が `cssTarget` を入れて head の script の plugin を外すことも、テストで確かめる。CI では Storybook を起動もビルドもしないので、壊れた story に気づけるのはこのテストだけ。手間は、story のファイルを足すたびに import を1行足すことで、足し忘れると、一覧と `__stories__` のファイルを比べるテストで落ちる。happy-dom は配置を計算しないので、見た目(並び・中心・余白)は Storybook をブラウザで開いて測る(セルフレビューの観点)。
-- 画面の story(`src/routes/__stories__/`)は、`src/testing/app-preview.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体を描く。テストと同じ作り物なので、ボタンを押せば、作り物の server の答えで画面が進む。server の状態は、story を開いたときに作る(`createRoutes`。Controls で変えても作り直さないので、`path` などは Controls から外す)。ログインと登録の story は、成功した後にパスキーの画面まで進めるよう、パスキーの作り物の server もつなぐ。ボタンを押してから出る状態(ログインのキャンセル・使えない登録用 URL など)は、story ごとに作り物の server と認証器の答えを決めておき、story を開いて押すと見られるようにする。play で押させると、Storybook が操作を React の `act` の中で流し、router の suspend とぶつかって、入力した名前が消えた画面に描き直された。そのため play は使わない。押した後の状態は、画面のテストが確かめている。
+- 画面の story(`src/routes/` の下の `__stories__`)は、`src/testing/app-preview.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体を描く。テストと同じ作り物なので、ボタンを押せば、作り物の server の答えで画面が進む。server の状態は、story を開いたときに作る(`createRoutes`。Controls で変えても作り直さないので、`path` などは Controls から外す)。ログインと登録の story は、成功した後にパスキーの画面まで進めるよう、パスキーの作り物の server もつなぐ。ボタンを押してから出る状態(ログインのキャンセル・使えない登録用 URL など)は、story ごとに作り物の server と認証器の答えを決めておき、story を開いて押すと見られるようにする。play で押させると、Storybook が操作を React の `act` の中で流し、router の suspend とぶつかって、入力した名前が消えた画面に描き直された。そのため play は使わない。押した後の状態は、画面のテストが確かめている。
 - 画面の story は訳を出すので、html の `lang` をツールバーの言語にする(`contentLang: null`)。
 - telemetry は切る(`core.disableTelemetry`)。
 

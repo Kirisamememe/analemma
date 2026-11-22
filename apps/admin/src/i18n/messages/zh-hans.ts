@@ -34,6 +34,7 @@ export const zhHans = {
   "fixedPageEditor.down": "下移{{label}}第 {{position}} 项",
   "fixedPageEditor.remove": "删除{{label}}第 {{position}} 项",
   "fixedPageEditor.add": "添加{{label}}",
+  "fixedPageEditor.urlHint": "请输入以 http:// 或 https:// 开头的 URL。",
   "fixedPageEditor.unboundIssue": "（{{path}}：{{message}}）",
   "fixedPageEditor.moveUp": "上移",
   "fixedPageEditor.moveDown": "下移",

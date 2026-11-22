@@ -8,7 +8,7 @@ import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
-test("要素の誤りを見出しに結び、修正すると消し、最後の要素を削除すると追加へ focus を移す", async () => {
+test("要素の誤りをまとまりの説明にし、修正すると消し、最後の要素を削除すると追加のボタンへ focus を移す", async () => {
   const fields = fieldDefinitions.parse([
     {
       type: "repeat",

@@ -6,6 +6,8 @@ import { ContentGroup } from "../ui/content-group";
 import { RepeatField } from "./repeat-field";
 import type { EditorForm } from "./use-editor-form";
 
+import { useTranslate } from "@/i18n/use-translate";
+
 /** 同じ段にある項目に渡す値。 */
 export type ContentFieldsProps = {
   /** 項目の定義。 */
@@ -27,8 +29,10 @@ export const ContentFields = ({
   form,
   errors,
   changed,
-}: ContentFieldsProps): ReactNode =>
-  fields.map((definition) => {
+}: ContentFieldsProps): ReactNode => {
+  const t = useTranslate();
+
+  return fields.map((definition) => {
     const path = prefix + definition.key;
     const name = `content.${path}` as const;
 
@@ -83,8 +87,15 @@ export const ContentFields = ({
           {(field) => {
             switch (definition.type) {
               case "text":
-              case "url":
                 return <field.TextField label={label} isRequired={required} />;
+              case "url":
+                return (
+                  <field.TextField
+                    description={t("fixedPageEditor.urlHint")}
+                    isRequired={required}
+                    label={label}
+                  />
+                );
               case "longText":
                 return <field.TextArea label={label} isRequired={required} />;
               case "number":
@@ -92,7 +103,7 @@ export const ContentFields = ({
                   <field.NumberField label={label} isRequired={required} />
                 );
               case "boolean":
-                return <field.Checkbox label={label} isRequired={required} />;
+                return <field.Checkbox label={label} />;
               case "date":
                 return <field.DateField label={label} isRequired={required} />;
               case "select":
@@ -109,3 +120,4 @@ export const ContentFields = ({
       </div>
     );
   });
+};

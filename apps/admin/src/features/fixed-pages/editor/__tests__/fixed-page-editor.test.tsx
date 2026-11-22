@@ -69,7 +69,7 @@ test("種類を選んで作成し、送信中の二重送信を防ぎ、履歴�
   expect(await screen.findByText("固定ページを作成しました。")).toBeDefined();
 });
 
-test("行を動かし、追加・削除して保存しても各段の古いキーを保ち、issue は送った並びの行に付く", async () => {
+test("行を動かし、追加・削除して保存しても各段の定義に無いキーを保ち、issue は送った並びの行に付く", async () => {
   const name = { type: "text", key: "name", label: "名前" };
   const fields = fieldDefinitions.parse([
     { type: "group", key: "hero", label: "見出し", fields: [name] },

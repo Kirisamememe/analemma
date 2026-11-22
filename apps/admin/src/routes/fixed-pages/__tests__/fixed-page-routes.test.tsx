@@ -1,6 +1,7 @@
 import { cleanup, screen } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
+import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
@@ -80,3 +81,29 @@ test.each(["true", "false", "null"])(
     expect(received).toEqual({ name });
   },
 );
+
+test("ほかの画面から戻ると、前に読んだ値ではなく、読み直した固定ページでフォームを作る", async () => {
+  let title = "前のタイトル";
+  const { history } = renderApp({
+    path: "/fixed-pages/" + page.id,
+    routes: {
+      ...session,
+      "admin/kinds/get": () => ({ output: kind }),
+      "admin/fixedPages/get": () => ({ output: { ...page, title } }),
+    },
+  });
+
+  expect(
+    (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
+      .value,
+  ).toBe("前のタイトル");
+  history.push("/");
+  await screen.findByRole("heading", { name: "ホーム" });
+  title = "ほかのタブで直したタイトル";
+  history.push("/fixed-pages/" + page.id);
+
+  expect(
+    (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
+      .value,
+  ).toBe("ほかのタブで直したタイトル");
+});

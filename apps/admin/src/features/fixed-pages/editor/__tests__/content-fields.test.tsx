@@ -49,9 +49,19 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
   await user.type(title, "変更");
   await user.type(screen.getByRole("textbox", { name: "名前" }), "見出し");
   await user.type(
-    screen.getByRole("textbox", { name: "リンク先" }),
+    screen.getByRole("textbox", {
+      name: "リンク先",
+      description: "http:// か https:// で始まる URL を入力します。",
+    }),
     "https://example.com",
   );
+  const pin = screen.getByRole<HTMLInputElement>("checkbox", {
+    name: "先頭に表示",
+  });
+  expect([pin.required, pin.getAttribute("aria-required")]).toEqual([
+    false,
+    null,
+  ]);
   await user.type(screen.getByRole("textbox", { name: "本文" }), "春{Enter}夏");
   await user.type(screen.getByRole("textbox", { name: "件数" }), "0");
   await user.click(screen.getByRole("checkbox", { name: "先頭に表示" }));

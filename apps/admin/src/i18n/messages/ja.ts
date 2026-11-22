@@ -35,6 +35,7 @@ export const ja = {
   "fixedPageEditor.down": "{{label}} {{position}} を下へ",
   "fixedPageEditor.remove": "{{label}} {{position}} を削除",
   "fixedPageEditor.add": "{{label}}を追加",
+  "fixedPageEditor.urlHint": "http:// か https:// で始まる URL を入力します。",
   "fixedPageEditor.unboundIssue": "({{path}}:{{message}})",
   "fixedPageEditor.moveUp": "上へ",
   "fixedPageEditor.moveDown": "下へ",

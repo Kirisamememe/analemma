@@ -75,7 +75,7 @@ describe("Button", () => {
     expect(counter.count()).toBe(0);
   });
 
-  test("読み上げる名前を渡すと、文言の代わりにその名前で探せる", () => {
+  test("アクセシブルな名前を渡すと、文言の代わりにその名前で探せる", () => {
     renderWithI18n(<Button aria-label="リンク 2 を上へ">上へ</Button>);
 
     expect(

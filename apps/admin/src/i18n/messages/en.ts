@@ -5,9 +5,9 @@ export const en = {
   "fixedPageEditor.chooseKind": "Choose a kind",
   "fixedPageEditor.emptyKinds": "No kinds are available.",
   "fixedPageEditor.kindGone": "This kind no longer exists.",
-  "fixedPageEditor.pageGone": "This page no longer exists.",
+  "fixedPageEditor.pageGone": "This fixed page no longer exists.",
   "fixedPageEditor.loading": "Loading…",
-  "fixedPageEditor.loadFailed": "Could not load the page.",
+  "fixedPageEditor.loadFailed": "Could not load.",
   "fixedPageEditor.slug": "Slug",
   "fixedPageEditor.title": "Title",
   "fixedPageEditor.slugHint":
@@ -19,7 +19,7 @@ export const en = {
   "fixedPageEditor.save": "Save",
   "fixedPageEditor.saved": "Fixed page updated.",
   "fixedPageEditor.created": "Fixed page created.",
-  "fixedPageEditor.saveFailed": "Could not save the page.",
+  "fixedPageEditor.saveFailed": "Could not save the fixed page.",
   "fixedPageEditor.changedKind":
     "The kind definition may have changed. Reload the page to check the fields.",
   "fixedPageEditor.issue.type": "Enter a value.",
@@ -33,6 +33,7 @@ export const en = {
   "fixedPageEditor.down": "Move {{label}} {{position}} down",
   "fixedPageEditor.remove": "Remove {{label}} {{position}}",
   "fixedPageEditor.add": "Add {{label}}",
+  "fixedPageEditor.urlHint": "Enter a URL starting with http:// or https://.",
   "fixedPageEditor.unboundIssue": "{{path}}: {{message}}",
   "fixedPageEditor.moveUp": "Up",
   "fixedPageEditor.moveDown": "Down",
