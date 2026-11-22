@@ -80,6 +80,22 @@
     var(--palette-amber-400)
   );
   --color-danger: light-dark(var(--palette-red-700), var(--palette-red-400));
+  --color-on-info: light-dark(
+    var(--palette-neutral-0),
+    var(--palette-neutral-950)
+  );
+  --color-on-success: light-dark(
+    var(--palette-neutral-0),
+    var(--palette-neutral-950)
+  );
+  --color-on-warning: light-dark(
+    var(--palette-neutral-0),
+    var(--palette-neutral-950)
+  );
+  --color-on-danger: light-dark(
+    var(--palette-neutral-0),
+    var(--palette-neutral-950)
+  );
   --color-scrim: oklch(0 0 0);
   --color-on-media: oklch(1 0 0);
 

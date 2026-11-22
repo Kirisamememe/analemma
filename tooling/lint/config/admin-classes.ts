@@ -36,7 +36,7 @@ export const TEXT_PAIRS = [
 
 /** theme.css の色ごとに、使ってよい utility(`border` は辺ごとの border も含む)。 */
 export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
-  canvas: ["bg", "text"],
+  canvas: ["bg"],
   surface: ["bg"],
   "surface-sunken": ["bg"],
   fg: ["text", "fill", "stroke", "bg"],
@@ -51,6 +51,10 @@ export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
   success: ["bg", "text", "border", "fill", "stroke"],
   warning: ["bg", "text", "border", "fill", "stroke"],
   danger: ["bg", "text", "border", "fill", "stroke"],
+  "on-info": ["text", "fill", "stroke"],
+  "on-success": ["text", "fill", "stroke"],
+  "on-warning": ["text", "fill", "stroke"],
+  "on-danger": ["text", "fill", "stroke"],
   scrim: ["bg"],
   "on-media": ["text", "fill", "stroke"],
 };
