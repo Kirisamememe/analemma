@@ -46,7 +46,7 @@
 - フェーズや大きなリリースごとに、main からフェーズのブランチ(`phase/<番号>`)を切る。小さな課題は、フェーズのブランチから切った子のブランチで進め、PR の base をフェーズのブランチにする。
 - PR を作る前に、タイトルを手元で `tooling/ci/check-pull-request-messages.ts` に通す(CI は、ほかのリポジトリの名前を探さない。流し方は `tooling/AGENTS.md`)。PR の本文は、どの検査も読まないので、名前が無いかを自分で見る。
 - PR を積み重ねる(stack)なら、PR が2〜3件の軽い stack は手で管理してよい。それより大きな stack は、GitHub の stacked PR(`gh stack`。公式の拡張 `github/gh-stack`)で管理する。stack の中は rebase で履歴を一直線に保ち(linear history。push は `--force-with-lease`)、merge commit を作らない。
-- merge の方法(merge commit・squash・rebase)は、その場に合うものを選んでよい。ただし、コミットの粒度が消えるやり方はしない(複数のコミットを持つ PR を squash で1つにする、フェーズを1つのコミットに潰す、など)。フェーズのブランチから main へは、merge commit で入れる。
+- コミットの粒度が消える merge はしない(複数のコミットを持つ PR を squash で1つにする、フェーズを1つのコミットに潰す、など)。
 - 子のブランチは、観点ごとにレビューする。観点は PR が触るものに合わせて選び、選んだ観点ごとに最低1回・最大3回流す。流すのは `bun run review -- --perspective <観点> --base <フェーズのブランチ>`(今のブランチをレビューする。ほかのブランチは `--head` で渡す)。数分から数十分かかるので、裏で流す。
 
   | 観点                     | `--perspective` | 選ぶとき                                                                                        |
