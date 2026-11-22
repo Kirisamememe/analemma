@@ -26,7 +26,7 @@ type QueryResult<Data> =
 type MutationOptions<Input, Data> = {
   /** 操作を送る関数。 */
   readonly send: (input: Input) => Promise<Data>;
-  /** 成功したときに呼ぶ関数。 */
+  /** `send` の Promise が resolve した後に呼ぶ関数。 */
   readonly onSuccess: (data: Data) => void | Promise<void>;
 };
 
@@ -35,11 +35,11 @@ type MutationResult<Input, Data> = {
   readonly mutate: (input: Input) => void;
   /** 送信の状態と結果を消す関数。 */
   readonly reset: () => void;
-  /** 送信中か。 */
+  /** 送信または送信後の処理を待っているか。 */
   readonly isPending: boolean;
-  /** 送信が失敗したか。 */
+  /** 送信または送信後の処理が error で終わったか。 */
   readonly isError: boolean;
-  /** 送信の結果。 */
+  /** `send` が返した操作の結果。 */
   readonly data: Data | undefined;
 };
 

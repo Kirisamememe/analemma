@@ -97,7 +97,7 @@ feature が使う外のライブラリは `src/i18n/` と `src/api/` のモジ�
 ライブラリを差し替えるときに調べて直す場所を限るため、feature に渡す形は今使うものに絞る。
 差し替えへの備えは、抽象化の層を増やさず、依存する場所を限ることで担保する。
 
-`eslint/no-restricted-imports` の否定の pattern と、`.ts` にある React の既存の制限で、`@analemma/contract`・管理画面内の相対パスと `@/`・`.tsx` での `react` を通す。`!react` は末尾が `react` の別のパッケージにも一致するので、`*/**/react` でその例外を取り消す。
+`eslint/no-restricted-imports` の否定の pattern と、`.ts` にある React の既存の制限で、`@analemma/contract`・管理画面内の相対パスと `@/`・`.tsx` での `react` を通す。`!react` は `@storybook/react` のように最後の path segment が `react` の import にも一致するので、`*/**/react` でその例外を取り消す。
 既存のルールで書けるので、自作のルールは足さない。
 features の import には、この pattern を使う。React Aria Components・lucide-react・tailwind-variants・Node・Bun の import も `**` が止めるため、同じ import への診断は1件で済む。
 テストと story は、描画や作り物の server の組み立てに外のライブラリを使える。
