@@ -102,7 +102,7 @@ describe("import の形", () => {
     expect(result.status).not.toBe(0);
   });
 
-  test("管理画面で別名を使ってワークスペースの外を指す import と再 export に診断を出すこと", () => {
+  test("管理画面で別名を使ってワークスペースの外を指す import と re-export に診断を出すこと", () => {
     const result = lintFixture(
       "invalid/apps/admin/src/imports-server-by-alias.ts",
     );

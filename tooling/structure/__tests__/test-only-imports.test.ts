@@ -91,29 +91,34 @@ describe("テストだけのフォルダからの import", () => {
     ).toEqual(["apps/admin/src/testing/app-preview"]);
   });
 
-  test("管理画面の本番のコードからの別名での import と再 export も見つけること", () => {
-    const text = [
-      'import { AppPreview } from "@/testing/app-preview";',
-      'export { ColorSpecimen } from "@/ui/specimens/color-specimen.tsx";',
-      'import * as stories from "@/ui/__stories__/colors.stories";',
-      'import { Button } from "@/ui/primitives/button";',
-    ].join("\n");
+  const aliasedText = [
+    'import { AppPreview } from "@/testing/app-preview";',
+    'export { ColorSpecimen } from "@/ui/specimens/color-specimen.tsx";',
+    'import * as stories from "@/ui/__stories__/colors.stories";',
+    'import { Button } from "@/ui/primitives/button";',
+  ].join("\n");
 
+  test("管理画面の本番のコードからの、`@/` での import と re-export を見つけること", () => {
     expect(
-      findTestOnlyImports({ path: "apps/admin/src/routes/page.tsx", text }),
+      findTestOnlyImports({
+        path: "apps/admin/src/routes/page.tsx",
+        text: aliasedText,
+      }),
     ).toEqual([
       "apps/admin/src/testing/app-preview",
       "apps/admin/src/ui/__stories__/colors.stories",
       "apps/admin/src/ui/specimens/color-specimen",
     ]);
+  });
 
+  test("テストの側と server では、`@/` での import を数えないこと", () => {
     for (const path of [
       "apps/admin/src/routes/__tests__/page.test.tsx",
       "apps/admin/src/routes/__stories__/page.stories.tsx",
       "apps/admin/.storybook/preview.tsx",
       "apps/server/src/app.ts",
     ]) {
-      expect(findTestOnlyImports({ path, text })).toEqual([]);
+      expect(findTestOnlyImports({ path, text: aliasedText })).toEqual([]);
     }
   });
 
