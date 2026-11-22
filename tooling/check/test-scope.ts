@@ -8,10 +8,18 @@ const touchesServer = (path: string): boolean =>
   SERVER_FILES.has(path) ||
   SERVER_DIRECTORIES.some((directory) => path.startsWith(directory));
 
-/** 変えたファイルから、流すテストの範囲を決める。 */
-export const decideTestScope = (
-  changedFiles: readonly string[] | undefined,
-): TestScope =>
-  changedFiles === undefined || changedFiles.some((path) => touchesServer(path))
+/** 流すテストの範囲を決める材料。 */
+type ScopeInput = {
+  /** `--all` を付けたか。 */
+  readonly all: boolean;
+  /** 変えたファイル。 */
+  readonly changedFiles: readonly string[] | undefined;
+};
+
+/** `--all` と変えたファイルから、流すテストの範囲を決める。 */
+export const decideTestScope = ({ all, changedFiles }: ScopeInput): TestScope =>
+  all ||
+  changedFiles === undefined ||
+  changedFiles.some((path) => touchesServer(path))
     ? "all"
     : "without-server";

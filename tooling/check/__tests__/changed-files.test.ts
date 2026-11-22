@@ -82,6 +82,18 @@ describe("findChangedFiles", () => {
     ]);
   });
 
+  test("コミットした変更を、作業ツリーで分かれた点の中身に戻したファイルは返さない", () => {
+    const root = makeRepository("reverted");
+
+    commit(root, "apps/server/src/app.ts");
+    git(root, "update-ref", "refs/remotes/origin/main", "HEAD");
+    write(root, { path: "apps/server/src/app.ts", text: "書き換えた\n" });
+    git(root, "commit", "--quiet", "--all", "--message", "chore: 書き換える");
+    write(root, { path: "apps/server/src/app.ts" });
+
+    expect(findChangedFiles(root)).toEqual([]);
+  });
+
   test("ファイルを移したら、移す前のパスも返す", () => {
     const root = makeRepository("rename");
 
