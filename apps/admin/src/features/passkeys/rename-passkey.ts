@@ -1,7 +1,7 @@
 import { safe } from "@orpc/client";
 
+import { definedCode } from "../../api/api-errors";
 import type { ApiClient } from "../../api/api-types";
-import { definedCode } from "../../api/defined-code";
 
 /** パスキーの名前を変更するときに渡す値。 */
 export type RenamePasskeyInput = {

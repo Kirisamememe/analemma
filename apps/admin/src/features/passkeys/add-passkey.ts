@@ -1,6 +1,6 @@
 import { safe } from "@orpc/client";
 
-import { definedCode } from "../../api/defined-code";
+import { definedCode } from "../../api/api-errors";
 import {
   type ReauthenticateDependencies,
   reauthenticate,

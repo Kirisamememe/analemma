@@ -6,8 +6,7 @@ import { z } from "zod";
 import { contract } from "@analemma/contract";
 
 import { defineKind } from "../../kinds/define-kind";
-import { optional } from "../../kinds/optional-field";
-import { text } from "../../kinds/scalar-fields";
+import { optional, text } from "../../kinds/fields";
 import {
   type AnalemmaClient,
   createAnalemmaClient,
