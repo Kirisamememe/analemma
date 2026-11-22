@@ -24,10 +24,11 @@ describe("中身が多すぎるフォルダ", () => {
     ]);
   });
 
-  test("__tests__ と文書は数えないこと", () => {
+  test("__tests__・__stories__ と文書は数えないこと", () => {
     const paths = [
       "src/a.ts",
       "src/__tests__/a.test.ts",
+      "src/__stories__/a.stories.tsx",
       "src/AGENTS.md",
       "src/CLAUDE.md",
       "src/DECISIONS.md",
@@ -58,14 +59,25 @@ describe("フォルダの名前", () => {
     ]);
   });
 
-  test("__tests__ の中のフォルダを返すこと", () => {
-    const paths = ["src/__tests__/deep/a.test.ts", "src/__tests__/b.test.ts"];
+  test("__tests__ と __stories__ の中のフォルダを返すこと", () => {
+    const paths = [
+      "src/__tests__/deep/a.test.ts",
+      "src/__tests__/b.test.ts",
+      "src/__stories__/deep/a.stories.tsx",
+    ];
 
-    expect(findBadDirectories(paths)).toEqual(["src/__tests__/deep"]);
+    expect(findBadDirectories(paths)).toEqual([
+      "src/__stories__/deep",
+      "src/__tests__/deep",
+    ]);
   });
 
-  test("__tests__ と、. で始まるフォルダは受け入れること", () => {
-    const paths = ["src/__tests__/a.test.ts", ".claude/settings.json"];
+  test("__tests__・__stories__ と、. で始まるフォルダは受け入れること", () => {
+    const paths = [
+      "src/__tests__/a.test.ts",
+      "src/__stories__/a.stories.tsx",
+      ".claude/settings.json",
+    ];
 
     expect(findBadDirectories(paths)).toEqual([]);
   });

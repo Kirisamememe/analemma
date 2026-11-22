@@ -197,6 +197,22 @@ describe("管理画面の画面のコードの class", () => {
     expect(diagnosticsOf({ file, rule: BOUNDARY }, expected)).toEqual(expected);
   });
 
+  test("部品の __stories__ でも、画面のコードと同じく、決めた class の外と style に診断を出すこと", () => {
+    const stories = "invalid/apps/admin/src/ui/__stories__/styled.stories.tsx";
+    const classes: Expected[] = [
+      [3, "画面のコードは"],
+      [3, "画面のコードは"],
+    ];
+    const boundary: Expected[] = [[5, "style は ui/ の部品"]];
+
+    expect(diagnosticsOf({ file: stories, rule: RESTRICTED }, classes)).toEqual(
+      classes,
+    );
+    expect(diagnosticsOf({ file: stories, rule: BOUNDARY }, boundary)).toEqual(
+      boundary,
+    );
+  });
+
   test("feature の ui/ の外では、部品の class に診断を出すこと", () => {
     const expected: Expected[] = [
       [2, "画面のコードは"],

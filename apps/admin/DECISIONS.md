@@ -128,6 +128,19 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 画面のテストは、`src/testing/render-app.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体(router・query client・言語)を描く。パスキーの画面のテストには、パスキーとセッションの procedure を状態ごと真似る作り物(`create-passkey-routes.ts`。1つの再認証で1回だけ操作できる・無いパスキーは `NOT_FOUND`・最後のパスキーは `LAST_PASSKEY`・すべてのセッションからログアウトした後は `UNAUTHORIZED`)と、決めた答えを返す作り物の認証器(`create-fake-authenticator.ts`)を使う。作り物の server(`create-fake-api.ts`)は、oRPC のプロトコルの応答(成功と、contract に定義した失敗と、定義していない失敗)を返し、無い procedure には本物の server と同じくテキストの 404(`text/plain`)を返す。client は本物を使う。画面・router・client のつなぎを、利用者に見える結果と、呼ばれた procedure の並びで確かめられる。`src/testing/` は、テストだけが import できる(`tooling/structure/` のテストが止める)。
 - tsconfig を2つに分ける。`tsconfig.app.json` は、テストを除いた `src/` を、Bun の型なしで検査する(画面のコードが Bun の API の型を読めないように)。`tsconfig.json` は、テスト・`vite.config.ts`・`test-setup/` を含めて Bun の型で検査し、型付きの lint もこちらを使う。
 
+## Storybook
+
+部品と画面を、light と dark、言語ごとに見比べるために使う(ユーザーが決めた)。Storybook 10.6(`storybook`・`@storybook/react-vite`・`@storybook/addon-a11y`)で、`bun run storybook` で `http://localhost:6006` に起動する。
+
+- story は CSF 3 で書く。Storybook の文書が勧める形で、CSF Next(factories)は preview の扱いで API が変わりうる。
+- story は、部品の隣の `__stories__` に `<名前>.stories.tsx` で置く。title は `primitives/Button` のように書き、フォルダの名前(`__stories__`)を入れない。story の中の文は、見本の文なので訳を通さずに書く。
+- Storybook の Vite は `vite.config.ts` を読むが、`build` は `target` しか引き継がず、`server` は上書きする(10.6.8 の配布物で確かめた)。`viteFinal` で `build.cssTarget` を `vite.config.ts` と同じ値(`CSS_TARGET`)に入れ直す。入れないと、`storybook build` で `light-dark()` が書き換えられ、`scheme-dark` が効かなくなる(「言語と配色を最初の描画の前に当てる」)。開発のサーバーの port・`strictPort`・`/api` の proxy は Storybook が上書きするので、ぶつからない。
+- head に script を書き込む plugin は、Storybook では外す(`withoutVitePlugins`)。言語と配色はツールバーで選び(既定は light と日本語)、story を包む枠(`.storybook/story-frame.tsx`)が、html の `lang`・`data-theme`・`LocaleContext`・React Aria Components の `I18nProvider` に同じ値を渡す。i18n の仕組みを替えるときは、この枠を直す。
+- 枠は TanStack Router の route を描かず、`RouterContextProvider` で router だけを渡す(`Link` が router を読むため)。route を描くと、route の境界が story の例外を受け止め、Storybook にもテストにも上がらない。
+- a11y は `@storybook/addon-a11y` の panel で見る(コントラストを含む)。Vitest を入れていないので、a11y の誤りで落とすテストにはしない。
+- 全部の story を `composeStories` で happy-dom の上に描き、例外も `console.error` も出さないことを、テスト(`src/__tests__/stories.test.tsx`)で確かめる。CI では Storybook を起動もビルドもしないので、壊れた story に気づけるのはこのテストだけ。手間は、story のファイルを足すたびに import を1行足すことで、足し忘れると、一覧と `__stories__` のファイルを比べるテストで落ちる。happy-dom は配置を計算しないので、見た目(並び・中心・余白)は Storybook をブラウザで開いて測る(セルフレビューの観点)。
+- telemetry は切る(`core.disableTelemetry`)。
+
 ## server の認証に合わせること
 
 server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。

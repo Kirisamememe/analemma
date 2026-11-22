@@ -14,8 +14,9 @@
 - `src/i18n/`:訳と言語(i18next と react-i18next)。訳は `messages/` に言語ごとに1ファイル。i18next の instance は `create-i18n.ts` で作る。
 - `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値と、最初の描画の前に流す script(`boot.ts`)。言語の切り替えに html の `lang` と置き場所をそろえる関数(`sync-locale.ts`)。
 - `src/features/<名前>/`:画面をまたぐ、ひとまとまりの事柄(ログインと登録の判断、WebAuthn の変換など)。1つの画面だけの部品は `features/<名前>/ui/`。
+- `.storybook/`:Storybook の設定(`main.ts`・`preview.tsx`)と、story を管理画面と同じ言語・配色・router の中で描く枠(`story-frame.tsx`)。
 - `src/testing/`:テストの部品(作り物の server と、管理画面の全体を描く関数と、部品を i18next の instance の下で描く関数)。テストだけが import できる(`tooling/structure/` のテストが止める)。
-- `src/ui/`:デザインシステム。`theme.css`、`tv.ts`(merge の設定を入れた `tv`)、`typography.ts`(文字の役割)、`primitives/`(React Aria Components を包む部品)、`layout/`(並べ方と文字)、`patterns/`(組み合わせた形)。層と決まりは `src/ui/DECISIONS.md`。
+- `src/ui/`:デザインシステム。`theme.css`、`tv.ts`(merge の設定を入れた `tv`)、`typography.ts`(文字の役割)、`primitives/`(React Aria Components を包む部品)、`layout/`(並べ方と文字)、`patterns/`(組み合わせた形)、`specimens/`(色と文字の見本)。層と決まりは `src/ui/DECISIONS.md`。
 - `test-setup/`:管理画面のテストの前に読み込む、DOM の用意(happy-dom)。
 
 ## 書き方
@@ -35,6 +36,7 @@
 - 画面のコード(`src/ui/` と `src/features/*/ui/` の外)には、見た目の class を書かない。書けるのは `grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only` だけで、`className` は文字列のリテラルにし、`style` は書かない。並べ方・文字・色は `ui/` の部品の props で決める(lint で止まる)。
 - 部品は、層の向き(patterns → primitives・layout)を守る。React Aria Components は `ui/primitives/` の中でだけ使い、`tv` は `ui/tv.ts` から import する(ここまでは lint で止まる)。primitives は自分の props の型を持ち、ライブラリの props の型を extends しない(lint では止まらないので、セルフレビューで見る)。
 - 文字の役割は `Text`・`Heading` の `variant` で選ぶ。
+- 部品を足したら、同じフォルダの `__stories__` に story を足し、`src/__tests__/stories.test.tsx` の一覧にも足す。story は画面のコードと同じ決まりで、部品と props だけで組む(lint で止まる)。tone・variant・状態(無効・送信中・invalid など)ごとに story を分け、見比べられるようにする。
 - `ui/` の部品の class は、theme.css の役割だけで書く。止める class と理由は `src/ui/DECISIONS.md` の「検査」。止められたら、部品や役割を足すかを考え、`[…]` や抑制で逃げない。
 
 ## 開発とテスト
@@ -42,6 +44,7 @@
 - 開発のサーバーは `bun --cwd=apps/admin run dev`(`http://localhost:5173`)。`/api` は server の外部用のポート(`http://localhost:8787`)へ流す。開くのは `localhost` で、`127.0.0.1` ではない(server の `AUTH_ORIGIN` とパスキーの RP ID に合わせる)。
 - `src/` のテストは、リポジトリの直下の `bun test` からは外し、`apps/admin` の `bun test` で流す(`bun run test` は両方を流す)。`apps/admin/bunfig.toml` が DOM を用意してから流す。
 - Vite の設定とビルドのテスト(`__tests__/`)は、DOM を用意しない直下の `bun test` で流す。
+- Storybook は `bun run storybook`(`http://localhost:6006`)。ツールバーで light・dark と言語を切り替える。
 
 ## セルフレビューの観点
 
@@ -49,3 +52,4 @@
 - `.tsx` に、`.ts` へ切り出せるロジックが残っていないか。
 - 画面に、訳を通さない文言を直接書いていないか。
 - primitives の props の型に、React Aria Components の props の型を流用していないか。
+- 部品の見た目を作ったり変えたりしたら、Storybook をブラウザで開き、light と dark、状態ごとに描いて、並び・中心・余白を測ったか(アイコンと文字の中心、左右と上下の余白)。happy-dom のテストは配置を計算しないので、通っても見た目のずれは残る。

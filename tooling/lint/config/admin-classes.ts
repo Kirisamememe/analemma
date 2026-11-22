@@ -176,8 +176,9 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
     pattern: `${VARIANTS}(?!text-(?:${SCALE})/)[a-z\\-]+-(?:${COLORS.join("|")}|current|transparent|inherit|\\([^)]*\\))/(?!(?:${OPACITY.join("|")})$)[^/]+$`,
     message: `色の不透明度は ${OPACITY.join("・")} だけです。`,
   },
-  ...COLORS.map((color) => colorRestriction(color)),
 ];
+
+const COLOR_USAGE_RESTRICTIONS = COLORS.map((color) => colorRestriction(color));
 
 const TYPOGRAPHY_OUTSIDE_ROLES: Restriction = {
   pattern: `${VARIANTS}(?:text-(?:${SCALE})/|font-(?:normal|semibold|bold)$)`,
@@ -232,9 +233,19 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
     rules: {
       "better-tailwindcss/no-restricted-classes": restrictClasses([
         ...UI_RESTRICTIONS,
+        ...COLOR_USAGE_RESTRICTIONS,
         TYPOGRAPHY_OUTSIDE_ROLES,
       ]),
       "project/styling-boundary": ["error", { area: "ui" }],
+    },
+  },
+  {
+    files: ["**/apps/admin/src/ui/specimens/*"],
+    rules: {
+      "better-tailwindcss/no-restricted-classes": restrictClasses([
+        ...UI_RESTRICTIONS,
+        TYPOGRAPHY_OUTSIDE_ROLES,
+      ]),
     },
   },
   {
@@ -242,8 +253,18 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
     rules: {
       "better-tailwindcss/no-restricted-classes": restrictClasses([
         ...UI_RESTRICTIONS,
+        ...COLOR_USAGE_RESTRICTIONS,
         UNLISTED_TEXT_PAIR,
       ]),
+    },
+  },
+  {
+    files: ["**/apps/admin/src/**/__stories__/**"],
+    rules: {
+      "better-tailwindcss/no-restricted-classes": restrictClasses([
+        SCREEN_RESTRICTION,
+      ]),
+      "project/styling-boundary": ["error", { area: "screen" }],
     },
   },
 ];

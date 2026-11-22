@@ -5,5 +5,5 @@
     "types": ["bun", "vite/client"],
     "jsx": "react-jsx"
   },
-  "include": ["src", "__tests__", "test-setup", "vite.config.ts"]
+  "include": ["src", "__tests__", "test-setup", "vite.config.ts", ".storybook"]
 }

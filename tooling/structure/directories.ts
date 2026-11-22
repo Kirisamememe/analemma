@@ -7,9 +7,12 @@ const UNCOUNTED_ENTRIES = new Set([
   "DECISIONS.md",
   "README.md",
   "__tests__",
+  "__stories__",
 ]);
 
-const DIRECTORY_NAME = /^(?:[a-z0-9]+(?:-[a-z0-9]+)*|__tests__)$/v;
+const SIDE_DIRECTORIES = new Set(["__tests__", "__stories__"]);
+
+const DIRECTORY_NAME = /^(?:[a-z0-9]+(?:-[a-z0-9]+)*|__tests__|__stories__)$/v;
 
 /** 生成物を置くので、名前と数を検査しないフォルダ。 */
 export const GENERATED_DIRECTORIES = ["apps/server/src/db/migrations"];
@@ -78,12 +81,14 @@ export const findCrowdedDirectories = ({
 
 const isBadDirectory = (directory: string): boolean => {
   const segments = directory.split("/");
-  const nestedInTests = segments.slice(0, -1).includes("__tests__");
+  const nestedInSide = segments
+    .slice(0, -1)
+    .some((segment) => SIDE_DIRECTORIES.has(segment));
 
-  return nestedInTests || !DIRECTORY_NAME.test(segments.at(-1) ?? "");
+  return nestedInSide || !DIRECTORY_NAME.test(segments.at(-1) ?? "");
 };
 
-/** 名前が kebab-case でも __tests__ でもないフォルダと、__tests__ の中のフォルダを集める。 */
+/** 名前の決まりに合わないフォルダと、__tests__・__stories__ の中のフォルダを集める。 */
 export const findBadDirectories = (paths: readonly string[]): string[] =>
   [...childrenByDirectory(paths).keys()]
     .filter((directory) => isChecked(directory))
