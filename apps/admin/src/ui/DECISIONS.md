@@ -95,9 +95,10 @@
 - **入力欄**:ラベル・補足・誤りの知らせを、React Aria Components の slot で入力欄に結びつけ、補足と誤りを入力欄の説明として読み上げさせる。誤り(invalid)のときは、枠も focus の ring も `danger` にする。ring だけ `focus` の灰色のままだと、赤い枠の外に灰色の輪が重なって見えた(Storybook でユーザーが見つけた)。server が断った入力は、`Form` の `validationErrors` で入力欄ごとに出す。
 - **`Notice`**:誤り(`danger`)は `alert` にしてすぐに読み上げ、ほかは割り込まない `status` にする。`Notice` は、その場に残す知らせ(送信の誤りや、読み込めなかったことなど)に使い、保存したなどの操作の結果は Toast で知らせる(Toast を足すときに作る)。
 - **見出しの操作と補足**:`PageHeader` は、`false`・`null` の操作と、空の補足を、無いものとして扱う(条件で出さない操作のために、空の要素が余白を取らないように)。操作のボタンの中心は、見出しの1行目の中心にそろえる。上にそろえると、ボタン(`h-control` の 36px)が見出しの行(`page` の 28px)より高いぶん、4px 下にずれた(Storybook で見つけた)。見出しの上を `pt-1`(差の半分)空け、見出しの位置は、操作の有無で変えない。操作を負の margin で上げると、狭い画面で操作が次の行に折り返したときに、見出しとの間が詰まる(Codex のレビューで見つかった)。
-- **overlay**(`Dialog`):border と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、border で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
+- **縁の線**:border を使うのは、背景の色とコンテンツの色をはっきり見分けられるときだけにする(`Badge`・`Notice` のように、意味の色の `/10` の面に同じ色の線を引くときなど)。背景と近い色の面(白い Dialog が明るい地の上にあるときなど)の縁は、塗りの上に重ねる半透明の線(内側に1px の `outline`、`fg` の 10%)で描く。不透明の border は背景の色と混ざってぼやけ、塗りの外に枠を足したように見えた(ユーザーが決めた)。
+- **overlay**(`Dialog`):塗りの上に重ねる半透明の線と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、半透明の線で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
 - **バッジ**(`Badge`):状態を短く示す。用途(`tone`)ごとの色の組は、`Notice` と同じく `/10` の面と、同じ色の線と文字。
-- 選んだ状態・今いる場所・ほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す、今いる場所は `aria-current` と形で示す、overlay は border と `shadow-overlay` を付ける)。
+- 選んだ状態・今いる場所・ほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す、今いる場所は `aria-current` と形で示す、overlay は塗りの上に重ねる半透明の線と `shadow-overlay` を付ける)。
 
 ## 検査
 
@@ -121,7 +122,7 @@
 - `--*: initial` の後も Tailwind CSS が作る class(`duration-150`・`delay-*`・`ease-linear`・`ring-2`・`opacity-50`・`bg-linear-*`・`from-*` など)。`opacity-0` と `opacity-100` は、出入りの動きに使うので許す。
 - 色の不透明度の修飾は 5・10・15・20・30・40・60・80 だけ(theme.css の色のほか、`current`・`transparent`・CSS 変数の色にも)。面の色(`canvas`・`surface`・`surface-sunken`)には付けない。面は不透明にすると決めているため。
 - 色と文字の見本(`specimens/`)だけは、色ごとに使ってよい utility の決まりを外す。どの色も `bg-` で塗って並べるため。見本の正方形の縁は、外周の border でなく、塗りの上に重ねる半透明の線(内側に1px の `outline`、`fg` の 10%)で描く。不透明な `line` の border だと、塗りの外に枠が足されて見えた(ユーザーが決めた)。見本が theme.css の色をすべて並べることを、テスト(`specimens/__tests__/color-specimen.test.tsx`)で確かめる。
-- 色ごとに、使ってよい utility を決める。`canvas`・`surface`・`surface-sunken`・`scrim`・`danger-strong` は `bg-` だけ、`line` は `border-`・`divide-`・`outline-` だけ、`danger` は invalid の focus の ring のために `outline-` も、`focus` は `focus-ring` の中だけ、など(一覧は `admin-classes.ts` の `COLOR_USAGE`)。色を取る utility を列挙すると漏れる(`ring-offset-*`・`text-shadow-*` など)ので、末尾が色の名前の class をすべて見て、決めた utility の外を止める。角丸の `rounded-surface` は、色でないので除く。色を足したら、ここにも決まりを足す(テストで止まる)。
+- 色ごとに、使ってよい utility を決める。`canvas`・`surface`・`surface-sunken`・`scrim`・`danger-strong` は `bg-` だけ、`line` は `border-`・`divide-`・`outline-` だけ、`danger` は invalid の focus の ring のために `outline-` も、`fg` は面の縁の半透明の線のために `outline-` も、`focus` は `focus-ring` の中だけ、など(一覧は `admin-classes.ts` の `COLOR_USAGE`)。色を取る utility を列挙すると漏れる(`ring-offset-*`・`text-shadow-*` など)ので、末尾が色の名前の class をすべて見て、決めた utility の外を止める。角丸の `rounded-surface` は、色でないので除く。色を足したら、ここにも決まりを足す(テストで止まる)。
 - `className` には、文字列のリテラルか、`tv` などで作った関数の呼び出しを渡す。React Aria Components の render props で値を持つ属性を渡すときは、呼び出しを返す関数(`({ placement }) => popover({ placement })`)にする。変数や条件の式を渡すと、class の検査が中身を読めない。
 - `style` には、その場で書いたオブジェクトだけを渡し、キーは `--` で始まる CSS 変数だけにする。見た目は class で書き、`style` は実行時に決まる値を CSS 変数として渡すためだけに使う。画像の縦横比は `width`・`height` の属性で付ける。
 

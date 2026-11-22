@@ -39,7 +39,7 @@ export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
   canvas: ["bg"],
   surface: ["bg"],
   "surface-sunken": ["bg"],
-  fg: ["text", "fill", "stroke", "bg"],
+  fg: ["text", "fill", "stroke", "bg", "outline"],
   "fg-muted": ["text", "fill", "stroke", "border"],
   line: ["border", "divide", "outline"],
   focus: [],
