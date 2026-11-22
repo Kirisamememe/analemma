@@ -19,11 +19,11 @@ type TextFieldProps = {
   /** 入力欄のラベル。 */
   readonly label: string;
   /** 入力欄の補足。 */
-  readonly description?: string;
+  readonly description?: string | undefined;
   /** 入力が要るか。 */
   readonly isRequired?: boolean;
   /** 文字の数の上限。 */
-  readonly maxLength?: number;
+  readonly maxLength?: number | undefined;
   /** ブラウザの自動入力の種類。 */
   readonly autoComplete?: string;
   /** 最初に入れておく値。 */

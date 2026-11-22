@@ -8,7 +8,7 @@ import {
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { checkPasskeyName } from "@/features/auth/check-passkey-name";
+import { PasskeyNameField } from "@/components/passkey-name-field";
 import { type EnrollInput, enroll } from "@/features/auth/enroll";
 import { readEnrollmentToken } from "@/features/auth/read-enrollment-token";
 import { toEnrollNotice } from "@/features/auth/to-auth-notice";
@@ -16,7 +16,6 @@ import { AppShell, Center, Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
-import { TextField } from "@/ui/primitives/form-fields";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
 
@@ -81,18 +80,9 @@ export const EnrollPage = (): ReactNode => {
                 });
               }}
             >
-              <TextField
-                autoComplete="off"
-                description={t("enroll.nameDescription")}
-                isRequired
-                label={t("enroll.name")}
+              <PasskeyNameField
                 maxLength={PASSKEY_NAME_MAX_LENGTH}
-                name="name"
-                validate={(value) => {
-                  const problem = checkPasskeyName(value);
-
-                  return problem === undefined ? undefined : t(problem);
-                }}
+                showDescription
               />
               {notice !== undefined && (
                 <Notice tone={notice.tone}>{t(notice.message)}</Notice>

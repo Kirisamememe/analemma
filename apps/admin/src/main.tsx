@@ -3,7 +3,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { createApiClient } from "@/api/create-api-client";
-import { App } from "@/app";
+import { App, createApp } from "@/app";
 import {
   createAuthGate,
   gateAdminRequests,
@@ -15,7 +15,6 @@ import {
 import { createI18n } from "@/i18n/create-i18n";
 import { toLocale } from "@/i18n/locales";
 import { syncLocale } from "@/preferences/sync-locale";
-import { createApp } from "@/router";
 import "@/ui/app.css";
 
 const container = document.querySelector("#root");

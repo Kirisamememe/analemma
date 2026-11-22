@@ -29,9 +29,15 @@ Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・�
 
 認証器の組み立てと型を使うコードは `@/features/auth/webauthn` から、ログアウトのボタン・hook・すべてのセッションからログアウトする欄を使うコードは `@/features/session` から import する。フォルダの外で使うものを `index.ts` に明示しておくと、中のファイルの名前や分け方を変えても、呼び出し元を直さずに済む。フォルダの中のコードと、それぞれの実装を確かめるテストは、対象のファイルを直接 import する。
 
+`App` と `createApp` は `src/app/` に置く。どちらも API・router・言語などを組み合わせるため、組み立てに関わるコードを同じ場所に置き、外からは `@/app` を使う。
+
+## 複数の feature から使う部品
+
+複数の feature から使う、管理画面に固有の部品は `src/components/` に置き、`@/components/...` から import する。パスキーの名前の入力欄のように、管理画面の訳と contract の検査を持つ部品を、ラベルや検査を呼び出し元から受け取る `src/ui/` の部品と分ける。`components/` は features を import しない。利用する feature 同士が、部品を通じて依存し合わずに済む。
+
 ## route はコードで定義する
 
-TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen.ts` を生成する plugin)は使わず、`src/router.tsx` で `createRoute` を組む。
+TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen.ts` を生成する plugin)は使わず、`src/app/router.tsx` で `createRoute` を組む。
 
 - 生成するファイルは、整形・lint・用語集の検査から外す設定が要り、生成し忘れると型が古いまま残る。
 - ファイルの名前に `__root.tsx`・`$id.tsx`・`_layout.tsx` のような形を求めるので、kebab-case の検査とぶつかり、route が増えると1つのフォルダに10件を超えて並ぶ。

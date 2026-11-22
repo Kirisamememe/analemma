@@ -2,7 +2,7 @@ import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import { RouterContextProvider } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
-import type { AppRouter } from "@/router";
+import type { AppRouter } from "@/app";
 
 type WrapperProps = {
   /** 描く部品。 */

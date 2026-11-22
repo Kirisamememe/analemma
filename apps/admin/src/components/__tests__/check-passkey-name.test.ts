@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { checkPasskeyName } from "@/features/auth/check-passkey-name";
+import { checkPasskeyName } from "@/components/check-passkey-name";
 
 describe("checkPasskeyName", () => {
   test.each(["MacBook", " iPhone ", "あ".repeat(64)])(

@@ -6,6 +6,7 @@ import type { ComponentType } from "react";
 
 import preview from "../../.storybook/preview";
 
+import * as componentsPasskeyNameField from "@/components/__stories__/passkey-name-field.stories";
 import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/__stories__/login-page.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
@@ -37,6 +38,8 @@ import * as specimensColors from "@/ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "@/ui/specimens/__stories__/typography.stories";
 
 const MODULES = {
+  "components/__stories__/passkey-name-field.stories.tsx":
+    componentsPasskeyNameField,
   "routes/__stories__/enroll-page.stories.tsx": routesEnrollPage,
   "routes/__stories__/login-page.stories.tsx": routesLoginPage,
   "routes/__stories__/security-page.stories.tsx": routesSecurityPage,

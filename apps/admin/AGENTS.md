@@ -7,10 +7,11 @@
 - React + TanStack Router + TanStack Query の SPA。SSR しない。Vite でビルドし、server が同じ origin で静的ファイルとして配信する(配信は、まだ無い。本番の置き場所を決めるときに作る)。
 - `index.html`:Vite の入口。`vite.config.ts` の plugin が、`src/preferences/boot.ts` を1つの script にまとめて head に書き込む(言語と配色を、最初の描画の前に当てる)。
 - `src/main.tsx`:React を描き始める入口。i18next の instance・ブラウザの履歴・API の client・認証器を組み立てて渡す。
-- `src/app.tsx`:i18next の instance・server の状態(TanStack Query)・route をつないだ全体。
-- `src/router.tsx`:route の木と、router と query client を組み立てる関数(`createApp`)。ログインした後の画面は、開く前に server でセッションを確かめる。
+- `src/app/app.tsx`:i18next の instance・server の状態(TanStack Query)・route をつないだ全体。
+- `src/app/router.tsx`:route の木と、router と query client を組み立てる関数(`createApp`)。ログインした後の画面は、開く前に server でセッションを確かめる。
 - `src/api/`:server の API の client(contract の型付き)と、query client。features が使う、oRPC の失敗の仕分け(`call-api.ts`)・TanStack Router の context とログインの画面への移動(`app-context.ts`)・TanStack Query の取得と送信とキャッシュ(`server-state/`)の包みも置く。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
 - `src/routes/`:route ごとの画面。
+- `src/components/`:複数の feature から使う、管理画面に固有の部品。`@/components/...` で import する。部品のコードは features を import しない(lint で止まる)。
 - `src/i18n/`:訳と言語(i18next と react-i18next)。訳は `messages/` に言語ごとに1ファイル。i18next の instance は `create-i18n.ts` で作る。features が使う、訳を引く hook と今の言語を読む hook と訳のキーの型は `use-translate.ts` が包む。
 - `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値と、最初の描画の前に流す script(`boot.ts`)。言語の切り替えに html の `lang` と置き場所をそろえる関数(`sync-locale.ts`)。
 - `src/features/<名前>/`:画面をまたぐ、ひとまとまりの事柄(ログインと登録の判断、WebAuthn の変換など)。1つの画面だけの部品は `features/<名前>/ui/`。
