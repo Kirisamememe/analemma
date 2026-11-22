@@ -102,7 +102,7 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
 - 「すべてのセッションからログアウトする」は、今のセッションも含めて、管理者のセッションの行をすべて消し、今のブラウザの Cookie も消させる(ユーザーが決めた)。セッションの一覧は作らず、User-Agent も保存しない。
   - 今のセッションも消すのは、漏れた Cookie が今のブラウザのものでも、確実に使えなくするため。今の token を残すと、それを盗んだ人のログインが続く。
   - 誰も締め出されない(パスキーでログインし直せる)ので、再認証は求めない。同時に2つのセッションから求められても、どちらも消えてよいので、残すセッションを守る仕組みも要らない。
-- 同じサイトの別の origin(`blog.example.com` など)のページは、ブラウザに、`SameSite=Strict` の Cookie を付けたリクエストを送らせることができる。GET は Origin の確認を通らないので、ブラウザの `Sec-Fetch-Site` が `same-origin` でなければ、GET でも断る(`procedures.ts`)。ほかのページに、セッションの期限を延ばさせない。`Sec-Fetch-Site` を付けない、ブラウザでない client の GET は通す(Cookie は要る)。
+- 同じサイトの別の origin(`blog.example.com` など)のページは、ブラウザに、`SameSite=Strict` の Cookie を付けたリクエストを送らせることができる。GET は Origin の確認を通らないので、`Sec-Fetch-Site` が `same-origin` でなければ、無いときも含めて、GET でも断る(`procedures.ts`)。ほかのページに、セッションの期限を延ばさせない。対応するブラウザ(最新の Chrome と WebKit)はどれも `Sec-Fetch-Site` を付け、ブラウザでない client は管理用 API と認証用 API を呼ばない。
   - アドレスバーから API を開く GET(`none`)も断る。管理用 API は、管理画面から fetch で呼ぶもの。
   - 断ったときは、Origin と `Sec-Fetch-Site` をログに書く。
 - Cookie は `HttpOnly`・`SameSite=Strict`・`Path=/`。管理画面は同じ origin の SPA で、ほかのサイトからのリンクで開いても、静的ファイルに Cookie は要らない。
@@ -186,7 +186,6 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
 - **CBOR の UTF-8 でないキー**:map の2つのキーが、どちらも UTF-8 でない別々のバイト列だと、どちらも置換文字になり、重なったキーとして拒まれる。仕様に合う認証器は UTF-8 のキーしか書かず、細工した入力でだけ起きる。拒むだけで、困るのは細工した側なので直さない。
 - **RP ID の public suffix**:RP ID が Public Suffix List の public suffix(`co.uk` など)かは確かめない。そうした RP ID はブラウザが断るが、起動の時点では気づけない。リストへの依存を持つほどの守りではないので、受け入れる。
 - **challenge の再起動**:challenge はプロセスのメモリにあるので、server を再起動すると消え、その間に始めたログインや登録は `CHALLENGE_EXPIRED` になる。利用者がやり直せば済むので、受け入れる。
-- **古いブラウザの `Sec-Fetch-Site`**:`Sec-Fetch-Site` を付けない古いブラウザ(Safari 16.4 より前など)からの GET では、ほかのページに期限を延ばさせうる。延ばせるだけで、30日の上限は効くので受け入れる。
 - **使わないままの期限の誤差**:最後に使った日時を1時間に1回だけ書き直すので、使わないままの期限は、最後に使ってから「7日から最大1時間を引いた」ときに切れる。最大1時間早く切れるだけで、ログインし直せば済むので受け入れる。
 - **期限を延ばす UPDATE の重なり**:同時のリクエストの片方が期限を延ばした直後に、古い行を読んだもう片方は、行が残っても 401 を返して Cookie を消させる。ミリ秒の重なりでしか起きず、ログインし直せば済むので受け入れる。
 - **Cookie の `Max-Age` のずれ**:Cookie の `Max-Age` は、リクエストを受けた時刻から数える。応答が遅れた分(数秒)だけ、Cookie が DB の期限より長く残ることがあるが、server はその Cookie を断るので受け入れる。

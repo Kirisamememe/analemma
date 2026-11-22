@@ -155,6 +155,7 @@ describe("外部用のポートの応答のヘッダー", () => {
         headers: {
           "content-type": "application/x-www-form-urlencoded",
           origin: TEST_ORIGIN,
+          "sec-fetch-site": "same-origin",
         },
         body: "a=1",
       }),
