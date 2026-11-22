@@ -19,6 +19,8 @@ const MERGE_CONFIG: TWMergeConfig = {
         "focus",
         "primary",
         "on-primary",
+        "danger-strong",
+        "on-danger-strong",
         "info",
         "success",
         "warning",

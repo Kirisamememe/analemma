@@ -33,6 +33,7 @@ export const Notice = ({ children, progress }: NoticeProps) => (
     <span className="-mt-2 -mb-1 md:-my-0.5" />
     <span className="m-auto mx-2 mt-0 mb-auto" />
     <span className="bg-primary text-on-primary" />
+    <span className="bg-danger-strong text-on-danger-strong" />
     <span className="border-x-line bg-scrim/40 text-on-media" />
     <span className={item({ isSelected: true })} />
     <span className={({ isSelected }: ItemState) => item({ isSelected })} />

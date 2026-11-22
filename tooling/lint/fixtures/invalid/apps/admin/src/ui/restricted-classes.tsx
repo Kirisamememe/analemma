@@ -34,6 +34,8 @@ export const RestrictedClasses = () => (
     <span className="m-2" />
     <span className="text-(length:--trigger-width)" />
     <span className="font-500" />
+    <span className="text-danger-strong" />
+    <span className="bg-on-danger-strong" />
     <span className="bg-red-500" />
   </>
 );

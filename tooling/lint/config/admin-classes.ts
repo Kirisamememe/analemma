@@ -45,6 +45,8 @@ export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
   focus: [],
   primary: ["bg", "text", "border", "fill", "stroke"],
   "on-primary": ["text", "fill", "stroke"],
+  "danger-strong": ["bg"],
+  "on-danger-strong": ["text", "fill", "stroke"],
   info: ["bg", "text", "border", "fill", "stroke"],
   success: ["bg", "text", "border", "fill", "stroke"],
   warning: ["bg", "text", "border", "fill", "stroke"],

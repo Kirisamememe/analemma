@@ -73,6 +73,8 @@ describe("管理画面の部品の class", () => {
       [34, "上下の正の margin は使わず"],
       [35, "文字の大きさは、theme.css の目盛りで"],
       [36, "文字の太さは"],
+      [37, "danger-strong は bg"],
+      [38, "on-danger-strong は text"],
     ];
 
     expect(diagnosticsOf({ file, rule: RESTRICTED }, expected)).toEqual(
