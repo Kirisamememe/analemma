@@ -6,7 +6,7 @@ export type JsonCredential = {
   readonly toJSON: () => unknown;
 };
 
-/** ブラウザの資格情報の窓口のうち、使うもの。 */
+/** `navigator.credentials` のうち、使うもの。 */
 export type CredentialsApi = {
   /** 今のパスキーで確かめる。 */
   readonly get: (
@@ -30,7 +30,7 @@ export type OptionsParser = {
   ) => PublicKeyCredentialCreationOptions;
 };
 
-/** ブラウザの資格情報の窓口を、JSON の options と JSON の資格情報でつなぐ。 */
+/** `navigator.credentials` を、JSON の options と JSON の資格情報でつなぐ。 */
 export const createBrowserWebAuthn = (
   credentials: CredentialsApi,
   parser: OptionsParser,
