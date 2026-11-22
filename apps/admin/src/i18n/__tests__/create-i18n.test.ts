@@ -25,7 +25,7 @@ describe("createI18n", () => {
   });
 
   test("訳が空のキーは、英語にする", () => {
-    const i18n = createI18n("ja").cloneInstance({ forkResourceStore: true });
+    const i18n = createI18n("ja");
 
     i18n.addResource("ja", "translation", "notFound.title", "");
 
@@ -56,5 +56,16 @@ describe("createI18n", () => {
     await createI18n("en").changeLanguage("zh-Hans");
 
     expect<string>(ja.t("notFound.title")).toBe(TITLE.ja);
+  });
+
+  test("instance ごとに訳を持ち、ほかの instance で書き換えた訳に左右されない", () => {
+    createI18n("ja").addResource(
+      "ja",
+      "translation",
+      "notFound.title",
+      "書き換えた訳",
+    );
+
+    expect<string>(createI18n("ja").t("notFound.title")).toBe(TITLE.ja);
   });
 });

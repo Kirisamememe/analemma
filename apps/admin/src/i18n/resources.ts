@@ -22,5 +22,7 @@ declare module "i18next" {
     keySeparator: false;
     /** キーの `:` を、namespace の区切りとして読まない。 */
     nsSeparator: false;
+    /** `defaultValue` を渡しても、キーと引数を確かめる。 */
+    strictKeyChecks: true;
   }
 }

@@ -11,7 +11,7 @@ export const createI18n = (locale: Locale): I18n => {
     lng: locale,
     fallbackLng: FALLBACK_LOCALE,
     supportedLngs: LOCALES,
-    resources: RESOURCES,
+    resources: structuredClone(RESOURCES),
     keySeparator: false,
     nsSeparator: false,
     interpolation: { escapeValue: false },

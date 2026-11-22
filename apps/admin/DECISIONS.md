@@ -48,15 +48,15 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 
 訳を引くのは、i18next 27 と react-i18next にする(ユーザーが決めた)。生成物もネットワークも要らず、v27 からキーと引数に厳しく型が付き(`strictInterpolationChecks` が既定で有効)、複数形と fallback を持てる。公開サイトの i18n は、公開サイトを作るときに決める。
 
-- 訳は言語ごとに1ファイルで、TypeScript の `as const` で書く。i18next の型は、JSON からは引数の名前を読めない。英語の訳を `CustomTypeOptions` の `resources` に登録し(`resources.ts`)、キーと引数の型の出どころにする。ほかの言語は、英語のキーだけを持てる形(`Translation`)にし、訳していないキーは省ける。省けないと、キーを英語に足した時点で、ほかの言語を訳すまで型検査が通らない。
+- 訳は言語ごとに1ファイルで、TypeScript の `as const` で書く。i18next の型は、JSON からは引数の名前を読めない。英語の訳を `CustomTypeOptions` の `resources` に登録し(`resources.ts`)、キーと引数の型の出どころにする。`strictKeyChecks` も有効にし、`t` に `defaultValue` を渡したときも、キーと引数を確かめる(既定では、`defaultValue` を渡すと確かめない)。ほかの言語は、英語のキーだけを持てる形(`Translation`)にし、訳していないキーは省ける。省けないと、キーを英語に足した時点で、ほかの言語を訳すまで型検査が通らない。
 - キーは `"notFound.title"` のような1段のキーにし、`keySeparator` と `nsSeparator` を、実行時と型の両方で `false` にする。`.` を入れ子の区切りとして読まないので、キーの一覧と型をそのまま比べられる。namespace は既定の1つだけを使う。
 - 引数は i18next の既定の `{{name}}` で書く。全部の言語が英語と同じキーと同じ引数を持ち、空の訳を持たないことを、テスト(`src/i18n/__tests__/messages.test.ts`)で確かめる。型で省けても、check を通る前に訳がそろう。訳の中の `{` と `}` は、英字で始まる名前の引数 `{{name}}` にだけ使えることも確かめる。`{name}` のような書き損じは、i18next にも型にも引数と読まれず、そのまま画面に出る。
 - 複数形は、`key_one`・`key_other` のキーに分け、`count` を渡す(i18next が `Intl.PluralRules` で選ぶ)。言語ごとに複数形の区分が違う(日本語は `other` だけ)ので、複数形の訳を足すときは、キーを比べるテストを、言語の区分に合わせて直す。
 - `fallbackLng` を英語にする(v27 から、既定では fallback しない)。それでも訳が無いキーと、空の訳は、英語にする(空の訳を訳が無いとみなすのは、v27 の既定)。訳しかけの開発の途中でも、画面が壊れない。
-- `supportedLngs` に `LOCALES` を渡す。対応していない言語に切り替えると英語になり、i18next の `language` は、いつも対応する言語のどれかになる。
+- `supportedLngs` に `LOCALES` を渡す。i18next は、対応していない tag を、言語の部分が同じ対応する言語に寄せ(`zh-TW` も `zh-Hans` になる)、それも無ければ英語にする。ブラウザの言語の並びから選ぶときの判定(下)とは違うので、`changeLanguage` には `LOCALES` の値だけを渡し、ブラウザの言語を渡さない。
 - React が値を escape するので、i18next の escape は切る(`escapeValue: false`)。二重に escape すると、`&` が `&amp;` のまま画面に出る。
 - 訳は bundle に入れ、instance を作るときに渡す。読み込みを待たないので、`init` と `changeLanguage` はその場で終わり、`useTranslation` が Suspense で止まらない。
-- instance は、言語を受けて `createInstance` で作る(`src/i18n/create-i18n.ts`)。i18next の既定の instance と `initReactI18next` は使わず、`I18nextProvider` で渡す(`App`)。テストや Storybook が、描くたびに別の言語の instance を作れる。Provider の外で部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で描く。
+- instance は、言語を受けて `createInstance` で作る(`src/i18n/create-i18n.ts`)。訳は instance ごとに `structuredClone` で複製して渡す。i18next は渡した object をそのまま store にし、`addResource` などで書き換えるので、複製しないと、ある instance(テストや story)で書き換えた訳が、ほかの instance に漏れる。i18next の既定の instance と `initReactI18next` は使わず、`I18nextProvider` で渡す(`App`)。テストや Storybook が、描くたびに別の言語の instance を作れる。Provider の外で部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で描く。
 - 日付と時刻は、i18next の formatting を使わず、`Intl.DateTimeFormat` の関数(`format-date-time.ts`)に、i18next の今の言語を渡して書く。書き方(`dateStyle: medium`・`timeStyle: short`)は画面の決めごとで、言語ごとに変えない。formatting にすると、全部の言語の訳に `{{created, datetime(dateStyle: medium; timeStyle: short)}}` のような書き方を写すことになり、API が返す ISO 8601 の文字列を `Date` に直す手間も要る。
 - 訳を `as const` で書くので、`t` の戻り値の型は、英語の訳の文字列のリテラルになる(i18next の型の作り)。実行時には、言語の訳が返る。テストで戻り値を英語以外の文字列と比べるときは、`expect<string>` で `string` に広げる。
 - 引数を取らないキーを値として持つ型(知らせの訳のキーなど)は、i18next の `ParseKeysWithoutVariables` にする。`t(key)` に、そのまま渡せる。
@@ -133,4 +133,5 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 
 - **開発のときの head の script**:開発のサーバーは、HTML を返すたびに、head の script を Vite の lib のビルドでまとめ直す(数十ミリ秒)。まとめた結果を使い回すと、`src/preferences/boot.ts` と、それが読むファイルを直したときに開発のサーバーを起動し直す必要がある。待ち時間が気になったら、依存が変わったときだけまとめ直す形にする。
 - **`localStorage` が使えないブラウザ**:head の script は、`localStorage` を読めないと(ストレージを切った設定など)throw し、言語と配色を当てずに終わる。React は html の `lang` が無ければ英語にするので、画面は英語で出る。言語を切り替えたときも、`languageChanged` の event の中で `localStorage` に置けずに throw し、後に登録した listener(画面の描き直し)まで event が届かない。管理者が自分のブラウザで使うだけなので、受け入れる。
+- **言語の切り替えのつなぎ**:`main.tsx` が `syncLocale` を呼ぶことと、`UiProvider` が React Aria Components に i18next の今の言語を渡すことは、テストで確かめていない。`main.tsx` は、ほかのつなぎ(認証の gate・認証器など)と同じく、入口として確かめない。React Aria Components の言語は、今の画面には表れる所が無い。`syncLocale` と、切り替えで画面の訳が描き直されることは、それぞれのテストで確かめている(Codex のレビューで挙がった)。
 - **ほかのタブの管理用 API**:ログインの最中に管理用 API を送らせない gate は、タブごとにある。ほかのタブが同じ時に管理用 API を送ると、その応答の `Set-Cookie`(期限を延ばした古い token、または切れたセッションを消す指示)が、ログインした応答の後に届き、新しい Cookie を上書きしうる。起きても、次の操作が 401 になってログインし直すだけで、管理者は1人で、ログインの最中にほかのタブを操作することは少ない。タブをまたいで止めるには、Web Locks API などで管理用 API を全部くるむ必要があり、手間に見合わないので受け入れる。
