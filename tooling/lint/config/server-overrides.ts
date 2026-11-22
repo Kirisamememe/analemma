@@ -24,10 +24,10 @@ const featureImports = (exceptions: readonly string[] = []) =>
             "!@analemma/contract",
             "@analemma/contract/**",
             "*/**/@analemma/contract",
+            ...exceptions,
             "!./**",
             "!../**",
             "!@/**",
-            ...exceptions,
           ],
           message:
             "server の features で import できるのは、@analemma/contract と、相対パスか @/ で指定する server 内のモジュールです。Drizzle は queries/ の *.query.ts で、bun:test はテストで使います。",
