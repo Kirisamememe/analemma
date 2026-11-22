@@ -4,6 +4,7 @@ import {
   checkDeployTokenName,
   issueDeployToken,
 } from "@/features/deploy-tokens/issue-deploy-token";
+import type { MessageKey } from "@/i18n/use-translate";
 import { createFakeApi, type FakeReply } from "@/testing/create-fake-api";
 import {
   FAKE_ASSERTION,
@@ -100,7 +101,7 @@ describe("issueDeployToken", () => {
 });
 
 describe("checkDeployTokenName", () => {
-  test.each([
+  test.each<[string, MessageKey | undefined]>([
     ["本番のデプロイ", undefined],
     ["a".repeat(64), undefined],
     ["", "deployTokens.invalidName"],
