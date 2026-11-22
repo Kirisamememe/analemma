@@ -18,7 +18,7 @@ const row = tv({
 });
 
 const handle = tv({
-  base: "inline-flex h-control-sm shrink-0 cursor-grab items-center justify-center self-start rounded-control px-1.5 text-fg-muted outline-hidden transition is-hovered:state-hover is-hovered:text-fg is-focus-shown:focus-ring is-disabled:state-disabled is-disabled:cursor-default",
+  base: "inline-flex h-control-sm shrink-0 cursor-grab items-center justify-center rounded-control px-1.5 text-fg-muted outline-hidden transition is-hovered:state-hover is-hovered:text-fg is-focus-shown:focus-ring is-disabled:state-disabled is-disabled:cursor-default",
 });
 
 const dropIndicator = tv({
