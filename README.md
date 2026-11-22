@@ -61,7 +61,7 @@ bun --cwd=apps/server run db:migrate
 bun --cwd=apps/server run dev
 ```
 
-管理画面へのログインは、パスキーだけで行う。最初のパスキーの登録と、パスキーを全部失ったときの復旧は、server のコマンドが出す登録用 URL で行う。
+管理画面へのログインは、パスキーだけで行う。最初のパスキーの登録と、パスキーを全部失ったときの復旧は、server のコマンドが出す登録用 URL で行う。登録用 URL で登録すると、ほかのセッションはすべてログアウトされる。なくしたパスキーは残るので、復旧の後に、管理画面のパスキーの一覧から消す。
 
 ```bash
 bun --cwd=apps/server run passkey:enroll
