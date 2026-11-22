@@ -15,7 +15,7 @@ const meta = {
     createRoutes: () => createSignInRoutes(EXPIRY),
     authenticator: createFakeAuthenticator(),
   },
-  parameters: { layout: "fullscreen", contentLang: null },
+  parameters: { layout: "fullscreen", contentLang: null, stage: null },
 } satisfies Meta<typeof AppPreview>;
 
 export default meta;
