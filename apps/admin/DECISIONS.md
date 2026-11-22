@@ -36,7 +36,7 @@ route ごとの `lazy(() => import(…))` は使わず、`no-dynamic-import` を
 最新の Chrome と WebKit だけで動けばよい。古いブラウザには対応せず、Firefox にも必要以上に合わせない(ユーザーが決めた)。新しい CSS・HTML・JS の API は、出てから日が浅くても、UI と UX に役立つなら使う。
 
 - Vite の `build.target` と `build.cssTarget` を `esnext` にし、古いブラウザのための書き換えをさせない(最初の描画の前に流す script のビルドも同じ)。`modulePreload` の polyfill も入れない。
-- Storybook の Vite にも、同じ対象を入れる(`.storybook/` を足すときに)。
+- Storybook の Vite にも、同じ対象を入れる(`.storybook/adapt-vite-config.ts`。Storybook は `vite.config.ts` の `build` を `target` しか引き継がない)。
 
 ## 言語と配色を最初の描画の前に当てる
 
