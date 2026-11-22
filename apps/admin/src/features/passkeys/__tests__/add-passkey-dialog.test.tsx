@@ -95,7 +95,7 @@ describe("AddPasskeyDialog", () => {
     const original = server.routes["admin/passkeys/list"];
 
     server.replyNext("admin/passkeys/list", async () => {
-      const before = await original(undefined);
+      const before = original(undefined);
 
       await slow.promise;
 

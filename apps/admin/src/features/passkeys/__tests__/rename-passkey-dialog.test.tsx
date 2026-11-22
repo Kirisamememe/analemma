@@ -88,7 +88,7 @@ describe("RenamePasskeyDialog", () => {
     );
     await screen.findByRole("dialog");
     await api.admin.session.reauthenticationOptions();
-    await api.admin.passkeys.delete({ id: "pk1", assertion: FAKE_ASSERTION });
+    await api.admin.passkeys.delete({ id: "cGsx", assertion: FAKE_ASSERTION });
     await userEvent.click(screen.getByRole("button", { name: "保存" }));
     await screen.findByText("このパスキーはもうありません。");
     await userEvent.click(screen.getByRole("button", { name: "キャンセル" }));
@@ -110,7 +110,7 @@ describe("RenamePasskeyDialog", () => {
       path: "/security",
       routes: {
         ...server.routes,
-        "admin/passkeys/list": async (input) =>
+        "admin/passkeys/list": (input) =>
           isListBroken
             ? {
                 error: "INTERNAL_SERVER_ERROR",

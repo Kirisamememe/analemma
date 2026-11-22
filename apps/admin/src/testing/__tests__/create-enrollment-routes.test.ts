@@ -37,4 +37,23 @@ describe("createEnrollmentRoutes", () => {
 
     expect(session).toMatchObject({ code: "UNAUTHORIZED", status: 401 });
   });
+
+  test("登録の出力の検証で失敗したら、セッションは成立しないこと", async () => {
+    const { api } = createFakeApi(
+      createEnrollmentRoutes({ output: { expiresAt: "invalid" } }).routes,
+    );
+
+    const failure: unknown = await api.auth.enrollment
+      .register(REGISTRATION)
+      .catch((error: unknown) => error);
+    const session: unknown = await api.admin.session
+      .get()
+      .catch((error: unknown) => error);
+
+    expect(failure).toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      status: 500,
+    });
+    expect(session).toMatchObject({ code: "UNAUTHORIZED", status: 401 });
+  });
 });

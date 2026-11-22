@@ -37,6 +37,10 @@ type ReplyOverrides = {
     | undefined;
 };
 
+const SESSION_REQUIRED = {
+  error: "UNAUTHORIZED",
+} satisfies FakeReply<"admin/session/get">;
+
 const SESSION_EXPIRES_AT = "2026-01-02T03:04:00.000Z";
 
 /** 作り物のパスキーを登録した日時。 */
@@ -81,7 +85,7 @@ export const createPasskeyRoutes = (seeds: readonly FakePasskeySeed[]) => {
   const nextId = (): string => {
     created += 1;
 
-    return `pk${String(created)}`;
+    return btoa(`pk${String(created)}`).replace(/=+$/v, "");
   };
 
   let passkeys: FakePasskey[] = seeds.map((seed) => ({
@@ -92,22 +96,27 @@ export const createPasskeyRoutes = (seeds: readonly FakePasskeySeed[]) => {
   let reauthentications = 0;
   const overrides: ReplyOverrides = {};
 
-  const handle =
-    <Path extends PasskeyPath>(
-      path: Path,
-      success: (input: FakeInput<Path>) => PasskeyReplies[Path],
-    ) =>
-    async (input: FakeInput<Path>): Promise<PasskeyReplies[Path]> => {
-      const override = overrides[path];
+  const handle = <Path extends PasskeyPath>(
+    path: Path,
+    success: (input: FakeInput<Path>) => PasskeyReplies[Path],
+  ) =>
+    Object.assign(success, {
+      replyBeforeInput: ():
+        | PasskeyReplies[Path]
+        | Promise<PasskeyReplies[Path]>
+        | typeof SESSION_REQUIRED
+        | undefined => {
+        const override = overrides[path];
 
-      overrides[path] = undefined;
+        overrides[path] = undefined;
 
-      if (override !== undefined) {
-        return override();
-      }
+        if (override !== undefined) {
+          return override();
+        }
 
-      return signedIn ? success(input) : { error: "UNAUTHORIZED" };
-    };
+        return signedIn ? undefined : SESSION_REQUIRED;
+      },
+    });
 
   const consumeReauthentication = (): boolean => {
     if (reauthentications === 0) {

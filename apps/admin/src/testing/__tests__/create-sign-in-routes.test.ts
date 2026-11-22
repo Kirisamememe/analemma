@@ -32,4 +32,23 @@ describe("createSignInRoutes", () => {
     expect(failure).toMatchObject({ code: "UNKNOWN_CREDENTIAL", status: 401 });
     expect(session).toMatchObject({ code: "UNAUTHORIZED", status: 401 });
   });
+
+  test("ログインの出力の検証で失敗したら、セッションは成立しないこと", async () => {
+    const { api } = createFakeApi(
+      createSignInRoutes({ output: { expiresAt: "invalid" } }),
+    );
+
+    const failure: unknown = await api.auth.login
+      .verify(FAKE_ASSERTION)
+      .catch((error: unknown) => error);
+    const session: unknown = await api.admin.session
+      .get()
+      .catch((error: unknown) => error);
+
+    expect(failure).toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      status: 500,
+    });
+    expect(session).toMatchObject({ code: "UNAUTHORIZED", status: 401 });
+  });
 });
