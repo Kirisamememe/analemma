@@ -27,9 +27,10 @@
     - テストのファイルと、テストの部品(`src/test-client/`・`src/platform/test-database/`)でも外す。テストは失敗を値として受け取って確かめるので、握りつぶしではない。本番のコードは、この2つのフォルダを import できない(`tooling/structure/` のテストが止める)。import できると、`catchErrorCode` のような部品を通して、このルールをすり抜けられる。
   - `styling-boundary`:管理画面の見た目の境界を守る(デザインシステムの判断は `apps/admin/src/ui/DECISIONS.md`)。画面のコード(`ui/` の外)では、`style` と、文字列のリテラルでない `className`(と `…ClassName`)を止める。式を渡すと、class の検査(eslint-plugin-better-tailwindcss)が中身を読めず、すり抜けるため。`ui/` の中では、`className` を、リテラル・関数の呼び出し・呼び出しを返す関数(React Aria Components の render props)に限り、`style` にその場で書いたオブジェクトだけを許して、キーを `--` で始まる CSS 変数に限る。どちらでも、JSX の props の spread を止める(spread で渡した `className` や `style` は検査が見ない)。
   - `no-dynamic-import`:`import()` による動的な import を禁止する。境界を守る `no-restricted-imports` は動的な import を見ないので、`import()` なら Drizzle や Bun の API を、決めた場所の外から読めてしまう。今のコードでは、client の CLI の入口(`packages/client/src/cli/main.ts`)の1か所だけで、理由付きで抑制している(利用者の定義のファイルは、実行するときにしかパスが分からない)。
+  - `no-effect-outside-allowed-hook`:React の `useEffect`・`useLayoutEffect`・`useInsertionEffect` を、一覧に載せた hook の直下でだけ呼べるようにする。React の外と同期する処理の目的を hook の名前で示し、effect が必要な場所を一覧で把握するため。React からの import を参照する呼び出しを見て、直接囲む関数の名前を `allowedHooks` と照らし合わせる。管理画面全体(`src/` のテスト・story と `.storybook/` を含む)に掛ける設定と hook の一覧は、管理画面の層の境界と同じ `tooling/lint/config/admin-overrides.ts` に置く。effect を使う判断は `apps/admin/DECISIONS.md` の「React の effect」に書く。
 - **管理画面の層の境界**(`tooling/lint/config/admin-overrides.ts`):React Aria Components とその下の層を import できるのは `ui/primitives/` だけ、`tailwind-variants` を import できるのは `ui/tv.ts` だけ(どちらもサブパスを含む)。`ui/layout/` は primitives と patterns を、`ui/primitives/` は patterns を、相対パスで import できない。理由は `apps/admin/src/ui/DECISIONS.md` の「部品の層」。場所ごとに `no-restricted-imports` の options が違うので、Bun・Node・React の制限と同じ部品から、場所ごとに組み立てる。
 - **管理画面の Tailwind CSS の class の検査**(eslint-plugin-better-tailwindcss を、Oxlint の JS のプラグインで動かす。設定は `tooling/lint/config/admin-classes.ts`)
-  - 管理画面の `src/` にだけプラグインを読み込む(`overrides` の `jsPlugins`)。server などのファイルで、Tailwind CSS の設定を読む時間を使わない。プラグインの設定(`settings`)は `overrides` に書けないので、直下に書く。`cwd` を `apps/admin` にし、`entryPoint` に管理画面の `src/ui/app.css` を渡して、theme.css に無い class を「無い class」として落とす。
+  - 管理画面の `src/` にだけプラグインを読み込む(`overrides` の `jsPlugins`)。server などのファイルで、Tailwind CSS の設定を読む時間を使わない。プラグインの設定(`settings`)は `overrides` に書けないので、直下に書く。`cwd` を `apps/admin` にし、`entryPoint` に管理画面の `src/ui/app.css` を渡す。`app.css` が読む `theme.css` と `animation.css` を含めた設定で、生成できない class を落とす。
   - 使うルールは、無い class・止める class・効き目がぶつかる class・重なった class・古い class・余分な空白・canonical な class(`enforce-canonical-classes`)・class の並び。行の折り返しは整形と食い違うので使わない。
   - 止める class は、場所ごとに違う(画面のコード、`ui/` と `features/*/ui/`、入力を受ける部品の枠の色 `line-strong` を書ける `ui/primitives/`、文字の役割を決める `ui/typography.ts`)。`overrides` は同じルールの options を丸ごと置き換えるので、止める形を部品にして、場所ごとの一覧を組み立てる(「設定を TypeScript で組み立てる」)。何を止めるかと理由は `apps/admin/src/ui/DECISIONS.md` にある。
   - selectors は、プラグインの既定から、class と関係の無い変数の名前(`style`・`styles`・`classes`)を除き、名前が `ClassName` で終わる属性と変数(`contentClassName` など)と、`ui/tv.ts` の `merge` の呼び出しを足す。既定のままだと、`Intl.NumberFormat` に渡す `const style = "currency"` まで class として止めた。
@@ -37,7 +38,7 @@
   - Storybook の story(`__stories__`)は、`ui/` の中にあっても、画面のコードと同じ決まりで検査する。`ui/` の決まりは部品を作るためのもので、story は部品を組んで見せるだけなので、色や class を選ばせない。story で決まりから外れたくなったら、部品を足すことになる。
   - 色の見本(`ui/specimens/color-specimen.tsx`)だけ、色ごとに使える utility の決まりと、`line-strong` を `ui/primitives/` の外で止める決まりを外す。色の見本は、どの色も `bg-` で塗って並べる必要がある(`focus` や `line` は、ふだん `bg-` に使えない)。ほかの決まり(任意の値・不透明度・文字の役割など)は外さない。
   - story の import の決まりは、置いた層(primitives・layout)の決まりでなく、画面のコードと同じにする(React Aria Components を直に使えず、ほかの層の部品は使える)。story は描くだけなので、`require-sibling-test` も外す(全部の story を描くテストがある)。
-- **Storybook の設定のファイル**(`apps/admin/.storybook/`):`main.ts` は Storybook が Node で読むので、相対 import に `.ts` を付ける(oxlint の設定と同じく、`import/extensions` を変える)。`.storybook/` の中は、型付きの lint が tsconfig の `noPropertyAccessFromIndexSignature` を読まないように振る舞う(`dataset["x"]` を `dot-notation` が止め、`dataset.x` を tsc が止める。`no-floating-promises` などのほかの型付きのルールは効く)。TypeScript の方を取り、ぶつかる `story-frame.tsx` だけ `dot-notation` を外す。`setAttribute("data-theme", …)` で書くと、こんどは `unicorn/prefer-dom-node-dataset` が止める。tsrs の振る舞いなので、tsrs を上げたら、外したままでよいかを見直す。
+- **Storybook の設定のファイル**(`apps/admin/.storybook/`):`main.ts` は Storybook が Node で読むので、相対 import に `.ts` を付ける(oxlint の設定と同じく、`import/extensions` を変える)。`.storybook/` の中は、型付きの lint が tsconfig の `noPropertyAccessFromIndexSignature` を読まないように振る舞う(`dataset["x"]` を `dot-notation` が止め、`dataset.x` を tsc が止める。`no-floating-promises` などのほかの型付きのルールは効く)。TypeScript の方を取り、ぶつかる `use-html-preferences.tsx` だけ `dot-notation` を外す。`setAttribute("data-theme", …)` で書くと、こんどは `unicorn/prefer-dom-node-dataset` が止める。tsrs の振る舞いなので、tsrs を上げたら、外したままでよいかを見直す。
 - **TSDoc のタグの検査**(eslint-plugin-jsdoc):`@param` の名前が引数と合うこと(`check-param-names`)、1つでも書いたら全部の引数に書くこと(`require-param`)、何も返さない関数に `@returns` を書かないこと(`require-returns-check`)、タグに型を書かないこと(`no-types`。型は TypeScript が持つ)。
 - **使える API の制限**
   - `node:*` と Bun 専用のモジュールは、contract・client・管理画面で import できない。Node と Bun のグローバルも、server と tooling だけで有効にする。目的は、ブラウザ(や Node でないところ)でも動かすコードに、Node や Bun でしか動かない API を入れさせないこと。`node:fs/promises` のようなサブパスも止める(`node:*` だけではサブパスが pattern をすり抜けた。本番のコードでは、管理画面も contract と client の SDK も、Node の型を持たない tsconfig で tsc が止める)。
@@ -221,6 +222,7 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **PR の本文は確かめない**:merge commit と squash のコミットの本文を空にする設定にしてあり、PR の本文は履歴に残らない。本文も残す設定にするなら、本文も確かめる。
 - **タイトルは環境変数と標準入力で渡す**:`${{ }}` で `run` に直接書くと、タイトルがシェルのスクリプトの一部として展開され、タイトルに書いたコマンドが流れる(script injection)。引数でなく標準入力で渡すのは、`-` で始まるタイトルを option と読ませないため。
 - **ほかのリポジトリの名前は探さない**:CI には名前の一覧が無い(一覧は手元にだけ置くため)。名前は、手元の `bun run check` とコミットのときの hook が探す。
+- **このスクリプトのテストだけ、時間の上限を30秒にする**:メッセージ1件ごとに、hook と commitlint の Bun のプロセスを起動し、1件に約0.3秒かかる(git の用意は1テストで約0.07秒)。テスト7つを同時に流すと、ファイル全体で約3秒かかり、load average(1分)が33のマシンでは3.4〜4.4秒と、`bun test` の既定の5秒に近づく。1テストのメッセージは、最小の2件(コミット1件とタイトル)に近く、全部で18件のうち減らせるのは数件だけなので、減らさずに `setDefaultTimeout` で `tooling/ci/__tests__/check-pull-request-messages.test.ts` だけ延ばす。メッセージを hook に1件ずつ渡す形は、「同じ検査を2か所に書かない」のとおり変えない。
 
 ### 守りの設定
 
@@ -257,6 +259,7 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **字下げのコードのブロック**:用語集の検査は、Markdown の、4つの空白で字下げしたコードのブロックを扱わない。コードはフェンスで書くので、受け入れる。
 - **`Promise.allSettled`・`Promise.any`**:どちらも失敗を値に変えられるが、`no-catch-outside-entry` は止めていない。結果の型に失敗が出るので、握りつぶしがコードから見える。使う場面が出たら、止めるかを決める。
 - **`import()` のほかの読み込み**:`no-dynamic-import` は `import()` だけを止める。`import.meta.require` や `node:module` の `createRequire` を使えば、境界の外のモジュールを読み込めるが、普通は書かない形なので止めていない。
+- **React の effect の間接的な呼び出し**:effect を `const run = useEffect` で別の変数に代入したり、`const { useEffect } = React` と分割代入したりすると、その変数からの呼び出しは診断を出さない。React の import をそのまま使うのが普段の書き方で、代入後の値まで追跡する手間に見合わない。`React.useEffect(…)` のようにドットで呼ぶ形は検査し、`React["useEffect"](…)` の形は見ない。
 - **`-m` で書いたメッセージの `#` の行**:git は、エディタを開かないとき(`-m`・`-F`)はコメントを消さないが、commit-msg の検査は `#` で始まる行を読まない。エディタで書いたときの git のコメントと見分けられないため。commitlint も同じ扱いをする。`core.commentChar` を `auto` にしたときも、`#` として扱う。どちらも、普通の使い方では起きないので受け入れる。
 - **commitlint の既定の除外**:commitlint は、本文のどこかに `Merge branch …` のような行があるメッセージや、`1.2.3` だけのメッセージを、形を確かめずに通す。普通のメッセージには現れず、通っても、名前と「機械で探す語」の検索は流れるので、受け入れる。
 - **既にある hook**:`install.ts` は、ほかの `core.hooksPath` があれば置き換える(前の値を出す)。そのため、`.git/hooks` の hook も流れなくなる。このリポジトリでは、ほかの hook を使っていない。

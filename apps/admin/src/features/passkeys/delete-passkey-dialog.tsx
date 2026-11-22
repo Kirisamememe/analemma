@@ -15,6 +15,8 @@ import { type PasskeyNotice, toDeleteNotice } from "./to-passkey-notice";
 
 /** パスキーを削除する Dialog に渡す値。 */
 type DeletePasskeyDialogProps = {
+  /** 開いているか。 */
+  readonly isOpen: boolean;
   /** 削除するパスキー。 */
   readonly passkey: PasskeySummary;
   /** 閉じる関数。 */
@@ -25,6 +27,7 @@ type DeletePasskeyDialogProps = {
 
 /** 再認証をしてから、パスキーを削除する Dialog。 */
 export const DeletePasskeyDialog = ({
+  isOpen,
   passkey,
   onClose,
   onDeleted,
@@ -55,7 +58,7 @@ export const DeletePasskeyDialog = ({
 
   return (
     <Dialog
-      isOpen
+      isOpen={isOpen}
       isPending={deleting.isPending}
       onOpenChange={(open) => {
         if (!open) {

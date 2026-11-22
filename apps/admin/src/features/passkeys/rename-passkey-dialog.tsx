@@ -17,6 +17,8 @@ import type { PasskeyNotice } from "./to-passkey-notice";
 
 /** パスキーの名前を変更する Dialog に渡す値。 */
 type RenamePasskeyDialogProps = {
+  /** 開いているか。 */
+  readonly isOpen: boolean;
   /** 名前を変更するパスキー。 */
   readonly passkey: PasskeySummary;
   /** 閉じる関数。 */
@@ -27,6 +29,7 @@ type RenamePasskeyDialogProps = {
 
 /** パスキーの名前を変更する Dialog。 */
 export const RenamePasskeyDialog = ({
+  isOpen,
   passkey,
   onClose,
   onRenamed,
@@ -49,7 +52,7 @@ export const RenamePasskeyDialog = ({
 
   return (
     <Dialog
-      isOpen
+      isOpen={isOpen}
       isPending={renaming.isPending}
       onOpenChange={(open) => {
         if (!open) {

@@ -12,9 +12,9 @@ import { typography } from "../typography";
 const dialog = tv({
   slots: {
     overlay:
-      "fixed top-0 left-0 z-overlay flex h-(--visual-viewport-height) w-full items-center justify-center bg-scrim/40 p-4",
+      "fixed top-0 left-0 z-overlay flex h-(--visual-viewport-height) w-full dialog-backdrop-animation items-center justify-center bg-scrim/40 p-4",
     modal:
-      "max-h-full w-full max-w-md overflow-y-auto rounded-surface bg-surface p-6 text-fg shadow-overlay outline outline-fg/10",
+      "max-h-full w-full max-w-md dialog-panel-animation overflow-y-auto rounded-surface bg-surface p-6 text-fg shadow-overlay outline outline-fg/10",
     body: "flex flex-col gap-4 outline-hidden",
     title: "wrap-anywhere text-fg",
   },
@@ -46,13 +46,13 @@ export const Dialog = ({
 }: DialogProps): ReactNode => (
   <ModalOverlay
     className={overlay()}
-    isDismissable={!isPending}
+    isDismissable={isOpen && !isPending}
     isKeyboardDismissDisabled={isPending}
     isOpen={isOpen}
     onOpenChange={onOpenChange}
   >
     <Modal className={modal()}>
-      <AriaDialog className={body()}>
+      <AriaDialog className={body()} inert={!isOpen}>
         <Heading
           className={titleSlot({ className: typography({ role: "section" }) })}
           slot="title"

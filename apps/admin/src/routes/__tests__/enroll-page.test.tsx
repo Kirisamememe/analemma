@@ -4,12 +4,13 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import type { Authenticator } from "../../features/auth/webauthn/create-authenticator";
 import { createEnrollmentRoutes } from "../../testing/create-enrollment-routes";
+import { wrapFakeRoute } from "../../testing/create-fake-api";
 import { renderApp } from "../../testing/render-app";
 
 afterEach(cleanup);
 
 const CREDENTIAL = {
-  id: "credential-id",
+  id: "credential-ids",
   type: "public-key" as const,
   response: {
     clientDataJSON: "AQ",
@@ -75,7 +76,6 @@ describe("EnrollPage", () => {
       path: "/enroll#abc.def",
       routes: createEnrollmentRoutes({
         error: "INVALID_ENROLLMENT",
-        status: 403,
       }).routes,
       authenticator: registering({ _tag: "Answered", credential: CREDENTIAL }),
     });
@@ -144,18 +144,16 @@ describe("EnrollPage", () => {
 
   test("開いたまま新しい登録用 URL を開くと、前の知らせを消し、新しい token で登録する", async () => {
     const server = createEnrollmentRoutes(EXPIRY);
-    const register = server.routes["auth/enrollment/register"]!;
+    const register = server.routes["auth/enrollment/register"];
     const { history } = renderApp({
       path: "/enroll#old.token",
       routes: {
         ...server.routes,
-        "auth/enrollment/register": async (input) =>
-          typeof input === "object" &&
-          input !== null &&
-          "token" in input &&
+        "auth/enrollment/register": wrapFakeRoute(register, (input) =>
           input.token === "old.token"
-            ? { error: "INVALID_ENROLLMENT", status: 403 }
+            ? { error: "INVALID_ENROLLMENT" }
             : register(input),
+        ),
       },
       authenticator: registering({ _tag: "Answered", credential: CREDENTIAL }),
     });

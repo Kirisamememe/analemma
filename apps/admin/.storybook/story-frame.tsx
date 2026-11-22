@@ -4,7 +4,7 @@ import {
   createRouter,
   RouterContextProvider,
 } from "@tanstack/react-router";
-import { type ReactNode, useLayoutEffect, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { I18nextProvider } from "react-i18next";
 
 import { createI18n } from "../src/i18n/create-i18n";
@@ -12,6 +12,7 @@ import type { Locale } from "../src/i18n/locales";
 import type { Theme } from "../src/preferences/theme";
 import { UiProvider } from "../src/ui/primitives/ui-provider";
 import { StoryStage } from "../src/ui/specimens/story-stage";
+import { useHtmlPreferences } from "./use-html-preferences";
 
 const createStoryRouter = () =>
   createRouter({
@@ -39,16 +40,8 @@ export const StoryFrame = ({
   children,
 }: StoryFrameProps): ReactNode => {
   const [router] = useState(createStoryRouter);
-  const [i18n] = useState(() => createI18n(locale));
-
-  useLayoutEffect(() => {
-    void i18n.changeLanguage(locale);
-  }, [i18n, locale]);
-
-  useLayoutEffect(() => {
-    document.documentElement.lang = contentLang;
-    document.documentElement.dataset["theme"] = theme;
-  }, [contentLang, theme]);
+  const i18n = useMemo(() => createI18n(locale), [locale]);
+  useHtmlPreferences(contentLang, theme);
 
   return (
     <I18nextProvider i18n={i18n}>

@@ -2,12 +2,13 @@ import { describe, expect, test } from "bun:test";
 
 import {
   createFakeApi,
+  type FakeOutput,
   type FakeReply,
 } from "../../../testing/create-fake-api";
 import { logIn } from "../log-in";
 import type { Authenticator } from "../webauthn/create-authenticator";
 
-const OPTIONS = {
+const OPTIONS: FakeOutput<"auth/login/options"> = {
   challenge: "AQID",
   rpId: "localhost",
   allowCredentials: [],
@@ -16,7 +17,7 @@ const OPTIONS = {
 };
 
 const CREDENTIAL = {
-  id: "credential-id",
+  id: "credential-ids",
   type: "public-key" as const,
   response: {
     clientDataJSON: "AQ",
@@ -37,7 +38,7 @@ const cancelling: Authenticator = {
   register: () => Promise.resolve({ _tag: "Cancelled" }),
 };
 
-const serverReplying = (verify: FakeReply) => {
+const serverReplying = (verify: FakeReply<"auth/login/verify">) => {
   let sent: unknown;
   const fake = createFakeApi({
     "auth/login/options": () => ({ output: OPTIONS }),
@@ -64,7 +65,9 @@ describe("logIn", () => {
   });
 
   test("認証器でキャンセルしたら、server に確かめさせない", async () => {
-    const server = serverReplying({ output: {} });
+    const server = serverReplying({
+      output: { expiresAt: "2026-01-08T00:00:00.000Z" },
+    });
 
     expect(await logIn({ api: server.api, authenticator: cancelling })).toEqual(
       { _tag: "Cancelled" },
@@ -73,13 +76,14 @@ describe("logIn", () => {
   });
 
   test.each([
-    { error: "CHALLENGE_EXPIRED", status: 400, expected: "ChallengeExpired" },
-    { error: "UNKNOWN_CREDENTIAL", status: 401, expected: "UnknownPasskey" },
-    { error: "INVALID_CREDENTIAL", status: 401, expected: "Rejected" },
-  ])(
+    { error: "CHALLENGE_EXPIRED", expected: "ChallengeExpired" },
+    { error: "UNKNOWN_CREDENTIAL", expected: "UnknownPasskey" },
+    { error: "INVALID_CREDENTIAL", expected: "Rejected" },
+  ] satisfies (FakeReply<"auth/login/verify"> &
+    Record<"expected", Awaited<ReturnType<typeof logIn>>["_tag"]>)[])(
     "server の $error を $expected として返す",
-    async ({ error, status, expected }) => {
-      const server = serverReplying({ error, status });
+    async ({ error, expected }) => {
+      const server = serverReplying({ error });
 
       expect(
         await logIn({ api: server.api, authenticator: answering }),
@@ -88,7 +92,7 @@ describe("logIn", () => {
   );
 
   test("origin を断られたら(設定の誤り)、想定外の失敗として throw する", () => {
-    const server = serverReplying({ error: "FORBIDDEN", status: 403 });
+    const server = serverReplying({ error: "FORBIDDEN" });
 
     expect(
       logIn({ api: server.api, authenticator: answering }),

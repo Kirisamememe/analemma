@@ -18,6 +18,7 @@ import * as patternsPageHeader from "../ui/patterns/__stories__/page-header.stor
 import * as primitivesBadge from "../ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "../ui/primitives/__stories__/button.stories";
 import * as primitivesDialog from "../ui/primitives/__stories__/dialog.stories";
+import * as primitivesFocusScope from "../ui/primitives/__stories__/focus-scope.stories";
 import * as primitivesForm from "../ui/primitives/__stories__/form.stories";
 import * as primitivesLink from "../ui/primitives/__stories__/link.stories";
 import * as primitivesNotice from "../ui/primitives/__stories__/notice.stories";
@@ -42,6 +43,7 @@ const MODULES = {
   "ui/primitives/__stories__/badge.stories.tsx": primitivesBadge,
   "ui/primitives/__stories__/button.stories.tsx": primitivesButton,
   "ui/primitives/__stories__/dialog.stories.tsx": primitivesDialog,
+  "ui/primitives/__stories__/focus-scope.stories.tsx": primitivesFocusScope,
   "ui/primitives/__stories__/form.stories.tsx": primitivesForm,
   "ui/primitives/__stories__/link.stories.tsx": primitivesLink,
   "ui/primitives/__stories__/notice.stories.tsx": primitivesNotice,

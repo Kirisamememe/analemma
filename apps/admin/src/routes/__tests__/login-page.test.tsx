@@ -9,7 +9,7 @@ import { renderApp } from "../../testing/render-app";
 afterEach(cleanup);
 
 const CREDENTIAL = {
-  id: "credential-id",
+  id: "credential-ids",
   type: "public-key" as const,
   response: {
     clientDataJSON: "AQ",
@@ -74,7 +74,7 @@ describe("LoginPage", () => {
   test("登録されていないパスキーなら、そのことを知らせ、ログインの画面に留まる", async () => {
     const { history } = renderApp({
       path: "/login",
-      routes: createSignInRoutes({ error: "UNKNOWN_CREDENTIAL", status: 401 }),
+      routes: createSignInRoutes({ error: "UNKNOWN_CREDENTIAL" }),
       authenticator: answering,
     });
 
@@ -104,15 +104,15 @@ describe("LoginPage", () => {
   test("ログインの応答を待つ間にほかの画面へ移ったら、その画面から動かさない", async () => {
     const verified = Promise.withResolvers<undefined>();
     const routes = createSignInRoutes(EXPIRY);
-    const verify = routes["auth/login/verify"]!;
+    const verify = routes["auth/login/verify"];
     const { history } = renderApp({
       path: "/login?redirect=%2Fsecurity",
       routes: {
         ...routes,
-        "auth/login/verify": async (input) => {
+        "auth/login/verify": async () => {
           await verified.promise;
 
-          return verify(input);
+          return verify();
         },
       },
       authenticator: answering,

@@ -2,7 +2,7 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { createFakeApi } from "../../../testing/create-fake-api";
+import { createFakeApi, wrapFakeRoute } from "../../../testing/create-fake-api";
 import { FAKE_ASSERTION } from "../../../testing/create-fake-authenticator";
 import { createPasskeyRoutes } from "../../../testing/create-passkey-routes";
 import { renderApp } from "../../../testing/render-app";
@@ -51,7 +51,6 @@ describe("RenamePasskeyDialog", () => {
 
     server.replyNext("admin/passkeys/rename", () => ({
       error: "NOT_FOUND",
-      status: 404,
     }));
     renderApp({ path: "/security", routes: server.routes });
 
@@ -61,6 +60,31 @@ describe("RenamePasskeyDialog", () => {
       await screen.findByText("このパスキーはもうありません。"),
     ).toBeDefined();
     expect(screen.getByRole("dialog")).toBeDefined();
+  });
+
+  test("失敗してから閉じて開き直すと、前の失敗の知らせと入力は出さない", async () => {
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+
+    server.replyNext("admin/passkeys/rename", () => ({
+      error: "NOT_FOUND",
+    }));
+    renderApp({ path: "/security", routes: server.routes });
+
+    await renameTo("Mac mini");
+    await screen.findByText("このパスキーはもうありません。");
+    await userEvent.click(screen.getByRole("button", { name: "キャンセル" }));
+    await userEvent.click(
+      await screen.findByRole("button", { name: "名前を変更" }),
+    );
+
+    expect(
+      (
+        await screen.findByRole<HTMLInputElement>("textbox", {
+          name: "パスキーの名前",
+        })
+      ).value,
+    ).toBe("MacBook");
+    expect(screen.queryByText("このパスキーはもうありません。")).toBeNull();
   });
 
   test("名前を変更したら、そのことを知らせる", async () => {
@@ -89,7 +113,7 @@ describe("RenamePasskeyDialog", () => {
     );
     await screen.findByRole("dialog");
     await api.admin.session.reauthenticationOptions();
-    await api.admin.passkeys.delete({ id: "pk1", assertion: FAKE_ASSERTION });
+    await api.admin.passkeys.delete({ id: "cGsx", assertion: FAKE_ASSERTION });
     await userEvent.click(screen.getByRole("button", { name: "保存" }));
     await screen.findByText("このパスキーはもうありません。");
     await userEvent.click(screen.getByRole("button", { name: "キャンセル" }));
@@ -104,21 +128,21 @@ describe("RenamePasskeyDialog", () => {
 
   test("名前を変更した後に一覧を読み込めなければ、「パスキーを追加」に focus を移す", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
-    const list = server.routes["admin/passkeys/list"]!;
+    const list = server.routes["admin/passkeys/list"];
     let isListBroken = false;
 
     renderApp({
       path: "/security",
       routes: {
         ...server.routes,
-        "admin/passkeys/list": async (input) =>
+        "admin/passkeys/list": wrapFakeRoute(list, (input) =>
           isListBroken
             ? {
                 error: "INTERNAL_SERVER_ERROR",
-                status: 500,
                 defined: false,
               }
             : list(input),
+        ),
       },
     });
 

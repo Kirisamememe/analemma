@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { AppPreview } from "../../testing/app-preview";
-import type { FakeReply } from "../../testing/create-fake-api";
+import type { FakeReply, FakeRoutes } from "../../testing/create-fake-api";
 import { createFakeAuthenticator } from "../../testing/create-fake-authenticator";
 import {
   createPasskeyRoutes,
@@ -20,7 +20,7 @@ const meta = {
   args: {
     path: "/security",
     /** パスキーが3つある server。 */
-    createRoutes: () => createPasskeyRoutes(PASSKEYS).routes,
+    createRoutes: (): FakeRoutes => createPasskeyRoutes(PASSKEYS).routes,
     authenticator: createFakeAuthenticator(),
   },
   argTypes: {
@@ -51,7 +51,7 @@ export const LongName: Story = {
     createRoutes: () =>
       createPasskeyRoutes([
         {
-          name: "passkey-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijkl",
+          name: "passkey-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghij",
           backedUp: true,
         },
         { name: "iPhone", backedUp: true },
@@ -65,7 +65,7 @@ export const Loading: Story = {
     createRoutes: () => ({
       ...createPasskeyRoutes(PASSKEYS).routes,
       "admin/passkeys/list": async () =>
-        Promise.withResolvers<FakeReply>().promise,
+        Promise.withResolvers<FakeReply<"admin/passkeys/list">>().promise,
     }),
   },
 };
@@ -77,7 +77,6 @@ export const LoadFailed: Story = {
       ...createPasskeyRoutes(PASSKEYS).routes,
       "admin/passkeys/list": () => ({
         error: "INTERNAL_SERVER_ERROR",
-        status: 500,
         defined: false,
       }),
     }),

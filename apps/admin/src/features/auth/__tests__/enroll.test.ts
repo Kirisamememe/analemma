@@ -1,14 +1,14 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-  type FakeReply,
-  type FakeRoutes,
   createFakeApi,
+  type FakeOutput,
+  type FakeReply,
 } from "../../../testing/create-fake-api";
 import { enroll } from "../enroll";
 import type { Authenticator } from "../webauthn/create-authenticator";
 
-const OPTIONS = {
+const OPTIONS: FakeOutput<"auth/enrollment/options"> = {
   challenge: "AQID",
   rp: { id: "localhost", name: "Analemma" },
   user: { id: "BAU", name: "admin", displayName: "管理者" },
@@ -24,7 +24,7 @@ const OPTIONS = {
 };
 
 const CREDENTIAL = {
-  id: "credential-id",
+  id: "credential-ids",
   type: "public-key" as const,
   response: {
     clientDataJSON: "AQ",
@@ -45,9 +45,9 @@ const answering = registering({ _tag: "Answered", credential: CREDENTIAL });
 /** 作り物の server の、登録の2つの procedure の応答。 */
 type EnrollmentReplies = {
   /** options の応答。 */
-  readonly options?: FakeReply;
+  readonly options?: FakeReply<"auth/enrollment/options">;
   /** 登録の応答。 */
-  readonly register?: FakeReply;
+  readonly register?: FakeReply<"auth/enrollment/register">;
 };
 
 const serverReplying = ({
@@ -55,20 +55,21 @@ const serverReplying = ({
   register = { output: { expiresAt: "2026-01-08T00:00:00.000Z" } },
 }: EnrollmentReplies) => {
   const sent: unknown[] = [];
-  const routes: FakeRoutes = {
-    "auth/enrollment/options": (input) => {
-      sent.push(input);
+  return {
+    ...createFakeApi({
+      "auth/enrollment/options": (input) => {
+        sent.push(input);
 
-      return options;
-    },
-    "auth/enrollment/register": (input) => {
-      sent.push(input);
+        return options;
+      },
+      "auth/enrollment/register": (input) => {
+        sent.push(input);
 
-      return register;
-    },
+        return register;
+      },
+    }),
+    sent,
   };
-
-  return { ...createFakeApi(routes), sent };
 };
 
 const INPUT = { token: "abc.def", name: "MacBook" };
@@ -88,7 +89,7 @@ describe("enroll", () => {
 
   test("使えない登録用 URL なら、認証器に尋ねずに知らせる", async () => {
     const server = serverReplying({
-      options: { error: "INVALID_ENROLLMENT", status: 403 },
+      options: { error: "INVALID_ENROLLMENT" },
     });
 
     expect(
@@ -116,18 +117,18 @@ describe("enroll", () => {
   );
 
   test.each([
-    { error: "INVALID_ENROLLMENT", status: 403, expected: "InvalidEnrollment" },
-    { error: "CHALLENGE_EXPIRED", status: 400, expected: "ChallengeExpired" },
+    { error: "INVALID_ENROLLMENT", expected: "InvalidEnrollment" },
+    { error: "CHALLENGE_EXPIRED", expected: "ChallengeExpired" },
     {
       error: "DUPLICATE_CREDENTIAL",
-      status: 409,
       expected: "AlreadyRegistered",
     },
-    { error: "INVALID_CREDENTIAL", status: 400, expected: "Rejected" },
-  ])(
+    { error: "INVALID_CREDENTIAL", expected: "Rejected" },
+  ] satisfies (FakeReply<"auth/enrollment/register"> &
+    Record<"expected", Awaited<ReturnType<typeof enroll>>["_tag"]>)[])(
     "登録で server の $error を $expected として返す",
-    async ({ error, status, expected }) => {
-      const server = serverReplying({ register: { error, status } });
+    async ({ error, expected }) => {
+      const server = serverReplying({ register: { error } });
 
       expect(
         await enroll({ api: server.api, authenticator: answering }, INPUT),
@@ -137,7 +138,7 @@ describe("enroll", () => {
 
   test("origin を断られたら(設定の誤り)、想定外の失敗として throw する", () => {
     const server = serverReplying({
-      options: { error: "FORBIDDEN", status: 403 },
+      options: { error: "FORBIDDEN" },
     });
 
     expect(

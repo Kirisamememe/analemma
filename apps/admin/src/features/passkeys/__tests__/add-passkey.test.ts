@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-  type FakeReply,
   createFakeApi,
+  type FakeOutput,
+  type FakeReply,
 } from "../../../testing/create-fake-api";
 import {
   FAKE_ASSERTION,
@@ -12,15 +13,16 @@ import {
 import type { Authenticator } from "../../auth/webauthn/create-authenticator";
 import { addPasskey } from "../add-passkey";
 
-const AUTHENTICATION_OPTIONS = {
-  challenge: "AQID",
-  rpId: "localhost",
-  allowCredentials: [],
-  userVerification: "required",
-  timeout: 300_000,
-};
+const AUTHENTICATION_OPTIONS: FakeOutput<"admin/session/reauthenticationOptions"> =
+  {
+    challenge: "AQID",
+    rpId: "localhost",
+    allowCredentials: [],
+    userVerification: "required",
+    timeout: 300_000,
+  };
 
-const REGISTRATION_OPTIONS = {
+const REGISTRATION_OPTIONS: FakeOutput<"admin/passkeys/registrationOptions"> = {
   challenge: "BAUG",
   rp: { id: "localhost", name: "Analemma" },
   user: { id: "BAU", name: "admin", displayName: "管理者" },
@@ -43,7 +45,7 @@ const SUMMARY = {
   backedUp: true,
 };
 
-const serverReplying = (register: FakeReply) => {
+const serverReplying = (register: FakeReply<"admin/passkeys/register">) => {
   let sent: unknown;
   const fake = createFakeApi({
     "admin/session/reauthenticationOptions": () => ({
@@ -121,20 +123,19 @@ describe("addPasskey", () => {
   test.each([
     {
       error: "REAUTHENTICATION_FAILED",
-      status: 403,
       expected: "ReauthenticationFailed",
     },
-    { error: "CHALLENGE_EXPIRED", status: 400, expected: "ChallengeExpired" },
+    { error: "CHALLENGE_EXPIRED", expected: "ChallengeExpired" },
     {
       error: "DUPLICATE_CREDENTIAL",
-      status: 409,
       expected: "AlreadyRegistered",
     },
-    { error: "INVALID_CREDENTIAL", status: 400, expected: "Rejected" },
-  ])(
+    { error: "INVALID_CREDENTIAL", expected: "Rejected" },
+  ] satisfies (FakeReply<"admin/passkeys/register"> &
+    Record<"expected", Awaited<ReturnType<typeof addPasskey>>["_tag"]>)[])(
     "server の $error を $expected として返す",
-    async ({ error, status, expected }) => {
-      const server = serverReplying({ error, status });
+    async ({ error, expected }) => {
+      const server = serverReplying({ error });
 
       expect(
         await addPasskey(
@@ -146,7 +147,7 @@ describe("addPasskey", () => {
   );
 
   test("セッションが切れていたら、throw して query client に任せる", () => {
-    const server = serverReplying({ error: "UNAUTHORIZED", status: 401 });
+    const server = serverReplying({ error: "UNAUTHORIZED" });
 
     expect(
       addPasskey(

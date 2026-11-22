@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { AppPreview } from "../../testing/app-preview";
 import { createEnrollmentRoutes } from "../../testing/create-enrollment-routes";
+import type { FakeRoutes } from "../../testing/create-fake-api";
 import { createFakeAuthenticator } from "../../testing/create-fake-authenticator";
 import { createPasskeyRoutes } from "../../testing/create-passkey-routes";
 
@@ -13,7 +14,7 @@ const meta = {
   args: {
     path: "/enroll#abc.def",
     /** 登録が成功し、その後のパスキーの画面も開ける server。 */
-    createRoutes: () => ({
+    createRoutes: (): FakeRoutes => ({
       ...createPasskeyRoutes([{ name: "MacBook Air", backedUp: true }]).routes,
       ...createEnrollmentRoutes(EXPIRY).routes,
     }),
@@ -39,7 +40,6 @@ export const InvalidUrl: Story = {
   args: {
     /** 期限切れや使用済みの登録用 URL として断る server。 */
     createRoutes: () =>
-      createEnrollmentRoutes({ error: "INVALID_ENROLLMENT", status: 403 })
-        .routes,
+      createEnrollmentRoutes({ error: "INVALID_ENROLLMENT" }).routes,
   },
 };
