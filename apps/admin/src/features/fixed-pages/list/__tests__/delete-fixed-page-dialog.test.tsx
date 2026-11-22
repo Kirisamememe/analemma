@@ -63,7 +63,7 @@ describe("DeleteFixedPageDialog", () => {
     expect(server.pages()).toHaveLength(2);
   });
 
-  test("ほかで消えていたら、Dialog の中で知らせ、一覧を読み直す", async () => {
+  test("ほかで消えていたら、Dialog の中で知らせ、一覧を取り直す", async () => {
     const { server } = setUp();
     const dialog = await openDelete("About");
     const [about] = server.pages();
@@ -81,6 +81,26 @@ describe("DeleteFixedPageDialog", () => {
         .getByRole("button", { name: "削除" })
         .hasAttribute("disabled"),
     ).toBe(true);
+    await waitFor(() => {
+      expect(screen.queryByRole("row", { name: "About" })).toBeNull();
+    });
+  });
+
+  test("削除できてから応答だけが失敗しても、一覧を取り直す", async () => {
+    const { server } = setUp();
+    const dialog = await openDelete("About");
+    const [about] = server.pages();
+
+    server.replyNext("admin/fixedPages/delete", () => {
+      server.routes["admin/fixedPages/delete"]({ id: about?.id ?? "" });
+
+      return { error: "INTERNAL_SERVER_ERROR", defined: false };
+    });
+    await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
+
+    expect((await within(dialog).findByRole("alert")).textContent).toBe(
+      "固定ページを削除できませんでした。もう一度試してください。",
+    );
     await waitFor(() => {
       expect(screen.queryByRole("row", { name: "About" })).toBeNull();
     });

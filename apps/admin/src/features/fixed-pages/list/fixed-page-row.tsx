@@ -53,6 +53,7 @@ export const FixedPageRow = ({
       });
     },
     onError: () => {
+      void refresh(FIXED_PAGES_QUERY_KEY); // 変えられてから応答だけが失敗したときも、一覧を合わせる
       showToast({
         tone: "danger",
         message: t("fixedPages.publicationFailed", { title }),

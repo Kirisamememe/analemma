@@ -46,6 +46,9 @@ export const DeleteFixedPageDialog = ({
         });
       }
     },
+    onError: () => {
+      void refresh(FIXED_PAGES_QUERY_KEY); // 削除できてから応答だけが失敗したときも、一覧を合わせる
+    },
   });
 
   return (
@@ -74,7 +77,9 @@ export const DeleteFixedPageDialog = ({
           isDisabled={deleting.data?._tag === "NotFound"}
           isPending={deleting.isPending}
           onPress={() => {
-            deleting.mutate();
+            if (isOpen) {
+              deleting.mutate(); // 閉じ始めた後に遅れて届いた押下では送らない
+            }
           }}
           tone="danger"
         >

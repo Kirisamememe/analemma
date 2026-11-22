@@ -330,6 +330,7 @@ export const createFixedPageRoutes = ({
 
           if (
             ids.length !== pages.length ||
+            new Set(ids).size !== ids.length ||
             ids.some((id) => findPage(id) === undefined)
           ) {
             return { error: "ORDER_MISMATCH" };

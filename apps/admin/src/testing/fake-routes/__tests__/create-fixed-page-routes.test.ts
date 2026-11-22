@@ -39,7 +39,7 @@ const titles = async (api: ReturnType<typeof setUp>["api"]) =>
   (await api.admin.fixedPages.list()).pages.map(({ title }) => title);
 
 describe("createFixedPageRoutes", () => {
-  test("一覧は並び順で返し、種類の label と定義も返す", async () => {
+  test("一覧は並び順で返し、種類のラベルと定義も返す", async () => {
     const { api } = setUp();
 
     expect(await titles(api)).toEqual(["About", "Colophon"]);
@@ -100,7 +100,7 @@ describe("createFixedPageRoutes", () => {
     ).toMatchObject({ code: "SLUG_TAKEN" });
   });
 
-  test("種類の定義に合わない中身は INVALID_CONTENT で、場所を添えて断る", async () => {
+  test("種類の定義に合わない中身は INVALID_CONTENT で場所を添えて断り、無い種類は UNKNOWN_KIND で断る", async () => {
     const { api } = setUp();
 
     expect(
@@ -187,6 +187,15 @@ describe("createFixedPageRoutes", () => {
       (
         await safe(
           api.admin.fixedPages.reorder({ ids: [ABOUT_ID, MISSING_ID] }),
+        )
+      ).error,
+    ).toMatchObject({ code: "ORDER_MISMATCH" });
+    expect(
+      (
+        await safe(
+          api.admin.fixedPages.reorder({
+            ids: [ABOUT_ID, ABOUT_ID.toUpperCase()],
+          }),
         )
       ).error,
     ).toMatchObject({ code: "ORDER_MISMATCH" });

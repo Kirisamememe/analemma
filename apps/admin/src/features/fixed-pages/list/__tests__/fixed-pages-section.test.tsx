@@ -117,7 +117,7 @@ describe("FixedPagesSection", () => {
     ]);
   });
 
-  test("ほかで消えたページの公開を切り替えると、一覧を読み直して知らせる", async () => {
+  test("ほかで消えたページの公開を切り替えると、一覧を取り直して知らせる", async () => {
     const { server } = setUp();
     const about = await findRow("About");
     const [page] = server.pages();
@@ -149,6 +149,31 @@ describe("FixedPagesSection", () => {
     expect((await screen.findByRole("alert")).textContent).toBe(
       "「About」の公開状態を変えられませんでした。もう一度試してください。",
     );
+  });
+
+  test("変えてから応答だけが失敗しても、一覧を取り直して server の状態を出す", async () => {
+    const { server } = setUp();
+    const [about] = server.pages();
+
+    server.replyNext("admin/fixedPages/unpublish", () => {
+      server.routes["admin/fixedPages/unpublish"]({ id: about?.id ?? "" });
+
+      return { error: "INTERNAL_SERVER_ERROR", defined: false };
+    });
+    await userEvent.click(
+      within(await findRow("About")).getByRole("button", {
+        name: "非公開にする",
+      }),
+    );
+
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "「About」の公開状態を変えられませんでした。もう一度試してください。",
+    );
+    expect(
+      await within(await findRow("About")).findByRole("button", {
+        name: "公開する",
+      }),
+    ).toBeDefined();
   });
 
   test("取っ手をキーボードで動かすと、全部の ID を並べた順に送る", async () => {
@@ -193,7 +218,7 @@ describe("FixedPagesSection", () => {
     expect(screen.queryByText("並び順を保存しています")).toBeNull();
   });
 
-  test("ほかでページが増えていたら、一覧を読み直して知らせる", async () => {
+  test("ほかでページが増えていたら、一覧を取り直して知らせる", async () => {
     const { server } = setUp();
 
     await findRow("About");
