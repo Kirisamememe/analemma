@@ -91,6 +91,18 @@
   - 手元の check で、lint に関わるファイルに触れていない変更のときに fixture のテストを飛ばすことはしない(ユーザーが決めた)。約2秒なので、飛ばす仕組みに見合わない。
 - **fixture**:ルールの分類ごとのフォルダ(`comments/`(TSDoc は `comments/tsdoc/`)・`jsdoc/`・`functions/`・`imports/`・`syntax/`・`tests/`)に分け、server や管理画面だけに掛かるルールの fixture は、`apps/server/src/` のように同じパスを再現したフォルダに置く。`tooling/lint/fixtures/` は `bun test` の対象から外す(`bunfig.toml` の `pathIgnorePatterns`)。描画するライブラリを import する fixture など、実行できないものを置くため。
 
+### 管理画面の feature の import
+
+feature が使う外のライブラリは `src/i18n/` と `src/api/` のモジュールに集める。
+ライブラリを差し替えるときに調べて直す場所を限るため、feature に渡す形は今使うものに絞る。
+差し替えへの備えは、抽象化の層を増やさず、依存する場所を限ることで担保する。
+
+`eslint/no-restricted-imports` の否定の pattern と、`.ts` にある React の既存の制限で、`@analemma/contract`・管理画面内の相対パスと `@/`・`.tsx` での `react` を通す。`!react` は末尾が `react` の別のパッケージにも一致するので、`*/**/react` でその例外を取り消す。
+既存のルールで書けるので、自作のルールは足さない。
+features の import には、この pattern を使う。React Aria Components・lucide-react・tailwind-variants・Node・Bun の import も `**` が止めるため、同じ import への診断は1件で済む。
+テストと story は、描画や作り物の server の組み立てに外のライブラリを使える。
+この制限は `src/features/` の製品のコードに掛ける。`src/routes/` は今回の適用範囲から外す。
+
 ## 手元の検査
 
 `bun run check` は `tooling/check/check.ts` が流す。

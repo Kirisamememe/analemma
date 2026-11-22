@@ -143,6 +143,23 @@ export const VARIANT_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
   },
 ];
 
+/** 管理画面の feature から import できるモジュールの範囲。 */
+export const ADMIN_FEATURE_PATTERNS: readonly RestrictedPattern[] = [
+  {
+    group: [
+      "**",
+      "!react",
+      "*/**/react",
+      "!@analemma/contract",
+      "!./**",
+      "!../**",
+      "!@/**",
+    ],
+    message:
+      "管理画面の features で import できるのは、React (.tsx)・@analemma/contract・相対パスか @/ で指定する管理画面内のモジュールだけです。訳・API・認証器・server の状態は src/i18n/ と src/api/ の部品を、画面の部品は ui/ の部品を通して使います。Node と Bun の API は使いません。",
+  },
+];
+
 /** 管理画面の `.ts` で止める、React。 */
 export const REACT_PATHS: readonly RestrictedPath[] = [
   { name: "react", message: REACT },
