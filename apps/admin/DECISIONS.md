@@ -72,6 +72,41 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 利用者が選んだ言語と配色は、`localStorage` の `analemma:locale`・`analemma:theme` に置く。server には送らない。管理者は1人で、端末ごとに違ってよい。
 - 言語を切り替える画面を作るときは、入力欄の誤りの知らせを出したまま切り替えたときの言語を確かめる。React Aria Components は、値を確かめたときの文字列を持ち続けるので、今の部品では、知らせが前の言語のまま残る(Dialog や画面を開き直すと、部品を作り直すので、今の言語になる)。直すなら、入力欄の部品が訳のキーを受け取り、描くときに訳す形にする。
 
+## React の effect
+
+`useEffect`・`useLayoutEffect`・`useInsertionEffect` は、ほかの手段で書けない処理を、目的が分かる名前の hook にまとめ、その直下で使う。React の外と同期する処理を hook にまとめると、呼ぶ側から何と同期するかが分かり、どこで effect を使うかを hook の表で見られる。
+
+effect でないと書けない処理は、次のとおり。
+
+1. `window`・`document` のイベントを購読し、外すまで持ち続ける処理(キーボードの shortcut、`beforeunload`)。
+2. component が生きている間の timer。
+3. DOM の要素に結びつかない外への接続(WebSocket・EventSource・BroadcastChannel)。
+4. React の外の状態のうち、`document.title` や html の属性のように、React が描かない DOM に値を書く処理。
+5. ブラウザが描く前の大きさの計測(`useLayoutEffect`)。
+
+それ以外は、次の手段で書く。
+
+| 処理                               | 使う手段                                                |
+| ---------------------------------- | ------------------------------------------------------- |
+| DOM の要素に結びつく準備と後片付け | cleanup を返す ref callback                             |
+| 外の store の値の読み取り          | `useSyncExternalStore`                                  |
+| props や state から計算できる値    | 描くときに計算し、重ければ `useMemo`                    |
+| 操作がきっかけの処理               | event handler や mutation の `onSuccess`                |
+| 子の state を作り直す              | `key`                                                   |
+| データの読み込み                   | TanStack Query と Router の loader                      |
+| 初期化                             | `main.tsx` か module の一番外                           |
+| effect の中で最新の値を読む        | `useEffectEvent`                                        |
+| URL の履歴を画面の値に合わせる     | Router の `Navigate`(登録用 URL の画面)                 |
+| i18next の言語を props に合わせる  | 言語ごとに instance を `useMemo` で作る(Storybook の枠) |
+
+effect を使う hook の表は、次のとおり。
+
+| hook                 | 置き場所                              | 処理                                                                          |
+| -------------------- | ------------------------------------- | ----------------------------------------------------------------------------- |
+| `useHtmlPreferences` | `.storybook/use-html-preferences.tsx` | (4) ブラウザが描く前に html の `lang` と `data-theme` を story の値に合わせる |
+
+表の hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` にも足す。どうしても避けられない呼び出しを表の hook の外に書く場合は、`// oxlint-disable-next-line project/no-effect-outside-allowed-hook -- 理由` で抑制する。
+
 ## 開発のときの API
 
 開発では、Vite の開発のサーバー(`http://localhost:5173`)が、`/api/` で始まるパスを server の外部用のポート(`http://localhost:8787`)へ流す。
@@ -99,7 +134,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - ログインと登録の流れ(`src/features/auth/log-in.ts`・`enroll.ts`)は、server の API と認証器を受け取る関数にし、作り物で単体テストする。server の失敗のうち、利用者に伝えるもの(期限切れ・登録されていないパスキーなど)は `_tag` の結果にし、origin の食い違いのような設定の誤りは throw する(画面には「ログインできませんでした」と出る)。
 - 認証器(`src/features/auth/webauthn/create-authenticator.ts`)は、server の options(base64url の JSON)を、そのままブラウザに渡し、ブラウザが返した資格情報の `toJSON()` の値を、contract の zod(`authenticationCredential`・`registrationCredential`)で読んで server に送る。JSON とブラウザの形のあいだの変換は、ブラウザの `PublicKeyCredential.parseRequestOptionsFromJSON()`・`parseCreationOptionsFromJSON()`・`toJSON()` に任せ、自前の base64url の変換を持たない。`toJSON()` の戻り値の型(ログインと登録の共用体で、`userHandle` は省略できる)は contract より広いので、contract の zod で、必須の項目と値の制約を実行時に確かめ、server に送る形にそろえる(`rawId` などの余分な項目は落とす)。形が合わなければ、zod の誤りを `cause` に付けて想定外の失敗として throw する。ブラウザの API を呼ぶつなぎ(`create-browser-web-authn.ts`)は、`navigator.credentials` の `get`・`create` と、JSON をパースする関数を受け取る関数にし、作り物でテストする。`main.tsx` は、`navigator.credentials` の結果を `PublicKeyCredential` に狭めて渡すつなぎと、`PublicKeyCredential` の parse の関数(`parseRequestOptionsFromJSON` など)を渡すだけにする。キャンセル(`NotAllowedError`・`AbortError`、`AbortSignal.timeout()` で止めたときの `TimeoutError`)と、登録済みの認証器(`InvalidStateError`)は、想定内の結果として返す。
 - **登録用 URL の形**:`{AUTH_ORIGIN}/enroll#{token}` に決めた(server のコマンドが出す形のまま)。
-- 登録用 URL の画面は、開いたらすぐに token をメモリに移し、URL と履歴から `#` の後ろを消す(`replace`)。登録の最中に履歴を移ってから成功の `replace` が走ると、移った先の履歴を書き換えてしまうので、成功したときは、登録の画面にいるときだけホームに移る。開き直すと token は無いので、コマンドで出し直す。開いたまま新しい登録用 URL を開いたときは(`#` の後ろだけが変わるので、ブラウザは読み込み直さない)、新しい token に替え、前の登録の知らせを消す。期限切れの URL の後に出し直した URL を同じタブに貼ると、こうなる。
+- 登録用 URL の画面は、開いたらすぐに token をメモリに移し、URL と履歴から `#` の後ろを消す(`<Navigate replace to="/enroll" />`)。登録の最中に履歴を移ってから成功の `replace` が走ると、移った先の履歴を書き換えてしまうので、成功したときは、登録の画面にいるときだけホームに移る。開き直すと token は無いので、コマンドで出し直す。開いたまま新しい登録用 URL を開いたときは(`#` の後ろだけが変わるので、ブラウザは読み込み直さない)、新しい token に替え、前の登録の知らせを消す。期限切れの URL の後に出し直した URL を同じタブに貼ると、こうなる。
 - パスキーの名前は、認証器でパスキーを作る前に、contract と同じスキーマ(`passkeyName`)で確かめ、入力欄に誤りを出す。作った後で server に名前を断られると、認証器に、ログインに使えないパスキーが残る。
 - ログインした後の画面で、セッションを確かめる API が 401 以外で失敗したら(server が落ちているなど)、訳した知らせと、やり直すボタンを出す(router の既定の画面は英語で、やり直せない)。
 - ログアウトしたら、持っている状態を消して、ログインの画面に移る。
@@ -139,7 +174,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - story は CSF 3 で書く。Storybook の文書が勧める形で、CSF Next(factories)は preview の扱いで API が変わりうる。
 - story は、部品の隣の `__stories__` に `<名前>.stories.tsx` で置く。title は `primitives/Button` のように書き、フォルダの名前(`__stories__`)を入れない。story の中の文は、見本の文なので訳を通さずに書く。
 - Storybook の Vite は `vite.config.ts` を読むが、`build` は `target` しか引き継がず、`server` は上書きする(10.6.8 の配布物で確かめた)。`viteFinal` で `build.target` と `build.cssTarget` を `vite.config.ts` と同じ `BROWSER_TARGET` に入れ直す。入れないと、`storybook build` で `light-dark()` が書き換えられ、`scheme-dark` が効かなくなる(`src/ui/DECISIONS.md` の「light と dark」)。開発のサーバーの port・`strictPort`・`/api` の proxy は Storybook が上書きするので、ぶつからない。
-- head に script を書き込む plugin は、Storybook では外す(`withoutVitePlugins`)。言語と配色はツールバーで選ぶ(既定は light と日本語)。story を包む枠(`.storybook/story-frame.tsx`)が、i18next の instance(ツールバーで変えたら `changeLanguage`)と、それを読む React Aria Components の `I18nProvider` にはツールバーの言語を、html の `lang` には story に見える文の言語を、`data-theme` には配色を入れる。i18n の仕組みを替えるときは、この枠を直す。
+- head に script を書き込む plugin は、Storybook では外す(`withoutVitePlugins`)。言語と配色はツールバーで選ぶ(既定は light と日本語)。story を包む枠(`.storybook/story-frame.tsx`)は、ツールバーの言語で i18next の instance を作り、React Aria Components の `I18nProvider` もその言語を読む。言語が変わったら `useMemo` で新しい instance を作り、Provider の値を差し替えるので、story の state は残る。`useHtmlPreferences` は、ブラウザが描く前に html の `lang` に story に見える文の言語を、`data-theme` に配色を入れる。
 - 部品の story の見本の文は日本語なので、html の `lang` を `ja` にする(`parameters.contentLang`)。ツールバーの言語を `lang` にすると、zh-Hans で、かなが中国語の字体で描かれた(ユーザーが見つけた)。画面の story は訳を出すので、`contentLang: null` にして、ツールバーの言語を `lang` にする(`contentLang` を書かないと、既定の `ja` を引き継ぐ)。文字の見本は、見本の文ごとに `lang` を付ける。言語を付けないと、日本語の字体に無い簡体字だけが別の字体に替わり、1つの文の中で字体が混ざった。
 - 部品の story は、既定で、Storybook の真ん中に置いた展示用の枠(`src/ui/specimens/story-stage.tsx`。面の色と、地の上に重ねる半透明の線)の中に描く(`parameters.stage`)。小さい部品は枠を中身の大きさにし、幅で見え方が変わる部品(`Notice`・入力欄・`Form`・`Text`・`Stack` など)は決めた幅(`w-lg`)にする。画面全体の story(画面・`AppShell`・`Center`)と色・文字の見本は、枠を付けない。枠も寄せも無いと、小さい部品が左上の隅に集まって見えにくかった(ユーザーの指摘)。
 - 枠は TanStack Router の route を描かず、`Link` が読む router だけを `RouterContextProvider` で渡す(router は枠ごとに作り、story のあいだで履歴を持ち越さない)。route を描くと、route の境界が story の想定外の失敗を受け止め、Storybook にもテストにも上がらない。

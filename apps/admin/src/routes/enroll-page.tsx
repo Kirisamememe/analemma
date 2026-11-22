@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  Navigate,
   useLocation,
   useRouteContext,
   useRouter,
 } from "@tanstack/react-router";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { checkPasskeyName } from "../features/auth/check-passkey-name";
@@ -59,14 +60,9 @@ export const EnrollPage = (): ReactNode => {
   const outcome = enrollment.variables?.token === token ? result : undefined;
   const notice = outcome === undefined ? undefined : toEnrollNotice(outcome);
 
-  useEffect(() => {
-    if (hash !== "") {
-      router.history.replace("/enroll");
-    }
-  }, [hash, router]);
-
   return (
     <Center width="sm">
+      {hash !== "" && <Navigate replace to="/enroll" />}
       <Stack gap={6}>
         <PageHeader
           description={t("enroll.description")}
