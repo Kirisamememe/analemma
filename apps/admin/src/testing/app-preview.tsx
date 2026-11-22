@@ -10,7 +10,7 @@ import { createTestApp } from "./create-test-app";
 type AppPreviewProps = {
   /** 最初に開くパス。 */
   readonly path: string;
-  /** 作り物の server の応答を作る関数(描くたびに、新しい状態で始める)。 */
+  /** 作り物の server の応答を作る関数(story を開いたときに1回だけ呼ぶ)。 */
   readonly createRoutes: () => FakeRoutes;
   /** 作り物の認証器。 */
   readonly authenticator?: Authenticator;

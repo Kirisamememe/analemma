@@ -155,6 +155,7 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 
 ## 割り切ったこと
 
+- **画面の story の作り物の server の状態**:ログインと登録の story は、ログインの作り物とパスキーの作り物をつないだだけなので、ログインの状態とパスキーの一覧の状態が別々に動く(すべてのセッションからログアウトした後の再ログインや、登録した名前の一覧への反映が合わない)。story は画面を見るためのもので、流れのつながりは画面のテストが確かめる(Codex のレビューで見つかった)。
 - **secure context でない origin**:`main.tsx` は起動のときに `PublicKeyCredential` を読むので、`localhost` 以外の HTTP で開くと、描く前に止まる。管理画面は HTTPS と `localhost` でだけ使う(Codex のレビューで見つかった)。
 - **画面の story の描くテストの待ち時間**:全部の story を描くテストは、画面の story を描いてから 50ms 待って確かめる。一覧を読めない story は、query の再試行のあとで知らせが出るので、テストは読み込み中の画面で通る。それぞれの状態は、画面のテストが確かめている(Codex のレビューで見つかった)。
 - **Storybook の狭い画面**:幅を決めた展示用の枠(`w-lg`)は、Storybook の画面が 544px より狭いと、横にはみ出す(Storybook の `centered` の箱が、子の幅を最小の幅にする)。Storybook は管理者がデスクトップのブラウザで見るので、受け入れる(Codex と Cursor のレビューで見つかった)。
