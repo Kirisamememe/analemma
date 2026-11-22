@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import {
   Button as AriaButton,
   DropIndicator,
@@ -18,7 +18,7 @@ const row = tv({
 });
 
 const handle = tv({
-  base: "inline-flex h-control-sm shrink-0 cursor-grab items-center justify-center rounded-control px-1.5 text-fg-muted outline-hidden transition is-hovered:state-hover is-hovered:text-fg is-focus-shown:focus-ring is-disabled:state-disabled is-disabled:cursor-default",
+  base: "inline-flex h-control-sm shrink-0 items-center justify-center rounded-control px-1.5 text-fg-muted outline-hidden transition is-focus-shown:focus-ring is-disabled:state-disabled",
 });
 
 const dropIndicator = tv({
@@ -59,8 +59,15 @@ export const ReorderableList = ({
   onReorder,
   isDisabled = false,
 }: ReorderableListProps): ReactNode => {
+  const [isDragging, setIsDragging] = useState(false); // マウスのドラッグは、置いた後の dragend で終わる
   const { dragAndDropHooks } = useDragAndDrop({
-    isDisabled,
+    isDisabled: isDisabled && !isDragging,
+    onDragStart: () => {
+      setIsDragging(true);
+    },
+    onDragEnd: () => {
+      setIsDragging(false);
+    },
     getItems: (keys) =>
       items
         .filter(({ id }) => keys.has(id))
