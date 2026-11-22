@@ -100,8 +100,9 @@ export const findBannedTerms = ({
   prose,
 }: GlossarySearch): GlossaryFinding[] => {
   const terms = glossary.banned.filter(
-    ({ scopes }) =>
-      scopes.length === 0 || scopes.some((scope) => path.startsWith(scope)),
+    ({ excludes, scopes }) =>
+      (scopes.length === 0 || scopes.some((scope) => path.startsWith(scope))) &&
+      !excludes.some((exclude) => path.startsWith(exclude)),
   );
   const found = new Map<string, GlossaryFinding>();
 

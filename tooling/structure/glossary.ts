@@ -6,6 +6,8 @@ export type BannedTerm = {
   readonly replacement: string;
   /** 探すフォルダのパス。 */
   readonly scopes: readonly string[];
+  /** 探さないフォルダのパス。 */
+  readonly excludes: readonly string[];
 };
 
 /** 用語集を読んだ結果。 */
@@ -32,7 +34,7 @@ type Parsed<T> = {
   readonly problems: string[];
 };
 
-const MACHINE_HEADER = "表記|代わりに書くもの|探す範囲";
+const MACHINE_HEADER = "表記|代わりに書くもの|探す範囲|除く範囲";
 const WHOLE_REPOSITORY = "リポジトリ全体";
 const NONE = "—";
 const SEPARATOR_ROW = /^\|(?:\s*:?-+:?\s*\|)+$/v;
@@ -83,11 +85,19 @@ const readTables = (markdown: string): Parsed<Table> => {
 const machineTerms = (rows: readonly string[][]): Parsed<BannedTerm> => {
   const parsed: Parsed<BannedTerm> = { values: [], problems: [] };
 
-  for (const [termCell = "", replacement = "", scopeCell = ""] of rows) {
+  for (const [
+    termCell = "",
+    replacement = "",
+    scopeCell = "",
+    excludeCell = "",
+  ] of rows) {
     const scopes =
       scopeCell === WHOLE_REPOSITORY
         ? []
         : splitItems(scopeCell).map((scope) => stripCode(scope));
+    const excludes = splitItems(excludeCell).map((exclude) =>
+      stripCode(exclude),
+    );
 
     if (replacement === "" || replacement === NONE) {
       parsed.problems.push(`代わりに書くものが空:${termCell}`);
@@ -101,9 +111,17 @@ const machineTerms = (rows: readonly string[][]): Parsed<BannedTerm> => {
       ...scopes
         .filter((scope) => !scope.endsWith("/"))
         .map((scope) => `探す範囲は / で終わるフォルダにする:${scope}`),
+      ...excludes
+        .filter((exclude) => !exclude.endsWith("/"))
+        .map((exclude) => `除く範囲は / で終わるフォルダにする:${exclude}`),
     );
     parsed.values.push(
-      ...splitItems(termCell).map((term) => ({ term, replacement, scopes })),
+      ...splitItems(termCell).map((term) => ({
+        term,
+        replacement,
+        scopes,
+        excludes,
+      })),
     );
   }
 
