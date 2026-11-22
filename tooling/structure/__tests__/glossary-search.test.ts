@@ -6,10 +6,10 @@ import { extractProse, type Prose } from "../prose";
 
 const glossary = readGlossary(
   [
-    "| 表記 | 代わりに書くもの | 探す範囲 |",
-    "| --- | --- | --- |",
-    "| 旧名、XYZ、曖 | 新名 | リポジトリ全体 |",
-    "| 古名 | 新名 | `apps/one/` |",
+    "| 表記 | 代わりに書くもの | 探す範囲 | 除く範囲 |",
+    "| --- | --- | --- | --- |",
+    "| 旧名、XYZ、曖 | 新名 | リポジトリ全体 | — |",
+    "| 古名 | 新名 | `apps/one/` | `apps/one/docs/` |",
   ].join("\n"),
 );
 
@@ -73,6 +73,11 @@ describe("使わない表記の探し方", () => {
   test("探す範囲のある語は、その範囲の中でだけ探すこと", () => {
     expect(find("apps/two/a.md", lines("古名"))).toEqual([]);
     expect(find("apps/one/a.md", lines("古名"))).toEqual(["1:古名"]);
+  });
+
+  test("除く範囲の中では探さないこと", () => {
+    expect(find("apps/one/docs/a.md", lines("古名"))).toEqual([]);
+    expect(find("apps/one/docs-old/a.md", lines("古名"))).toEqual(["1:古名"]);
   });
 
   test("LF・CRLF・CR・U+2028・U+2029 のどれも、1つの改行と数えること", () => {

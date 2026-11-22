@@ -1,10 +1,16 @@
 import { afterAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { loadPrivateNames } from "../private-name-list";
+import { findMainCheckout, loadPrivateNames } from "../private-name-list";
 
 const temporaryRoot = mkdtempSync(join(tmpdir(), "analemma-search-lists-"));
 
@@ -79,5 +85,19 @@ describe("ほかのリポジトリの名前の一覧を読むこと", () => {
     expect(() => loadPrivateNames(makeDirectory("outside"))).toThrow(
       "git rev-parse --git-common-dir が失敗した",
     );
+  });
+});
+
+describe("メインの checkout を探すこと", () => {
+  test("worktree の中からでも、メインの checkout の直下を返すこと", () => {
+    const main = makeDirectory("find-main");
+    const worktree = join(temporaryRoot, "find-main-worktree");
+
+    git(main, "init", "--quiet");
+    git(main, "commit", "--quiet", "--allow-empty", "--message", "init");
+    git(main, "worktree", "add", "--quiet", worktree);
+
+    expect(findMainCheckout(worktree)).toBe(realpathSync(main));
+    expect(findMainCheckout(main)).toBe(realpathSync(main));
   });
 });

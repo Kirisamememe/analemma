@@ -162,9 +162,9 @@ test("lint とこの検査で、行数の境目がそろっていること", () 
 const GLOSSARY = "GLOSSARY.md";
 const glossary = readGlossary(readFileSync(join(repoRoot, GLOSSARY), "utf8"));
 
-test("用語集の表を読めて、探す範囲のフォルダがあること", () => {
+test("用語集の表を読めて、探す範囲と除く範囲のフォルダがあること", () => {
   const missingScopes = glossary.banned
-    .flatMap(({ scopes }) => scopes)
+    .flatMap(({ excludes, scopes }) => [...scopes, ...excludes])
     .filter((scope) => !paths.some((path) => path.startsWith(scope)));
 
   expect(glossary.problems).toEqual([]);

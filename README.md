@@ -34,13 +34,14 @@ bun install
 bun run check
 ```
 
-| コマンド            | 中身                                                                                                                                                                      |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `bun run check`     | 整形の確認・lint・型検査・テストを順に流す                                                                                                                                |
-| `bun run format`    | oxfmt で整形する                                                                                                                                                          |
-| `bun run lint:fix`  | Oxlint で自動で直せるものを直す                                                                                                                                           |
-| `bun run typecheck` | リポジトリの直下の tsconfig と、各ワークスペースの tsconfig を検査する                                                                                                    |
-| `bun run test`      | テスト用の PostgreSQL を Docker Compose で起動し、migration を適用したテンプレートの DB を用意してから、`bun test` を流す。管理画面のテストは、続けて `apps/admin` で流す |
+| コマンド            | 中身                                                                                                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `bun run check`     | 整形の確認・lint・型検査・テストを順に流す                                                                                                                                     |
+| `bun run format`    | oxfmt で整形する                                                                                                                                                               |
+| `bun run lint:fix`  | Oxlint で自動で直せるものを直す                                                                                                                                                |
+| `bun run typecheck` | リポジトリの直下の tsconfig と、各ワークスペースの tsconfig を検査する                                                                                                         |
+| `bun run test`      | テスト用の PostgreSQL を Docker Compose で起動し、migration を適用したテンプレートの DB を用意してから、`bun test` を流す。管理画面のテストは、続けて `apps/admin` で流す      |
+| `bun run review`    | ブランチを、観点を1つ選んでレビューする(Codex・Cursor の CLI で流す。言葉の観点は、Claude の subagent に渡す prompt を書き出す。進め方は `AGENTS.md` の「ブランチとレビュー」) |
 
 server を手元で動かすときは、開発用の PostgreSQL を起動し、migration を適用してから起動する。
 
