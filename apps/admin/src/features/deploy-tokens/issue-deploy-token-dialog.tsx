@@ -108,26 +108,28 @@ export const IssueDeployTokenDialog = ({
     send: async (name: string) => {
       const result = await issueDeployToken({ api, authenticator }, name);
 
-      if (result._tag !== "Issued") {
-        return result;
+      if (result._tag === "Issued") {
+        setIssued({ name: result.name, token: result.token });
       }
 
-      setIssued({ name: result.name, token: result.token });
-
-      return { _tag: result._tag, name: result.name };
+      return { _tag: result._tag };
     },
-    onSuccess: async (result) => {
-      if (result._tag !== "Issued") {
-        return;
+    onSuccess: async ({ _tag }) => {
+      if (_tag === "Issued") {
+        await refresh(DEPLOY_TOKENS_QUERY_KEY);
       }
-
-      showToast({
-        tone: "success",
-        message: t("deployTokens.issued", { name: result.name }),
-      });
-      await refresh(DEPLOY_TOKENS_QUERY_KEY);
     },
   });
+  const close = (): void => {
+    if (issued !== undefined) {
+      showToast({
+        tone: "success",
+        message: t("deployTokens.issued", { name: issued.name }),
+      });
+    }
+
+    onClose();
+  };
   const outcome = issuing.isError ? "Unexpected" : issuing.data?._tag;
   const notice =
     outcome === undefined || outcome === "Issued"
@@ -140,7 +142,7 @@ export const IssueDeployTokenDialog = ({
       isPending={issuing.isPending}
       onOpenChange={(open) => {
         if (!open) {
-          onClose();
+          close();
         }
       }}
       title={t(
@@ -190,7 +192,7 @@ export const IssueDeployTokenDialog = ({
           </Form>
         </>
       ) : (
-        <IssuedTokenContent issued={issued} onClose={onClose} />
+        <IssuedTokenContent issued={issued} onClose={close} />
       )}
     </Dialog>
   );

@@ -54,22 +54,28 @@ const isShown = (token: string): boolean =>
     );
 
 describe("IssueDeployTokenDialog", () => {
-  test("再認証をしてから発行し、token を見せ、Toast で知らせ、一覧に足す", async () => {
+  test("再認証をしてから発行して token を見せ、閉じたら Toast で知らせ、一覧に足す", async () => {
     const { server, app } = renderIssuing();
 
     await openAndSubmit("本番のデプロイ");
 
     const token = await issuedToken();
+    const dialog = await screen.findByRole("dialog", {
+      name: "新しいトークンをコピー",
+    });
 
-    expect(
-      await screen.findByRole("dialog", { name: "新しいトークンをコピー" }),
-    ).toBeDefined();
     expect(token).toStartWith(`${server.tokens()[0]!.id}.`);
     expect(
       screen.getByText(
         "トークンの値を表示するのは今だけです。閉じる前にコピーしてください。",
       ),
     ).toBeDefined();
+    expect(screen.queryByRole("alert")).toBeNull();
+
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "閉じる" }),
+    );
+
     expect((await screen.findByRole("alert")).textContent).toBe(
       "「本番のデプロイ」を発行しました。",
     );
