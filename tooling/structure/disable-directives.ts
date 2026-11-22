@@ -1,9 +1,9 @@
-/** 抑制のコメントの種類。 */
+/** 抑制のコメントの形。 */
 export type DirectiveKind = "disable" | "disable-line" | "disable-next-line";
 
 /** 抑制のコメントを読んだ結果。 */
 export type DisableDirective = {
-  /** 抑制の種類。 */
+  /** 抑制の形。 */
   readonly kind: DirectiveKind;
   /** 抑制するルールの名前。 */
   readonly rules: readonly string[];

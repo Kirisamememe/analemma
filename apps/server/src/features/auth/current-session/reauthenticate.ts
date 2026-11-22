@@ -14,7 +14,10 @@ export type AdminRequestContext = RequestContext & {
 /** 再認証を求めた procedure と、届いた資格情報。 */
 export type ReauthenticationRequest = {
   /** 再認証を求めた procedure。 */
-  readonly action: "passkeys.register" | "passkeys.delete";
+  readonly action:
+    | "passkeys.register"
+    | "passkeys.delete"
+    | "deployTokens.issue";
   /** 今のパスキーで確かめ直した、ログインの資格情報。 */
   readonly assertion: AuthenticationCredentialInput;
 };

@@ -17,3 +17,6 @@ apps/*/playwright-report/
 CLAUDE.local.md
 .claude/settings.local.json
 AGENTS.local.md
+
+apps/*/storybook-static/
+apps/*/debug-storybook.log

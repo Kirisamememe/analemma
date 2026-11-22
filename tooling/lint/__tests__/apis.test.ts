@@ -10,9 +10,66 @@ describe("使える API と書き方", () => {
       rule: "eslint(no-restricted-imports)",
     },
     {
+      label: "管理画面の本番のコードでの、Node の API のサブパスの import",
+      file: "apps/admin/src/uses-node-subpath.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の画面のコードでの React Aria Components の import",
+      file: "apps/admin/src/routes/uses-aria.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label:
+        "管理画面の画面のコードでの React Aria Components のサブパスの import",
+      file: "apps/admin/src/routes/uses-aria-subpath.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の、tailwind-variants の merge の入口の import",
+      file: "apps/admin/src/ui/primitives/uses-merge-entry.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/layout/ からの primitives の import",
+      file: "apps/admin/src/ui/layout/uses-primitive.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/primitives/ からの patterns の import",
+      file: "apps/admin/src/ui/primitives/uses-pattern.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label:
+        "管理画面の、merge の設定を入れていない tailwind-variants の import",
+      file: "apps/admin/src/ui/primitives/uses-default-tv.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
       label: "contract での Node の API の import",
       file: "packages/contract/src/uses-node.ts",
       rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "client の CLI の外での Node の API の import",
+      file: "packages/client/src/uses-node.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "client の CLI での Bun の API の import",
+      file: "packages/client/src/cli/uses-bun.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "client の CLI での node:process の import",
+      file: "packages/client/src/cli/imports-process.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "client の CLI の入口の外での process.env",
+      file: "packages/client/src/cli/reads-env.ts",
+      rule: "node(no-process-env)",
     },
     {
       label: "console",

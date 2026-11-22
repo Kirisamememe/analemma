@@ -2,11 +2,13 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "types": ["bun"],
-    "allowJs": true
+    "allowJs": true,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "tooling/**/*.ts",
-    "oxlint.fixtures.config.mjs",
+    "oxlint.config.ts",
+    "oxlint.fixtures.config.ts",
     "commitlint.config.ts"
   ],
   "exclude": ["tooling/lint/fixtures/**"]

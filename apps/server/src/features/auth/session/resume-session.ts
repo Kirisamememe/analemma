@@ -1,10 +1,14 @@
 import type { DatabaseExecutor } from "../../../platform/database";
-import { equalSecretHashes } from "../secret-token/equal-secret-hashes";
-import { readSecretToken } from "../secret-token/read-secret-token";
+import {
+  equalSecretHashes,
+  readSecretToken,
+} from "../secret-token/secret-token";
 import { decideSession } from "./decide-session";
-import { deleteExpiredSession } from "./delete-expired-session.query";
-import { findSession } from "./find-session.query";
-import { refreshSession } from "./refresh-session.query";
+import {
+  deleteExpiredSession,
+  findSession,
+  refreshSession,
+} from "./session.query";
 
 /** ログイン中の管理者のセッション。 */
 export type Session = {
@@ -18,7 +22,7 @@ export type Session = {
 
 /** 続けられたセッションと、期限を延ばしたか。 */
 export type ResumedSession = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Active";
   /** 続けたセッション。 */
   readonly session: Session;
@@ -28,7 +32,7 @@ export type ResumedSession = {
 
 /** token でセッションを続けられないこと。 */
 export type InvalidSession = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Invalid";
 };
 

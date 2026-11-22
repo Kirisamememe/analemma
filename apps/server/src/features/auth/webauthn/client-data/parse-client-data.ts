@@ -4,7 +4,7 @@ import { type WebAuthnRejection, reject } from "../rejection";
 
 /** clientDataJSON のうち、検証に使う値。 */
 export type ClientData = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Parsed";
   /** `webauthn.create` か `webauthn.get`。 */
   readonly type: string;

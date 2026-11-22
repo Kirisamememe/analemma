@@ -15,7 +15,7 @@ export type CborMap = ReadonlyMap<number | string, CborValue>;
 
 /** 読んだ CBOR の値と、読み終えた位置。 */
 export type DecodedCbor = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Decoded";
   /** 読んだ値。 */
   readonly value: CborValue;
@@ -26,7 +26,7 @@ export type DecodedCbor = {
 /** 読みかけの値か、受け付けない理由。 */
 type Read<T> =
   | {
-      /** 結果の種類。 */
+      /** どの結果か。 */
       readonly _tag: "Read";
       /** 読んだ値。 */
       readonly value: T;

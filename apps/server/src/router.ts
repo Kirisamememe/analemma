@@ -16,14 +16,50 @@ import { deletePasskey } from "./features/auth/passkeys/delete-passkey";
 import { getPasskeyOptions } from "./features/auth/passkeys/get-passkey-options";
 import { listPasskeys } from "./features/auth/passkeys/list-passkeys";
 import { renamePasskey } from "./features/auth/passkeys/rename-passkey";
+import { issueDeployToken } from "./features/deploy-tokens/issue-deploy-token";
+import { listDeployTokens } from "./features/deploy-tokens/list-deploy-tokens";
+import { revokeDeployToken } from "./features/deploy-tokens/revoke-deploy-token";
+import { createFixedPage } from "./features/fixed-pages/editing/create-fixed-page";
+import { deleteFixedPage } from "./features/fixed-pages/editing/delete-fixed-page";
+import { updateFixedPage } from "./features/fixed-pages/editing/update-fixed-page";
+import { getFixedPage } from "./features/fixed-pages/get-fixed-page";
+import { listFixedPages } from "./features/fixed-pages/list-fixed-pages";
+import { reorderFixedPages } from "./features/fixed-pages/ordering/reorder-fixed-pages";
+import { getPublishedFixedPage } from "./features/fixed-pages/published/get-published-fixed-page";
+import { listPublishedFixedPages } from "./features/fixed-pages/published/list-published-fixed-pages";
+import { publishFixedPage } from "./features/fixed-pages/publishing/publish-fixed-page";
+import { unpublishFixedPage } from "./features/fixed-pages/publishing/unpublish-fixed-page";
 import { getHealth } from "./features/health/get-health";
-import { adminProcedures, authProcedures } from "./procedures";
+import { getKind } from "./features/kinds/get-kind";
+import { listKinds } from "./features/kinds/list-kinds";
+import { pushKinds } from "./features/kinds/push/push-kinds";
+import {
+  adminProcedures,
+  authProcedures,
+  deployProcedures,
+} from "./procedures";
 
 /** 全 feature の procedure を束ねたルーター。 */
 export const router = implement(contract)
   .$context<RequestContext>()
   .router({
     admin: adminProcedures.router({
+      deployTokens: {
+        list: listDeployTokens,
+        issue: issueDeployToken,
+        revoke: revokeDeployToken,
+      },
+      fixedPages: {
+        list: listFixedPages,
+        get: getFixedPage,
+        create: createFixedPage,
+        update: updateFixedPage,
+        publish: publishFixedPage,
+        unpublish: unpublishFixedPage,
+        reorder: reorderFixedPages,
+        delete: deleteFixedPage,
+      },
+      kinds: { list: listKinds, get: getKind },
       passkeys: {
         list: listPasskeys,
         registrationOptions: getPasskeyOptions,
@@ -42,5 +78,12 @@ export const router = implement(contract)
       enrollment: { options: getEnrollmentOptions, register: enrollPasskey },
       login: { options: getLoginOptions, verify: logIn },
     }),
-    public: { health: { get: getHealth } },
+    deploy: deployProcedures.router({ kinds: { push: pushKinds } }),
+    public: {
+      fixedPages: {
+        list: listPublishedFixedPages,
+        get: getPublishedFixedPage,
+      },
+      health: { get: getHealth },
+    },
   });

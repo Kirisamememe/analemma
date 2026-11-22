@@ -7,6 +7,7 @@ import maxExportedFunctions from "./rules/modules/max-exported-functions.mjs";
 import noCrossWorkspaceImport from "./rules/modules/no-cross-workspace-import.mjs";
 import noDynamicImport from "./rules/modules/no-dynamic-import.mjs";
 import noInlineParameterType from "./rules/modules/no-inline-parameter-type.mjs";
+import stylingBoundary from "./rules/styles/styling-boundary.mjs";
 import noFocusedTest from "./rules/tests/no-focused-test.mjs";
 import noMarkupTest from "./rules/tests/no-markup-test.mjs";
 import requireSiblingTest from "./rules/tests/require-sibling-test.mjs";
@@ -29,6 +30,7 @@ const plugin = {
     "no-standalone-comment": noStandaloneComment,
     "require-disable-reason": requireDisableReason,
     "require-sibling-test": requireSiblingTest,
+    "styling-boundary": stylingBoundary,
     "test-location": testLocation,
     "tsdoc-role-only": tsdocRoleOnly,
   },

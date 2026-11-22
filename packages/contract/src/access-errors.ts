@@ -15,3 +15,8 @@ export const authAccess = oc.errors({
 export const reauthenticatedAccess = adminAccess.errors({
   REAUTHENTICATION_FAILED: { status: 403 },
 });
+
+/** デプロイ用のトークンで呼ぶ procedure の、共通の失敗。 */
+export const deployAccess = oc.errors({
+  UNAUTHORIZED: { status: 401 },
+});

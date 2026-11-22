@@ -3,7 +3,12 @@ import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import type { Hono } from "hono";
 
-import { createApp } from "../app";
+import {
+  createExternalApp,
+  createInternalApp,
+  type externalRouter,
+  type internalRouter,
+} from "../app";
 import {
   CHALLENGE_CAPACITY,
   CHALLENGE_LIFETIME_MS,
@@ -13,7 +18,6 @@ import { issueEnrollment } from "../features/auth/enrollment/issue-enrollment";
 import type { Clock } from "../platform/clock";
 import type { LogEntry, Logger } from "../platform/logger";
 import { createTestDatabase } from "../platform/test-database/create-test-database";
-import type { router } from "../router";
 import { createCookieJar } from "./create-cookie-jar";
 
 /** テストで差し替える依存と、最初から持たせる Cookie。 */
@@ -26,8 +30,8 @@ export type TestClientOptions = {
 
 /** それぞれ自分の Cookie を持つ、テストのブラウザ。 */
 export type TestBrowser = {
-  /** アプリにつないだ、型付きの client。 */
-  readonly client: RouterClient<typeof router>;
+  /** 外部用のポートのアプリにつないだ、型付きの client。 */
+  readonly client: RouterClient<typeof externalRouter>;
   /** 持っている Cookie を、Cookie ヘッダーの形で返す。 */
   readonly cookie: () => string;
 };
@@ -35,8 +39,12 @@ export type TestBrowser = {
 /** テストのために組み立てたアプリと、それにつないだ client。 */
 export type TestClient = AsyncDisposable &
   TestBrowser & {
-    /** テストのために組み立てたアプリ。 */
+    /** テストのために組み立てた、外部用のポートのアプリ。 */
     readonly app: Hono;
+    /** テストのために組み立てた、内部用のポートのアプリ。 */
+    readonly internalApp: Hono;
+    /** 内部用のポートのアプリにつないだ client を、Authorization の token を添えて作る。 */
+    readonly internal: (token?: string) => RouterClient<typeof internalRouter>;
     /** アプリが書き出したログ。 */
     readonly logs: readonly LogEntry[];
     /** アプリがつないでいる、テストの DB の名前。 */
@@ -52,6 +60,9 @@ export const TEST_NOW = new Date("2026-01-01T00:00:00.000Z");
 
 /** テストの管理画面の origin。 */
 export const TEST_ORIGIN = "https://analemma.test";
+
+/** テストの内部用のポートの URL。 */
+export const TEST_INTERNAL_URL = "http://127.0.0.1:8788";
 
 /** テストの RP ID。 */
 export const TEST_RP_ID = "analemma.test";
@@ -69,7 +80,7 @@ export const createTestClient = async (
   };
   const clock = options.clock ?? { now: () => TEST_NOW };
   const database = stack.use(await createTestDatabase({ logger }));
-  const app = createApp({
+  const context = {
     clock,
     db: database.db,
     logger,
@@ -78,7 +89,9 @@ export const createTestClient = async (
       capacity: CHALLENGE_CAPACITY,
       lifetimeMs: CHALLENGE_LIFETIME_MS,
     }),
-  });
+  };
+  const app = createExternalApp(context);
+  const internalApp = createInternalApp(context);
 
   const openBrowser = (seed = ""): TestBrowser => {
     const jar = createCookieJar(seed);
@@ -86,8 +99,12 @@ export const createTestClient = async (
       url: `${TEST_ORIGIN}/api`,
       headers: () =>
         jar.header() === ""
-          ? { origin: TEST_ORIGIN }
-          : { origin: TEST_ORIGIN, cookie: jar.header() },
+          ? { origin: TEST_ORIGIN, "sec-fetch-site": "same-origin" }
+          : {
+              origin: TEST_ORIGIN,
+              "sec-fetch-site": "same-origin",
+              cookie: jar.header(),
+            },
       fetch: async (request) => {
         const response = await app.fetch(request);
 
@@ -98,17 +115,28 @@ export const createTestClient = async (
     });
 
     return {
-      client: createORPCClient<RouterClient<typeof router>>(link),
+      client: createORPCClient<RouterClient<typeof externalRouter>>(link),
       cookie: jar.header,
     };
   };
 
+  const internal = (token?: string): RouterClient<typeof internalRouter> =>
+    createORPCClient(
+      new RPCLink({
+        url: `${TEST_INTERNAL_URL}/api`,
+        headers:
+          token === undefined ? {} : { authorization: `Bearer ${token}` },
+        fetch: async (request) => internalApp.fetch(request),
+      }),
+    );
   const browser = openBrowser(options.cookie);
   const resources = stack.move();
 
   return {
     ...browser,
     app,
+    internalApp,
+    internal,
     logs,
     databaseName: database.name,
     openBrowser,

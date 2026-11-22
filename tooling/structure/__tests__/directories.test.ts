@@ -8,6 +8,7 @@ import {
   findBadDirectories,
   findCrowdedDirectories,
 } from "../directories";
+import { findStrayStoryFiles } from "../story-files";
 
 describe("中身が多すぎるフォルダ", () => {
   test("上限を超えたフォルダだけを、中身の数と一緒に返すこと", () => {
@@ -24,10 +25,11 @@ describe("中身が多すぎるフォルダ", () => {
     ]);
   });
 
-  test("__tests__ と文書は数えないこと", () => {
+  test("__tests__・__stories__ と文書は数えないこと", () => {
     const paths = [
       "src/a.ts",
       "src/__tests__/a.test.ts",
+      "src/__stories__/a.stories.tsx",
       "src/AGENTS.md",
       "src/CLAUDE.md",
       "src/DECISIONS.md",
@@ -58,16 +60,51 @@ describe("フォルダの名前", () => {
     ]);
   });
 
-  test("__tests__ の中のフォルダを返すこと", () => {
-    const paths = ["src/__tests__/deep/a.test.ts", "src/__tests__/b.test.ts"];
+  test("__tests__ と __stories__ の中のフォルダを返すこと", () => {
+    const paths = [
+      "src/__tests__/deep/a.test.ts",
+      "src/__tests__/b.test.ts",
+      "apps/admin/src/__stories__/deep/a.stories.tsx",
+    ];
 
-    expect(findBadDirectories(paths)).toEqual(["src/__tests__/deep"]);
+    expect(findBadDirectories(paths)).toEqual([
+      "apps/admin/src/__stories__/deep",
+      "src/__tests__/deep",
+    ]);
   });
 
-  test("__tests__ と、. で始まるフォルダは受け入れること", () => {
-    const paths = ["src/__tests__/a.test.ts", ".claude/settings.json"];
+  test("__tests__・__stories__ と、. で始まるフォルダは受け入れること", () => {
+    const paths = [
+      "src/__tests__/a.test.ts",
+      "apps/admin/src/__stories__/a.stories.tsx",
+      ".claude/settings.json",
+    ];
 
     expect(findBadDirectories(paths)).toEqual([]);
+  });
+});
+
+describe("story の置き場所", () => {
+  test("管理画面の src の外の __stories__ を返すこと", () => {
+    const paths = [
+      "apps/admin/src/ui/__stories__/a.stories.tsx",
+      "apps/server/src/__stories__/a.stories.tsx",
+    ];
+
+    expect(findBadDirectories(paths)).toEqual(["apps/server/src/__stories__"]);
+  });
+
+  test("__stories__ の中の story でないファイルと、__stories__ の外の story を返すこと", () => {
+    const paths = [
+      "apps/admin/src/ui/__stories__/a.stories.tsx",
+      "apps/admin/src/ui/__stories__/helper.ts",
+      "apps/admin/src/ui/a.stories.tsx",
+    ];
+
+    expect(findStrayStoryFiles(paths)).toEqual([
+      "apps/admin/src/ui/__stories__/helper.ts",
+      "apps/admin/src/ui/a.stories.tsx",
+    ]);
   });
 });
 

@@ -10,6 +10,7 @@ import {
   clearSessionCookie,
   writeSessionCookie,
 } from "./features/auth/session/write-session-cookie";
+import { verifyDeployToken } from "./features/deploy-tokens/verify-deploy-token";
 
 const api = implement(contract).$context<RequestContext>();
 
@@ -17,15 +18,9 @@ const isSameOrigin = ({
   headers,
   method,
   relyingParty,
-}: RequestContext): boolean => {
-  const site = headers.get("sec-fetch-site");
-
-  if (site !== null && site !== "same-origin") {
-    return false;
-  }
-
-  return method === "GET" || headers.get("origin") === relyingParty.origin;
-};
+}: RequestContext): boolean =>
+  headers.get("sec-fetch-site") === "same-origin" &&
+  (method === "GET" || headers.get("origin") === relyingParty.origin);
 
 const rejectOrigin = (context: RequestContext): void => {
   context.logger.write({
@@ -93,11 +88,44 @@ const requireSession = api.admin.middleware(
   },
 );
 
+const BEARER = /^Bearer (?<token>\S+)$/iv;
+
+const requireDeployToken = api.deploy.middleware(
+  async ({ context, errors, next }) => {
+    const token = BEARER.exec(context.headers.get("authorization") ?? "")
+      ?.groups?.["token"];
+    const verified =
+      token === undefined
+        ? undefined
+        : await verifyDeployToken({
+            db: context.db,
+            token,
+            now: context.clock.now(),
+          });
+
+    if (verified?._tag !== "Verified") {
+      context.logger.write({
+        level: "warn",
+        message: "デプロイ用のトークンを確かめられなかった",
+        details: { deployTokenId: verified?.id },
+      });
+      context.resHeaders.set("WWW-Authenticate", "Bearer");
+
+      throw errors.UNAUTHORIZED();
+    }
+
+    return next({ context: { deployToken: { id: verified.id } } });
+  },
+);
+
 /** 誰でも呼べる procedure を作る base。 */
 export const publicProcedures = api.public;
 
 /** セッション無しで呼ぶ、ログインと登録の procedure を作る base。 */
 export const authProcedures = api.auth.use(requireAuthOrigin);
+
+/** 公開サイトのデプロイの仕組みが、デプロイ用のトークンで呼ぶ procedure を作る base。 */
+export const deployProcedures = api.deploy.use(requireDeployToken);
 
 /** ログイン中の管理者だけが呼べる procedure を作る base。 */
 export const adminProcedures = api.admin

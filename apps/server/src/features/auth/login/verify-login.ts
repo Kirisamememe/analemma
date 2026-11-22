@@ -17,7 +17,7 @@ import {
 
 /** ログインの資格情報を検証できたこと。 */
 export type VerifiedLogin = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Verified";
   /** ログインに使ったパスキー。 */
   readonly passkey: LoginPasskey;

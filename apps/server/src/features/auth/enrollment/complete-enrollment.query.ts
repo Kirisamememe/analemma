@@ -2,14 +2,15 @@ import { and, eq, gt } from "drizzle-orm";
 
 import { passkeyEnrollment } from "../../../db/schema/passkey-enrollment";
 import type { DatabaseExecutor } from "../../../platform/database";
-import { lockAdminUser } from "../admin-user/lock-admin-user.query";
+import { lockAdminUser } from "../admin-user/admin-user.query";
+import { deleteAllSessions } from "../current-session/delete-all-sessions.query";
 import {
   type PasskeyInsert,
   type PasskeyRow,
   insertPasskey,
 } from "../registration/insert-passkey.query";
-import type { SecretTokenParts } from "../secret-token/read-secret-token";
-import { insertSession } from "../session/insert-session.query";
+import type { SecretTokenParts } from "../secret-token/secret-token";
+import { insertSession } from "../session/session.query";
 
 /** 登録用の token で保存するパスキーと、始めるセッション。 */
 export type EnrollmentCompletion = {
@@ -23,7 +24,7 @@ export type EnrollmentCompletion = {
 
 /** 登録用の token を使ってパスキーを保存したこと。 */
 export type CompletedEnrollment = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Completed";
   /** 保存したパスキーの行。 */
   readonly row: PasskeyRow;
@@ -40,7 +41,7 @@ export type IncompleteEnrollment =
       readonly _tag: "Duplicate";
     };
 
-/** 登録用の token を1回だけ使って、パスキーを保存し、セッションを始める。 */
+/** 登録用の token を1回だけ使ってパスキーを保存し、ほかのセッションを消して、セッションを始める。 */
 export const completeEnrollment = async (
   db: DatabaseExecutor,
   { enrollmentId, passkey, session }: EnrollmentCompletion,
@@ -72,6 +73,7 @@ export const completeEnrollment = async (
     await tx
       .delete(passkeyEnrollment)
       .where(eq(passkeyEnrollment.id, enrollmentId));
+    await deleteAllSessions(tx, passkey.adminUserId);
     await insertSession(tx, {
       id: session.id,
       secretHash: session.secretHash,

@@ -2,7 +2,7 @@ name: check
 
 on:
   push:
-    branches: [main]
+    branches: [main, "phase/**"]
   pull_request:
 
 permissions:
@@ -25,4 +25,20 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
-      - run: bun run check
+      - run: bun run check --all
+      - name: client の CLI を、ビルドした形で1回流す
+        working-directory: packages/client
+        env:
+          ANALEMMA_DEPLOY_TOKEN: AAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+        run: |
+          bun run build
+          bin="$PWD/$(node -p 'require("./package.json").bin.analemma')"
+          chmod +x "$bin"
+          cd "$(mktemp -d)"
+          echo 'export default [{ definition: { name: "Not Kebab", label: "ページ", fields: [] } }];' > kinds.mjs
+          status=0
+          "$bin" push-kinds kinds.mjs --url http://127.0.0.1:9 2> errors.txt || status=$?
+          cat errors.txt
+          test "$status" -eq 1
+          grep -q '種類の定義を読めない' errors.txt
+          grep -q '^0\.name: ' errors.txt

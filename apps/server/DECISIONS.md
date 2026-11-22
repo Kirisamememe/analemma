@@ -14,19 +14,19 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 
 - **フォルダ**:`src/main.ts`(起動)、`src/platform/`(Bun 専用の API、DB の接続、clock、logger)、`src/db/schema/`(全テーブルの定義)、`src/procedures.ts`(アクセス区分ごとの base)、`src/enroll.ts`(登録用 URL を出すコマンド)、`src/router.ts`、`src/features/<名前>/`。ビジネスイベントの型と dispatcher は、まだ無い。`src/` の直下は10件で埋まっているので、置き場所は作るときに決める。
 - **共通の概念も feature にする**:公開状態の判定や slug の履歴のように、複数のコンテンツの型が使う概念も `features/` に置く。`shared/`・`common/` のような置き場を作ると、何でも入る場所になる。
-- **ファイル**:1ファイルに、1つの procedure か1つの関数を置く。export できる関数は2つまでなので、自然にこの形になる。名前は動詞から始まる kebab-case(`get-post.ts`、`decide-publish.ts`、`to-post-detail.ts`)。
+- **ファイル**:1ファイルに、1つの procedure を置く。関係する小さな関数(同じテーブルの query、同じ概念の小さな純粋関数)は、コードの行数が200行以下なら、1つのファイルにまとめてよい(ユーザーの依頼で、エージェントが決めた)。関数ごとにファイルを分けると、小さなファイルで feature のフォルダの10件がすぐに埋まる。200行は、export できる関数の数を問わない境目(`tooling/DECISIONS.md` の `max-exported-functions`)と同じ。名前は、procedure と1つの関数だけのファイルは動詞から始まる kebab-case(`get-post.ts`、`decide-publish.ts`、`to-post-detail.ts`)、まとめたファイルはテーブルか概念の名前(`session.query.ts`、`secret-token.ts`)にする。
 - **DB に触れるファイルは `*.query.ts`**:Drizzle と DB のドライバを値として import できるのは、`*.query.ts`・`src/db/`・`src/platform/`(DB の接続を作る場所)だけにする。`src/main.ts` は Bun の API は使えるが、DB には触れない。DB を差し替えるときに直す場所が、名前で分かる。
 - **Bun 専用の API は `src/platform/` と `src/main.ts` だけ**:それ以外は Web 標準で書き、実行環境を替えても直す場所を限る。
 - **テーブルに書き込めるのは、持ち主の feature だけ**:読むのはどこからでもよい。トップページの集約のような、読むだけの feature が他のテーブルを join できるようにする。
 - **公開状態の判定は1つの関数だけで行う**:判定を散らばらせると、どこかで漏れ、公開していないものを見せてしまう。
-- **procedure は、アクセス区分を決めた base(`publicProcedures`・`authProcedures`・`adminProcedures`)からしか作らない**:認可を付けた場所だけを守る方式では、付け忘れがそのまま漏れになる。全部の管理用の procedure が、Cookie なしで `UNAUTHORIZED` を返すことを、contract の `admin` を列挙するテストで確かめる(「入口の守り」)。
+- **procedure は、アクセス区分を決めた base(`publicProcedures`・`authProcedures`・`deployProcedures`・`adminProcedures`)からしか作らない**:認可を付けた場所だけを守る方式では、付け忘れがそのまま漏れになる。全部の管理用の procedure が、Cookie なしで `UNAUTHORIZED` を返すことを、contract の `admin` を列挙するテストで確かめる(「入口の守り」)。
 - **ビジネスイベントは変更の前と後から導く**:公開の判断をする純粋関数が、変更と一緒に出すビジネスイベントも返す。書き込みの経路ごとに出すと、経路を足すたびに、ビジネスイベントやキャッシュの無効化を出し忘れる。
 - **canonical URL は server が作る**:公開サイトが日付などから URL を組み立てると、時刻帯などのずれで壊れる。
 - **見つからないものと、公開していないものは区別しない**:下書きや予約中の記事も「無い」として返し、存在を漏らさない。
 
 ## エラーと依存(Effect から取り入れた考え方)
 
-- 想定内の失敗は `_tag` 付きの判別共用体で返し、想定外の失敗は throw して入口で 500 とログにする。失敗の種類が型に出るので、扱い忘れを `switch` の網羅性の検査で見つけられる。try/catch と `.catch()` は、入口と dispatcher の外では lint で止める(入口に数える場所は `tooling/DECISIONS.md`)。
+- 想定内の失敗は `_tag` 付きの判別共用体で返し、想定外の失敗は throw して入口で 500 とログにする。どの失敗かが型に出るので、扱い忘れを `switch` の網羅性の検査で見つけられる。try/catch と `.catch()` は、入口と dispatcher の外では lint で止める(入口に数える場所は `tooling/DECISIONS.md`)。
 - 依存は oRPC の context で明示的に渡す。グローバルなシングルトンは、テストで差し替えられず、どこで使われているかも追えない。
 - 入力は入口でデコードしてブランド型にし、内側では検証し直さない。
 - リソースの後始末は `await using` で保証し、リクエストの `AbortSignal` を、DB や外部への呼び出しの渡せるところまで渡す。渡す手段の無いところは、「割り切ったこと」に書く。
@@ -36,15 +36,31 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 ## HTTP の層
 
 - **Hono を使う**:API の仕事(ルーティング、入力と出力の検証、型付きのエラー、認可の middleware)は oRPC が持つ。その外側の HTTP の仕事(セキュリティのヘッダー、CSRF の確認、リクエストの本文の大きさの上限、静的ファイル、ETag、Cookie)は、自分たちで書かずに Hono の middleware を使う。Hono は Web 標準で書かれていて Bun 以外でも動くので、「Web 標準で書く」方針に合う。Elysia は Bun 専用なので使わない。NestJS のような大きなフレームワークは、この規模には重い。
-- oRPC の handler は、Hono の `/api/*` のルートとしてつなぐ。今は oRPC のプロトコル(`RPCHandler`)だけを出す。contract から作る OpenAPI の handler は、公開サイトが API を使い始めるときに足す。
-- middleware は `secureHeaders`・`csrf`・`bodyLimit`(`/api` は 1MB まで)。管理画面の静的ファイルの配信は、管理画面ができてから足す。
+- oRPC の handler は、Hono の `/api/*` のルートとしてつなぐ。oRPC のプロトコル(`RPCHandler`)だけを出す。公開サイトも、client(oRPC の client)で公開 API を呼ぶので、contract から作る OpenAPI の handler は、今は足さない。
+- middleware は `secureHeaders`・`csrf`・`bodyLimit`(`/api` は 1MB まで)。管理画面の静的ファイルの配信は、まだ無い。本番の置き場所を決めるときに足す(それまでは、作っても本番の形で確かめられない)。内部用のポートには `bodyLimit` だけを掛ける(「2つのポート」)。
 - バージョンは安定版で始める(Hono 4、oRPC 1)。Hono 5 と oRPC 2 は、まだ RC と beta。
+
+## 2つのポート
+
+CMS のプロセスが、外部用のポート(`PORT`、既定は 8787)と内部用のポート(`INTERNAL_PORT`、既定は 8788)の2つで待ち受ける(ユーザーと決めた)。
+
+- 外部用のポートでは、管理用 API と認証用 API(と、後で管理画面の静的ファイル)を受ける。リクエストは、リバースプロキシを通って、ブラウザから届く。
+- 内部用のポートでは、公開 API とデプロイ用 API を受ける。同じサーバーで動く公開サイト(Amayadori)のサーバーと、デプロイのときの CLI だけが呼ぶ。サーバーの外からは届かない。`INTERNAL_HOST`(既定は 127.0.0.1)で、待ち受けるアドレスを決める。公開サイトを別のコンテナで動かすときは、コンテナの内部のネットワークのアドレスにし、ホストのポートに結び付けない(Compose の `ports:` に書かない)。
+- リバースプロキシのパスの設定で分けない。設定を一つ誤ると、公開 API やデプロイ用 API が外から届く。待ち受けるポートで分ければ、外から届かないようにする約束は「内部用のポートで、サーバーの外から届く場所を待ち受けない」だけになる。
+- 公開 API をサーバーの外から届かないようにすることは、ユーザーと決めた。読む API が外から届かない方が安全で、サーバーの処理を CMS と同じサーバーで動かすサイトしか、公開 API を使えないことは受け入れた。
+- どちらのポートで、どの procedure を受けるかは、contract のアクセス区分で決める(`app.ts` の `externalRouter`・`internalRouter`)。外部用のポートに公開 API とデプロイ用 API が無いこと、内部用のポートに管理用 API と認証用 API が無いことを、contract を列挙するテスト(`src/__tests__/app.test.ts`)で確かめる。
+- 内部用のポートには、ブラウザに向けた守り(`secureHeaders`・`csrf()`・Origin の確認)を掛けない。ブラウザから呼ぶものではなく、Cookie も使わない。本文の大きさの上限と、受けるメソッドの制限は、外部用のポートと同じに掛ける。
+- health(`public.health.get`)は公開 API なので、内部用のポートにだけ置く。コンテナの healthcheck は、同じマシンの中から呼ぶ。
+- `PORT` と `INTERNAL_PORT` が同じ番号なら、起動の時点で断る(どちらも `0` のときを除く)。`INTERNAL_PORT` も、`0` なら OS が空いているポートを選び、起動のログに実際のポートを書く。
+- 番号を決めたポートで、OS に選ばせる(`0` の)ポートより先に待ち受ける(どちらも決めたか、どちらも `0` なら内部用のポートが先)。OS が選ぶ番号が、もう片方に決めた番号を先に取ってしまわないように(Codex と Copilot のレビューで見つかった)。
+- 止めるときは、2つのポートの受け付けを同時に止めてから、処理中のリクエストが終わるのを待つ。片方の処理中のリクエストを待つ間に、もう片方が新しいリクエストを受けないように(Codex のレビューで見つかった)。
 
 ## contract の分け方
 
-contract を3つのアクセス区分に分け、server ではそれぞれの base から実装する。
+contract を4つのアクセス区分に分け、server ではそれぞれの base から実装する。
 
-- `public`(公開 API):誰でも呼べる。公開サイト向けの client には、`public` だけを含める。
+- `public`(公開 API):内部用のポートで受け、資格情報を求めない。公開サイトのサーバーからだけ呼ぶので、CORS も要らない。公開サイト向けの client には、`public` と `deploy` だけを含める。
+- `deploy`(デプロイ用 API):内部用のポートで受け、デプロイ用のトークンを求める。公開サイトのデプロイのときに、client の CLI が種類の定義を送る(`src/features/deploy-tokens/DECISIONS.md`)。
 - `auth`(認証用 API):セッション無しで呼ぶ、ログインと登録用 URL からの登録。ログインの前に呼ぶので `admin` には置けないが、公開サイトには要らないので `public` にも置かない。`authProcedures` から作る。
 - `admin`(管理用 API):ログイン中の管理者だけ。
 
@@ -53,10 +69,10 @@ contract を3つのアクセス区分に分け、server ではそれぞれの ba
 ## 入口の守り(Codex のレビューを受けて足した)
 
 - `/api` が受けるのは GET と POST だけ。ほかのメソッドは procedure に渡さずに 405 を返す。Hono は HEAD を GET のルートに回すが、oRPC には HEAD のまま届き、oRPC の既定の検査は GET しか見ない。そのままだと、HEAD や OPTIONS で更新の procedure が動く。
-- 管理用の応答と認証用の応答には、断ったときも含めて `Cache-Control: no-store` を付ける。認証用の procedure は、ログインのたびに Set-Cookie を返すため。`csrf()` や本文の大きさの上限が procedure の前で断る応答(403・413)にも付くよう、no-store の middleware を、それらより先に置く。Cookie で認可していても、途中のキャッシュに保存されると、後のリクエストが認可を通らずに中身を受け取れてしまう。公開 API の応答のキャッシュは、キャッシュの設計と一緒に決める。
-- `admin` と `auth` の procedure は、GET でなければ、Origin ヘッダーが管理画面の origin(`AUTH_ORIGIN`)と完全に一致するときだけ受け付け、ほかは 403 と `FORBIDDEN` にする(Origin が無いときも)。Hono の `csrf()` はフォームの形の Content-Type だけを見て、JSON の POST はブラウザの CORS の preflight に任せている。CORS の設定や、ブラウザが preflight を送らない Content-Type に頼らないよう、Cookie で認証するアクセス区分では自分で確かめる。確かめるのは oRPC の middleware で、パスではなく contract のアクセス区分で掛ける。パーセントエンコードしたパスのような、Hono と oRPC でパスの読み方が食い違う抜け道を作らない。GET は読むだけの procedure にしか届かない(oRPC の既定で、route を GET にした procedure 以外は GET で呼べない)。同じ origin の GET に、ブラウザは Origin を付けない。代わりに、ブラウザの `Sec-Fetch-Site` が `same-origin` でないリクエストは、GET を含めて断る。同じサイトの別の origin のページに、Cookie 付きの GET を送らせないため(理由は `src/features/auth/DECISIONS.md`)。
+- 管理用の応答と認証用の応答とデプロイ用の応答には、断ったときも含めて `Cache-Control: no-store` を付ける。認証用の procedure は、ログインのたびに Set-Cookie を返すため。`csrf()` や本文の大きさの上限が procedure の前で断る応答(403・413)にも付くよう、no-store の middleware を、それらより先に置く。Cookie で認可していても、途中のキャッシュに保存されると、後のリクエストが認可を通らずに中身を受け取れてしまう。公開 API の応答のキャッシュは、キャッシュの設計と一緒に決める。
+- `admin` と `auth` の procedure は、GET でなければ、Origin ヘッダーが管理画面の origin(`AUTH_ORIGIN`)と完全に一致するときだけ受け付け、ほかは 403 と `FORBIDDEN` にする(Origin が無いときも)。Hono の `csrf()` はフォームの形の Content-Type だけを見て、JSON の POST はブラウザの CORS の preflight に任せている。CORS の設定や、ブラウザが preflight を送らない Content-Type に頼らないよう、Cookie で認証するアクセス区分では自分で確かめる。確かめるのは oRPC の middleware で、パスではなく contract のアクセス区分で掛ける。パーセントエンコードしたパスのような、Hono と oRPC でパスの読み方が食い違う抜け道を作らない。GET は読むだけの procedure にしか届かない(oRPC の既定で、route を GET にした procedure 以外は GET で呼べない)。同じ origin の GET に、ブラウザは Origin を付けない。代わりに、`Sec-Fetch-Site` が `same-origin` でないリクエストは、GET を含めて断る(`Sec-Fetch-Site` が無いときも。対応するブラウザはどれも付ける)。同じサイトの別の origin のページに、Cookie 付きの GET を送らせないため(理由は `src/features/auth/DECISIONS.md`)。
 - Hono の `csrf()` の許す origin は、リクエストの URL からではなく `AUTH_ORIGIN` から決める。TLS を終端するリバースプロキシの後ろでは、リクエストの URL の scheme やホストが、ブラウザから見た origin と食い違う。
-- すべての応答に、`Permissions-Policy: publickey-credentials-create=(self), publickey-credentials-get=(self)` と、`Content-Security-Policy: frame-ancestors 'none'`・`X-Frame-Options: DENY` を付ける。ほかのサイトが管理画面を iframe に入れ、パスキーの操作を任せる(`allow` 属性)ことを、ブラウザに断らせる。Hono の `secureHeaders` には `publickey-credentials-create` の項目が無いので、Permissions-Policy は自分で書く。CSP のほかの directive は、管理画面の配信を足すときに決める。
+- 外部用のポートのすべての応答に、`Permissions-Policy: publickey-credentials-create=(self), publickey-credentials-get=(self)` と、`Content-Security-Policy: frame-ancestors 'none'`・`X-Frame-Options: DENY` を付ける。ほかのサイトが管理画面を iframe に入れ、パスキーの操作を任せる(`allow` 属性)ことを、ブラウザに断らせる。Hono の `secureHeaders` には `publickey-credentials-create` の項目が無いので、Permissions-Policy は自分で書く。CSP のほかの directive は、管理画面の配信を足すときに決める。
 - 認可の middleware は、`adminProcedures` に付けるのに加えて、`router.ts` で管理用のルーター全体にも掛ける(oRPC は同じ middleware の重複を1つにまとめる)。管理用の procedure を `adminProcedures` 以外から作る抜け道ができても、認可が外れない。
 - 認可のテストは、server のルーターではなく contract の `admin` を列挙する。ルーターに遅延読み込みの枝が入っても、contract にある procedure は必ず検査される。
 - 想定外の失敗のログは、procedure を呼ぶ段階(`clientInterceptors`)で取る。リクエストを読む段階で取ると、壊れた JSON のような利用者の誤りまで、server の障害として記録されてしまう。
@@ -115,6 +131,9 @@ contract を3つのアクセス区分に分け、server ではそれぞれの ba
 
 ## 割り切ったこと
 
+- **`INTERNAL_HOST` のワイルドカード**:`INTERNAL_HOST` に `0.0.0.0` や `::` を渡すと、内部用のポートがすべてのインターフェースで待ち受ける。公開サイトを別のコンテナで動かすときは、コンテナの中で `0.0.0.0` にし、ホストのポートに結び付けないのが普通なので、断らない。ホストで直に動かすときに、外から届かないようにするのは、置き方を決める人の責任にする。
+- **`INTERNAL_HOST` に付けたポート**:`127.0.0.1:8788` のようにポートを付けても、環境変数の検証は通る(IPv6 のアドレスと見分けにくい)。`Bun.serve` が起動の時点で失敗するので、黙って違う場所で待ち受けることは無い。
+- **止める順のテスト**:2つのポートの受け付けを同時に止めることは、テストで確かめていない。片方に時間のかかるリクエストを残したまま止める必要があり、確かめる仕組みが重い。壊れると(片方ずつ止めるようになると)、止める間に、もう片方のポートが、処理中のリクエストが終わるまで新しいリクエストを受け続ける。止める合図を受けた後の数秒に届いたリクエストが処理されるだけで、データが壊れたり漏れたりはしないので受け入れる。
 - **DB に渡さない `AbortSignal`**:リクエストの `AbortSignal` は DB まで渡していない。postgres.js には問い合わせを取り消す API(`.cancel()`)があるが、Drizzle を通して渡す仕組みが無く、platform にも無いため。利用者が待つのをやめても、問い合わせは最後まで流れるだけで、結果は捨てられる。渡すときは、接続を取り置くトランザクションの rollback まで確かめる。
 - **DB の接続を閉じること**:SIGTERM で止まるときに、DB の接続を閉じることはテストで確かめていない。確かめるには、子のプロセスの中の接続を、PostgreSQL の側から見張る仕組みが要る。閉じ損ねても、プロセスが終われば接続は切れ、PostgreSQL の側で片付くので、直さない。
 - **消し損ねたテストの DB**:落ちたテストが消し損ねた DB と、古いテンプレートは、テスト用の PostgreSQL に残る。データは tmpfs にあるので、`docker compose restart postgres-test` で消える。テストの結果には響かないので、自動では片付けない。

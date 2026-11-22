@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import config from "../../../oxlint.config";
 import {
   DIRECTORY_ENTRY_LIMIT,
   findBadDirectories,
@@ -20,6 +21,7 @@ import {
   SOFT_LIMIT_RULE,
   checkSourceFile,
 } from "../source-file";
+import { findStrayStoryFiles } from "../story-files";
 import { findTestOnlyImports } from "../test-only-imports";
 
 const repoRoot = join(import.meta.dirname, "../../..");
@@ -53,6 +55,10 @@ test(`どのフォルダも、中身が ${String(DIRECTORY_ENTRY_LIMIT)} 件以�
 
 test("フォルダの名前が kebab-case であること", () => {
   expect(findBadDirectories(paths)).toEqual([]);
+});
+
+test("__stories__ には story のファイルだけを置くこと", () => {
+  expect(findStrayStoryFiles(paths)).toEqual([]);
 });
 
 const DECISIONS_FILE = /(?:^|\/)DECISIONS\.md$/v;
@@ -96,15 +102,8 @@ type OptionQuery = {
 const optionOf = ({ name, value }: OptionQuery): unknown =>
   Array.isArray(value) && isRecord(value[1]) ? value[1][name] : undefined;
 
-const config: unknown = JSON.parse(
-  readFileSync(join(repoRoot, ".oxlintrc.json"), "utf8"),
-);
-const rules =
-  isRecord(config) && isRecord(config["rules"]) ? config["rules"] : {};
-const overrides =
-  isRecord(config) && Array.isArray(config["overrides"])
-    ? config["overrides"]
-    : [];
+const rules: Readonly<Record<string, unknown>> = config.rules;
+const { overrides } = config;
 
 test("どのソースのファイルも、抑制できない約束を守っていること", () => {
   const problems = sourcePaths.flatMap((path) =>
@@ -136,7 +135,7 @@ test("Oxlint が飛ばす名前のソースのファイルが無いこと", () =
 
 test("Oxlint の設定はリポジトリの直下の1つだけであること", () => {
   expect(paths.filter((path) => OXLINT_CONFIG.test(path))).toEqual([
-    ".oxlintrc.json",
+    "oxlint.config.ts",
   ]);
 });
 
@@ -168,9 +167,9 @@ test("lint とこの検査で、行数の境目がそろっていること", () 
 const GLOSSARY = "GLOSSARY.md";
 const glossary = readGlossary(readFileSync(join(repoRoot, GLOSSARY), "utf8"));
 
-test("用語集の表を読めて、探す範囲のフォルダがあること", () => {
+test("用語集の表を読めて、探す範囲と除く範囲のフォルダがあること", () => {
   const missingScopes = glossary.banned
-    .flatMap(({ scopes }) => scopes)
+    .flatMap(({ excludes, scopes }) => [...scopes, ...excludes])
     .filter((scope) => !paths.some((path) => path.startsWith(scope)));
 
   expect(glossary.problems).toEqual([]);

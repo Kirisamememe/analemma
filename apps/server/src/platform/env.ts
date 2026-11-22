@@ -7,8 +7,12 @@ const portSchema = z
   .string()
   .regex(/^[0-9]+$/v, { error: "0〜65535 の数で書く" })
   .transform(Number)
-  .pipe(z.number().int().min(0).max(65_535, { error: "0〜65535 の数で書く" }))
-  .default(8787);
+  .pipe(z.number().int().min(0).max(65_535, { error: "0〜65535 の数で書く" }));
+
+const hostSchema = z
+  .string()
+  .regex(/^[^\s\/]+$/v, { error: "ホストの名前か IP アドレスで書く" })
+  .default("127.0.0.1");
 
 const databaseUrlSchema = z
   .string({ error: "設定されていない" })
@@ -34,13 +38,22 @@ const databaseEnvSchema = z
 
 const envSchema = z
   .object({
-    PORT: portSchema,
+    PORT: portSchema.default(8787),
+    INTERNAL_PORT: portSchema.default(8788),
+    INTERNAL_HOST: hostSchema,
     DATABASE_URL: databaseUrlSchema,
     AUTH_ORIGIN: z.string({ error: "設定されていない" }),
     AUTH_RP_ID: z.string({ error: "設定されていない" }),
   })
-  .transform(({ AUTH_ORIGIN, AUTH_RP_ID, DATABASE_URL, PORT }, context) => {
-    const parsed = parseRelyingParty({ origin: AUTH_ORIGIN, rpId: AUTH_RP_ID });
+  .refine(({ INTERNAL_PORT, PORT }) => PORT === 0 || PORT !== INTERNAL_PORT, {
+    error: "PORT と同じ番号にはできない",
+    path: ["INTERNAL_PORT"],
+  })
+  .transform((source, context) => {
+    const parsed = parseRelyingParty({
+      origin: source.AUTH_ORIGIN,
+      rpId: source.AUTH_RP_ID,
+    });
 
     if (parsed._tag === "Invalid") {
       context.issues.push({
@@ -54,8 +67,9 @@ const envSchema = z
     }
 
     return {
-      port: PORT,
-      database: DATABASE_URL,
+      port: source.PORT,
+      internal: { port: source.INTERNAL_PORT, host: source.INTERNAL_HOST },
+      database: source.DATABASE_URL,
       relyingParty: parsed.relyingParty,
     };
   });

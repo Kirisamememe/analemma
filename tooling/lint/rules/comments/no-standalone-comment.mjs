@@ -101,7 +101,7 @@ const noStandaloneComment = {
       tooLong:
         "行末のコメントは {{max}} 文字までです。長い説明は、テストか一番近い DECISIONS.md に書きます。",
       misplacedTsdoc:
-        "TSDoc は、宣言・型の項目・クラスやオブジェクトのメンバーの直前にだけ書きます。",
+        "TSDoc は、宣言・型のプロパティ・クラスやオブジェクトのメンバーの直前にだけ書きます。",
       dividerInShortFile:
         "分割の見出しは、コードが {{allowed}} 行を超えるファイルでだけ使えます。このファイルのコードは {{lines}} 行です(空行とコメントだけの行は数えない)。",
       dividerRequired:

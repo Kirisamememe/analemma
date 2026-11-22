@@ -35,7 +35,7 @@ export type AuthenticationExpectation = AuthenticatorExpectation & {
 
 /** 検証できたログイン。 */
 export type VerifiedAuthentication = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Verified";
   /** 届いた `signCount`。 */
   readonly signCount: number;

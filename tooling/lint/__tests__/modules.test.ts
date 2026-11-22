@@ -5,8 +5,8 @@ import { lintFixture, ruleIdsOf } from "../fixture-lint";
 describe("関数の形と数", () => {
   test.each([
     {
-      label: "export した3つの関数",
-      file: "functions/three-functions.ts",
+      label: "コードが201行のファイルで export した3つの関数",
+      file: "functions/three-functions-in-201-lines.ts",
       rule: "project(max-exported-functions)",
     },
     {
@@ -56,7 +56,7 @@ describe("TSDoc の必須条件", () => {
       rule: "jsdoc-type(require-jsdoc)",
     },
     {
-      label: "TSDoc の無い、型の項目",
+      label: "TSDoc の無い、型のプロパティ",
       file: "jsdoc/missing-property.ts",
       rule: "jsdoc-type(require-jsdoc)",
     },
@@ -78,6 +78,11 @@ describe("import の形", () => {
     {
       label: "スクリプトの拡張子の付いた相対 import",
       file: "imports/script-extension.ts",
+      rule: "import(extensions)",
+    },
+    {
+      label: "Node が読む設定のファイルの、拡張子の無い相対 import",
+      file: "tooling/lint/config/without-extension.ts",
       rule: "import(extensions)",
     },
     {

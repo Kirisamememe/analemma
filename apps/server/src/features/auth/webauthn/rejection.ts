@@ -1,6 +1,6 @@
 /** パスキーの応答を受け付けなかったことと、その理由。 */
 export type WebAuthnRejection = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Rejected";
   /** 受け付けなかった理由。 */
   readonly problem: string;
@@ -8,7 +8,7 @@ export type WebAuthnRejection = {
 
 /** 仕様の手順の1つを満たしたこと。 */
 export type WebAuthnPassed = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Passed";
 };
 

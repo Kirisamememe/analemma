@@ -307,6 +307,55 @@ describe("パスキーを全部失ったときの復旧", () => {
     );
   });
 
+  test("登録用 URL で登録すると、ほかのセッションをすべてログアウトさせること", async () => {
+    await using server = await createTestClient();
+    const { passkey: lost } = await signInAsAdmin(server);
+    const stolen = server.openBrowser();
+    const phone = server.openBrowser();
+    const token = await issueToken(server);
+
+    await logInWithPasskey(stolen, lost);
+
+    const options = await phone.client.auth.enrollment.options({ token });
+
+    await phone.client.auth.enrollment.register({
+      token,
+      name: "復旧したパスキー",
+      credential: await answerRegistration({
+        authenticator: await createFakeAuthenticator(),
+        options,
+      }),
+    });
+
+    expect(await catchErrorCode(server.client.admin.session.get())).toBe(
+      "UNAUTHORIZED",
+    );
+    expect(await catchErrorCode(stolen.client.admin.session.get())).toBe(
+      "UNAUTHORIZED",
+    );
+    expect(await catchErrorCode(phone.client.admin.session.get())).toBe(
+      SUCCEEDED,
+    );
+  });
+
+  test("登録できなかったときは、ほかのセッションを残すこと", async () => {
+    await using server = await createTestClient();
+    const { passkey } = await signInAsAdmin(server);
+    const other = server.openBrowser();
+
+    await logInWithPasskey(other, passkey);
+
+    expect(
+      await register(server, {
+        token: await issueToken(server),
+        authenticator: passkey.authenticator,
+      }),
+    ).toBe("DUPLICATE_CREDENTIAL");
+    expect(await catchErrorCode(other.client.admin.session.get())).toBe(
+      SUCCEEDED,
+    );
+  });
+
   test("登録済みの資格情報をもう一度登録しようとすると、DUPLICATE_CREDENTIAL で断ること", async () => {
     await using server = await createTestClient();
     const { passkey } = await signInAsAdmin(server);
