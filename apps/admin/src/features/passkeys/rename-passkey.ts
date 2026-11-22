@@ -1,7 +1,5 @@
-import { safe } from "@orpc/client";
-
-import { definedCode } from "../../api/api-errors";
 import type { ApiClient } from "../../api/api-types";
+import { callApi } from "../../api/call-api";
 
 /** パスキーの名前を変更するときに渡す値。 */
 export type RenamePasskeyInput = {
@@ -22,15 +20,7 @@ export const renamePasskey = async (
   api: ApiClient,
   input: RenamePasskeyInput,
 ): Promise<RenamePasskeyResult> => {
-  const [error] = await safe(api.admin.passkeys.rename(input));
+  const result = await callApi(api.admin.passkeys.rename(input), ["NOT_FOUND"]);
 
-  if (error === null) {
-    return { _tag: "Renamed" };
-  }
-
-  if (definedCode(error) === "NOT_FOUND") {
-    return { _tag: "NotFound" };
-  }
-
-  throw error;
+  return { _tag: result._tag === "Succeeded" ? "Renamed" : "NotFound" };
 };

@@ -1,6 +1,4 @@
-import { safe } from "@orpc/client";
-
-import { definedCode } from "../../api/api-errors";
+import { callApi } from "../../api/call-api";
 import {
   type ReauthenticateDependencies,
   reauthenticate,
@@ -18,23 +16,12 @@ export type AddPasskeyResult = {
     | "Rejected";
 };
 
-const RESULTS: Readonly<Record<string, AddPasskeyResult["_tag"]>> = {
+const RESULTS = {
   REAUTHENTICATION_FAILED: "ReauthenticationFailed",
   CHALLENGE_EXPIRED: "ChallengeExpired",
   DUPLICATE_CREDENTIAL: "AlreadyRegistered",
   INVALID_CREDENTIAL: "Rejected",
-};
-
-const fromError = (error: Error): AddPasskeyResult => {
-  const code = definedCode(error);
-  const tag = code === undefined ? undefined : RESULTS[code];
-
-  if (tag === undefined) {
-    throw error;
-  }
-
-  return { _tag: tag };
-};
+} satisfies Record<string, AddPasskeyResult["_tag"]>;
 
 const SERVER_MARGIN_MS = 10_000;
 const MINIMUM_CREATION_MS = 30_000;
@@ -73,13 +60,21 @@ export const addPasskey = async (
     return { _tag: deadline.aborted ? "ChallengeExpired" : answer._tag };
   }
 
-  const [error] = await safe(
+  const result = await callApi(
     api.admin.passkeys.register({
       name,
       credential: answer.credential,
       assertion: confirmation.assertion,
     }),
+    [
+      "REAUTHENTICATION_FAILED",
+      "CHALLENGE_EXPIRED",
+      "DUPLICATE_CREDENTIAL",
+      "INVALID_CREDENTIAL",
+    ],
   );
 
-  return error === null ? { _tag: "Added" } : fromError(error);
+  return {
+    _tag: result._tag === "Succeeded" ? "Added" : RESULTS[result.code],
+  };
 };

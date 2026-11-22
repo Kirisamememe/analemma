@@ -1,11 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 
 import type { ApiOutputs } from "../../api/api-types";
+import { useAppContext } from "../../api/app-context";
+import { useApiQuery } from "../../api/server-state/server-state";
 import { formatDateTime } from "../../i18n/format-date-time";
-import { toLocale } from "../../i18n/locales";
+import { useLocale, useTranslate } from "../../i18n/use-translate";
 import { Cluster } from "../../ui/layout/cluster";
 import { Stack } from "../../ui/layout/stack";
 import { Text } from "../../ui/layout/text";
@@ -31,19 +30,19 @@ export const PasskeyList = ({
   onRename,
   onDelete,
 }: PasskeyListProps): ReactNode => {
-  const { t, i18n } = useTranslation();
-  const locale = toLocale(i18n.language);
-  const { api } = useRouteContext({ from: "__root__" });
-  const passkeys = useQuery({
-    queryKey: PASSKEYS_QUERY_KEY,
-    queryFn: async () => api.admin.passkeys.list(),
+  const t = useTranslate();
+  const locale = useLocale();
+  const { api } = useAppContext();
+  const passkeys = useApiQuery({
+    key: PASSKEYS_QUERY_KEY,
+    load: () => api.admin.passkeys.list(),
   });
 
-  if (passkeys.isPending) {
+  if (passkeys._tag === "Loading") {
     return <Text tone="muted">{t("passkeys.loading")}</Text>;
   }
 
-  if (passkeys.isError) {
+  if (passkeys._tag === "Failed") {
     return <Notice tone="danger">{t("passkeys.loadFailed")}</Notice>;
   }
 

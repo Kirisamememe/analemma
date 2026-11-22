@@ -1,12 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 
+import { useAppContext } from "@/api/app-context";
+import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { checkPasskeyName } from "@/features/auth/check-passkey-name";
 import type { PasskeySummary } from "@/features/passkeys/passkey-list";
-import { refreshPasskeys } from "@/features/passkeys/passkeys-query";
+import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/passkeys-query";
 import { renamePasskey } from "@/features/passkeys/rename-passkey";
+import { useTranslate } from "@/i18n/use-translate";
 import { Cluster } from "@/ui/layout/cluster";
 import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
@@ -31,15 +31,14 @@ export const RenamePasskeyDialog = ({
   passkey,
   onClose,
 }: RenamePasskeyDialogProps): ReactNode => {
-  const { t } = useTranslation();
+  const t = useTranslate();
   const showToast = useShowToast();
-  const queryClient = useQueryClient();
-  const { api } = useRouteContext({ from: "__root__" });
-  const renaming = useMutation({
-    mutationFn: async (name: string) =>
-      renamePasskey(api, { id: passkey.id, name }),
+  const { refresh } = useApiCache();
+  const { api } = useAppContext();
+  const renaming = useApiMutation({
+    send: (name: string) => renamePasskey(api, { id: passkey.id, name }),
     onSuccess: async ({ _tag }) => {
-      await refreshPasskeys(queryClient);
+      await refresh(PASSKEYS_QUERY_KEY);
 
       if (_tag === "Renamed") {
         onClose();

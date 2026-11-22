@@ -1,5 +1,4 @@
 import { type ReactNode, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 import { AddPasskeyDialog } from "@/features/passkeys/add-passkey-dialog";
 import { DeletePasskeyDialog } from "@/features/passkeys/delete-passkey-dialog";
@@ -8,6 +7,7 @@ import {
   type PasskeySummary,
 } from "@/features/passkeys/passkey-list";
 import { RenamePasskeyDialog } from "@/features/passkeys/rename-passkey-dialog";
+import { useTranslate } from "@/i18n/use-translate";
 import { Cluster } from "@/ui/layout/cluster";
 import { Heading } from "@/ui/layout/heading";
 import { Stack } from "@/ui/layout/stack";
@@ -18,7 +18,7 @@ type PasskeyDialog = "add" | "rename" | "delete";
 
 /** パスキーの一覧と、追加・名前の変更・削除の操作。 */
 export const PasskeysSection = (): ReactNode => {
-  const { t } = useTranslation();
+  const t = useTranslate();
   const [openDialog, setOpenDialog] = useState<PasskeyDialog>();
   const [openCount, setOpenCount] = useState(0); // Dialog の key。開くたびに前の送信の結果を消す
   const [passkey, setPasskey] = useState<PasskeySummary>(); // 閉じても持ち、閉じる animation の間も出す

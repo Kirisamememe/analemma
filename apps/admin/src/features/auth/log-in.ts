@@ -1,6 +1,5 @@
-import { isDefinedError, safe } from "@orpc/client";
-
 import type { ApiClient } from "../../api/api-types";
+import { callApi } from "../../api/call-api";
 import type { Authenticator } from "./webauthn/create-authenticator";
 
 /** ログインに使うもの。 */
@@ -35,17 +34,17 @@ export const logIn = async ({
     return { _tag: "Cancelled" };
   }
 
-  const [error] = await safe(api.auth.login.verify(answer.credential));
+  const result = await callApi(api.auth.login.verify(answer.credential), [
+    "CHALLENGE_EXPIRED",
+    "UNKNOWN_CREDENTIAL",
+    "INVALID_CREDENTIAL",
+  ]);
 
-  if (error === null) {
+  if (result._tag === "Succeeded") {
     return { _tag: "LoggedIn" };
   }
 
-  if (!isDefinedError(error) || error.code === "FORBIDDEN") {
-    throw error;
-  }
-
-  switch (error.code) {
+  switch (result.code) {
     case "CHALLENGE_EXPIRED": {
       return { _tag: "ChallengeExpired" };
     }
