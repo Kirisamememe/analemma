@@ -28,32 +28,32 @@ export type SelectOption = {
 /** 選択肢の入力に渡す値。 */
 export type SelectInputProps = {
   /** フォームのキー。 */
-  readonly name?: string | undefined;
+  name?: string | undefined;
   /** アクセシブルな名前。 */
-  readonly "aria-label"?: string | undefined;
+  "aria-label"?: string | undefined;
   /** 選択肢。 */
-  readonly options: readonly SelectOption[];
+  options: readonly SelectOption[];
   /** 最初に選んでおく値。 */
-  readonly defaultValue?: string | undefined;
+  defaultValue?: string | undefined;
   /** 呼び出し元で管理する選択値。 */
-  readonly value?: string | null | undefined;
+  value?: string | null | undefined;
   /** 選択が必須か。 */
-  readonly isRequired?: boolean | undefined;
+  isRequired?: boolean | undefined;
   /** 無効か。 */
-  readonly isDisabled?: boolean | undefined;
+  isDisabled?: boolean | undefined;
   /** 誤りがあるか。 */
-  readonly isInvalid?: boolean | undefined;
+  isInvalid?: boolean | undefined;
   /** 選択値が変わったときに呼ぶ関数。 */
-  readonly onChange?: ((value: string | null) => void) | undefined;
+  onChange?: ((value: string | null) => void) | undefined;
   /** focus が外れたときに呼ぶ関数。 */
-  readonly onBlur?: (() => void) | undefined;
+  onBlur?: (() => void) | undefined;
   /** 入力の検証に使う React Aria Components の指定。 */
-  readonly validationBehavior?: "aria" | "native" | undefined;
+  validationBehavior?: "aria" | "native" | undefined;
 };
 
 type SelectRootProps = Omit<SelectInputProps, "options"> & {
   /** Select を構成する部品。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** Select の状態と関連付けを子の部品に渡す。 */

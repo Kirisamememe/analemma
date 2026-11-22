@@ -8,30 +8,30 @@ import { typography } from "@/ui/typography";
 /** チェックの切り替えに渡す値。 */
 export type CheckboxInputProps = {
   /** フォームのキー。 */
-  readonly name?: string | undefined;
+  name?: string | undefined;
   /** アクセシブルな名前。 */
-  readonly "aria-label"?: string | undefined;
+  "aria-label"?: string | undefined;
   /** 最初からチェックしているか。 */
-  readonly defaultSelected?: boolean | undefined;
+  defaultSelected?: boolean | undefined;
   /** 呼び出し元で管理するチェックの状態。 */
-  readonly isSelected?: boolean | undefined;
+  isSelected?: boolean | undefined;
   /** チェックが必須か。 */
-  readonly isRequired?: boolean | undefined;
+  isRequired?: boolean | undefined;
   /** 無効か。 */
-  readonly isDisabled?: boolean | undefined;
+  isDisabled?: boolean | undefined;
   /** 誤りがあるか。 */
-  readonly isInvalid?: boolean | undefined;
+  isInvalid?: boolean | undefined;
   /** チェックの状態が変わったときに呼ぶ関数。 */
-  readonly onChange?: ((value: boolean) => void) | undefined;
+  onChange?: ((value: boolean) => void) | undefined;
   /** focus が外れたときに呼ぶ関数。 */
-  readonly onBlur?: (() => void) | undefined;
+  onBlur?: (() => void) | undefined;
   /** 入力の検証に使う React Aria Components の指定。 */
-  readonly validationBehavior?: "aria" | "native" | undefined;
+  validationBehavior?: "aria" | "native" | undefined;
 };
 
 type CheckboxRootProps = CheckboxInputProps & {
   /** Checkbox を構成する部品。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** Checkbox の状態と関連付けを子の部品に渡す。 */
@@ -79,7 +79,7 @@ export const CheckboxRoot = ({
 
 type CheckboxControlProps = {
   /** チェックに添えるラベル。 */
-  readonly label?: string;
+  label?: string;
 };
 
 /** チェックを切り替えるボタン。 */

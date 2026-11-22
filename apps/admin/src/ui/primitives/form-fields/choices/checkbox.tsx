@@ -17,13 +17,13 @@ export type CheckboxProps = Omit<
   "aria-label" | "isInvalid" | "name"
 > & {
   /** フォームのキー。 */
-  readonly name: string;
+  name: string;
   /** ラベル。 */
-  readonly label: string;
+  label: string;
   /** 補足。 */
-  readonly description?: string | undefined;
+  description?: string | undefined;
   /** 呼び出し元から渡す誤りの知らせ。 */
-  readonly errorMessage?: string | undefined;
+  errorMessage?: string | undefined;
 };
 
 /** ラベルと補足と誤りの知らせを持つ Checkbox。 */

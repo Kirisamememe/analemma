@@ -25,7 +25,7 @@ const OPTIONS = [
 
 type ExampleProps = {
   /** 送信した値を受け取る関数。 */
-  readonly onSubmit: (values: FormValues) => void;
+  onSubmit: (values: FormValues) => void;
 };
 
 const Example = ({ onSubmit }: ExampleProps): ReactNode => {
