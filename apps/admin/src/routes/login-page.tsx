@@ -5,10 +5,8 @@ import { useTranslation } from "react-i18next";
 
 import { logIn } from "@/features/auth/log-in";
 import { toLogInNotice } from "@/features/auth/to-auth-notice";
-import { AppShell } from "@/ui/layout/app-shell";
-import { Center } from "@/ui/layout/center";
-import { Stack } from "@/ui/layout/stack";
-import { PageHeader } from "@/ui/patterns/page-header";
+import { AppShell, Center, Stack } from "@/ui/layout";
+import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Notice } from "@/ui/primitives/notice";
 

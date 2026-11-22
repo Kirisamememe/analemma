@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
 
-import { LogOutButton } from "@/features/session/log-out-button";
-import { useLogOut } from "@/features/session/use-log-out";
+import { LogOutButton, useLogOut } from "@/features/session";
 import { type MessageKey, useTranslate } from "@/i18n/use-translate";
-import { SideNav } from "@/ui/patterns/side-nav";
-import type { NavLinkProps } from "@/ui/primitives/navigation/nav-item";
+import { SideNav } from "@/ui/patterns";
+import type { NavLinkProps } from "@/ui/primitives/navigation";
 
 /** 管理画面のナビのリンクの定義。 */
 type NavigationLink = Pick<NavLinkProps, "href" | "icon"> & {

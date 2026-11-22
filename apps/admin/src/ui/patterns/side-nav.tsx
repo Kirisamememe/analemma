@@ -1,11 +1,11 @@
 import { type ReactNode, useId, useState } from "react";
 
-import { AppMark } from "@/ui/primitives/graphics/app-mark";
-import { NavDrawer } from "@/ui/primitives/navigation/nav-drawer";
+import { AppMark } from "@/ui/primitives/graphics";
 import {
+  NavDrawer,
   NavLink,
   type NavLinkProps,
-} from "@/ui/primitives/navigation/nav-item";
+} from "@/ui/primitives/navigation";
 import { typography } from "@/ui/typography";
 
 /** ナビのリンクの行き先と文言。 */

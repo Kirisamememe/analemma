@@ -13,7 +13,7 @@ import type { ApiClient } from "@/api/api-types";
 import { createQueryClient } from "@/api/create-query-client";
 import type { AuthGate } from "@/features/auth/create-auth-gate";
 import { isPublicPath, toLoginSearch } from "@/features/auth/login-search";
-import type { Authenticator } from "@/features/auth/webauthn/create-authenticator";
+import type { Authenticator } from "@/features/auth/webauthn";
 import { EnrollPage } from "@/routes/enroll-page";
 import { HomePage } from "@/routes/home-page";
 import { LoginPage } from "@/routes/login-page";

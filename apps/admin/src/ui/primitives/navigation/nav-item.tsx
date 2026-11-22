@@ -6,8 +6,7 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { Icon, type IconName } from "@/ui/primitives/graphics/icon";
-import { Spinner } from "@/ui/primitives/graphics/spinner";
+import { Icon, type IconName, Spinner } from "@/ui/primitives/graphics";
 import type { LinkProps } from "@/ui/primitives/navigation/link";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";

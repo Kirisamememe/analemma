@@ -2,12 +2,9 @@ import { useLocation } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { AppShell } from "@/ui/layout/app-shell";
-import { Center } from "@/ui/layout/center";
-import { Stack } from "@/ui/layout/stack";
-import { Text } from "@/ui/layout/text";
-import { PageHeader } from "@/ui/patterns/page-header";
-import { Link } from "@/ui/primitives/navigation/link";
+import { AppShell, Center, Stack, Text } from "@/ui/layout";
+import { PageHeader } from "@/ui/patterns";
+import { Link } from "@/ui/primitives/navigation";
 
 /** 無いパスを開いたときの画面。 */
 export const NotFoundPage = (): ReactNode => {

@@ -10,7 +10,7 @@ import {
 import { flushSync } from "react-dom";
 import { useTranslation } from "react-i18next";
 
-import { Icon } from "@/ui/primitives/graphics/icon";
+import { Icon } from "@/ui/primitives/graphics";
 import {
   ShowToastContext,
   type ToastMessage,

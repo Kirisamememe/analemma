@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { type ReactNode, useState } from "react";
 
-import { Cluster } from "@/ui/layout/cluster";
-import { Text } from "@/ui/layout/text";
+import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Notice } from "@/ui/primitives/notice";
 import { Dialog } from "@/ui/primitives/overlays/dialog";

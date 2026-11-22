@@ -8,8 +8,10 @@ import {
   createAuthGate,
   gateAdminRequests,
 } from "@/features/auth/create-auth-gate";
-import { createAuthenticator } from "@/features/auth/webauthn/create-authenticator";
-import { createBrowserWebAuthn } from "@/features/auth/webauthn/create-browser-web-authn";
+import {
+  createAuthenticator,
+  createBrowserWebAuthn,
+} from "@/features/auth/webauthn";
 import { createI18n } from "@/i18n/create-i18n";
 import { toLocale } from "@/i18n/locales";
 import { syncLocale } from "@/preferences/sync-locale";

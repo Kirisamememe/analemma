@@ -2,10 +2,8 @@ import { useRouter } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { AppShell } from "@/ui/layout/app-shell";
-import { Center } from "@/ui/layout/center";
-import { Stack } from "@/ui/layout/stack";
-import { PageHeader } from "@/ui/patterns/page-header";
+import { AppShell, Center, Stack } from "@/ui/layout";
+import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Notice } from "@/ui/primitives/notice";
 

@@ -8,9 +8,7 @@ import {
 } from "@/features/passkeys/passkey-list";
 import { RenamePasskeyDialog } from "@/features/passkeys/rename-passkey-dialog";
 import { useTranslate } from "@/i18n/use-translate";
-import { Cluster } from "@/ui/layout/cluster";
-import { Heading } from "@/ui/layout/heading";
-import { Stack } from "@/ui/layout/stack";
+import { Cluster, Heading, Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { FocusScope } from "@/ui/primitives/focus-scope";
 

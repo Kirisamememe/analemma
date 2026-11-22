@@ -6,7 +6,7 @@ import { type ReactNode, useState } from "react";
 import { renderWithI18n } from "@/testing/render-with-i18n";
 import { Button } from "@/ui/primitives/button";
 import { FocusScope } from "@/ui/primitives/focus-scope";
-import { Dialog } from "@/ui/primitives/overlays/dialog";
+import { Dialog } from "@/ui/primitives/overlays";
 
 afterEach(cleanup);
 

@@ -25,6 +25,10 @@
 
 Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・開発のサーバー・head の script をまとめるビルドで同じ別名を解決する。Storybook は管理画面の Vite の設定から `resolve` を引き継ぐ。Vite は `include` に当たるファイルにだけ `paths` を効かせる。Storybook の preview とその部品からも別名を使えるよう、`tsconfig.json` の `include` には、フォルダ名の `.storybook` ではなく `.storybook/**/*` を書く(フォルダ名だけでは、`story-frame.tsx` から別名を解決できなかった)。
 
+## フォルダを指定する import
+
+認証器の組み立てと型を使うコードは `@/features/auth/webauthn` から、ログアウトのボタン・hook・セキュリティ画面の部品を使うコードは `@/features/session` から import する。フォルダの外で使うものを `index.ts` に明示しておくと、中のファイルの名前や分け方を変えても、呼び出し元を直さずに済む。フォルダの中のコードと、それぞれの実装を確かめるテストは、対象のファイルを直接 import する。
+
 ## route はコードで定義する
 
 TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen.ts` を生成する plugin)は使わず、`src/router.tsx` で `createRoute` を組む。

@@ -2,7 +2,7 @@ import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { App } from "@/app";
-import type { Authenticator } from "@/features/auth/webauthn/create-authenticator";
+import type { Authenticator } from "@/features/auth/webauthn";
 import type { FakeRoutes } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
 

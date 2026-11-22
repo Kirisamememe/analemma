@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { logIn } from "@/features/auth/log-in";
-import type { Authenticator } from "@/features/auth/webauthn/create-authenticator";
+import type { Authenticator } from "@/features/auth/webauthn";
 import {
   createFakeApi,
   type FakeOutput,

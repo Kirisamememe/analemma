@@ -8,7 +8,7 @@ import { I18nProvider, RouterProvider } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
 import { type Locale, toLocale } from "@/i18n/locales";
-import { ToastProvider } from "@/ui/primitives/overlays/toast";
+import { ToastProvider } from "@/ui/primitives/overlays";
 
 declare module "react-aria-components" {
   // oxlint-disable-next-line typescript/consistent-type-definitions -- React Aria Components の型の登録は、interface の宣言のマージでしか書けない
