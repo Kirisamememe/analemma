@@ -97,6 +97,63 @@ describe("createPasskeyRoutes", () => {
     });
   });
 
+  test.each(["追加", "削除"])(
+    "ログアウトとパスキーの%sが重なり、ログアウトが先に成立したら一覧が変わらないこと",
+    async (operation) => {
+      const { api, server } = setUp(["MacBook", "iPhone"]);
+      const before = server.passkeys();
+
+      await api.admin.session.reauthenticationOptions();
+      const logOut = api.admin.session.logOutAll();
+      const change =
+        operation === "追加"
+          ? api.admin.passkeys.register({
+              name: "iPad",
+              credential: FAKE_ATTESTATION,
+              assertion: FAKE_ASSERTION,
+            })
+          : api.admin.passkeys.delete({
+              id: "cGsx",
+              assertion: FAKE_ASSERTION,
+            });
+      const [session, failure] = await Promise.all([
+        logOut,
+        change.catch((error: unknown) => error),
+      ]);
+
+      expect(session).toEqual({ loggedOut: 2 });
+      expect(failure).toMatchObject({ code: "UNAUTHORIZED", status: 401 });
+      expect(server.passkeys()).toEqual(before);
+    },
+  );
+
+  test("関数で包んだ一覧でも指定した応答を一度だけ返し、ログアウト後は UNAUTHORIZED を返すこと", async () => {
+    const { server } = setUp(["MacBook"]);
+    const list = server.routes["admin/passkeys/list"];
+    const { api } = createFakeApi({
+      ...server.routes,
+      "admin/passkeys/list": (input) => list(input),
+    });
+
+    server.replyNext("admin/passkeys/list", () => ({
+      error: "INTERNAL_SERVER_ERROR",
+      defined: false,
+    }));
+    const next: unknown = await api.admin.passkeys
+      .list()
+      .catch((error: unknown) => error);
+
+    expect(next).toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
+    expect((await api.admin.passkeys.list()).passkeys).toHaveLength(1);
+
+    await api.admin.session.logOutAll();
+    const after: unknown = await api.admin.passkeys
+      .list()
+      .catch((error: unknown) => error);
+
+    expect(after).toMatchObject({ code: "UNAUTHORIZED", status: 401 });
+  });
+
   test("ログアウトした後は、名前が空でも UNAUTHORIZED を返すこと", async () => {
     const { api } = setUp(["MacBook"]);
 

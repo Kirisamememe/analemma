@@ -99,24 +99,28 @@ export const createPasskeyRoutes = (seeds: readonly FakePasskeySeed[]) => {
   const handle = <Path extends PasskeyPath>(
     path: Path,
     success: (input: FakeInput<Path>) => PasskeyReplies[Path],
-  ) =>
-    Object.assign(success, {
-      replyBeforeInput: ():
-        | PasskeyReplies[Path]
-        | Promise<PasskeyReplies[Path]>
-        | typeof SESSION_REQUIRED
-        | undefined => {
-        const override = overrides[path];
+  ) => {
+    const replyBeforeInput = ():
+      | PasskeyReplies[Path]
+      | Promise<PasskeyReplies[Path]>
+      | typeof SESSION_REQUIRED
+      | undefined => {
+      const override = overrides[path];
 
-        overrides[path] = undefined;
+      overrides[path] = undefined;
 
-        if (override !== undefined) {
-          return override();
-        }
+      if (override !== undefined) {
+        return override();
+      }
 
-        return signedIn ? undefined : SESSION_REQUIRED;
-      },
-    });
+      return signedIn ? undefined : SESSION_REQUIRED;
+    };
+
+    return Object.assign(
+      (input: FakeInput<Path>) => replyBeforeInput() ?? success(input),
+      { replyBeforeInput },
+    );
+  };
 
   const consumeReauthentication = (): boolean => {
     if (reauthentications === 0) {
