@@ -2,7 +2,7 @@ import type { ContentIssue } from "@analemma/contract";
 
 import type { bindContentIssues } from "../bind-content-issues";
 
-import type { MessageKey } from "@/i18n/use-translate";
+import type { MessageKey, useTranslate } from "@/i18n/use-translate";
 
 const issueMessage = (code: string): MessageKey => {
   switch (code) {
@@ -32,20 +32,29 @@ export type EditorErrors = {
 /** 中身の issue を項目ごとにまとめ、結べないものには server の返した場所を添える。 */
 export const contentErrors = (
   issues: ReturnType<typeof bindContentIssues>,
-  t: (key: MessageKey) => string,
+  t: ReturnType<typeof useTranslate>,
 ): EditorErrors => {
   const fields: Record<string, string> = {};
   const translate = (issue: ContentIssue) => t(issueMessage(issue.code));
 
   for (const { location, issue } of issues.bound) {
     const name = "content." + location.join("/");
-    fields[name] = [fields[name], translate(issue)].filter(Boolean).join(" ");
+    const message = translate(issue);
+    const previous = fields[name];
+
+    fields[name] =
+      previous === undefined || previous.includes(message)
+        ? message
+        : previous + " " + message;
   }
 
   if (issues.unbound.length === 0 && issues.bound.length > 0) return { fields };
 
   const messages = issues.unbound.map((issue) =>
-    [issue.path.join("/"), translate(issue)].filter(Boolean).join(" — "),
+    t("fixedPageEditor.unboundIssue", {
+      path: issue.path.join("/"),
+      message: translate(issue),
+    }),
   );
 
   return {

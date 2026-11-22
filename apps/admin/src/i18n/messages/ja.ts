@@ -35,6 +35,10 @@ export const ja = {
   "fixedPageEditor.down": "{{label}} {{position}} を下へ",
   "fixedPageEditor.remove": "{{label}} {{position}} を削除",
   "fixedPageEditor.add": "{{label}}を追加",
+  "fixedPageEditor.unboundIssue": "({{path}}:{{message}})",
+  "fixedPageEditor.moveUp": "上へ",
+  "fixedPageEditor.moveDown": "下へ",
+  "fixedPageEditor.removeItem": "削除",
   "fixedPageEditor.newDescription":
     "種類を選び、slug・タイトル・中身を入力します。",
   "fixedPageEditor.kindOf": "種類:{{kind}}",

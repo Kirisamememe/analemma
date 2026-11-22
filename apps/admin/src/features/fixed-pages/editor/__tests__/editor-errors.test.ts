@@ -17,14 +17,16 @@ test("同じ項目の issue をまとめ、値を変えたらその項目と親�
       ],
       unbound: [issue],
     },
-    (key) => key,
+    (key: string, values?: object) =>
+      values === undefined ? key : `${key}(${Object.values(values).join(",")})`,
   );
   expect(errors.fields["content.hero/name"]).toBe(
     "fixedPageEditor.issue.format fixedPageEditor.issue.large",
   );
+  expect(errors.fields["content.hero"]).toBe("fixedPageEditor.issue.format");
   expect(clearChangedErrors(errors, "content.hero/name")).toEqual({
     fields: { "content.hero/link": "fixedPageEditor.issue.format" },
     notice:
-      "fixedPageEditor.changedKind hero/name — fixedPageEditor.issue.format",
+      "fixedPageEditor.changedKind fixedPageEditor.unboundIssue(hero/name,fixedPageEditor.issue.format)",
   });
 });

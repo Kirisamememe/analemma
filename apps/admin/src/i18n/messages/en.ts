@@ -33,6 +33,10 @@ export const en = {
   "fixedPageEditor.down": "Move {{label}} {{position}} down",
   "fixedPageEditor.remove": "Remove {{label}} {{position}}",
   "fixedPageEditor.add": "Add {{label}}",
+  "fixedPageEditor.unboundIssue": "{{path}}: {{message}}",
+  "fixedPageEditor.moveUp": "Up",
+  "fixedPageEditor.moveDown": "Down",
+  "fixedPageEditor.removeItem": "Remove",
   "fixedPageEditor.newDescription":
     "Choose a kind, then enter the slug, title, and content.",
   "fixedPageEditor.kindOf": "Kind: {{kind}}",

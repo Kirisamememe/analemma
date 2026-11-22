@@ -12,6 +12,7 @@ import * as componentsForm from "@/components/forms/__stories__/form.stories";
 import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/__stories__/login-page.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
+import * as routesFixedPageEditor from "@/routes/fixed-pages/__stories__/fixed-page-editor.stories";
 import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
 import * as layoutCenter from "@/ui/layout/__stories__/center.stories";
 import * as layoutCluster from "@/ui/layout/__stories__/cluster.stories";
@@ -49,6 +50,8 @@ const MODULES = {
   "components/__stories__/passkey-name-field.stories.tsx":
     componentsPasskeyNameField,
   "routes/__stories__/enroll-page.stories.tsx": routesEnrollPage,
+  "routes/fixed-pages/__stories__/fixed-page-editor.stories.tsx":
+    routesFixedPageEditor,
   "routes/__stories__/login-page.stories.tsx": routesLoginPage,
   "routes/__stories__/security-page.stories.tsx": routesSecurityPage,
   "ui/layout/__stories__/app-shell.stories.tsx": layoutAppShell,

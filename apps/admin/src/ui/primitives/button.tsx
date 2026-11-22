@@ -39,6 +39,8 @@ type ButtonProps = {
   onPress?: () => void;
   /** ボタンの要素(focus を移すときに使う)。 */
   ref?: Ref<HTMLButtonElement>;
+  /** 文言だけでは何の操作か分からないときの、読み上げる名前(文言を含める)。 */
+  "aria-label"?: string | undefined;
   /** ボタンの文言。 */
   children: ReactNode;
 };
@@ -52,9 +54,11 @@ export const Button = ({
   isDisabled = false,
   onPress,
   ref,
+  "aria-label": ariaLabel,
   children,
 }: ButtonProps): ReactNode => {
   const { t } = useTranslation();
+  const labelling = ariaLabel === undefined ? {} : { "aria-label": ariaLabel };
 
   return (
     <AriaButton
@@ -68,6 +72,8 @@ export const Button = ({
       onPress={() => onPress?.()}
       ref={ref}
       type={type}
+      // oxlint-disable-next-line project/styling-boundary -- 読み上げる名前が無いときに属性を省く。見た目の props は含まない。
+      {...labelling}
     >
       {isPending && (
         <ProgressBar aria-label={t("ui.pending")} isIndeterminate>

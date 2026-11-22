@@ -4,7 +4,7 @@ import { ContentFields } from "./content-fields";
 import { type FixedPageEditorProps, useEditorForm } from "./use-editor-form";
 
 import { useTranslate } from "@/i18n/use-translate";
-import { Stack } from "@/ui/layout";
+import { Cluster, Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
 import { Notice } from "@/ui/primitives/notice";
@@ -68,9 +68,11 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
         {saving.isError && (
           <Notice tone="danger">{t("fixedPageEditor.saveFailed")}</Notice>
         )}
-        <Button isPending={saving.isPending} type="submit" tone="primary">
-          {t("fixedPageEditor.save")}
-        </Button>
+        <Cluster justify="end">
+          <Button isPending={saving.isPending} type="submit" tone="primary">
+            {t("fixedPageEditor.save")}
+          </Button>
+        </Cluster>
       </Form>
     </div>
   );

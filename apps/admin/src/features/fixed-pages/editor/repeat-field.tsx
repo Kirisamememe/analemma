@@ -80,6 +80,7 @@ export const RepeatField = ({
                   {children(item)}
                   <Cluster gap={2}>
                     <Button
+                      aria-label={t("fixedPageEditor.up", label)}
                       ref={remember(id + "up")}
                       size="sm"
                       isDisabled={index === 0}
@@ -87,9 +88,10 @@ export const RepeatField = ({
                         move(-1);
                       }}
                     >
-                      {t("fixedPageEditor.up", label)}
+                      {t("fixedPageEditor.moveUp")}
                     </Button>
                     <Button
+                      aria-label={t("fixedPageEditor.down", label)}
                       ref={remember(id + "down")}
                       size="sm"
                       isDisabled={index === ids.length - 1}
@@ -97,9 +99,10 @@ export const RepeatField = ({
                         move(1);
                       }}
                     >
-                      {t("fixedPageEditor.down", label)}
+                      {t("fixedPageEditor.moveDown")}
                     </Button>
                     <Button
+                      aria-label={t("fixedPageEditor.remove", label)}
                       ref={remember(id + "remove")}
                       size="sm"
                       onPress={() => {
@@ -108,7 +111,7 @@ export const RepeatField = ({
                         focus(next === undefined ? "add" : next + "remove");
                       }}
                     >
-                      {t("fixedPageEditor.remove", label)}
+                      {t("fixedPageEditor.removeItem")}
                     </Button>
                   </Cluster>
                 </ContentGroup>

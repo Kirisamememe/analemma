@@ -28,7 +28,7 @@ export const ContentGroup = ({
       tabIndex={-1}
       aria-describedby={error === undefined ? undefined : id}
     >
-      <legend className="px-1">
+      <legend className="-ms-1 px-1">
         <Text as="span" variant="label">
           {label}
         </Text>

@@ -34,6 +34,10 @@ export const zhHans = {
   "fixedPageEditor.down": "下移{{label}}第 {{position}} 项",
   "fixedPageEditor.remove": "删除{{label}}第 {{position}} 项",
   "fixedPageEditor.add": "添加{{label}}",
+  "fixedPageEditor.unboundIssue": "（{{path}}：{{message}}）",
+  "fixedPageEditor.moveUp": "上移",
+  "fixedPageEditor.moveDown": "下移",
+  "fixedPageEditor.removeItem": "删除",
   "fixedPageEditor.newDescription": "选择类型后，输入 slug、标题和内容。",
   "fixedPageEditor.kindOf": "类型：{{kind}}",
   "fixedPageEditor.emptyKindsDescription":
