@@ -16,11 +16,11 @@ import { Dialog, useShowToast } from "@/ui/primitives/overlays";
 /** 固定ページを削除する Dialog に渡す値。 */
 type DeleteFixedPageDialogProps = {
   /** 開いているか。 */
-  readonly isOpen: boolean;
+  isOpen: boolean;
   /** 削除する固定ページ。 */
-  readonly page: FixedPageSummary;
+  page: FixedPageSummary;
   /** 閉じる関数。 */
-  readonly onClose: () => void;
+  onClose: () => void;
 };
 
 /** タイトルを見せて確かめてから、固定ページを削除する Dialog。 */

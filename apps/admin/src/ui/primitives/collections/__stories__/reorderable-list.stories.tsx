@@ -26,9 +26,9 @@ const ROWS: readonly SampleRow[] = [
 /** `SampleList` に渡す値。 */
 type SampleListProps = {
   /** 最初の行。 */
-  readonly rows: readonly SampleRow[];
+  rows: readonly SampleRow[];
   /** 並べ直しを止めるか。 */
-  readonly isDisabled: boolean;
+  isDisabled: boolean;
 };
 
 const SampleList = ({ rows, isDisabled }: SampleListProps): ReactNode => {

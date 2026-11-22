@@ -23,11 +23,11 @@ const DONE = {
 /** 固定ページの一覧の1行に渡す値。 */
 type FixedPageRowProps = {
   /** 行の固定ページ。 */
-  readonly page: FixedPageSummary;
+  page: FixedPageSummary;
   /** 種類のラベル。 */
-  readonly kindLabel: string;
+  kindLabel: string;
   /** 削除を始める関数。 */
-  readonly onDelete: (page: FixedPageSummary) => void;
+  onDelete: (page: FixedPageSummary) => void;
 };
 
 /** 固定ページの一覧の1行(タイトル・公開状態・slug・種類・更新日時と、操作)。 */

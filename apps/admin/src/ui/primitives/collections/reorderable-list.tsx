@@ -43,13 +43,13 @@ export type ReorderableItem = {
 /** 並べ直せる一覧に渡す値。 */
 type ReorderableListProps = {
   /** 一覧の名前。 */
-  readonly label: string;
+  label: string;
   /** 並び順に並べた行。 */
-  readonly items: readonly ReorderableItem[];
+  items: readonly ReorderableItem[];
   /** 並べ直した後のすべての ID を受け取る関数(並びが変わったときだけ呼ぶ)。 */
-  readonly onReorder: (ids: readonly string[]) => void;
+  onReorder: (ids: readonly string[]) => void;
   /** 並べ直しを止めるか(行の中の操作は使える)。 */
-  readonly isDisabled?: boolean;
+  isDisabled?: boolean;
 };
 
 /** 取っ手のドラッグかキーボードで、行を並べ直せる一覧。 */

@@ -15,13 +15,13 @@ const mark = tv({
 /** 中身の無い欄に渡す値。 */
 type EmptyStateProps = {
   /** 欄の中身を表すアイコン。 */
-  readonly icon: IconName;
+  icon: IconName;
   /** 中身が無いことを伝える見出し。 */
-  readonly title: string;
+  title: string;
   /** 次にできることの補足。 */
-  readonly description?: string | undefined;
+  description?: string | undefined;
   /** 中身を作る操作(ボタンなど)。 */
-  readonly actions?: ReactNode;
+  actions?: ReactNode;
 };
 
 const isShown = (node: ReactNode): boolean =>
