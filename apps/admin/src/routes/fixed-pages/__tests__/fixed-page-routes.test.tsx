@@ -1,6 +1,8 @@
 import { cleanup, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
+import { createFixedPageRoutes } from "@/testing/fake-routes/create-fixed-page-routes";
 import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
 
@@ -24,7 +26,9 @@ test("種類を読み込んでいる間と選べる種類が無いときの知�
   });
   expect(await screen.findByText("読み込んでいます。")).toBeDefined();
   pending.resolve(undefined);
-  expect(await screen.findByText(/選べる種類がありません。/v)).toBeDefined();
+  expect(
+    await screen.findByRole("heading", { name: "選べる種類がありません" }),
+  ).toBeDefined();
 });
 test("選んだ種類が無いときはフォームを出さずに知らせる", async () => {
   renderApp({
@@ -106,4 +110,51 @@ test("ほかの画面から戻ると、前に読んだ値ではなく、読み�
     (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
       .value,
   ).toBe("ほかのタブで直したタイトル");
+});
+
+test("一覧から種類を選んで作り、編集の画面から一覧に戻って、作ったページを編集で開ける", async () => {
+  const user = userEvent.setup();
+  const server = createFixedPageRoutes({
+    kinds: [
+      {
+        name: "about",
+        label: "About",
+        fields: [{ key: "lead", type: "text", label: "リード文" }],
+      },
+    ],
+  });
+  const { history } = renderApp({
+    path: "/fixed-pages",
+    routes: server.routes,
+  });
+
+  await user.click(
+    await screen.findByRole("button", { name: "新しい固定ページ" }),
+  );
+  await user.click(await screen.findByRole("button", { name: "About" }));
+  await user.type(
+    await screen.findByRole("textbox", { name: "slug" }),
+    "about",
+  );
+  await user.type(screen.getByRole("textbox", { name: "タイトル" }), "紹介");
+  await user.type(
+    screen.getByRole("textbox", { name: "リード文" }),
+    "こんにちは",
+  );
+  await user.click(screen.getByRole("button", { name: "保存" }));
+
+  expect(await screen.findByText("固定ページを作成しました。")).toBeDefined();
+  const [created] = server.pages();
+  expect(created?.content).toEqual({ lead: "こんにちは" });
+  await screen.findByRole("heading", { name: "固定ページを編集" });
+  expect(history.location.pathname).toBe("/fixed-pages/" + String(created?.id));
+
+  await user.click(screen.getByRole("link", { name: "固定ページの一覧" }));
+  await screen.findByRole("row", { name: "紹介" });
+  await user.click(screen.getByRole("button", { name: "編集" }));
+
+  expect(
+    (await screen.findByRole<HTMLInputElement>("textbox", { name: "リード文" }))
+      .value,
+  ).toBe("こんにちは");
 });

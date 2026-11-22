@@ -3,7 +3,7 @@ export const en = {
   "fixedPageEditor.new": "New fixed page",
   "fixedPageEditor.edit": "Edit fixed page",
   "fixedPageEditor.chooseKind": "Choose a kind",
-  "fixedPageEditor.emptyKinds": "No kinds are available.",
+  "fixedPageEditor.emptyKinds": "No kinds yet",
   "fixedPageEditor.kindGone": "This kind no longer exists.",
   "fixedPageEditor.pageGone": "This fixed page no longer exists.",
   "fixedPageEditor.loading": "Loading…",
@@ -33,6 +33,7 @@ export const en = {
   "fixedPageEditor.down": "Move {{label}} {{position}} down",
   "fixedPageEditor.remove": "Remove {{label}} {{position}}",
   "fixedPageEditor.add": "Add {{label}}",
+  "fixedPageEditor.backToList": "Fixed pages",
   "fixedPageEditor.urlHint": "Enter a URL starting with http:// or https://.",
   "fixedPageEditor.unboundIssue": "{{path}}: {{message}}",
   "fixedPageEditor.moveUp": "Up",
@@ -192,6 +193,8 @@ export const en = {
   "fixedPages.gone": "“{{title}}” no longer exists. The list was reloaded.",
   "fixedPages.publicationFailed":
     "Could not change whether “{{title}}” is published. Please try again.",
+  "fixedPages.edit": "Edit",
+  "fixedPages.create": "New fixed page",
   "fixedPages.delete": "Delete",
   "fixedPages.deleteTitle": "Delete “{{title}}”?",
   "fixedPages.deleteDescription":

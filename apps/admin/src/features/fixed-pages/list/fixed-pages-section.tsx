@@ -23,8 +23,16 @@ import { Spinner } from "@/ui/primitives/graphics";
 import { Notice } from "@/ui/primitives/notice";
 import { FocusScope, useShowToast } from "@/ui/primitives/overlays";
 
+/** 固定ページの一覧に渡す値。 */
+type FixedPagesSectionProps = {
+  /** 固定ページの編集の画面を開く関数。 */
+  onEdit: (id: string) => void;
+};
+
 /** 固定ページの一覧と、並べ直し・公開と非公開・削除の操作。 */
-export const FixedPagesSection = (): ReactNode => {
+export const FixedPagesSection = ({
+  onEdit,
+}: FixedPagesSectionProps): ReactNode => {
   const t = useTranslate();
   const showToast = useShowToast();
   const { refresh } = useApiCache();
@@ -117,6 +125,7 @@ export const FixedPagesSection = (): ReactNode => {
                   setIsDeleteOpen(true);
                   setOpenCount((count) => count + 1);
                 }}
+                onEdit={onEdit}
                 page={page}
               />
             ),

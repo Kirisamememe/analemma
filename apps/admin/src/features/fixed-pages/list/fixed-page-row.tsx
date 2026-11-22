@@ -28,6 +28,8 @@ type FixedPageRowProps = {
   kindLabel: string;
   /** 削除を始める関数。 */
   onDelete: (page: FixedPageSummary) => void;
+  /** 編集の画面を開く関数。 */
+  onEdit: (id: string) => void;
 };
 
 /** 固定ページの一覧の1行(タイトル・公開状態・slug・種類・更新日時と、操作)。 */
@@ -35,6 +37,7 @@ export const FixedPageRow = ({
   page,
   kindLabel,
   onDelete,
+  onEdit,
 }: FixedPageRowProps): ReactNode => {
   const t = useTranslate();
   const locale = useLocale();
@@ -85,6 +88,14 @@ export const FixedPageRow = ({
         </Text>
       </Stack>
       <Cluster gap={2}>
+        <Button
+          onPress={() => {
+            onEdit(page.id);
+          }}
+          size="sm"
+        >
+          {t("fixedPages.edit")}
+        </Button>
         <Button
           isPending={publication.isPending}
           onPress={() => {

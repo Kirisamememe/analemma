@@ -5,7 +5,7 @@ export const ja = {
   "fixedPageEditor.new": "新しい固定ページ",
   "fixedPageEditor.edit": "固定ページを編集",
   "fixedPageEditor.chooseKind": "種類を選択",
-  "fixedPageEditor.emptyKinds": "選べる種類がありません。",
+  "fixedPageEditor.emptyKinds": "選べる種類がありません",
   "fixedPageEditor.kindGone": "この種類はもうありません。",
   "fixedPageEditor.pageGone": "この固定ページはもうありません。",
   "fixedPageEditor.loading": "読み込んでいます。",
@@ -35,6 +35,7 @@ export const ja = {
   "fixedPageEditor.down": "{{label}} {{position}} を下へ",
   "fixedPageEditor.remove": "{{label}} {{position}} を削除",
   "fixedPageEditor.add": "{{label}}を追加",
+  "fixedPageEditor.backToList": "固定ページの一覧",
   "fixedPageEditor.urlHint": "http:// か https:// で始まる URL を入力します。",
   "fixedPageEditor.unboundIssue": "({{path}}:{{message}})",
   "fixedPageEditor.moveUp": "上へ",
@@ -203,6 +204,8 @@ export const ja = {
     "「{{title}}」はもうありません。一覧を読み込み直しました。",
   "fixedPages.publicationFailed":
     "「{{title}}」の公開状態を変えられませんでした。もう一度試してください。",
+  "fixedPages.edit": "編集",
+  "fixedPages.create": "新しい固定ページ",
   "fixedPages.delete": "削除",
   "fixedPages.deleteTitle": "「{{title}}」を削除しますか?",
   "fixedPages.deleteDescription":
