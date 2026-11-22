@@ -120,10 +120,14 @@ const sendEarlyReply: Middleware<
     : { output: unwrapReply(await reply, errors), context: {} };
 };
 
+const deployTokens = api.admin.deployTokens.use(sendEarlyReply);
 const passkeys = api.admin.passkeys.use(sendEarlyReply);
 const session = api.admin.session.use(sendEarlyReply);
 
 const procedures = {
+  "admin/deployTokens/issue": bindReply(deployTokens.issue),
+  "admin/deployTokens/list": bindReply(deployTokens.list),
+  "admin/deployTokens/revoke": bindReply(deployTokens.revoke),
   "admin/passkeys/delete": bindReply(passkeys.delete),
   "admin/passkeys/list": bindReply(passkeys.list),
   "admin/passkeys/register": bindReply(passkeys.register),

@@ -94,4 +94,41 @@ export const ja = {
   "sessions.logOutAllFailed":
     "ログアウトできませんでした。もう一度試してください。",
   "passkeys.renamed": "パスキーの名前を変更しました。",
+  "deployTokens.title": "デプロイ用のトークン",
+  "deployTokens.description":
+    "公開サイトのデプロイで、種類の定義を送るときに使うトークン。トークンの値は、発行した直後に一度だけ表示します。",
+  "deployTokens.listTitle": "発行したトークン",
+  "deployTokens.issue": "トークンを発行",
+  "deployTokens.issueDescription":
+    "どこで使うかが分かる名前を付けます。発行の前に、登録済みのパスキーで本人確認をします。",
+  "deployTokens.name": "トークンの名前",
+  "deployTokens.nameDescription": "例:本番のデプロイ",
+  "deployTokens.invalidName": "1〜64文字で、改行などを使わずに付けてください。",
+  "deployTokens.cancel": "キャンセル",
+  "deployTokens.issued": "「{{name}}」を発行しました。",
+  "deployTokens.issuedTitle": "新しいトークンをコピー",
+  "deployTokens.shownOnce":
+    "トークンの値を表示するのは今だけです。閉じる前にコピーしてください。",
+  "deployTokens.value": "「{{name}}」のトークン",
+  "deployTokens.copy": "コピー",
+  "deployTokens.copied": "トークンをクリップボードにコピーしました。",
+  "deployTokens.copyFailed":
+    "コピーできませんでした。トークンを選んで、手でコピーしてください。",
+  "deployTokens.close": "閉じる",
+  "deployTokens.dates": "発行 {{created}}・最終使用 {{lastUsed}}",
+  "deployTokens.datesUnused": "発行 {{created}}・未使用",
+  "deployTokens.loading": "トークンを読み込んでいます。",
+  "deployTokens.loadFailed": "トークンを読み込めませんでした。",
+  "deployTokens.empty":
+    "まだトークンはありません。公開サイトのデプロイに使うトークンを発行してください。",
+  "deployTokens.revoke": "取り消す",
+  "deployTokens.revokeTitle": "「{{name}}」を取り消しますか?",
+  "deployTokens.revokeDescription":
+    "このトークンを使うデプロイは、種類の定義を送れなくなります。取り消したトークンは元に戻せません。",
+  "deployTokens.revoked": "「{{name}}」を取り消しました。",
+  "deployTokens.cancelled": "トークンの発行をキャンセルしました。",
+  "deployTokens.reauthenticationFailed": "本人確認ができませんでした。",
+  "deployTokens.notFound": "このトークンはもうありません。",
+  "deployTokens.failed":
+    "操作できませんでした。時間をおいて、もう一度試してください。",
 } satisfies Translation;

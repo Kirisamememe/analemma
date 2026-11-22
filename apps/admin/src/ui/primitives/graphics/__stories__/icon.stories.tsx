@@ -9,6 +9,7 @@ const NAMES: readonly IconName[] = [
   "circle-alert",
   "circle-check",
   "house",
+  "key-round",
   "shield-check",
   "log-out",
   "menu",

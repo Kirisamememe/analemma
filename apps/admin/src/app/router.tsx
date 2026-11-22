@@ -14,6 +14,7 @@ import { createQueryClient } from "@/api/create-query-client";
 import type { AuthGate } from "@/features/auth/create-auth-gate";
 import { isPublicPath, toLoginSearch } from "@/features/auth/login-search";
 import type { Authenticator } from "@/features/auth/webauthn";
+import { DeployTokensPage } from "@/routes/deploy-tokens/deploy-tokens-page";
 import { EnrollPage } from "@/routes/enroll-page";
 import { HomePage } from "@/routes/home-page";
 import { LoginPage } from "@/routes/login-page";
@@ -85,10 +86,16 @@ const securityRoute = createRoute({
   component: SecurityPage,
 });
 
+const deployTokensRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/deploy-tokens",
+  component: DeployTokensPage,
+});
+
 const routeTree = rootRoute.addChildren([
   loginRoute,
   enrollRoute,
-  signedInRoute.addChildren([homeRoute, securityRoute]),
+  signedInRoute.addChildren([homeRoute, securityRoute, deployTokensRoute]),
 ]);
 
 /** 管理画面を組み立てるときに渡す値。 */
