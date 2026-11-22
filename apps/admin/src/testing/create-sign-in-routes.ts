@@ -10,20 +10,19 @@ const LOGIN_OPTIONS = {
     userVerification: "required",
     timeout: 300_000,
   },
-};
+} satisfies FakeReply<"auth/login/options">;
 
 /** ログインする前の、作り物の server の応答を作る。 */
-export const createSignInRoutes = (verify: FakeReply): FakeRoutes => {
+export const createSignInRoutes = (verify: FakeReply<"auth/login/verify">) => {
   let signedIn = false;
 
   return {
-    "admin/session/get": () =>
-      signedIn ? EXPIRY : { error: "UNAUTHORIZED", status: 401 },
+    "admin/session/get": () => (signedIn ? EXPIRY : { error: "UNAUTHORIZED" }),
     "auth/login/options": () => LOGIN_OPTIONS,
     "auth/login/verify": () => {
       signedIn = "output" in verify;
 
       return verify;
     },
-  };
+  } satisfies FakeRoutes;
 };

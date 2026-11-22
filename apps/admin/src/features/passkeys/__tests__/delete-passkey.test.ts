@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-  type FakeReply,
   createFakeApi,
+  type FakeReply,
 } from "../../../testing/create-fake-api";
 import {
   FAKE_ASSERTION,
@@ -10,7 +10,7 @@ import {
 } from "../../../testing/create-fake-authenticator";
 import { deletePasskey } from "../delete-passkey";
 
-const serverReplying = (reply: FakeReply) => {
+const serverReplying = (reply: FakeReply<"admin/passkeys/delete">) => {
   let sent: unknown;
   const fake = createFakeApi({
     "admin/session/reauthenticationOptions": () => ({
@@ -68,15 +68,15 @@ describe("deletePasskey", () => {
   test.each([
     {
       error: "REAUTHENTICATION_FAILED",
-      status: 403,
       expected: "ReauthenticationFailed",
     },
-    { error: "LAST_PASSKEY", status: 409, expected: "LastPasskey" },
-    { error: "NOT_FOUND", status: 404, expected: "NotFound" },
-  ])(
+    { error: "LAST_PASSKEY", expected: "LastPasskey" },
+    { error: "NOT_FOUND", expected: "NotFound" },
+  ] satisfies (FakeReply<"admin/passkeys/delete"> &
+    Record<"expected", Awaited<ReturnType<typeof deletePasskey>>["_tag"]>)[])(
     "server の $error を $expected として返す",
-    async ({ error, status, expected }) => {
-      const server = serverReplying({ error, status });
+    async ({ error, expected }) => {
+      const server = serverReplying({ error });
 
       expect(
         await deletePasskey(

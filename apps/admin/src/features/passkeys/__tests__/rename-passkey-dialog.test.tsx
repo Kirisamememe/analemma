@@ -51,7 +51,6 @@ describe("RenamePasskeyDialog", () => {
 
     server.replyNext("admin/passkeys/rename", () => ({
       error: "NOT_FOUND",
-      status: 404,
     }));
     renderApp({ path: "/security", routes: server.routes });
 
@@ -104,7 +103,7 @@ describe("RenamePasskeyDialog", () => {
 
   test("名前を変更した後に一覧を読み込めなければ、「パスキーを追加」に focus を移す", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
-    const list = server.routes["admin/passkeys/list"]!;
+    const list = server.routes["admin/passkeys/list"];
     let isListBroken = false;
 
     renderApp({
@@ -115,7 +114,6 @@ describe("RenamePasskeyDialog", () => {
           isListBroken
             ? {
                 error: "INTERNAL_SERVER_ERROR",
-                status: 500,
                 defined: false,
               }
             : list(input),

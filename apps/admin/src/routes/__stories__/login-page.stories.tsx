@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { AppPreview } from "../../testing/app-preview";
+import type { FakeRoutes } from "../../testing/create-fake-api";
 import { createFakeAuthenticator } from "../../testing/create-fake-authenticator";
 import { createPasskeyRoutes } from "../../testing/create-passkey-routes";
 import { createSignInRoutes } from "../../testing/create-sign-in-routes";
@@ -13,7 +14,7 @@ const meta = {
   args: {
     path: "/login",
     /** ログインの検証が成功し、その後のパスキーの画面も開ける server。 */
-    createRoutes: () => ({
+    createRoutes: (): FakeRoutes => ({
       ...createPasskeyRoutes([{ name: "MacBook Air", backedUp: true }]).routes,
       ...createSignInRoutes(EXPIRY),
     }),
@@ -44,7 +45,6 @@ export const Cancelled: Story = {
 export const UnknownPasskey: Story = {
   args: {
     /** 登録されていないパスキーとして断る server。 */
-    createRoutes: () =>
-      createSignInRoutes({ error: "UNKNOWN_CREDENTIAL", status: 401 }),
+    createRoutes: () => createSignInRoutes({ error: "UNKNOWN_CREDENTIAL" }),
   },
 };

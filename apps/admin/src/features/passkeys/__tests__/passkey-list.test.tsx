@@ -63,7 +63,6 @@ describe("PasskeyList", () => {
         ...server.routes,
         "admin/passkeys/list": () => ({
           error: "INTERNAL_SERVER_ERROR",
-          status: 500,
           defined: false,
         }),
       },

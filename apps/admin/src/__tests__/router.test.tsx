@@ -33,7 +33,7 @@ describe("router", () => {
     const { history } = renderApp({
       path: "/?tab=pages",
       routes: {
-        "admin/session/get": () => ({ error: "UNAUTHORIZED", status: 401 }),
+        "admin/session/get": () => ({ error: "UNAUTHORIZED" }),
       },
     });
 
@@ -55,7 +55,7 @@ describe("router", () => {
         "admin/session/get": () =>
           reachable
             ? { output: { expiresAt: "2026-01-08T00:00:00.000Z" } }
-            : { error: "INTERNAL_SERVER_ERROR", status: 500, defined: false },
+            : { error: "INTERNAL_SERVER_ERROR", defined: false },
       },
     });
 

@@ -1,4 +1,4 @@
-import type { FakeReply, FakeRoutes } from "./create-fake-api";
+import type { FakeInput, FakeReply, FakeRoutes } from "./create-fake-api";
 
 const EXPIRY = { output: { expiresAt: "2026-01-08T00:00:00.000Z" } };
 
@@ -17,27 +17,19 @@ const ENROLLMENT_OPTIONS = {
     attestation: "none",
     timeout: 300_000,
   },
-};
-
-/** 作り物の server と、server が受け取った登録。 */
-export type EnrollmentServer = {
-  /** 作り物の server の応答。 */
-  readonly routes: FakeRoutes;
-  /** server が受け取った登録の入力。 */
-  readonly registered: () => unknown;
-};
+} satisfies FakeReply<"auth/enrollment/options">;
 
 /** 登録用 URL から登録する前の、作り物の server を作る。 */
 export const createEnrollmentRoutes = (
-  register: FakeReply,
-): EnrollmentServer => {
-  let registered: unknown;
+  register: FakeReply<"auth/enrollment/register">,
+) => {
+  let registered: FakeInput<"auth/enrollment/register"> | undefined;
 
   return {
     routes: {
       "admin/session/get": () =>
         registered === undefined || !("output" in register)
-          ? { error: "UNAUTHORIZED", status: 401 }
+          ? { error: "UNAUTHORIZED" }
           : EXPIRY,
       "auth/enrollment/options": () => ENROLLMENT_OPTIONS,
       "auth/enrollment/register": (input) => {
@@ -45,7 +37,7 @@ export const createEnrollmentRoutes = (
 
         return register;
       },
-    },
+    } satisfies FakeRoutes,
     registered: () => registered,
   };
 };

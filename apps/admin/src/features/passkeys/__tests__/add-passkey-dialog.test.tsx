@@ -50,7 +50,6 @@ describe("AddPasskeyDialog", () => {
 
     server.replyNext("admin/passkeys/register", () => ({
       error: "REAUTHENTICATION_FAILED",
-      status: 403,
     }));
     renderApp({
       path: "/security",
@@ -72,7 +71,6 @@ describe("AddPasskeyDialog", () => {
 
     server.replyNext("admin/passkeys/register", () => ({
       error: "REAUTHENTICATION_FAILED",
-      status: 403,
     }));
     renderApp({
       path: "/security",
@@ -94,7 +92,7 @@ describe("AddPasskeyDialog", () => {
   test("最初の一覧の取得が遅れて届いても、追加したパスキーを一覧に出す", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
     const slow = Promise.withResolvers<undefined>();
-    const original = server.routes["admin/passkeys/list"]!;
+    const original = server.routes["admin/passkeys/list"];
 
     server.replyNext("admin/passkeys/list", async () => {
       const before = await original(undefined);

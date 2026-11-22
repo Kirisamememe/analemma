@@ -47,7 +47,6 @@ describe("LogOutAllSection", () => {
 
     server.replyNext("admin/session/logOutAll", () => ({
       error: "INTERNAL_SERVER_ERROR",
-      status: 500,
       defined: false,
     }));
     renderApp({ path: "/security", routes: server.routes });
@@ -64,7 +63,6 @@ describe("LogOutAllSection", () => {
 
     server.replyNext("admin/session/logOutAll", () => ({
       error: "INTERNAL_SERVER_ERROR",
-      status: 500,
       defined: false,
     }));
     renderApp({ path: "/security", routes: server.routes });
