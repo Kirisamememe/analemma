@@ -6,6 +6,8 @@ import { Text } from "@/ui/layout/text";
 import { Icon, type IconName } from "@/ui/primitives/graphics/icon";
 
 const NAMES: readonly IconName[] = [
+  "circle-alert",
+  "circle-check",
   "house",
   "shield-check",
   "log-out",

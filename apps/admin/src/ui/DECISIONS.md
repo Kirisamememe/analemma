@@ -28,14 +28,14 @@
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | 面                         | `canvas`(画面の地)・`surface`(カード・ダイアログ・入力欄)・`surface-sunken`(サイドバー・表の見出し)                |
 | 文字と線                   | `fg`・`fg-muted`(補足と placeholder)・`line`(線の既定)・`line-strong`(入力を受ける部品の枠)・`focus`               |
-| 塗り                       | `primary`・`on-primary`・`danger-strong`・`on-danger-strong`(取り消せない操作のボタン)                             |
+| 塗り                       | `primary`・`on-primary`・`danger-strong`・`on-danger-strong`(取り消せない操作のボタンと失敗の Toast)               |
 | 意味                       | `info`・`success`・`warning`・`danger` と、その塗りの上の文字の `on-info`・`on-success`・`on-warning`・`on-danger` |
 | light と dark で変わらない | `scrim`(写真や画面の上に重ねて暗くする色)・`on-media`(写真の上の文字)                                              |
 
 - 透明度付きの色の変数は作らない。薄い色は、部品の中で Tailwind の不透明度の修飾(`bg-danger/10` など)で作る。透明度付きの変数を足していくと、同じような色の変数が増える。
 - 面の色は不透明にする。`surface-sunken` は sticky の見出しにも使うので、下が透けない。
 - 意味の色の塗りの上の文字は、色ごとの `on-*`(`on-info` など)にする。今の値はどれも `canvas` と同じ(light では白、dark では黒)。dark の意味の色は明るく、白い文字では読めないため。色ごとに名前を分けておき、塗りによって文字の色を変えたくなったときに、部品を書き換えずに済むようにする(ユーザーが決めた)。
-- 取り消せない操作(削除・すべてのセッションからのログアウトなど)のボタン(`Button` の `danger`)は、`danger` と別の塗り `danger-strong`(light でも dark でも red-700)に、白い文字 `on-danger-strong` を載せる。dark では、暗い面の上の赤い文字が 4.5:1 に届くには明るい赤(red-400)が要り、塗りの上の白い文字が 4.5:1 に届くには濃い赤が要るので、1つの赤では両立できない。red-400 の塗りに黒い文字では色が薄く見えたので、濃い赤の塗りに白い文字にした(ユーザーが決めた)。dark でも red-700 にし、hover で文字の色を重ねても 4.5:1 を割らないようにする。`danger` は、文字・枠・薄い面(`Notice`・`Badge`・入力欄の誤り)の色として残す。名前は `primary` と `on-primary` に合わせる(`on-X` は、`X` の塗りの上に載せる文字の色)。
+- 取り消せない操作(削除・すべてのセッションからのログアウトなど)のボタンと失敗の Toast(どちらも `danger` の tone)は、`danger` と別の塗り `danger-strong`(light でも dark でも red-700)に、白い文字 `on-danger-strong` を載せる。dark では、暗い面の上の赤い文字が 4.5:1 に届くには明るい赤(red-400)が要り、塗りの上の白い文字が 4.5:1 に届くには濃い赤が要るので、1つの赤では両立できない。red-400 の塗りに黒い文字では色が薄く見えたので、濃い赤の塗りに白い文字にした(ユーザーが決めた)。dark でも red-700 にし、hover で文字の色を重ねても 4.5:1 を割らないようにする。`danger` は、文字・枠・薄い面(`Notice`・`Badge`・入力欄の誤り)の色として残す。名前は `primary` と `on-primary` に合わせる(`on-X` は、`X` の塗りの上に載せる文字の色)。
 - `black`・`white` という名前は使わず、用途の名前(`scrim`・`on-media`)にする。`bg-white` をカードに、`text-white` を塗りの上に、と書かれやすく、dark の意味の色の塗りの上の白い文字は、コントラストが 1.7〜2.9:1 しかない。
 - パレットの無彩色は、Tailwind CSS の neutral と同じ値にする。管理画面の `primary` は白と黒。役割の名前は、自分たちの名前(`canvas`・`surface`・`fg` など)を使う。
 - light の意味の色は、薄い面の上の文字でも 4.5:1(WCAG の AA)に届く段にする(red-700・green-800・amber-800・blue-700)。
@@ -64,6 +64,7 @@
 
 - hover は、その要素の文字の色(`currentColor`)を薄く重ねる utility(`state-hover`)で表す。塗りのボタンでも、透明な行でも、どの面の上でも同じに働く。`background-image` を使うので、`bg-linear-*` と一緒には使えない。
 - pressed は `state-pressed` で、要素の大きさを保ったまま `translate` で 1px 下に沈める。押している間に色を変えると、ナビのリンクを click してから画面が移るまでに色が何度も変わってちらついたので、色は変えない。scale も使わない(どちらもユーザーが決めた)。部品は `transition` で、色と位置を、押したときも離したときも、既定の長さ(120ms)と曲線(`--ease-standard` と同じ値)で動かす。数値の入力欄の増減のボタンは、入力欄の枠の一部なので沈めない(沈めると、枠からずれた)。
+- 閉じるボタンのように色の付いた面の上に載る操作は、`focus-ring-current` で文字の色(`currentColor`)の輪を描く。赤い面の上では `focus` の灰色が見えにくいため。
 - 状態の variant(`is-hovered`・`is-selected`・`is-disabled` など)は、部品のライブラリが付ける属性に名前を付けたもの。`theme.css` に、勝たせたい順に並べ、無効を最後に置く。生の `data-*:` の variant は名前の順に並ぶので、`data-disabled:` が一番弱くなる。値を持つ属性(並べ替えの向き・placement・orientation など)は variant にせず、部品の render props から渡す。公開サイトでは、そちらの部品のライブラリの属性に合わせて、同じ名前で定義し直す。
 - `is-current` は `aria-current` も見るので、`:where()` で包んで、ほかの variant と詳細度をそろえる。包まないと `is-disabled` に勝つ。
 - reduced motion では、base で transition を一律に止める。animation は見せ方が部品ごとに違うので、部品が使う class で決める。spinner は `motion-reduce:` で `animate-pulse` に替える。`animation.css` で Dialog の scale を `1` に固定し、引き出したナビは opacity だけを変える。
@@ -104,7 +105,8 @@
 - **overlay**(`primitives/overlays/dialog.tsx`):地の上に重ねる半透明の線と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、半透明の線で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
 - **`Dialog` の animation**:開くときは 200ms、閉じるときは 150ms。本体は opacity と `0.97` から `1` までの scale で出入りする。backdrop は `background-color` の透明度を変えて、本体とは別に濃さを変える。reduced motion では scale を `1` に固定する。React Aria Components は `is-entering` と `is-exiting` の animation が終わるのを待ち、閉じるときは、終わるまで Dialog を取り除かない。閉じ始めたら中身を `inert` にして再送を防ぐ。
 - **`overlays/`**:画面に重ねる Dialog と Toast を `primitives/overlays/` にまとめ、`primitives/` の直下を10件に収める。
-- **Toast**:操作の結果を `success` と `danger` で知らせ、tone ごとに色と形の違うアイコンを付ける。地の上ではっきり見分けられるよう、面は `scheme-inverse` で画面の配色と逆にする(light では黒い面、dark では白い面。ユーザーが決めた)。面と地の色がはっきり分かれるので、半透明の縁の線は付けず、`shadow-overlay` だけを付ける。長い語も折り返し、アイコンと閉じるボタンの中心を文の1行目の中心にそろえる。
+- **Toast**:操作の結果を `success` と `danger` で知らせ、tone ごとに形の違うアイコンを付ける。`success` の面は、地の上ではっきり見分けられるよう、`scheme-inverse` で画面の配色と逆にし(light では黒い面、dark では白い面)、アイコンに `success` の色を使う。`danger` の面は light でも dark でも `danger-strong` の赤にし、文・アイコン・閉じるボタンを `on-danger-strong` の白にする(どちらもユーザーが決めた)。面と地の色がはっきり分かれるので、半透明の縁の線は付けず、`shadow-overlay` だけを付ける。長い語も折り返し、アイコンと閉じるボタンの中心を文の1行目の中心にそろえる。
+- **Toast の focus の輪**:Toast と region の輪は面の外の地の上に描かれるので、地の配色の `focus` で描く。面の配色と塗りは内側の要素に当て、focus を受ける外側の要素は地の配色のままにする。面に `scheme-inverse` を当てると、輪の色も逆の配色で決まり、light の白い地の上で 3:1 に届かなかった。
 - **Toast の表示時間と操作**:`success` は読める時間として5000ms表示し、region に hover や focus がある間は React Aria Components が timer を止める。`danger` は失敗を読み終えるまで利用者の手元に残す。どちらも、訳した名前の閉じるボタンですぐに閉じられる。
 - **Toast の読み上げと queue**:region の訳と landmark、F6 での移動、`alert` の読み上げ、閉じたときの focus の復帰は React Aria Components に任せる。`UiProvider` の下の `ToastProvider` が管理画面の instance ごとに queue を持ち、`useShowToast` に訳した文と `tone` を渡す。これで画面を描き直すテストや Storybook でも知らせを持ち越さない。
 - **Toast の位置**:画面の上の中央に置く(ユーザーが決めた)。上に `4`、左右に少なくとも `4` を空け、幅は24remまでにする。新しい知らせを上に積む。操作の結果が同じ場所に出て、複数あっても順にたどれるようにする。

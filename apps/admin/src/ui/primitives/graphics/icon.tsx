@@ -1,7 +1,17 @@
-import { House, LogOut, Menu, ShieldCheck, X } from "lucide-react";
+import {
+  CircleAlert,
+  CircleCheck,
+  House,
+  LogOut,
+  Menu,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 import type { ReactNode } from "react";
 
 const ICONS = {
+  "circle-alert": CircleAlert,
+  "circle-check": CircleCheck,
   house: House,
   "shield-check": ShieldCheck,
   "log-out": LogOut,

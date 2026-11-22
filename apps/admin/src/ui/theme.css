@@ -219,6 +219,11 @@
   outline-offset: -2px;
 }
 
+@utility focus-ring-current {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 @utility scheme-dark {
   color-scheme: dark;
   color: var(--color-fg);

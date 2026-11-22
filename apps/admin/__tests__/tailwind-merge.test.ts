@@ -79,6 +79,7 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "state-disabled": null,
   "focus-ring": "focus-ring-inset",
   "focus-ring-inset": "focus-ring",
+  "focus-ring-current": "focus-ring",
   "scheme-dark": "scheme-light",
   "scheme-light": "scheme-dark",
   "scheme-inverse": "scheme-dark",

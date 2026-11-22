@@ -51,7 +51,7 @@ const MERGE_CONFIG: TWMergeConfig = {
       aspect: [{ aspect: ["photo"] }],
       duration: [{ duration: ["fast", "normal"] }],
       translate: ["state-pressed"],
-      "focus-ring": ["focus-ring", "focus-ring-inset"],
+      "focus-ring": ["focus-ring", "focus-ring-inset", "focus-ring-current"],
       "color-scheme": ["scheme-dark", "scheme-light", "scheme-inverse"],
     },
   },

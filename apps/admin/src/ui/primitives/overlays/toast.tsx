@@ -1,4 +1,3 @@
-import { CircleAlert, CircleCheck, X } from "lucide-react";
 import { type ReactNode, useCallback, useState } from "react";
 import {
   Button as AriaButton,
@@ -15,23 +14,28 @@ import { tv } from "../../tv";
 import { typography } from "../../typography";
 import { ShowToastContext, type ToastMessage } from "./toast-context";
 
+import { Icon } from "@/ui/primitives/graphics/icon";
+
 const toastStyle = tv({
   slots: {
     region:
-      "fixed inset-x-4 top-4 z-toast mx-auto flex max-w-sm flex-col gap-2",
-    panel:
-      "flex items-start gap-2 rounded-surface bg-surface py-2 ps-4 pe-2 scheme-inverse text-fg shadow-overlay toast-animation is-focus-shown:focus-ring",
+      "fixed inset-x-4 top-4 z-toast mx-auto flex max-w-sm flex-col gap-2 rounded-surface outline-hidden is-focus-shown:focus-ring",
+    toast:
+      "rounded-surface shadow-overlay toast-animation is-focus-shown:focus-ring",
+    panel: "flex items-start gap-2 rounded-surface py-2 ps-4 pe-2",
     content: "flex min-w-0 flex-1 items-start gap-2 py-1.5",
     iconFrame: "flex h-5 shrink-0 items-center",
-    icon: "size-icon",
     message: "min-w-0 wrap-anywhere",
     close:
-      "inline-flex size-8 shrink-0 items-center justify-center rounded-control border border-transparent text-fg outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed",
+      "inline-flex size-8 shrink-0 items-center justify-center rounded-control border border-transparent outline-hidden transition is-hovered:state-hover is-focus-shown:focus-ring-current is-pressed:state-pressed",
   },
   variants: {
     tone: {
-      success: { icon: "text-success" },
-      danger: { icon: "text-danger" },
+      success: {
+        panel: "bg-surface scheme-inverse text-fg",
+        iconFrame: "text-success",
+      },
+      danger: { panel: "bg-danger-strong text-on-danger-strong" },
     },
   },
 });
@@ -90,38 +94,35 @@ export const ToastProvider = ({ children }: ToastProviderProps): ReactNode => {
         {({ toast }) => {
           const { tone, message } = toast.content;
           const slots = toastStyle({ tone });
-          const Icon = tone === "success" ? CircleCheck : CircleAlert;
 
           return (
-            <AriaToast className={slots.panel()} toast={toast}>
-              <AriaToastContent className={slots.content()}>
-                <span className={slots.iconFrame()}>
-                  <Icon
-                    aria-hidden="true"
-                    className={slots.icon()}
-                    strokeWidth={1.75}
-                  />
-                </span>
-                <AriaText
-                  className={slots.message({
-                    className: typography({ role: "body" }),
-                  })}
-                  slot="title"
+            <AriaToast className={slots.toast()} toast={toast}>
+              <div className={slots.panel()}>
+                <AriaToastContent className={slots.content()}>
+                  <span className={slots.iconFrame()}>
+                    <Icon
+                      name={
+                        tone === "success" ? "circle-check" : "circle-alert"
+                      }
+                    />
+                  </span>
+                  <AriaText
+                    className={slots.message({
+                      className: typography({ role: "body" }),
+                    })}
+                    slot="title"
+                  >
+                    {message}
+                  </AriaText>
+                </AriaToastContent>
+                <AriaButton
+                  aria-label={t("ui.close")}
+                  className={slots.close()}
+                  slot="close"
                 >
-                  {message}
-                </AriaText>
-              </AriaToastContent>
-              <AriaButton
-                aria-label={t("ui.close")}
-                className={slots.close()}
-                slot="close"
-              >
-                <X
-                  aria-hidden="true"
-                  className="size-icon"
-                  strokeWidth={1.75}
-                />
-              </AriaButton>
+                  <Icon name="x" />
+                </AriaButton>
+              </div>
             </AriaToast>
           );
         }}
