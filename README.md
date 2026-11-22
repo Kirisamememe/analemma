@@ -6,13 +6,13 @@
 
 ## 構成
 
-| 名前     | 役割                                           | 場所                                  |
-| -------- | ---------------------------------------------- | ------------------------------------- |
-| Analemma | CMS の本体。Bun で動く                         | `apps/server`                         |
-| Stilus   | 管理画面。React の SPA                         | `apps/admin`                          |
-| —        | API の contract(zod のスキーマと型)            | `packages/contract`                   |
-| —        | 公開サイト向けの型付き SDK(npm で公開する予定) | `packages/client`(`@analemma/client`) |
-| —        | 開発のツール(lint の自作のルール、git の hook) | `tooling`                             |
+| 名前     | 役割                                                                 | 場所                                  |
+| -------- | -------------------------------------------------------------------- | ------------------------------------- |
+| Analemma | CMS の本体。Bun で動く                                               | `apps/server`                         |
+| Stilus   | 管理画面。React の SPA                                               | `apps/admin`                          |
+| —        | API の contract(zod のスキーマと型)                                  | `packages/contract`                   |
+| —        | 公開サイト向けの型付き SDK(npm で公開する予定)                       | `packages/client`(`@analemma/client`) |
+| —        | 開発のツール(lint の自作のルール、git の hook、レビューのスクリプト) | `tooling`                             |
 
 - フォルダの名前とパッケージ名は役割の名前にする。Analemma・Stilus は愛称で、README・ログ・画面の表示に使う。
 - 公開サイト(Amayadori)は別のリポジトリで、`@analemma/client` だけを使う。
@@ -41,6 +41,7 @@ bun run check
 | `bun run lint:fix`  | Oxlint で自動で直せるものを直す                                                                                           |
 | `bun run typecheck` | リポジトリの直下の tsconfig と、各ワークスペースの tsconfig を検査する                                                    |
 | `bun run test`      | テスト用の PostgreSQL を Docker Compose で起動し、migration を適用したテンプレートの DB を用意してから、`bun test` を流す |
+| `bun run review`    | ブランチを、観点を1つ選んでレビューする(Codex・Cursor の CLI。進め方は `AGENTS.md` の「ブランチとレビュー」)              |
 
 server を手元で動かすときは、開発用の PostgreSQL を起動し、migration を適用してから起動する。
 
