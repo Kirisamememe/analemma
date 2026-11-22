@@ -35,9 +35,10 @@ jobs:
           bin="$PWD/$(node -p 'require("./package.json").bin.analemma')"
           chmod +x "$bin"
           cd "$(mktemp -d)"
-          echo 'export default [{}];' > kinds.mjs
+          echo 'export default [{ definition: { name: "Not Kebab", label: "ページ", fields: [] } }];' > kinds.mjs
           status=0
           "$bin" push-kinds kinds.mjs --url http://127.0.0.1:9 2> errors.txt || status=$?
           cat errors.txt
           test "$status" -eq 1
           grep -q '種類の定義を読めない' errors.txt
+          grep -q '^0\.name: ' errors.txt
