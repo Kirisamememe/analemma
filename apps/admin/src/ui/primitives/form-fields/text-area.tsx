@@ -26,7 +26,7 @@ type TextAreaProps = {
   readonly isDisabled?: boolean;
   /** 読み取り専用か。 */
   readonly isReadOnly?: boolean;
-  /** 入力を確かめる関数。 */
+  /** 送る前に値を確かめ、誤りの知らせを返す関数(合っていれば undefined)。 */
   readonly validate?: (value: string) => string | undefined;
 };
 
