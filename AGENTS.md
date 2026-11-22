@@ -42,6 +42,8 @@
 理由は `DECISIONS.md` の「ブランチとレビュー」にある。
 
 - フェーズや大きなリリースごとに、main からフェーズのブランチ(`phase/<番号>`)を切る。小さな課題は、フェーズのブランチから切った子のブランチで作り、PR の base をフェーズのブランチにする。
+- PR を積み重ねる(stack)なら、2〜3件の軽いものは手で管理してよい。それより大きなものは、GitHub の stacked PR(`gh stack`。公式の拡張 `github/gh-stack`)で管理する。stack の中は rebase でまっすぐに保ち(push は `--force-with-lease`)、merge commit を作らない。
+- merge の方法(merge commit・squash・rebase)は、その場に合うものを選んでよい。ただし、コミットの粒度が消えるやり方はしない(複数のコミットを持つ PR を squash で1つにする、フェーズを1つのコミットに潰す、など)。フェーズのブランチから main へは、merge commit で入れる。
 - 子のブランチは、観点ごとにレビューする。観点は PR が触るものに合わせて選び、選んだ観点ごとに最低1回・最大3回流す。流すのは `bun run review -- --perspective <観点> --base <フェーズのブランチ>`(今のブランチをレビューする。ほかのブランチは `--head` で渡す)。数分から数十分かかるので、裏で流す。
 
   | 観点                     | `--perspective` | 選ぶとき                                                            |
@@ -56,7 +58,7 @@
 - 観点ごとに、高と中の指摘が無くなったら LGTM とする(結果の最後の行が `VERDICT: LGTM`)。3回で残ったものは、「割り切ったこと」に書くか、ユーザーに聞く。
 - 判断に迷う指摘があったら、直してレビューし直さず、ユーザーに報告する。
 - GitHub の Copilot のレビューは、ユーザーが頼んだときだけ使う。
-- すべての観点で LGTM になり、CI(`check`・`commit-messages`)が通ったら、エージェントが子のブランチをフェーズのブランチへ merge してよい。merge する前に、PR の本文に「## エージェントが判断したこと」の節を書き(形は `.github/pull_request_template.md`)、label `agent-merged` を付ける。
+- すべての観点で LGTM になり、CI(`check`・`commit-messages`)が通ったら、エージェントが子のブランチをフェーズのブランチへ merge してよい。merge する前に、PR の本文に「## エージェントが判断したこと」の節を書き(merge の方法も書く。形は `.github/pull_request_template.md`)、label `agent-merged` を付ける。
 - 子のブランチがすべて入ったら、フェーズのブランチを「つながりと一貫性」の観点で1〜2回レビューする(`bun run review -- --perspective coherence --base main --head phase/<番号>`)。main への PR の「## エージェントが判断したこと」には、label `agent-merged` の PR ごとに、PR へのリンクと、直さなかった指摘・判断に迷った指摘・ほかに決めたことをまとめ、「つながりと一貫性」のレビューの結果を添える。main への merge は、ユーザーが判断する。
 
 ## 使わないもの
