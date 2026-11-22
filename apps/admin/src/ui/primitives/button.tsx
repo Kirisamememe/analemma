@@ -1,7 +1,7 @@
 import type { ReactNode, Ref } from "react";
 import { Button as AriaButton, ProgressBar } from "react-aria-components";
+import { useTranslation } from "react-i18next";
 
-import { useTranslation } from "../../i18n/use-translation";
 import { tv } from "../tv";
 import { typography } from "../typography";
 import { Spinner } from "./spinner";
@@ -54,7 +54,7 @@ export const Button = ({
   ref,
   children,
 }: ButtonProps): ReactNode => {
-  const t = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <AriaButton

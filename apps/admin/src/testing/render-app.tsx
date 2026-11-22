@@ -3,6 +3,7 @@ import {
   type RouterHistory,
 } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
+import type { i18n as I18n } from "i18next";
 
 import { createApiClient } from "../api/create-api-client";
 import { App } from "../app";
@@ -11,6 +12,7 @@ import {
   gateAdminRequests,
 } from "../features/auth/create-auth-gate";
 import type { Authenticator } from "../features/auth/webauthn/create-authenticator";
+import { createI18n } from "../i18n/create-i18n";
 import type { Locale } from "../i18n/locales";
 import { createApp } from "../router";
 import { type FakeRoutes, createFakeApi } from "./create-fake-api";
@@ -33,6 +35,8 @@ export type RenderedApp = {
   readonly history: RouterHistory;
   /** 呼ばれた procedure のパスの並び。 */
   readonly calls: readonly string[];
+  /** 画面の言語と訳を持つ i18next の instance。 */
+  readonly i18n: I18n;
 };
 
 const NO_AUTHENTICATOR: Authenticator = {
@@ -61,7 +65,9 @@ export const renderApp = ({
     gate,
   });
 
-  render(<App locale={locale} queryClient={queryClient} router={router} />);
+  const i18n = createI18n(locale);
 
-  return { history, calls };
+  render(<App i18n={i18n} queryClient={queryClient} router={router} />);
+
+  return { history, calls, i18n };
 };

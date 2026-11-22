@@ -5,7 +5,7 @@ export const ja = {
   "app.name": "Stilus",
   "home.title": "Stilus",
   "notFound.title": "ページが見つかりません",
-  "notFound.description": "{path} にページはありません。",
+  "notFound.description": "{{path}} にページはありません。",
   "notFound.backHome": "ホームに戻る",
   "ui.pending": "処理中",
   "login.title": "Stilus にログイン",
@@ -51,12 +51,12 @@ export const ja = {
   "passkeys.add": "パスキーを追加",
   "passkeys.addDescription":
     "まず登録済みのパスキーで本人確認をしてから、新しいパスキーを作ります。",
-  "passkeys.dates": "登録 {created}・最終使用 {lastUsed}",
+  "passkeys.dates": "登録 {{created}}・最終使用 {{lastUsed}}",
   "passkeys.synced": "同期済み",
   "passkeys.rename": "名前を変更",
   "passkeys.renameTitle": "パスキーの名前を変更",
   "passkeys.delete": "削除",
-  "passkeys.deleteTitle": "「{name}」を削除しますか?",
+  "passkeys.deleteTitle": "「{{name}}」を削除しますか?",
   "passkeys.deleteDescription":
     "登録済みのパスキーで本人確認をしてから削除します。ほかのブラウザからはログアウトします。",
   "passkeys.cancel": "キャンセル",

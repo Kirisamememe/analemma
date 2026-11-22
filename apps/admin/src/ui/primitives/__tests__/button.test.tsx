@@ -1,7 +1,8 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { renderWithI18n } from "../../../testing/render-with-i18n";
 import { Button } from "../button";
 
 afterEach(cleanup);
@@ -29,21 +30,21 @@ describe("Button", () => {
   test("押すと onPress を呼ぶ", async () => {
     const counter = countPresses();
 
-    render(<Button onPress={counter.onPress}>保存</Button>);
+    renderWithI18n(<Button onPress={counter.onPress}>保存</Button>);
     await userEvent.click(screen.getByRole("button", { name: "保存" }));
 
     expect(counter.count()).toBe(1);
   });
 
   test("送信中は、ボタンの名前を残したまま、待っていることをスクリーンリーダーに伝える", () => {
-    render(<Button isPending>保存</Button>);
+    renderWithI18n(<Button isPending>保存</Button>);
 
     expect(screen.getByRole("button", { name: /保存/v })).toBeDefined();
     expect(screen.getByRole("progressbar", { name: "Working" })).toBeDefined();
   });
 
   test("送信中でなければ、待っていることを伝えない", () => {
-    render(<Button>保存</Button>);
+    renderWithI18n(<Button>保存</Button>);
 
     expect(screen.queryByRole("progressbar")).toBeNull();
   });
@@ -51,7 +52,7 @@ describe("Button", () => {
   test("送信中は、押しても onPress を呼ばない", async () => {
     const counter = countPresses();
 
-    render(
+    renderWithI18n(
       <Button isPending onPress={counter.onPress}>
         保存
       </Button>,
@@ -64,7 +65,7 @@ describe("Button", () => {
   test("押せないときは、押しても onPress を呼ばない", async () => {
     const counter = countPresses();
 
-    render(
+    renderWithI18n(
       <Button isDisabled onPress={counter.onPress}>
         保存
       </Button>,

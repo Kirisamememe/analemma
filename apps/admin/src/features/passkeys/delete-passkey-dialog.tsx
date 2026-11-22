@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
-import { useTranslation } from "../../i18n/use-translation";
 import { Cluster } from "../../ui/layout/cluster";
 import { Text } from "../../ui/layout/text";
 import { Button } from "../../ui/primitives/button";
@@ -29,7 +29,7 @@ export const DeletePasskeyDialog = ({
   onClose,
   onDeleted,
 }: DeletePasskeyDialogProps): ReactNode => {
-  const t = useTranslation();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { api, authenticator } = useRouteContext({ from: "__root__" });
   const deleting = useMutation({

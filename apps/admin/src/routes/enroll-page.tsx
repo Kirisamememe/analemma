@@ -5,12 +5,12 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { checkPasskeyName } from "../features/auth/check-passkey-name";
 import { type EnrollInput, enroll } from "../features/auth/enroll";
 import { readEnrollmentToken } from "../features/auth/read-enrollment-token";
 import { toEnrollNotice } from "../features/auth/to-auth-notice";
-import { useTranslation } from "../i18n/use-translation";
 import { Center } from "../ui/layout/center";
 import { Stack } from "../ui/layout/stack";
 import { Text } from "../ui/layout/text";
@@ -25,7 +25,7 @@ const PASSKEY_NAME_MAX_LENGTH = 64;
 
 /** 登録用 URL から、最初のパスキーを登録する画面。 */
 export const EnrollPage = (): ReactNode => {
-  const t = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { api, authenticator, gate } = useRouteContext({ from: "/enroll" });

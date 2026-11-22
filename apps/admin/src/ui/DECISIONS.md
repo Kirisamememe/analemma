@@ -83,7 +83,7 @@
 - `tailwind-variants` は `tv.ts` だけが import し、ほかは `tv.ts` の `tv` と `merge` を使う(lint で止まる)。既定の入口の `tv` は theme.css の名前を知らず、`z-sticky z-overlay` のような theme.css の名前の組を merge できずに両方残す(後から渡した class で上書きできない)。
 - merge の設定には、theme.css の名前(色・文字の目盛り・角丸・影・重ね順・幅・動き)と `@utility` の名前を入れる。theme.css の名前ごとに「同じ組の2つを渡すと後だけが残る」ことと、`@utility` ごとに組の相手を決めてあることを、theme.css を読むテスト(`apps/admin/__tests__/tailwind-merge.test.ts`)で確かめる。名前が1つしかない組(`grid-cols-thumbnails`・`aspect-photo`)は、Tailwind CSS の既定の class を相手にする。`tv` の variant を通しても merge が効くことも確かめる。名前の一覧と見比べるテストにすると、設定を写しただけになり、merge が本当に効くかを確かめない。`state-disabled` は透明度と押せるかどうかを変えるだけで、hover や pressed とは組にしない(組にすると、`state-hover state-disabled` で hover の見た目が消える)。
 - 文字の役割と組:`body`(`text-sm/xl`・400)・`body-long`(`text-sm/2xl`・400。長い文)・`caption`(`text-xs/lg`・400)・`label`(`text-sm/xl`・600)・`section`(`text-base/2xl`・600)・`page`(`text-xl/3xl`・700)・`display`(`text-3xl/5xl`・700)。`Text` と `Heading` は、文字の役割を `variant` で受ける(`role` にすると、ARIA の `role` と取り違える)。`Heading` は見出しのレベル(h1〜h3)から役割の既定を決め(レベル 1 は `page`、2 と 3 は `section`)、見た目とレベルを別々に選べる。
-- `UiProvider`(`primitives/ui-provider.tsx`)が、React Aria Components に、html の `lang` から決めた言語(`I18nProvider`)と、TanStack Router の navigate(`RouterProvider`)を渡す。リンクは TanStack Router の型の付いた行き先だけを受け、画面を読み込み直さずに移る。
+- `UiProvider`(`primitives/ui-provider.tsx`)が、React Aria Components に、i18next の今の言語(`I18nProvider`)と、TanStack Router の navigate(`RouterProvider`)を渡す。リンクは TanStack Router の型の付いた行き先だけを受け、画面を読み込み直さずに移る。
 
 ### 部品の決まり
 

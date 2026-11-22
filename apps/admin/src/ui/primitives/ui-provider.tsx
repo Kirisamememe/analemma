@@ -5,8 +5,7 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { I18nProvider, RouterProvider } from "react-aria-components";
-
-import type { Locale } from "../../i18n/locales";
+import { useTranslation } from "react-i18next";
 
 declare module "react-aria-components" {
   // oxlint-disable-next-line typescript/consistent-type-definitions -- React Aria Components の型の登録は、interface の宣言のマージでしか書けない
@@ -20,18 +19,14 @@ declare module "react-aria-components" {
 
 /** `UiProvider` に渡す値。 */
 type UiProviderProps = {
-  /** 部品が使う言語(日付や数の書き方)。 */
-  readonly locale: Locale;
   /** 管理画面の中身。 */
   readonly children: ReactNode;
 };
 
-/** 部品に、言語と TanStack Router の navigate を渡す Provider。 */
-export const UiProvider = ({
-  locale,
-  children,
-}: UiProviderProps): ReactNode => {
+/** 部品に、i18next の言語と TanStack Router の navigate を渡す Provider。 */
+export const UiProvider = ({ children }: UiProviderProps): ReactNode => {
   const router = useRouter();
+  const { i18n } = useTranslation();
 
   return (
     <RouterProvider
@@ -40,7 +35,7 @@ export const UiProvider = ({
       }}
       useHref={(to) => router.buildLocation({ to }).href}
     >
-      <I18nProvider locale={locale}>{children}</I18nProvider>
+      <I18nProvider locale={i18n.language}>{children}</I18nProvider>
     </RouterProvider>
   );
 };

@@ -17,6 +17,7 @@
 | 見た目         | Tailwind CSS v4 + tailwind-variants                          | 理由は `src/ui/DECISIONS.md`。                                                                                                         |
 | 部品の振る舞い | React Aria Components                                        | キーボードの操作・focus・ARIA を、部品ごとに自分で書かずに済む。shadcn/ui は使わない(ユーザーが決めた。見た目は自分たちの規則で持つ)。 |
 | テストの DOM   | happy-dom(`@happy-dom/global-registrator`)と Testing Library | Bun の公式の案内にある組み合わせ。                                                                                                     |
+| i18n           | i18next 27 + react-i18next                                   | ユーザーが決めた。理由は「i18n」。                                                                                                     |
 
 ## route はコードで定義する
 
@@ -28,7 +29,7 @@ TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen
 
 ## code splitting はしない
 
-route ごとの `lazy(() => import(…))` は使わず、`no-dynamic-import` をそのまま効かせる。管理画面を使うのは管理者1人で、全部を1つの bundle にしても大きくない(React と TanStack Router で約 300 KB、gzip で約 96 KB)。`import()` を許すと、境界を守る `no-restricted-imports` を動的な import ですり抜けられる(`tooling/DECISIONS.md`)。エディタのような大きなライブラリを入れるときに、決め直す。
+route ごとの `lazy(() => import(…))` は使わず、`no-dynamic-import` をそのまま効かせる。管理画面を使うのは管理者1人で、全部を1つの bundle にしても大きくない(i18next までを入れて約 710 KB、gzip で約 224 KB)。`import()` を許すと、境界を守る `no-restricted-imports` を動的な import ですり抜けられる(`tooling/DECISIONS.md`)。エディタのような大きなライブラリを入れるときに、決め直す。
 
 ## 言語と配色を最初の描画の前に当てる
 
@@ -37,19 +38,28 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 当てる値は、`localStorage` に利用者が選んだ値があればそれ、無ければ言語はブラウザの言語の並びから選び、配色は OS に従う(`data-theme` を付けない)。決める関数(`src/preferences/resolve-preferences.ts`)は純粋関数にしてテストする。
 - script は `src/preferences/boot.ts` を、`vite.config.ts` の plugin が、Vite の lib のビルドで1つの IIFE にまとめ、head に直接書き込む。TypeScript のまま書いてテストでき、`src/i18n/` と同じ言語の判定を使える。module の script は後回しに流れるので、最初の描画の前に流すには、module でない script にする必要がある。
 - 外部のファイルにせず、head に直接書き込む。ファイルにすると、ビルドの出力の名前を head に書き戻す仕組みが要る。server が CSP の `script-src` を決めるときには、この script の hash を許すか、ファイルに分けるかを決める(server の「入口の守り」で、CSP のほかの directive は、管理画面の配信を足すときに決めることになっている)。
-- React は、html の `lang` を読んで言語を決める(`src/i18n/locales.ts` の `toLocale`)。言語を決める出どころを、head の script の1か所にする。React Aria Components の `I18nProvider` にも、同じ値を渡す。
+- React は、html の `lang` を読み(`src/i18n/locales.ts` の `toLocale`)、i18next の `lng` に渡す。言語を決める出どころを、head の script の1か所にする。i18next の language detector は使わない。
+- 言語の切り替えは i18next の `changeLanguage` で行い、画面を読み込み直さない。`languageChanged` の event で、html の `lang` と `localStorage` を同じ値にする(`src/preferences/sync-locale.ts`)。html の `lang` は、和文と中文の font の選び分け(theme.css の `:lang()`)に効く。`useTranslation` は切り替えのたびに描き直すので、React Aria Components の `I18nProvider`(`UiProvider`)にも、i18next の今の言語が渡る。作ったときの言語は `localStorage` に置かない。ブラウザの言語から選んだ値で、置くと、ブラウザの言語を変えても追いかけなくなる。
 - 本番のビルドの出力で、head の script がアプリの script より前にあることと、作り物の `localStorage`・`navigator` の上で流すと値を当てることを、テスト(`__tests__/vite-config.test.ts`)で確かめる。ビルドの出力そのものを流すので、まとめ方を誤って module の構文が残れば落ちる。
 
 ## i18n
 
-`en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `TRANSLATIONS` に足し、`messages/` にファイルを置くだけにする。
+`en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `RESOURCES`(`src/i18n/resources.ts`)に足し、`messages/` にファイルを置くだけにする。
 
-- ライブラリを使わず、小さく自分で持つ。今の画面の文言は、引数を入れるだけで足りる。複数形や性の出し分けが要る文言が出てきたら、ICU の書き方を読めるライブラリにするかを決める。
-- 訳は言語ごとに1ファイルで、キーは `"notFound.title"` のような1段のキーにする。入れ子にしないので、キーの一覧と型をそのまま比べられる。
-- 英語の訳(`en.ts`)を `as const` で書き、キーと、`{name}` の引数の型を、英語の文字列から作る。ほかの言語は、英語のキーだけを持てる形(`Translation`)にし、訳していないキーは省ける。省けないと、キーを英語に足した時点で、ほかの言語を訳すまで型検査が通らない。
-- 全部の言語が英語と同じキーと同じ引数を持ち、空の訳を持たないことを、テスト(`src/i18n/__tests__/messages.test.ts`)で確かめる。型で省けても、check を通る前に訳がそろう。
-- それでも訳が無いキーは、英語にする(`pick-message.ts`)。訳しかけの開発の途中でも、画面が壊れない。
-- 引数は `{name}` の形で、名前は英字で始まる英数字にする。訳の中の `{` と `}` は引数にだけ使えることも、テストで確かめる。型は `{` と `}` の間をそのまま名前として読むので、`{}` のような書き損じがあると、型と実行時で引数の読み方が食い違う。
+訳を引くのは、i18next 27 と react-i18next にする(ユーザーが決めた)。生成物もネットワークも要らず、v27 からキーと引数に厳しく型が付き(`strictInterpolationChecks` が既定で有効)、複数形と fallback を持てる。公開サイトの i18n は、公開サイトを作るときに決める。
+
+- 訳は言語ごとに1ファイルで、TypeScript の `as const` で書く。i18next の型は、JSON からは引数の名前を読めない。英語の訳を `CustomTypeOptions` の `resources` に登録し(`resources.ts`)、キーと引数の型の出どころにする。ほかの言語は、英語のキーだけを持てる形(`Translation`)にし、訳していないキーは省ける。省けないと、キーを英語に足した時点で、ほかの言語を訳すまで型検査が通らない。
+- キーは `"notFound.title"` のような1段のキーにし、`keySeparator` と `nsSeparator` を、実行時と型の両方で `false` にする。`.` を入れ子の区切りとして読まないので、キーの一覧と型をそのまま比べられる。namespace は既定の1つだけを使う。
+- 引数は i18next の既定の `{{name}}` で書く。全部の言語が英語と同じキーと同じ引数を持ち、空の訳を持たないことを、テスト(`src/i18n/__tests__/messages.test.ts`)で確かめる。型で省けても、check を通る前に訳がそろう。訳の中の `{` と `}` は、英字で始まる名前の引数 `{{name}}` にだけ使えることも確かめる。`{name}` のような書き損じは、i18next にも型にも引数と読まれず、そのまま画面に出る。
+- 複数形は、`key_one`・`key_other` のキーに分け、`count` を渡す(i18next が `Intl.PluralRules` で選ぶ)。言語ごとに複数形の区分が違う(日本語は `other` だけ)ので、複数形の訳を足すときは、キーを比べるテストを、言語の区分に合わせて直す。
+- `fallbackLng` を英語にする(v27 から、既定では fallback しない)。それでも訳が無いキーと、空の訳は、英語にする(空の訳を訳が無いとみなすのは、v27 の既定)。訳しかけの開発の途中でも、画面が壊れない。
+- `supportedLngs` に `LOCALES` を渡す。対応していない言語に切り替えると英語になり、i18next の `language` は、いつも対応する言語のどれかになる。
+- React が値を escape するので、i18next の escape は切る(`escapeValue: false`)。二重に escape すると、`&` が `&amp;` のまま画面に出る。
+- 訳は bundle に入れ、instance を作るときに渡す。読み込みを待たないので、`init` と `changeLanguage` はその場で終わり、`useTranslation` が Suspense で止まらない。
+- instance は、言語を受けて `createInstance` で作る(`src/i18n/create-i18n.ts`)。i18next の既定の instance と `initReactI18next` は使わず、`I18nextProvider` で渡す(`App`)。テストや Storybook が、描くたびに別の言語の instance を作れる。Provider の外で部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で描く。
+- 日付と時刻は、i18next の formatting を使わず、`Intl.DateTimeFormat` の関数(`format-date-time.ts`)に、i18next の今の言語を渡して書く。書き方(`dateStyle: medium`・`timeStyle: short`)は画面の決めごとで、言語ごとに変えない。formatting にすると、全部の言語の訳に `{{created, datetime(dateStyle: medium; timeStyle: short)}}` のような書き方を写すことになり、API が返す ISO 8601 の文字列を `Date` に直す手間も要る。
+- 訳を `as const` で書くので、`t` の戻り値の型は、英語の訳の文字列のリテラルになる(i18next の型の作り)。実行時には、言語の訳が返る。テストで戻り値を英語以外の文字列と比べるときは、`expect<string>` で `string` に広げる。
+- 引数を取らないキーを値として持つ型(知らせの訳のキーなど)は、i18next の `ParseKeysWithoutVariables` にする。`t(key)` に、そのまま渡せる。
 - ブラウザの言語の並びから選ぶときは、`Intl.Locale` の `maximize()` で言語と文字体系の組にしてから比べる。`zh-CN`・`zh-SG`・`zh` は `zh-Hans`、`ja-JP` は `ja` になる。`zh-TW`・`zh-HK` は文字体系が違う(繁体字)ので、`zh-Hans` に寄せず、並びの次の言語に進む。どれにも対応していなければ英語にする。
 - `Intl.Locale` が読めない tag(`i-klingon` など。BCP 47 では正しくても、Intl が受け付けないものがある)は、飛ばして次の言語に進む。head の script の中で throw すると、言語と配色のどちらも当たらなくなる(Codex のレビューで見つかった)。
 - 利用者が選んだ言語と配色は、`localStorage` の `analemma:locale`・`analemma:theme` に置く。server には送らない。管理者は1人で、端末ごとに違ってよい。
@@ -122,5 +132,5 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 ## 割り切ったこと
 
 - **開発のときの head の script**:開発のサーバーは、HTML を返すたびに、head の script を Vite の lib のビルドでまとめ直す(数十ミリ秒)。まとめた結果を使い回すと、`src/preferences/boot.ts` と、それが読むファイルを直したときに開発のサーバーを起動し直す必要がある。待ち時間が気になったら、依存が変わったときだけまとめ直す形にする。
-- **`localStorage` が使えないブラウザ**:head の script は、`localStorage` を読めないと(ストレージを切った設定など)throw し、言語と配色を当てずに終わる。React は html の `lang` が無ければ英語にするので、画面は英語で出る。管理者が自分のブラウザで使うだけなので、受け入れる。
+- **`localStorage` が使えないブラウザ**:head の script は、`localStorage` を読めないと(ストレージを切った設定など)throw し、言語と配色を当てずに終わる。React は html の `lang` が無ければ英語にするので、画面は英語で出る。言語を切り替えたときも、`languageChanged` の event の中で `localStorage` に置けずに throw し、後に登録した listener(画面の描き直し)まで event が届かない。管理者が自分のブラウザで使うだけなので、受け入れる。
 - **ほかのタブの管理用 API**:ログインの最中に管理用 API を送らせない gate は、タブごとにある。ほかのタブが同じ時に管理用 API を送ると、その応答の `Set-Cookie`(期限を延ばした古い token、または切れたセッションを消す指示)が、ログインした応答の後に届き、新しい Cookie を上書きしうる。起きても、次の操作が 401 になってログインし直すだけで、管理者は1人で、ログインの最中にほかのタブを操作することは少ない。タブをまたいで止めるには、Web Locks API などで管理用 API を全部くるむ必要があり、手間に見合わないので受け入れる。
