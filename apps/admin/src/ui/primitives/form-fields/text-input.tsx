@@ -7,23 +7,23 @@ import { typography } from "@/ui/typography";
 
 type TextInputProps = {
   /** 入力欄の ID。 */
-  readonly id?: string;
+  id?: string;
   /** フォームのキー。 */
-  readonly name?: string;
+  name?: string;
   /** 入力欄のアクセシブルな名前。 */
-  readonly "aria-label"?: string;
+  "aria-label"?: string;
   /** ブラウザの自動入力の種類。 */
-  readonly autoComplete?: string | undefined;
+  autoComplete?: string | undefined;
   /** 文字の数の上限。 */
-  readonly maxLength?: number | undefined;
+  maxLength?: number | undefined;
   /** 最初に入れておく値。 */
-  readonly defaultValue?: string;
+  defaultValue?: string;
   /** 呼び出し元で管理する入力値。 */
-  readonly value?: string;
+  value?: string;
   /** 入力値が変わったときに呼ぶ関数。 */
-  readonly onChange?: (value: string) => void;
+  onChange?: (value: string) => void;
   /** 入力欄から focus が外れたときに呼ぶ関数。 */
-  readonly onBlur?: () => void;
+  onBlur?: () => void;
 };
 
 /** 1行のテキストを入力する部品。 */

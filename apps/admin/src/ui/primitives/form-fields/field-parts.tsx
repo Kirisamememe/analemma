@@ -28,7 +28,7 @@ export const FieldDescription = ({ children }: FieldTextProps): ReactNode => (
 
 type FieldErrorMessageProps = {
   /** 呼び出し元から渡す誤りの知らせ。 */
-  readonly children?: string | undefined;
+  children?: string | undefined;
 };
 
 /** 入力欄の誤りの知らせ。 */

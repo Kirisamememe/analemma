@@ -14,7 +14,7 @@ const TAKEN_TITLE = "このタイトルはすでに使われています";
 
 type FormCaseProps = {
   /** フォームから送ったタイトルを受け取る関数。 */
-  readonly onSubmit: (title: string) => undefined | Promise<void>;
+  onSubmit: (title: string) => undefined | Promise<void>;
 };
 
 const FormCase = ({ onSubmit }: FormCaseProps): ReactNode => {
