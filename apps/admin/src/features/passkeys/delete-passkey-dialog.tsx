@@ -8,10 +8,11 @@ import { Text } from "../../ui/layout/text";
 import { Button } from "../../ui/primitives/button";
 import { Notice } from "../../ui/primitives/notice";
 import { Dialog } from "../../ui/primitives/overlays/dialog";
+import { useShowToast } from "../../ui/primitives/overlays/toast-context";
 import { deletePasskey } from "./delete-passkey";
 import type { PasskeySummary } from "./passkey-list";
 import { refreshPasskeys } from "./passkeys-query";
-import { type PasskeyNotice, toDeleteNotice } from "./to-passkey-notice";
+import { toDeleteNotice } from "./to-passkey-notice";
 
 /** パスキーを削除する Dialog に渡す値。 */
 type DeletePasskeyDialogProps = {
@@ -21,8 +22,6 @@ type DeletePasskeyDialogProps = {
   readonly passkey: PasskeySummary;
   /** 閉じる関数。 */
   readonly onClose: () => void;
-  /** 消せたことを知らせる関数。 */
-  readonly onDeleted: (notice: PasskeyNotice) => void;
 };
 
 /** 再認証をしてから、パスキーを削除する Dialog。 */
@@ -30,9 +29,9 @@ export const DeletePasskeyDialog = ({
   isOpen,
   passkey,
   onClose,
-  onDeleted,
 }: DeletePasskeyDialogProps): ReactNode => {
   const { t } = useTranslation();
+  const showToast = useShowToast();
   const queryClient = useQueryClient();
   const { api, authenticator } = useRouteContext({ from: "__root__" });
   const deleting = useMutation({
@@ -45,8 +44,8 @@ export const DeletePasskeyDialog = ({
       await refreshPasskeys(queryClient);
 
       if (_tag === "Deleted") {
-        onDeleted({ tone: "success", message: "passkeys.deleted" });
         onClose();
+        showToast({ tone: "success", message: t("passkeys.deleted") });
       }
     },
   });

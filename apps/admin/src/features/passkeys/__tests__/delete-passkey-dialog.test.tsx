@@ -21,7 +21,7 @@ const confirmDelete = async (): Promise<void> => {
 };
 
 describe("DeletePasskeyDialog", () => {
-  test("再認証をして削除すると、一覧から外し、ほかのブラウザからはログアウトしたことを知らせる", async () => {
+  test("再認証をして削除すると、Dialog を閉じ、一覧から外し、Toast で知らせる", async () => {
     const server = createPasskeyRoutes([
       { name: "MacBook", backedUp: true },
       { name: "iPhone", backedUp: true },
@@ -35,9 +35,10 @@ describe("DeletePasskeyDialog", () => {
 
     await confirmDelete();
 
-    expect((await screen.findByRole("status")).textContent).toBe(
+    expect((await screen.findByRole("alert")).textContent).toBe(
       "パスキーを削除しました。ほかのブラウザからはログアウトしました。",
     );
+    expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.queryByText("MacBook")).toBeNull();
     expect(server.passkeys().map(({ name }) => name)).toEqual(["iPhone"]);
   });
@@ -109,7 +110,7 @@ describe("DeletePasskeyDialog", () => {
     });
 
     await confirmDelete();
-    await screen.findByRole("status");
+    await screen.findByRole("alert");
     await new Promise((resolve) => {
       setTimeout(resolve, 50);
     });

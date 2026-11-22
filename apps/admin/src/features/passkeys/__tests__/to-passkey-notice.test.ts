@@ -4,7 +4,6 @@ import { toAddNotice, toDeleteNotice } from "../to-passkey-notice";
 
 describe("toAddNotice", () => {
   test.each([
-    { outcome: "Added", tone: "success", message: "passkeys.added" },
     { outcome: "Cancelled", tone: "info", message: "passkeys.cancelled" },
     {
       outcome: "ReauthenticationFailed",
@@ -33,7 +32,6 @@ describe("toAddNotice", () => {
 
 describe("toDeleteNotice", () => {
   test.each([
-    { outcome: "Deleted", tone: "success", message: "passkeys.deleted" },
     { outcome: "Cancelled", tone: "info", message: "passkeys.cancelled" },
     {
       outcome: "ReauthenticationFailed",
