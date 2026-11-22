@@ -13,6 +13,8 @@ const MATERIAL: PromptMaterial = {
   perspective,
   base: "phase/1",
   head: "claude/pages",
+  baseCommit: "1".repeat(40),
+  headCommit: "2".repeat(40),
   paths: {
     tree: "/tmp/review/tree",
     diff: "/tmp/review/context/diff.patch",
@@ -31,14 +33,14 @@ const MATERIAL: PromptMaterial = {
 };
 
 describe("prompt を組み立てること", () => {
-  test("観点の名前と、比べるブランチを書くこと", () => {
+  test("観点の名前と、比べるブランチとそのコミットの SHA を書くこと", () => {
     const prompt = buildPrompt(MATERIAL);
 
     expect(prompt).toStartWith(
       `# レビューの依頼:「${perspective.label}」の観点\n`,
     );
     expect(prompt).toContain(
-      "ブランチ `claude/pages` の変更を、`phase/1` と比べて",
+      `ブランチ \`claude/pages\`(コミット \`${"2".repeat(40)}\`)の変更を、\`phase/1\`(コミット \`${"1".repeat(40)}\`)と比べて`,
     );
   });
 

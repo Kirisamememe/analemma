@@ -128,7 +128,7 @@ type ReviewRequest = Range & {
   readonly perspective: Perspective;
 };
 
-const findProblem = ({ base, head }: Range): string | undefined => {
+const pinRange = ({ base, head }: Range): Range | string => {
   if (!succeeds("rev-parse", "--verify", "--quiet", `refs/heads/${head}`)) {
     return `手元にブランチ ${head} が無い。`;
   }
@@ -137,16 +137,21 @@ const findProblem = ({ base, head }: Range): string | undefined => {
     return `${base} が無い。`;
   }
 
-  return succeeds("diff", "--quiet", `${base}...${head}`)
+  const pinned = {
+    base: git("rev-parse", `${base}^{commit}`).trim(),
+    head: git("rev-parse", `refs/heads/${head}`).trim(),
+  };
+
+  return succeeds("diff", "--quiet", `${pinned.base}...${pinned.head}`)
     ? `${base} と ${head} のあいだに差分が無い。`
-    : undefined;
+    : pinned;
 };
 
 const review = ({ base, head, perspective }: ReviewRequest): number => {
-  const problem = findProblem({ base, head });
+  const pinned = pinRange({ base, head });
 
-  if (problem !== undefined) {
-    report(problem);
+  if (typeof pinned === "string") {
+    report(pinned);
 
     return 2;
   }
@@ -176,13 +181,15 @@ const review = ({ base, head, perspective }: ReviewRequest): number => {
     return 1;
   }
 
-  const workspace = prepareWorkspace({ base, head });
+  const workspace = prepareWorkspace(pinned);
   const name = join(results, `${perspective.id}-${String(next.round)}`);
   const result = `${name}.md`;
   const prompt = buildPrompt({
     perspective,
     base,
     head,
+    baseCommit: pinned.base,
+    headCommit: pinned.head,
     paths: {
       tree: workspace.tree,
       diff: workspace.diff,
@@ -190,7 +197,7 @@ const review = ({ base, head, perspective }: ReviewRequest): number => {
     },
     scope: readFileSync(join(PROMPTS, `${perspective.id}.md`), "utf8"),
     rules: readFileSync(join(PROMPTS, "common.md"), "utf8"),
-    tradeOffs: collectTradeOffs({ head, tree: workspace.tree }),
+    tradeOffs: collectTradeOffs({ head: pinned.head, tree: workspace.tree }),
   });
 
   writeFileSync(`${name}.prompt.md`, prompt);

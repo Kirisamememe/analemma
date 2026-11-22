@@ -17,6 +17,36 @@ describe("テストだけのフォルダからの import", () => {
     ]);
   });
 
+  test("本番のコードからの、テスト用の認証器と W3C の例の import を見つけること", () => {
+    expect(
+      findTestOnlyImports({
+        path: "apps/server/src/features/auth/login/verify-login.ts",
+        text: [
+          'import { createFakeAuthenticator } from "../webauthn/fake-authenticator/create-fake-authenticator";',
+          'import { W3C_TEST_VECTORS } from "../webauthn/w3c-test-vectors";',
+        ].join("\n"),
+      }),
+    ).toEqual([
+      "apps/server/src/features/auth/webauthn/fake-authenticator/create-fake-authenticator",
+      "apps/server/src/features/auth/webauthn/w3c-test-vectors",
+    ]);
+  });
+
+  test("拡張子を付けた import も見つけること", () => {
+    expect(
+      findTestOnlyImports({
+        path: "apps/server/src/features/auth/login/verify-login.ts",
+        text: [
+          'import { W3C_TEST_VECTORS } from "../webauthn/w3c-test-vectors.js";',
+          'import { createFakeAuthenticator } from "../webauthn/fake-authenticator/create-fake-authenticator.ts";',
+        ].join("\n"),
+      }),
+    ).toEqual([
+      "apps/server/src/features/auth/webauthn/w3c-test-vectors",
+      "apps/server/src/features/auth/webauthn/fake-authenticator/create-fake-authenticator",
+    ]);
+  });
+
   test("テストのファイルと、テストの部品の中からの import は許すこと", () => {
     for (const path of [
       "apps/server/src/__tests__/app.test.ts",

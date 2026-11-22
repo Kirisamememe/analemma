@@ -39,6 +39,7 @@
 - `package.json` の `exports`・`bin`・`files` を、`dist/` に書き出したものに向ける。リポジトリの中で client を import するワークスペースは無いので、`dist/` に向けても困らない。
 - JS は Bun で bundle する(SDK と CLI を別々に)。`zod` と `@orpc/*` は external にし(bundle に含めず)、contract は bundle に含める。Node は、拡張子の無い相対 import と、`node_modules` の中の TypeScript を読めないため。CLI には、ビルドのときに shebang を足す(ソースに書くと、単独の行のコメントとして lint に止められる)。
 - 型(`.d.ts`)は `tsc`(`tsconfig.build.json`)で書き出す。型は `@analemma/contract` を参照するので、client を公開するには、contract も公開する必要がある。
+- ビルドした CLI は、CI(`check.yml`)で1回流す。`package.json` の `bin` のパスのファイルを shebang で直に実行し、相対パスで渡した、名前だけが形に合わない定義のファイルで、終了コード 1 になり、その名前の誤り(`0.name`)が出ることを確かめる。定義のファイルを読み、default export の配列の中身まで検査したことが分かる(読み込みが壊れて、配列に届かないときは、別の文言になる)。bin のパス・shebang・bundle の external・定義のファイルの読み込みは、`runCli` を直に呼ぶテストでは通らないため。CMS に送るところは `runCli` のテストが確かめるので、CI では送らない。
 - 公開するときは `bun publish` を使う。`package.json` の `workspace:*` を、公開するバージョンに書き換えるのは Bun だけで、`npm pack`・`npm publish` は `workspace:*` を残し、利用者の側で依存を解決できない(Codex のレビューで見つかった)。
 - `private: true` は、公開するときに外す(ユーザーが決めるまで公開しない)。
 
@@ -51,5 +52,4 @@
 - **返した定義とスキーマの書き換え**:`defineKind` が返す `definition` や、項目の関数が返す zod のスキーマ(`group` の `.shape` など)を、後から書き換えると、CMS に送る定義と、公開サイトの中身のスキーマが食い違う。公開サイトのコードを書くのはサイトの持ち主で、型も `definition` を書き換える使い方を想定していないので、凍結する(`Object.freeze`)ことまではしない(Codex のレビューで挙がった)。
 - **依存の型の検査**:oRPC の型は、optional な peer dependency の `@opentelemetry/api` を参照する。`skipLibCheck` を切った利用者は、それを入れないと型検査が通らない。今は npm で公開しておらず、使う予定の公開サイトは `skipLibCheck` を入れているので、受け入れる。npm で公開する手順を決めるときに、型の配り方と一緒に、README に書くか、参照を消すかを決める。
 - **bundle に入る、ほかのアクセス区分の contract**:SDK と CLI の bundle には、contract の全体(管理用 API と認証用 API の route の定義を含む)が入る。contract は公開するリポジトリにあり、秘密は含まないので、大きさの問題だけとして受け入れる。contract を、アクセス区分ごとに読める形に分けるときに見直す。
-- **bin と shebang のテスト**:テストは `runCli` を直に呼ぶので、`bin` のパス、ビルドで足す shebang、相対パスでの定義のファイルの読み込みは確かめていない。ビルドした CLI を Node で流し、本物の server の内部用のポートに送る確認は、手で行った。自動で確かめるには、テストのたびにビルドし、別のプロセスで CLI を流す仕組みが要り、テストが重くなる。壊れると(`bin` のパスや shebang を誤ると)、`analemma` のコマンドが流れずに失敗し、その終了コードでデプロイが止まる。定義を送らないままデプロイが進むことは無いので受け入れる。npm で公開する手順を決めるときに、CI で確かめるかを決める。
 - **`moduleResolution` が `node16` の利用者**:`.d.ts` の相対 import は拡張子を持たないので、`moduleResolution` が `node16`・`nodenext` の利用者は、型を解決できない。今は npm で公開しておらず、使う予定の公開サイトは `bundler` で解決する。npm で公開する手順を決めるときに、型を1つのファイルにまとめるか、`packages/client` の相対 import に拡張子を書く(lint の `import/extensions` を、このワークスペースでは外す)かを決める。

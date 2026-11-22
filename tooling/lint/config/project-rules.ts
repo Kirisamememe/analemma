@@ -1,5 +1,8 @@
 import type { DummyRuleMap } from "oxlint";
 
+/** 長いファイルとして扱い始める、コードの行数。 */
+export const LONG_FILE_CODE_LINES = 200;
+
 /** 自作のルールと、JS のプラグインのルール。 */
 export const PROJECT_RULES = {
   "jsdoc-js/require-description": "error",
@@ -82,7 +85,7 @@ export const PROJECT_RULES = {
     "error",
     {
       maxTrailingLength: 40,
-      dividerAllowedAfter: 200,
+      dividerAllowedAfter: LONG_FILE_CODE_LINES,
       dividerRequiredAfter: 400,
     },
   ],

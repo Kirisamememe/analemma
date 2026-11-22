@@ -19,7 +19,7 @@
 - pre-commit と pre-merge-commit は、ステージしたファイルのパスと中身から、ほかのリポジトリの名前を探す。整形・lint・型検査・テストは流さない(CI と `bun run check` に任せる)。
 - commit-msg は、commitlint(設定は直下の `commitlint.config.ts`、足したルールは `commit-rules.ts`)と、メッセージの中の、ほかのリポジトリの名前と「機械で探す語」の検索を流す。commitlint は Bun で流す。足したルールが `Bun.stringWidth` を使うので、Node では動かない。
 - hook を飛ばさない。`git commit --no-verify`(`-n`)を使わず、`core.hooksPath` を外さず、hook を飛ばすための環境変数や設定も足さない。通らなければ直してからコミットする。hook の側に無理があるなら、ユーザーに報告する。
-- CI は `.github/workflows/` にある(理由は `tooling/DECISIONS.md` の「CI」)。job の `check`(`check.yml`)は、PR と main への push で `bun install --frozen-lockfile` と `bun run check --all` を流す。job の `commit-messages`(`commit-messages.yml`)は、PR で、PR のコミットのメッセージと、PR のタイトル(merge commit か squash で入れたときの1行目。` (#番号)` を足したもの)を、`tooling/ci/check-pull-request-messages.ts` で確かめる。
+- CI は `.github/workflows/` にある(理由は `tooling/DECISIONS.md` の「CI」)。job の `check`(`check.yml`)は、PR と、main とフェーズのブランチへの push で `bun install --frozen-lockfile` と `bun run check --all` を流し、client をビルドして CLI を1回流す。job の `commit-messages`(`commit-messages.yml`)は、PR で、PR のコミットのメッセージと、PR のタイトル(merge commit か squash で入れたときの1行目。` (#番号)` を足したもの)を、`tooling/ci/check-pull-request-messages.ts` で確かめる。
 - job の名前(`check`・`commit-messages`)は、main とフェーズのブランチの ruleset で、通ることを必須にする check として登録した名前。変えるときは、ruleset も直す(ユーザーに頼む)。
 - `commit-messages` は、メッセージを commit-msg の hook のスクリプトに1件ずつ渡すだけ。メッセージの検査を変えるときは `tooling/git-hooks/` を直し、CI の側に検査を書き足さない。
 - 手元との違い:CI には、ほかのリポジトリの名前の一覧が無いので、名前を探さない(ファイルからも、メッセージからも)。名前を探すのは、手元の `bun run check` とコミットのときの hook だけ。PR のタイトルは hook を通らないので、PR を作る前に、手元で `printf '%s' '<タイトル>' | bun tooling/ci/check-pull-request-messages.ts --base <base のブランチ> --head HEAD --number <番号の見込み>` に通す。PR の本文はどの検査も読まず、GitHub の画面で作ったコミットのメッセージは名前を探す検査を通らないので、名前が無いかを自分で見る。

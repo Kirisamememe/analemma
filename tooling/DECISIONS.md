@@ -20,7 +20,7 @@
   - `no-cross-workspace-import`:相対パスで、自分のワークスペース(`apps/<名前>`・`packages/<名前>`)の外のファイルを import することを禁止する。Bun の isolated linker はパッケージ名での import しか縛らないので、相対パスなら server のコードを contract から読めてしまう。
   - `require-sibling-test`:管理画面の `.ts` が関数を export するなら、同じフォルダの `__tests__` に `.test.ts` を求める。表示を出し分ける `.tsx`(JSX を返す条件分岐がある)には、`__tests__` に `.test.tsx` を求める。テストのファイルは、中に `test(` か `it(` があるときだけ数える。lint を通すためだけの空のファイルやフォルダでは通らない。
   - `test-location`:テストのファイルを `__tests__` の直下に置かせ、`__tests__` にはテストのファイルだけを置かせ、`__tests__` の中にフォルダを作らせない。テストがテストするコードと同じフォルダにあるかまでは見ない(API 越しのテストは、1つのファイルに対応しないため)。
-  - `max-exported-functions`:1つのファイルが export できる関数を2つまでにする(型は数えない)。数えるのは、arrow function・function 宣言・function 式だけで、呼び出しの結果(oRPC の procedure や、関数を返す関数の戻り値)は数えない。server の「1ファイルに、1つの procedure か1つの関数」のうち、この上限で抑えるのは関数の数だけで、procedure の数は抑えない。
+  - `max-exported-functions`:コードの行数(空行とコメントだけの行を除く)が200行を超えるファイルは、export できる関数を2つまでにする(型は数えない)。200行以下なら、数は問わない(ユーザーが決めた。理由は直下の `DECISIONS.md` の「ファイルの長さ」)。境目の200行は、分割の見出しを使える行数と同じ値を、`tooling/lint/config/project-rules.ts` の1か所から渡す。数えるのは、arrow function・function 宣言・function 式だけで、呼び出しの結果(oRPC の procedure や、関数を返す関数の戻り値)は数えない。server の「1ファイルに、1つの procedure か1つの関数」のうち、この上限で抑えるのは関数の数だけで、procedure の数は抑えない。
   - `no-inline-parameter-type`:関数の引数に、インラインのオブジェクト型を書かせず、名前付きの型にさせる。
   - `no-catch-outside-entry`:try/catch の catch 節と、`.catch()` の呼び出しを禁止する(server だけ)。想定外の失敗は throw して入口で 500 とログにする約束で、これまで lint で止めていなかったので、WebCrypto の鍵の読み込みの `.catch(() => undefined)` が約束をすり抜けていた。`finally` だけの try は、後始末のために許す。`.then(a, b)` の2つ目の引数は、`promise/prefer-catch` が `.catch()` に書き直させるので、ここで止まる。
     - 入口と dispatcher では、Oxlint の設定の `overrides` でこのルールを外す。入口に数えるのは、HTTP の入口(`src/app.ts`)、コマンドの入口(`src/main.ts`・`src/enroll.ts`・`src/db/migrate.ts`)、起動のときの環境変数の検証(`src/platform/parse-database-url.ts`)。環境変数の検証は、起動の入口で外からの値をデコードする場所なので入口に数える。`.env` のパスワードの `%` のような、人が普通にする書き間違いを、パスワードを出さない決まった文言で知らせるため、`decodeURIComponent` の失敗を受け止める。dispatcher(ビジネスイベントを配る場所)は、作るときに足す。
@@ -89,8 +89,8 @@
 
 `bun run check` は `tooling/check/check.ts` が流す。
 
-- **server のテストを流すか**(ユーザーが決めた):`apps/server/`・`packages/`・`compose.yaml` のどれかに触れた変更でだけ、server のテスト(DB を使うものを含む)を流す。管理画面や tooling だけのブランチで、毎回 server のテストを待たないため。流さないときは、そのことを1行出す。CI は `--all` で、いつも全部流す。
-- **server のテストをまとめて外す**:server のテストには、DB を使うものと使わないものが混ざっていて、パスでは分けられない。どちらも `apps/server/` と、それが import する `packages/` しか読まないので、そこに触れていなければ、DB を使わないテストの結果も変わらない。
+- **server のテストを流すか**(ユーザーが決めた):`apps/server/`・`packages/` と、直下の `compose.yaml`・`bun.lock`・`bunfig.toml`・`tsconfig.base.json` のどれかに触れた変更でだけ、server のテスト(DB を使うものを含む)を流す。直下の4つは、テストの DB を動かすか、全部のワークスペースが読むファイルで、lock だけが変わる更新(間接の依存が上がる)でも、server の振る舞いは変わりうる。管理画面や tooling だけのブランチで、毎回 server のテストを待たないため。流さないときは、そのことを1行出す。CI は `--all` で、いつも全部流す。
+- **server のテストをまとめて外す**:server のテストには、DB を使うものと使わないものが混ざっていて、パスでは分けられない。どちらも `apps/server/` と、それが import する `packages/` と、直下の共有のファイルしか読まないので、そこに触れていなければ、DB を使わないテストの結果も変わらない。
 - **変えたファイル**:一番近いフェーズのブランチか main(`origin/phase/*` と `origin/main` のうち、HEAD にあってそこに無いコミットが一番少ないもの)から分かれた点と、今の作業ツリーとで中身が違うファイル(コミット・ステージ・作業ツリーのどこで変えたかは問わない)と、untracked のファイル(`.gitignore` で外したものは除く)。check が確かめるのは作業ツリーの中身なので、コミットした変更を、作業ツリーで分かれた点の中身に戻したファイルは数えない(Codex のレビューで挙がった。push したコミットは CI が全部流す)。stack で、ほかのブランチの上に積んだブランチでは、下のブランチの変更も数える。移したファイルは、移す前のパスも数える(server から外へ移したときも流す)。パスは `-z` で読む(既定では、日本語のパスを引用符で囲んで出し、前方一致で比べられない)。比べる元が見つからないときは、全部流す。
 - **bunfig.toml の除外を引き継ぐ**:`bun test` の `--path-ignore-patterns` は、bunfig.toml の `pathIgnorePatterns` に足されず、置き換わる(確かめた)。server を外すときは、bunfig.toml を読み、その除外に `apps/server/**` を足して渡す。除外を2か所に書かないため。
 - **段を同時に流さない**:整形の確認・lint・型検査・テストを同時に流すことは、短くなるなら入れると決めていた(ユーザーが決めた)が、測るとほとんど縮まなかったので、入れなかった。時間のほとんどはテストの段で、lint と型検査は合わせて4秒ほどしかない。段ごとの時間は、整形の確認 0.1 秒・lint 2.5 秒・型検査 1.4 秒・server を除く直下の `bun test` 64.6 秒(うち `tooling/lint` の fixture のテストが 53.2 秒)・管理画面のテスト 8.5 秒・server のテスト 23.2 秒(DB の用意を含む)。
@@ -204,7 +204,7 @@ git の `core.hooksPath` を、コミットしたフォルダ `tooling/git-hooks
 
 GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の名前(`check`・`commit-messages`)は、main とフェーズのブランチの ruleset で、通ることを必須にする check として登録した名前なので、変えるときは ruleset も直す。
 
-- **`check`**(`check.yml`):PR と main への push で、`bun install --frozen-lockfile` と `bun run check --all` を流す。手元と違い、変えたファイルにかかわらず server のテストも流す(「手元の検査」)。テスト用の PostgreSQL は、手元と同じく `bun run check` が Docker Compose で起動する(直下の `DECISIONS.md` の「PostgreSQL の用意」)。
+- **`check`**(`check.yml`):PR と、main とフェーズのブランチへの push で、`bun install --frozen-lockfile` と `bun run check --all` を流し、client をビルドして CLI を1回流す(`packages/client/DECISIONS.md`)。PR の CI は、その時点の base に merge した中身で流れるので、ある PR の最後の CI が、別の PR が入る前に流れていると、2つを合わせた中身はどこでも流れない。ruleset で守るブランチへの push でも流し、入れた後の中身を確かめる。手元と違い、変えたファイルにかかわらず server のテストも流す(「手元の検査」)。テスト用の PostgreSQL は、手元と同じく `bun run check` が Docker Compose で起動する(直下の `DECISIONS.md` の「PostgreSQL の用意」)。
 - **`commit-messages`**(`commit-messages.yml`):PR で、PR のコミットのメッセージと、PR のタイトルを確かめる。merge の方法は、merge commit・squash・rebase のどれも許す(直下の `DECISIONS.md` の「ブランチとレビュー」)。merge commit と squash では PR のタイトルが入れた先に残るコミットの1行目になり、merge commit と rebase では PR のコミットもそのまま残るため。
 - **workflow を分ける**:`commit-messages` は、PR のタイトルを直したとき(`edited`)にも流す必要がある。`check` を同じ workflow に置くと、タイトルや本文を直すたびに `check` も流れる。job の `if` で `check` を飛ばすと、飛ばした job は通ったものとして扱われ、落ちていた `check` が、タイトルを直しただけで通ったことになる。同じ理由で、本文だけを直したときも `commit-messages` を飛ばさない。
 
@@ -222,7 +222,7 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **`permissions` は `contents: read` だけ**:どちらの job も、リポジトリを読むだけで何も書かない。既定の権限はリポジトリの設定で決まり、書き込みを含む設定にもできる。最上位で決めていることを、`tooling/structure/` のテストが確かめる。
 - **checkout の `persist-credentials: false`**:token を `.git/config` に残さない。後の step(依存の install で流れる script を含む)から token を読めないようにする。
 - **actions はコミットの SHA で固定する**:タグは付け替えられるので、同じタグでも別のコードが流れうる。SHA だけでは何のバージョンか読めないので、行末のコメントにバージョンを書く(設定ファイルにコメントを書かない約束の例外。直下の `DECISIONS.md`)。形は `tooling/structure/` のテストが確かめる。上げるときは、SHA とコメントを一緒に直す。
-- **`concurrency`**:PR は番号ごとにまとめ、新しい実行が古い実行を止める。main への push の実行は SHA ごとに分け、新しい実行で古い実行を止めない。main のどのコミットにも結果を残すため。
+- **`concurrency`**:PR は番号ごとにまとめ、新しい実行が古い実行を止める。main とフェーズのブランチへの push の実行は SHA ごとに分け、新しい実行で古い実行を止めない。どのコミットにも結果を残すため。
 - **runner を `ubuntu-26.04` に固定する**:`ubuntu-latest` は GitHub が切り替えるので、Docker や Compose のバージョンが知らないうちに変わる。
 - **`timeout-minutes`**:既定の6時間は長すぎる。`check` は15分、`commit-messages` は5分にする。
 - **依存を cache しない**:`bun install` は CI で1秒かからない(810ms。実測)。cache の action を足すほどではない。
@@ -236,17 +236,17 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **差分とコミットのメッセージ**:書き出した中身には git の履歴が無いので、差分(`git diff base...head`)とコミットのメッセージを、別のファイルにして渡す。Cursor の ask モードは shell を使えないので、どのみち差分はファイルで渡す必要がある。
 - **割り切ったこと**:レビューするブランチの全 `DECISIONS.md` から「## 割り切ったこと」の節を集め、prompt に書き込む。ファイルの場所を渡すだけより、確実に読ませられる。コードのブロックの中の、見出しの形の行では区切らない。
 - **読み取り専用**:Codex は `-s read-only`、Cursor は `--mode ask` で呼ぶ(ask は書き込みも shell も断る。確かめた)。コマンドの組み立てを純粋関数にし、読み取り専用で呼ぶことをテストで確かめる。外の CLI を実際に呼ぶ部分はテストしない。
-- **モデルの選び方**:Cursor のモデルは、候補のうち `cursor-agent models` の一覧に載っている最初のものを使う(規約やルールの遵守は、Grok 4.7 が無ければ Composer 2.5)。どの候補も無ければ、ほかのモデルで流さずに止まる。モデルを option で変えられるようにはしない。ユーザーと決めた割り当てを、その場の判断で崩さないため。変えるときは `perspectives.ts` とテストを直す。
+- **モデルの選び方**:Cursor のモデルは、候補のうち `cursor-agent models` の一覧に載っている最初のものを使う(UI/UX とアクセシビリティは、Gemini 4 Neon が無ければ Grok 4.7。規約やルールの遵守は、Grok 4.7 が無ければ Composer 2.5。どちらもユーザーが決めた)。どの候補も無ければ、ほかのモデルで流さずに止まる。Codex の観点には代わりを置かず、使えないときはユーザーに聞く。モデルを option で変えられるようにはしない。ユーザーと決めた割り当てを、その場の判断で崩さないため。変えるときは `perspectives.ts` とテストを直す。
 - **言葉の観点**:Claude の subagent で流す。subagent は Claude Code の中からしか呼べないので、スクリプトは prompt を書き出して場所を出すだけにする。結果は、スクリプトが出した場所(`.private/reviews/<ブランチ>/wording-<回>.md`)に、呼んだエージェントが書く。書かないと回数に数えない。
 - **つながりと一貫性のモデル**:Codex にした(エージェントが決めた)。フェーズ全体の差分と、リポジトリ中の文書を読み合わせるので、子のブランチのビジネスロジックとセキュリティと同じく、深く読むモデルを使う。
 - **結果の置き場所**:メインの checkout の `.private/reviews/<ブランチ>/` に、`<観点>-<回>.md`(結果)・`<観点>-<回>.prompt.md`(prompt)・`<観点>-<回>.log`(外の CLI の出力)を書く。コミットしない。worktree を消しても残り、どの worktree から流しても、同じブランチの回数がそろう。メインの checkout は、ほかのリポジトリの名前の一覧と同じく、`git rev-parse --git-common-dir` でたどる。
 - **回数**:今の回は、結果のファイルの一番大きい番号の次にし、観点ごとの上限(子のブランチの観点は3回、つながりと一貫性は2回)を超えたら流さない。文書だけの上限は守られないため(直下の `DECISIONS.md` の「境界はツールで強制する」)。前の回の結果は、次の回の prompt に添えない。前の指摘に引っぱられるうえ、読ませる量が増えるため(ユーザーが決めた)。
+- **レビューしたコミット**:prompt の頭に、base と head の、流したときのコミットの SHA を書く。prompt は結果と同じフォルダに残るので、結果ごとに、どのコミットをレビューしたかが分かる。SHA は最初に1回だけ決め、差分があるかの判定・書き出す中身・差分・「割り切ったこと」も同じ SHA から作る。流している間にブランチが進んでも、記録とずれず、差分の無いレビューも流れない。観点ごとに流すので、ある観点が LGTM になった後に、別の観点の指摘を直すコミットを足すことは普通に起きる。そのコミットは PR の本文の観点の表に書き(直下の `AGENTS.md`)、流し直す決まりは足さない。足すと、観点の数だけ回数と費用が増える。
 - **結果の最後の行**:`VERDICT: LGTM` か `VERDICT: CHANGES_REQUESTED` のどちらかにさせ、スクリプトが読んで判定を出す。形から外れたら、読めなかったと出して終了コード1で終える。崩れた形を推し量って読むと、LGTM でないものを LGTM と取り違えうる。
 - **失敗**:外の CLI が失敗したときや、結果が空のときは、結果のファイルを消し、その回を数えない。外の CLI の出力は `.log` に残す。
 
 ## 割り切ったこと
 
-- **直下の共有の設定だけを変えたとき**:`bun.lock`・`bunfig.toml`・`tsconfig.base.json` のような、全部のワークスペースが読む直下のファイルだけを変えても、手元の `bun run check` は server のテストを流さない。server か `packages/` が使う依存を足したり上げたりするときは、その package.json も変わるので流れる。それ以外は CI が全部流すので、merge の前に止まる。
 - **TSDoc の言い回しの検査**:`tsdoc-role-only` は条件・例・補足・理由の言い回しを正規表現で見るので、すり抜けも誤検知もある。文の意味を読むには、日本語の構文の解析が要る。すり抜けはセルフレビューで見て、誤検知は言い回しを外して直す。
 - **字下げのコードのブロック**:用語集の検査は、Markdown の、4つの空白で字下げしたコードのブロックを扱わない。コードはフェンスで書くので、受け入れる。
 - **`Promise.allSettled`・`Promise.any`**:どちらも失敗を値に変えられるが、`no-catch-outside-entry` は止めていない。結果の型に失敗が出るので、握りつぶしがコードから見える。使う場面が出たら、止めるかを決める。
@@ -259,4 +259,6 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **hook を通らないメッセージの中の名前**:PR のタイトルと本文、GitHub の画面で作ったコミット(レビューの提案の取り込みなど)のメッセージは、手元の hook を通らない。CI にも名前の一覧が無い。一覧を CI に渡すと、一覧そのものを GitHub に預けることになり、見つけた名前も公開のログに出る。PR はエージェントが作るので、タイトルは、作る前に手元で `tooling/ci/check-pull-request-messages.ts` に通す(直下の `AGENTS.md`)。PR の本文は、どの検査も読まない。GitHub の画面で作ったコミットのメッセージは、CI が形を確かめるが、名前は探さない。どちらも書いた人が見る。本文を手元で探す仕組みは、足さないとユーザーが決めた。
 - **レビューの回数の数え直し**:回数は、メインの checkout の結果のファイルから数える。結果のファイルを消すと回数が戻り、同じ名前のブランチを作り直すと、前のブランチの回数を引き継ぐ。どちらも普通の使い方では起きず、回数の上限は費用を抑えるための目安なので、受け入れる。
 - **レビューの一時フォルダ**:レビューの途中でスクリプトを止めると、書き出したブランチの中身が、OS の一時フォルダに残る。言葉の観点では、subagent が読むので、わざと残す。どちらも OS が片付けるので、受け入れる。
+- **言葉の観点の判定**:言葉の観点の結果は、頼んだエージェントが、subagent の返した結果を写して書く。写さずに書き換えても、確かめる手段は無い(subagent に書かせても、頼んだ側が後から書き換えられる)。言葉の指摘は、直したコミットとして PR に残り、確かめる仕組みを作るほどの害が無いので受け入れる。
+- **SHA を先に決めることのテスト**:レビューのスクリプトが、SHA を最初に決めて、差分の判定と材料に同じ組を使うことは、テストで確かめていない。壊れると(判定をブランチの名前で行う形に戻ると)、モデルを選ぶ数秒の間に base が head を取り込んだときに、空の差分のレビューが1回流れ、回数を1回使う。確かめるには、組み立てを分けて git の呼び出しを差し替え、途中で base を進める仕組みが要り、それでも後の材料づくりまでは確かめきれない。害が小さく、手間に見合わないので受け入れる。
 - **Cursor の `--trust`**:書き出したブランチの中身を、Cursor に信頼させて読ませる(`--trust` が無いと、信頼するかを尋ねて止まる)。中身に Cursor の hook の設定があれば、Cursor が流しうる。レビューするのは、このリポジトリでエージェントとユーザーが作ったブランチだけで、同じ中身を `bun run check` と CI も流すので、受け入れる。MCP の server は、`--approve-mcps` を渡さないので動かない。外から来た PR をレビューするなら、`.cursor/`・`.claude/` などの設定のフォルダを除いてから渡す。

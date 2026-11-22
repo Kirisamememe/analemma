@@ -7,6 +7,9 @@ describe("decideTestScope", () => {
     ["apps/server/src/app.ts"],
     ["packages/contract/src/index.ts"],
     ["compose.yaml"],
+    ["bun.lock"],
+    ["bunfig.toml"],
+    ["tsconfig.base.json"],
   ])("%s に触れたら、server のテストも流す", (path) => {
     expect(
       decideTestScope({
@@ -16,7 +19,7 @@ describe("decideTestScope", () => {
     ).toBe("all");
   });
 
-  test("apps/server/・packages/・compose.yaml に触れていなければ、server のテストを流さない", () => {
+  test("server のテストが読む場所に触れていなければ、server のテストを流さない", () => {
     expect(
       decideTestScope({
         all: false,

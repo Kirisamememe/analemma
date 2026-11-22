@@ -97,6 +97,33 @@ describe("ファイルの長さ", () => {
       "コードが 400 行を超えるのに、1行目に理由付きの抑制が無い",
     );
   });
+
+  test("絵文字を含むコメントの後でも、コメントだけの行を数えないこと", () => {
+    expect(
+      check(["export const a = 1; // 😀", "// 行のコメント", codeLines(399)]),
+    ).toEqual([]);
+  });
+
+  test("絵文字を含むコメントの後でも、後ろにコードが続く見出しを数えること", () => {
+    expect(
+      check([
+        EXCEPTION,
+        "export const a = 1; // 😀😀😀😀😀😀😀😀",
+        codeLines(400),
+        DIVIDER,
+        "f();",
+      ]),
+    ).toEqual([]);
+  });
+
+  test("BOM で始まるファイルでも、1行目の理由付きの抑制で許すこと", () => {
+    expect(
+      checkSourceFile({
+        path: "sample.ts",
+        text: `\uFEFF${[EXCEPTION, DIVIDER, codeLines(401)].join("\n")}\n`,
+      }),
+    ).toEqual([]);
+  });
 });
 
 describe("lint の抑制", () => {
