@@ -62,7 +62,10 @@ export const PERSPECTIVES: readonly Perspective[] = [
   {
     id: "ui",
     label: "UI/UX とアクセシビリティ",
-    reviewer: { runner: "cursor", models: ["gemini-4-neon-xhigh"] },
+    reviewer: {
+      runner: "cursor",
+      models: ["gemini-4-neon-xhigh", "grok-4.7-xhigh"],
+    },
     maxRounds: CHILD_BRANCH_ROUNDS,
   },
   {

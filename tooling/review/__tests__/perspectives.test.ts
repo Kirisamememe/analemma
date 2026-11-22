@@ -19,7 +19,10 @@ describe("観点とモデルの割り当て", () => {
       },
       {
         id: "ui",
-        reviewer: { runner: "cursor", models: ["gemini-4-neon-xhigh"] },
+        reviewer: {
+          runner: "cursor",
+          models: ["gemini-4-neon-xhigh", "grok-4.7-xhigh"],
+        },
       },
       {
         id: "conventions",
