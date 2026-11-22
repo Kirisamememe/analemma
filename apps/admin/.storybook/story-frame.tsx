@@ -18,8 +18,10 @@ const router = createRouter({
 
 /** `StoryFrame` に渡す値。 */
 type StoryFrameProps = {
-  /** 画面の言語。 */
+  /** 訳と部品が使う言語。 */
   readonly locale: Locale;
+  /** story に見える文の言語(訳でない見本の文のとき)。 */
+  readonly contentLang: string | undefined;
   /** 配色。 */
   readonly theme: Exclude<Theme, "system">;
   /** story の中身。 */
@@ -29,13 +31,14 @@ type StoryFrameProps = {
 /** story を、管理画面と同じ言語・配色・router の中で描く枠。 */
 export const StoryFrame = ({
   locale,
+  contentLang = locale,
   theme,
   children,
 }: StoryFrameProps): ReactNode => {
   useLayoutEffect(() => {
-    document.documentElement.lang = locale;
+    document.documentElement.lang = contentLang;
     document.documentElement.dataset["theme"] = theme;
-  }, [locale, theme]);
+  }, [contentLang, theme]);
 
   return (
     <LocaleContext value={locale}>

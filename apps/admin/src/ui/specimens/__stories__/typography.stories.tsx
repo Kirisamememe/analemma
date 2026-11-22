@@ -6,6 +6,7 @@ const meta = {
   title: "theme/Typography",
   component: TypeSpecimen,
   args: {
+    lang: "ja",
     sample:
       "パスキーで Stilus にログインする。登録した端末の名前は、あとから変えられる。2026年11月22日 10:00",
   },
@@ -19,6 +20,7 @@ export const Japanese: Story = {};
 
 export const English: Story = {
   args: {
+    lang: "en",
     sample:
       "Sign in to Stilus with a passkey. You can rename a registered device later. Nov 22, 2026, 10:00",
   },
@@ -26,6 +28,7 @@ export const English: Story = {
 
 export const SimplifiedChinese: Story = {
   args: {
+    lang: "zh-Hans",
     sample:
       "使用通行密钥登录 Stilus。已注册设备的名称可以稍后更改。2026年11月22日 10:00",
   },

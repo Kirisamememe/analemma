@@ -29,9 +29,11 @@ const preview: Preview = {
     },
   },
   initialGlobals: { theme: "light", locale: "ja" },
+  parameters: { contentLang: "ja" },
   decorators: [
-    (Story, { globals: { locale, theme } }) => (
+    (Story, { globals: { locale, theme }, parameters: { contentLang } }) => (
       <StoryFrame
+        contentLang={typeof contentLang === "string" ? contentLang : undefined}
         locale={toLocale(typeof locale === "string" ? locale : "")}
         theme={theme === "dark" ? "dark" : "light"}
       >
