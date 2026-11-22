@@ -1,5 +1,5 @@
-export { NumberField } from "./number-field";
-export { TextArea } from "./text-area";
+export { NumberField, type NumberFieldProps } from "./number-field";
+export { TextArea, type TextAreaProps } from "./text-area";
 export { TextField, type TextFieldProps } from "./text-field";
 export { TextInput } from "./text-input";
 export { Checkbox, type CheckboxProps } from "./choices/checkbox";
