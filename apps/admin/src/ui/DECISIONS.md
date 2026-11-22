@@ -72,7 +72,7 @@
 
 | 置く所                | 中身                                                                                                  |
 | --------------------- | ----------------------------------------------------------------------------------------------------- |
-| `tv.ts`               | theme.css の名前を merge の設定に入れた `tv` と `merge`                                               |
+| `tv.ts`               | デザインシステムの class の組を設定した `tv` と `merge`                                               |
 | `typography.ts`       | 文字の役割と、目盛りの組と太さの対応(組を書けるのはここだけ)                                          |
 | `primitives/`         | ボタン・リンク・入力欄・`Notice` など、いちばん小さな部品。React Aria Components を使えるのはここだけ |
 | `layout/`             | 並べ方(`Stack`・`Cluster`・`Center`・`AppShell`)と文字(`Text`・`Heading`)                             |
@@ -115,7 +115,7 @@
 
 ### 部品(`ui/` と `features/*/ui/`)
 
-- theme.css に無い class(Tailwind CSS の既定の色や目盛りなど)。
+- `app.css` を入口にした Tailwind CSS の設定で生成できない class(Tailwind CSS の既定の色や目盛りなど)。`app.css` は `theme.css` と `animation.css` を読む。
 - `[…]` の付く class(任意の値・任意のプロパティ・任意の variant)。値は theme.css の役割か、部品の props で決める。`[&>svg]:size-icon` のような子を選ぶ variant も止める。子の大きさは、子の部品の props で決める。
 - `(--name)` で CSS 変数を直接読むこと。読めるのは、実行時に決まる値を渡す変数(React Aria Components の `--trigger-width`・`--visual-viewport-height`、`--progress`・`--media-aspect`・`--media-color`・`--focal-x`・`--focal-y`)だけ。型の付いた読み方(`stroke-(length:--progress)`)も許す。部品が `style` で渡せるのは、`css-variables.tsx` で React の型に足した変数だけ。
 - `dark:`(light と dark は `light-dark()` で決める。`not-dark:` のような組み合わせた variant の中も)、`!`(variant の後ろも)、生の `data-*:`・`aria-*:`(状態は `is-*:` の variant を使う。生の variant は名前の順に並び、`data-disabled:` が一番弱くなる。打ち間違いも CSS を出すので、無い class でも止まらない。`group-not-aria-*:` のような組み合わせの中も)、数値の `z-*`(`z-10` など)、型を付けた CSS 変数の文字の大きさ(`text-(length:--x)`。色の `text-(color:--x)` は除く)、数値の `font-*`(`font-500` など)、`outline-none`(`outline-hidden` を使う。forced-colors で線が残る)。

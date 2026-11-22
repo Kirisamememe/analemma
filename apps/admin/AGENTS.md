@@ -37,7 +37,7 @@
 - 部品は、層の向き(patterns → primitives・layout)を守る。React Aria Components は `ui/primitives/` の中でだけ使い、`tv` は `ui/tv.ts` から import する(ここまでは lint で止まる)。primitives は自分の props の型を持ち、ライブラリの props の型を extends しない(lint では止まらないので、セルフレビューで見る)。
 - 文字の役割は `Text`・`Heading` の `variant` で選ぶ。
 - 部品を足したら、同じフォルダの `__stories__` に story を足し、`src/__tests__/stories.test.tsx` の一覧にも足す。story は画面のコードと同じ決まりで、部品と props だけで組む(lint で止まる)。tone・variant・状態(無効・送信中・invalid など)ごとに story を分け、見比べられるようにする。
-- `ui/` の部品の class は、theme.css の役割だけで書く。止める class と理由は `src/ui/DECISIONS.md` の「検査」。止められたら、部品や役割を足すかを考え、`[…]` や抑制で逃げない。
+- `ui/` の部品は、`theme.css` の役割と `animation.css` の animation の class を使う。止める class と理由は `src/ui/DECISIONS.md` の「検査」。止められたら、部品や役割を足すかを考え、`[…]` や抑制で逃げない。
 
 ## 開発とテスト
 
