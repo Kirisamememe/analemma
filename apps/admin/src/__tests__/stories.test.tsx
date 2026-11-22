@@ -5,34 +5,36 @@ import { readdir } from "node:fs/promises";
 import type { ComponentType } from "react";
 
 import preview from "../../.storybook/preview";
-import * as routesEnrollPage from "../routes/__stories__/enroll-page.stories";
-import * as routesLoginPage from "../routes/__stories__/login-page.stories";
-import * as routesSecurityPage from "../routes/__stories__/security-page.stories";
-import * as layoutAppShell from "../ui/layout/__stories__/app-shell.stories";
-import * as layoutCenter from "../ui/layout/__stories__/center.stories";
-import * as layoutCluster from "../ui/layout/__stories__/cluster.stories";
-import * as layoutHeading from "../ui/layout/__stories__/heading.stories";
-import * as layoutStack from "../ui/layout/__stories__/stack.stories";
-import * as layoutText from "../ui/layout/__stories__/text.stories";
-import * as patternsPageHeader from "../ui/patterns/__stories__/page-header.stories";
-import * as patternsSideNav from "../ui/patterns/__stories__/side-nav.stories";
-import * as primitivesBadge from "../ui/primitives/__stories__/badge.stories";
-import * as primitivesButton from "../ui/primitives/__stories__/button.stories";
-import * as primitivesDialog from "../ui/primitives/__stories__/dialog.stories";
-import * as primitivesFocusScope from "../ui/primitives/__stories__/focus-scope.stories";
-import * as primitivesForm from "../ui/primitives/__stories__/form.stories";
-import * as primitivesNotice from "../ui/primitives/__stories__/notice.stories";
-import * as primitivesNumberField from "../ui/primitives/form-fields/__stories__/number-field.stories";
-import * as primitivesTextArea from "../ui/primitives/form-fields/__stories__/text-area.stories";
-import * as primitivesTextField from "../ui/primitives/form-fields/__stories__/text-field.stories";
-import * as primitivesAppMark from "../ui/primitives/graphics/__stories__/app-mark.stories";
-import * as primitivesIcon from "../ui/primitives/graphics/__stories__/icon.stories";
-import * as primitivesSpinner from "../ui/primitives/graphics/__stories__/spinner.stories";
-import * as primitivesLink from "../ui/primitives/navigation/__stories__/link.stories";
-import * as primitivesNavDrawer from "../ui/primitives/navigation/__stories__/nav-drawer.stories";
-import * as primitivesNavItem from "../ui/primitives/navigation/__stories__/nav-item.stories";
-import * as specimensColors from "../ui/specimens/__stories__/colors.stories";
-import * as specimensTypography from "../ui/specimens/__stories__/typography.stories";
+
+import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
+import * as routesLoginPage from "@/routes/__stories__/login-page.stories";
+import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
+import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
+import * as layoutCenter from "@/ui/layout/__stories__/center.stories";
+import * as layoutCluster from "@/ui/layout/__stories__/cluster.stories";
+import * as layoutHeading from "@/ui/layout/__stories__/heading.stories";
+import * as layoutStack from "@/ui/layout/__stories__/stack.stories";
+import * as layoutText from "@/ui/layout/__stories__/text.stories";
+import * as patternsPageHeader from "@/ui/patterns/__stories__/page-header.stories";
+import * as patternsSideNav from "@/ui/patterns/__stories__/side-nav.stories";
+import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
+import * as primitivesButton from "@/ui/primitives/__stories__/button.stories";
+import * as primitivesFocusScope from "@/ui/primitives/__stories__/focus-scope.stories";
+import * as primitivesForm from "@/ui/primitives/__stories__/form.stories";
+import * as primitivesNotice from "@/ui/primitives/__stories__/notice.stories";
+import * as primitivesNumberField from "@/ui/primitives/form-fields/__stories__/number-field.stories";
+import * as primitivesTextArea from "@/ui/primitives/form-fields/__stories__/text-area.stories";
+import * as primitivesTextField from "@/ui/primitives/form-fields/__stories__/text-field.stories";
+import * as primitivesAppMark from "@/ui/primitives/graphics/__stories__/app-mark.stories";
+import * as primitivesIcon from "@/ui/primitives/graphics/__stories__/icon.stories";
+import * as primitivesSpinner from "@/ui/primitives/graphics/__stories__/spinner.stories";
+import * as primitivesLink from "@/ui/primitives/navigation/__stories__/link.stories";
+import * as primitivesNavDrawer from "@/ui/primitives/navigation/__stories__/nav-drawer.stories";
+import * as primitivesNavItem from "@/ui/primitives/navigation/__stories__/nav-item.stories";
+import * as primitivesDialog from "@/ui/primitives/overlays/__stories__/dialog.stories";
+import * as primitivesToast from "@/ui/primitives/overlays/__stories__/toast.stories";
+import * as specimensColors from "@/ui/specimens/__stories__/colors.stories";
+import * as specimensTypography from "@/ui/specimens/__stories__/typography.stories";
 
 const MODULES = {
   "routes/__stories__/enroll-page.stories.tsx": routesEnrollPage,
@@ -48,7 +50,6 @@ const MODULES = {
   "ui/patterns/__stories__/side-nav.stories.tsx": patternsSideNav,
   "ui/primitives/__stories__/badge.stories.tsx": primitivesBadge,
   "ui/primitives/__stories__/button.stories.tsx": primitivesButton,
-  "ui/primitives/__stories__/dialog.stories.tsx": primitivesDialog,
   "ui/primitives/__stories__/focus-scope.stories.tsx": primitivesFocusScope,
   "ui/primitives/__stories__/form.stories.tsx": primitivesForm,
   "ui/primitives/__stories__/notice.stories.tsx": primitivesNotice,
@@ -66,6 +67,8 @@ const MODULES = {
     primitivesNavDrawer,
   "ui/primitives/navigation/__stories__/nav-item.stories.tsx":
     primitivesNavItem,
+  "ui/primitives/overlays/__stories__/dialog.stories.tsx": primitivesDialog,
+  "ui/primitives/overlays/__stories__/toast.stories.tsx": primitivesToast,
   "ui/specimens/__stories__/colors.stories.tsx": specimensColors,
   "ui/specimens/__stories__/typography.stories.tsx": specimensTypography,
 };
@@ -116,6 +119,15 @@ describe("story", () => {
     expect(document.documentElement.dataset["theme"]).toBe("dark");
     expect(document.documentElement.lang).toBe("ja");
     expect(screen.getByRole("progressbar", { name: "正在处理" })).toBeDefined();
+  });
+
+  test("Toast の Stacked は、開いた時点で3つの知らせが見える", async () => {
+    const { Stacked } = composeStories(primitivesToast);
+
+    render(<Stacked />);
+    await screen.findByText("本文を保存しました。");
+
+    expect(screen.getAllByRole("alert")).toHaveLength(3);
   });
 
   test.each(STORIES)(

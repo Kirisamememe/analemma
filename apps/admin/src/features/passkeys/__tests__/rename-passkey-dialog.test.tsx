@@ -2,10 +2,10 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { createFakeApi, wrapFakeRoute } from "../../../testing/create-fake-api";
-import { FAKE_ASSERTION } from "../../../testing/create-fake-authenticator";
-import { createPasskeyRoutes } from "../../../testing/create-passkey-routes";
-import { renderApp } from "../../../testing/render-app";
+import { createFakeApi, wrapFakeRoute } from "@/testing/create-fake-api";
+import { FAKE_ASSERTION } from "@/testing/create-fake-authenticator";
+import { createPasskeyRoutes } from "@/testing/create-passkey-routes";
+import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
 
@@ -22,7 +22,7 @@ const renameTo = async (name: string): Promise<void> => {
 };
 
 describe("RenamePasskeyDialog", () => {
-  test("今の名前を入れて開き、変更すると一覧に出す", async () => {
+  test("今の名前を入れて開き、変更すると Dialog を閉じ、一覧に出し、Toast で知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
     renderApp({ path: "/security", routes: server.routes });
@@ -43,6 +43,9 @@ describe("RenamePasskeyDialog", () => {
     await renameTo("Mac mini");
 
     expect(await screen.findByText("Mac mini")).toBeDefined();
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "パスキーの名前を変更しました。",
+    );
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
@@ -85,18 +88,6 @@ describe("RenamePasskeyDialog", () => {
       ).value,
     ).toBe("MacBook");
     expect(screen.queryByText("このパスキーはもうありません。")).toBeNull();
-  });
-
-  test("名前を変更したら、そのことを知らせる", async () => {
-    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
-
-    renderApp({ path: "/security", routes: server.routes });
-
-    await renameTo("Mac mini");
-
-    expect((await screen.findByRole("status")).textContent).toBe(
-      "パスキーの名前を変更しました。",
-    );
   });
 
   test("もう無いパスキーの Dialog を閉じたら、「パスキーを追加」に focus を移す", async () => {

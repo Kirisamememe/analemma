@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 
-import { merge, tv } from "../src/ui/tv";
+import { merge, tv } from "@/ui/tv";
 
 const css = (
   await Promise.all(
@@ -70,6 +70,8 @@ const SINGLE_NAME_GROUPS: readonly SingleNameGroup[] = [
 const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "h-control": "h-full",
   "h-control-sm": "h-full",
+  "h-nav-bar": "h-full",
+  "top-toast": "top-0",
   "size-icon": "size-full",
   "size-control": "size-full",
   "object-focal": "object-center",
@@ -79,11 +81,14 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "state-disabled": null,
   "focus-ring": "focus-ring-inset",
   "focus-ring-inset": "focus-ring",
+  "focus-ring-current": "focus-ring",
   "scheme-dark": "scheme-light",
   "scheme-light": "scheme-dark",
+  "scheme-inverse": "scheme-dark",
   "dialog-backdrop-animation": null,
   "dialog-panel-animation": null,
   "nav-drawer-panel-animation": null,
+  "toast-animation": null,
 };
 
 describe("デザインシステムの class の merge", () => {

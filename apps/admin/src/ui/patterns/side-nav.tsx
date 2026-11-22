@@ -140,10 +140,15 @@ export const SideNav = ({
   return (
     <>
       <aside className="sticky top-0 hidden h-dvh w-sidebar shrink-0 flex-col overflow-y-auto md:flex">
-        <div className="flex h-14 shrink-0 items-center px-6">{heading}</div>
+        <div className="flex h-nav-bar shrink-0 items-center px-6">
+          {heading}
+        </div>
         <SideNavContent footer={footer} groups={groups} label={label} />
       </aside>
-      <header className="sticky top-0 z-sticky flex h-14 shrink-0 items-center gap-2 bg-surface-sunken px-3 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:border-b after:border-line md:hidden">
+      <header
+        data-top-bar=""
+        className="sticky top-0 z-sticky flex h-nav-bar shrink-0 items-center gap-2 bg-surface-sunken px-3 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:border-b after:border-line md:hidden"
+      >
         <NavDrawer
           heading={heading}
           isOpen={isOpen}

@@ -3,13 +3,13 @@ import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Cluster } from "../../ui/layout/cluster";
-import { Heading } from "../../ui/layout/heading";
-import { Stack } from "../../ui/layout/stack";
-import { Text } from "../../ui/layout/text";
-import { Button } from "../../ui/primitives/button";
-import { Dialog } from "../../ui/primitives/dialog";
-import { Notice } from "../../ui/primitives/notice";
+import { Cluster } from "@/ui/layout/cluster";
+import { Heading } from "@/ui/layout/heading";
+import { Stack } from "@/ui/layout/stack";
+import { Text } from "@/ui/layout/text";
+import { Button } from "@/ui/primitives/button";
+import { Notice } from "@/ui/primitives/notice";
+import { Dialog } from "@/ui/primitives/overlays/dialog";
 
 /** すべてのセッションからログアウトする操作。 */
 export const LogOutAllSection = (): ReactNode => {

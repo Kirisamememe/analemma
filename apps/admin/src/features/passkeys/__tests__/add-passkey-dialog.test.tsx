@@ -2,9 +2,9 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { createFakeAuthenticator } from "../../../testing/create-fake-authenticator";
-import { createPasskeyRoutes } from "../../../testing/create-passkey-routes";
-import { renderApp } from "../../../testing/render-app";
+import { createFakeAuthenticator } from "@/testing/create-fake-authenticator";
+import { createPasskeyRoutes } from "@/testing/create-passkey-routes";
+import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
 
@@ -27,7 +27,7 @@ const openAndSubmit = async (name: string): Promise<void> => {
 };
 
 describe("AddPasskeyDialog", () => {
-  test("再認証をして追加すると、Dialog を閉じ、一覧に出し、追加したことを知らせる", async () => {
+  test("再認証をして追加すると、Dialog を閉じ、一覧に出し、Toast で知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
     const { calls } = renderApp({
       path: "/security",
@@ -38,7 +38,7 @@ describe("AddPasskeyDialog", () => {
     await openAndSubmit("iPhone");
 
     expect(await screen.findByText("iPhone")).toBeDefined();
-    expect(screen.getByRole("status").textContent).toBe(
+    expect((await screen.findByRole("alert")).textContent).toBe(
       "パスキーを追加しました。",
     );
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -111,8 +111,5 @@ describe("AddPasskeyDialog", () => {
     slow.resolve(undefined);
 
     expect(await screen.findByText("iPhone")).toBeDefined();
-    expect(screen.getByRole("status").textContent).toBe(
-      "パスキーを追加しました。",
-    );
   });
 });

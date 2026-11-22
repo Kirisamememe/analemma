@@ -28,14 +28,14 @@
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | 面                         | `canvas`(画面の地)・`surface`(カード・ダイアログ・入力欄)・`surface-sunken`(サイドバー・表の見出し)                |
 | 文字と線                   | `fg`・`fg-muted`(補足と placeholder)・`line`(線の既定)・`line-strong`(入力を受ける部品の枠)・`focus`               |
-| 塗り                       | `primary`・`on-primary`・`danger-strong`・`on-danger-strong`(取り消せない操作のボタン)                             |
+| 塗り                       | `primary`・`on-primary`・`danger-strong`・`on-danger-strong`(取り消せない操作のボタンと失敗の Toast)               |
 | 意味                       | `info`・`success`・`warning`・`danger` と、その塗りの上の文字の `on-info`・`on-success`・`on-warning`・`on-danger` |
 | light と dark で変わらない | `scrim`(写真や画面の上に重ねて暗くする色)・`on-media`(写真の上の文字)                                              |
 
 - 透明度付きの色の変数は作らない。薄い色は、部品の中で Tailwind の不透明度の修飾(`bg-danger/10` など)で作る。透明度付きの変数を足していくと、同じような色の変数が増える。
 - 面の色は不透明にする。`surface-sunken` は sticky の見出しにも使うので、下が透けない。
 - 意味の色の塗りの上の文字は、色ごとの `on-*`(`on-info` など)にする。今の値はどれも `canvas` と同じ(light では白、dark では黒)。dark の意味の色は明るく、白い文字では読めないため。色ごとに名前を分けておき、塗りによって文字の色を変えたくなったときに、部品を書き換えずに済むようにする(ユーザーが決めた)。
-- 取り消せない操作(削除・すべてのセッションからのログアウトなど)のボタン(`Button` の `danger`)は、`danger` と別の塗り `danger-strong`(light でも dark でも red-700)に、白い文字 `on-danger-strong` を載せる。dark では、暗い面の上の赤い文字が 4.5:1 に届くには明るい赤(red-400)が要り、塗りの上の白い文字が 4.5:1 に届くには濃い赤が要るので、1つの赤では両立できない。red-400 の塗りに黒い文字では色が薄く見えたので、濃い赤の塗りに白い文字にした(ユーザーが決めた)。dark でも red-700 にし、hover で文字の色を重ねても 4.5:1 を割らないようにする。`danger` は、文字・枠・薄い面(`Notice`・`Badge`・入力欄の誤り)の色として残す。名前は `primary` と `on-primary` に合わせる(`on-X` は、`X` の塗りの上に載せる文字の色)。
+- 取り消せない操作(削除・すべてのセッションからのログアウトなど)のボタンと失敗の Toast(どちらも `danger` の tone)は、`danger` と別の塗り `danger-strong`(light でも dark でも red-700)に、白い文字 `on-danger-strong` を載せる。dark では、暗い面の上の赤い文字が 4.5:1 に届くには明るい赤(red-400)が要り、塗りの上の白い文字が 4.5:1 に届くには濃い赤が要るので、1つの赤では両立できない。red-400 の塗りに黒い文字では色が薄く見えたので、濃い赤の塗りに白い文字にした(ユーザーが決めた)。dark でも red-700 にし、hover で文字の色を重ねても 4.5:1 を割らないようにする。`danger` は、文字・枠・薄い面(`Notice`・`Badge`・入力欄の誤り)の色として残す。名前は `primary` と `on-primary` に合わせる(`on-X` は、`X` の塗りの上に載せる文字の色)。
 - `black`・`white` という名前は使わず、用途の名前(`scrim`・`on-media`)にする。`bg-white` をカードに、`text-white` を塗りの上に、と書かれやすく、dark の意味の色の塗りの上の白い文字は、コントラストが 1.7〜2.9:1 しかない。
 - パレットの無彩色は、Tailwind CSS の neutral と同じ値にする。管理画面の `primary` は白と黒。役割の名前は、自分たちの名前(`canvas`・`surface`・`fg` など)を使う。
 - light の意味の色は、薄い面の上の文字でも 4.5:1(WCAG の AA)に届く段にする(red-700・green-800・amber-800・blue-700)。
@@ -49,7 +49,7 @@
 
 - 役割の色は、`light-dark()` で、light と dark にパレットのどの段を使うかを1つの定義に持つ。`dark:` の variant は使わない。1つの定義なら、light だけ直して dark を直し忘れることがない。
 - 利用者が配色を選んだら、html の `data-theme` で `color-scheme` を固定する。選んでいなければ OS に従う。
-- 部分だけを dark(light)にするときは `scheme-dark`(`scheme-light`)を使う。`color-scheme` を変えるだけでは、`:root` から継いだ文字の色が評価し直されないので、文字の色も入れ直す。
+- 部分だけを dark(light)にするときは `scheme-dark`(`scheme-light`)を使う。画面の配色に対して部分だけを逆にするときは `scheme-inverse` を使う。html に `data-theme` があればその配色を、無ければ OS の配色を反転する。`color-scheme` を変えるだけでは、`:root` から継いだ文字の色が評価し直されないので、文字の色も入れ直す。
 - Vite の `build.cssTarget` は、管理画面が対応するブラウザ(`apps/admin/DECISIONS.md`)に合わせて `esnext` にする。`build.target` と `build.cssTarget` の両方を書かずに Vite の既定(`baseline-widely-available` の古いブラウザ)に任せると、圧縮のときに Lightning CSS が `light-dark()` を `--lightningcss-light`・`--lightningcss-dark` の変数に書き換え、`scheme-dark` で部分だけを dark にすると効かなくなる。本番のビルドの出力に `--lightningcss-` が無いことを、テスト(`apps/admin/__tests__/vite-config.test.ts`)で確かめる。
 
 ## 文字
@@ -64,6 +64,7 @@
 
 - hover は、その要素の文字の色(`currentColor`)を薄く重ねる utility(`state-hover`)で表す。塗りのボタンでも、透明な行でも、どの面の上でも同じに働く。`background-image` を使うので、`bg-linear-*` と一緒には使えない。
 - pressed は `state-pressed` で、要素の大きさを保ったまま `translate` で 1px 下に沈める。押している間に色を変えると、ナビのリンクを click してから画面が移るまでに色が何度も変わってちらついたので、色は変えない。scale も使わない(どちらもユーザーが決めた)。部品は `transition` で、色と位置を、押したときも離したときも、既定の長さ(120ms)と曲線(`--ease-standard` と同じ値)で動かす。数値の入力欄の増減のボタンは、入力欄の枠の一部なので沈めない(沈めると、枠からずれた)。
+- 閉じるボタンのように色の付いた面の上に載る操作は、`focus-ring-current` で文字の色(`currentColor`)の focus の ring を描く。赤い面の上では `focus` の灰色が見えにくいため。
 - 状態の variant(`is-hovered`・`is-selected`・`is-disabled` など)は、部品のライブラリが付ける属性に名前を付けたもの。`theme.css` に、勝たせたい順に並べ、無効を最後に置く。生の `data-*:` の variant は名前の順に並ぶので、`data-disabled:` が一番弱くなる。値を持つ属性(並べ替えの向き・placement・orientation など)は variant にせず、部品の render props から渡す。公開サイトでは、そちらの部品のライブラリの属性に合わせて、同じ名前で定義し直す。
 - `is-current` は `aria-current` も見るので、`:where()` で包んで、ほかの variant と詳細度をそろえる。包まないと `is-disabled` に勝つ。
 - reduced motion では、base で transition を一律に止める。animation は見せ方が部品ごとに違うので、部品が使う class で決める。spinner は `motion-reduce:` で `animate-pulse` に替える。`animation.css` で Dialog の scale を `1` に固定し、引き出したナビは opacity だけを変える。
@@ -98,18 +99,25 @@
 - **入力欄**:ラベル・補足・誤りの知らせを、React Aria Components の slot で入力欄に結びつけ、補足と誤りを入力欄の説明として読み上げさせる。誤り(invalid)のときは、枠も focus の ring も `danger` にする(forced-colors では、ring をシステムの `Highlight` のままにする。`danger` で上書きすると、focus の前後で見分けられなくなる)。ring だけ `focus` の灰色のままだと、赤い枠の外に灰色の輪が重なって見えた(Storybook でユーザーが見つけた)。server が断った入力は、`Form` の `validationErrors` で入力欄ごとに出す。入力欄(`TextField`・`TextArea`・`NumberField`)は `primitives/form-fields/` にまとめ、ラベル・補足・誤りの知らせと、枠の見た目を共有する。
 - **長いテキストの入力欄(`TextArea`)**:初めから4行分の高さを取り、縦に resize できるようにする。入力欄の幅をそろえたまま、利用者が長い文を見渡せるようにする。
 - **数値の入力欄(`NumberField`)**:表示は React Aria Components が言語に合わせて整え、`FormData` には桁区切りの無い値を入れる。数値の項目の値には小数の桁数に上限が無いため、入力欄を出るときに Intl の既定で小数が丸まらないよう、有効数字を17桁まで使う。増減はボタンと上下の矢印キーで行い、フォームを scroll するときに値が変わらないよう、ホイールでの増減は切る。入力欄と増減ボタンを1つの枠に収め、どこに focus があっても枠全体で示す。増減ボタンの名前には管理画面の訳を使い、どの入力欄の値を増やすか、減らすかを自然な語順で伝える。
-- **`Notice`**:誤り(`danger`)は `alert` にしてすぐに読み上げ、ほかは割り込まない `status` にする。`Notice` は、その場に残す知らせ(送信の誤りや、読み込めなかったことなど)に使い、保存したなどの操作の結果は Toast で知らせる(Toast を足すときに作る)。
+- **`Notice`**:誤り(`danger`)は `alert` にしてすぐに読み上げ、ほかは割り込まない `status` にする。`Notice` は、その場に残す知らせ(送信の誤りや、読み込めなかったことなど)に使い、保存したなどの操作の結果は Toast で知らせる。
 - **見出しの操作と補足**:`PageHeader` は、`false`・`null` の操作と、空の補足を、無いものとして扱う(条件で出さない操作のために、空の要素が余白を取らないように)。操作のボタンの中心は、見出しの1行目の中心にそろえる。上にそろえると、ボタン(`h-control` の 36px)が見出しの行(`page` の 28px)より高いぶん、4px 下にずれた(Storybook で見つけた)。見出しの上を `pt-1`(差の半分)空け、見出しの位置は、操作の有無で変えない。操作を負の margin で上げると、狭い画面で操作が次の行に折り返したときに、見出しとの間が詰まる(Codex のレビューで見つかった)。
 - **縁の線**:border を使うのは、背景の色とコンテンツの色をはっきり見分けられるときだけにする(`Badge`・`Notice` のように、意味の色の `/10` の面に同じ色の線を引くときなど)。背景と近い色の面(白い Dialog が明るい地の上にあるときなど)の縁は、半透明の線(`outline`、`fg` の 10%)で描く。面の縁の線は、offset を付けず、塗りの外側の地の上に重ねる(地の色が透けて、縁がくっきり出る)。色の見本の正方形のように、塗りそのものの縁を見せるときは、内側(`-outline-offset-1`)に重ねる。不透明の border は背景の色と混ざってぼやけ、塗りの外に枠を足したように見えた(ユーザーが決めた)。
-- **overlay**(`Dialog`):地の上に重ねる半透明の線と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、半透明の線で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
+- **`Dialog`**(`primitives/overlays/dialog.tsx`):地の上に重ねる半透明の線と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、半透明の線で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
 - **`Dialog` の animation**:開くときは 200ms、閉じるときは 150ms。本体は opacity と `0.97` から `1` までの scale で出入りする。backdrop は `background-color` の透明度を変えて、本体とは別に濃さを変える。reduced motion では scale を `1` に固定する。React Aria Components は `is-entering` と `is-exiting` の animation が終わるのを待ち、閉じるときは、終わるまで Dialog を取り除かない。閉じ始めたら中身を `inert` にして再送を防ぐ。
+- **`overlays/`**:画面に重ねる Dialog と Toast を `primitives/overlays/` にまとめ、`primitives/` の直下を10件に収める。
+- **Toast**:操作の結果を `success` と `danger` で知らせ、tone ごとに形の違うアイコンを付ける。`success` の面は、地の上ではっきり見分けられるよう、`scheme-inverse` で画面の配色と逆にし(light では黒い面、dark では白い面)、アイコンに `success` の色を使う。`danger` の面は light でも dark でも `danger-strong` の赤にし、文・アイコン・閉じるボタンを `on-danger-strong` の白にする(どちらもユーザーが決めた)。面と地の色がはっきり分かれるので、半透明の縁の線は付けず、`shadow-overlay` だけを付ける。長い語も折り返し、アイコンと閉じるボタンの中心を文の1行目の中心にそろえる。
+- **Toast の focus の ring**:Toast と region の focus の ring は面の外の地の上に描かれるので、地の配色の `focus` で描く。面の配色と塗りは内側の要素に当て、focus を受ける外側の要素は地の配色のままにする。面に `scheme-inverse` を当てると、ring の色も逆の配色で決まり、light の白い地の上で 3:1 に届かなかった。
+- **Toast の表示時間と操作**:`success` は読める時間として5000ms表示する。region に hover や focus を始めると、React Aria Components がその時点で出ている Toast の timer を止める。`danger` は、失敗を読み終えられるよう、時間では消さず、閉じるまで残す。どちらも、訳した名前の閉じるボタンですぐに閉じられる。
+- **Toast の読み上げと queue**:region の訳と landmark、F6 での移動、`alert` の読み上げ、閉じたときの focus の復帰は React Aria Components に任せる。`UiProvider` の下の `ToastProvider` が、描いた `ToastProvider` ごとに queue を持つ。Toast を出す側は、`useShowToast` が返す関数に、訳した文と `tone` を渡す。これで、画面を描き直すテストや Storybook でも知らせを持ち越さない。
+- **Toast の位置**:画面の上の中央に置く(ユーザーが決めた)。狭い画面では `data-top-bar` を付けたナビの帯があるときだけ、帯が占める上端の高さを CSS で `--viewport-top-inset` として渡す。帯の高さはナビの見出しと共通の `h-nav-bar` で決める。Toast はこの値と上の safe area のうち大きいほうから 1rem 空け、ナビのボタンを覆わないようにする。左右は少なくとも 1rem 空け、幅は `max-w-sm`(24rem)までにする。新しい知らせを上に積む。操作の結果が同じ場所に出て、複数あっても順にたどれるようにする。
+- **Toast の animation**:React Aria Components の Toast には `is-entering` と `is-exiting` が無いので、queue の `wrapUpdate` で View Transitions を始め、DOM の更新を `flushSync` で反映する。snapshot の準備中に queue が続けて変わったときは、1つの transition で反映する。続けて始めると先の transition が中断され、出入りの前後を撮れないため。opacity を変えながら、入るときは0.5rem上から下り、出るときは0.5rem上へ抜ける。入るときと残った Toast が詰まるときは200ms・`--ease-standard`、出るときは Dialog と共通の150ms・`--ease-exit` を使う。reduced motion では出入りの opacity だけを残す。Toast の transition 中は画面全体を snapshot から外して Dialog などの animation を止めず、snapshot は pointer 操作を受けないようにする。
 - **引き出したナビの animation**:開くときは 200ms、閉じるときは 150ms。面は `translate` で幅の分だけ左へ動かし、backdrop は Dialog と同じように濃さを変える。reduced motion では、面の位置を固定して opacity だけを変える。閉じ始めたら中身を `inert` にし、backdrop を押しても閉じないようにする。送信中は結果を見せるため、Escape・backdrop の押下・閉じるボタンで閉じられないようにする。
 - **`FocusScope`**:`FocusScope` の中から開いた Dialog を閉じ終えたとき、Dialog を開いたボタンが消えていれば(行ごと削除したなど)、React Aria Components は外側の `FocusScope` の最初の要素に focus を移す。行と一緒に消えるボタンから Dialog を開く欄は `FocusScope` で包み、欄の最初の要素を戻す先にする。`react-aria-components` は `FocusScope` を export しないので、`react-aria` を依存に足す。バージョンは `react-aria-components` が依存するものにそろえる。ずれると `react-aria` が2つ入り、それぞれが別の `FocusScope` の木を持つので、Dialog が外側の `FocusScope` を見つけられない(パスキーの focus のテストで落ちる)。
 - **バッジ**(`Badge`):状態を短く示す。用途(`tone`)ごとの色の組は、`Notice` と同じく `/10` の面と、同じ色の線と文字。
 - **ナビと本文**:広い画面では、`surface-sunken` の地にナビを置き、隣の `surface` の本文を角丸・影・半透明の縁で浮かせる。本文は document と一緒に scroll し、ナビは sticky で残して中だけ scroll できるようにする。狭い画面では sticky の帯の下に全幅の本文を置き、ナビは左の全高の drawer に収める。閉じるボタンは、帯の開くボタンと同じ位置に置く。狭い画面では、focus した要素と ring が帯に隠れないよう、document の scroll-padding-top に帯の高さと ring の幅・offset を足した分を取る。
 - **ナビの左端**:広い画面では、アプリのロゴ・まとまりの見出し・リンクのアイコンを左から24px にそろえ、アプリ名とリンクの文言を48px にそろえる。狭い画面では、本文の左端と開くボタンのアイコンを24px にそろえる。
 - **今いる場所**:`aria-current="page"` を付け、ナビの地に `surface` の行を影と半透明の縁で浮かせ、文字を `label` にする。縁は `::after` に描き、行の focus ring と両方見えるようにする。forced-colors でも縁を残す。hover では、縁を `fg` の 20% に濃くする。面だけが明るくなると、dark で縁が面より暗く見え、不自然だった(ユーザーが見つけた)。
-- 選んだ状態とほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す。overlay は地の上に重ねる半透明の線と `shadow-overlay` を付ける)。
+- 選んだ状態とほかの overlay(Popover・Menu など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す)。overlay には `shadow-overlay` を付け、地と近い色の面には半透明の縁の線を重ねる。
 
 ## 検査
 
@@ -144,7 +152,7 @@
 
 ## 割り切ったこと
 
-- **後から出す `status` の知らせ**:`Notice` の `status` は、中身と一緒に描くので、スクリーンリーダーによっては読まれない(live region は、中身を変える前からあるものが確実に読まれる)。`Notice` はその場に残す知らせで、スクリーンリーダーへの割り込みは要らない。急ぎの誤りは `alert` で読まれる。操作の結果は Toast(React Aria Components が知らせ方を持つ)で知らせる決まりだが、Toast をまだ作っていないので、パスキーの画面では、操作の結果も `status` の `Notice` で出している(追加・削除・名前の変更)。管理者は1人で画面を見て使い、結果は一覧の変化でも分かるので、Toast を足すまでは受け入れる。
+- **後から出す `status` の知らせ**:`Notice` の `status`(ログインのキャンセルなど)は、中身と一緒に描くので、スクリーンリーダーによっては読まれない(live region は、中身を変える前からあるものが確実に読まれる)。`Notice` はその場に残す知らせで、スクリーンリーダーへの割り込みは要らないので受け入れる。急ぎの誤りは `alert` で読まれる。
 - **層の検査が見ない import**:層の境界の lint は、import 文の名前だけを見る。`import("react-aria-components").LinkProps` のような型の中の import と、ほかの層を通した再 export は見ない。どちらも今のコードに無く、追うには依存の木を解く検査が要る。
 - **検査が見ない class の渡し方**:JSX の属性と、`tv`・`merge` などの呼び出しの中の文字列だけを検査する。DOM を直に触る `element.classList.add()` や `element.style`、`className` に渡した、`tv` で作っていない関数の戻り値は見ない。今の部品にはどれも無く、要る場面が出たら、そこで使える範囲を決める。参照先まで追う検査は、作る手間に見合わない。
 - **入力を受ける部品の枠の濃さ**:入力を受ける部品の枠(`line-strong`)は、地とのコントラストが、部品の枠に要る 3:1 に届かない(light の白の上で約 2.6:1、dark の `surface` の上で約 2.3:1)。3:1 に届く濃さ(パレットに無い灰色や、`fg-muted` の濃さ)より、この濃さをユーザーが選んだ。入力欄は面(`surface`)と影とラベルでも見分けられ、管理者1人が使う画面なので受け入れる。
@@ -152,6 +160,8 @@
 - **sRGB に入らない色のコントラスト**:コントラストのテストは、sRGB に入らない色(red-700 など)を 0〜1 に clamp して計算する。CSS Color 4 の gamut mapping(彩度を落として収める)で計算すると、4.5:1 の境目の色では、コントラスト比が 0.2 ほど変わることがある(今の塗りは、どれも境目から離れている。`danger-strong` の白い文字は、hover でも 6.0:1)。gamut mapping をテストに入れる手間に見合わないので、境目に近い色を足すときは、両方の計算で確かめる(Codex のレビューで見つかった)。
 - **等幅の要素の子の行頭の括弧**:日本語の中の `code` などの子要素(`<code><span>「…」</span></code>`)では、`:lang(ja)` の `trim-start` が子に当たり、行頭の括弧が詰まる。今の画面に等幅の中で括弧から始まる文は無く、詰めない指定を子にまで広げると、字体の切り替えの決まりも組み直しになる(Cursor のレビューで見つかった)。
 - **閉じ始めた Dialog に遅れて届く click**:タッチで Dialog の確認のボタンを長押しして離すと、ブラウザが click を出さないので、React Aria Components が 80ms 後に `click()` を呼ぶ。その 80ms のうちに Escape か backdrop で閉じると、閉じる animation の間に残ったボタンに `click()` が届き、中身を `inert` にしていても、押した操作が送られる。マウス・キーボード・普通のタップでは起きず、送られるのは確認のボタンで押した操作そのもの(削除なら、再認証の OS の画面で止められる)。起きる条件が狭いので受け入れる(ユーザーが決めた)。
+- **hover の間に足した Toast の timer**:region に hover や focus を始めると、React Aria Components はその時点で出ている Toast の timer を止めるが、その後に足した Toast の timer は止めない。Toast に pointer を置いたまま、ほかの操作の成功が届くと、後から出た `success` の Toast は5秒で消える。起きるのは、Dialog で送った操作の応答を待つ間に、画面の上の Toast へ pointer を動かしたときだけで、消えるまでの5秒は読め、操作の結果は一覧の変化でも分かる。止めるには React Aria Components の timer の作りに逆らう作りが要るので、受け入れる。
+- **ログアウトした後に残る Toast**:Toast の queue は、ログインの前と後で共通の `UiProvider` の下にある。`success` の Toast が出ている5秒の間に、すべてのセッションからログアウトすると、ログインの画面にもその Toast が残る。残るのは5秒以内で、中身は利用者自身の操作の結果(今は、閉じるまで残る `danger` の Toast を出す画面は無い)。ログインした後の画面だけで queue を持つには、Toast の Provider の置き場所を route の組み立てと一緒に変える必要があり、手間に見合わないので受け入れる。
 - **閉じる animation の間の Tab**:Dialog を閉じ始めると、中身を `inert` にして focus が外れ、React Aria Components は背後の画面の `inert` と focus の閉じ込めを外す。開いたボタンに focus を戻すのは、閉じる animation が終わって Dialog を取り除いたとき。その間(150ms)に Tab を押すと、focus は開いたボタンの次でなく文書の先頭の側へ移り、開いたボタンには戻らない(Chrome と WebKit で確かめた)。閉じる animation の間も focus を Dialog に残すには React Aria Components の振る舞いに逆らう作りが要り、150ms のうちに Tab を押すことは少ないので受け入れる(ユーザーが決めた)。
 - **引き出したナビの閉じる animation の間**:上の、Dialog についての2件(遅れて届く click と、閉じる animation の間の Tab)と同じ作りなので、引き出したナビでも同じことが起きる。タッチでリンクかログアウトのボタンを長押しして離し、80ms のうちに Escape か backdrop で閉じると、そのリンクの行き先へ移るか、ログアウトする(ログインし直せば戻れる)。閉じる animation の間(150ms)に Tab を押すと、閉じ終えても開くボタンに focus が戻らない。Dialog と同じ理由で受け入れる。
 - **数値として成立しない入力の送信**:数値の入力欄で、保存済みの値を `-` のような未完成の入力に置き換えて送ると、入力欄は直前に確定した値に戻り、その値が送られる(React Aria Components の仕様。Chrome と WebKit で確かめた)。送られる値は、戻った入力欄に見える値と同じで、画面と保存した値はずれない。必須の欄を空にした場合は、必須の誤りになり、送られない。直すには、入力中の文字列を自分で持って検査する必要があり、ライブラリに任せる作りに逆らうので、受け入れる。

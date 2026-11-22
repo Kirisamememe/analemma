@@ -7,7 +7,8 @@ import type { ReactNode } from "react";
 import { I18nProvider, RouterProvider } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { type Locale, toLocale } from "../../i18n/locales";
+import { type Locale, toLocale } from "@/i18n/locales";
+import { ToastProvider } from "@/ui/primitives/overlays/toast";
 
 declare module "react-aria-components" {
   // oxlint-disable-next-line typescript/consistent-type-definitions -- React Aria Components の型の登録は、interface の宣言のマージでしか書けない
@@ -45,7 +46,7 @@ export const UiProvider = ({ children }: UiProviderProps): ReactNode => {
       useHref={(to) => router.buildLocation({ to }).href}
     >
       <I18nProvider locale={ARIA_LOCALES[toLocale(i18n.language)]}>
-        {children}
+        <ToastProvider>{children}</ToastProvider>
       </I18nProvider>
     </RouterProvider>
   );

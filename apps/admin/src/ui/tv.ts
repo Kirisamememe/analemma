@@ -42,7 +42,8 @@ const MERGE_CONFIG: TWMergeConfig = {
       animate: ["spin", "pulse"],
     },
     classGroups: {
-      h: ["h-control", "h-control-sm"],
+      h: ["h-control", "h-control-sm", "h-nav-bar"],
+      top: ["top-toast"],
       size: ["size-icon", "size-control"],
       w: ["w-sidebar"],
       "object-position": ["object-focal"],
@@ -51,8 +52,8 @@ const MERGE_CONFIG: TWMergeConfig = {
       aspect: [{ aspect: ["photo"] }],
       duration: [{ duration: ["fast", "normal"] }],
       translate: ["state-pressed"],
-      "focus-ring": ["focus-ring", "focus-ring-inset"],
-      "color-scheme": ["scheme-dark", "scheme-light"],
+      "focus-ring": ["focus-ring", "focus-ring-inset", "focus-ring-current"],
+      "color-scheme": ["scheme-dark", "scheme-light", "scheme-inverse"],
     },
   },
 };

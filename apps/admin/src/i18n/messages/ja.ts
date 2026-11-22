@@ -1,4 +1,4 @@
-import type { Translation } from "../translation";
+import type { Translation } from "@/i18n/translation";
 
 /** 日本語の訳。 */
 export const ja = {
@@ -15,6 +15,7 @@ export const ja = {
   "ui.numberField.increase": "{{label}}の値を増やす",
   "ui.openNav": "ナビを開く",
   "ui.closeNav": "ナビを閉じる",
+  "ui.close": "閉じる",
   "login.title": "Stilus にログイン",
   "login.description": "この管理画面に登録したパスキーを使います。",
   "login.submit": "パスキーでログイン",

@@ -1,29 +1,28 @@
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Cluster } from "../../ui/layout/cluster";
-import { Heading } from "../../ui/layout/heading";
-import { Stack } from "../../ui/layout/stack";
-import { Button } from "../../ui/primitives/button";
-import { FocusScope } from "../../ui/primitives/focus-scope";
-import { Notice } from "../../ui/primitives/notice";
-import { AddPasskeyDialog } from "./add-passkey-dialog";
-import { DeletePasskeyDialog } from "./delete-passkey-dialog";
-import { PasskeyList, type PasskeySummary } from "./passkey-list";
-import { RenamePasskeyDialog } from "./rename-passkey-dialog";
-import type { PasskeyNotice } from "./to-passkey-notice";
+import { AddPasskeyDialog } from "@/features/passkeys/add-passkey-dialog";
+import { DeletePasskeyDialog } from "@/features/passkeys/delete-passkey-dialog";
+import {
+  PasskeyList,
+  type PasskeySummary,
+} from "@/features/passkeys/passkey-list";
+import { RenamePasskeyDialog } from "@/features/passkeys/rename-passkey-dialog";
+import { Cluster } from "@/ui/layout/cluster";
+import { Heading } from "@/ui/layout/heading";
+import { Stack } from "@/ui/layout/stack";
+import { Button } from "@/ui/primitives/button";
+import { FocusScope } from "@/ui/primitives/focus-scope";
 
 type PasskeyDialog = "add" | "rename" | "delete";
 
 /** パスキーの一覧と、追加・名前の変更・削除の操作。 */
 export const PasskeysSection = (): ReactNode => {
   const { t } = useTranslation();
-  const [notice, setNotice] = useState<PasskeyNotice>();
   const [openDialog, setOpenDialog] = useState<PasskeyDialog>();
   const [openCount, setOpenCount] = useState(0); // Dialog の key。開くたびに前の送信の結果を消す
   const [passkey, setPasskey] = useState<PasskeySummary>(); // 閉じても持ち、閉じる animation の間も出す
   const open = (dialog: PasskeyDialog): void => {
-    setNotice(undefined);
     setOpenDialog(dialog);
     setOpenCount((count) => count + 1);
   };
@@ -46,9 +45,6 @@ export const PasskeysSection = (): ReactNode => {
             {t("passkeys.add")}
           </Button>
         </Cluster>
-        {notice !== undefined && (
-          <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-        )}
         <PasskeyList
           onDelete={(selected) => {
             setPasskey(selected);
@@ -62,7 +58,6 @@ export const PasskeysSection = (): ReactNode => {
         <AddPasskeyDialog
           isOpen={openDialog === "add"}
           key={`add-${openCount}`}
-          onAdded={setNotice}
           onClose={close}
         />
         {passkey !== undefined && (
@@ -71,14 +66,12 @@ export const PasskeysSection = (): ReactNode => {
               isOpen={openDialog === "rename"}
               key={`rename-${openCount}`}
               onClose={close}
-              onRenamed={setNotice}
               passkey={passkey}
             />
             <DeletePasskeyDialog
               isOpen={openDialog === "delete"}
               key={`delete-${openCount}`}
               onClose={close}
-              onDeleted={setNotice}
               passkey={passkey}
             />
           </>

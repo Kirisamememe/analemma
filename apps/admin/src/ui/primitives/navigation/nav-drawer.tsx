@@ -58,7 +58,7 @@ export const NavDrawer = ({
             className="flex min-h-full flex-col outline-hidden"
             inert={!isOpen}
           >
-            <div className="flex h-14 shrink-0 items-center gap-2 px-3">
+            <div className="flex h-nav-bar shrink-0 items-center gap-2 px-3">
               <AriaButton
                 aria-label={t("ui.closeNav")}
                 className={iconButton()}

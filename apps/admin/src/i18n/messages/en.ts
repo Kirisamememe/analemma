@@ -13,6 +13,7 @@ export const en = {
   "ui.numberField.increase": "Increase {{label}}",
   "ui.openNav": "Open navigation",
   "ui.closeNav": "Close navigation",
+  "ui.close": "Close",
   "login.title": "Sign in to Stilus",
   "login.description": "Use a passkey you registered for this admin panel.",
   "login.submit": "Sign in with a passkey",

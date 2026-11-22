@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { type ReactNode, useState } from "react";
 
-import { Cluster } from "../../layout/cluster";
-import { Stack } from "../../layout/stack";
-import { Text } from "../../layout/text";
-import { Button } from "../button";
-import { Dialog } from "../dialog";
-import { FocusScope } from "../focus-scope";
+import { Cluster } from "@/ui/layout/cluster";
+import { Stack } from "@/ui/layout/stack";
+import { Text } from "@/ui/layout/text";
+import { Button } from "@/ui/primitives/button";
+import { FocusScope } from "@/ui/primitives/focus-scope";
+import { Dialog } from "@/ui/primitives/overlays/dialog";
 
 const PASSKEYS = ["MacBook Air", "iPhone", "iPad"];
 

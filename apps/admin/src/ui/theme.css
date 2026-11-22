@@ -166,6 +166,7 @@
   --size-control-sm: 2rem;
   --size-icon: 1rem;
   --size-sidebar: 15rem;
+  --size-nav-bar: --spacing(14);
 }
 
 @utility h-control {
@@ -194,6 +195,17 @@
   width: var(--size-sidebar);
 }
 
+@utility h-nav-bar {
+  height: var(--size-nav-bar);
+}
+
+@utility top-toast {
+  top: calc(
+    max(var(--viewport-top-inset, 0px), env(safe-area-inset-top, 0px)) +
+      --spacing(4)
+  );
+}
+
 @utility state-hover {
   background-image: linear-gradient(
     color-mix(in oklab, currentColor 8%, transparent) 0 0
@@ -219,6 +231,11 @@
   outline-offset: -2px;
 }
 
+@utility focus-ring-current {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 @utility scheme-dark {
   color-scheme: dark;
   color: var(--color-fg);
@@ -227,6 +244,23 @@
 @utility scheme-light {
   color-scheme: light;
   color: var(--color-fg);
+}
+
+@utility scheme-inverse {
+  color-scheme: dark;
+  color: var(--color-fg);
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: light;
+  }
+
+  :root[data-theme="light"] & {
+    color-scheme: dark;
+  }
+
+  :root[data-theme="dark"] & {
+    color-scheme: light;
+  }
 }
 
 @custom-variant is-hovered (&[data-hovered]);
@@ -266,9 +300,12 @@
     line-break: strict;
     text-autospace: normal;
     -webkit-font-smoothing: antialiased;
+  }
 
+  :root:has([data-top-bar]) {
     @variant max-md {
-      scroll-padding-top: --spacing(15);
+      --viewport-top-inset: var(--size-nav-bar);
+      scroll-padding-top: calc(var(--viewport-top-inset) + --spacing(1));
     }
   }
 
