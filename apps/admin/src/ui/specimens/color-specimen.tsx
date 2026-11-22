@@ -14,6 +14,7 @@ const swatch = tv({
       fg: "bg-fg",
       "fg-muted": "bg-fg-muted",
       line: "bg-line",
+      "line-strong": "bg-line-strong",
       focus: "bg-focus",
       primary: "bg-primary",
       "on-primary": "bg-on-primary",
@@ -53,7 +54,10 @@ type ColorGroup = {
 
 const GROUPS: readonly ColorGroup[] = [
   { name: "面", colors: ["canvas", "surface", "surface-sunken"] },
-  { name: "文字と線", colors: ["fg", "fg-muted", "line", "focus"] },
+  {
+    name: "文字と線",
+    colors: ["fg", "fg-muted", "line", "line-strong", "focus"],
+  },
   {
     name: "塗り",
     colors: ["primary", "on-primary", "danger-strong", "on-danger-strong"],

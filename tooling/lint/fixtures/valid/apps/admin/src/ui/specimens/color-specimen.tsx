@@ -6,6 +6,7 @@ const swatch = tv({
     color: {
       focus: "bg-focus",
       line: "bg-line",
+      "line-strong": "bg-line-strong",
       "on-primary": "bg-on-primary",
       "on-danger-strong": "bg-on-danger-strong",
     },
@@ -17,6 +18,7 @@ export const Swatches = () => (
   <>
     <span className={swatch({ color: "focus" })} />
     <span className={swatch({ color: "line" })} />
+    <span className={swatch({ color: "line-strong" })} />
     <span className={swatch({ color: "on-primary" })} />
     <span className={swatch({ color: "on-danger-strong" })} />
   </>
