@@ -21,7 +21,7 @@ import { typography } from "@/ui/typography";
 const toastStyle = tv({
   slots: {
     region:
-      "fixed inset-x-4 top-18 z-toast mx-auto flex max-w-sm flex-col gap-2 rounded-surface outline-hidden is-focus-shown:focus-ring md:top-4",
+      "fixed inset-x-4 top-18 z-toast mx-auto flex max-w-sm flex-col gap-2 rounded-surface outline-hidden md:top-4 is-focus-shown:focus-ring",
     toast:
       "rounded-surface shadow-overlay toast-animation is-focus-shown:focus-ring",
     panel: "flex items-start gap-2 rounded-surface py-2 ps-4 pe-2",
