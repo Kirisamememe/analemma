@@ -19,7 +19,7 @@ const meta = {
       </Center>
     ),
   },
-  parameters: { layout: "fullscreen" },
+  parameters: { layout: "fullscreen", stage: null },
 } satisfies Meta<typeof AppShell>;
 
 export default meta;

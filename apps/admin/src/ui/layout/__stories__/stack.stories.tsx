@@ -15,6 +15,7 @@ const meta = {
   title: "layout/Stack",
   component: Stack,
   args: { gap: 2, children: ITEMS },
+  parameters: { stage: "fill" },
 } satisfies Meta<typeof Stack>;
 
 export default meta;

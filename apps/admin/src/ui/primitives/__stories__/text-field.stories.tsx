@@ -1,19 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Center } from "../../layout/center";
 import { TextField } from "../text-field";
 
 const meta = {
   title: "primitives/TextField",
   component: TextField,
-  /** ログインと登録の画面と同じ幅で見せる。 */
-  decorators: [
-    (Story) => (
-      <Center width="sm">
-        <Story />
-      </Center>
-    ),
-  ],
+  parameters: { stage: "fill" },
   args: {
     name: "name",
     label: "パスキーの名前",

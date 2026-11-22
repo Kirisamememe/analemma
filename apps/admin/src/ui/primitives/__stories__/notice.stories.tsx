@@ -6,6 +6,7 @@ const meta = {
   title: "primitives/Notice",
   component: Notice,
   args: { tone: "info", children: "パスキーの一覧を読み込みました。" },
+  parameters: { stage: "fill" },
 } satisfies Meta<typeof Notice>;
 
 export default meta;

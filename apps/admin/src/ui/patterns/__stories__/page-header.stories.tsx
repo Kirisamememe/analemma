@@ -11,6 +11,7 @@ const meta = {
     description:
       "ログインに使うパスキーと、ログインしているブラウザを管理します。",
   },
+  parameters: { stage: "fill" },
 } satisfies Meta<typeof PageHeader>;
 
 export default meta;

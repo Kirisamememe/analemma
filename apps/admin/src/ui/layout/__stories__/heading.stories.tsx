@@ -6,6 +6,7 @@ const meta = {
   title: "layout/Heading",
   component: Heading,
   args: { level: 1, children: "パスキーとセッション" },
+  parameters: { stage: "fill" },
 } satisfies Meta<typeof Heading>;
 
 export default meta;

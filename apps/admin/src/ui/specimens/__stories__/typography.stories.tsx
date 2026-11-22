@@ -10,6 +10,7 @@ const meta = {
     sample:
       "パスキーで Stilus にログインする。登録した端末の名前は、あとから変えられる。2026年11月22日 10:00",
   },
+  parameters: { layout: "padded", stage: null },
 } satisfies Meta<typeof TypeSpecimen>;
 
 export default meta;

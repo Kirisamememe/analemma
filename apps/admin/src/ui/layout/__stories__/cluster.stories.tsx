@@ -15,6 +15,7 @@ const meta = {
   title: "layout/Cluster",
   component: Cluster,
   args: { gap: 2, children: ITEMS },
+  parameters: { stage: "fill" },
 } satisfies Meta<typeof Cluster>;
 
 export default meta;

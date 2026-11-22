@@ -5,6 +5,7 @@ import { ColorSpecimen } from "../color-specimen";
 const meta = {
   title: "theme/Colors",
   component: ColorSpecimen,
+  parameters: { layout: "padded", stage: null },
 } satisfies Meta<typeof ColorSpecimen>;
 
 export default meta;

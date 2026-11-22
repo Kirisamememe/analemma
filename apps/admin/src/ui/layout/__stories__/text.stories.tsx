@@ -6,6 +6,7 @@ const meta = {
   title: "layout/Text",
   component: Text,
   args: { children: "この管理画面に登録したパスキーを使います。" },
+  parameters: { stage: "fill" },
 } satisfies Meta<typeof Text>;
 
 export default meta;

@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
-import { Center } from "../../layout/center";
 import { Button } from "../button";
 import { Form } from "../form";
 import { TextField } from "../text-field";
@@ -9,14 +8,7 @@ import { TextField } from "../text-field";
 const meta = {
   title: "primitives/Form",
   component: Form,
-  /** ログインと登録の画面と同じ幅で見せる。 */
-  decorators: [
-    (Story) => (
-      <Center width="sm">
-        <Story />
-      </Center>
-    ),
-  ],
+  parameters: { stage: "fill" },
   args: {
     onSubmit: fn<(data: FormData) => void>(),
     children: (

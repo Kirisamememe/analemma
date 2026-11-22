@@ -14,7 +14,7 @@ const meta = {
       </Text>
     ),
   },
-  parameters: { layout: "fullscreen" },
+  parameters: { layout: "fullscreen", stage: null },
 } satisfies Meta<typeof Center>;
 
 export default meta;

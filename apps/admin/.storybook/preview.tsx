@@ -2,7 +2,10 @@ import type { Preview } from "@storybook/react-vite";
 
 import { LOCALES, toLocale } from "../src/i18n/locales";
 import "../src/ui/app.css";
-import { StoryFrame } from "./story-frame";
+import { Staged, StoryFrame } from "./story-frame";
+
+const toStageWidth = (value: unknown): "fit" | "fill" | undefined =>
+  value === "fit" || value === "fill" ? value : undefined;
 
 const preview: Preview = {
   globalTypes: {
@@ -29,15 +32,20 @@ const preview: Preview = {
     },
   },
   initialGlobals: { theme: "light", locale: "ja" },
-  parameters: { contentLang: "ja" },
+  parameters: { contentLang: "ja", layout: "centered", stage: "fit" },
   decorators: [
-    (Story, { globals: { locale, theme }, parameters: { contentLang } }) => (
+    (
+      Story,
+      { globals: { locale, theme }, parameters: { contentLang, stage } },
+    ) => (
       <StoryFrame
         contentLang={typeof contentLang === "string" ? contentLang : undefined}
         locale={toLocale(typeof locale === "string" ? locale : "")}
         theme={theme === "dark" ? "dark" : "light"}
       >
-        <Story />
+        <Staged width={toStageWidth(stage)}>
+          <Story />
+        </Staged>
       </StoryFrame>
     ),
   ],

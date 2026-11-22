@@ -10,6 +10,7 @@ import { LocaleContext } from "../src/i18n/locale-context";
 import type { Locale } from "../src/i18n/locales";
 import type { Theme } from "../src/preferences/theme";
 import { UiProvider } from "../src/ui/primitives/ui-provider";
+import { StoryStage } from "../src/ui/specimens/story-stage";
 
 const router = createRouter({
   routeTree: createRootRoute(),
@@ -48,3 +49,19 @@ export const StoryFrame = ({
     </LocaleContext>
   );
 };
+
+/** `Staged` に渡す値。 */
+type StagedProps = {
+  /** 展示用の枠の幅(無ければ枠を付けない)。 */
+  readonly width: "fit" | "fill" | undefined;
+  /** story の中身。 */
+  readonly children: ReactNode;
+};
+
+/** story を、展示用の枠に入れて見せる部品。 */
+export const Staged = ({ width, children }: StagedProps): ReactNode =>
+  width === undefined ? (
+    children
+  ) : (
+    <StoryStage width={width}>{children}</StoryStage>
+  );
