@@ -120,6 +120,34 @@ describe("createAuthenticator", () => {
     ).rejects.toThrow();
   });
 
+  test("userHandle だけが無いログインの応答も、想定外の失敗として throw する", () => {
+    const { userHandle: _userHandle, ...response } = ASSERTION_JSON.response;
+    const authenticator = createAuthenticator(
+      answering({ ...ASSERTION_JSON, response }),
+    );
+
+    expect(
+      authenticator.authenticate(AUTHENTICATION_OPTIONS),
+    ).rejects.toThrow();
+  });
+
+  test("登録では、server の options をそのまま渡し、資格情報の形でない toJSON() の値は throw する", () => {
+    const received: unknown[] = [];
+    const authenticator = createAuthenticator({
+      get: () => Promise.resolve(null),
+      create: (options) => {
+        received.push(options);
+
+        return Promise.resolve(ASSERTION_JSON);
+      },
+    });
+
+    const registered = authenticator.register(REGISTRATION_OPTIONS);
+
+    expect(received).toEqual([REGISTRATION_OPTIONS]);
+    expect(registered).rejects.toThrow();
+  });
+
   test.each(["NotAllowedError", "AbortError", "TimeoutError"])(
     "利用者がキャンセルしたとき(%s)は、キャンセルとして返す",
     async (name) => {

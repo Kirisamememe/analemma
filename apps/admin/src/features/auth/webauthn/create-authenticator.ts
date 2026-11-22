@@ -74,6 +74,8 @@ type Decoded<Credential> =
   | {
       /** 読めたか。 */
       readonly success: false;
+      /** 読めなかった理由。 */
+      readonly error: unknown;
     };
 
 const CANCELLED = new Set(["NotAllowedError", "AbortError", "TimeoutError"]);
@@ -92,7 +94,9 @@ const ask = async <Credential>(
     const decoded = decode(json);
 
     if (!decoded.success) {
-      throw new Error("認証器の応答を、server に送る資格情報として読めません");
+      throw new Error("認証器の応答を、server に送る資格情報として読めません", {
+        cause: decoded.error,
+      });
     }
 
     return { _tag: "Answered", credential: decoded.data };

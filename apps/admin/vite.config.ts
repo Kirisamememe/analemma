@@ -12,7 +12,7 @@ export const DEV_API_TARGET = "http://localhost:8787";
 /** 開発のときに server へ流すパスの形。 */
 export const DEV_API_PATH = "^/api/";
 
-/** 出力の JS と CSS の対象(最新の Chrome と WebKit だけで、書き換えない)。 */
+/** 出力の JS と CSS の対象のブラウザ。 */
 export const BROWSER_TARGET = "esnext";
 
 const devServer = {
@@ -66,5 +66,6 @@ export default defineConfig({
   build: {
     target: BROWSER_TARGET,
     cssTarget: BROWSER_TARGET,
+    modulePreload: { polyfill: false },
   },
 });
