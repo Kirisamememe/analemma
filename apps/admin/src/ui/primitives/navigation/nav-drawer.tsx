@@ -12,7 +12,7 @@ import { tv } from "../../tv";
 import { Icon } from "../graphics/icon";
 
 const iconButton = tv({
-  base: "flex size-10 shrink-0 items-center justify-center rounded-control text-fg outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-disabled:state-disabled",
+  base: "flex size-10 shrink-0 items-center justify-center rounded-control text-fg outline-hidden transition is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-disabled:state-disabled",
 });
 
 /** ナビの drawer に渡す値。 */

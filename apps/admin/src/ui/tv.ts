@@ -50,7 +50,7 @@ const MERGE_CONFIG: TWMergeConfig = {
       "grid-cols": [{ "grid-cols": ["thumbnails"] }],
       aspect: [{ aspect: ["photo"] }],
       duration: [{ duration: ["fast", "normal"] }],
-      "interaction-state": ["state-hover", "state-pressed"],
+      translate: ["state-pressed"],
       "focus-ring": ["focus-ring", "focus-ring-inset"],
       "color-scheme": ["scheme-dark", "scheme-light"],
     },

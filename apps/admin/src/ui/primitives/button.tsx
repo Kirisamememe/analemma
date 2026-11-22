@@ -7,7 +7,7 @@ import { typography } from "../typography";
 import { Spinner } from "./graphics/spinner";
 
 const button = tv({
-  base: "inline-flex items-center justify-center gap-2 rounded-control border outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-pending:cursor-wait is-disabled:state-disabled",
+  base: "inline-flex items-center justify-center gap-2 rounded-control border outline-hidden transition is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-pending:cursor-wait is-disabled:state-disabled",
   variants: {
     tone: {
       primary: "border-transparent bg-primary text-on-primary shadow-control",

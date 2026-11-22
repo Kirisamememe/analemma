@@ -74,8 +74,8 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "size-control": "size-full",
   "object-focal": "object-center",
   "w-sidebar": "w-full",
-  "state-hover": "state-pressed",
-  "state-pressed": "state-hover",
+  "state-hover": null,
+  "state-pressed": "translate-none",
   "state-disabled": null,
   "focus-ring": "focus-ring-inset",
   "focus-ring-inset": "focus-ring",
@@ -146,8 +146,12 @@ describe("デザインシステムの class の merge", () => {
   });
 
   test("state-disabled は、hover や pressed の class を消さない", () => {
-    expect(merge("state-hover state-disabled")).toBe(
-      "state-hover state-disabled",
+    expect(merge("state-hover state-pressed state-disabled")).toBe(
+      "state-hover state-pressed state-disabled",
     );
+  });
+
+  test("state-pressed の後で translate を指定すると、後の位置が残る", () => {
+    expect(merge("state-pressed translate-none")).toBe("translate-none");
   });
 });

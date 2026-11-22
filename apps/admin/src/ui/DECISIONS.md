@@ -35,11 +35,11 @@
 - 透明度付きの色の変数は作らない。薄い色は、部品の中で Tailwind の不透明度の修飾(`bg-danger/10` など)で作る。透明度付きの変数を足していくと、同じような色の変数が増える。
 - 面の色は不透明にする。`surface-sunken` は sticky の見出しにも使うので、下が透けない。
 - 意味の色の塗りの上の文字は、色ごとの `on-*`(`on-info` など)にする。今の値はどれも `canvas` と同じ(light では白、dark では黒)。dark の意味の色は明るく、白い文字では読めないため。色ごとに名前を分けておき、塗りによって文字の色を変えたくなったときに、部品を書き換えずに済むようにする(ユーザーが決めた)。
-- 取り消せない操作(削除・すべてのセッションからのログアウトなど)のボタン(`Button` の `danger`)は、`danger` と別の塗り `danger-strong`(light でも dark でも red-700)に、白い文字 `on-danger-strong` を載せる。dark では、暗い面の上の赤い文字が 4.5:1 に届くには明るい赤(red-400)が要り、塗りの上の白い文字が 4.5:1 に届くには濃い赤が要るので、1つの赤では両立できない。red-400 の塗りに黒い文字では色が薄く見えたので、濃い赤の塗りに白い文字にした(ユーザーが決めた)。dark でも red-700 にし、押している間(pressed で文字の色を 12% 重ねる)も 4.5:1 を割らないようにする。`danger` は、文字・枠・薄い面(`Notice`・`Badge`・入力欄の誤り)の色として残す。名前は `primary` と `on-primary` に合わせる(`on-X` は、`X` の塗りの上に載せる文字の色)。
+- 取り消せない操作(削除・すべてのセッションからのログアウトなど)のボタン(`Button` の `danger`)は、`danger` と別の塗り `danger-strong`(light でも dark でも red-700)に、白い文字 `on-danger-strong` を載せる。dark では、暗い面の上の赤い文字が 4.5:1 に届くには明るい赤(red-400)が要り、塗りの上の白い文字が 4.5:1 に届くには濃い赤が要るので、1つの赤では両立できない。red-400 の塗りに黒い文字では色が薄く見えたので、濃い赤の塗りに白い文字にした(ユーザーが決めた)。dark でも red-700 にし、hover で文字の色を重ねても 4.5:1 を割らないようにする。`danger` は、文字・枠・薄い面(`Notice`・`Badge`・入力欄の誤り)の色として残す。名前は `primary` と `on-primary` に合わせる(`on-X` は、`X` の塗りの上に載せる文字の色)。
 - `black`・`white` という名前は使わず、用途の名前(`scrim`・`on-media`)にする。`bg-white` をカードに、`text-white` を塗りの上に、と書かれやすく、dark の意味の色の塗りの上の白い文字は、コントラストが 1.7〜2.9:1 しかない。
 - パレットの無彩色は、Tailwind CSS の neutral と同じ値にする。管理画面の `primary` は白と黒。役割の名前は、自分たちの名前(`canvas`・`surface`・`fg` など)を使う。
 - light の意味の色は、薄い面の上の文字でも 4.5:1(WCAG の AA)に届く段にする(red-700・green-800・amber-800・blue-700)。
-- コントラストは、theme.css を読むテスト(`apps/admin/__tests__/theme-contrast.test.ts`)で確かめる。塗りと、その上の文字の組(`on-*`)は、hover と pressed の重ねも含めて 4.5:1 に届く。意味の色は、面(`canvas`・`surface`・`surface-sunken`)と、その上の `/10` の薄い面の上の文字として、light でも dark でも 4.5:1 に届く。OKLCH を sRGB に直し、sRGB に入らない色は 0〜1 に clamp して計算する。計算は役割の色の定義を読むので、同じテストで、役割の色をほかの場所で上書きしないこと(forced-colors のシステムの色を除く)、`on-*` が、`on-` を除いた名前の塗りと組になること(写真の上の `on-media` を除く)、hover と pressed の重ねが文字の色を透明と混ぜたものであることも確かめる。上書きは forced-colors の中だけに許し、そこでは塗りを `Highlight` に、その上の文字を `HighlightText` に差し替えること、パレットの色も1か所だけで定義すること、hover と pressed の utility が1か所だけであることも確かめる(CSS のコメントは除いて読む)。どれかが崩れると、計算した色と実際の色が食い違う(Codex と Cursor のレビューで見つかった)。
+- コントラストは、theme.css を読むテスト(`apps/admin/__tests__/theme-contrast.test.ts`)で確かめる。塗りと、その上の文字の組(`on-*`)は、hover の重ねも含めて 4.5:1 に届く。意味の色は、面(`canvas`・`surface`・`surface-sunken`)と、その上の `/10` の薄い面の上の文字として、light でも dark でも 4.5:1 に届く。OKLCH を sRGB に直し、sRGB に入らない色は 0〜1 に clamp して計算する。計算は役割の色の定義を読むので、同じテストで、役割の色をほかの場所で上書きしないこと(forced-colors のシステムの色を除く)、`on-*` が、`on-` を除いた名前の塗りと組になること(写真の上の `on-media` を除く)、hover の重ねが文字の色を透明と混ぜたものであることも確かめる。上書きは forced-colors の中だけに許し、そこでは塗りを `Highlight` に、その上の文字を `HighlightText` に差し替えること、パレットの色も1か所だけで定義すること、hover の utility が1か所だけであることも確かめる(CSS のコメントは除いて読む)。どれかが崩れると、計算した色と実際の色が食い違う(Codex と Cursor のレビューで見つかった)。
 - dark の `surface-sunken` は、`surface` と別の段(neutral-950)にする。同じ色だと、dark のサイドバーで、今いる場所が見分けられない。
 - light の `focus` は neutral-500 にする。白に対して 3:1 に届く。
 - 線の色は2つ。区切りの線やカードの枠は `line`(light で neutral-300、dark で neutral-700)、入力を受ける部品(入力欄・Checkbox・Radio・Switch・Select など)の枠は `line-strong`(light で neutral-400、dark で neutral-600)で描く。どちらの値も、ユーザーが決めた。文字の色の `fg-muted` を枠に流用しない(役割を混ぜない。ユーザーが決めた)。
@@ -62,7 +62,8 @@
 
 ## 状態
 
-- hover と pressed は、その要素の文字の色(`currentColor`)を薄く重ねる utility(`state-hover`・`state-pressed`)で表す。塗りのボタンでも、透明な行でも、どの面の上でも同じに働く。`background-image` を使うので、`bg-linear-*` と一緒には使えない。
+- hover は、その要素の文字の色(`currentColor`)を薄く重ねる utility(`state-hover`)で表す。塗りのボタンでも、透明な行でも、どの面の上でも同じに働く。`background-image` を使うので、`bg-linear-*` と一緒には使えない。
+- pressed は `state-pressed` で、要素の大きさを保ったまま `translate` で 1px 下に沈める。色を変えると、ナビのリンクを click してから画面が移るまでに色が何度も変わってちらついた(ユーザーが決めた)。部品は `transition` で、色と位置を、押したときも離したときも既定の 120ms と `--ease-standard` で動かす。scale は使わない(ユーザーが決めた)。
 - 状態の variant(`is-hovered`・`is-selected`・`is-disabled` など)は、部品のライブラリが付ける属性に名前を付けたもの。`theme.css` に、勝たせたい順に並べ、無効を最後に置く。生の `data-*:` の variant は名前の順に並ぶので、`data-disabled:` が一番弱くなる。値を持つ属性(並べ替えの向き・placement・orientation など)は variant にせず、部品の render props から渡す。公開サイトでは、そちらの部品のライブラリの属性に合わせて、同じ名前で定義し直す。
 - `is-current` は `aria-current` も見るので、`:where()` で包んで、ほかの variant と詳細度をそろえる。包まないと `is-disabled` に勝つ。
 - reduced motion では、base で transition を一律に止める。animation は見せ方が部品ごとに違うので、部品が使う class で決める。spinner は `motion-reduce:` で `animate-pulse` に替える。`animation.css` で Dialog の scale を `1` に固定し、引き出したナビは opacity だけを変える。
@@ -84,7 +85,7 @@
 - React Aria Components(`react-aria`・`react-stately`・`@react-aria/*`・`@react-stately/*`・`@internationalized/*` と、型だけの import も)を import できるのは `primitives/` だけ。primitives は、React Aria Components の props の型を extends せず、自分の props の型を持つ。画面のコードに、ライブラリの props(`className` の関数や、`data-*` の render props など)を見せない。ライブラリを替えるときに直すのは primitives だけになる。
 - UI の外部ライブラリは、`ui/` の部品で包む。lucide-react を import できるのは `primitives/` だけで、ほかの層は `Icon` に名前を渡す(ユーザーが決めた)。
 - `tailwind-variants` は `tv.ts` だけが import し、ほかは `tv.ts` の `tv` と `merge` を使う(lint で止まる)。既定の入口の `tv` は theme.css の名前を知らず、`z-sticky z-overlay` のような theme.css の名前の組を merge できずに両方残す(後から渡した class で上書きできない)。
-- merge の設定には、`theme.css` と `animation.css` の名前を入れる。名前ごとに「同じ組の2つを渡すと後だけが残る」ことと、`@utility` ごとに組の相手を決めてあることを、CSS を読むテスト(`apps/admin/__tests__/tailwind-merge.test.ts`)で確かめる。名前が1つしかない組(`grid-cols-thumbnails`・`aspect-photo`)は、Tailwind CSS の既定の class を相手にする。`tv` の variant を通しても merge が効くことを確かめる。`state-disabled` は透明度と押せるかどうかを変えるだけなので、hover や pressed とは組にしない(組にすると、`state-hover state-disabled` で hover の見た目が消える)。
+- merge の設定には、`theme.css` と `animation.css` の名前を入れる。名前ごとに「同じ組の2つを渡すと後だけが残る」ことと、`@utility` ごとに組の相手を決めてあることを、CSS を読むテスト(`apps/admin/__tests__/tailwind-merge.test.ts`)で確かめる。名前が1つしかない組(`grid-cols-thumbnails`・`aspect-photo`)は、Tailwind CSS の既定の class を相手にする。`tv` の variant を通しても merge が効くことを確かめる。`state-pressed` は `translate` の組に入れ、`state-hover` と一緒に渡しても両方残す。`state-disabled` は透明度と押せるかどうかを変えるだけなので、hover や pressed とは組にしない(組にすると、`state-hover state-disabled` で hover の見た目が消える)。
 - 文字の役割と組:`body`(`text-sm/xl`・400)・`body-long`(`text-sm/2xl`・400。長い文)・`caption`(`text-xs/lg`・400)・`label`(`text-sm/xl`・600)・`section`(`text-base/2xl`・600)・`page`(`text-xl/3xl`・700)・`display`(`text-3xl/5xl`・700)。`Text` と `Heading` は、文字の役割を `variant` で受ける(`role` にすると、ARIA の `role` と取り違える)。`Heading` は見出しのレベル(h1〜h3)から役割の既定を決め(レベル 1 は `page`、2 と 3 は `section`)、見た目とレベルを別々に選べる。
 - `UiProvider`(`primitives/ui-provider.tsx`)が、React Aria Components に、i18next の今の言語(`I18nProvider`)と、TanStack Router の navigate(`RouterProvider`)を渡す。リンクは TanStack Router の型の付いた行き先だけを受け、画面を読み込み直さずに移る。
 
@@ -107,7 +108,7 @@
 - **バッジ**(`Badge`):状態を短く示す。用途(`tone`)ごとの色の組は、`Notice` と同じく `/10` の面と、同じ色の線と文字。
 - **ナビと本文**:広い画面では、`surface-sunken` の地にナビを置き、隣の `surface` の本文を角丸・影・半透明の縁で浮かせる。本文は document と一緒に scroll し、ナビは sticky で残して中だけ scroll できるようにする。狭い画面では sticky の帯の下に全幅の本文を置き、ナビは左の全高の drawer に収める。閉じるボタンは、帯の開くボタンと同じ位置に置く。狭い画面では、focus した要素と ring が帯に隠れないよう、document の scroll-padding-top に帯の高さと ring の幅・offset を足した分を取る。
 - **ナビの左端**:広い画面では、アプリのロゴ・まとまりの見出し・リンクのアイコンを左から24px にそろえ、アプリ名とリンクの文言を48px にそろえる。狭い画面では、本文の左端と開くボタンのアイコンを24px にそろえる。
-- **今いる場所**:`aria-current="page"` を付け、ナビの地に `surface` の行を影と半透明の縁で浮かせ、文字を `label` にする。縁は `::after` に描き、行の focus ring と両方見えるようにする。forced-colors でも縁を残す。hover と押している間は、縁を `fg` の 20% に濃くする。面だけが明るくなると、dark で縁が面より暗く見え、不自然だった(ユーザーが見つけた)。
+- **今いる場所**:`aria-current="page"` を付け、ナビの地に `surface` の行を影と半透明の縁で浮かせ、文字を `label` にする。縁は `::after` に描き、行の focus ring と両方見えるようにする。forced-colors でも縁を残す。hover では、縁を `fg` の 20% に濃くする。面だけが明るくなると、dark で縁が面より暗く見え、不自然だった(ユーザーが見つけた)。
 - 選んだ状態とほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す。overlay は地の上に重ねる半透明の線と `shadow-overlay` を付ける)。
 
 ## 検査
@@ -148,7 +149,7 @@
 - **検査が見ない class の渡し方**:JSX の属性と、`tv`・`merge` などの呼び出しの中の文字列だけを検査する。DOM を直に触る `element.classList.add()` や `element.style`、`className` に渡した、`tv` で作っていない関数の戻り値は見ない。今の部品にはどれも無く、要る場面が出たら、そこで使える範囲を決める。参照先まで追う検査は、作る手間に見合わない。
 - **入力を受ける部品の枠の濃さ**:入力を受ける部品の枠(`line-strong`)は、地とのコントラストが、部品の枠に要る 3:1 に届かない(light の白の上で約 2.6:1、dark の `surface` の上で約 2.3:1)。3:1 に届く濃さ(パレットに無い灰色や、`fg-muted` の濃さ)より、この濃さをユーザーが選んだ。入力欄は面(`surface`)と影とラベルでも見分けられ、管理者1人が使う画面なので受け入れる。
 - **部品と見本の配色の取り違え**:コントラストのテストは theme.css の色の組を確かめ、部品がどの組を使うかは確かめない。`Button` の `danger` を `bg-danger text-on-danger` に戻しても、テストは通る(どちらの組も lint で許す)。色の見本のテストも、theme.css の色の名前が light と dark の欄にそろっていることだけを確かめ、塗りの色が名前と合っているかは確かめない。happy-dom は CSS を読まないので、描いた色を確かめるにはブラウザでのテストが要り、class の名前で確かめるとマークアップをなぞるテストになる。部品と見本の見た目は Storybook で見る。
-- **sRGB に入らない色のコントラスト**:コントラストのテストは、sRGB に入らない色(red-700 など)を 0〜1 に clamp して計算する。CSS Color 4 の gamut mapping(彩度を落として収める)で計算すると、4.5:1 の境目の色では、コントラスト比が 0.2 ほど変わることがある(今の塗りは、どれも境目から離れている。`danger-strong` の白い文字は、pressed でも 5.7:1)。gamut mapping をテストに入れる手間に見合わないので、境目に近い色を足すときは、両方の計算で確かめる(Codex のレビューで見つかった)。
+- **sRGB に入らない色のコントラスト**:コントラストのテストは、sRGB に入らない色(red-700 など)を 0〜1 に clamp して計算する。CSS Color 4 の gamut mapping(彩度を落として収める)で計算すると、4.5:1 の境目の色では、コントラスト比が 0.2 ほど変わることがある(今の塗りは、どれも境目から離れている。`danger-strong` の白い文字は、hover でも 6.0:1)。gamut mapping をテストに入れる手間に見合わないので、境目に近い色を足すときは、両方の計算で確かめる(Codex のレビューで見つかった)。
 - **等幅の要素の子の行頭の括弧**:日本語の中の `code` などの子要素(`<code><span>「…」</span></code>`)では、`:lang(ja)` の `trim-start` が子に当たり、行頭の括弧が詰まる。今の画面に等幅の中で括弧から始まる文は無く、詰めない指定を子にまで広げると、字体の切り替えの決まりも組み直しになる(Cursor のレビューで見つかった)。
 - **閉じ始めた Dialog に遅れて届く click**:タッチで Dialog の確認のボタンを長押しして離すと、ブラウザが click を出さないので、React Aria Components が 80ms 後に `click()` を呼ぶ。その 80ms のうちに Escape か backdrop で閉じると、閉じる animation の間に残ったボタンに `click()` が届き、中身を `inert` にしていても、押した操作が送られる。マウス・キーボード・普通のタップでは起きず、送られるのは確認のボタンで押した操作そのもの(削除なら、再認証の OS の画面で止められる)。起きる条件が狭いので受け入れる(ユーザーが決めた)。
 - **閉じる animation の間の Tab**:Dialog を閉じ始めると、中身を `inert` にして focus が外れ、React Aria Components は背後の画面の `inert` と focus の閉じ込めを外す。開いたボタンに focus を戻すのは、閉じる animation が終わって Dialog を取り除いたとき。その間(150ms)に Tab を押すと、focus は開いたボタンの次でなく文書の先頭の側へ移り、開いたボタンには戻らない(Chrome と WebKit で確かめた)。閉じる animation の間も focus を Dialog に残すには React Aria Components の振る舞いに逆らう作りが要り、150ms のうちに Tab を押すことは少ないので受け入れる(ユーザーが決めた)。
