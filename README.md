@@ -144,7 +144,7 @@ bun --cwd=apps/admin run dev
    bun --cwd=apps/server --env-file="$HOME/analemma-trial/analemma.env" run start
    ```
 
-5. 別のターミナルで登録用 URL を出し、ブラウザで開いてパスキーを登録する。登録すると、管理画面 `http://localhost:18787` にログインした状態になる。
+5. 別のターミナルで登録用 URL を出し、ブラウザで開いてパスキーを登録する。登録すると、管理画面 `http://localhost:18787` にログインした状態になる。開くのは、開発の管理画面(`http://localhost:5173`)にログインしていないブラウザ(別のプロファイルなど)にする。Cookie はポートを区別しないので、同じブラウザでは試し用の Cookie が開発用の Cookie を上書きし、その後に開発の管理画面を操作すると、どちらのセッションも消える。
 
    ```bash
    bun --cwd=apps/server --env-file="$HOME/analemma-trial/analemma.env" run passkey:enroll
