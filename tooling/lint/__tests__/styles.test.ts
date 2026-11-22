@@ -75,11 +75,44 @@ describe("管理画面の部品の class", () => {
       [36, "文字の太さは"],
       [37, "danger-strong は bg"],
       [38, "on-danger-strong は text"],
+      [39, "fg-muted は text"],
     ];
 
     expect(diagnosticsOf({ file, rule: RESTRICTED }, expected)).toEqual(
       expected,
     );
+  });
+
+  test("入力を受ける部品の枠の色(line-strong)は、ui/primitives/ の外の部品で使うと診断を出すこと", () => {
+    const outside = [
+      "invalid/apps/admin/src/ui/layout/framed.tsx",
+      "invalid/apps/admin/src/features/pages/ui/framed-row.tsx",
+    ];
+
+    expect(
+      outside.map((outsideFile) =>
+        diagnosticsOf({ file: outsideFile, rule: RESTRICTED }, [
+          [3, "line-strong は、ui/primitives/"],
+        ]),
+      ),
+    ).toEqual(outside.map(() => [[3, "line-strong は、ui/primitives/"]]));
+  });
+
+  test("ui/primitives/ の中でも、line-strong は border のほかに使うと診断を出すこと", () => {
+    const expected: Expected[] = [
+      [4, "line-strong は border"],
+      [5, "line-strong は border"],
+    ];
+
+    expect(
+      diagnosticsOf(
+        {
+          file: "invalid/apps/admin/src/ui/primitives/strong-fill.tsx",
+          rule: RESTRICTED,
+        },
+        expected,
+      ),
+    ).toEqual(expected);
   });
 
   test("theme.css に無い class に診断を出すこと", () => {
