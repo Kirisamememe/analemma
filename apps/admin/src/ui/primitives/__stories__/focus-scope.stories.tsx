@@ -52,8 +52,9 @@ const PasskeyRows = (): ReactNode => {
           title={`「${deleting}」を削除しますか?`}
         >
           <Text>
-            削除すると、行と一緒に開いたボタンも消えるので、この範囲の最初のボタンに
-            focus を移します。
+            削除すると、Dialog
+            を開いたボタンも行と一緒に消えるので、この範囲の最初のボタンに focus
+            を移します。
           </Text>
           <Cluster gap={2} justify="end">
             <Button

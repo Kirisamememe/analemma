@@ -25,9 +25,9 @@ const UTILITIES = [...css.matchAll(/^@utility (?<name>[a-z0-9\-]+)/gmv)].map(
   ({ groups }) => groups?.["name"] ?? "",
 );
 
-/** theme.css の変数の名前と、それを使う utility。 */
+/** デザインシステムの変数の名前と、それを使う utility。 */
 type ThemeGroup = {
-  /** theme.css の変数の、名前の前の部分。 */
+  /** デザインシステムの変数の、名前の前の部分。 */
   readonly variable: string;
   /** class の、名前の前の部分。 */
   readonly utility: string;
@@ -48,9 +48,9 @@ const THEME_GROUPS: readonly ThemeGroup[] = [
   { variable: "animate", utility: "animate" },
 ];
 
-/** theme.css に名前が1つしかない変数と、組の相手の class。 */
+/** デザインシステムに名前が1つしかない変数と、組の相手の class。 */
 type SingleNameGroup = {
-  /** theme.css の変数の、名前の前の部分。 */
+  /** デザインシステムの変数の、名前の前の部分。 */
   readonly variable: string;
   /** class の、名前の前の部分。 */
   readonly utility: string;
