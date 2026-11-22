@@ -12,16 +12,30 @@ import { router } from "./router";
 const API_PREFIX = "/api";
 const API_BODY_LIMIT = 1024 * 1024;
 const API_METHODS = new Set(["GET", "POST"]);
-const NO_STORE_PATHS = [`${API_PREFIX}/admin/*`, `${API_PREFIX}/auth/*`];
 const PERMISSIONS_POLICY =
   "publickey-credentials-create=(self), publickey-credentials-get=(self)";
+
+/** 外部用のポートで受ける procedure。 */
+export const externalRouter = { admin: router.admin, auth: router.auth };
+
+/** 内部用のポートで受ける procedure。 */
+export const internalRouter = { public: router.public };
+
+/** API をつなぐアプリと、そこで受ける procedure。 */
+type ApiMount = {
+  /** API をつなぐアプリ。 */
+  readonly app: Hono;
+  /** 起動時に組み立てた依存。 */
+  readonly context: AppContext;
+  /** このアプリで受ける procedure。 */
+  readonly procedures: typeof externalRouter | typeof internalRouter;
+};
 
 const isDefect = (error: unknown): boolean =>
   !(error instanceof ORPCError) || error.code === "INTERNAL_SERVER_ERROR";
 
-/** HTTP の層(Hono)に、API の procedure をつないだアプリを作る。 */
-export const createApp = (context: AppContext): Hono => {
-  const handler = new RPCHandler(router, {
+const mountApi = ({ app, context, procedures }: ApiMount): void => {
+  const handler = new RPCHandler(procedures, {
     plugins: [new ResponseHeadersPlugin()],
     clientInterceptors: [
       onError((error) => {
@@ -35,29 +49,8 @@ export const createApp = (context: AppContext): Hono => {
       }),
     ],
   });
-  const app = new Hono();
 
-  app.use(
-    secureHeaders({
-      contentSecurityPolicy: { frameAncestors: ["'none'"] },
-      xFrameOptions: "DENY",
-    }),
-  );
-  app.use(async (c, next) => {
-    await next();
-    c.header("Permissions-Policy", PERMISSIONS_POLICY);
-  });
-
-  for (const path of NO_STORE_PATHS) {
-    app.use(path, async (c, next) => {
-      await next();
-      c.header("Cache-Control", "no-store");
-    });
-  }
-
-  app.use(csrf({ origin: context.relyingParty.origin }));
   app.use(`${API_PREFIX}/*`, bodyLimit({ maxSize: API_BODY_LIMIT }));
-
   app.all(`${API_PREFIX}/*`, async (c) => {
     if (!API_METHODS.has(c.req.method)) {
       return c.body(null, 405, { Allow: [...API_METHODS].join(", ") });
@@ -75,6 +68,43 @@ export const createApp = (context: AppContext): Hono => {
 
     return matched ? c.newResponse(response.body, response) : c.notFound();
   });
+};
+
+const addNoStore = (app: Hono, paths: readonly string[]): void => {
+  for (const path of paths) {
+    app.use(path, async (c, next) => {
+      await next();
+      c.header("Cache-Control", "no-store");
+    });
+  }
+};
+
+/** 管理用 API と認証用 API を、リバースプロキシを通って届くブラウザのリクエストから受けるアプリを作る。 */
+export const createExternalApp = (context: AppContext): Hono => {
+  const app = new Hono();
+
+  app.use(
+    secureHeaders({
+      contentSecurityPolicy: { frameAncestors: ["'none'"] },
+      xFrameOptions: "DENY",
+    }),
+  );
+  app.use(async (c, next) => {
+    await next();
+    c.header("Permissions-Policy", PERMISSIONS_POLICY);
+  });
+  addNoStore(app, [`${API_PREFIX}/admin/*`, `${API_PREFIX}/auth/*`]);
+  app.use(csrf({ origin: context.relyingParty.origin }));
+  mountApi({ app, context, procedures: externalRouter });
+
+  return app;
+};
+
+/** 公開 API を、同じサーバーの中から受けるアプリを作る。 */
+export const createInternalApp = (context: AppContext): Hono => {
+  const app = new Hono();
+
+  mountApi({ app, context, procedures: internalRouter });
 
   return app;
 };

@@ -35,6 +35,9 @@
 | procedure        | contract に定義し、server で実装する、API の1つの操作。                                                                                        |
 | contract         | `packages/contract` にある、procedure ごとの入力・出力・エラー・パスの定義。「契約」と訳さない。                                               |
 | base             | アクセス区分ごとに認可を決めてある、procedure を作るときの出発点(`publicProcedures`・`authProcedures`・`adminProcedures`)。                    |
+| 外部用のポート   | CMS が待ち受ける2つのポートのうち、リバースプロキシを通って、ブラウザからのリクエストを受けるもの(`PORT`)。管理用 API と認証用 API を受ける。  |
+| 内部用のポート   | CMS が待ち受ける2つのポートのうち、サーバーの外から届かないもの(`INTERNAL_PORT`)。公開 API を受ける。                                          |
+| 公開 API         | 公開しているコンテンツを返す API(contract の `public`)。内部用のポートで受け、公開サイト(Amayadori)のサーバーから呼ぶ。資格情報を求めない。    |
 | mapper           | DB の行を contract の出力に変える純粋関数。                                                                                                    |
 | 判断する純粋関数 | 変更してよいか、何に変えるか、どのビジネスイベントを出すかを決める純粋関数。service と呼ばない。                                               |
 | DB に触れる関数  | `*.query.ts` に置く、DB を読み書きする関数。repository と呼ばない。                                                                            |

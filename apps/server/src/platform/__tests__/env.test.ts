@@ -95,6 +95,56 @@ test.each(["", " ", "abc", "70000"])(
   },
 );
 
+describe("内部用のポート", () => {
+  test("既定では 127.0.0.1 の 8788 で待ち受け、外部用のポートは 8787 にすること", () => {
+    const env = readEnv({ ...AUTH, DATABASE_URL });
+
+    expect({ port: env.port, internal: env.internal }).toEqual({
+      port: 8787,
+      internal: { port: 8788, host: "127.0.0.1" },
+    });
+  });
+
+  test("INTERNAL_PORT と INTERNAL_HOST で、待ち受ける場所を変えられること", () => {
+    expect(
+      readEnv({
+        ...AUTH,
+        DATABASE_URL,
+        INTERNAL_PORT: "9000",
+        INTERNAL_HOST: "10.0.0.2",
+      }).internal,
+    ).toEqual({ port: 9000, host: "10.0.0.2" });
+  });
+
+  test("外部用のポートと同じ番号では、起動しないこと", () => {
+    expect(
+      readError({ ...AUTH, DATABASE_URL, PORT: "9000", INTERNAL_PORT: "9000" }),
+    ).toContain("INTERNAL_PORT: PORT と同じ番号にはできない");
+    expect(
+      readEnv({ ...AUTH, DATABASE_URL, PORT: "0", INTERNAL_PORT: "0" }).internal
+        .port,
+    ).toBe(0);
+  });
+
+  test.each(["", "a b", "http://127.0.0.1"])(
+    "INTERNAL_HOST が %p のようにホストの形でないと、起動しないこと",
+    (host) => {
+      expect(
+        readError({ ...AUTH, DATABASE_URL, INTERNAL_HOST: host }),
+      ).toContain("INTERNAL_HOST: ホストの名前か IP アドレスで書く");
+    },
+  );
+
+  test.each(["", "70000"])(
+    "INTERNAL_PORT が %p のように 0〜65535 の数でないと、起動しないこと",
+    (port) => {
+      expect(
+        readError({ ...AUTH, DATABASE_URL, INTERNAL_PORT: port }),
+      ).toContain("INTERNAL_PORT: 0〜65535 の数で書く");
+    },
+  );
+});
+
 describe("AUTH_ORIGIN と AUTH_RP_ID", () => {
   test("管理画面の origin と、AUTH_ORIGIN のホストか、その上位のドメインの RP ID を読むこと", () => {
     expect(readEnv({ ...AUTH, DATABASE_URL }).relyingParty).toEqual({

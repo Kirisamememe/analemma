@@ -1,4 +1,3 @@
-import { isContractProcedure } from "@orpc/contract";
 import { describe, expect, test } from "bun:test";
 
 import { contract } from "@analemma/contract";
@@ -7,23 +6,10 @@ import {
   TEST_ORIGIN,
   createTestClient,
 } from "../../../test-client/create-test-client";
+import { listProcedurePaths } from "../../../test-client/list-procedure-paths";
 
-const procedurePaths = (node: unknown, path: string): string[] => {
-  if (isContractProcedure(node)) {
-    return [path];
-  }
-
-  if (typeof node !== "object" || node === null) {
-    return [];
-  }
-
-  return Object.entries(node).flatMap(([key, child]) =>
-    procedurePaths(child, `${path}/${key}`),
-  );
-};
-
-const adminPaths = procedurePaths(contract.admin, "admin");
-const authPaths = procedurePaths(contract.auth, "auth");
+const adminPaths = listProcedurePaths(contract.admin, "admin");
+const authPaths = listProcedurePaths(contract.auth, "auth");
 
 const VALID_LOOKING_TOKEN = `${"A".repeat(22)}.${"B".repeat(43)}`;
 
