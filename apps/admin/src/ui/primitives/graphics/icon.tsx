@@ -1,4 +1,6 @@
 import {
+  Check,
+  ChevronDown,
   CircleAlert,
   CircleCheck,
   House,
@@ -10,6 +12,8 @@ import {
 import type { ReactNode } from "react";
 
 const ICONS = {
+  check: Check,
+  "chevron-down": ChevronDown,
   "circle-alert": CircleAlert,
   "circle-check": CircleCheck,
   house: House,
