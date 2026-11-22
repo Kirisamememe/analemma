@@ -83,7 +83,7 @@ export const zhHans = {
   "sessions.logOutAllFailed": "无法退出登录，请重试。",
   "passkeys.renamed": "已重命名通行密钥。",
   "fixedPages.title": "固定页面",
-  "fixedPages.description": "公开网站上的“关于”等页面。",
+  "fixedPages.description": "公开网站上的 About 等页面。",
   "fixedPages.loading": "正在加载固定页面。",
   "fixedPages.loadFailed": "无法加载固定页面。",
   "fixedPages.emptyTitle": "还没有固定页面",
