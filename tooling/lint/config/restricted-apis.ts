@@ -105,7 +105,7 @@ export const WORKSPACE_BUN_GLOBALS: readonly RestrictedGlobal[] = [
   { name: "Bun", message: WORKSPACE_BUN },
 ];
 
-/** 部品のライブラリ(React Aria Components と、その下の層)。 */
+/** 部品のライブラリ。 */
 export const UI_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
   {
     group: [
@@ -121,6 +121,11 @@ export const UI_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
     ],
     message:
       "React Aria Components は ui/primitives/ の中でだけ使います。ほかの場所は primitives の部品を使います。",
+  },
+  {
+    group: ["lucide-react", "lucide-react/*"],
+    message:
+      "lucide-react は ui/primitives/ の中でだけ使います。ほかの場所は Icon を使います。",
   },
 ];
 
