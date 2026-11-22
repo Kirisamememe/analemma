@@ -62,6 +62,31 @@ describe("RenamePasskeyDialog", () => {
     expect(screen.getByRole("dialog")).toBeDefined();
   });
 
+  test("失敗してから閉じて開き直すと、前の失敗の知らせと入力は出さない", async () => {
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+
+    server.replyNext("admin/passkeys/rename", () => ({
+      error: "NOT_FOUND",
+    }));
+    renderApp({ path: "/security", routes: server.routes });
+
+    await renameTo("Mac mini");
+    await screen.findByText("このパスキーはもうありません。");
+    await userEvent.click(screen.getByRole("button", { name: "キャンセル" }));
+    await userEvent.click(
+      await screen.findByRole("button", { name: "名前を変更" }),
+    );
+
+    expect(
+      (
+        await screen.findByRole<HTMLInputElement>("textbox", {
+          name: "パスキーの名前",
+        })
+      ).value,
+    ).toBe("MacBook");
+    expect(screen.queryByText("このパスキーはもうありません。")).toBeNull();
+  });
+
   test("名前を変更したら、そのことを知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
