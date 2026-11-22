@@ -105,7 +105,7 @@ export const WORKSPACE_BUN_GLOBALS: readonly RestrictedGlobal[] = [
   { name: "Bun", message: WORKSPACE_BUN },
 ];
 
-/** 部品のライブラリ。 */
+/** `ui/primitives/` の中でだけ使う、UI の外部ライブラリ。 */
 export const UI_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
   {
     group: [

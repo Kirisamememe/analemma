@@ -27,7 +27,7 @@ type AppShellProps = {
   readonly children: ReactNode;
 };
 
-/** 画面の地と、中身の上下の余白を持つ骨組み。 */
+/** 画面の地と、ナビと本文の並べ方と、中身の上下の余白を持つ骨組み。 */
 export const AppShell = ({ nav, children }: AppShellProps): ReactNode => {
   const { screen, frame, main } = shell({ withNav: Boolean(nav) });
 

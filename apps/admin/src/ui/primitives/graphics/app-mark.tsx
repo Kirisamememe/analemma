@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-/** アプリの名前に添えるアナレンマの印。 */
+/** アプリの名前に添える、アナレンマの形のロゴ。 */
 export const AppMark = (): ReactNode => (
   <svg
     aria-hidden="true"
