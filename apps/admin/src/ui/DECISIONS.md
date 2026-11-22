@@ -57,7 +57,7 @@
 - 本文・見出し・補足といった文字の役割は、CSS の変数にしない。`Text`・`Heading` の部品が、役割ごとに目盛りの組と太さを選んで守る。
 - 太さは 400・600・700(`font-normal`・`font-semibold`・`font-bold`)だけ(ユーザーが決めた)。
 - 和文を主役に組む。`:lang()` で言語ごとに字体を切り替え、本文を出す要素には本文の言語の `lang` を付ける。`lang` の付いた要素では、字体を一度既定に戻してから言語ごとに上書きする。規則の無い言語(`ko` や繁体字など)が、親の和文の字体を継がないようにするため。
-- 禁則(`line-break: strict`)・和文と欧文の間の空き(`text-autospace`)・日本語の文節での改行(`word-break: auto-phrase`)は CSS に任せる。日本語では、行頭の始め括弧(「 など)の前の空きを詰める(`text-spacing-trim: trim-start`)。`lang` の付いた要素では既定に戻してから言語ごとに当て(字体と同じ)、等幅の要素では詰めない(桁がずれる)。等幅の要素の指定は、`:lang(ja)` より詳細度を上げる(`:is(code, kbd, samp, pre):lang(ja)`)。要素の名前だけで書くと、`:lang(ja)` の `trim-start` に負けた(Copilot のレビューで見つかった)。既定では行頭の「が全角の幅のままで、「で始まる見出しが、本文より半角ぶん右に寄って見えた(Storybook の Dialog で見つけた)。等幅の要素(`code`・`kbd`・`samp`・`pre`)では、空きを入れると桁がずれるので切る。
+- 禁則(`line-break: strict`)・和文と欧文の間の空き(`text-autospace`)・日本語の文節での改行(`word-break: auto-phrase`)は CSS に任せる。等幅の要素(`code`・`kbd`・`samp`・`pre`)では、空きを入れると桁がずれるので `text-autospace` を切る。日本語では、行頭の始め括弧(「 など)の前の空きを詰める(`text-spacing-trim: trim-start`)。`lang` の付いた要素では既定に戻してから言語ごとに当て(字体と同じ)、等幅の要素では詰めない(桁がずれる)。等幅の要素の指定は、`:lang(ja)` より詳細度を上げる(`:is(code, kbd, samp, pre):lang(ja)`)。要素の名前だけで書くと、`:lang(ja)` の `trim-start` に負けた(Copilot のレビューで見つかった)。既定では行頭の「が全角の幅のままで、「で始まる見出しが、本文より半角ぶん右に寄って見えた(Storybook の Dialog で見つけた)。
 
 ## 状態
 
@@ -77,7 +77,7 @@
 | `layout/`             | 並べ方(`Stack`・`Cluster`・`Center`・`AppShell`)と文字(`Text`・`Heading`)                             |
 | `patterns/`           | primitives と layout を組み合わせた、画面に共通の形(`PageHeader` など)                                |
 | `features/<名前>/ui/` | 1つの画面だけの部品(`ui/` と同じ決まり)                                                               |
-| `specimens/`          | 色と文字の見本(Storybook で見る)                                                                      |
+| `specimens/`          | 色と文字の見本と、story の展示用の枠(`story-stage.tsx`)。Storybook で見る                             |
 
 - import の向きは、patterns → primitives・layout。layout は primitives と patterns を、primitives は patterns を import しない(lint で止まる)。layout は並べ方と文字だけを持つ層で、操作を持たない。
 - React Aria Components(`react-aria`・`react-stately`・`@react-aria/*`・`@react-stately/*`・`@internationalized/*` と、型だけの import も)を import できるのは `primitives/` だけ。primitives は、React Aria Components の props の型を extends せず、自分の props の型を持つ。画面のコードに、ライブラリの props(`className` の関数や、`data-*` の render props など)を見せない。ライブラリを替えるときに直すのは primitives だけになる。
@@ -98,7 +98,7 @@
 - **縁の線**:border を使うのは、背景の色とコンテンツの色をはっきり見分けられるときだけにする(`Badge`・`Notice` のように、意味の色の `/10` の面に同じ色の線を引くときなど)。背景と近い色の面(白い Dialog が明るい地の上にあるときなど)の縁は、半透明の線(`outline`、`fg` の 10%)で描く。面の縁の線は、offset を付けず、塗りの外側の地の上に重ねる(地の色が透けて、縁がくっきり出る)。色の見本の正方形のように、塗りそのものの縁を見せるときは、内側(`-outline-offset-1`)に重ねる。不透明の border は背景の色と混ざってぼやけ、塗りの外に枠を足したように見えた(ユーザーが決めた)。
 - **overlay**(`Dialog`):地の上に重ねる半透明の線と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、半透明の線で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
 - **バッジ**(`Badge`):状態を短く示す。用途(`tone`)ごとの色の組は、`Notice` と同じく `/10` の面と、同じ色の線と文字。
-- 選んだ状態・今いる場所・ほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す、今いる場所は `aria-current` と形で示す、overlay は塗りの上に重ねる半透明の線と `shadow-overlay` を付ける)。
+- 選んだ状態・今いる場所・ほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す、今いる場所は `aria-current` と形で示す、overlay は地の上に重ねる半透明の線と `shadow-overlay` を付ける)。
 
 ## 検査
 

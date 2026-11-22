@@ -40,7 +40,7 @@
 - **Storybook の設定のファイル**(`apps/admin/.storybook/`):`main.ts` は Storybook が Node で読むので、相対 import に `.ts` を付ける(oxlint の設定と同じく、`import/extensions` を変える)。`.storybook/` の中は、型付きの lint が tsconfig の `noPropertyAccessFromIndexSignature` を読まないように振る舞う(`dataset["x"]` を `dot-notation` が止め、`dataset.x` を tsc が止める。`no-floating-promises` などのほかの型付きのルールは効く)。TypeScript の方を取り、ぶつかる `story-frame.tsx` だけ `dot-notation` を外す。`setAttribute("data-theme", …)` で書くと、こんどは `unicorn/prefer-dom-node-dataset` が止める。tsrs の振る舞いなので、tsrs を上げたら、外したままでよいかを見直す。
 - **TSDoc のタグの検査**(eslint-plugin-jsdoc):`@param` の名前が引数と合うこと(`check-param-names`)、1つでも書いたら全部の引数に書くこと(`require-param`)、何も返さない関数に `@returns` を書かないこと(`require-returns-check`)、タグに型を書かないこと(`no-types`。型は TypeScript が持つ)。
 - **使える API の制限**
-  - `node:*` と Bun 専用のモジュールは、contract・client・管理画面で import できない。Node と Bun のグローバルも、server と tooling だけで有効にする。目的は、ブラウザ(や Node でないところ)でも動かすコードに、Node や Bun でしか動かない API を入れさせないこと。`node:fs/promises` のようなサブパスも止める(`node:*` だけではサブパスが pattern をすり抜けた。本番のコードは、管理画面も contract と client の SDK も、Node の型を持たない tsconfig の tsc も止める)。
+  - `node:*` と Bun 専用のモジュールは、contract・client・管理画面で import できない。Node と Bun のグローバルも、server と tooling だけで有効にする。目的は、ブラウザ(や Node でないところ)でも動かすコードに、Node や Bun でしか動かない API を入れさせないこと。`node:fs/promises` のようなサブパスも止める(`node:*` だけではサブパスが pattern をすり抜けた。本番のコードでは、管理画面も contract と client の SDK も、Node の型を持たない tsconfig で tsc が止める)。
   - 管理画面のテスト(`src/**/__tests__/`)では、Node と Bun の import とグローバルを許す。テストは Bun で動くので、上の目的に当たらない(theme.css を読むテストなど)。
   - 管理画面の `.ts` から `react`・`react-dom` を import できない。フックやコンポーネントは `.tsx` に置き、`.ts` をテストできるロジックだけにする。
   - `console`(ログは context で渡す logger を使う)、`process.env`(環境変数は起動時に検証する1か所だけで読む)、引数のプロパティの書き換えを禁止する。
