@@ -63,7 +63,7 @@
 ## 状態
 
 - hover は、その要素の文字の色(`currentColor`)を薄く重ねる utility(`state-hover`)で表す。塗りのボタンでも、透明な行でも、どの面の上でも同じに働く。`background-image` を使うので、`bg-linear-*` と一緒には使えない。
-- pressed は `state-pressed` で、要素の大きさを保ったまま `translate` で 1px 下に沈める。押している間に色を変えると、ナビのリンクを click してから画面が移るまでに色が何度も変わってちらついたので、色は変えない。scale も使わない(どちらもユーザーが決めた)。部品は `transition` で、色と位置を、押したときも離したときも、既定の長さ(120ms)と曲線(`--ease-standard` と同じ値)で動かす。
+- pressed は `state-pressed` で、要素の大きさを保ったまま `translate` で 1px 下に沈める。押している間に色を変えると、ナビのリンクを click してから画面が移るまでに色が何度も変わってちらついたので、色は変えない。scale も使わない(どちらもユーザーが決めた)。部品は `transition` で、色と位置を、押したときも離したときも、既定の長さ(120ms)と曲線(`--ease-standard` と同じ値)で動かす。数値の入力欄の増減のボタンは、入力欄の枠の一部なので沈めない(沈めると、枠からずれた)。
 - 状態の variant(`is-hovered`・`is-selected`・`is-disabled` など)は、部品のライブラリが付ける属性に名前を付けたもの。`theme.css` に、勝たせたい順に並べ、無効を最後に置く。生の `data-*:` の variant は名前の順に並ぶので、`data-disabled:` が一番弱くなる。値を持つ属性(並べ替えの向き・placement・orientation など)は variant にせず、部品の render props から渡す。公開サイトでは、そちらの部品のライブラリの属性に合わせて、同じ名前で定義し直す。
 - `is-current` は `aria-current` も見るので、`:where()` で包んで、ほかの variant と詳細度をそろえる。包まないと `is-disabled` に勝つ。
 - reduced motion では、base で transition を一律に止める。animation は見せ方が部品ごとに違うので、部品が使う class で決める。spinner は `motion-reduce:` で `animate-pulse` に替える。`animation.css` で Dialog の scale を `1` に固定し、引き出したナビは opacity だけを変える。

@@ -94,7 +94,7 @@ type StepButtonProps = {
 
 const StepButton = ({ slot }: StepButtonProps): ReactNode => (
   <Button
-    className="flex shrink-0 items-center justify-center border-s border-line px-2 outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring-inset is-pressed:state-pressed is-disabled:text-fg-muted"
+    className="flex shrink-0 items-center justify-center border-s border-line px-2 outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring-inset is-disabled:text-fg-muted"
     slot={slot}
   >
     <svg
