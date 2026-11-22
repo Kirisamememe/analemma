@@ -11,10 +11,10 @@ import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 
 import { findMainCheckout } from "../structure/private-name-list";
-import { parseReviewArguments } from "./arguments";
+import { parseReviewArguments, type ReviewArguments } from "./arguments";
 import { chooseReviewer, runExternalReview } from "./external-review";
-import type { Perspective } from "./perspectives";
 import { buildPrompt, type TradeOffSection } from "./prompt";
+import { pinRange, type PinnedRange } from "./range";
 import { decideNextRound } from "./results";
 import { extractTradeOffs } from "./trade-offs";
 
@@ -22,7 +22,7 @@ const repoRoot = join(import.meta.dirname, "../..");
 const PROMPTS = join(import.meta.dirname, "prompts");
 const MAX_BUFFER = 256 * 1024 * 1024;
 const USAGE =
-  "使い方:bun run review -- --perspective <観点> --base <比べる元のブランチ> [--head <レビューするブランチ>]";
+  "使い方:bun run review -- --perspective <観点> --base <比べる元のブランチ> [--head <レビューするブランチの名前かコミット>]";
 const RUNNER_NAMES = { codex: "Codex", cursor: "Cursor" } as const;
 
 const execute = (command: string, args: readonly string[]) =>
@@ -42,9 +42,6 @@ const git = (...args: string[]): string => {
   return result.stdout;
 };
 
-const succeeds = (...args: string[]): boolean =>
-  execute("git", args).status === 0;
-
 const report = (message: string): void => {
   process.stderr.write(`${message}\n`);
 };
@@ -53,19 +50,11 @@ const say = (message: string): void => {
   process.stdout.write(`${message}\n`);
 };
 
-/** 比べるブランチ。 */
-type Range = {
-  /** 比べる元のブランチ。 */
-  readonly base: string;
-  /** レビューするブランチ。 */
-  readonly head: string;
-};
-
 /** レビューする側に渡すファイルを書き出した場所。 */
 type Workspace = {
   /** 一時フォルダ。 */
   readonly root: string;
-  /** レビューするブランチの中身。 */
+  /** レビューするコミットの中身。 */
   readonly tree: string;
   /** 差分とコミットのメッセージ。 */
   readonly context: string;
@@ -75,7 +64,10 @@ type Workspace = {
   readonly commits: string;
 };
 
-const prepareWorkspace = ({ base, head }: Range): Workspace => {
+const prepareWorkspace = ({
+  base,
+  head,
+}: Pick<PinnedRange, "base" | "head">): Workspace => {
   const root = mkdtempSync(join(tmpdir(), "analemma-review-"));
   const workspace = {
     root,
@@ -112,7 +104,7 @@ const prepareWorkspace = ({ base, head }: Range): Workspace => {
 const collectTradeOffs = ({
   head,
   tree,
-}: Pick<Range, "head"> & Pick<Workspace, "tree">): TradeOffSection[] =>
+}: Pick<PinnedRange, "head"> & Pick<Workspace, "tree">): TradeOffSection[] =>
   git("ls-tree", "-r", "-z", "--name-only", head)
     .split("\0")
     .filter((path) => basename(path) === "DECISIONS.md")
@@ -122,33 +114,9 @@ const collectTradeOffs = ({
       return body === undefined || body === "" ? [] : [{ path, body }];
     });
 
-/** 流すレビュー。 */
-type ReviewRequest = Range & {
-  /** レビューの観点。 */
-  readonly perspective: Perspective;
-};
-
-const pinRange = ({ base, head }: Range): Range | string => {
-  if (!succeeds("rev-parse", "--verify", "--quiet", `refs/heads/${head}`)) {
-    return `手元にブランチ ${head} が無い。`;
-  }
-
-  if (!succeeds("rev-parse", "--verify", "--quiet", `${base}^{commit}`)) {
-    return `${base} が無い。`;
-  }
-
-  const pinned = {
-    base: git("rev-parse", `${base}^{commit}`).trim(),
-    head: git("rev-parse", `refs/heads/${head}`).trim(),
-  };
-
-  return succeeds("diff", "--quiet", `${pinned.base}...${pinned.head}`)
-    ? `${base} と ${head} のあいだに差分が無い。`
-    : pinned;
-};
-
-const review = ({ base, head, perspective }: ReviewRequest): number => {
-  const pinned = pinRange({ base, head });
+const review = (request: ReviewArguments): number => {
+  const { base, perspective } = request;
+  const pinned = pinRange(repoRoot, request);
 
   if (typeof pinned === "string") {
     report(pinned);
@@ -156,7 +124,12 @@ const review = ({ base, head, perspective }: ReviewRequest): number => {
     return 2;
   }
 
-  const results = join(findMainCheckout(repoRoot), ".private", "reviews", head);
+  const results = join(
+    findMainCheckout(repoRoot),
+    ".private",
+    "reviews",
+    pinned.resultsBranch,
+  );
 
   mkdirSync(results, { recursive: true });
 
@@ -164,7 +137,7 @@ const review = ({ base, head, perspective }: ReviewRequest): number => {
 
   if (next._tag === "Exhausted") {
     report(
-      `${head} は、「${perspective.label}」の観点で ${String(next.rounds)} 回レビューした。残った指摘は「割り切ったこと」に書くか、ユーザーに聞いてください(結果は ${results})。`,
+      `${pinned.resultsBranch} は、「${perspective.label}」の観点で ${String(next.rounds)} 回レビューした。残った指摘は「割り切ったこと」に書くか、ユーザーに聞いてください(結果は ${results})。`,
     );
 
     return 1;
@@ -187,7 +160,7 @@ const review = ({ base, head, perspective }: ReviewRequest): number => {
   const prompt = buildPrompt({
     perspective,
     base,
-    head,
+    headBranch: pinned.headBranch,
     baseCommit: pinned.base,
     headCommit: pinned.head,
     paths: {
@@ -208,7 +181,7 @@ const review = ({ base, head, perspective }: ReviewRequest): number => {
         `「${perspective.label}」の観点の ${String(next.round)} 回目は、Claude の subagent でレビューする。prompt を書き出した。`,
         `- prompt:${name}.prompt.md`,
         `- 結果を書く先:${result}`,
-        `subagent に prompt のファイルを読ませ、返ってきた結果を、そのまま結果を書く先に書いてください。prompt で読ませるファイル(ブランチの中身・差分・コミットのメッセージ)は ${workspace.root} に残してある。`,
+        `subagent に prompt のファイルを読ませ、返ってきた結果を、そのまま結果を書く先に書いてください。prompt で読ませるファイル(レビューするコミットの中身・差分・コミットのメッセージ)は ${workspace.root} に残してある。`,
       ].join("\n"),
     );
 
@@ -237,14 +210,5 @@ if (parsed._tag === "Invalid") {
   report(`${parsed.problem}\n${USAGE}`);
   process.exitCode = 2;
 } else {
-  const head = parsed.head ?? git("branch", "--show-current").trim();
-
-  if (head === "") {
-    report(
-      "今のブランチが無い(detached HEAD)。--head に、レビューするブランチを渡してください。",
-    );
-    process.exitCode = 2;
-  } else {
-    process.exitCode = review({ ...parsed, head });
-  }
+  process.exitCode = review(parsed);
 }
