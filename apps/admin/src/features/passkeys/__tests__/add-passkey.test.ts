@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import type { Authenticator } from "@/features/auth/webauthn/create-authenticator";
+import type { Authenticator } from "@/features/auth/webauthn";
 import { addPasskey } from "@/features/passkeys/add-passkey";
 import {
   createFakeApi,

@@ -2,7 +2,7 @@ import type { ReactNode, Ref } from "react";
 import { Button as AriaButton, ProgressBar } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { Spinner } from "@/ui/primitives/graphics/spinner";
+import { Spinner } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Text } from "@/ui/layout/text";
+import { Text } from "@/ui/layout";
 import { type TypographyRole, typography } from "@/ui/typography";
 
 const isRole = (name: string): name is TypographyRole =>

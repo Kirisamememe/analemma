@@ -7,13 +7,12 @@ import type { PasskeySummary } from "@/features/passkeys/passkey-list";
 import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/passkeys-query";
 import { renamePasskey } from "@/features/passkeys/rename-passkey";
 import { useTranslate } from "@/i18n/use-translate";
-import { Cluster } from "@/ui/layout/cluster";
+import { Cluster } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
-import { TextField } from "@/ui/primitives/form-fields/text-field";
+import { TextField } from "@/ui/primitives/form-fields";
 import { Notice } from "@/ui/primitives/notice";
-import { Dialog } from "@/ui/primitives/overlays/dialog";
-import { useShowToast } from "@/ui/primitives/overlays/toast-context";
+import { Dialog, useShowToast } from "@/ui/primitives/overlays";
 
 /** パスキーの名前を変更する Dialog に渡す値。 */
 type RenamePasskeyDialogProps = {

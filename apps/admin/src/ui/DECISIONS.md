@@ -88,6 +88,7 @@
 | `specimens/`          | 色と文字の見本と、story の展示用の枠(`story-stage.tsx`)。Storybook で見る                             |
 
 - import の向きは、patterns → primitives・layout。layout は primitives と patterns を、primitives は patterns を import しない(lint で止まる)。layout は並べ方と文字だけを持つ層で、操作を持たない。
+- `layout/`・`patterns/` と、`primitives/` の入力欄・図形・ナビ・overlay の各フォルダには、フォルダの外から使う部品・hook・型を `index.ts` にまとめる。たとえば、画面では `@/ui/layout` から `Stack` と `Text` を一度に import できる。各フォルダで部品の実装に使うもの(余白の型、入力欄の枠、`ShowToastContext` など)は入口に含めない。`primitives/` 直下と `ui/` には、フォルダごとの責務が分かる import を保つため、まとめた入口を置かない。
 - React Aria Components(`react-aria`・`react-stately`・`@react-aria/*`・`@react-stately/*`・`@internationalized/*` と、型だけの import も)を import できるのは `primitives/` だけ。primitives は、React Aria Components の props の型を extends せず、自分の props の型を持つ。画面のコードに、ライブラリの props(`className` の関数や、`data-*` の render props など)を見せない。ライブラリを替えるときに直すのは primitives だけになる。
 - UI の外部ライブラリは、`ui/` の部品で包む。lucide-react を import できるのは `primitives/` だけで、ほかの層は `Icon` に名前を渡す(ユーザーが決めた)。
 - `tailwind-variants` は `tv.ts` だけが import し、ほかは `tv.ts` の `tv` と `merge` を使う(lint で止まる)。既定の入口の `tv` は theme.css の名前を知らず、`z-sticky z-overlay` のような theme.css の名前の組を merge できずに両方残す(後から渡した class で上書きできない)。

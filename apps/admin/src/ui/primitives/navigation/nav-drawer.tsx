@@ -8,7 +8,7 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { Icon } from "@/ui/primitives/graphics/icon";
+import { Icon } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 
 const iconButton = tv({

@@ -8,7 +8,7 @@ import {
   createAuthGate,
   gateAdminRequests,
 } from "@/features/auth/create-auth-gate";
-import type { Authenticator } from "@/features/auth/webauthn/create-authenticator";
+import type { Authenticator } from "@/features/auth/webauthn";
 import { type AppParts, createApp } from "@/router";
 import { type FakeRoutes, createFakeApi } from "@/testing/create-fake-api";
 

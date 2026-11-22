@@ -3,11 +3,8 @@ import type { ReactElement } from "react";
 import { useArgs } from "storybook/preview-api";
 import { fn } from "storybook/test";
 
-import { Center } from "@/ui/layout/center";
-import { Cluster } from "@/ui/layout/cluster";
-import { Heading } from "@/ui/layout/heading";
-import { Text } from "@/ui/layout/text";
-import { AppMark } from "@/ui/primitives/graphics/app-mark";
+import { Center, Cluster, Heading, Text } from "@/ui/layout";
+import { AppMark } from "@/ui/primitives/graphics";
 import {
   NavDrawer,
   type NavDrawerProps,

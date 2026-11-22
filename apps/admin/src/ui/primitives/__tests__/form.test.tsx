@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { renderWithI18n } from "@/testing/render-with-i18n";
 import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
-import { TextField } from "@/ui/primitives/form-fields/text-field";
+import { TextField } from "@/ui/primitives/form-fields";
 
 afterEach(cleanup);
 

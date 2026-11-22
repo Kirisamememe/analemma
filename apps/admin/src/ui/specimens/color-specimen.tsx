@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Heading } from "@/ui/layout/heading";
-import { Text } from "@/ui/layout/text";
+import { Heading, Text } from "@/ui/layout";
 import { tv } from "@/ui/tv";
 
 const swatch = tv({

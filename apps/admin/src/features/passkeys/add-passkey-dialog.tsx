@@ -7,14 +7,12 @@ import { addPasskey } from "@/features/passkeys/add-passkey";
 import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/passkeys-query";
 import { toAddNotice } from "@/features/passkeys/to-passkey-notice";
 import { useTranslate } from "@/i18n/use-translate";
-import { Cluster } from "@/ui/layout/cluster";
-import { Text } from "@/ui/layout/text";
+import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
-import { TextField } from "@/ui/primitives/form-fields/text-field";
+import { TextField } from "@/ui/primitives/form-fields";
 import { Notice } from "@/ui/primitives/notice";
-import { Dialog } from "@/ui/primitives/overlays/dialog";
-import { useShowToast } from "@/ui/primitives/overlays/toast-context";
+import { Dialog, useShowToast } from "@/ui/primitives/overlays";
 
 /** パスキーを追加する Dialog に渡す値。 */
 type AddPasskeyDialogProps = {

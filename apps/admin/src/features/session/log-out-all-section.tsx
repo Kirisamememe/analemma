@@ -3,13 +3,10 @@ import { type ReactNode, useState } from "react";
 import { useAppContext, useGoToLogin } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { useTranslate } from "@/i18n/use-translate";
-import { Cluster } from "@/ui/layout/cluster";
-import { Heading } from "@/ui/layout/heading";
-import { Stack } from "@/ui/layout/stack";
-import { Text } from "@/ui/layout/text";
+import { Cluster, Heading, Stack, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Notice } from "@/ui/primitives/notice";
-import { Dialog } from "@/ui/primitives/overlays/dialog";
+import { Dialog } from "@/ui/primitives/overlays";
 
 /** すべてのセッションからログアウトする操作。 */
 export const LogOutAllSection = (): ReactNode => {

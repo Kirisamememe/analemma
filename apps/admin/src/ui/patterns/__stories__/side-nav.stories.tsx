@@ -1,12 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { AppShell } from "@/ui/layout/app-shell";
-import { Center } from "@/ui/layout/center";
-import { Stack } from "@/ui/layout/stack";
-import { Text } from "@/ui/layout/text";
+import { AppShell, Center, Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns/page-header";
 import { SideNav } from "@/ui/patterns/side-nav";
-import { NavButton } from "@/ui/primitives/navigation/nav-item";
+import { NavButton } from "@/ui/primitives/navigation";
 
 const meta = {
   title: "patterns/SideNav",
