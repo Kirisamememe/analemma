@@ -39,7 +39,7 @@
 - `package.json` の `exports`・`bin`・`files` を、`dist/` に書き出したものに向ける。リポジトリの中で client を import するワークスペースは無いので、`dist/` に向けても困らない。
 - JS は Bun で bundle する(SDK と CLI を別々に)。`zod` と `@orpc/*` は external にし(bundle に含めず)、contract は bundle に含める。Node は、拡張子の無い相対 import と、`node_modules` の中の TypeScript を読めないため。CLI には、ビルドのときに shebang を足す(ソースに書くと、単独の行のコメントとして lint に止められる)。
 - 型(`.d.ts`)は `tsc`(`tsconfig.build.json`)で書き出す。型は `@analemma/contract` を参照するので、client を公開するには、contract も公開する必要がある。
-- ビルドした CLI は、CI(`check.yml`)で1回流す。`package.json` の `bin` のパスのファイルを shebang で直に実行し、相対パスで渡した、読めない定義のファイルで、終了コード 1 と決まった文言になることを確かめる。bin のパス・shebang・bundle の external・定義のファイルの読み込みは、`runCli` を直に呼ぶテストでは通らないため。CMS に送るところは `runCli` のテストが確かめるので、CI では送らない。
+- ビルドした CLI は、CI(`check.yml`)で1回流す。`package.json` の `bin` のパスのファイルを shebang で直に実行し、相対パスで渡した、名前だけが形に合わない定義のファイルで、終了コード 1 になり、その名前の誤り(`0.name`)が出ることを確かめる。定義のファイルを読み、default export の配列の中身まで検査したことが分かる(読み込みが壊れて、配列に届かないときは、別の文言になる)。bin のパス・shebang・bundle の external・定義のファイルの読み込みは、`runCli` を直に呼ぶテストでは通らないため。CMS に送るところは `runCli` のテストが確かめるので、CI では送らない。
 - 公開するときは `bun publish` を使う。`package.json` の `workspace:*` を、公開するバージョンに書き換えるのは Bun だけで、`npm pack`・`npm publish` は `workspace:*` を残し、利用者の側で依存を解決できない(Codex のレビューで見つかった)。
 - `private: true` は、公開するときに外す(ユーザーが決めるまで公開しない)。
 
