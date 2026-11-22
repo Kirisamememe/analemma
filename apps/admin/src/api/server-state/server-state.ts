@@ -52,6 +52,8 @@ type MutationResult<Input, Data> = {
 type ApiCache = {
   /** 取得を中断してから取り直す関数。 */
   readonly refresh: (key: readonly unknown[]) => Promise<void>;
+  /** 取得を中断し、取り直さずにデータを差し替える関数。 */
+  readonly replace: (key: readonly unknown[], data: unknown) => Promise<void>;
   /** 取得と送信のキャッシュを消す関数。 */
   readonly clear: () => void;
 };
@@ -114,6 +116,10 @@ export const useApiCache = (): ApiCache => {
     refresh: async (key) => {
       await client.cancelQueries({ queryKey: key });
       await client.invalidateQueries({ queryKey: key });
+    },
+    replace: async (key, data) => {
+      await client.cancelQueries({ queryKey: key });
+      client.setQueryData(key, data);
     },
     clear: () => {
       client.clear();

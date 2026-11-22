@@ -262,6 +262,52 @@ describe("useApiCache", () => {
     });
   });
 
+  test("送っている取得を中断し、取り直さずにデータを差し替える", async () => {
+    const pending = Promise.withResolvers<string[]>();
+    let fetches = 0;
+    const { result } = renderHook(
+      () => ({
+        query: useApiQuery({
+          key: KEY,
+          load: () => {
+            fetches += 1;
+
+            return fetches === 1
+              ? Promise.resolve(["MacBook"])
+              : pending.promise;
+          },
+        }),
+        cache: useApiCache(),
+      }),
+      { wrapper: withQueryClient(new QueryClient()) },
+    );
+
+    await waitFor(() => {
+      expect(result.current.query).toEqual({
+        _tag: "Loaded",
+        data: ["MacBook"],
+      });
+    });
+    void result.current.cache.refresh(KEY);
+    await waitFor(() => {
+      expect(fetches).toBe(2);
+    });
+    await act(async () => {
+      await result.current.cache.replace(KEY, ["iPhone"]);
+    });
+    await act(async () => {
+      pending.resolve(["古い一覧"]);
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 0);
+      });
+    });
+
+    expect(result.current.query).toEqual({
+      _tag: "Loaded",
+      data: ["iPhone"],
+    });
+  });
+
   test("取得と送信のキャッシュを消す", async () => {
     const client = new QueryClient();
     client.setQueryData(KEY, ["MacBook"]);

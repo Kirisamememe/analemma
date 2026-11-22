@@ -8,6 +8,7 @@ import {
   contentErrors,
   type EditorErrors,
 } from "./editor-errors";
+import { fixedPageQueryKey, type LoadedFixedPage } from "./fixed-page-query";
 import { flattenContent, restoreContent } from "./flat-content";
 import { saveFixedPage } from "./save-fixed-page";
 
@@ -15,6 +16,7 @@ import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
 import { useApiMutation, useApiCache } from "@/api/server-state/server-state";
 import { useAppForm } from "@/components/forms";
+import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/list/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { useShowToast } from "@/ui/primitives/overlays";
 
@@ -55,7 +57,7 @@ export const useEditorForm = ({
   const t = useTranslate();
   const { api } = useAppContext();
   const toast = useShowToast();
-  const { refresh } = useApiCache();
+  const { refresh, replace } = useApiCache();
   const root = useRef<HTMLDivElement>(null);
   const [initial] = useState(() => {
     const { content, items, unknownKeys } = flattenContent(
@@ -101,7 +103,14 @@ export const useEditorForm = ({
           onSaved(result.data);
         }
 
-        await refresh(["admin", "fixedPages"]);
+        if (page !== undefined) {
+          await replace(fixedPageQueryKey(page.id), {
+            _tag: "Succeeded",
+            data: result.data,
+          } satisfies LoadedFixedPage);
+        }
+
+        await refresh(FIXED_PAGES_QUERY_KEY);
 
         return;
       }

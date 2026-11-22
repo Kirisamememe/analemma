@@ -158,3 +158,30 @@ test("一覧から種類を選んで作り、編集の画面から一覧に戻�
       .value,
   ).toBe("こんにちは");
 });
+
+test("保存した直後にほかの画面へ移って戻っても、保存した値でフォームを作る", async () => {
+  const user = userEvent.setup();
+  const server = createFixedPageRoutes({
+    kinds: [{ name: "page", label: "基本のページ", fields: [] }],
+    pages: [{ kind: "page", slug: "about", title: "Original" }],
+  });
+  const [stored] = server.pages();
+  const { history } = renderApp({
+    path: "/fixed-pages/" + String(stored?.id),
+    routes: server.routes,
+  });
+  const title = await screen.findByRole("textbox", { name: "タイトル" });
+
+  await user.clear(title);
+  await user.type(title, "New title");
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await screen.findByText("固定ページを更新しました。");
+  history.push("/");
+  await screen.findByRole("heading", { name: "ホーム" });
+  history.push("/fixed-pages/" + String(stored?.id));
+
+  expect(
+    (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
+      .value,
+  ).toBe("New title");
+});

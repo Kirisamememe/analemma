@@ -99,6 +99,6 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
     },
   });
   expect(calls.filter((path) => path === "admin/fixedPages/get")).toHaveLength(
-    2,
+    1,
   );
 });

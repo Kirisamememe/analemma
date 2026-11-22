@@ -7,6 +7,10 @@ import { useAppContext } from "@/api/app-context";
 import { callApi } from "@/api/call-api";
 import { useApiQuery } from "@/api/server-state/server-state";
 import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor";
+import {
+  fixedPageQueryKey,
+  loadFixedPage,
+} from "@/features/fixed-pages/editor/fixed-page-query";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
 import { EmptyState, PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
@@ -228,8 +232,8 @@ export const EditFixedPage = (): ReactNode => {
   const { t } = useTranslation();
   const { id } = useParams({ from: "/signed-in/fixed-pages/$id" });
   const query = useApiQuery({
-    key: ["admin", "fixedPages", "get", id],
-    load: () => callApi(api.admin.fixedPages.get({ id }), ["NOT_FOUND"]),
+    key: fixedPageQueryKey(id),
+    load: () => loadFixedPage(api, id),
     discardWhenUnused: true,
   });
 
