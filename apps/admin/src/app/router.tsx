@@ -15,6 +15,7 @@ import type { AuthGate } from "@/features/auth/create-auth-gate";
 import { isPublicPath, toLoginSearch } from "@/features/auth/login-search";
 import type { Authenticator } from "@/features/auth/webauthn";
 import { EnrollPage } from "@/routes/enroll-page";
+import { FixedPagesPage } from "@/routes/fixed-pages/fixed-pages-page";
 import { HomePage } from "@/routes/home-page";
 import { LoginPage } from "@/routes/login-page";
 import { NotFoundPage } from "@/routes/not-found-page";
@@ -79,6 +80,12 @@ const homeRoute = createRoute({
   component: HomePage,
 });
 
+const fixedPagesRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/fixed-pages",
+  component: FixedPagesPage,
+});
+
 const securityRoute = createRoute({
   getParentRoute: () => signedInRoute,
   path: "/security",
@@ -88,7 +95,7 @@ const securityRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   loginRoute,
   enrollRoute,
-  signedInRoute.addChildren([homeRoute, securityRoute]),
+  signedInRoute.addChildren([homeRoute, fixedPagesRoute, securityRoute]),
 ]);
 
 /** 管理画面を組み立てるときに渡す値。 */

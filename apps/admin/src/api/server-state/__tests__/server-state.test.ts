@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/client";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
@@ -146,6 +147,36 @@ describe("useApiMutation", () => {
     await waitFor(() => {
       expect(result.current.isError).toBe(true);
       expect(result.current.isPending).toBe(false);
+    });
+  });
+
+  test("想定外の失敗では onError を呼び、セッション切れでは呼ばない", async () => {
+    let errors = 0;
+    const { result } = renderHook(
+      () =>
+        useApiMutation({
+          send: (failure: Error) => Promise.reject(failure),
+          onSuccess: () => undefined,
+          onError: () => {
+            errors += 1;
+          },
+        }),
+      { wrapper: withQueryClient(new QueryClient()) },
+    );
+
+    act(() => {
+      result.current.mutate(new ORPCError("UNAUTHORIZED"));
+    });
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+    expect(errors).toBe(0);
+
+    act(() => {
+      result.current.mutate(new Error("操作できない"));
+    });
+    await waitFor(() => {
+      expect(errors).toBe(1);
     });
   });
 });
