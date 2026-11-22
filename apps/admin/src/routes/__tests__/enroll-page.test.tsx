@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import type { Authenticator } from "../../features/auth/webauthn/create-authenticator";
-import type { FakeReply, FakeRoutes } from "../../testing/create-fake-api";
+import { createEnrollmentRoutes } from "../../testing/create-enrollment-routes";
 import { renderApp } from "../../testing/render-app";
 
 afterEach(cleanup);
@@ -27,49 +27,6 @@ const registering = (
 
 const EXPIRY = { output: { expiresAt: "2026-01-08T00:00:00.000Z" } };
 
-/** 作り物の server と、server が受け取った登録。 */
-type EnrollmentServer = {
-  /** 作り物の server の応答。 */
-  readonly routes: FakeRoutes;
-  /** server が受け取った登録の入力。 */
-  readonly registered: () => unknown;
-};
-
-const serverWith = (register: FakeReply): EnrollmentServer => {
-  let registered: unknown;
-
-  return {
-    routes: {
-      "admin/session/get": () =>
-        registered === undefined || !("output" in register)
-          ? { error: "UNAUTHORIZED", status: 401 }
-          : EXPIRY,
-      "auth/enrollment/options": () => ({
-        output: {
-          challenge: "AQID",
-          rp: { id: "localhost", name: "Analemma" },
-          user: { id: "BAU", name: "admin", displayName: "管理者" },
-          pubKeyCredParams: [{ type: "public-key", alg: -8 }],
-          excludeCredentials: [],
-          authenticatorSelection: {
-            residentKey: "required",
-            requireResidentKey: true,
-            userVerification: "required",
-          },
-          attestation: "none",
-          timeout: 300_000,
-        },
-      }),
-      "auth/enrollment/register": (input) => {
-        registered = input;
-
-        return register;
-      },
-    },
-    registered: () => registered,
-  };
-};
-
 const submitName = async (name: string): Promise<void> => {
   await userEvent.type(
     await screen.findByRole("textbox", { name: "パスキーの名前" }),
@@ -80,7 +37,7 @@ const submitName = async (name: string): Promise<void> => {
 
 describe("EnrollPage", () => {
   test("名前を付けてパスキーを登録すると、ログインしてホームに移り、履歴から登録用 URL を消す", async () => {
-    const server = serverWith(EXPIRY);
+    const server = createEnrollmentRoutes(EXPIRY);
     const { history } = renderApp({
       path: "/enroll#abc.def",
       routes: server.routes,
@@ -102,7 +59,10 @@ describe("EnrollPage", () => {
   });
 
   test("登録用 URL に token が無ければ、そのことを知らせ、フォームを出さない", async () => {
-    renderApp({ path: "/enroll", routes: serverWith(EXPIRY).routes });
+    renderApp({
+      path: "/enroll",
+      routes: createEnrollmentRoutes(EXPIRY).routes,
+    });
 
     expect((await screen.findByRole("alert")).textContent).toBe(
       "登録用 URL が不完全です。サーバーのコマンドで発行し直してください。",
@@ -113,7 +73,10 @@ describe("EnrollPage", () => {
   test("使えなくなった登録用 URL なら、出し直すよう知らせる", async () => {
     renderApp({
       path: "/enroll#abc.def",
-      routes: serverWith({ error: "INVALID_ENROLLMENT", status: 403 }).routes,
+      routes: createEnrollmentRoutes({
+        error: "INVALID_ENROLLMENT",
+        status: 403,
+      }).routes,
       authenticator: registering({ _tag: "Answered", credential: CREDENTIAL }),
     });
 
@@ -127,7 +90,7 @@ describe("EnrollPage", () => {
   test("登録済みの認証器なら、ログイン画面へのリンクを出す", async () => {
     renderApp({
       path: "/enroll#abc.def",
-      routes: serverWith(EXPIRY).routes,
+      routes: createEnrollmentRoutes(EXPIRY).routes,
       authenticator: registering({ _tag: "AlreadyRegistered" }),
     });
 
@@ -142,7 +105,7 @@ describe("EnrollPage", () => {
   });
 
   test("開いたら、token を覚えて、URL と履歴から token を消す", async () => {
-    const server = serverWith(EXPIRY);
+    const server = createEnrollmentRoutes(EXPIRY);
     const { history } = renderApp({
       path: "/enroll#abc.def",
       routes: server.routes,
@@ -161,7 +124,7 @@ describe("EnrollPage", () => {
   });
 
   test("空白だけの名前は、パスキーを作る前に、入力欄で知らせる", async () => {
-    const server = serverWith(EXPIRY);
+    const server = createEnrollmentRoutes(EXPIRY);
     const { calls } = renderApp({
       path: "/enroll#abc.def",
       routes: server.routes,
@@ -180,7 +143,7 @@ describe("EnrollPage", () => {
   });
 
   test("開いたまま新しい登録用 URL を開くと、前の知らせを消し、新しい token で登録する", async () => {
-    const server = serverWith(EXPIRY);
+    const server = createEnrollmentRoutes(EXPIRY);
     const register = server.routes["auth/enrollment/register"]!;
     const { history } = renderApp({
       path: "/enroll#old.token",

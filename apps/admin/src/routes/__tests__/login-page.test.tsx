@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import type { Authenticator } from "../../features/auth/webauthn/create-authenticator";
-import type { FakeReply, FakeRoutes } from "../../testing/create-fake-api";
+import { createSignInRoutes } from "../../testing/create-sign-in-routes";
 import { renderApp } from "../../testing/render-app";
 
 afterEach(cleanup);
@@ -32,29 +32,6 @@ const cancelling: Authenticator = {
 
 const EXPIRY = { output: { expiresAt: "2026-01-08T00:00:00.000Z" } };
 
-const serverWith = (verify: FakeReply): FakeRoutes => {
-  let signedIn = false;
-
-  return {
-    "admin/session/get": () =>
-      signedIn ? EXPIRY : { error: "UNAUTHORIZED", status: 401 },
-    "auth/login/options": () => ({
-      output: {
-        challenge: "AQID",
-        rpId: "localhost",
-        allowCredentials: [],
-        userVerification: "required",
-        timeout: 300_000,
-      },
-    }),
-    "auth/login/verify": () => {
-      signedIn = "output" in verify;
-
-      return verify;
-    },
-  };
-};
-
 const pressLogIn = async (): Promise<void> => {
   await userEvent.click(
     await screen.findByRole("button", { name: "パスキーでログイン" }),
@@ -65,7 +42,7 @@ describe("LoginPage", () => {
   test("ログインすると、ログインの前に開こうとした画面に戻る", async () => {
     const { history } = renderApp({
       path: "/login?redirect=%2Fmissing",
-      routes: serverWith(EXPIRY),
+      routes: createSignInRoutes(EXPIRY),
       authenticator: answering,
     });
 
@@ -80,7 +57,7 @@ describe("LoginPage", () => {
   test("ログインの最中は、ほかの管理用 API を呼ばない", async () => {
     const { calls } = renderApp({
       path: "/login",
-      routes: serverWith(EXPIRY),
+      routes: createSignInRoutes(EXPIRY),
       authenticator: answering,
     });
 
@@ -97,7 +74,7 @@ describe("LoginPage", () => {
   test("登録されていないパスキーなら、そのことを知らせ、ログインの画面に留まる", async () => {
     const { history } = renderApp({
       path: "/login",
-      routes: serverWith({ error: "UNKNOWN_CREDENTIAL", status: 401 }),
+      routes: createSignInRoutes({ error: "UNKNOWN_CREDENTIAL", status: 401 }),
       authenticator: answering,
     });
 
@@ -112,7 +89,7 @@ describe("LoginPage", () => {
   test("認証器でキャンセルしたら、割り込まずに知らせる", async () => {
     renderApp({
       path: "/login",
-      routes: serverWith(EXPIRY),
+      routes: createSignInRoutes(EXPIRY),
       authenticator: cancelling,
     });
 
@@ -126,7 +103,7 @@ describe("LoginPage", () => {
 
   test("ログインの応答を待つ間にほかの画面へ移ったら、その画面から動かさない", async () => {
     const verified = Promise.withResolvers<undefined>();
-    const routes = serverWith(EXPIRY);
+    const routes = createSignInRoutes(EXPIRY);
     const verify = routes["auth/login/verify"]!;
     const { history } = renderApp({
       path: "/login?redirect=%2Fsecurity",
@@ -157,7 +134,7 @@ describe("LoginPage", () => {
     async (path) => {
       const { history } = renderApp({
         path: `${path}?redirect=%2Fmissing`,
-        routes: serverWith(EXPIRY),
+        routes: createSignInRoutes(EXPIRY),
         authenticator: answering,
       });
 
@@ -173,7 +150,7 @@ describe("LoginPage", () => {
   test("末尾に / の付いたログインの画面を、戻り先なしで開いても、ログインするとホームに移る", async () => {
     const { history } = renderApp({
       path: "/login/",
-      routes: serverWith(EXPIRY),
+      routes: createSignInRoutes(EXPIRY),
       authenticator: answering,
     });
 

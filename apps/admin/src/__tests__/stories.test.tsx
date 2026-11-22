@@ -1,10 +1,13 @@
 import { composeStories, setProjectAnnotations } from "@storybook/react-vite";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { readdir } from "node:fs/promises";
 import type { ComponentType } from "react";
 
 import preview from "../../.storybook/preview";
+import * as routesEnrollPage from "../routes/__stories__/enroll-page.stories";
+import * as routesLoginPage from "../routes/__stories__/login-page.stories";
+import * as routesSecurityPage from "../routes/__stories__/security-page.stories";
 import * as layoutAppShell from "../ui/layout/__stories__/app-shell.stories";
 import * as layoutCenter from "../ui/layout/__stories__/center.stories";
 import * as layoutCluster from "../ui/layout/__stories__/cluster.stories";
@@ -24,6 +27,9 @@ import * as specimensColors from "../ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "../ui/specimens/__stories__/typography.stories";
 
 const MODULES = {
+  "routes/__stories__/enroll-page.stories.tsx": routesEnrollPage,
+  "routes/__stories__/login-page.stories.tsx": routesLoginPage,
+  "routes/__stories__/security-page.stories.tsx": routesSecurityPage,
   "ui/layout/__stories__/app-shell.stories.tsx": layoutAppShell,
   "ui/layout/__stories__/center.stories.tsx": layoutCenter,
   "ui/layout/__stories__/cluster.stories.tsx": layoutCluster,
@@ -91,16 +97,25 @@ describe("story", () => {
     expect(screen.getByRole("progressbar", { name: "正在处理" })).toBeDefined();
   });
 
-  test.each(STORIES)("$file の $name を、誤りを出さずに描ける", ({ Story }) => {
-    const errors = spyOn(console, "error");
+  test.each(STORIES)(
+    "$file の $name を、誤りを出さずに描ける",
+    async ({ Story }) => {
+      const errors = spyOn(console, "error");
 
-    try {
-      const { container } = render(<Story />);
+      try {
+        const { container } = render(<Story />);
 
-      expect(container.childElementCount).toBeGreaterThan(0);
-      expect(errors).not.toHaveBeenCalled();
-    } finally {
-      errors.mockRestore();
-    }
-  });
+        await act(async () => {
+          await new Promise((resolve) => {
+            setTimeout(resolve, 50);
+          });
+        });
+
+        expect(container.childElementCount).toBeGreaterThan(0);
+        expect(errors).not.toHaveBeenCalled();
+      } finally {
+        errors.mockRestore();
+      }
+    },
+  );
 });

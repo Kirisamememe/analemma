@@ -141,6 +141,7 @@ lint のルールは、書いているときにすぐ気づくための早めの
 - 一覧は `git ls-files -z` で取る。日本語のファイル名が引用符付きで返ってくるのを避けるため。作業ツリーから消したファイルは数えない。
 - わざと約束を破る fixture を置く `tooling/lint/fixtures/invalid/` は、この検査から外す。
 - 色と文字の見本(`apps/admin/src/ui/specimens/`)・story(`__stories__`)・Storybook の設定(`.storybook/`)は、テストの側(テストとテストの部品)・story・Storybook の設定だけが import できる(本番のコードから読むと、色ごとの utility の決まりの外の部品や、Storybook の依存が本番に入る)。テストの部品(`src/testing/`)と同じ検査で止める。
+- テストの部品(`apps/admin/src/testing/` など)を import できるのは、テストと、管理画面の story(`__stories__`)だけ。画面の story は、テストと同じ作り物の server と認証器で動かす。story は本番のビルドに入らない(Storybook だけが読む)。
 - drizzle-kit が migration を書き出す `apps/server/src/db/migrations/` と、その下のフォルダは、名前と数の検査から外す。drizzle-kit は migration を1件ごとに `20261121073110_create-notes/` のようなフォルダに書き、名前と数はこちらで変えられない。名前の先頭の日時が適用する順番を表すので、kebab-case にもそろえられず、migration は増える一方なので10件にも収まらない。外すのはこのフォルダの下だけで、親の `apps/server/src/db/` では、ほかと同じく1件と数える。
 - 同じ理由で、migration のフォルダは oxfmt の整形からも外す(`.oxfmtrc.json` の `ignorePatterns`)。drizzle-kit が書く `snapshot.json` の配列の折り返しが oxfmt と違い、`bun run check` の整形の確認で落ちた(使い捨ての migration で確かめた)。生成物を整形し直すと、生成し直すたびに差分が出る。SQL と JSON は Oxlint の対象ではないので、lint の設定は変えない。
 - 並べ替えでは `localeCompare` を使わない。テストを書いている途中で、`localeCompare` が実行環境のロケールで順番を変え、テストの期待と食い違った。文字コードの順で並べる。

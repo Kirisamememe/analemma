@@ -42,6 +42,21 @@ describe("テストだけのフォルダからの import", () => {
     expect(
       findTestOnlyImports({ path: "apps/admin/.storybook/preview.tsx", text }),
     ).toEqual([]);
+  test("管理画面の story は、テストの部品を import できること", () => {
+    const text = 'import { AppPreview } from "../../testing/app-preview";';
+
+    expect(
+      findTestOnlyImports({
+        path: "apps/admin/src/routes/__stories__/login-page.stories.tsx",
+        text,
+      }),
+    ).toEqual([]);
+    expect(
+      findTestOnlyImports({
+        path: "apps/admin/src/routes/login/page.tsx",
+        text,
+      }),
+    ).toEqual(["apps/admin/src/testing/app-preview"]);
   });
 
   test("名前が似ているだけのフォルダと、パッケージ名での import は数えないこと", () => {
