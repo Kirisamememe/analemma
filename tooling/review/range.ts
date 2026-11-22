@@ -41,6 +41,10 @@ const resolveRevision = (cwd: string, revision: string): string | undefined =>
   );
 
 const resolveCommit = (cwd: string, revision: string): string | undefined => {
+  if (!revision.startsWith(":/")) {
+    return resolveRevision(cwd, `${revision}^{commit}`);
+  }
+
   const sha = resolveRevision(cwd, revision);
 
   return sha === undefined

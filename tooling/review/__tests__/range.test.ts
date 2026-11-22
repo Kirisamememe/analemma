@@ -14,14 +14,19 @@ afterAll(() => {
 
 const git = (cwd: string, ...args: string[]): string => {
   const result = spawnSync(
-    "git",
+    "env",
     [
+      "GIT_AUTHOR_DATE=1000000000 +0000",
+      "GIT_COMMITTER_DATE=1000000000 +0000",
+      "git",
       "-c",
       "user.name=test",
       "-c",
       "user.email=test@example.invalid",
       "-c",
       "commit.gpgsign=false",
+      "-c",
+      "i18n.commitEncoding=UTF-8",
       "-c",
       "core.hooksPath=/dev/null",
       ...args,
@@ -48,7 +53,7 @@ const initRepository = (name: string): string => {
   const cwd = join(temporaryRoot, name);
 
   mkdirSync(cwd);
-  git(cwd, "init", "--quiet", "--initial-branch=main");
+  git(cwd, "init", "--quiet", "--initial-branch=main", "--object-format=sha1");
 
   return cwd;
 };
@@ -95,6 +100,23 @@ describe("レビューする範囲を決めること", () => {
     const { cwd, base, head } = makeRepository("commit");
 
     expect(pinRange(cwd, { base: "main", head: head.slice(0, 12) })).toEqual({
+      base,
+      head,
+      headBranch: undefined,
+      resultsBranch: "claude/current",
+    });
+  });
+
+  test("短い SHA が blob にも一致するときは、コミットに絞って解決すること", () => {
+    const { cwd, base, head } = makeRepository("ambiguous-commit");
+    const shortHead = head.slice(0, 4);
+
+    git(cwd, "config", "core.disambiguate", "none");
+    writeFileSync(join(cwd, "blob.txt"), "28311\n");
+    const blob = git(cwd, "hash-object", "-w", "blob.txt");
+
+    expect(blob.slice(0, 4)).toBe(shortHead);
+    expect(pinRange(cwd, { base: "main", head: shortHead })).toEqual({
       base,
       head,
       headBranch: undefined,
