@@ -58,6 +58,25 @@ describe("DeletePasskeyDialog", () => {
     expect(screen.getByRole("dialog")).toBeDefined();
   });
 
+  test("失敗してから閉じて開き直すと、前の失敗の知らせは出さない", async () => {
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+    renderApp({
+      path: "/security",
+      routes: server.routes,
+      authenticator: createFakeAuthenticator(),
+    });
+
+    await confirmDelete();
+    await screen.findByRole("alert");
+    await userEvent.click(screen.getByRole("button", { name: "キャンセル" }));
+    await userEvent.click(
+      (await screen.findAllByRole("button", { name: "削除" }))[0]!,
+    );
+    await screen.findByRole("dialog");
+
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
   test("再認証をキャンセルしたら、削除せずに知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
