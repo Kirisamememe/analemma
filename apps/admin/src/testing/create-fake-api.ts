@@ -39,6 +39,18 @@ type ReplyHandler<Input, Output, Code extends string> = ((
   readonly replyBeforeInput?: () => EarlyReply<Output, Code | "UNAUTHORIZED">;
 };
 
+/** 元の procedure の入力検証前の処理を引き継ぎ、通常の応答を差し替える。 */
+export const wrapFakeRoute = <Input, Output, Code extends string>(
+  original: ReplyHandler<Input, Output, Code>,
+  handle: NoInfer<ReplyHandler<Input, Output, Code>>,
+): ReplyHandler<Input, Output, Code> => {
+  const { replyBeforeInput } = original;
+
+  return replyBeforeInput === undefined
+    ? handle
+    : Object.assign((input: Input) => handle(input), { replyBeforeInput });
+};
+
 type ErrorFactory = (
   options?: Partial<Pick<Error, "message">>,
 ) => ORPCError<string, unknown>;

@@ -2,7 +2,7 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { createFakeApi } from "../../../testing/create-fake-api";
+import { createFakeApi, wrapFakeRoute } from "../../../testing/create-fake-api";
 import { FAKE_ASSERTION } from "../../../testing/create-fake-authenticator";
 import { createPasskeyRoutes } from "../../../testing/create-passkey-routes";
 import { renderApp } from "../../../testing/render-app";
@@ -110,13 +110,14 @@ describe("RenamePasskeyDialog", () => {
       path: "/security",
       routes: {
         ...server.routes,
-        "admin/passkeys/list": (input) =>
+        "admin/passkeys/list": wrapFakeRoute(list, (input) =>
           isListBroken
             ? {
                 error: "INTERNAL_SERVER_ERROR",
                 defined: false,
               }
             : list(input),
+        ),
       },
     });
 

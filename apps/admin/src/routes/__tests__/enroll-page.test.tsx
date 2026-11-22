@@ -4,6 +4,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import type { Authenticator } from "../../features/auth/webauthn/create-authenticator";
 import { createEnrollmentRoutes } from "../../testing/create-enrollment-routes";
+import { wrapFakeRoute } from "../../testing/create-fake-api";
 import { renderApp } from "../../testing/render-app";
 
 afterEach(cleanup);
@@ -148,10 +149,11 @@ describe("EnrollPage", () => {
       path: "/enroll#old.token",
       routes: {
         ...server.routes,
-        "auth/enrollment/register": (input) =>
+        "auth/enrollment/register": wrapFakeRoute(register, (input) =>
           input.token === "old.token"
             ? { error: "INVALID_ENROLLMENT" }
             : register(input),
+        ),
       },
       authenticator: registering({ _tag: "Answered", credential: CREDENTIAL }),
     });

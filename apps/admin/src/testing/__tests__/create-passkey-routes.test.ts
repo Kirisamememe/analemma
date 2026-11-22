@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/client";
 import { describe, expect, test } from "bun:test";
 
-import { createFakeApi } from "../create-fake-api";
+import { createFakeApi, wrapFakeRoute } from "../create-fake-api";
 import { FAKE_ASSERTION, FAKE_ATTESTATION } from "../create-fake-authenticator";
 import { createPasskeyRoutes } from "../create-passkey-routes";
 
@@ -132,7 +132,7 @@ describe("createPasskeyRoutes", () => {
     const list = server.routes["admin/passkeys/list"];
     const { api } = createFakeApi({
       ...server.routes,
-      "admin/passkeys/list": (input) => list(input),
+      "admin/passkeys/list": wrapFakeRoute(list, (input) => list(input)),
     });
 
     server.replyNext("admin/passkeys/list", () => ({
@@ -166,28 +166,43 @@ describe("createPasskeyRoutes", () => {
     expect(failure).toMatchObject({ code: "UNAUTHORIZED", status: 401 });
   });
 
-  test("ログアウト後に空の名前を2回送ったら、指定した応答を1回だけ返すこと", async () => {
-    const { api, server } = setUp(["MacBook"]);
-    await api.admin.session.logOutAll();
+  test.each(["元の procedure", "応答の関数を包んだ procedure"])(
+    "%sにログアウト後の空の名前を2回送ったら、指定した応答を1回だけ返すこと",
+    async (mode) => {
+      const { server } = setUp(["MacBook"]);
+      const rename = server.routes["admin/passkeys/rename"];
+      const routes =
+        mode === "元の procedure"
+          ? server.routes
+          : {
+              ...server.routes,
+              "admin/passkeys/rename": wrapFakeRoute(rename, (input) =>
+                rename(input),
+              ),
+            };
+      const { api } = createFakeApi(routes);
+      await api.admin.session.logOutAll();
 
-    server.replyNext("admin/passkeys/rename", () => ({ error: "NOT_FOUND" }));
-    const input = { id: "cGsx", name: "" };
-    const errors = await Promise.all([
-      api.admin.passkeys.rename(input).catch((error: unknown) => error),
-      api.admin.passkeys.rename(input).catch((error: unknown) => error),
-    ]);
+      server.replyNext("admin/passkeys/rename", () => ({ error: "NOT_FOUND" }));
+      const input = { id: "cGsx", name: "" };
+      const errors = await Promise.all([
+        api.admin.passkeys.rename(input).catch((error: unknown) => error),
+        api.admin.passkeys.rename(input).catch((error: unknown) => error),
+      ]);
 
-    expect(
-      errors.find(
-        (error) => error instanceof ORPCError && error.code === "NOT_FOUND",
-      ),
-    ).toMatchObject({ status: 404, defined: true });
-    expect(
-      errors.find(
-        (error) => error instanceof ORPCError && error.code === "UNAUTHORIZED",
-      ),
-    ).toMatchObject({ status: 401 });
-  });
+      expect(
+        errors.find(
+          (error) => error instanceof ORPCError && error.code === "NOT_FOUND",
+        ),
+      ).toMatchObject({ status: 404, defined: true });
+      expect(
+        errors.find(
+          (error) =>
+            error instanceof ORPCError && error.code === "UNAUTHORIZED",
+        ),
+      ).toMatchObject({ status: 401 });
+    },
+  );
 
   test("次の1回だけ返す出力も contract で検証すること", async () => {
     const { api, server } = setUp(["MacBook"]);
@@ -214,17 +229,33 @@ describe("createPasskeyRoutes", () => {
     expect(failure).toMatchObject({ code: "BAD_REQUEST", status: 400 });
   });
 
-  test("決めた応答を、次の1回だけ返す", async () => {
+  test("処理中の一覧は、次の一覧に指定した応答を使わないこと", async () => {
     const { api, server } = setUp(["MacBook"]);
+    const list = server.routes["admin/passkeys/list"];
+    const started = Promise.withResolvers<undefined>();
+    const resume = Promise.withResolvers<undefined>();
+
+    server.replyNext("admin/passkeys/list", async () => {
+      started.resolve(undefined);
+      await resume.promise;
+
+      return list(undefined);
+    });
+    const first = api.admin.passkeys.list().catch((error: unknown) => error);
+    await started.promise;
 
     server.replyNext("admin/passkeys/list", () => ({
       error: "INTERNAL_SERVER_ERROR",
       defined: false,
     }));
+    resume.resolve(undefined);
+    expect(await first).toMatchObject({ passkeys: [{ name: "MacBook" }] });
 
-    expect(api.admin.passkeys.list()).rejects.toMatchObject({
-      code: "INTERNAL_SERVER_ERROR",
-    });
+    const next: unknown = await api.admin.passkeys
+      .list()
+      .catch((error: unknown) => error);
+
+    expect(next).toMatchObject({ code: "INTERNAL_SERVER_ERROR", status: 500 });
     expect((await api.admin.passkeys.list()).passkeys).toHaveLength(1);
   });
 });

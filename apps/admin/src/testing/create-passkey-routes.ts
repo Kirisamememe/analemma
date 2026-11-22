@@ -117,7 +117,8 @@ export const createPasskeyRoutes = (seeds: readonly FakePasskeySeed[]) => {
     };
 
     return Object.assign(
-      (input: FakeInput<Path>) => replyBeforeInput() ?? success(input),
+      (input: FakeInput<Path>) =>
+        signedIn ? success(input) : SESSION_REQUIRED,
       { replyBeforeInput },
     );
   };
