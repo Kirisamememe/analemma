@@ -47,7 +47,11 @@ const STORY_FILE = /(?:^|\/)__stories__\/[^\/]+\.stories\.tsx$/v;
 
 setProjectAnnotations(preview);
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  document.documentElement.removeAttribute("lang");
+  delete document.documentElement.dataset["theme"];
+});
 
 const STORIES = Object.entries(MODULES).flatMap(([file, module]) =>
   Object.entries<ComponentType>(composeStories(module)).map(
@@ -65,6 +69,11 @@ describe("story", () => {
       recursive: true,
     });
 
+    expect(
+      Object.values(MODULES).filter(
+        (module) => Object.keys(composeStories(module)).length === 0,
+      ),
+    ).toEqual([]);
     expect(files.filter((path) => STORY_FILE.test(path)).toSorted()).toEqual(
       Object.keys(MODULES).toSorted(),
     );
@@ -84,10 +93,14 @@ describe("story", () => {
 
   test.each(STORIES)("$file の $name を、誤りを出さずに描ける", ({ Story }) => {
     const errors = spyOn(console, "error");
-    const { container } = render(<Story />);
 
-    expect(container.childElementCount).toBeGreaterThan(0);
-    expect(errors).not.toHaveBeenCalled();
-    errors.mockRestore();
+    try {
+      const { container } = render(<Story />);
+
+      expect(container.childElementCount).toBeGreaterThan(0);
+      expect(errors).not.toHaveBeenCalled();
+    } finally {
+      errors.mockRestore();
+    }
   });
 });

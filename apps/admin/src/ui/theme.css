@@ -288,6 +288,7 @@
   [lang] {
     --font-sans: --theme(--font-sans inline);
     text-spacing-trim: normal;
+    word-break: normal;
   }
 
   :lang(ja) {

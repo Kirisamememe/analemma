@@ -4,7 +4,7 @@ import {
   createRouter,
   RouterContextProvider,
 } from "@tanstack/react-router";
-import { type ReactNode, useLayoutEffect } from "react";
+import { type ReactNode, useLayoutEffect, useState } from "react";
 
 import { LocaleContext } from "../src/i18n/locale-context";
 import type { Locale } from "../src/i18n/locales";
@@ -12,10 +12,11 @@ import type { Theme } from "../src/preferences/theme";
 import { UiProvider } from "../src/ui/primitives/ui-provider";
 import { StoryStage } from "../src/ui/specimens/story-stage";
 
-const router = createRouter({
-  routeTree: createRootRoute(),
-  history: createMemoryHistory({ initialEntries: ["/"] }),
-});
+const createStoryRouter = () =>
+  createRouter({
+    routeTree: createRootRoute(),
+    history: createMemoryHistory({ initialEntries: ["/"] }),
+  });
 
 /** `StoryFrame` に渡す値。 */
 type StoryFrameProps = {
@@ -36,6 +37,8 @@ export const StoryFrame = ({
   theme,
   children,
 }: StoryFrameProps): ReactNode => {
+  const [router] = useState(createStoryRouter);
+
   useLayoutEffect(() => {
     document.documentElement.lang = contentLang;
     document.documentElement.dataset["theme"] = theme;

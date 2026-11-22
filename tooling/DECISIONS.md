@@ -35,7 +35,8 @@
   - selectors は、プラグインの既定から、class と関係の無い変数の名前(`style`・`styles`・`classes`)を除き、名前が `ClassName` で終わる属性と変数(`contentClassName` など)と、`ui/tv.ts` の `merge` の呼び出しを足す。既定のままだと、`Intl.NumberFormat` に渡す `const style = "currency"` まで class として止めた。
   - theme.css の色にどれも使ってよい utility を決めてあることと、文字の役割の組が theme.css の目盛りの名前であることを、テスト(`tooling/lint/__tests__/styles.test.ts`)で確かめる。色を足したときに、決まりを書き忘れると落ちる。
   - Storybook の story(`__stories__`)は、`ui/` の中にあっても、画面のコードと同じ決まりで検査する。`ui/` の決まりは部品を作るためのもので、story は部品を組んで見せるだけなので、色や class を選ばせない。story で決まりから外れたくなったら、部品を足すことになる。
-  - 色と文字の見本(`ui/specimens/`)だけ、色ごとに使える utility の決まりを外す。色の見本は、どの色も `bg-` で塗って並べる必要がある(`focus` や `line` は、ふだん `bg-` に使えない)。ほかの決まり(任意の値・不透明度・文字の役割など)は外さない。外すのはそのフォルダの直下のファイルだけで、その `__stories__` は画面のコードの決まりのまま。
+  - 色の見本(`ui/specimens/color-specimen.tsx`)だけ、色ごとに使える utility の決まりを外す。色の見本は、どの色も `bg-` で塗って並べる必要がある(`focus` や `line` は、ふだん `bg-` に使えない)。ほかの決まり(任意の値・不透明度・文字の役割など)は外さない。
+  - story の import の決まりは、置いた層(primitives・layout)の決まりでなく、画面のコードと同じにする(React Aria Components を直に使えず、ほかの層の部品は使える)。story は描くだけなので、`require-sibling-test` も外す(全部の story を描くテストがある)。
 - **Storybook の設定のファイル**(`apps/admin/.storybook/`):`main.ts` は Storybook が Node で読むので、相対 import に `.ts` を付ける(oxlint の設定と同じく、`import/extensions` を変える)。`.storybook/` の中は、型付きの lint が tsconfig の `noPropertyAccessFromIndexSignature` を読まないように振る舞う(`dataset["x"]` を `dot-notation` が止め、`dataset.x` を tsc が止める。`no-floating-promises` などのほかの型付きのルールは効く)。TypeScript の方を取り、ぶつかる `story-frame.tsx` だけ `dot-notation` を外す。`setAttribute("data-theme", …)` で書くと、こんどは `unicorn/prefer-dom-node-dataset` が止める。tsrs の振る舞いなので、tsrs を上げたら、外したままでよいかを見直す。
 - **TSDoc のタグの検査**(eslint-plugin-jsdoc):`@param` の名前が引数と合うこと(`check-param-names`)、1つでも書いたら全部の引数に書くこと(`require-param`)、何も返さない関数に `@returns` を書かないこと(`require-returns-check`)、タグに型を書かないこと(`no-types`。型は TypeScript が持つ)。
 - **使える API の制限**
@@ -134,7 +135,7 @@ lint のルールは、書いているときにすぐ気づくための早めの
 
 `tooling/structure/` のテストが、リポジトリの全ファイル(`git ls-files` で一覧にしたもの)を見て検査する。フォルダの中身を数えるには全体を見る必要があり、1ファイルずつ見る lint には向かない。
 
-- 1つのフォルダに置けるのは10件まで。`__tests__`・`__stories__` と、`AGENTS.md`・`CLAUDE.md`・`DECISIONS.md`・`README.md` は数えない。story は、テストと同じく部品の隣の `__stories__` に置き、部品のフォルダの件数を使わない(部品が多いフォルダほど story も多い)。`__stories__` を置けるのは管理画面の `src/` の下だけで、中には `*.stories.tsx` だけを置ける。どこにでも置けると、ふつうのファイルを `__stories__` に入れて、件数の検査をすり抜けられる(Codex のレビューで見つかった)。リポジトリの直下と、`.` で始まるフォルダの中は検査しない(設定ファイルの置き場所がツールで決まっているため)。`.` で始まるフォルダも、親のフォルダでは1件と数える。
+- 1つのフォルダに置けるのは10件まで。`__tests__`・`__stories__` と、`AGENTS.md`・`CLAUDE.md`・`DECISIONS.md`・`README.md` は数えない。story は、テストと同じく部品の隣の `__stories__` に置き、部品のフォルダの件数を使わない(部品が多いフォルダほど story も多い)。`__stories__` を置けるのは管理画面の `src/` の下だけで、中には `*.stories.tsx` だけを置ける。`*.stories.tsx` を `__stories__` の外に置くと、Storybook にもテストにも載らないので、それも止める。どこにでも置けると、ふつうのファイルを `__stories__` に入れて、件数の検査をすり抜けられる(Codex のレビューで見つかった)。リポジトリの直下と、`.` で始まるフォルダの中は検査しない(設定ファイルの置き場所がツールで決まっているため)。`.` で始まるフォルダも、親のフォルダでは1件と数える。
 - フォルダの名前は kebab-case(`__tests__`・`__stories__` は除く)。`__tests__` と `__stories__` の中にフォルダは作れない。
 - 一覧は `git ls-files -z` で取る。日本語のファイル名が引用符付きで返ってくるのを避けるため。作業ツリーから消したファイルは数えない。
 - わざと約束を破る fixture を置く `tooling/lint/fixtures/invalid/` は、この検査から外す。

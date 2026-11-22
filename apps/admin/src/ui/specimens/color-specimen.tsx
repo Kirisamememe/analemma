@@ -30,7 +30,7 @@ const swatch = tv({
 });
 
 const panel = tv({
-  base: "flex min-w-0 grow flex-col gap-4 rounded-surface border bg-canvas p-6",
+  base: "flex min-w-0 grow flex-col gap-4 rounded-surface bg-canvas p-6 outline outline-fg/10",
   variants: {
     scheme: { light: "scheme-light", dark: "scheme-dark" },
   },

@@ -240,7 +240,7 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
     },
   },
   {
-    files: ["**/apps/admin/src/ui/specimens/*"],
+    files: ["**/apps/admin/src/ui/specimens/color-specimen.tsx"],
     rules: {
       "better-tailwindcss/no-restricted-classes": restrictClasses([
         ...UI_RESTRICTIONS,

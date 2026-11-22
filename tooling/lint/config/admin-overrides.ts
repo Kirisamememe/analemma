@@ -97,4 +97,14 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
       "project/require-sibling-test": ["error", { branchingComponents: true }],
     },
   },
+  ...byExtension("**/__stories__/", {
+    imports: {
+      patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
+    },
+    globals: [],
+  }),
+  {
+    files: ["**/apps/admin/src/**/__stories__/**"],
+    rules: { "project/require-sibling-test": "off" },
+  },
 ];

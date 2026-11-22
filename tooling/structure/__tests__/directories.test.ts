@@ -94,7 +94,7 @@ describe("story の置き場所", () => {
     expect(findBadDirectories(paths)).toEqual(["apps/server/src/__stories__"]);
   });
 
-  test("__stories__ の中の、story でないファイルを返すこと", () => {
+  test("__stories__ の中の story でないファイルと、__stories__ の外の story を返すこと", () => {
     const paths = [
       "apps/admin/src/ui/__stories__/a.stories.tsx",
       "apps/admin/src/ui/__stories__/helper.ts",
@@ -103,6 +103,7 @@ describe("story の置き場所", () => {
 
     expect(findStrayStoryFiles(paths)).toEqual([
       "apps/admin/src/ui/__stories__/helper.ts",
+      "apps/admin/src/ui/a.stories.tsx",
     ]);
   });
 });
