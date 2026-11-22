@@ -31,6 +31,11 @@ const PRIMITIVE_LAYERS = layerPatterns(
   "ui/primitives/ は patterns を import しません(patterns が primitives を組み合わせる)。",
 );
 
+const COMPONENT_LAYERS = layerPatterns(
+  ["features"],
+  "components/ は features を import しません(複数の feature から使う部品を置く場所)。",
+);
+
 const adminApis = (
   logic: boolean,
   { imports, globals }: RestrictedApis,
@@ -71,6 +76,16 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   ...byExtension("**/", {
     imports: {
       patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
+    },
+    globals: [],
+  }),
+  ...byExtension("components/**/", {
+    imports: {
+      patterns: [
+        ...VARIANT_LIBRARY_PATTERNS,
+        ...UI_LIBRARY_PATTERNS,
+        ...COMPONENT_LAYERS,
+      ],
     },
     globals: [],
   }),

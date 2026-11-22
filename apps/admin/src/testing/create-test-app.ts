@@ -4,12 +4,12 @@ import {
 } from "@tanstack/react-router";
 
 import { createApiClient } from "@/api/create-api-client";
+import { type AppParts, createApp } from "@/app";
 import {
   createAuthGate,
   gateAdminRequests,
 } from "@/features/auth/create-auth-gate";
 import type { Authenticator } from "@/features/auth/webauthn";
-import { type AppParts, createApp } from "@/router";
 import { type FakeRoutes, createFakeApi } from "@/testing/create-fake-api";
 
 /** 組み立てる管理画面の条件。 */

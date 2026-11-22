@@ -5,6 +5,16 @@ import { lintFixture, ruleIdsOf } from "../fixture-lint";
 describe("使える API と書き方", () => {
   test.each([
     {
+      label: "管理画面の components から feature の import",
+      file: "apps/admin/src/components/uses-feature.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の components から feature の再 export",
+      file: "apps/admin/src/components/reexports-feature.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
       label: "管理画面の .ts での React の import",
       file: "apps/admin/src/uses-react.ts",
       rule: "eslint(no-restricted-imports)",

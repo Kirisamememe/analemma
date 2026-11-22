@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { checkPasskeyName } from "@/features/auth/check-passkey-name";
+import { PasskeyNameField } from "@/components/passkey-name-field";
 import { addPasskey } from "@/features/passkeys/add-passkey";
 import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/passkeys-query";
 import { toAddNotice } from "@/features/passkeys/to-passkey-notice";
@@ -10,7 +10,6 @@ import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
-import { TextField } from "@/ui/primitives/form-fields";
 import { Notice } from "@/ui/primitives/notice";
 import { Dialog, useShowToast } from "@/ui/primitives/overlays";
 
@@ -72,18 +71,7 @@ export const AddPasskeyDialog = ({
           adding.mutate(typeof name === "string" ? name : "");
         }}
       >
-        <TextField
-          autoComplete="off"
-          description={t("enroll.nameDescription")}
-          isRequired
-          label={t("enroll.name")}
-          name="name"
-          validate={(value) => {
-            const problem = checkPasskeyName(value);
-
-            return problem === undefined ? undefined : t(problem);
-          }}
-        />
+        <PasskeyNameField showDescription />
         {notice !== undefined && (
           <Notice tone={notice.tone}>{t(notice.message)}</Notice>
         )}

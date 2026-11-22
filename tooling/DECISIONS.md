@@ -103,6 +103,10 @@ features の import には、この pattern を使う。React Aria Components・
 テストと story は、描画や作り物の server の組み立てに外のライブラリを使える。
 この制限は `src/features/` の製品のコードに掛ける。`src/routes/` は今回の適用範囲から外す。
 
+### 管理画面で共有する部品の import
+
+`src/components/` の製品のコードが `src/features/` を import したり再 export したりすると、複数の feature で使う部品が特定の feature に依存する。UI の層と同じ `eslint/no-restricted-imports` の設定で、相対パスと `@/` の両方を検査する。
+
 ### server の feature の import
 
 `src/features/` では、server 内への相対パスと `@/`、それに `@analemma/contract` を許す。管理画面と同じ `no-restricted-imports` の pattern で、許していないモジュールは型だけの import も含め、import ごとに1件の診断を出す。相対パスと `@/` が server の外を指していないかは、ワークスペースの境界のルールが確かめる。

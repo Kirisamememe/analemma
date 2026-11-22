@@ -4,7 +4,7 @@ import type { i18n as I18n } from "i18next";
 import type { ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
 
-import type { AppRouter } from "@/router";
+import type { AppRouter } from "./router";
 
 /** 管理画面の全体に渡す値。 */
 type AppProps = {
