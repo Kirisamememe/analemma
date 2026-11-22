@@ -4,9 +4,8 @@ import { afterEach, expect, test } from "bun:test";
 
 import { fieldDefinitions } from "@analemma/contract";
 
-import { kind, page } from "../editor-samples";
-
 import type { FakeRoutes } from "@/testing/create-fake-api";
+import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);

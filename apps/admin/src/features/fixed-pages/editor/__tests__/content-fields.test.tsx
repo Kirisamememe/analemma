@@ -4,8 +4,7 @@ import { afterEach, expect, spyOn, test } from "bun:test";
 
 import { fieldDefinitions } from "@analemma/contract";
 
-import { kind, page } from "../editor-samples";
-
+import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);

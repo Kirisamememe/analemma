@@ -1,6 +1,7 @@
 import type { ApiOutputs } from "@/api/api-types";
 
 const date = "2026-01-02T00:00:00.000Z";
+/** 項目の無い種類の定義(kinds.get の出力)。 */
 export const kind = {
   name: "profile",
   label: "紹介",
@@ -9,6 +10,7 @@ export const kind = {
   fields: [],
 } satisfies ApiOutputs["admin"]["kinds"]["get"];
 
+/** 中身の無い固定ページ(fixedPages.get の出力)。 */
 export const page = {
   id: "019affff-0000-7000-8000-000000000001",
   kind: kind.name,
