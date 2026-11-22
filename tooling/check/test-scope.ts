@@ -1,5 +1,10 @@
 const SERVER_DIRECTORIES = ["apps/server/", "packages/"];
-const SERVER_FILES = new Set(["compose.yaml"]);
+const SERVER_FILES = new Set([
+  "bun.lock",
+  "bunfig.toml",
+  "compose.yaml",
+  "tsconfig.base.json",
+]);
 
 /** 手元の check で流すテストの範囲。 */
 export type TestScope = "all" | "without-server";

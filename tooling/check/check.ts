@@ -22,7 +22,7 @@ const bunfig: unknown = Bun.TOML.parse(
 
 if (scope === "without-server") {
   process.stdout.write(
-    "apps/server/・packages/・compose.yaml に触れていないので、server のテスト(DB を使うものを含む)は流さない。全部流すには --all を付ける(CI は全部流す)。\n",
+    "server のテストが読む場所(tooling/check/test-scope.ts)に触れていないので、server のテスト(DB を使うものを含む)は流さない。全部流すには --all を付ける(CI は全部流す)。\n",
   );
 }
 
