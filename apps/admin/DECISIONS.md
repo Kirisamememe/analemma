@@ -141,7 +141,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 枠は TanStack Router の route を描かず、`Link` が読む router だけを `RouterContextProvider` で渡す(router は枠ごとに作り、story のあいだで履歴を持ち越さない)。route を描くと、route の境界が story の想定外の失敗を受け止め、Storybook にもテストにも上がらない。
 - a11y は `@storybook/addon-a11y` の panel で見る(コントラストを含む)。Vitest を入れていないので、a11y の誤りで落とすテストにはしない。
 - 全部の story を `composeStories` で happy-dom の上に描き、想定外の失敗も `console.error` も出さないことを、テスト(`src/__tests__/stories.test.tsx`)で確かめる。ツールバーの値が html の `lang`・`data-theme` と部品の訳に届くことと、`viteFinal` が `cssTarget` を入れて head の script の plugin を外すことも、テストで確かめる。CI では Storybook を起動もビルドもしないので、壊れた story に気づけるのはこのテストだけ。手間は、story のファイルを足すたびに import を1行足すことで、足し忘れると、一覧と `__stories__` のファイルを比べるテストで落ちる。happy-dom は配置を計算しないので、見た目(並び・中心・余白)は Storybook をブラウザで開いて測る(セルフレビューの観点)。
-- 画面の story(`src/routes/__stories__/`)は、`src/testing/app-preview.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体を描く。テストと同じ作り物なので、ボタンを押せば、作り物の server の答えで画面が進む。server の状態は、story を開いたときに作る(`createRoutes`。Controls で変えても作り直さないので、`path` などは Controls から外す)。ログインと登録の story は、成功した後にパスキーの画面まで進めるよう、パスキーの作り物の server もつなぐ。ボタンを押してから出る状態(ログインの取り消し・使えない登録用 URL など)は、story ごとに作り物の server と認証器の答えを決めておき、story を開いて押すと見られるようにする。play で押させると、Storybook が操作を React の `act` の中で流し、router の suspend とぶつかって、入力した名前が消えた画面に描き直された。押した後の状態は、画面のテストが確かめている。
+- 画面の story(`src/routes/__stories__/`)は、`src/testing/app-preview.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体を描く。テストと同じ作り物なので、ボタンを押せば、作り物の server の答えで画面が進む。server の状態は、story を開いたときに作る(`createRoutes`。Controls で変えても作り直さないので、`path` などは Controls から外す)。ログインと登録の story は、成功した後にパスキーの画面まで進めるよう、パスキーの作り物の server もつなぐ。ボタンを押してから出る状態(ログインのキャンセル・使えない登録用 URL など)は、story ごとに作り物の server と認証器の答えを決めておき、story を開いて押すと見られるようにする。play で押させると、Storybook が操作を React の `act` の中で流し、router の suspend とぶつかって、入力した名前が消えた画面に描き直された。そのため play は使わない。押した後の状態は、画面のテストが確かめている。
 - 画面の story は訳を出すので、html の `lang` をツールバーの言語にする(`contentLang: null`)。
 - telemetry は切る(`core.disableTelemetry`)。
 
@@ -157,7 +157,7 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 
 - **画面の story の作り物の server の状態**:ログインと登録の story は、ログインの作り物とパスキーの作り物をつないだだけなので、ログインの状態とパスキーの一覧の状態が別々に動く(すべてのセッションからログアウトした後の再ログインや、登録した名前の一覧への反映が合わない)。story は画面を見るためのもので、流れのつながりは画面のテストが確かめる(Codex のレビューで見つかった)。
 - **secure context でない origin**:`main.tsx` は起動のときに `PublicKeyCredential` を読むので、`localhost` 以外の HTTP で開くと、描く前に止まる。管理画面は HTTPS と `localhost` でだけ使う(Codex のレビューで見つかった)。
-- **画面の story の描くテストの待ち時間**:全部の story を描くテストは、画面の story を描いてから 50ms 待って確かめる。一覧を読めない story は、query の再試行のあとで知らせが出るので、テストは読み込み中の画面で通る。それぞれの状態は、画面のテストが確かめている(Codex のレビューで見つかった)。
+- **画面の story を描くテストの待ち時間**:全部の story を描くテストは、画面の story を描いてから 50ms 待って確かめる。一覧を読めない story は、query の再試行のあとで知らせが出るので、テストは読み込み中の画面で通る。それぞれの状態は、画面のテストが確かめている(Codex のレビューで見つかった)。
 - **Storybook の狭い画面**:幅を決めた展示用の枠(`w-lg`)は、Storybook の画面が 544px より狭いと、横にはみ出す(Storybook の `centered` の箱が、子の幅を最小の幅にする)。Storybook は管理者がデスクトップのブラウザで見るので、受け入れる(Codex と Cursor のレビューで見つかった)。
 - **空の story**:全部の story を描くテストは、story が何も描かなくても、展示用の枠を数えて通る。部品の story は Storybook で見て確かめる(Codex と Cursor のレビューで見つかった)。
 - **開発のときの head の script**:開発のサーバーは、HTML を返すたびに、head の script を Vite の lib のビルドでまとめ直す(数十ミリ秒)。まとめた結果を使い回すと、`src/preferences/boot.ts` と、それが読むファイルを直したときに開発のサーバーを起動し直す必要がある。待ち時間が気になったら、依存が変わったときだけまとめ直す形にする。
