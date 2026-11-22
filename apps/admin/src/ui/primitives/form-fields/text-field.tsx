@@ -8,21 +8,21 @@ import { TextInput } from "./text-input";
 /** 1行の入力欄に渡す値。 */
 export type TextFieldProps = {
   /** 入力欄の名前(フォームのキー)。 */
-  name: string;
+  readonly name: string;
   /** 入力欄のラベル。 */
-  label: string;
+  readonly label: string;
   /** 入力欄の補足。 */
-  description?: string | undefined;
+  readonly description?: string | undefined;
   /** 入力欄の検証の伝え方。 */
   validationBehavior?: "aria" | "native";
   /** 入力が要るか。 */
-  isRequired?: boolean | undefined;
+  readonly isRequired?: boolean | undefined;
   /** 文字の数の上限。 */
-  maxLength?: number | undefined;
+  readonly maxLength?: number | undefined;
   /** ブラウザの自動入力の種類。 */
-  autoComplete?: string | undefined;
+  readonly autoComplete?: string | undefined;
   /** 最初に入れておく値。 */
-  defaultValue?: string;
+  readonly defaultValue?: string;
   /** 呼び出し元で管理する入力値。 */
   value?: string;
   /** 入力値が変わったときに呼ぶ関数。 */
@@ -32,7 +32,7 @@ export type TextFieldProps = {
   /** 呼び出し元から渡す誤りの知らせ。 */
   errorMessage?: string | undefined;
   /** 送る前に値を確かめ、誤りの知らせを返す関数(合っていれば undefined)。 */
-  validate?: (value: string) => string | undefined;
+  readonly validate?: (value: string) => string | undefined;
 };
 
 /** ラベルと補足と誤りの知らせを持つ、1行の入力欄。 */
