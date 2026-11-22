@@ -41,6 +41,21 @@ describe("使える API と書き方", () => {
       rule: "eslint(no-restricted-imports)",
     },
     {
+      label: "管理画面の ui/layout/ からの primitives の別名での import",
+      file: "apps/admin/src/ui/layout/uses-aliased-primitive.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/layout/ からの patterns の別名での import",
+      file: "apps/admin/src/ui/layout/uses-aliased-pattern.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/primitives/ からの patterns の別名での import",
+      file: "apps/admin/src/ui/primitives/uses-aliased-pattern.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
       label:
         "管理画面の、merge の設定を入れていない tailwind-variants の import",
       file: "apps/admin/src/ui/primitives/uses-default-tv.ts",

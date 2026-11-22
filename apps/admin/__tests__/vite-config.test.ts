@@ -125,6 +125,37 @@ describe("開発のときの origin", () => {
   });
 });
 
+describe("開発のときの import", () => {
+  test.each(["../src/routes/login-page.tsx", "../.storybook/story-frame.tsx"])(
+    "%s から別名で src/ のモジュールを解決すること",
+    async (path) => {
+      const server = await createServer({
+        root: ADMIN_ROOT,
+        logLevel: "silent",
+        optimizeDeps: { noDiscovery: true, include: [] },
+        server: { middlewareMode: true, ws: false },
+      });
+
+      try {
+        const importer = fileURLToPath(new URL(path, import.meta.url));
+        const resolved =
+          await server.environments.client.pluginContainer.resolveId(
+            "@/ui/layout/center",
+            importer,
+          );
+
+        expect(resolved?.id).toBe(
+          fileURLToPath(
+            new URL("../src/ui/layout/center.tsx", import.meta.url),
+          ),
+        );
+      } finally {
+        await server.close();
+      }
+    },
+  );
+});
+
 /** 作り物の server が受け取ったリクエスト。 */
 type Received = {
   /** パス。 */

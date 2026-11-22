@@ -56,7 +56,7 @@ tsrs はまだ prerelease なので、型エラーの判定は公式の `tsc` �
   - client の SDK は fetch を使うので、Web 標準の型(fetch・URL など)が要る。TypeScript では `DOM` の lib にしか無いので、client の `tsconfig.src.json` にだけ足す(`packages/client/DECISIONS.md`)。
   - ただし、テストは `bun:test` を使うので、Bun の型が要る。contract と client では、`tsconfig.json` をテストを含めて Bun の型を足したものにし、テストを除いた `src` を、Bun と Node の型を持たずに検査する `tsconfig.src.json` を別に置く。typecheck は両方を流す。型付きの lint(tsrs)が読むのは `tsconfig.json` なので、テストの型も解決できる。`src` に Bun や Node の API を使うコードが入ると、`tsconfig.src.json` の検査で落ちる。
 - 型を消すだけで実行できる構文に限る(`erasableSyntaxOnly`)。enum・namespace・引数プロパティは使えない。Bun はそのまま実行し、tsc は型検査だけをする。
-- パッケージ間の解決は Bun の workspaces で行うので、`paths` は使わない。
+- パッケージ間の import は、Bun の workspaces でパッケージ名を解決する。
 - リポジトリの直下の tsconfig は tooling だけを検査する。各ワークスペースは自分の tsconfig で検査し、リポジトリの直下で流す `bun run typecheck` が順に回す。
 
 ## リポジトリの境界

@@ -4,7 +4,14 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": ["bun", "vite/client"],
     "jsx": "react-jsx",
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src", "__tests__", "test-setup", "vite.config.ts", ".storybook"]
+  "include": [
+    "src",
+    "__tests__",
+    "test-setup",
+    "vite.config.ts",
+    ".storybook/**/*"
+  ]
 }
