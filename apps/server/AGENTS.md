@@ -24,7 +24,7 @@
 - 1ファイルに、1つの procedure を置く。関係する小さな関数(同じテーブルの query、同じ概念の小さな純粋関数)は、コードの行数が200行以下なら、1つのファイルにまとめてよい。
 - 名前は kebab-case にする。procedure と、1つの関数だけのファイルは、動詞から始める(`get-post.ts`、`decide-publish.ts`、`to-post-detail.ts`)。複数の操作をまとめた query のファイルは、テーブルか概念の名前に `.query.ts` を付ける(`session.query.ts`、`deploy-tokens.query.ts`)。小さな純粋関数をまとめたファイルも、概念の名前にする(`secret-token.ts`)。
 - 用途ごとの `queries/` に `*.query.ts` を置く。procedure の中を、DB に触れる関数、判断する純粋関数、DB の行を contract の出力に変える mapper(純粋関数)に分ける。controller / service / repository の決まった層には分けない。
-- feature は、相対パスか `@/` で指定する server 内のモジュールと `@analemma/contract` を import する。Drizzle は feature の用途ごとの `queries/` にある `*.query.ts`、`bun:test` はテスト、zod は `auth/webauthn/client-data/parse-client-data.ts` で使える(lint で止める)。contract の入出力の型は、`@analemma/contract` の `ContractInputs` と `ContractOutputs` から取る。
+- feature は `src/` 内のモジュールを `@/` で import し、contract は `@analemma/contract` から import する。依存先を検査する lint は、server 内を指す相対パスも許す。Drizzle は feature の用途ごとの `queries/` にある `*.query.ts`、`bun:test` はテスト、zod は `auth/webauthn/client-data/parse-client-data.ts` で使える(lint で止める)。contract の入出力の型は、`@analemma/contract` の `ContractInputs` と `ContractOutputs` から取る。
 - feature の外で Drizzle と DB のドライバを値として import できるのは `*.query.ts`・`src/db/`・`src/platform/` だけ。Bun 専用の API を使えるのは `src/platform/` と `src/main.ts` だけ。それ以外は `Request`・`Response`・`fetch` などの Web 標準で書く(どちらも lint で止まる)。
 - procedure は `procedures.ts` の `publicProcedures`・`authProcedures`・`deployProcedures`・`adminProcedures` から作る。素の oRPC の builder(`implement`・`os`)は `procedures.ts` と `router.ts` だけで使う(lint で止まる)。
 - テーブルに書き込めるのは、そのテーブルを持つ feature だけ。読むのはどこからでもよい。
