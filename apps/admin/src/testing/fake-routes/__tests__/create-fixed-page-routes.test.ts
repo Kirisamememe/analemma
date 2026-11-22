@@ -175,6 +175,20 @@ describe("createFixedPageRoutes", () => {
     expect(reordered.updatedAt).toBe(first.updatedAt);
   });
 
+  test("slug の重複と中身の誤りが両方あれば、本物の server と同じく中身の誤りを先に返す", async () => {
+    const { api } = setUp();
+    const input = { slug: "colophon", title: "About", content: {} };
+
+    expect(
+      (await safe(api.admin.fixedPages.create({ kind: "page", ...input })))
+        .error,
+    ).toMatchObject({ code: "INVALID_CONTENT" });
+    expect(
+      (await safe(api.admin.fixedPages.update({ id: ABOUT_ID, ...input })))
+        .error,
+    ).toMatchObject({ code: "INVALID_CONTENT" });
+  });
+
   test("公開し直しても公開した日時を変えず、非公開に戻すと消す", async () => {
     const { api } = setUp();
     const before = await api.admin.fixedPages.get({ id: ABOUT_ID });

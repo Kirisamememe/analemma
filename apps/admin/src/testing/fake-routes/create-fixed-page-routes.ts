@@ -245,14 +245,14 @@ export const createFixedPageRoutes = ({
           return { error: "UNKNOWN_KIND" };
         }
 
-        if (isSlugTaken(input.slug)) {
-          return { error: "SLUG_TAKEN" };
-        }
-
         const invalid = checkContent(kind, input.content);
 
         if (invalid !== undefined) {
           return invalid;
+        }
+
+        if (isSlugTaken(input.slug)) {
+          return { error: "SLUG_TAKEN" };
         }
 
         const moment = now();
@@ -280,16 +280,16 @@ export const createFixedPageRoutes = ({
           return { error: "NOT_FOUND" };
         }
 
-        if (isSlugTaken(input.slug, page.id)) {
-          return { error: "SLUG_TAKEN" };
-        }
-
         const kind = kinds.find(({ name }) => name === page.kind);
         const invalid =
           kind === undefined ? undefined : checkContent(kind, input.content);
 
         if (invalid !== undefined) {
           return invalid;
+        }
+
+        if (isSlugTaken(input.slug, page.id)) {
+          return { error: "SLUG_TAKEN" };
         }
 
         const changed =
