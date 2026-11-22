@@ -18,7 +18,7 @@ import { DateInput } from "@/ui/primitives/form-fields/date/date-input";
 afterEach(cleanup);
 
 describe("DateField", () => {
-  test("最初の日付の桁を探せて、ラベルと補足を読み上げること", () => {
+  test("最初の segment を探せて、ラベルと補足を読み上げること", () => {
     renderWithI18n(
       <DateField
         description="記事に表示する日付です。"
@@ -69,7 +69,7 @@ describe("DateField", () => {
     expect(values).toEqual(["", "2024-02-29", null]);
   });
 
-  test("server が断った日付の知らせを、日付の桁の説明として読み上げること", () => {
+  test("server が断った日付の知らせを、segment の説明として読み上げること", () => {
     renderWithI18n(
       <Form
         onSubmit={() => undefined}
