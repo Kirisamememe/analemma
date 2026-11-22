@@ -57,7 +57,7 @@
 - 本文・見出し・補足といった文字の役割は、CSS の変数にしない。`Text`・`Heading` の部品が、役割ごとに目盛りの組と太さを選んで守る。
 - 太さは 400・600・700(`font-normal`・`font-semibold`・`font-bold`)だけ(ユーザーが決めた)。
 - 和文を主役に組む。`:lang()` で言語ごとに字体を切り替え、本文を出す要素には本文の言語の `lang` を付ける。`lang` の付いた要素では、字体を一度既定に戻してから言語ごとに上書きする。規則の無い言語(`ko` や繁体字など)が、親の和文の字体を継がないようにするため。
-- 禁則(`line-break: strict`)・和文と欧文の間の空き(`text-autospace`)・日本語の文節での改行(`word-break: auto-phrase`)は CSS に任せる。等幅の要素(`code`・`kbd`・`samp`・`pre`)では、空きを入れると桁がずれるので切る。
+- 禁則(`line-break: strict`)・和文と欧文の間の空き(`text-autospace`)・日本語の文節での改行(`word-break: auto-phrase`)は CSS に任せる。日本語では、行頭の始め括弧(「 など)の前の空きを詰める(`text-spacing-trim: trim-start`)。既定では行頭の「が全角の幅のままで、「で始まる見出しが、本文より半角ぶん右に寄って見えた(Storybook の Dialog で見つけた)。等幅の要素(`code`・`kbd`・`samp`・`pre`)では、空きを入れると桁がずれるので切る。
 
 ## 状態
 
