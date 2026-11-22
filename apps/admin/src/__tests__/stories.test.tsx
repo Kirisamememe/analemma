@@ -18,12 +18,14 @@ import * as layoutCluster from "@/ui/layout/__stories__/cluster.stories";
 import * as layoutHeading from "@/ui/layout/__stories__/heading.stories";
 import * as layoutStack from "@/ui/layout/__stories__/stack.stories";
 import * as layoutText from "@/ui/layout/__stories__/text.stories";
+import * as patternsEmptyState from "@/ui/patterns/__stories__/empty-state.stories";
 import * as patternsPageHeader from "@/ui/patterns/__stories__/page-header.stories";
 import * as patternsSideNav from "@/ui/patterns/__stories__/side-nav.stories";
 import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "@/ui/primitives/__stories__/button.stories";
 import * as primitivesForm from "@/ui/primitives/__stories__/form.stories";
 import * as primitivesNotice from "@/ui/primitives/__stories__/notice.stories";
+import * as primitivesReorderableList from "@/ui/primitives/collections/__stories__/reorderable-list.stories";
 import * as primitivesNumberField from "@/ui/primitives/form-fields/__stories__/number-field.stories";
 import * as primitivesTextArea from "@/ui/primitives/form-fields/__stories__/text-area.stories";
 import * as primitivesTextField from "@/ui/primitives/form-fields/__stories__/text-field.stories";
@@ -57,12 +59,15 @@ const MODULES = {
   "ui/layout/__stories__/heading.stories.tsx": layoutHeading,
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.tsx": layoutText,
+  "ui/patterns/__stories__/empty-state.stories.tsx": patternsEmptyState,
   "ui/patterns/__stories__/page-header.stories.tsx": patternsPageHeader,
   "ui/patterns/__stories__/side-nav.stories.tsx": patternsSideNav,
   "ui/primitives/__stories__/badge.stories.tsx": primitivesBadge,
   "ui/primitives/__stories__/button.stories.tsx": primitivesButton,
   "ui/primitives/__stories__/form.stories.tsx": primitivesForm,
   "ui/primitives/__stories__/notice.stories.tsx": primitivesNotice,
+  "ui/primitives/collections/__stories__/reorderable-list.stories.tsx":
+    primitivesReorderableList,
   "ui/primitives/form-fields/choices/__stories__/checkbox.stories.tsx":
     primitivesCheckbox,
   "ui/primitives/form-fields/choices/__stories__/select.stories.tsx":
