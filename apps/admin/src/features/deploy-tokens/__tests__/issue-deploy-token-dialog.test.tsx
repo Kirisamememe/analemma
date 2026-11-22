@@ -38,12 +38,20 @@ const renderIssuing = (authenticator = createFakeAuthenticator()) => {
 };
 
 const issuedToken = async (): Promise<string> => {
-  const value = await screen.findByRole("figure", {
+  const value = await screen.findByRole("textbox", {
     name: "「本番のデプロイ」のトークン",
   });
 
-  return within(value).getByText(/\./v).textContent;
+  return value instanceof HTMLTextAreaElement ? value.value : "";
 };
+
+const isShown = (token: string): boolean =>
+  document.body.innerHTML.includes(token) ||
+  screen
+    .queryAllByRole("textbox")
+    .some(
+      (field) => field instanceof HTMLTextAreaElement && field.value === token,
+    );
 
 describe("IssueDeployTokenDialog", () => {
   test("再認証をしてから発行し、token を見せ、Toast で知らせ、一覧に足す", async () => {
@@ -99,7 +107,7 @@ describe("IssueDeployTokenDialog", () => {
         .map(({ state }) => state),
     ]);
 
-    expect(document.body.textContent).not.toContain(token);
+    expect(isShown(token)).toBe(false);
     expect(app.history.location.href).not.toContain(token);
     expect(cached).not.toContain(token);
     expect(cached).not.toContain(token.split(".")[1]!);
@@ -115,7 +123,7 @@ describe("IssueDeployTokenDialog", () => {
     expect(
       within(reopened).getByRole("textbox", { name: "トークンの名前" }),
     ).toBeDefined();
-    expect(document.body.textContent).not.toContain(token);
+    expect(isShown(token)).toBe(false);
   });
 
   test("再認証をキャンセルしたら、発行せずに Dialog を開いたまま知らせる", async () => {
