@@ -4,10 +4,18 @@ import { z } from "zod";
 import { toContentSchema } from "@analemma/contract";
 
 import { type KindContent, defineKind } from "../define-kind";
-import { group, repeat } from "../nested-fields";
-import { optional } from "../optional-field";
-import { boolean, date, longText, number, text, url } from "../scalar-fields";
-import { select } from "../select-field";
+import {
+  group,
+  repeat,
+  optional,
+  boolean,
+  date,
+  longText,
+  number,
+  text,
+  url,
+  select,
+} from "../fields";
 
 const about = defineKind({
   name: "about",

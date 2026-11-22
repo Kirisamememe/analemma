@@ -3,11 +3,9 @@ import {
   type IncompatiblePage,
   findIncompatiblePages,
 } from "./find-incompatible-pages";
-import { insertNewKinds } from "./insert-new-kinds.query";
+import { insertNewKinds, lockKinds, updateKinds } from "./kinds.query";
 import { listKindPages } from "./list-kind-pages.query";
-import { lockKinds } from "./lock-kinds.query";
 import { type KindChange, toKindChanges } from "./to-kind-changes";
-import { updateKinds } from "./update-kinds.query";
 
 /** 送られた定義を受け付けたか、既存のページに合わずに断ったか。 */
 type PushOutcome =

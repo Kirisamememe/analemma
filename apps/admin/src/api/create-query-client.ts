@@ -1,6 +1,6 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 
-import { isUnauthorized } from "./is-unauthorized";
+import { isUnauthorized } from "./api-errors";
 
 /** query client を作るときに渡す値。 */
 export type QueryClientOptions = {

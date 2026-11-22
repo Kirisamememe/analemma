@@ -8,9 +8,9 @@ import {
   type RouterHistory,
 } from "@tanstack/react-router";
 
+import { isUnauthorized } from "./api/api-errors";
 import type { ApiClient } from "./api/api-types";
 import { createQueryClient } from "./api/create-query-client";
-import { isUnauthorized } from "./api/is-unauthorized";
 import type { AuthGate } from "./features/auth/create-auth-gate";
 import { isPublicPath, toLoginSearch } from "./features/auth/login-search";
 import type { Authenticator } from "./features/auth/webauthn/create-authenticator";

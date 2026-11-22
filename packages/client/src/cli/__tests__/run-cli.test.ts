@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { type KindDefinition, contract } from "@analemma/contract";
 
 import { defineKind } from "../../kinds/define-kind";
-import { text } from "../../kinds/scalar-fields";
+import { text } from "../../kinds/fields";
 import { type CliIo, runCli } from "../run-cli";
 
 const TOKEN = `${"A".repeat(22)}.${"B".repeat(43)}`;

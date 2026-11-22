@@ -1,8 +1,10 @@
 import { getCookie } from "@orpc/server/helpers";
 
 import { authProcedures } from "../../../procedures";
-import { issueSecretToken } from "../secret-token/issue-secret-token";
-import { readSecretToken } from "../secret-token/read-secret-token";
+import {
+  issueSecretToken,
+  readSecretToken,
+} from "../secret-token/secret-token";
 import { toSessionExpiry } from "../session/decide-session";
 import { toSessionCookie } from "../session/to-session-cookie";
 import { writeSessionCookie } from "../session/write-session-cookie";

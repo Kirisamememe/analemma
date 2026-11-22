@@ -1,5 +1,5 @@
 import { authProcedures } from "../../../procedures";
-import { findAdminUser } from "../admin-user/find-admin-user.query";
+import { findAdminUser } from "../admin-user/admin-user.query";
 import { listPasskeys } from "../passkeys/list-passkeys.query";
 import { createRegistrationOptions } from "../registration/create-registration-options";
 import { checkEnrollment } from "./check-enrollment";

@@ -1,5 +1,5 @@
 import { adminProcedures } from "../../procedures";
-import { listDeployTokens as listDeployTokenRows } from "./list-deploy-tokens.query";
+import { listDeployTokens as listDeployTokenRows } from "./deploy-tokens.query";
 import { toDeployTokenSummary } from "./to-deploy-token-summary";
 
 /** デプロイ用のトークンの一覧を返す procedure。 */

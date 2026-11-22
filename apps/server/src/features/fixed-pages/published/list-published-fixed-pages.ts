@@ -1,5 +1,5 @@
 import { publicProcedures } from "../../../procedures";
-import { listPublishedFixedPages as listPublishedRows } from "./list-published-fixed-pages.query";
+import { listPublishedFixedPages as listPublishedRows } from "./published-fixed-pages.query";
 import { toPublishedSummary } from "./to-published-fixed-page";
 
 /** 公開している固定ページの一覧を、並び順に返す procedure。 */

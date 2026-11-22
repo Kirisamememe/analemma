@@ -1,3 +1,5 @@
+import { asc, eq, sql } from "drizzle-orm";
+
 import { deployToken } from "../../db/schema/deploy-token";
 import type { DatabaseExecutor } from "../../platform/database";
 import {
@@ -5,7 +7,31 @@ import {
   type ReauthenticationGone,
   recordReauthentication,
 } from "../auth/current-session/record-reauthentication.query";
-import type { DeployTokenRow } from "./find-deploy-token.query";
+
+/** デプロイ用のトークンの行。 */
+export type DeployTokenRow = typeof deployToken.$inferSelect;
+
+/** token の前半の ID で、デプロイ用のトークンの行を引く。 */
+export const findDeployToken = async (
+  db: DatabaseExecutor,
+  id: string,
+): Promise<DeployTokenRow | undefined> => {
+  const [row] = await db
+    .select()
+    .from(deployToken)
+    .where(eq(deployToken.id, id));
+
+  return row;
+};
+
+/** デプロイ用のトークンを、発行した順に並べる。 */
+export const listDeployTokens = async (
+  db: DatabaseExecutor,
+): Promise<DeployTokenRow[]> =>
+  db
+    .select()
+    .from(deployToken)
+    .orderBy(asc(deployToken.createdAt), asc(deployToken.id));
 
 /** 新しいデプロイ用のトークンの行。 */
 export type NewDeployToken = {
@@ -56,3 +82,40 @@ export const recordIssue = async (
 
     return { _tag: "Issued", row };
   });
+
+/** 使ったデプロイ用のトークンと、使った日時。 */
+export type DeployTokenUse = {
+  /** token の前半の ID。 */
+  readonly id: string;
+  /** リクエストを受けた日時。 */
+  readonly now: Date;
+};
+
+/** デプロイ用のトークンを最後に使った日時を進め、行がまだあるかを返す。 */
+export const recordDeployTokenUse = async (
+  db: DatabaseExecutor,
+  { id, now }: DeployTokenUse,
+): Promise<boolean> => {
+  const rows = await db
+    .update(deployToken)
+    .set({
+      lastUsedAt: sql`greatest(coalesce(${deployToken.lastUsedAt}, ${now}), ${now})`,
+    })
+    .where(eq(deployToken.id, id))
+    .returning({ id: deployToken.id });
+
+  return rows.length > 0;
+};
+
+/** デプロイ用のトークンの行を消し、消せたかを返す。 */
+export const deleteDeployToken = async (
+  db: DatabaseExecutor,
+  id: string,
+): Promise<boolean> => {
+  const rows = await db
+    .delete(deployToken)
+    .where(eq(deployToken.id, id))
+    .returning({ id: deployToken.id });
+
+  return rows.length > 0;
+};

@@ -2,8 +2,7 @@ import type { InferContractRouterOutputs } from "@orpc/contract";
 
 import { type contract, fixedPageContent } from "@analemma/contract";
 
-import type { FixedPageRow } from "../find-fixed-page.query";
-import type { FixedPageSummaryRow } from "../list-fixed-pages.query";
+import type { FixedPageRow, FixedPageSummaryRow } from "../fixed-pages.query";
 
 type PublicOutputs = InferContractRouterOutputs<
   typeof contract

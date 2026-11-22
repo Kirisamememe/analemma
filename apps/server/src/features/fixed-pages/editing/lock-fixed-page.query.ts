@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 
 import { fixedPage } from "../../../db/schema/fixed-page";
 import type { DatabaseExecutor } from "../../../platform/database";
-import type { FixedPageRow } from "../find-fixed-page.query";
+import type { FixedPageRow } from "../fixed-pages.query";
 
 /** 書き換える固定ページの行のロックを取り、その行を返す。 */
 export const lockFixedPage = async (

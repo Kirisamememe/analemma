@@ -1,8 +1,9 @@
 import type { DatabaseExecutor } from "../../platform/database";
-import { equalSecretHashes } from "../auth/secret-token/equal-secret-hashes";
-import { readSecretToken } from "../auth/secret-token/read-secret-token";
-import { findDeployToken } from "./find-deploy-token.query";
-import { recordDeployTokenUse } from "./record-deploy-token-use.query";
+import {
+  equalSecretHashes,
+  readSecretToken,
+} from "../auth/secret-token/secret-token";
+import { findDeployToken, recordDeployTokenUse } from "./deploy-tokens.query";
 
 /** 確かめられたデプロイ用のトークン。 */
 export type VerifiedDeployToken = {

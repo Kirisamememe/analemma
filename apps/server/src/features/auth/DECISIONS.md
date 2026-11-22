@@ -82,7 +82,7 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
 - DB には ID と、secret の SHA-256 だけを置く。DB が漏れても、そこから token は作れない。secret は総当たりできない長さの乱数なので、パスワードのような遅いハッシュは要らない。
 - secret はバイト列に戻さず、届いた文字列のままハッシュにする。base64url の最後の1文字は余りのビットを持ち、戻すと違う文字列が同じバイト列になる。
 - secret のハッシュは定数時間で比べる。ふつうの比較は最初に違ったバイトで止まるので、かかる時間から合っている所を推し量られうる。
-  - Node の `timingSafeEqual` ではなく、Web 標準だけで書いた比較(`equal-secret-hashes.ts`。全バイトの XOR を集め、途中で抜けない)を使う。feature のコードは Web 標準で書き、Bun や Node の API を platform に閉じ込める方針なので。比べるのは secret そのものではなく SHA-256 なので、JIT による小さな時間の差が残っても、そこから secret を推し量るには SHA-256 の原像が要る。長さは常に 32 バイトで秘密ではないので、長さが違えばすぐに false を返す。
+  - Node の `timingSafeEqual` ではなく、Web 標準だけで書いた比較(`secret-token.ts` の `equalSecretHashes`。全バイトの XOR を集め、途中で抜けない)を使う。feature のコードは Web 標準で書き、Bun や Node の API を platform に閉じ込める方針なので。比べるのは secret そのものではなく SHA-256 なので、JIT による小さな時間の差が残っても、そこから secret を推し量るには SHA-256 の原像が要る。長さは常に 32 バイトで秘密ではないので、長さが違えばすぐに false を返す。
 
 ## challenge(`challenge/`)
 
@@ -158,7 +158,7 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
 
 ## 同時の書き込み
 
-次の操作のトランザクションは、先に管理者の行のロック(`FOR NO KEY UPDATE`)を取る(`admin-user/lock-admin-user.query.ts`)。管理者は1人なので、これらの書き込みは1つずつ進む。
+次の操作のトランザクションは、先に管理者の行のロック(`FOR NO KEY UPDATE`)を取る(`admin-user/admin-user.query.ts` の `lockAdminUser`)。管理者は1人なので、これらの書き込みは1つずつ進む。
 
 - ログイン(パスキーの使用を書き、セッションを作る)と、登録用 URL からの登録:セッションの整理から挿入までが重ならず、10個を超えない。
 - 登録用 URL を出すこと:コマンドを同時に動かしても、使える URL は1つだけになる。

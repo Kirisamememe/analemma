@@ -1,6 +1,8 @@
 import type { DatabaseExecutor } from "../../../platform/database";
-import { equalSecretHashes } from "../secret-token/equal-secret-hashes";
-import { readSecretToken } from "../secret-token/read-secret-token";
+import {
+  equalSecretHashes,
+  readSecretToken,
+} from "../secret-token/secret-token";
 import { findEnrollment } from "./find-enrollment.query";
 
 /** 使える登録用の token。 */

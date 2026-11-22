@@ -1,5 +1,5 @@
 import { publicProcedures } from "../../../procedures";
-import { findPublishedFixedPage } from "./find-published-fixed-page.query";
+import { findPublishedFixedPage } from "./published-fixed-pages.query";
 import { toPublishedFixedPage } from "./to-published-fixed-page";
 
 /** 公開している固定ページを、種類と slug で返す procedure。 */

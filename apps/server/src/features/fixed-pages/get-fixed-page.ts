@@ -1,5 +1,5 @@
 import { adminProcedures } from "../../procedures";
-import { findFixedPage } from "./find-fixed-page.query";
+import { findFixedPage } from "./fixed-pages.query";
 import { toFixedPageDetail } from "./to-fixed-page-detail";
 
 /** 公開しているかによらず、中身を含む固定ページを返す procedure。 */
