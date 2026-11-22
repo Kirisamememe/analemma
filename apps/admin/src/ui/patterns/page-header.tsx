@@ -31,6 +31,10 @@ export const PageHeader = ({
         <Text tone="muted">{description}</Text>
       )}
     </Stack>
-    {isShown(actions) && <Cluster gap={2}>{actions}</Cluster>}
+    {isShown(actions) && (
+      <div className="-my-1">
+        <Cluster gap={2}>{actions}</Cluster>
+      </div>
+    )}
   </Cluster>
 );

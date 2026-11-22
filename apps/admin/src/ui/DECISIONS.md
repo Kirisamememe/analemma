@@ -94,7 +94,7 @@
 - **リンク**:いつも下線を付ける。`primary` が中立色なので、色だけではリンクと分からない。
 - **入力欄**:ラベル・補足・誤りの知らせを、React Aria Components の slot で入力欄に結びつけ、補足と誤りを入力欄の説明として読み上げさせる。server が断った入力は、`Form` の `validationErrors` で入力欄ごとに出す。
 - **`Notice`**:誤り(`danger`)は `alert` にしてすぐに読み上げ、ほかは割り込まない `status` にする。`Notice` は、その場に残す知らせ(送信の誤りや、読み込めなかったことなど)に使い、保存したなどの操作の結果は Toast で知らせる(Toast を足すときに作る)。
-- **見出しの操作と補足**:`PageHeader` は、`false`・`null` の操作と、空の補足を、無いものとして扱う(条件で出さない操作のために、空の要素が余白を取らないように)。
+- **見出しの操作と補足**:`PageHeader` は、`false`・`null` の操作と、空の補足を、無いものとして扱う(条件で出さない操作のために、空の要素が余白を取らないように)。操作のボタンの中心は、見出しの1行目の中心にそろえる。上にそろえると、ボタン(`h-control` の 36px)が見出しの行(`page` の 28px)より高いぶん、4px 下にずれた(Storybook で見つけた)。操作の箱を上下に `-my-1`(差の半分)寄せ、見出しの位置は、操作の有無で変えない。
 - **overlay**(`Dialog`):border と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、border で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
 - **バッジ**(`Badge`):状態を短く示す。用途(`tone`)ごとの色の組は、`Notice` と同じく `/10` の面と、同じ色の線と文字。
 - 選んだ状態・今いる場所・ほかの overlay(Popover・Menu・Toast など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す、今いる場所は `aria-current` と形で示す、overlay は border と `shadow-overlay` を付ける)。
