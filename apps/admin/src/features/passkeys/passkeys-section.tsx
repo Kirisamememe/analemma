@@ -15,17 +15,55 @@ import { PASSKEYS_QUERY_KEY } from "./passkeys-query";
 import { RenamePasskeyDialog } from "./rename-passkey-dialog";
 import type { PasskeyNotice } from "./to-passkey-notice";
 
+type PasskeyAction =
+  | {
+      /** パスキーを追加する操作。 */
+      readonly type: "add";
+    }
+  | {
+      /** パスキーを選んで行う操作。 */
+      readonly type: "rename" | "delete";
+      /** 操作するパスキー。 */
+      readonly passkey: PasskeySummary;
+    };
+
+type PasskeyDialog = {
+  /** Dialog で行う操作。 */
+  readonly action: PasskeyAction;
+  /** Dialog が開いているか。 */
+  readonly isOpen: boolean;
+  /** 開くたびに変わる React の key。 */
+  readonly key: number;
+};
+
 /** パスキーの一覧と、追加・名前の変更・削除の操作。 */
 export const PasskeysSection = (): ReactNode => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const addButton = useRef<HTMLButtonElement>(null);
   const [notice, setNotice] = useState<PasskeyNotice>();
-  const [isAdding, setAdding] = useState(false);
-  const [renaming, setRenaming] = useState<PasskeySummary>();
-  const [deleting, setDeleting] = useState<PasskeySummary>();
-  const focusAdd = useRef(false);
-  const rememberIfGone = (passkey: PasskeySummary): void => {
+  const [dialog, setDialog] = useState<PasskeyDialog>();
+  const openDialog = (action: PasskeyAction): void => {
+    setNotice(undefined);
+    setDialog((previous) => ({
+      action,
+      isOpen: true,
+      key: (previous?.key ?? 0) + 1,
+    }));
+  };
+
+  const closeDialog = (): void => {
+    setDialog((current) =>
+      current?.isOpen === true ? { ...current, isOpen: false } : current,
+    );
+  };
+
+  useEffect(() => {
+    if (dialog === undefined || dialog.isOpen || dialog.action.type === "add") {
+      return;
+    }
+
+    const { passkey } = dialog.action;
     const listed =
       queryClient.getQueryData<ApiOutputs["admin"]["passkeys"]["list"]>(
         PASSKEYS_QUERY_KEY,
@@ -35,15 +73,10 @@ export const PasskeysSection = (): ReactNode => {
       queryClient.getQueryState(PASSKEYS_QUERY_KEY)?.status === "success" &&
       (listed?.passkeys.some(({ id }) => id === passkey.id) ?? false);
 
-    focusAdd.current = !isShown;
-  };
-
-  useEffect(() => {
-    if (renaming === undefined && deleting === undefined && focusAdd.current) {
-      focusAdd.current = false;
+    if (!isShown) {
       addButton.current?.focus();
     }
-  }, [renaming, deleting]);
+  }, [dialog, queryClient]);
 
   return (
     <Stack as="section" gap={4}>
@@ -51,8 +84,7 @@ export const PasskeysSection = (): ReactNode => {
         <Heading level={2}>{t("passkeys.title")}</Heading>
         <Button
           onPress={() => {
-            setNotice(undefined);
-            setAdding(true);
+            openDialog({ type: "add" });
           }}
           ref={addButton}
           tone="primary"
@@ -65,41 +97,36 @@ export const PasskeysSection = (): ReactNode => {
       )}
       <PasskeyList
         onDelete={(passkey) => {
-          setNotice(undefined);
-          setDeleting(passkey);
+          openDialog({ type: "delete", passkey });
         }}
         onRename={(passkey) => {
-          setNotice(undefined);
-          setRenaming(passkey);
+          openDialog({ type: "rename", passkey });
         }}
       />
-      {isAdding && (
+      {dialog?.action.type === "add" && (
         <AddPasskeyDialog
-          isOpen
+          isOpen={dialog.isOpen}
+          key={dialog.key}
           onAdded={setNotice}
-          onClose={() => {
-            setAdding(false);
-          }}
+          onClose={closeDialog}
         />
       )}
-      {renaming !== undefined && (
+      {dialog?.action.type === "rename" && (
         <RenamePasskeyDialog
-          onClose={() => {
-            rememberIfGone(renaming);
-            setRenaming(undefined);
-          }}
+          isOpen={dialog.isOpen}
+          key={dialog.key}
+          onClose={closeDialog}
           onRenamed={setNotice}
-          passkey={renaming}
+          passkey={dialog.action.passkey}
         />
       )}
-      {deleting !== undefined && (
+      {dialog?.action.type === "delete" && (
         <DeletePasskeyDialog
-          onClose={() => {
-            rememberIfGone(deleting);
-            setDeleting(undefined);
-          }}
+          isOpen={dialog.isOpen}
+          key={dialog.key}
+          onClose={closeDialog}
           onDeleted={setNotice}
-          passkey={deleting}
+          passkey={dialog.action.passkey}
         />
       )}
     </Stack>

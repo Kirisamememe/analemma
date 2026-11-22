@@ -1,0 +1,72 @@
+@theme static {
+  --animate-spin: spin 1s linear infinite;
+  --animate-pulse: pulse 1.5s ease-in-out infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes pulse {
+    50% {
+      opacity: 0.5;
+    }
+  }
+}
+
+@utility dialog-backdrop-animation {
+  --dialog-exit-duration: 150ms;
+
+  @variant is-entering {
+    animation: backdrop-in var(--transition-duration-normal)
+      var(--ease-standard);
+  }
+
+  @variant is-exiting {
+    animation: backdrop-out var(--dialog-exit-duration) var(--ease-exit)
+      forwards;
+  }
+}
+
+@utility dialog-panel-animation {
+  --dialog-closed-scale: 0.97;
+
+  @media (prefers-reduced-motion: reduce) {
+    --dialog-closed-scale: 1;
+  }
+
+  @variant is-entering {
+    animation: dialog-in var(--transition-duration-normal) var(--ease-standard);
+  }
+
+  @variant is-exiting {
+    animation: dialog-out var(--dialog-exit-duration) var(--ease-exit) forwards;
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    background-color: transparent;
+  }
+}
+
+@keyframes backdrop-out {
+  to {
+    background-color: transparent;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    scale: var(--dialog-closed-scale);
+  }
+}
+
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    scale: var(--dialog-closed-scale);
+  }
+}
