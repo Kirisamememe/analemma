@@ -1,7 +1,7 @@
 import { useSelector } from "@tanstack/react-form";
 import type { ReactNode } from "react";
 
-import { useFieldContext } from "./form-context";
+import { useFieldContext, useFieldError } from "./form-context";
 
 import { TextField, type TextFieldProps } from "@/ui/primitives/form-fields";
 
@@ -20,19 +20,13 @@ export const AppTextField = ({
 }: AppTextFieldProps): ReactNode => {
   const field = useFieldContext<string | undefined>();
   const value = useSelector(field.store, (state) => state.value);
-  const errors = useSelector(
-    field.store,
-    (state): readonly unknown[] => state.meta.errors,
-  );
-  const errorMessage = errors
-    .filter((error) => typeof error === "string")
-    .join(" ");
+  const errorMessage = useFieldError();
 
   return (
     <TextField
       autoComplete={autoComplete}
       description={description}
-      errorMessage={errorMessage === "" ? undefined : errorMessage}
+      errorMessage={errorMessage}
       isRequired={isRequired}
       label={label}
       maxLength={maxLength}

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@analemma/contract": "workspace:*",
+    "@internationalized/date": "3.12.4",
     "@orpc/client": "1.16.4",
     "@orpc/contract": "1.16.4",
     "@orpc/tanstack-query": "1.16.4",

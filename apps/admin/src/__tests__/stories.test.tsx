@@ -7,6 +7,7 @@ import type { ComponentType } from "react";
 import preview from "../../.storybook/preview";
 
 import * as componentsPasskeyNameField from "@/components/__stories__/passkey-name-field.stories";
+import * as componentsFormFields from "@/components/forms/__stories__/form-fields.stories";
 import * as componentsForm from "@/components/forms/__stories__/form.stories";
 import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/__stories__/login-page.stories";
@@ -28,6 +29,9 @@ import * as primitivesNumberField from "@/ui/primitives/form-fields/__stories__/
 import * as primitivesTextArea from "@/ui/primitives/form-fields/__stories__/text-area.stories";
 import * as primitivesTextField from "@/ui/primitives/form-fields/__stories__/text-field.stories";
 import * as primitivesTextInput from "@/ui/primitives/form-fields/__stories__/text-input.stories";
+import * as primitivesCheckbox from "@/ui/primitives/form-fields/choices/__stories__/checkbox.stories";
+import * as primitivesSelect from "@/ui/primitives/form-fields/choices/__stories__/select.stories";
+import * as primitivesDateField from "@/ui/primitives/form-fields/date/__stories__/date-field.stories";
 import * as primitivesAppMark from "@/ui/primitives/graphics/__stories__/app-mark.stories";
 import * as primitivesIcon from "@/ui/primitives/graphics/__stories__/icon.stories";
 import * as primitivesSpinner from "@/ui/primitives/graphics/__stories__/spinner.stories";
@@ -41,6 +45,7 @@ import * as specimensTypography from "@/ui/specimens/__stories__/typography.stor
 
 const MODULES = {
   "components/forms/__stories__/form.stories.tsx": componentsForm,
+  "components/forms/__stories__/form-fields.stories.tsx": componentsFormFields,
   "components/__stories__/passkey-name-field.stories.tsx":
     componentsPasskeyNameField,
   "routes/__stories__/enroll-page.stories.tsx": routesEnrollPage,
@@ -59,6 +64,12 @@ const MODULES = {
   "ui/primitives/__stories__/focus-scope.stories.tsx": primitivesFocusScope,
   "ui/primitives/__stories__/form.stories.tsx": primitivesForm,
   "ui/primitives/__stories__/notice.stories.tsx": primitivesNotice,
+  "ui/primitives/form-fields/choices/__stories__/checkbox.stories.tsx":
+    primitivesCheckbox,
+  "ui/primitives/form-fields/choices/__stories__/select.stories.tsx":
+    primitivesSelect,
+  "ui/primitives/form-fields/date/__stories__/date-field.stories.tsx":
+    primitivesDateField,
   "ui/primitives/form-fields/__stories__/number-field.stories.tsx":
     primitivesNumberField,
   "ui/primitives/form-fields/__stories__/text-area.stories.tsx":
