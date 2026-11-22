@@ -20,7 +20,7 @@
   - `no-cross-workspace-import`:相対パスで、自分のワークスペース(`apps/<名前>`・`packages/<名前>`)の外のファイルを import することを禁止する。Bun の isolated linker はパッケージ名での import しか縛らないので、相対パスなら server のコードを contract から読めてしまう。
   - `require-sibling-test`:管理画面の `.ts` が関数を export するなら、同じフォルダの `__tests__` に `.test.ts` を求める。表示を出し分ける `.tsx`(JSX を返す条件分岐がある)には、`__tests__` に `.test.tsx` を求める。テストのファイルは、中に `test(` か `it(` があるときだけ数える。lint を通すためだけの空のファイルやフォルダでは通らない。
   - `test-location`:テストのファイルを `__tests__` の直下に置かせ、`__tests__` にはテストのファイルだけを置かせ、`__tests__` の中にフォルダを作らせない。テストがテストするコードと同じフォルダにあるかまでは見ない(API 越しのテストは、1つのファイルに対応しないため)。
-  - `max-exported-functions`:1つのファイルが export できる関数を2つまでにする(型は数えない)。server の「1ファイルに、1つの procedure か1つの関数」を、この上限で保つ。
+  - `max-exported-functions`:1つのファイルが export できる関数を2つまでにする(型は数えない)。数えるのは、arrow function・function 宣言・function 式だけで、呼び出しの結果(oRPC の procedure や、関数を返す関数の戻り値)は数えない。server の「1ファイルに、1つの procedure か1つの関数」のうち、この上限で抑えるのは関数の数だけで、procedure の数は抑えない。
   - `no-inline-parameter-type`:関数の引数に、インラインのオブジェクト型を書かせず、名前付きの型にさせる。
   - `no-catch-outside-entry`:try/catch の catch 節と、`.catch()` の呼び出しを禁止する(server だけ)。想定外の失敗は throw して入口で 500 とログにする約束で、これまで lint で止めていなかったので、WebCrypto の鍵の読み込みの `.catch(() => undefined)` が約束をすり抜けていた。`finally` だけの try は、後始末のために許す。`.then(a, b)` の2つ目の引数は、`promise/prefer-catch` が `.catch()` に書き直させるので、ここで止まる。
     - 入口と dispatcher では、Oxlint の設定の `overrides` でこのルールを外す。入口に数えるのは、HTTP の入口(`src/app.ts`)、コマンドの入口(`src/main.ts`・`src/enroll.ts`・`src/db/migrate.ts`)、起動のときの環境変数の検証(`src/platform/parse-database-url.ts`)。環境変数の検証は、起動の入口で外からの値をデコードする場所なので入口に数える。`.env` のパスワードの `%` のような、人が普通にする書き間違いを、パスワードを出さない決まった文言で知らせるため、`decodeURIComponent` の失敗を受け止める。dispatcher(ビジネスイベントを配る場所)は、作るときに足す。
@@ -247,7 +247,6 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 ## 割り切ったこと
 
 - **直下の共有の設定だけを変えたとき**:`bun.lock`・`bunfig.toml`・`tsconfig.base.json` のような、全部のワークスペースが読む直下のファイルだけを変えても、手元の `bun run check` は server のテストを流さない。server か `packages/` が使う依存を足したり上げたりするときは、その package.json も変わるので流れる。それ以外は CI が全部流すので、merge の前に止まる。
-- **エディタの設定の読み直し**:エディタの Oxlint(LSP)は `oxlint.config.ts` だけを監視し、`tooling/lint/config/` のモジュールを直しても、読み直さない(Node のモジュールのキャッシュに残る)。CLI と CI は毎回新しいプロセスで読むので、困るのは開いているエディタだけ。設定を直したら、エディタで `Oxc: Restart oxlint Server` を実行する。監視する範囲は Oxlint の側でしか変えられない。
 - **TSDoc の言い回しの検査**:`tsdoc-role-only` は条件・例・補足・理由の言い回しを正規表現で見るので、すり抜けも誤検知もある。文の意味を読むには、日本語の構文の解析が要る。すり抜けはセルフレビューで見て、誤検知は言い回しを外して直す。
 - **字下げのコードのブロック**:用語集の検査は、Markdown の、4つの空白で字下げしたコードのブロックを扱わない。コードはフェンスで書くので、受け入れる。
 - **`Promise.allSettled`・`Promise.any`**:どちらも失敗を値に変えられるが、`no-catch-outside-entry` は止めていない。結果の型に失敗が出るので、握りつぶしがコードから見える。使う場面が出たら、止めるかを決める。
@@ -255,7 +254,6 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **`-m` で書いたメッセージの `#` の行**:git は、エディタを開かないとき(`-m`・`-F`)はコメントを消さないが、commit-msg の検査は `#` で始まる行を読まない。エディタで書いたときの git のコメントと見分けられないため。commitlint も同じ扱いをする。`core.commentChar` を `auto` にしたときも、`#` として扱う。どちらも、普通の使い方では起きないので受け入れる。
 - **commitlint の既定の除外**:commitlint は、本文のどこかに `Merge branch …` のような行があるメッセージや、`1.2.3` だけのメッセージを、形を確かめずに通す。普通のメッセージには現れず、通っても、名前と「機械で探す語」の検索は流れるので、受け入れる。
 - **既にある hook**:`install.ts` は、ほかの `core.hooksPath` があれば置き換える(前の値を出す)。そのため、`.git/hooks` の hook も流れなくなる。このリポジトリでは、ほかの hook を使っていない。
-- **submodule**:pre-commit は、ステージした submodule の中身を読めずに失敗し、コミットを止める。このリポジトリでは submodule を使っていない。
 - **PATH に Bun が無い環境**:hook は `bun` を PATH から探すので、PATH を引き継がない GUI の git クライアントなどでは、hook が失敗してコミットできない。黙って通すより安全なので受け入れる。
 - **PR のタイトルの句点**:確かめるのは ` (#番号)` を足した1行目なので、タイトルを `。` で終えても `subject-full-stop` では止まらない。merge commit と squash の1行目は番号で終わり、句点では終わらないので受け入れる。
 - **hook を通らないメッセージの中の名前**:PR のタイトルと、GitHub の画面で作ったコミット(レビューの提案の取り込みなど)のメッセージは、手元の hook を通らない。CI にも名前の一覧が無いので、ほかのリポジトリの名前は誰も探さない。一覧を CI に渡すと、一覧そのものを GitHub に預けることになり、見つけた名前も公開のログに出る。タイトルは人が書いてレビューで見るので、受け入れる。
