@@ -29,7 +29,7 @@ export type RegistrationExpectation = AuthenticatorExpectation & {
 
 /** 検証できた資格情報。 */
 export type VerifiedRegistration = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Verified";
   /** 資格情報の ID。 */
   readonly credentialId: Uint8Array<ArrayBuffer>;
@@ -39,7 +39,7 @@ export type VerifiedRegistration = {
   readonly algorithm: CoseAlgorithm;
   /** `signCount`。 */
   readonly signCount: number;
-  /** 認証器の種類を表す 16 バイト。 */
+  /** 認証器の機種を表す 16 バイト。 */
   readonly aaguid: Uint8Array<ArrayBuffer>;
   /** BE:ほかの端末へ同期されうるパスキーか。 */
   readonly backupEligible: boolean;

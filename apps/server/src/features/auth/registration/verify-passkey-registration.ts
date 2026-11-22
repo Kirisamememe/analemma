@@ -35,7 +35,7 @@ export type NewPasskey = {
 
 /** 登録の資格情報を検証できたこと。 */
 export type VerifiedPasskey = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Verified";
   /** 保存するパスキー。 */
   readonly passkey: NewPasskey;

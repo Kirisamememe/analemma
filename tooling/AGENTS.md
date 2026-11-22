@@ -6,8 +6,8 @@
 - フォルダの中身の数と名前は、lint ではなく `tooling/structure/` のテストが検査する(1ファイルずつ見る lint では、フォルダ全体を数えられない)。
 - `GLOSSARY.md` の「機械で探す語」に挙げた表記は、`tooling/structure/` のテストが文書・コメント・文字列から探す。コミットのメッセージからは、commit-msg の hook が探す。表記を足すときは、別の概念を指す正しい文まで落とさないかを確かめ、落としそうな文を `tooling/structure/__tests__/repository.test.ts` の例に足す。「機械で探す語」の表の見出しや書き方を変えるときは、`tooling/structure/glossary.ts` も合わせて直す。
 - ほかのリポジトリの名前は、`tooling/structure/` のテストが、リポジトリの全ファイル(パスと中身)から探す。コミットのときは、git の hook が、ステージしたファイル(パスと中身)とコミットのメッセージからも探す。名前の一覧は、メインの checkout の `.private/other-repositories.txt` に置き、コミットしない(`.private/` は `.gitignore` にある)。worktree からは `git rev-parse --git-common-dir` でたどる。1行に1つの名前を書き、空行と `#` で始まる行は読まない。大文字と小文字は区別しない。一覧が無いときは何も探さない。名前そのものは、コミットするファイルに書かない。
-- `tooling/lint/jsdoc-type-plugin.mjs` は eslint-plugin-jsdoc を別の名前で読み込むだけのファイル。`require-jsdoc` を「export する関数と型」と「型の各項目」の2通りの設定で同時に使うため。
-- ルールを足したり外したり変えたりしたら、`tooling/lint/fixtures/` の `valid/` と `invalid/` の、ルールの種類ごとのフォルダに fixture を足し、`tooling/lint/__tests__/` の、ルールの種類に合うテストのファイルで確かめる(lint の実行は `tooling/lint/fixture-lint.ts` にまとめてある)。server や管理画面だけに掛かるルールの fixture は、`apps/server/src/` のように同じパスを再現したフォルダに置く。理由は `tooling/DECISIONS.md` に書く。
+- `tooling/lint/jsdoc-type-plugin.mjs` は eslint-plugin-jsdoc を別の名前で読み込むだけのファイル。`require-jsdoc` を「export する関数と型」と「型の各プロパティ」の2通りの設定で同時に使うため。
+- ルールを足したり外したり変えたりしたら、`tooling/lint/fixtures/` の `valid/` と `invalid/` の、ルールの分類ごとのフォルダに fixture を足し、`tooling/lint/__tests__/` の、ルールの分類に合うテストのファイルで確かめる(lint の実行は `tooling/lint/fixture-lint.ts` にまとめてある)。server や管理画面だけに掛かるルールの fixture は、`apps/server/src/` のように同じパスを再現したフォルダに置く。理由は `tooling/DECISIONS.md` に書く。
 - fixtures はどの tsconfig にも入れず、`oxlint.fixtures.config.mjs` で型を使わずに検査する。型付きのルールは fixture では確かめられない。`bun test` は fixtures を実行しない(`bunfig.toml`)。
 - 型付きのルールは tsrs で動く。型エラーの判定は `tsc` だけで行う。tsrs で困ったら、ユーザーに報告する。`oxlint-tsgolint` に入れ替えると、TS 7.0 と 7.1 の型検査器の食い違いがそのまま残るので、入れ替えるかはユーザーと決める。
 - TypeScript の検査と lint のルールがぶつかったら、TypeScript の方を取り、lint のルールを外すか変える(ユーザーが決めた)。外したら、ほかのルールを外したときと同じく、理由を `tooling/DECISIONS.md` に書く。

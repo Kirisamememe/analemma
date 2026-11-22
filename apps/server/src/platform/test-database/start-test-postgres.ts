@@ -13,7 +13,7 @@ const COMPOSE_RETRY = { attempts: 3, delayMs: 1000 };
 
 /** Docker Compose で起動できなかったこと。 */
 export type ComposeFailed = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "ComposeFailed";
   /** docker compose が標準エラーに書いたもの。 */
   readonly output: string;
@@ -23,7 +23,7 @@ export type ComposeFailed = {
 export type StartTestPostgresResult =
   | ComposeFailed
   | {
-      /** 結果の種類。 */
+      /** どの結果か。 */
       readonly _tag: "Started" | "DockerNotFound";
     };
 

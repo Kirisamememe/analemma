@@ -2,7 +2,7 @@ import type { DatabaseTarget } from "./database";
 
 /** DATABASE_URL から読み取れた接続先。 */
 export type ParsedDatabaseUrl = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Parsed";
   /** つなぐ DB と、つなぐときのロール。 */
   readonly target: DatabaseTarget;
@@ -10,7 +10,7 @@ export type ParsedDatabaseUrl = {
 
 /** DATABASE_URL を読めなかったこと。 */
 export type InvalidDatabaseUrl = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Invalid";
   /** 読めなかった理由。 */
   readonly problem: string;

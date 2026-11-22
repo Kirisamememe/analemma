@@ -19,7 +19,7 @@ const PERMISSIONS_POLICY =
 export const externalRouter = { admin: router.admin, auth: router.auth };
 
 /** 内部用のポートで受ける procedure。 */
-export const internalRouter = { public: router.public };
+export const internalRouter = { deploy: router.deploy, public: router.public };
 
 /** API をつなぐアプリと、そこで受ける procedure。 */
 type ApiMount = {
@@ -100,10 +100,11 @@ export const createExternalApp = (context: AppContext): Hono => {
   return app;
 };
 
-/** 公開 API を、同じサーバーの中から受けるアプリを作る。 */
+/** 公開 API とデプロイ用 API を、同じサーバーの中から受けるアプリを作る。 */
 export const createInternalApp = (context: AppContext): Hono => {
   const app = new Hono();
 
+  addNoStore(app, [`${API_PREFIX}/deploy/*`]);
   mountApi({ app, context, procedures: internalRouter });
 
   return app;

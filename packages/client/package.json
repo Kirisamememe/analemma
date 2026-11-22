@@ -1,5 +1,36 @@
 {
   "name": "@analemma/client",
+  "version": "0.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "analemma": "./dist/cli/main.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@analemma/contract": "workspace:*",
+    "@orpc/client": "1.16.4",
+    "@orpc/contract": "1.16.4",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@orpc/server": "1.16.4",
+    "@types/bun": "1.4.5"
+  },
+  "scripts": {
+    "build": "rm -rf dist && bun build src/index.ts --outdir dist --target node --external zod --external '@orpc/*' && bun build src/cli/main.ts --outdir dist/cli --target node --external zod --external '@orpc/*' --banner '#!/usr/bin/env node' && tsc -p tsconfig.build.json",
+    "prepack": "bun run build",
+    "typecheck": "tsc --noEmit -p tsconfig.src.json && tsc --noEmit -p ."
+  }
 }

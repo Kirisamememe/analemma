@@ -2,7 +2,7 @@ import { hashSecret } from "./hash-secret";
 
 /** 届いた token を、DB の行の ID と secret のハッシュに分けたもの。 */
 export type SecretTokenParts = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Read";
   /** DB の行を引くための、token の前半。 */
   readonly id: string;
@@ -12,7 +12,7 @@ export type SecretTokenParts = {
 
 /** 届いた token が、`{id}.{secret}` の形でないこと。 */
 export type MalformedSecretToken = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Malformed";
 };
 

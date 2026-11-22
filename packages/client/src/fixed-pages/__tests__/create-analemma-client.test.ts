@@ -1,0 +1,146 @@
+import { implement } from "@orpc/server";
+import { RPCHandler } from "@orpc/server/fetch";
+import { describe, expect, expectTypeOf, test } from "bun:test";
+import { z } from "zod";
+
+import { contract } from "@analemma/contract";
+
+import { defineKind } from "../../kinds/define-kind";
+import { optional } from "../../kinds/optional-field";
+import { text } from "../../kinds/scalar-fields";
+import {
+  type AnalemmaClient,
+  createAnalemmaClient,
+} from "../create-analemma-client";
+
+const about = defineKind({
+  name: "about",
+  label: "自己紹介",
+  fields: {
+    headline: text({ label: "見出し" }),
+    note: optional(text({ label: "メモ" })),
+  },
+});
+
+const PAGE = {
+  kind: "about",
+  slug: "about",
+  title: "自己紹介",
+  publishedAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-02T00:00:00.000Z",
+};
+
+/** テスト用の CMS に置く、公開している固定ページの中身。 */
+type FakeContent = Record<string, string>;
+
+const os = implement({ public: contract.public });
+
+const serveFakeCms = (
+  content: FakeContent,
+): ((request: Request) => Promise<Response>) => {
+  const handler = new RPCHandler(
+    os.router({
+      public: {
+        health: { get: os.public.health.get.handler(() => ({ status: "ok" })) },
+        fixedPages: {
+          list: os.public.fixedPages.list.handler(({ input }) => ({
+            pages: input.kind === "colophon" ? [] : [PAGE],
+          })),
+          get: os.public.fixedPages.get.handler(({ errors, input }) => {
+            if (input.slug !== "about") {
+              throw errors.NOT_FOUND();
+            }
+
+            if (input.kind !== "about") {
+              throw new Error("テスト用の CMS の想定外の失敗");
+            }
+
+            return { ...PAGE, content };
+          }),
+        },
+      },
+    }),
+  );
+
+  return async (request) => {
+    const { response } = await handler.handle(request, {
+      prefix: "/api",
+      context: {},
+    });
+
+    return response ?? new Response(null, { status: 404 });
+  };
+};
+
+const clientFor = (content: FakeContent): AnalemmaClient =>
+  createAnalemmaClient({
+    url: "http://127.0.0.1:8788",
+    fetch: serveFakeCms(content),
+  });
+
+describe("公開している固定ページを引く", () => {
+  test("種類の定義で中身を検査し、推論した型で返すこと", async () => {
+    const page = await clientFor({
+      headline: "こんにちは",
+      removed: "古い項目",
+    }).fixedPages.get(about, "about");
+
+    expect(page).toEqual({ ...PAGE, content: { headline: "こんにちは" } });
+    const expected = z.object({
+      headline: z.string(),
+      note: z.string().optional(),
+    });
+
+    expectTypeOf(page?.content).toEqualTypeOf<
+      z.output<typeof expected> | undefined
+    >();
+  });
+
+  test("無いページは undefined を返すこと", async () => {
+    expect(
+      await clientFor({ headline: "a" }).fixedPages.get(about, "nothing"),
+    ).toBeUndefined();
+  });
+
+  test("CMS の想定外の失敗と、定義に合わない中身は、失敗として投げること", () => {
+    const other = defineKind({
+      name: "other",
+      label: "ほか",
+      fields: { headline: text({ label: "見出し" }) },
+    });
+
+    expect(
+      clientFor({ headline: "a" }).fixedPages.get(other, "about"),
+    ).rejects.toThrow();
+    expect(clientFor({}).fixedPages.get(about, "about")).rejects.toThrow();
+  });
+});
+
+describe("CMS へのリクエスト", () => {
+  test("リダイレクトを追わず、失敗として扱わせること", async () => {
+    const redirects: string[] = [];
+    const fake = serveFakeCms({ headline: "a" });
+    const client = createAnalemmaClient({
+      url: "http://127.0.0.1:8788",
+      fetch: async (request) => {
+        redirects.push(request.redirect);
+
+        return fake(request);
+      },
+    });
+
+    await client.fixedPages.get(about, "about");
+    await client.fixedPages.list();
+
+    expect(redirects).toEqual(["error", "error"]);
+  });
+});
+
+describe("公開している固定ページの一覧", () => {
+  test("種類で絞った一覧を返すこと", async () => {
+    const client = clientFor({ headline: "a" });
+
+    expect(await client.fixedPages.list()).toEqual([PAGE]);
+    expect(await client.fixedPages.list({ kind: "colophon" })).toEqual([]);
+  });
+});

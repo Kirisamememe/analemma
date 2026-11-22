@@ -17,13 +17,13 @@ export type SessionTimes = {
 
 /** セッションが切れていること。 */
 export type ExpiredSession = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Expired";
 };
 
 /** セッションが続いていることと、その期限。 */
 export type ActiveSession = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Active";
   /** 書き直した後の、セッションが切れる日時。 */
   readonly expiresAt: Date;
