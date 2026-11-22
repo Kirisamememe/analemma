@@ -1,5 +1,6 @@
 import type { OxlintOverride } from "oxlint";
 
+import { LONG_FILE_CODE_LINES } from "./project-rules.ts";
 import {
   WORKSPACE_BUN_GLOBALS,
   WORKSPACE_RUNTIME_PATTERNS,
@@ -23,7 +24,10 @@ export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
   {
     files: ["apps/**", "packages/**", "tooling/**"],
     rules: {
-      "project/max-exported-functions": ["error", { max: 2 }],
+      "project/max-exported-functions": [
+        "error",
+        { max: 2, limitedAfter: LONG_FILE_CODE_LINES },
+      ],
       "project/no-inline-parameter-type": "error",
     },
   },

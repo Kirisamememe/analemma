@@ -14,7 +14,7 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 
 - **フォルダ**:`src/main.ts`(起動)、`src/platform/`(Bun 専用の API、DB の接続、clock、logger)、`src/db/schema/`(全テーブルの定義)、`src/procedures.ts`(アクセス区分ごとの base)、`src/enroll.ts`(登録用 URL を出すコマンド)、`src/router.ts`、`src/features/<名前>/`。ビジネスイベントの型と dispatcher は、まだ無い。`src/` の直下は10件で埋まっているので、置き場所は作るときに決める。
 - **共通の概念も feature にする**:公開状態の判定や slug の履歴のように、複数のコンテンツの型が使う概念も `features/` に置く。`shared/`・`common/` のような置き場を作ると、何でも入る場所になる。
-- **ファイル**:1ファイルに、1つの procedure か1つの関数を置く。export できる関数は2つまでなので、自然にこの形になる。名前は動詞から始まる kebab-case(`get-post.ts`、`decide-publish.ts`、`to-post-detail.ts`)。
+- **ファイル**:1ファイルに、1つの procedure か1つの関数を置く。lint の export できる関数の上限(2つ)は、コードが200行を超えるファイルにしか掛からないので、この形は lint では止まらない。名前は動詞から始まる kebab-case(`get-post.ts`、`decide-publish.ts`、`to-post-detail.ts`)。
 - **DB に触れるファイルは `*.query.ts`**:Drizzle と DB のドライバを値として import できるのは、`*.query.ts`・`src/db/`・`src/platform/`(DB の接続を作る場所)だけにする。`src/main.ts` は Bun の API は使えるが、DB には触れない。DB を差し替えるときに直す場所が、名前で分かる。
 - **Bun 専用の API は `src/platform/` と `src/main.ts` だけ**:それ以外は Web 標準で書き、実行環境を替えても直す場所を限る。
 - **テーブルに書き込めるのは、持ち主の feature だけ**:読むのはどこからでもよい。トップページの集約のような、読むだけの feature が他のテーブルを join できるようにする。

@@ -5,8 +5,8 @@ import { lintFixture, ruleIdsOf } from "../fixture-lint";
 describe("関数の形と数", () => {
   test.each([
     {
-      label: "export した3つの関数",
-      file: "functions/three-functions.ts",
+      label: "コードが201行のファイルで export した3つの関数",
+      file: "functions/three-functions-in-201-lines.ts",
       rule: "project(max-exported-functions)",
     },
     {
