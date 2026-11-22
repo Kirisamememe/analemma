@@ -8,8 +8,8 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { tv } from "../../tv";
-import { Icon } from "../graphics/icon";
+import { Icon } from "@/ui/primitives/graphics/icon";
+import { tv } from "@/ui/tv";
 
 const iconButton = tv({
   base: "flex size-10 shrink-0 items-center justify-center rounded-control text-fg outline-hidden transition is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-disabled:state-disabled",

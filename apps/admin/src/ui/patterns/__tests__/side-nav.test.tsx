@@ -1,8 +1,8 @@
 import { cleanup, screen, within } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
-import { renderWithI18n } from "../../../testing/render-with-i18n";
-import { SideNav } from "../side-nav";
+import { renderWithI18n } from "@/testing/render-with-i18n";
+import { SideNav } from "@/ui/patterns/side-nav";
 
 afterEach(cleanup);
 

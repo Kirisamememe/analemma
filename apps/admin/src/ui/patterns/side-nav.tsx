@@ -1,9 +1,12 @@
 import { type ReactNode, useId, useState } from "react";
 
-import { AppMark } from "../primitives/graphics/app-mark";
-import { NavDrawer } from "../primitives/navigation/nav-drawer";
-import { NavLink, type NavLinkProps } from "../primitives/navigation/nav-item";
-import { typography } from "../typography";
+import { AppMark } from "@/ui/primitives/graphics/app-mark";
+import { NavDrawer } from "@/ui/primitives/navigation/nav-drawer";
+import {
+  NavLink,
+  type NavLinkProps,
+} from "@/ui/primitives/navigation/nav-item";
+import { typography } from "@/ui/typography";
 
 /** ナビのリンクの行き先と文言。 */
 type SideNavItem = {

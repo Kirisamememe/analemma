@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Cluster } from "../../../layout/cluster";
-import { Stack } from "../../../layout/stack";
-import { Text } from "../../../layout/text";
-import { Icon, type IconName } from "../icon";
+import { Cluster } from "@/ui/layout/cluster";
+import { Stack } from "@/ui/layout/stack";
+import { Text } from "@/ui/layout/text";
+import { Icon, type IconName } from "@/ui/primitives/graphics/icon";
 
 const NAMES: readonly IconName[] = [
   "house",

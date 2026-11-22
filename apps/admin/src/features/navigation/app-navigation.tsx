@@ -3,10 +3,10 @@ import type { ParseKeysWithoutVariables } from "i18next";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { SideNav } from "../../ui/patterns/side-nav";
-import type { NavLinkProps } from "../../ui/primitives/navigation/nav-item";
-import { LogOutButton } from "../session/log-out-button";
-import { useLogOut } from "../session/use-log-out";
+import { LogOutButton } from "@/features/session/log-out-button";
+import { useLogOut } from "@/features/session/use-log-out";
+import { SideNav } from "@/ui/patterns/side-nav";
+import type { NavLinkProps } from "@/ui/primitives/navigation/nav-item";
 
 /** 管理画面のナビのリンクの定義。 */
 type NavigationLink = Pick<NavLinkProps, "href" | "icon"> & {

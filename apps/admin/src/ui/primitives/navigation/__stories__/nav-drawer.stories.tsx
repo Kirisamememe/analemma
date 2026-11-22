@@ -3,12 +3,15 @@ import type { ReactElement } from "react";
 import { useArgs } from "storybook/preview-api";
 import { fn } from "storybook/test";
 
-import { Center } from "../../../layout/center";
-import { Cluster } from "../../../layout/cluster";
-import { Heading } from "../../../layout/heading";
-import { Text } from "../../../layout/text";
-import { AppMark } from "../../graphics/app-mark";
-import { NavDrawer, type NavDrawerProps } from "../nav-drawer";
+import { Center } from "@/ui/layout/center";
+import { Cluster } from "@/ui/layout/cluster";
+import { Heading } from "@/ui/layout/heading";
+import { Text } from "@/ui/layout/text";
+import { AppMark } from "@/ui/primitives/graphics/app-mark";
+import {
+  NavDrawer,
+  type NavDrawerProps,
+} from "@/ui/primitives/navigation/nav-drawer";
 
 const DrawerPreview = ({
   label,

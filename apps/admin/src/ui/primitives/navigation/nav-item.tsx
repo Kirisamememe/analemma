@@ -6,11 +6,12 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { tv } from "../../tv";
-import { typography } from "../../typography";
-import { Icon, type IconName } from "../graphics/icon";
-import { Spinner } from "../graphics/spinner";
 import type { LinkProps } from "./link";
+
+import { Icon, type IconName } from "@/ui/primitives/graphics/icon";
+import { Spinner } from "@/ui/primitives/graphics/spinner";
+import { tv } from "@/ui/tv";
+import { typography } from "@/ui/typography";
 
 const navItem = tv({
   base: "relative flex h-control w-full items-center justify-start gap-2 rounded-control px-3 text-left text-fg-muted transition is-hovered:state-hover is-hovered:text-fg is-focus-shown:focus-ring is-pressed:state-pressed",

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { AppMark } from "../app-mark";
+import { AppMark } from "@/ui/primitives/graphics/app-mark";
 
 const meta = {
   title: "primitives/AppMark",
