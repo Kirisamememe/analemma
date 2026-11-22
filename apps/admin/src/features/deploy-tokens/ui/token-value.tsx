@@ -16,7 +16,7 @@ const { root, label: labelSlot, value: valueSlot } = tokenValue();
 
 /** トークンの値の表示に渡す値。 */
 type TokenValueProps = {
-  /** 値の名前。 */
+  /** 値の上に出す、figcaption の文。 */
   label: string;
   /** 表示するトークンの値。 */
   value: string;

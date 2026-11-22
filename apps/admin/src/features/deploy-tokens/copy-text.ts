@@ -1,6 +1,6 @@
 /** クリップボードに書いた結果。 */
 export type CopyTextResult = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Copied" | "Failed";
 };
 

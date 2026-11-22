@@ -3,7 +3,7 @@ import { callApi } from "@/api/call-api";
 
 /** デプロイ用のトークンを取り消した結果。 */
 export type RevokeDeployTokenResult = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Revoked" | "NotFound";
 };
 

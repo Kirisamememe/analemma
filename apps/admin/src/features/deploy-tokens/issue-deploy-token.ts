@@ -10,7 +10,7 @@ import type { MessageKey } from "@/i18n/use-translate";
 /** デプロイ用のトークンを発行した結果。 */
 export type IssueDeployTokenResult =
   | {
-      /** 結果の種類。 */
+      /** どの結果か。 */
       readonly _tag: "Issued";
       /** 発行したトークンの名前(server が前後の空白を除いたもの)。 */
       readonly name: string;
@@ -18,7 +18,7 @@ export type IssueDeployTokenResult =
       readonly token: string;
     }
   | {
-      /** 結果の種類。 */
+      /** どの結果か。 */
       readonly _tag: "Cancelled" | "ReauthenticationFailed";
     };
 

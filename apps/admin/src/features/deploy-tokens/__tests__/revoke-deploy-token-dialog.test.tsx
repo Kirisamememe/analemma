@@ -65,13 +65,16 @@ describe("RevokeDeployTokenDialog", () => {
   });
 
   test("もう無いトークンなら、Dialog を開いたまま知らせ、一覧を取り直す", async () => {
-    const { server } = renderTokens();
+    const { server, app } = renderTokens();
+    const listCalls = (): number =>
+      app.calls.filter((path) => path === "admin/deployTokens/list").length;
 
     server.replyNext("admin/deployTokens/revoke", () => ({
       error: "NOT_FOUND",
     }));
 
     const dialog = await openRevoke();
+    const before = listCalls();
 
     await userEvent.click(
       within(dialog).getByRole("button", { name: "取り消す" }),
@@ -81,6 +84,7 @@ describe("RevokeDeployTokenDialog", () => {
       await within(dialog).findByText("このトークンはもうありません。"),
     ).toBeDefined();
     expect(screen.getByRole("dialog")).toBeDefined();
+    expect(listCalls()).toBe(before + 1);
   });
 
   test("想定外の失敗は、Dialog を開いたまま知らせる", async () => {

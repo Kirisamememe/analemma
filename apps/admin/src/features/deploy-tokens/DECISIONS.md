@@ -5,7 +5,7 @@
 ## 発行
 
 - 発行の前に再認証をする(server の決まり)。再認証をキャンセルしたら、発行を送らない。
-- 名前は、再認証の前に、contract と同じスキーマ(`deployTokenName`)で確かめ、入力欄に誤りを出す。送ってから server に名前を断られると、本人確認の OS の画面を済ませた後に、想定外の失敗として知らせることになる。
+- 名前は、再認証の前に、contract と同じスキーマ(`deployTokenName`)で確かめ、入力欄に誤りを出す。送ってから server に名前を断られると、再認証の OS の画面を済ませた後に、想定外の失敗として知らせることになる。
 - token は、発行した Dialog の state にだけ置き、TanStack Query(query と送信の cache)に入れない。送信の結果に token を入れると、Dialog を閉じても、送信の cache が消えるまで(既定で5分)query client から読める。送信の結果は、どの結果か(`_tag`)だけにする。一覧は server が token を返さず、URL にも載せない。閉じた後に、画面・URL・query client のどこからも token を読めないことを、画面のテストで確かめる。
 - 発行できたら、同じ Dialog を、token を見せる中身に替え、Toast で発行したことを知らせる。Dialog を閉じると、token はもう出せない。
 - token は等幅の字体で、1回の選択で全体を選べるように出す(`ui/token-value.tsx`)。コピーのボタンは Clipboard API で書き、書けなければ(許可が無いなど)、手でコピーするよう知らせる。中身を替えたら、コピーのボタンに focus を移す。押したボタンが消え、focus の行き先が無くなるため。
@@ -13,13 +13,15 @@
 
 ## 取り消し
 
-- 取り消しには再認証を求めない(server の決まり)。取り消せないので、トークンの名前を出した確認の Dialog の後に送る。
-- 取り消しの結果は、もう無いトークン(`NOT_FOUND`)でも一覧を取り直す。Dialog と一覧の focus の扱いは、パスキーの欄と同じ(`apps/admin/DECISIONS.md` の「パスキーとセッションの管理」)。行が消えたら、欄の最初の要素(トークンの発行のボタン)に focus を移す。
+- 取り消しには再認証を求めない(server の決まり)。取り消したトークンは元に戻せないので、トークンの名前を出した確認の Dialog の後に送る。
+- 取り消しを送った後は、もう無いトークン(`NOT_FOUND`)と答えられても一覧を取り直す。Dialog と一覧の focus の扱いは、パスキーの欄と同じ(`apps/admin/DECISIONS.md` の「パスキーとセッションの管理」)。行が消えたら、欄の最初の要素(トークンの発行のボタン)に focus を移す。
 
 ## 作り物の server
 
-- `src/testing/fake-routes/create-deploy-token-routes.ts` は、セッションの確認と再認証の options も自分で持つ。パスキーの作り物とは別に、この画面のテストと story だけで使う。1つの再認証で1回だけ発行でき、無いトークンの取り消しは `NOT_FOUND` を返す。
+- `src/testing/fake-routes/create-deploy-token-routes.ts` は、セッションの取得(`admin/session/get`。いつもセッションがあると答える)と再認証の options の応答も自分で持つ。パスキーの作り物とは別に、この画面のテストと story だけで使う。1つの再認証で1回だけ発行でき、無いトークンの取り消しは `NOT_FOUND` を返す。
 
 ## 割り切ったこと
 
-- **閉じた後の Dialog の state**:発行した Dialog を閉じても、次に発行の Dialog を開くか画面を離れるまで、token は Dialog の state(メモリ)に残る。閉じるときに消すと、閉じる animation の間に中身が名前の入力に戻って跳ぶ。DOM と query client には残らず、読めるのは開発者ツールで React の state を見る人だけで、その人はすでに管理者のセッションを持つ。
+- **ほかのタブでのログアウト**:token を見せている間に、同じブラウザのほかのタブで(すべてのセッションから)ログアウトしても、このタブは token を見せ続ける。ログアウトをタブをまたいで知らせるには、BroadcastChannel を購読する effect の hook が要る。見えるのは token を発行した管理者の画面で、ログアウトした後もそのタブを開いたまま人に渡すときだけ困る。漏れたら取り消せばよいので受け入れる。
+- **取り消しの確認に遅れて届く click**:`src/ui/DECISIONS.md` の「閉じ始めた Dialog に遅れて届く click」と同じ条件(タッチの長押しから80ms のうちに Escape か backdrop で閉じる)で、取り消しが送られる。取り消しは再認証を求めないので、再認証の OS の画面でも止まらない。起きる条件が狭く、取り消されても発行し直せば済むので受け入れる。
+- **閉じた後の Dialog の state**:発行した Dialog を閉じても、次にどちらかの Dialog を開くか、画面を離れるまで、token は Dialog の state(メモリ)に残る。閉じるときに消すと、閉じる animation の間に中身が名前の入力に戻って跳ぶ。DOM と query client には残らず、読めるのは開発者ツールで React の state を見る人だけで、その人はすでに管理者のセッションを持つ。

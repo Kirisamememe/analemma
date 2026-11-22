@@ -18,9 +18,9 @@ const TOKENS: readonly FakeDeployTokenSeed[] = [
 const waitForever = <Value,>(): Promise<Value> =>
   Promise.withResolvers<Value>().promise;
 
-/** 本人確認の OS の画面を開いたまま、答えない認証器。 */
+/** 再認証の OS の画面を開いたまま、答えない認証器。 */
 const WAITING_AUTHENTICATOR: Authenticator = {
-  /** 本人確認を待ったままにする。 */
+  /** 再認証を待ったままにする。 */
   authenticate: () => waitForever(),
   /** パスキーの作成を待ったままにする。 */
   register: () => waitForever(),
@@ -96,14 +96,14 @@ export const LoadFailed: Story = {
 
 export const WaitingForReauthentication: Story = {
   args: {
-    /** 発行を押すと、本人確認を待ったままになる認証器。 */
+    /** 発行を押すと、再認証を待ったままになる認証器。 */
     authenticator: WAITING_AUTHENTICATOR,
   },
 };
 
 export const ReauthenticationCancelled: Story = {
   args: {
-    /** 発行を押すと、本人確認をキャンセルする認証器。 */
+    /** 発行を押すと、再認証をキャンセルする認証器。 */
     authenticator: createFakeAuthenticator({
       authenticate: { _tag: "Cancelled" },
     }),
@@ -112,7 +112,7 @@ export const ReauthenticationCancelled: Story = {
 
 export const ReauthenticationFailed: Story = {
   args: {
-    /** 発行を押すと、本人確認を断る server。 */
+    /** 発行を押すと、再認証を断る server。 */
     createRoutes: () => ({
       ...createDeployTokenRoutes(TOKENS).routes,
       "admin/deployTokens/issue": () => ({ error: "REAUTHENTICATION_FAILED" }),

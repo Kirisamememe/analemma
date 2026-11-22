@@ -36,7 +36,7 @@ const focusOnMount = (button: HTMLButtonElement | null): void => {
   button?.focus();
 };
 
-/** 発行したトークンの値と、コピーの操作に渡す値。 */
+/** 発行したトークンの値とコピーの操作を出す中身に渡す値。 */
 type IssuedTokenContentProps = {
   /** 発行したトークン。 */
   issued: IssuedToken;
