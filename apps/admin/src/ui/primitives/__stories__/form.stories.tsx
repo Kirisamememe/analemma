@@ -3,7 +3,7 @@ import { fn } from "storybook/test";
 
 import { Button } from "../button";
 import { Form } from "../form";
-import { TextField } from "../text-field";
+import { TextField } from "../form-fields/text-field";
 
 const meta = {
   title: "primitives/Form",

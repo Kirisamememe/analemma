@@ -8,6 +8,8 @@ export const zhHans = {
   "notFound.description": "{{path}} 处没有页面。",
   "notFound.backHome": "返回首页",
   "ui.pending": "正在处理",
+  "ui.numberField.decrease": "减小{{label}}的值",
+  "ui.numberField.increase": "增大{{label}}的值",
   "login.title": "登录 Stilus",
   "login.description": "使用为此管理后台注册的通行密钥。",
   "login.submit": "使用通行密钥登录",

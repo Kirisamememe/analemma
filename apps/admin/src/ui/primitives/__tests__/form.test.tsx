@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { renderWithI18n } from "../../../testing/render-with-i18n";
 import { Button } from "../button";
 import { Form } from "../form";
-import { TextField } from "../text-field";
+import { TextField } from "../form-fields/text-field";
 
 afterEach(cleanup);
 

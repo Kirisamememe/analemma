@@ -18,9 +18,9 @@ import { Text } from "../ui/layout/text";
 import { PageHeader } from "../ui/patterns/page-header";
 import { Button } from "../ui/primitives/button";
 import { Form } from "../ui/primitives/form";
+import { TextField } from "../ui/primitives/form-fields/text-field";
 import { Link } from "../ui/primitives/link";
 import { Notice } from "../ui/primitives/notice";
-import { TextField } from "../ui/primitives/text-field";
 
 const PASSKEY_NAME_MAX_LENGTH = 64;
 

@@ -23,7 +23,9 @@ import * as primitivesForm from "../ui/primitives/__stories__/form.stories";
 import * as primitivesLink from "../ui/primitives/__stories__/link.stories";
 import * as primitivesNotice from "../ui/primitives/__stories__/notice.stories";
 import * as primitivesSpinner from "../ui/primitives/__stories__/spinner.stories";
-import * as primitivesTextField from "../ui/primitives/__stories__/text-field.stories";
+import * as primitivesNumberField from "../ui/primitives/form-fields/__stories__/number-field.stories";
+import * as primitivesTextArea from "../ui/primitives/form-fields/__stories__/text-area.stories";
+import * as primitivesTextField from "../ui/primitives/form-fields/__stories__/text-field.stories";
 import * as specimensColors from "../ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "../ui/specimens/__stories__/typography.stories";
 
@@ -46,7 +48,12 @@ const MODULES = {
   "ui/primitives/__stories__/link.stories.tsx": primitivesLink,
   "ui/primitives/__stories__/notice.stories.tsx": primitivesNotice,
   "ui/primitives/__stories__/spinner.stories.tsx": primitivesSpinner,
-  "ui/primitives/__stories__/text-field.stories.tsx": primitivesTextField,
+  "ui/primitives/form-fields/__stories__/number-field.stories.tsx":
+    primitivesNumberField,
+  "ui/primitives/form-fields/__stories__/text-area.stories.tsx":
+    primitivesTextArea,
+  "ui/primitives/form-fields/__stories__/text-field.stories.tsx":
+    primitivesTextField,
   "ui/specimens/__stories__/colors.stories.tsx": specimensColors,
   "ui/specimens/__stories__/typography.stories.tsx": specimensTypography,
 };

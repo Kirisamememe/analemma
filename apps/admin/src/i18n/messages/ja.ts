@@ -8,6 +8,8 @@ export const ja = {
   "notFound.description": "{{path}} にページはありません。",
   "notFound.backHome": "ホームに戻る",
   "ui.pending": "処理中",
+  "ui.numberField.decrease": "{{label}}の値を減らす",
+  "ui.numberField.increase": "{{label}}の値を増やす",
   "login.title": "Stilus にログイン",
   "login.description": "この管理画面に登録したパスキーを使います。",
   "login.submit": "パスキーでログイン",

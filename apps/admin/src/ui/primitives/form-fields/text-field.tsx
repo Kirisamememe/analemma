@@ -1,27 +1,9 @@
 import type { ReactNode } from "react";
-import {
-  TextField as AriaTextField,
-  FieldError,
-  Input,
-  Label,
-  Text,
-} from "react-aria-components";
+import { TextField as AriaTextField, Input } from "react-aria-components";
 
-import { tv } from "../tv";
-import { typography } from "../typography";
-
-const field = tv({
-  slots: {
-    root: "flex flex-col gap-1.5",
-    label: "text-fg",
-    input:
-      "h-control w-full rounded-control border border-line-strong bg-surface px-3 text-fg shadow-control outline-hidden is-focused:focus-ring is-invalid:border-danger not-forced-colors:is-invalid:outline-danger is-disabled:state-disabled",
-    description: "text-fg-muted",
-    error: "text-danger",
-  },
-});
-
-const { root, label, input, description, error } = field();
+import { typography } from "../../typography";
+import { fieldControl, fieldRoot } from "./field-control";
+import { FieldDescription, FieldErrorMessage, FieldLabel } from "./field-parts";
 
 /** 1行の入力欄に渡す値。 */
 type TextFieldProps = {
@@ -55,30 +37,21 @@ export const TextField = ({
   validate,
 }: TextFieldProps): ReactNode => (
   <AriaTextField
-    className={root()}
+    className={fieldRoot()}
     defaultValue={defaultValue}
     validate={(value) => validate?.(value)}
     isRequired={isRequired}
     name={name}
   >
-    <Label className={label({ className: typography({ role: "label" }) })}>
-      {title}
-    </Label>
+    <FieldLabel>{title}</FieldLabel>
     <Input
       autoComplete={autoComplete}
-      className={input({ className: typography({ role: "body" }) })}
+      className={fieldControl({
+        className: ["h-control px-3", typography({ role: "body" })],
+      })}
       maxLength={maxLength}
     />
-    {help !== undefined && (
-      <Text
-        className={description({ className: typography({ role: "caption" }) })}
-        slot="description"
-      >
-        {help}
-      </Text>
-    )}
-    <FieldError
-      className={error({ className: typography({ role: "caption" }) })}
-    />
+    {help !== undefined && <FieldDescription>{help}</FieldDescription>}
+    <FieldErrorMessage />
   </AriaTextField>
 );
