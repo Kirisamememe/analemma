@@ -15,9 +15,9 @@ const stage = tv({
 /** `StoryStage` に渡す値。 */
 type StoryStageProps = {
   /** 枠の幅(中身に合わせるか、決めた幅に広げるか)。 */
-  readonly width: "fit" | "fill";
+  width: "fit" | "fill";
   /** 展示する部品。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** story の部品を、面の上に置いて見せる展示用の枠。 */

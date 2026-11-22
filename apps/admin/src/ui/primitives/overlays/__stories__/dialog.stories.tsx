@@ -9,11 +9,11 @@ import { Dialog } from "@/ui/primitives/overlays/dialog";
 /** `DeleteDialog` に渡す値。 */
 type DeleteDialogProps = {
   /** 削除するパスキーの名前。 */
-  readonly name: string;
+  name: string;
   /** 送信中か。 */
-  readonly isPending: boolean;
+  isPending: boolean;
   /** Dialog の中の知らせ。 */
-  readonly notice: ReactNode;
+  notice: ReactNode;
 };
 
 const DeleteDialog = ({

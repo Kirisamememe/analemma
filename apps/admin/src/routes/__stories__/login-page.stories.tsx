@@ -3,8 +3,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AppPreview } from "@/testing/app-preview";
 import type { FakeRoutes } from "@/testing/create-fake-api";
 import { createFakeAuthenticator } from "@/testing/create-fake-authenticator";
-import { createPasskeyRoutes } from "@/testing/create-passkey-routes";
-import { createSignInRoutes } from "@/testing/create-sign-in-routes";
+import { createPasskeyRoutes } from "@/testing/fake-routes/create-passkey-routes";
+import { createSignInRoutes } from "@/testing/fake-routes/create-sign-in-routes";
 
 const EXPIRY = { output: { expiresAt: "2026-01-08T00:00:00.000Z" } };
 

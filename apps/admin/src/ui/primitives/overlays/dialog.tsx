@@ -25,15 +25,15 @@ const { overlay, modal, body, title: titleSlot } = dialog();
 /** `Dialog` に渡す値。 */
 type DialogProps = {
   /** 開いているか。 */
-  readonly isOpen: boolean;
+  isOpen: boolean;
   /** 開け閉めを知らせる関数。 */
-  readonly onOpenChange: (isOpen: boolean) => void;
+  onOpenChange: (isOpen: boolean) => void;
   /** Dialog の名前。 */
-  readonly title: string;
+  title: string;
   /** 送信中か(送信中は Escape と backdrop の押下で閉じない)。 */
-  readonly isPending?: boolean;
+  isPending?: boolean;
   /** Dialog の中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 今の画面の上に重ねて開き、focus を閉じ込める Dialog。 */

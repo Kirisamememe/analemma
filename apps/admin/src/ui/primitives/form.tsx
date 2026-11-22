@@ -9,13 +9,13 @@ const NO_ERRORS: Readonly<Record<string, string>> = {};
 /** フォームに渡す値。 */
 type FormProps = {
   /** 送ったときに、入力をまとめて受け取る関数。 */
-  readonly onSubmit: (data: FormData) => void;
+  onSubmit: (data: FormData) => void;
   /** 送信中か(送信中は、Enter で送り直させない)。 */
-  readonly isPending?: boolean;
+  isPending?: boolean;
   /** server が断った入力ごとの、誤りの知らせ。 */
-  readonly validationErrors?: Readonly<Record<string, string>>;
+  validationErrors?: Readonly<Record<string, string>>;
   /** 入力欄とボタン。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 入力欄をまとめて送るフォーム。 */

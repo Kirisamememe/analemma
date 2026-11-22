@@ -6,7 +6,7 @@ import {
   FAKE_ASSERTION,
   FAKE_ATTESTATION,
 } from "@/testing/create-fake-authenticator";
-import { createPasskeyRoutes } from "@/testing/create-passkey-routes";
+import { createPasskeyRoutes } from "@/testing/fake-routes/create-passkey-routes";
 
 const setUp = (names: readonly string[]) => {
   const server = createPasskeyRoutes(

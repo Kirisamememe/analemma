@@ -11,9 +11,9 @@ const link = tv({
 /** リンクに渡す値。 */
 export type LinkProps = {
   /** 管理画面の中の行き先(TanStack Router の route のパス)。 */
-  readonly href: NonNullable<ToOptions["to"]>;
+  href: NonNullable<ToOptions["to"]>;
   /** リンクの文言。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 管理画面の中を移るリンク(いつも下線を付ける)。 */
