@@ -15,13 +15,13 @@ const WITHOUT_FILL = ["on-media"];
 const SYSTEM_COLOR =
   /^(?:Canvas|CanvasText|LinkText|VisitedText|ActiveText|ButtonFace|ButtonText|ButtonBorder|Field|FieldText|Highlight|HighlightText|SelectedItem|SelectedItemText|Mark|MarkText|GrayText|AccentColor|AccentColorText)$/v;
 
-/** sRGB の、0〜1 の光の強さ(gamma を外した値)。 */
+/** gamma を外した、sRGB の3つのチャンネルの値(0〜1)。 */
 type LinearRgb = readonly [number, number, number];
 
 /** light と dark の、どちらの色か。 */
 type Scheme = (typeof SCHEMES)[number];
 
-/** 下の色の上に、透明度を付けて重ねる色。 */
+/** 下の色の上に、不透明度を付けて重ねる色。 */
 type Layer = {
   /** 重ねる色。 */
   readonly color: LinearRgb;
@@ -116,12 +116,15 @@ const contrast = (first: LinearRgb, second: LinearRgb): number => {
   return (Math.max(one, other) + 0.05) / (Math.min(one, other) + 0.05);
 };
 
-const HOVER =
+const overlayOf = (utility: string): number =>
   Number(
-    /@utility state-hover \{\s*background-image: linear-gradient\(\s*color-mix\(in oklab, currentColor (?<percent>\d+)%, transparent\) 0 0\s*\);\s*\}/v.exec(
-      theme,
-    )?.groups?.["percent"],
+    new RegExp(
+      `@utility ${utility} \\{\\s*background-image: linear-gradient\\(\\s*color-mix\\(in oklab, currentColor (?<percent>\\d+)%, transparent\\) 0 0\\s*\\);\\s*\\}`,
+      "v",
+    ).exec(theme)?.groups?.["percent"],
   ) / 100;
+
+const OVERLAYS = [overlayOf("state-hover"), overlayOf("state-pressed")];
 
 const TEXTS_ON_FILLS = [...colors.keys()].filter((name) =>
   name.startsWith("on-"),
@@ -145,31 +148,31 @@ describe("theme.css の色の定義", () => {
     ).toEqual([]);
   });
 
-  test("on-* の色は、どれも同じ名前の塗りの色と組になる(写真の上の文字を除く)", () => {
+  test("on-X の色は、どれも X の塗りの色と組になる(写真の上の文字の on-media を除く)", () => {
     expect(
       TEXTS_ON_FILLS.filter((text) => !colors.has(text.replace(/^on-/v, ""))),
     ).toEqual(WITHOUT_FILL);
   });
 
-  test("hover の重ねは、文字の色を透明と混ぜたものとして読み取れる", () => {
-    expect(HOVER).toBeGreaterThan(0);
+  test("hover と pressed の重ねは、文字の色を透明と混ぜたものとして読み取れる", () => {
+    expect(OVERLAYS.every((alpha) => alpha > 0)).toBe(true);
   });
 });
 
 describe("theme.css の色のコントラスト(WCAG の AA)", () => {
   test.each(FILLS)(
-    "$scheme の $fill の塗りの上で、$text の文字が 4.5:1 に届く(hover の重ねも)",
+    "$scheme の $fill の塗りの上で、$text の文字が 4.5:1 に届く(hover と pressed の重ねも)",
     ({ text, fill, scheme }) => {
       const foreground = colorOf(text, scheme);
       const background = colorOf(fill, scheme);
 
       expect(contrast(foreground, background)).toBeGreaterThanOrEqual(AA);
-      expect(
-        contrast(
-          foreground,
-          over({ color: foreground, alpha: HOVER }, background),
-        ),
-      ).toBeGreaterThanOrEqual(AA);
+
+      for (const alpha of OVERLAYS) {
+        expect(
+          contrast(foreground, over({ color: foreground, alpha }, background)),
+        ).toBeGreaterThanOrEqual(AA);
+      }
     },
   );
 
@@ -180,7 +183,7 @@ describe("theme.css の色のコントラスト(WCAG の AA)", () => {
       ),
     ),
   )(
-    "$scheme の $surface の上で、$meaning の文字が、地と /10 の薄い面の両方に 4.5:1 で届く",
+    "$scheme の $surface の上で、$meaning の文字が、地の上でも /10 の薄い面の上でも 4.5:1 に届く",
     ({ meaning, scheme, surface }) => {
       const foreground = colorOf(meaning, scheme);
       const background = colorOf(surface, scheme);
