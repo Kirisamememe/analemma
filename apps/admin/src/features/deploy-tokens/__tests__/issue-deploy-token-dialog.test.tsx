@@ -46,7 +46,7 @@ const issuedToken = async (): Promise<string> => {
 };
 
 const isShown = (token: string): boolean =>
-  document.body.innerHTML.includes(token) ||
+  document.body.textContent.includes(token) ||
   screen
     .queryAllByRole("textbox")
     .some(
