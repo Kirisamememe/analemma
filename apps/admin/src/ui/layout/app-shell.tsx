@@ -22,9 +22,9 @@ const shell = tv({
 /** 画面の骨組みに渡す値。 */
 type AppShellProps = {
   /** 画面のナビ。 */
-  readonly nav?: ReactNode;
+  nav?: ReactNode;
   /** 画面の中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 画面の地と、ナビと本文の並べ方と、中身の上下の余白を持つ骨組み。 */

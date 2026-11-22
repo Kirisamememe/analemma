@@ -18,23 +18,23 @@ import { typography } from "@/ui/typography";
 /** 長いテキストの入力欄に渡す値。 */
 type TextAreaProps = {
   /** 入力欄の名前(フォームのキー)。 */
-  readonly name: string;
+  name: string;
   /** 入力欄のラベル。 */
-  readonly label: string;
+  label: string;
   /** 入力欄の補足。 */
-  readonly description?: string;
+  description?: string;
   /** 最初に入れておく値。 */
-  readonly defaultValue?: string;
+  defaultValue?: string;
   /** 文字の数の上限。 */
-  readonly maxLength?: number;
+  maxLength?: number;
   /** 入力が要るか。 */
-  readonly isRequired?: boolean;
+  isRequired?: boolean;
   /** 入力欄が無効か。 */
-  readonly isDisabled?: boolean;
+  isDisabled?: boolean;
   /** 読み取り専用か。 */
-  readonly isReadOnly?: boolean;
+  isReadOnly?: boolean;
   /** 送る前に値を確かめ、誤りの知らせを返す関数(合っていれば undefined)。 */
-  readonly validate?: (value: string) => string | undefined;
+  validate?: (value: string) => string | undefined;
 };
 
 /** 長いテキストの入力欄。 */

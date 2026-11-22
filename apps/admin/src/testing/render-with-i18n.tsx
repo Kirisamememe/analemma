@@ -9,7 +9,7 @@ import type { Locale } from "@/i18n/locales";
 /** `wrapper` に渡す値。 */
 type WrapperProps = {
   /** 描く部品。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** テストで使う i18next の instance を渡す。 */

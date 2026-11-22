@@ -17,9 +17,9 @@ const center = tv({
 /** 中身を真ん中に寄せる箱に渡す値。 */
 type CenterProps = {
   /** 中身の幅の上限。 */
-  readonly width: "sm" | "md" | "form" | "page";
+  width: "sm" | "md" | "form" | "page";
   /** 寄せる中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 中身の幅を絞り、左右の真ん中に寄せる箱。 */

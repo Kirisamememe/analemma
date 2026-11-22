@@ -4,7 +4,7 @@ import { FocusScope as AriaFocusScope } from "react-aria";
 /** `FocusScope` に渡す値。 */
 type FocusScopeProps = {
   /** 中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 中から開いた Dialog の、focus の戻り先になる範囲。 */

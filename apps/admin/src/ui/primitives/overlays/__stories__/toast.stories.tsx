@@ -9,7 +9,7 @@ import {
 
 type ToastPreviewProps = {
   /** 見本の知らせ。 */
-  readonly messages: readonly ToastMessage[];
+  messages: readonly ToastMessage[];
 };
 
 const ToastPreview = ({ messages }: ToastPreviewProps): ReactNode => {
