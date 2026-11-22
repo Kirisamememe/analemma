@@ -7,6 +7,9 @@ import { renderApp } from "../testing/render-app";
 
 afterEach(cleanup);
 
+const dismissButtons = (label: string): HTMLElement[] =>
+  screen.queryAllByLabelText(label, { selector: "button" });
+
 describe("App", () => {
   test("言語を切り替えると、開いている画面の文言を、その言語で描き直す", async () => {
     const { i18n } = renderApp({
@@ -37,19 +40,16 @@ describe("App", () => {
     );
 
     expect(
-      (await screen.findAllByRole("button", { name: "閉じる" })).length,
+      (await screen.findAllByLabelText("閉じる", { selector: "button" }))
+        .length,
     ).toBeGreaterThan(0);
 
     await act(async () => i18n.changeLanguage("zh-Hans"));
 
-    expect(
-      screen.getAllByRole("button", { name: "取消" }).length,
-    ).toBeGreaterThan(0);
+    expect(dismissButtons("取消").length).toBeGreaterThan(0);
 
     await act(async () => i18n.changeLanguage("en"));
 
-    expect(
-      screen.getAllByRole("button", { name: "Dismiss" }).length,
-    ).toBeGreaterThan(0);
+    expect(dismissButtons("Dismiss").length).toBeGreaterThan(0);
   });
 });

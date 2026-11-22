@@ -44,7 +44,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 
 ## i18n
 
-`en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `RESOURCES`(`src/i18n/resources.ts`)に足し、`messages/` にファイルを置くだけにする。
+`en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `RESOURCES`(`src/i18n/resources.ts`)と、React Aria Components に渡す地域を付けた言語(`src/ui/primitives/ui-provider.tsx` の `ARIA_LOCALES`)に足し、`messages/` にファイルを置くだけにする。
 
 訳を引くのは、i18next 27 と react-i18next にする(ユーザーが決めた)。コードの生成も、訳を取りに行く通信も要らず、v27 からキーと引数に厳しく型が付き(`strictInterpolationChecks` が既定で有効)、複数形と fallback を扱える。公開サイトの i18n は、公開サイトを作るときに決める。
 
@@ -59,7 +59,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - instance は、言語を受けて `createInstance` で作る(`src/i18n/create-i18n.ts`)。訳は instance ごとに `structuredClone` で複製して渡す。i18next は渡した object をそのまま store にし、`addResource` などで書き換えるので、複製しないと、ある instance(テストや story)で書き換えた訳が、ほかの instance に漏れる。i18next の既定の instance と `initReactI18next` は使わず、`I18nextProvider` で渡す(`App`)。テストや Storybook が、描くたびに別の言語の instance を作れる。`App` を通さずに部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で、i18next の instance の下で描く。
 - 日付と時刻は、i18next の formatting を使わず、`Intl.DateTimeFormat` の関数(`format-date-time.ts`)に、i18next の今の言語を渡して書く。書式(`dateStyle: medium`・`timeStyle: short`)は画面の決めごとで、言語ごとに変えない。formatting にすると、全部の言語の訳に `{{created, datetime(dateStyle: medium; timeStyle: short)}}` のような書式を写すことになり、API が返す ISO 8601 の文字列を `Date` に直す手間も要る。
 - 英語の訳を `as const` で書くので、`t` の戻り値の型は、英語の訳の文字列のリテラルになる(i18next の型の仕様)。実行時には、今の言語の訳が返る。テストで戻り値を英語以外の文字列と比べるときは、`expect<string>` で `string` に広げる。
-- 引数を取らないキーを値として持つ型(知らせの訳のキーなど)は、i18next の `ParseKeysWithoutVariables` にする。`t(key)` に、そのまま渡せる。ただし、複数形の形(`key_one`・`key_other`)だけを持つキーも受け付け、`count` を渡さないと訳が出ない。知らせに複数形を使うときは、`count` も渡せる形にする。
+- 引数を取らないキーを値として持つ型(知らせの訳のキーなど)は、i18next の `ParseKeysWithoutVariables` にする。`t(key)` に、そのまま渡せる。ただし、複数形の形(`key_one`・`key_other`)だけを持ち、どの形も引数を取らないキーも受け付ける。`count` を渡さずに引くと、訳ではなくキーがそのまま返る(`{{count}}` を含む形があれば、型の誤りになる)。知らせに複数形を使うときは、`count` も渡せる形にする。
 - ブラウザの言語の並びから選ぶときは、`Intl.Locale` の `maximize()` で言語と文字体系の組にしてから比べる。`zh-CN`・`zh-SG`・`zh` は `zh-Hans`、`ja-JP` は `ja` になる。`zh-TW`・`zh-HK` は文字体系が違う(繁体字)ので、`zh-Hans` に寄せず、並びの次の言語に進む。どれにも対応していなければ英語にする。
 - `Intl.Locale` が読めない tag(`i-klingon` など。BCP 47 では正しくても、Intl が受け付けないものがある)は、飛ばして次の言語に進む。head の script の中で throw すると、言語と配色のどちらも当たらなくなる(Codex のレビューで見つかった)。
 - 利用者が選んだ言語と配色は、`localStorage` の `analemma:locale`・`analemma:theme` に置く。server には送らない。管理者は1人で、端末ごとに違ってよい。
