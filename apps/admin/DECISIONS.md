@@ -68,11 +68,11 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - `fallbackLng` を英語にし、訳が無いキーと空の訳を英語で出す(v27 から、既定では fallback しない。空の訳を訳が無いとみなすのは v27 の既定)。訳しかけの開発の途中でも、画面が壊れない。
 - `supportedLngs` に `LOCALES` を渡す。i18next は、対応していない tag を、言語の部分(`zh` など)が同じ、対応する言語に寄せ(`zh-TW` も `zh-Hans` になる)、それも無ければ英語にする。ブラウザの言語の並びから選ぶときの判定(下)とは違うので、`changeLanguage` には `LOCALES` の値だけを渡し、ブラウザの言語を渡さない。
 - React が値を escape するので、i18next の escape は切る(`escapeValue: false`)。二重に escape すると、`&` が `&amp;` のまま画面に出る。
-- 訳は bundle に入れ、instance を作るときに渡す。読み込みを待たないので、`init` と `changeLanguage` はその場で終わり、`useTranslation` が Suspense で止まらない。
+- 訳は bundle に入れ、instance を作るときに渡す。読み込みを待たないので、`init` と `changeLanguage` はその場で終わり、features の `useTranslate` と `src/routes/` の `useTranslation` が Suspense で止まらない。
 - instance は、言語を受けて `createInstance` で作る(`src/i18n/create-i18n.ts`)。訳は instance ごとに `structuredClone` で複製して渡す。i18next は渡した object をそのまま store にし、`addResource` などで書き換えるので、複製しないと、ある instance(テストや story)で書き換えた訳が、ほかの instance に漏れる。i18next の既定の instance と `initReactI18next` は使わず、`I18nextProvider` で渡す(`App`)。テストや Storybook が、描くたびに別の言語の instance を作れる。`App` を通さずに部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で、i18next の instance の下で描く。
 - 日付と時刻は、i18next の formatting を使わず、`Intl.DateTimeFormat` の関数(`format-date-time.ts`)に、i18next の今の言語を渡して書く。書式(`dateStyle: medium`・`timeStyle: short`)は画面の決めごとで、言語ごとに変えない。formatting にすると、全部の言語の訳に `{{created, datetime(dateStyle: medium; timeStyle: short)}}` のような書式を写すことになり、API が返す ISO 8601 の文字列を `Date` に直す手間も要る。
-- 英語の訳を `as const` で書くので、`t` の戻り値の型は、英語の訳の文字列のリテラルになる(i18next の型の仕様)。実行時には、今の言語の訳が返る。テストで戻り値を英語以外の文字列と比べるときは、`expect<string>` で `string` に広げる。
-- 引数を取らないキーを値として持つ型(知らせの訳のキーなど)は、i18next の `ParseKeysWithoutVariables` にする。`t(key)` に、そのまま渡せる。ただし、複数形の形(`key_one`・`key_other`)だけを持ち、どの形も引数を取らないキーも受け付ける。`count` を渡さずに引くと、訳ではなくキーがそのまま返る(`{{count}}` を含む形があれば、型の誤りになる)。知らせに複数形を使うときは、`count` も渡せる形にする。
+- 英語の訳を `as const` で書くので、i18next や `useTranslation` から直接取る `t` の戻り値の型は、英語の訳の文字列のリテラルになる。実行時には今の言語の訳が返るため、`useTranslate` では戻り値の型を `string` にする。i18next の `t` の戻り値をテストで英語以外の文字列と比べるときは、`expect<string>` で `string` に広げる。
+- features で引数を取らないキーを値として持つ型(知らせの訳のキーなど)は、`useTranslate` が返す `t(key)` にそのまま渡せる `MessageKey` にする。出どころは i18next の `ParseKeysWithoutVariables`。ただし、複数形の形(`key_one`・`key_other`)だけを持ち、どの形も引数を取らないキーも受け付ける。`count` を渡さずに引くと、訳ではなくキーがそのまま返る(`{{count}}` を含む形があれば、型の誤りになる)。知らせに複数形を使うときは、`count` も渡せる形にする。
 - ブラウザの言語の並びから選ぶときは、`Intl.Locale` の `maximize()` で言語と文字体系の組にしてから比べる。`zh-CN`・`zh-SG`・`zh` は `zh-Hans`、`ja-JP` は `ja` になる。`zh-TW`・`zh-HK` は文字体系が違う(繁体字)ので、`zh-Hans` に寄せず、並びの次の言語に進む。どれにも対応していなければ英語にする。
 - `Intl.Locale` が読めない tag(`i-klingon` など。BCP 47 では正しくても、Intl が受け付けないものがある)は、飛ばして次の言語に進む。head の script の中で throw すると、言語と配色のどちらも当たらなくなる(Codex のレビューで見つかった)。
 - 利用者が選んだ言語と配色は、`localStorage` の `analemma:locale`・`analemma:theme` に置く。server には送らない。管理者は1人で、端末ごとに違ってよい。
@@ -131,6 +131,16 @@ effect を使う hook の表は、次のとおり。
 - 画面に focus が戻っても、取り直さない(`refetchOnWindowFocus: false`)。パスキーの操作は OS の画面を開くので、ログインの最中に focus が出入りし、取り直すと、ログインの最中にほかの管理用 API を呼ぶことになる(「server の認証に合わせること」)。
 - 送信の失敗は、やり直さない。登録やログインを2回送ると、使い切った challenge で失敗する。
 - 送信と取得は、オフラインでも保留せずに送り、失敗をその場で返す(`networkMode: "always"`)。TanStack Query の既定では、オフラインのときの送信を保留し、つながったときに確かめずに送る(すべてのセッションからのログアウトなどが、利用者の知らないうちに送られる。Codex のレビューで見つかった)。取得も保留すると、送信の後に一覧を取り直す処理が待ったままになり、送信が終わらない(Copilot のレビューで見つかった)。
+
+## features の依存
+
+重要な業務のロジックを外のライブラリから独立させるため、features の外部依存を減らす(ユーザーが決めた)。ライブラリを差し替えるときに調べて直す場所を限るために、外のライブラリへの依存を `src/i18n/` と `src/api/` に集める。差し替えへの備えは、抽象化の層を増やすのではなく、依存の場所を限ることで担保する。
+
+- features に渡すのは、今使う操作と値に絞る。ライブラリの型を返したり、名前を変えて出し直したりすると、呼び出し側もライブラリの型や振る舞いに依存するため。
+- query のキーと、再認証などの操作の中身は features が持つ。資源ごとの hook を `src/api/` に置くと、業務のロジックを呼ぶために `src/api/` が features を import し、依存の向きが逆になる。
+- `callApi` は呼び出し側が扱う code だけを `Failed` で返し、ほかの失敗は元の error を throw する。セッション切れを表す `UNAUTHORIZED` を query client に届け、ログインの画面への移動を query client に任せるため。
+- 送信の成功後に一覧を取り直す間も、同じ操作を続けて送らせないよう、成功したときの関数が終わるまで送信中にする。再取得に失敗したときは、前のデータを出して取得できたように見せないため、取得の失敗を返す。
+- 今回の適用範囲は `src/features/`。route ごとの画面を置く `src/routes/` は今は外のライブラリを直接 import する。
 
 ## ログインとセッション
 
