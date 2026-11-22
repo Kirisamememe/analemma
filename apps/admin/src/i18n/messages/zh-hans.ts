@@ -86,10 +86,9 @@ export const zhHans = {
     "公开站点部署时用于发送种类定义的令牌。令牌的值仅在签发后显示一次。",
   "deployTokens.listTitle": "已签发的令牌",
   "deployTokens.issue": "签发令牌",
-  "deployTokens.issueDescription":
-    "请起一个能看出用途的名称。签发前将用当前的通行密钥确认。",
+  "deployTokens.issueDescription": "签发前将用当前的通行密钥确认。",
   "deployTokens.name": "令牌名称",
-  "deployTokens.nameDescription": "例如：正式环境部署",
+  "deployTokens.nameDescription": "能看出用途的名称（例如正式环境部署）。",
   "deployTokens.invalidName": "请使用 1～64 个字符，不要包含换行等。",
   "deployTokens.cancel": "取消",
   "deployTokens.issued": "已签发“{{name}}”。",

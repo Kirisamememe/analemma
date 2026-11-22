@@ -21,6 +21,6 @@ export const Issued: Story = {};
 export const LongName: Story = {
   args: {
     label:
-      "「deploy-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklm」のトークン",
+      "「deploy-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijk」のトークン",
   },
 };

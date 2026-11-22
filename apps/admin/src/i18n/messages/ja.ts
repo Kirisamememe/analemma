@@ -100,9 +100,10 @@ export const ja = {
   "deployTokens.listTitle": "発行したトークン",
   "deployTokens.issue": "トークンを発行",
   "deployTokens.issueDescription":
-    "どこで使うかが分かる名前を付けます。発行の前に、登録済みのパスキーで本人確認をします。",
+    "発行の前に、登録済みのパスキーで本人確認をします。",
   "deployTokens.name": "トークンの名前",
-  "deployTokens.nameDescription": "例:本番のデプロイ",
+  "deployTokens.nameDescription":
+    "どこで使うかが分かる名前(本番のデプロイなど)。",
   "deployTokens.invalidName": "1〜64文字で、改行などを使わずに付けてください。",
   "deployTokens.cancel": "キャンセル",
   "deployTokens.issued": "「{{name}}」を発行しました。",

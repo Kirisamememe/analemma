@@ -62,7 +62,7 @@ export const LongName: Story = {
     createRoutes: () =>
       createDeployTokenRoutes([
         {
-          name: "deploy-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklm",
+          name: "deploy-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijk",
           lastUsedAt: null,
         },
         { name: "本番のデプロイ", lastUsedAt: "2026-02-03T04:05:00.000Z" },

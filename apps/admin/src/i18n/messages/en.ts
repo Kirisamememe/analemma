@@ -93,9 +93,10 @@ export const en = {
   "deployTokens.listTitle": "Issued tokens",
   "deployTokens.issue": "Issue a token",
   "deployTokens.issueDescription":
-    "Name it after where it is used. You will confirm with a current passkey before it is issued.",
+    "You will confirm with a current passkey before the token is issued.",
   "deployTokens.name": "Token name",
-  "deployTokens.nameDescription": "For example: Production deploy",
+  "deployTokens.nameDescription":
+    "A name that tells where it is used (such as Production deploy).",
   "deployTokens.invalidName": "Use 1 to 64 characters, without line breaks.",
   "deployTokens.cancel": "Cancel",
   "deployTokens.issued": "“{{name}}” was issued.",
