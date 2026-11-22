@@ -39,7 +39,7 @@
 - `black`・`white` という名前は使わず、用途の名前(`scrim`・`on-media`)にする。`bg-white` をカードに、`text-white` を塗りの上に、と書かれやすく、dark の意味の色の塗りの上の白い文字は、コントラストが 1.7〜2.9:1 しかない。
 - パレットの値は、shadcn/ui の neutral に合わせる。管理画面の `primary` は白と黒。役割の名前は、自分たちの名前(`canvas`・`surface`・`fg` など)を使う。
 - light の意味の色は、薄い面の上の文字でも 4.5:1(WCAG の AA)に届く段にする(red-700・green-800・amber-800・blue-700)。
-- コントラストは、theme.css を読むテスト(`apps/admin/__tests__/theme-contrast.test.ts`)で確かめる。塗りと、その上の文字の組(`on-*`)は、hover と pressed の重ねも含めて 4.5:1 に届く。意味の色は、面(`canvas`・`surface`・`surface-sunken`)と、その上の `/10` の薄い面の上の文字として、light でも dark でも 4.5:1 に届く。OKLCH を sRGB に直し、sRGB に入らない色は 0〜1 に clamp して計算する。計算は役割の色の定義を読むので、同じテストで、役割の色をほかの場所で上書きしないこと(forced-colors のシステムの色を除く)、`on-*` が、`on-` を除いた名前の塗りと組になること(写真の上の `on-media` を除く)、hover と pressed の重ねが文字の色を透明と混ぜたものであることも確かめる。どれかが崩れると、計算した色と実際の色が食い違う(Codex のレビューで見つかった)。
+- コントラストは、theme.css を読むテスト(`apps/admin/__tests__/theme-contrast.test.ts`)で確かめる。塗りと、その上の文字の組(`on-*`)は、hover と pressed の重ねも含めて 4.5:1 に届く。意味の色は、面(`canvas`・`surface`・`surface-sunken`)と、その上の `/10` の薄い面の上の文字として、light でも dark でも 4.5:1 に届く。OKLCH を sRGB に直し、sRGB に入らない色は 0〜1 に clamp して計算する。計算は役割の色の定義を読むので、同じテストで、役割の色をほかの場所で上書きしないこと(forced-colors のシステムの色を除く)、`on-*` が、`on-` を除いた名前の塗りと組になること(写真の上の `on-media` を除く)、hover と pressed の重ねが文字の色を透明と混ぜたものであることも確かめる。上書きは forced-colors の中だけに許し、そこでは塗りを `Highlight` に、その上の文字を `HighlightText` に差し替えること、パレットの色も1か所だけで定義すること、hover と pressed の utility が1か所だけであることも確かめる(CSS のコメントは除いて読む)。どれかが崩れると、計算した色と実際の色が食い違う(Codex と Cursor のレビューで見つかった)。
 - dark の `surface-sunken` は、`surface` と別の段(neutral-950)にする。同じ色だと、dark のサイドバーで、今いる場所が見分けられない。
 - light の `focus` は neutral-500 にする。白に対して 3:1 に届く。
 - 未選択の Checkbox・Switch の off のような部品の枠は、`fg-muted` で描く。部品の枠には 3:1 が要り、`line` では届かない。色は足さない。
@@ -135,5 +135,6 @@
 - **hash の履歴**:`UiProvider` のリンクの `href` は、TanStack Router の `buildLocation` の `href` をそのまま使い、hash の履歴(`createHashHistory`)や URL の書き換えには合わない。管理画面はブラウザの履歴(`createBrowserHistory`)だけを使う。使うときは、`history.createHref()` を通す。
 - **検査が見ない class の渡し方**:JSX の属性と、`tv`・`merge` などの呼び出しの中の文字列だけを検査する。DOM を直に触る `element.classList.add()` や `element.style`、`className` に渡した、`tv` で作っていない関数の戻り値は見ない。今の部品にはどれも無く、要る場面が出たら、そこで使える範囲を決める。参照先まで追う検査は、作る手間に見合わない。
 - **入力欄の枠の濃さ**:入力欄の枠は `line` で描き、地とのコントラストは 3:1 に届かない(未選択の Checkbox・Switch の枠は `fg-muted` で描くと決めたが、入力欄は決めていない)。入力欄は面(`surface`)と影とラベルで見分けられ、管理者1人が使う画面なので、今は受け入れる。見本の画面ができたら、ユーザーと見直す。
+- **部品の配色の取り違え**:コントラストのテストは theme.css の色の組を確かめ、部品がどの組を使うかは確かめない。`Button` の `danger` を古い `bg-danger text-canvas` に戻しても、テストは通る(どちらの class も lint で許す)。happy-dom は CSS を読まないので、描いた色を確かめるにはブラウザでのテストが要り、class の名前で確かめるとマークアップをなぞるテストになる。部品の見た目は Storybook で見る(Codex のレビューで見つかった)。
 - **sRGB に入らない色のコントラスト**:コントラストのテストは、sRGB に入らない色(red-700 など)を 0〜1 に clamp して計算する。CSS Color 4 の gamut mapping(彩度を落として収める)で計算すると、4.5:1 の境目の色では、コントラスト比が 0.2 ほど変わることがある(今の塗りは、どれも境目から離れている。`danger-strong` の白い文字は、pressed でも 5.7:1)。gamut mapping をテストに入れる手間に見合わないので、境目に近い色を足すときは、両方の計算で確かめる(Codex のレビューで見つかった)。
 - **Windows の和文の太さ**:Windows の和文の字体には 600 が無いものがあり、600 と 700 の区別がつかないことがある(実機では確かめていない)。管理画面は管理者1人が Mac で使うので、受け入れる(ユーザーが決めた)。公開サイトは、作るときに決める。

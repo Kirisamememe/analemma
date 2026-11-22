@@ -6,6 +6,13 @@ const theme = await readFile(
   "utf8",
 );
 
+const FORCED_COLORS =
+  /@media \(forced-colors: active\) \{(?<block>[^@]*?)\n {2}\}/v;
+
+const source = theme.replaceAll(/\/\*[\s\S]*?\*\//gv, "");
+const forcedColors = FORCED_COLORS.exec(source)?.groups?.["block"] ?? "";
+const normal = source.replace(FORCED_COLORS, "");
+
 const AA = 4.5;
 const SCHEMES = ["light", "dark"] as const;
 const SURFACES = ["canvas", "surface", "surface-sunken"] as const;
@@ -29,10 +36,10 @@ type Layer = {
   readonly alpha: number;
 };
 
-const definitionsOf = (prefix: string): Map<string, string[]> => {
+const definitionsOf = (css: string, prefix: string): Map<string, string[]> => {
   const definitions = new Map<string, string[]>();
 
-  for (const { groups } of theme.matchAll(
+  for (const { groups } of css.matchAll(
     new RegExp(`--${prefix}-(?<name>[a-z0-9\\-]+):\\s*(?<value>[^;]+);`, "gv"),
   )) {
     const name = groups?.["name"] ?? "";
@@ -46,8 +53,9 @@ const definitionsOf = (prefix: string): Map<string, string[]> => {
   return definitions;
 };
 
-const palette = definitionsOf("palette");
-const colors = definitionsOf("color");
+const palette = definitionsOf(normal, "palette");
+const colors = definitionsOf(normal, "color");
+const forced = definitionsOf(forcedColors, "color");
 
 const clamp = (channel: number): number => Math.min(1, Math.max(0, channel));
 
@@ -121,7 +129,7 @@ const overlayOf = (utility: string): number =>
     new RegExp(
       `@utility ${utility} \\{\\s*background-image: linear-gradient\\(\\s*color-mix\\(in oklab, currentColor (?<percent>\\d+)%, transparent\\) 0 0\\s*\\);\\s*\\}`,
       "v",
-    ).exec(theme)?.groups?.["percent"],
+    ).exec(source)?.groups?.["percent"],
   ) / 100;
 
 const OVERLAYS = [overlayOf("state-hover"), overlayOf("state-pressed")];
@@ -139,23 +147,44 @@ const FILLS = TEXTS_ON_FILLS.flatMap((text) => {
 });
 
 describe("theme.css の色の定義", () => {
-  test("役割の色は1か所で定義し、ほかで上書きするのは forced-colors のシステムの色だけ", () => {
+  test("役割の色とパレットの色は、forced-colors の外では1か所だけで定義する", () => {
     expect(
-      [...colors].filter(
-        ([, [, ...overrides]]) =>
-          !overrides.every((value) => SYSTEM_COLOR.test(value)),
-      ),
+      [...colors, ...palette].filter(([, values]) => values.length !== 1),
     ).toEqual([]);
   });
 
+  test("forced-colors では、塗りをシステムの Highlight に、その上の文字を HighlightText に差し替える", () => {
+    expect([...forced.keys()].length).toBeGreaterThan(0);
+    expect(
+      [...forced].filter(
+        ([, values]) => !values.every((value) => SYSTEM_COLOR.test(value)),
+      ),
+    ).toEqual([]);
+    expect(
+      FILLS.filter(({ scheme }) => scheme === "light")
+        .filter(({ fill, text }) => forced.has(fill) || forced.has(text))
+        .map(({ fill, text }) => [forced.get(fill), forced.get(text)]),
+    ).toEqual(
+      FILLS.filter(({ scheme }) => scheme === "light")
+        .filter(({ fill, text }) => forced.has(fill) || forced.has(text))
+        .map(() => [["Highlight"], ["HighlightText"]]),
+    );
+  });
+
   test("on-X の色は、どれも X の塗りの色と組になる(写真の上の文字の on-media を除く)", () => {
+    expect(FILLS.length).toBeGreaterThan(0);
     expect(
       TEXTS_ON_FILLS.filter((text) => !colors.has(text.replace(/^on-/v, ""))),
     ).toEqual(WITHOUT_FILL);
   });
 
-  test("hover と pressed の重ねは、文字の色を透明と混ぜたものとして読み取れる", () => {
-    expect(OVERLAYS.every((alpha) => alpha > 0)).toBe(true);
+  test("hover と pressed の重ねは、1か所だけで、文字の色を透明と混ぜたものとして読み取れる", () => {
+    expect(
+      ["state-hover", "state-pressed"].map(
+        (utility) => source.split(`@utility ${utility} `).length - 1,
+      ),
+    ).toEqual([1, 1]);
+    expect(OVERLAYS.every((alpha) => alpha > 0 && alpha < 1)).toBe(true);
   });
 });
 
