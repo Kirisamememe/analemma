@@ -108,42 +108,42 @@ describe("TSDoc", () => {
   test.each([
     {
       label: "条件を書いた TSDoc",
-      file: "tsdoc/behavior.ts",
+      file: "comments/tsdoc/behavior.ts",
       rule: "project(tsdoc-role-only)",
     },
     {
       label: "2文の TSDoc",
-      file: "tsdoc/sentences.ts",
+      file: "comments/tsdoc/sentences.ts",
       rule: "project(tsdoc-role-only)",
     },
     {
       label: "説明が2行の TSDoc",
-      file: "tsdoc/multiline.ts",
+      file: "comments/tsdoc/multiline.ts",
       rule: "project(tsdoc-role-only)",
     },
     {
       label: "使えないタグ",
-      file: "tsdoc/tag.ts",
+      file: "comments/tsdoc/tag.ts",
       rule: "project(tsdoc-role-only)",
     },
     {
       label: "条件を書いた @returns",
-      file: "tsdoc/tag-behavior.ts",
+      file: "comments/tsdoc/tag-behavior.ts",
       rule: "project(tsdoc-role-only)",
     },
     {
       label: "引数と名前の違う @param",
-      file: "tsdoc/param-name.ts",
+      file: "comments/tsdoc/param-name.ts",
       rule: "jsdoc-js(check-param-names)",
     },
     {
       label: "何も返さない関数の @returns",
-      file: "tsdoc/returns-void.ts",
+      file: "comments/tsdoc/returns-void.ts",
       rule: "jsdoc-js(require-returns-check)",
     },
     {
       label: "型を書いた @param",
-      file: "tsdoc/param-type.ts",
+      file: "comments/tsdoc/param-type.ts",
       rule: "jsdoc-js(no-types)",
     },
   ])("$label に診断を出すこと", ({ file, rule }) => {

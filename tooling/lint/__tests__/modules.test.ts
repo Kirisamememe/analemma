@@ -81,6 +81,11 @@ describe("import の形", () => {
       rule: "import(extensions)",
     },
     {
+      label: "Node が読む設定のファイルの、拡張子の無い相対 import",
+      file: "tooling/lint/config/without-extension.ts",
+      rule: "import(extensions)",
+    },
+    {
       label: "`import()` による動的な import",
       file: "imports/dynamic-import.ts",
       rule: "project(no-dynamic-import)",

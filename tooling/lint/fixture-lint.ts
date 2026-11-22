@@ -7,6 +7,8 @@ export type Diagnostic = {
   readonly code: string;
   /** 診断の文言。 */
   readonly message: string;
+  /** 診断を出した行(1から数える)。 */
+  readonly line: number;
 };
 
 /** fixture を lint した結果。 */
@@ -25,11 +27,24 @@ const oxlintBin = join(repoRoot, "node_modules/.bin/oxlint");
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
+const lineOf = (labels: unknown): number => {
+  const label: unknown = Array.isArray(labels) ? labels.at(0) : undefined;
+  const span = isRecord(label) ? label["span"] : undefined;
+
+  return isRecord(span) && typeof span["line"] === "number" ? span["line"] : 0;
+};
+
 const toDiagnostic = (value: unknown): Diagnostic[] =>
   isRecord(value) &&
   typeof value["code"] === "string" &&
   typeof value["message"] === "string"
-    ? [{ code: value["code"], message: value["message"] }]
+    ? [
+        {
+          code: value["code"],
+          message: value["message"],
+          line: lineOf(value["labels"]),
+        },
+      ]
     : [];
 
 /** fixture のフォルダから数えたパスを、fixture 用の設定で lint する。 */
@@ -38,7 +53,7 @@ export const lintFixture = (target: string): FixtureLintResult => {
     oxlintBin,
     [
       "--config",
-      "oxlint.fixtures.config.mjs",
+      "oxlint.fixtures.config.ts",
       "--disable-nested-config",
       "--format",
       "json",
@@ -46,6 +61,13 @@ export const lintFixture = (target: string): FixtureLintResult => {
     ],
     { cwd: repoRoot, encoding: "utf8" },
   );
+
+  if (!result.stdout.trimStart().startsWith("{")) {
+    throw new Error(
+      `Oxlint が JSON の結果を出さなかった:\n${result.stderr}\n${result.stdout}`,
+    );
+  }
+
   const report: unknown = JSON.parse(result.stdout);
 
   return {
