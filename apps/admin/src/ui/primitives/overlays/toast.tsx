@@ -20,9 +20,9 @@ const toastStyle = tv({
     region:
       "fixed inset-s-4 inset-e-4 bottom-4 z-toast ms-auto flex max-w-sm flex-col-reverse gap-2",
     panel:
-      "flex items-start gap-2 rounded-surface bg-surface py-2 ps-3 pe-2 text-fg shadow-overlay outline outline-fg/10 toast-animation is-focus-shown:focus-ring",
+      "flex items-start gap-2 rounded-surface bg-surface py-2 ps-4 pe-2 text-fg shadow-overlay outline outline-fg/10 toast-animation is-focus-shown:focus-ring",
     content: "flex min-w-0 flex-1 items-start gap-2 py-1.5",
-    iconFrame: "grid size-5 shrink-0 place-items-center",
+    iconFrame: "flex h-5 shrink-0 items-center",
     icon: "size-icon",
     message: "min-w-0 wrap-anywhere",
     close:
