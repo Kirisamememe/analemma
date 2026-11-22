@@ -93,6 +93,14 @@ describe("本番のビルド", () => {
     expect(built.css).not.toContain("--lightningcss-");
   });
 
+  test("最大幅の class と本文の query container を CSS に出力すること", () => {
+    for (const size of ["sm", "md", "lg", "form", "page"]) {
+      expect(built.css).toContain(`max-width:var(--max-width-${size})`);
+    }
+
+    expect(built.css).toContain("container-type:inline-size");
+  });
+
   test("言語と配色を当てる script を、head の中で、アプリの script より前に置く", () => {
     const head = built.html.slice(0, built.html.indexOf("</head>"));
     const inline = head.indexOf("<script>");
