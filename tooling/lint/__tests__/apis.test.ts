@@ -177,7 +177,7 @@ describe("feature の import", () => {
     {
       app: "server",
       file: "external-imports.ts",
-      lines: [1, 2, 3, 4, 5, 6, 8],
+      lines: [1, 2, 3, 4, 5, 6, 7, 9],
     },
     {
       app: "server",

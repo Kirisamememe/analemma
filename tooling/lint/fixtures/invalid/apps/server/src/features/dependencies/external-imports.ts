@@ -1,3 +1,4 @@
+import "bun:test";
 import "example/.";
 import "example/..";
 import type { InferContractRouterInputs } from "@orpc/contract";

@@ -107,7 +107,7 @@ export const SERVER_OVERRIDES: readonly OxlintOverride[] = [
     ]),
   },
   {
-    files: ["**/apps/server/src/features/**/__tests__/*.test.ts"],
+    files: ["**/apps/server/src/features/**/__tests__/*.{test,spec}.ts"],
     rules: featureImports(["!bun:test", "bun:test/**", "*/**/bun:test"]),
   },
   {
