@@ -33,6 +33,7 @@ const getSessionRaw = async (
       headers: {
         "content-type": "application/json",
         origin: TEST_ORIGIN,
+        "sec-fetch-site": "same-origin",
         cookie: browser.cookie(),
       },
       body: JSON.stringify({ json: null }),
