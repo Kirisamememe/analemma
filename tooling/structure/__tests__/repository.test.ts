@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import config from "../../../oxlint.config";
 import {
   DIRECTORY_ENTRY_LIMIT,
   findBadDirectories,
@@ -96,15 +97,8 @@ type OptionQuery = {
 const optionOf = ({ name, value }: OptionQuery): unknown =>
   Array.isArray(value) && isRecord(value[1]) ? value[1][name] : undefined;
 
-const config: unknown = JSON.parse(
-  readFileSync(join(repoRoot, ".oxlintrc.json"), "utf8"),
-);
-const rules =
-  isRecord(config) && isRecord(config["rules"]) ? config["rules"] : {};
-const overrides =
-  isRecord(config) && Array.isArray(config["overrides"])
-    ? config["overrides"]
-    : [];
+const rules: Readonly<Record<string, unknown>> = config.rules;
+const { overrides } = config;
 
 test("どのソースのファイルも、抑制できない約束を守っていること", () => {
   const problems = sourcePaths.flatMap((path) =>
@@ -136,7 +130,7 @@ test("Oxlint が飛ばす名前のソースのファイルが無いこと", () =
 
 test("Oxlint の設定はリポジトリの直下の1つだけであること", () => {
   expect(paths.filter((path) => OXLINT_CONFIG.test(path))).toEqual([
-    ".oxlintrc.json",
+    "oxlint.config.ts",
   ]);
 });
 

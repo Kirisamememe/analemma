@@ -4,18 +4,18 @@
 
 ## 技術
 
-| 役割                             | 使うもの                                                                     | 理由                                                                                                                   |
-| -------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| 実行環境・パッケージ管理・テスト | Bun 1.4(`bun test`)                                                          | 1つのツールで済み、TypeScript をそのまま動かせる。                                                                     |
-| 言語                             | TypeScript 7.1(beta で始め、安定版が出たら上げる)                            | 7.1 から、型情報を扱う JS API(`typescript/sync` など)が安定版になる。型を使う自作の検査を、安定した API の上に書ける。 |
-| 型付きの lint                    | tsrs(TS 7.1 を Rust に移植したもの)                                          | tsgolint は TS 7.0 を内蔵していて、7.1 の tsc と型検査器のバージョンが食い違う。                                       |
-| DB                               | PostgreSQL 18 + Drizzle ORM 1.0 RC(バージョンを固定)。ドライバは postgres.js | 用意の仕方は下の「PostgreSQL の用意」。                                                                                |
-| API                              | oRPC(contract を先に定義する方式)                                            | 公開 API も管理用 API も同じ書き方にでき、contract から OpenAPI を出せる。                                             |
-| HTTP の層                        | Hono                                                                         | 理由は `apps/server/DECISIONS.md`。                                                                                    |
-| 検証                             | zod 4                                                                        | ユーザーが一番詳しい。                                                                                                 |
-| 管理画面                         | React + TanStack Router + TanStack Query の SPA。Vite でビルドする           | 理由は `apps/admin/DECISIONS.md`。                                                                                     |
-| 認証                             | パスキーとセッション Cookie だけ。WebAuthn の処理はライブラリを使わずに書く  | 使うのはサイトの持ち主1人なので、パスワードを持たない。                                                                |
-| Lint・整形                       | Oxlint + oxfmt                                                               | ESLint と typescript-eslint は TS 7 に対応していない。                                                                 |
+| 役割                             | 使うもの                                                                                                                                                 | 理由                                                                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 実行環境・パッケージ管理・テスト | Bun 1.4(`bun test`)                                                                                                                                      | 1つのツールで済み、TypeScript をそのまま動かせる。                                                                     |
+| 言語                             | TypeScript 7.1(beta で始め、安定版が出たら上げる)                                                                                                        | 7.1 から、型情報を扱う JS API(`typescript/sync` など)が安定版になる。型を使う自作の検査を、安定した API の上に書ける。 |
+| 型付きの lint                    | tsrs(TS 7.1 を Rust に移植したもの)                                                                                                                      | tsgolint は TS 7.0 を内蔵していて、7.1 の tsc と型検査器のバージョンが食い違う。                                       |
+| DB                               | PostgreSQL 18 + Drizzle ORM 1.0 RC(バージョンを固定)。ドライバは postgres.js                                                                             | 用意の仕方は下の「PostgreSQL の用意」。                                                                                |
+| API                              | oRPC(contract を先に定義する方式)                                                                                                                        | 公開 API も管理用 API も同じ書き方にでき、contract から OpenAPI を出せる。                                             |
+| HTTP の層                        | Hono                                                                                                                                                     | 理由は `apps/server/DECISIONS.md`。                                                                                    |
+| 検証                             | zod 4                                                                                                                                                    | ユーザーが一番詳しい。                                                                                                 |
+| 管理画面                         | React + TanStack Router + TanStack Query の SPA。Vite でビルドする。見た目は Tailwind CSS v4 + tailwind-variants、部品の振る舞いは React Aria Components | 理由は `apps/admin/DECISIONS.md`。                                                                                     |
+| 認証                             | パスキーとセッション Cookie だけ。WebAuthn の処理はライブラリを使わずに書く                                                                              | 使うのはサイトの持ち主1人なので、パスワードを持たない。                                                                |
+| Lint・整形                       | Oxlint + oxfmt                                                                                                                                           | ESLint と typescript-eslint は TS 7 に対応していない。                                                                 |
 
 tsrs はまだ prerelease なので、型エラーの判定は公式の `tsc` だけで行い、tsrs は lint のルールにだけ使う(Oxlint の `typeCheck` は使わない)。tsrs にずれがあっても、影響を lint に閉じ込められる。tsrs で困ったら、ユーザーに報告する。`oxlint-tsgolint` に入れ替えることはできる(Oxlint はどちらか入っている方を自動で使う)が、tsgolint は TS 7.0 を内蔵していて、7.1 に合わせているのは tsrs だけ。入れ替えると、tsrs を選んだ理由の、7.0 と 7.1 の型検査器の食い違いがそのまま残るので、それを受け入れるかを、ユーザーと決める。
 
@@ -63,6 +63,13 @@ tsrs はまだ prerelease なので、型エラーの判定は公式の `tsc` �
 
 - client は contract にだけ依存する。server を import するワークスペースは無い。contract はどのワークスペースも import しない。client は npm で公開して公開サイトが使うので、contract が import したものは公開サイトとその型にまで届いてしまう。
 - 本番は server のプロセス1つで、外部用のポートから `/api` と管理画面の静的ファイルを同じ origin で配信する。公開 API は、内部用のポートでだけ受ける(`apps/server/DECISIONS.md` の「2つのポート」)。
+
+## デザインシステム
+
+管理画面と公開サイト(Amayadori)で、同じデザインシステムを使う(ユーザーが決めた)。アプリごとに変えるのは色のパレット(1層目)だけで、役割の名前・文字の目盛り・状態・規則はそろえる。2つの見た目を、同じ考え方と同じ語彙で作れるようにするため。
+
+- 原本は管理画面の `apps/admin/src/ui/theme.css` に置き、判断は `apps/admin/src/ui/DECISIONS.md` に書く。
+- 公開サイトへの配り方(npm で配るか、写すか)は、まだ決めていない。contract と client を npm に公開する方法と一緒に決める。
 
 ## DB の形と API の形を分ける
 

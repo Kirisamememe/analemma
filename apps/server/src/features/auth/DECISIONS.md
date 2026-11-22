@@ -115,7 +115,7 @@ auth の feature が持つテーブルは、`admin_user`・`passkey`・`session`
 
 - 最初のパスキーの登録と、パスキーを全部失ったときの復旧は、server のコマンド(`bun run passkey:enroll`、`src/enroll.ts`)が出す1回きりの登録用 URL で行う(ユーザーが決めた)。誰でも登録できる仕組みは作らない。コマンドを動かせるのは server を動かせる人だけなので、それで管理者だと見なす。
 - 登録用 URL は10分だけ使える。コマンドで出してからブラウザで開き、パスキーを作るまでの時間。新しい URL を出すと、前の URL は使えなくなる。登録に成功したら token の行を消し、1回きりにする。登録の options を取っただけでは使い切らない(パスキーの作成を取り消しても、やり直せるように)。資格情報を受け付けなかったときも使い切らない。
-- URL は `{AUTH_ORIGIN}/enroll#{token}`。token は `#` の後ろに置き、server のアクセスログや Referer に残さない。この形は仮で、管理画面を作るときに決める(server の「まだ決めていないこと」)。
+- URL は `{AUTH_ORIGIN}/enroll#{token}`。token は `#` の後ろに置き、server のアクセスログや Referer に残さない。管理画面の登録の画面(`/enroll`)を作るときに、この形に決めた(`apps/admin/DECISIONS.md`)。
 - コマンドは登録用 URL だけを標準出力に書き、説明とログは標準エラーに書く。ログには token の ID と期限だけを書き、secret は書かない。
 - 管理者の行(user handle)は、最初に登録用 URL を出すときに作る。登録用 URL からの登録が成功したら、そのままログインさせる。
 - 復旧のときも、登録済みのパスキーを登録の options の `excludeCredentials` に並べる。手元に残っている認証器で、同じ管理者の2つめのパスキーを作らせないため。

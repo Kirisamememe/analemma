@@ -13,7 +13,7 @@
     "lint": "oxlint --disable-nested-config",
     "lint:fix": "oxlint --disable-nested-config --fix",
     "typecheck": "tsc --noEmit -p tsconfig.json && bun run --workspaces --if-present typecheck",
-    "test": "bun --cwd=apps/server run test:prepare && bun test",
+    "test": "bun --cwd=apps/server run test:prepare && bun test && bun --cwd=apps/admin run test",
     "review": "bun tooling/review/review.ts",
     "prepare": "bun tooling/git-hooks/install.ts"
   },
@@ -24,6 +24,7 @@
     "@commitlint/types": "21.2.3",
     "@stylistic/eslint-plugin": "6.0.1",
     "@types/bun": "1.4.5",
+    "eslint-plugin-better-tailwindcss": "4.11.0",
     "eslint-plugin-jsdoc": "65.5.0",
     "eslint-plugin-prefer-arrow-functions": "3.10.2",
     "oxc-parser": "0.159.0",
