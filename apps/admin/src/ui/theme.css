@@ -340,6 +340,10 @@
     text-spacing-trim: space-all;
   }
 
+  :is(code, kbd, samp, pre):lang(ja) {
+    text-spacing-trim: space-all;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     ::before,
