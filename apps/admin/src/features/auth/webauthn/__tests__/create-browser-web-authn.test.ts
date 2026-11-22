@@ -43,9 +43,9 @@ const PARSED_CREATION = {
 type FakeBrowser = {
   /** パースした JSON の options。 */
   readonly parsed: unknown[];
-  /** 資格情報の窓口に渡した options。 */
+  /** `navigator.credentials` の作り物に渡した options。 */
   readonly called: unknown[];
-  /** 作り物の資格情報の窓口。 */
+  /** 作り物の `navigator.credentials`。 */
   readonly credentials: CredentialsApi;
   /** 作り物の JSON のパース。 */
   readonly parser: OptionsParser;
