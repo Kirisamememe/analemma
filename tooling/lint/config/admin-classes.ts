@@ -40,8 +40,9 @@ export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
   surface: ["bg"],
   "surface-sunken": ["bg"],
   fg: ["text", "fill", "stroke", "bg", "outline"],
-  "fg-muted": ["text", "fill", "stroke", "border"],
+  "fg-muted": ["text", "fill", "stroke"],
   line: ["border", "divide", "outline"],
+  "line-strong": ["border"],
   focus: [],
   primary: ["bg", "text", "border", "fill", "stroke"],
   "on-primary": ["text", "fill", "stroke"],
@@ -186,6 +187,12 @@ const TYPOGRAPHY_OUTSIDE_ROLES: Restriction = {
     "文字の大きさと太さは ui/typography.ts の役割だけで決めます。Text・Heading などの部品を使います。",
 };
 
+const LINE_STRONG_OUTSIDE_PRIMITIVES: Restriction = {
+  pattern: `${VARIANTS}[a-z\\-]+-line-strong${MODIFIER}$`,
+  message:
+    "line-strong は、ui/primitives/ の、入力を受ける部品の枠にだけ使います。",
+};
+
 const UNLISTED_TEXT_PAIR: Restriction = {
   pattern: `${VARIANTS}text-(?!(?:${TEXT_PAIRS.join("|")})$)(?:${SCALE})/`,
   message: `文字の大きさと行間の組は ${TEXT_PAIRS.join("・")} だけです。`,
@@ -235,8 +242,19 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
         ...UI_RESTRICTIONS,
         ...COLOR_USAGE_RESTRICTIONS,
         TYPOGRAPHY_OUTSIDE_ROLES,
+        LINE_STRONG_OUTSIDE_PRIMITIVES,
       ]),
       "project/styling-boundary": ["error", { area: "ui" }],
+    },
+  },
+  {
+    files: ["**/apps/admin/src/ui/primitives/**"],
+    rules: {
+      "better-tailwindcss/no-restricted-classes": restrictClasses([
+        ...UI_RESTRICTIONS,
+        ...COLOR_USAGE_RESTRICTIONS,
+        TYPOGRAPHY_OUTSIDE_ROLES,
+      ]),
     },
   },
   {
@@ -255,6 +273,7 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
         ...UI_RESTRICTIONS,
         ...COLOR_USAGE_RESTRICTIONS,
         UNLISTED_TEXT_PAIR,
+        LINE_STRONG_OUTSIDE_PRIMITIVES,
       ]),
     },
   },

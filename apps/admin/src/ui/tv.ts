@@ -16,6 +16,7 @@ const MERGE_CONFIG: TWMergeConfig = {
         "fg",
         "fg-muted",
         "line",
+        "line-strong",
         "focus",
         "primary",
         "on-primary",
