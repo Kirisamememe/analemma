@@ -111,7 +111,7 @@ describe("Toast", () => {
     );
   });
 
-  test("ToastProvider の外では useShowToast の誤りが分かる", () => {
+  test("ToastProvider の外で useShowToast を呼ぶと、ToastProvider の中で呼ぶように伝えて throw する", () => {
     expect(() => renderHook(useShowToast)).toThrow(
       "useShowToast は ToastProvider の中で呼んでください。",
     );

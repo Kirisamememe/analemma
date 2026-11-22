@@ -12,7 +12,7 @@ type ShowToast = (message: ToastMessage) => void;
 
 export const ShowToastContext = createContext<ShowToast | undefined>(undefined);
 
-/** Toast を出す関数を受け取る hook。 */
+/** Toast を出す関数を返す hook。 */
 export const useShowToast = (): ShowToast => {
   const showToast = useContext(ShowToastContext);
 
