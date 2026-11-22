@@ -71,8 +71,24 @@ const summaryOf = ({
 }: FakeFixedPage): FakeOutput<"admin/fixedPages/list">["pages"][number] =>
   summary;
 
+const withSortedKeys = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map((item: unknown) => withSortedKeys(item));
+  }
+
+  if (typeof value !== "object" || value === null) {
+    return value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value)
+      .toSorted(([a], [b]) => (a < b ? -1 : Number(a > b)))
+      .map(([key, item]) => [key, withSortedKeys(item)]),
+  );
+};
+
 const sameContent = (a: FixedPageContent, b: FixedPageContent): boolean =>
-  JSON.stringify(a) === JSON.stringify(b);
+  JSON.stringify(withSortedKeys(a)) === JSON.stringify(withSortedKeys(b));
 
 type InvalidContent = {
   /** 失敗の code。 */

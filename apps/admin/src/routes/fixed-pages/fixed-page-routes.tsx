@@ -11,6 +11,7 @@ import {
   fixedPageQueryKey,
   loadFixedPage,
 } from "@/features/fixed-pages/editor/fixed-page-query";
+import { KINDS_QUERY_KEY } from "@/features/fixed-pages/list/fixed-pages-query";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
 import { EmptyState, PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
@@ -73,7 +74,7 @@ const KindPicker = (): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const query = useApiQuery({
-    key: ["admin", "kinds", "list"],
+    key: KINDS_QUERY_KEY,
     load: () => api.admin.kinds.list(),
   });
 

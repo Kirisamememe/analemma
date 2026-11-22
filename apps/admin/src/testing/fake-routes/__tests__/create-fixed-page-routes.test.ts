@@ -157,6 +157,24 @@ describe("createFixedPageRoutes", () => {
     expect(changed.updatedAt > before.updatedAt).toBe(true);
   });
 
+  test("オブジェクトのキーの順だけが違う中身では、updatedAt を進めない", async () => {
+    const { api } = setUp();
+    const first = await api.admin.fixedPages.update({
+      id: ABOUT_ID,
+      slug: "about",
+      title: "About",
+      content: { body: "自己紹介", note: "補足" },
+    });
+    const reordered = await api.admin.fixedPages.update({
+      id: ABOUT_ID,
+      slug: "about",
+      title: "About",
+      content: { note: "補足", body: "自己紹介" },
+    });
+
+    expect(reordered.updatedAt).toBe(first.updatedAt);
+  });
+
   test("公開し直しても公開した日時を変えず、非公開に戻すと消す", async () => {
     const { api } = setUp();
     const before = await api.admin.fixedPages.get({ id: ABOUT_ID });
