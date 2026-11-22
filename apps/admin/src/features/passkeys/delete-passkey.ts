@@ -1,6 +1,4 @@
-import { safe } from "@orpc/client";
-
-import { definedCode } from "../../api/api-errors";
+import { callApi } from "../../api/call-api";
 import {
   type ReauthenticateDependencies,
   reauthenticate,
@@ -17,22 +15,11 @@ export type DeletePasskeyResult = {
     | "NotFound";
 };
 
-const RESULTS: Readonly<Record<string, DeletePasskeyResult["_tag"]>> = {
+const RESULTS = {
   REAUTHENTICATION_FAILED: "ReauthenticationFailed",
   LAST_PASSKEY: "LastPasskey",
   NOT_FOUND: "NotFound",
-};
-
-const fromError = (error: Error): DeletePasskeyResult => {
-  const code = definedCode(error);
-  const tag = code === undefined ? undefined : RESULTS[code];
-
-  if (tag === undefined) {
-    throw error;
-  }
-
-  return { _tag: tag };
-};
+} satisfies Record<string, DeletePasskeyResult["_tag"]>;
 
 /** 再認証をしてから、パスキーを削除する。 */
 export const deletePasskey = async (
@@ -45,12 +32,15 @@ export const deletePasskey = async (
     return { _tag: "Cancelled" };
   }
 
-  const [error] = await safe(
+  const result = await callApi(
     dependencies.api.admin.passkeys.delete({
       id,
       assertion: confirmation.assertion,
     }),
+    ["REAUTHENTICATION_FAILED", "LAST_PASSKEY", "NOT_FOUND"],
   );
 
-  return error === null ? { _tag: "Deleted" } : fromError(error);
+  return {
+    _tag: result._tag === "Succeeded" ? "Deleted" : RESULTS[result.code],
+  };
 };

@@ -1,5 +1,4 @@
-import type { ParseKeysWithoutVariables } from "i18next";
-
+import type { MessageKey } from "../../i18n/use-translate";
 import type { EnrollResult } from "./enroll";
 import type { LogInResult } from "./log-in";
 
@@ -8,7 +7,7 @@ export type AuthNotice = {
   /** 知らせの用途。 */
   readonly tone: "info" | "warning" | "danger";
   /** 知らせの文言の訳のキー。 */
-  readonly message: ParseKeysWithoutVariables;
+  readonly message: MessageKey;
 };
 
 /** 想定外の失敗で終わったこと。 */

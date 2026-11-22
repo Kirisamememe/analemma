@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 
 import { Stack } from "../../ui/layout/stack";
 import { NavButton } from "../../ui/primitives/navigation/nav-item";
 import { Notice } from "../../ui/primitives/notice";
 import type { useLogOut } from "./use-log-out";
+
+import { useTranslate } from "@/i18n/use-translate";
 
 /** ログアウトのボタンに渡す値。 */
 type LogOutButtonProps = {
@@ -17,7 +18,7 @@ type LogOutButtonProps = {
 
 /** 今のセッションからログアウトするボタン。 */
 export const LogOutButton = ({ logOut }: LogOutButtonProps): ReactNode => {
-  const { t } = useTranslation();
+  const t = useTranslate();
 
   return (
     <Stack gap={2}>

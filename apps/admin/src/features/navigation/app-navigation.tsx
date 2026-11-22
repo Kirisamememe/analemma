@@ -1,23 +1,21 @@
-import { useMatchRoute } from "@tanstack/react-router";
-import type { ParseKeysWithoutVariables } from "i18next";
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 
 import { LogOutButton } from "@/features/session/log-out-button";
 import { useLogOut } from "@/features/session/use-log-out";
+import { type MessageKey, useTranslate } from "@/i18n/use-translate";
 import { SideNav } from "@/ui/patterns/side-nav";
 import type { NavLinkProps } from "@/ui/primitives/navigation/nav-item";
 
 /** 管理画面のナビのリンクの定義。 */
 type NavigationLink = Pick<NavLinkProps, "href" | "icon"> & {
   /** リンクの文言の訳のキー。 */
-  readonly label: ParseKeysWithoutVariables;
+  readonly label: MessageKey;
 };
 
 /** 管理画面のナビのリンクのまとまり。 */
 type NavigationGroup = {
   /** 見出しの訳のキー。 */
-  readonly heading?: ParseKeysWithoutVariables;
+  readonly heading?: MessageKey;
   /** まとまりのリンクの定義。 */
   readonly items: readonly NavigationLink[];
 };
@@ -32,10 +30,15 @@ const GROUPS: readonly NavigationGroup[] = [
   },
 ];
 
+/** ログインした後の画面のナビに渡す値。 */
+type AppNavigationProps = {
+  /** 今いる画面へのリンクかを返す関数。 */
+  readonly isCurrent: (href: NavigationLink["href"]) => boolean;
+};
+
 /** ログインした後の画面のナビ。 */
-export const AppNavigation = (): ReactNode => {
-  const { t } = useTranslation();
-  const matchRoute = useMatchRoute();
+export const AppNavigation = ({ isCurrent }: AppNavigationProps): ReactNode => {
+  const t = useTranslate();
   const logOut = useLogOut();
 
   return (
@@ -49,7 +52,7 @@ export const AppNavigation = (): ReactNode => {
           href,
           label: t(label),
           icon,
-          isCurrent: matchRoute({ to: href, fuzzy: href !== "/" }) !== false,
+          isCurrent: isCurrent(href),
         })),
       }))}
       isDrawerPending={logOut.isPending}

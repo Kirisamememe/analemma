@@ -1,6 +1,7 @@
 import type { OxlintOverride } from "oxlint";
 
 import {
+  ADMIN_FEATURE_PATTERNS,
   REACT_PATHS,
   UI_LIBRARY_PATTERNS,
   VARIANT_LIBRARY_PATTERNS,
@@ -108,6 +109,19 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
       "project/require-sibling-test": ["error", { branchingComponents: true }],
     },
   },
+  ...(["ts", "tsx"] as const).map((extension) => ({
+    files: [`**/apps/admin/src/features/**/*.${extension}`],
+    rules: restrictApis({
+      imports: {
+        paths:
+          extension === "ts"
+            ? REACT_PATHS.filter(({ name }) => name === "react")
+            : [],
+        patterns: ADMIN_FEATURE_PATTERNS,
+      },
+      globals: WORKSPACE_BUN_GLOBALS,
+    }),
+  })),
   ...byExtension("**/__stories__/", {
     imports: {
       patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],

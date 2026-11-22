@@ -169,6 +169,30 @@ describe("使える API と書き方", () => {
   });
 });
 
+describe("管理画面の feature の import", () => {
+  test.each([
+    { file: "dependencies.ts", lines: [1, 2, 3, 4] },
+    { file: "dependencies.tsx", lines: [1, 2, 3, 5, 6] },
+    { file: "ui-libraries.tsx", lines: [1, 2, 3, 4] },
+  ])(
+    "$file の外部 import に、import ごとに診断を1件ずつ出すこと",
+    ({ file, lines }) => {
+      const { diagnostics } = lintFixture(
+        `invalid/apps/admin/src/features/dependencies/${file}`,
+      );
+      const restrictedImports = diagnostics.filter(
+        ({ code }) => code === "eslint(no-restricted-imports)",
+      );
+
+      expect(
+        restrictedImports
+          .map(({ line }) => line)
+          .toSorted((left, right) => left - right),
+      ).toEqual([...lines]);
+    },
+  );
+});
+
 describe("失敗を受け止める場所", () => {
   test("server の feature での try/catch と `.catch()` に、1件ずつ診断を出すこと", () => {
     const result = lintFixture(

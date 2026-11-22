@@ -1,4 +1,5 @@
 import { type RenderResult, render } from "@testing-library/react";
+import type { i18n as I18n } from "i18next";
 import type { ReactElement, ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
 
@@ -11,16 +12,17 @@ type WrapperProps = {
   readonly children: ReactNode;
 };
 
+/** テストで使う i18next の instance を渡す。 */
+export const withI18n = (i18n: I18n) => {
+  const Wrapper = ({ children }: WrapperProps): ReactNode => (
+    <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+  );
+
+  return Wrapper;
+};
+
 /** 部品を、決めた言語の i18next の instance の下で描く。 */
 export const renderWithI18n = (
   ui: ReactElement,
   locale: Locale = "en",
-): RenderResult => {
-  const i18n = createI18n(locale);
-
-  return render(ui, {
-    wrapper: ({ children }: WrapperProps) => (
-      <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
-    ),
-  });
-};
+): RenderResult => render(ui, { wrapper: withI18n(createI18n(locale)) });

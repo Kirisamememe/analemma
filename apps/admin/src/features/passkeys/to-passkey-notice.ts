@@ -1,13 +1,12 @@
-import type { ParseKeysWithoutVariables } from "i18next";
-
 import type { AddPasskeyResult } from "@/features/passkeys/add-passkey";
 import type { DeletePasskeyResult } from "@/features/passkeys/delete-passkey";
+import type { MessageKey } from "@/i18n/use-translate";
 
 type PasskeyNotice = {
   /** 知らせの用途。 */
   readonly tone: "info" | "warning" | "danger";
   /** 知らせの文言の訳のキー。 */
-  readonly message: ParseKeysWithoutVariables;
+  readonly message: MessageKey;
 };
 
 /** 想定外の失敗で終わったこと。 */

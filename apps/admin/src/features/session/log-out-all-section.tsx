@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { type ReactNode, useState } from "react";
-import { useTranslation } from "react-i18next";
 
+import { useAppContext, useGoToLogin } from "@/api/app-context";
+import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
+import { useTranslate } from "@/i18n/use-translate";
 import { Cluster } from "@/ui/layout/cluster";
 import { Heading } from "@/ui/layout/heading";
 import { Stack } from "@/ui/layout/stack";
@@ -13,16 +13,16 @@ import { Dialog } from "@/ui/primitives/overlays/dialog";
 
 /** すべてのセッションからログアウトする操作。 */
 export const LogOutAllSection = (): ReactNode => {
-  const { t } = useTranslation();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { api } = useRouteContext({ from: "__root__" });
+  const t = useTranslate();
+  const goToLogin = useGoToLogin();
+  const { clear } = useApiCache();
+  const { api } = useAppContext();
   const [isConfirming, setConfirming] = useState(false);
-  const logOutAll = useMutation({
-    mutationFn: async () => api.admin.session.logOutAll(),
+  const logOutAll = useApiMutation({
+    send: () => api.admin.session.logOutAll(),
     onSuccess: () => {
-      queryClient.clear();
-      void router.navigate({ to: "/login" });
+      clear();
+      goToLogin();
     },
   });
 

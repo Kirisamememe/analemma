@@ -1,12 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 
+import { useAppContext } from "@/api/app-context";
+import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { deletePasskey } from "@/features/passkeys/delete-passkey";
 import type { PasskeySummary } from "@/features/passkeys/passkey-list";
-import { refreshPasskeys } from "@/features/passkeys/passkeys-query";
+import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/passkeys-query";
 import { toDeleteNotice } from "@/features/passkeys/to-passkey-notice";
+import { useTranslate } from "@/i18n/use-translate";
 import { Cluster } from "@/ui/layout/cluster";
 import { Text } from "@/ui/layout/text";
 import { Button } from "@/ui/primitives/button";
@@ -30,18 +30,18 @@ export const DeletePasskeyDialog = ({
   passkey,
   onClose,
 }: DeletePasskeyDialogProps): ReactNode => {
-  const { t } = useTranslation();
+  const t = useTranslate();
   const showToast = useShowToast();
-  const queryClient = useQueryClient();
-  const { api, authenticator } = useRouteContext({ from: "__root__" });
-  const deleting = useMutation({
-    mutationFn: async () => deletePasskey({ api, authenticator }, passkey.id),
+  const { refresh } = useApiCache();
+  const { api, authenticator } = useAppContext();
+  const deleting = useApiMutation({
+    send: () => deletePasskey({ api, authenticator }, passkey.id),
     onSuccess: async ({ _tag }) => {
       if (_tag === "Cancelled") {
         return;
       }
 
-      await refreshPasskeys(queryClient);
+      await refresh(PASSKEYS_QUERY_KEY);
 
       if (_tag === "Deleted") {
         onClose();
