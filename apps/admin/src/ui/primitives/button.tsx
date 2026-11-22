@@ -35,6 +35,8 @@ type ButtonProps = {
   isPending?: boolean;
   /** 押せないか。 */
   isDisabled?: boolean;
+  /** 無効なときも focus を受け取れるか。 */
+  allowFocusWhenDisabled?: boolean;
   /** 押したときに呼ぶ関数。 */
   onPress?: () => void;
   /** ボタンの要素(focus を移すときに使う)。 */
@@ -50,6 +52,7 @@ export const Button = ({
   type = "button",
   isPending = false,
   isDisabled = false,
+  allowFocusWhenDisabled = false,
   onPress,
   ref,
   children,
@@ -61,13 +64,19 @@ export const Button = ({
       className={button({
         tone,
         size,
-        className: typography({ role: "label" }),
+        className: [
+          typography({ role: "label" }),
+          isDisabled && allowFocusWhenDisabled && "state-disabled",
+        ],
       })}
-      isDisabled={isDisabled}
+      aria-disabled={isDisabled}
+      isDisabled={isDisabled && !allowFocusWhenDisabled}
       isPending={isPending}
-      onPress={() => onPress?.()}
+      onPress={() => {
+        if (!isDisabled) onPress?.();
+      }}
       ref={ref}
-      type={type}
+      type={isDisabled && allowFocusWhenDisabled ? "button" : type}
     >
       {isPending && (
         <ProgressBar aria-label={t("ui.pending")} isIndeterminate>

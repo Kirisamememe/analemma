@@ -1,4 +1,10 @@
-import { type Middleware, ORPCError, implement } from "@orpc/server";
+import type { ErrorMap } from "@orpc/contract";
+import {
+  createORPCErrorConstructorMap,
+  type Middleware,
+  ORPCError,
+  implement,
+} from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 
 import { contract } from "@analemma/contract";
@@ -17,6 +23,8 @@ type Reply<Output, Code extends string> =
   | {
       /** contract に定義した失敗の code。 */
       readonly error: Code;
+      /** 失敗に添えるデータ。 */
+      readonly data?: unknown;
       /** contract に定義した失敗か。 */
       readonly defined?: true;
     }
@@ -51,27 +59,21 @@ export const wrapFakeRoute = <Input, Output, Code extends string>(
     : Object.assign((input: Input) => handle(input), { replyBeforeInput });
 };
 
-type ErrorFactory = (
-  options?: Partial<Pick<Error, "message">>,
-) => ORPCError<string, unknown>;
-
-type HandlerOptions<Input, Code extends string> = {
-  /** procedure の入力。 */
-  readonly input: Input;
-  /** contract に定義した失敗を作る関数。 */
-  readonly errors: Record<Code, ErrorFactory>;
-};
-
 type ProcedureBuilder<Input, Output, Code extends string, Procedure> = {
+  /** procedure の失敗の定義。 */
+  readonly "~orpc": {
+    /** code ごとの定義。 */
+    errorMap: Record<Code, NonNullable<ErrorMap[string]>>;
+  };
   /** handler から procedure を作る関数。 */
   readonly handler: (
-    handle: (options: HandlerOptions<Input, Code>) => Promise<Output>,
+    handle: (options: Record<"input", Input>) => Promise<Output>,
   ) => Procedure;
 };
 
 const unwrapReply = <Output, Code extends string>(
   reply: Reply<Output, Code>,
-  errors: Partial<Record<Code, ErrorFactory>>,
+  errorMap: ErrorMap,
 ): Output => {
   if ("output" in reply) {
     return reply.output;
@@ -83,7 +85,11 @@ const unwrapReply = <Output, Code extends string>(
     throw new ORPCError(reply.error, options);
   }
 
-  throw errors[reply.error]?.(options) ?? new ORPCError(reply.error, options);
+  const errors = createORPCErrorConstructorMap(errorMap);
+  throw (
+    errors[reply.error]?.({ ...options, data: reply.data }) ??
+    new ORPCError(reply.error, options)
+  );
 };
 
 const bindReply =
@@ -93,8 +99,8 @@ const bindReply =
   (reply: ReplyHandler<Input, Output, Code> | undefined) =>
     reply === undefined
       ? undefined
-      : builder.handler(async ({ input, errors }) =>
-          unwrapReply(await reply(input), errors),
+      : builder.handler(async ({ input }) =>
+          unwrapReply(await reply(input), builder["~orpc"].errorMap),
         );
 
 type FakeContext = {
@@ -110,20 +116,31 @@ const sendEarlyReply: Middleware<
   object,
   unknown,
   unknown,
-  Record<string, ErrorFactory>,
+  ReturnType<typeof createORPCErrorConstructorMap<ErrorMap>>,
   Record<string, unknown>
-> = async ({ context, errors, next, path }) => {
+> = async ({ context, procedure, next, path }) => {
   const reply = context.replyBeforeInput(path.join("/"));
 
   return reply === undefined
     ? next()
-    : { output: unwrapReply(await reply, errors), context: {} };
+    : {
+        output: unwrapReply(await reply, procedure["~orpc"].errorMap),
+        context: {},
+      };
 };
 
 const passkeys = api.admin.passkeys.use(sendEarlyReply);
 const session = api.admin.session.use(sendEarlyReply);
 
+const fixedPages = api.admin.fixedPages.use(sendEarlyReply);
+const kinds = api.admin.kinds.use(sendEarlyReply);
+
 const procedures = {
+  "admin/fixedPages/create": bindReply(fixedPages.create),
+  "admin/fixedPages/update": bindReply(fixedPages.update),
+  "admin/fixedPages/get": bindReply(fixedPages.get),
+  "admin/kinds/get": bindReply(kinds.get),
+  "admin/kinds/list": bindReply(kinds.list),
   "admin/passkeys/delete": bindReply(passkeys.delete),
   "admin/passkeys/list": bindReply(passkeys.list),
   "admin/passkeys/register": bindReply(passkeys.register),

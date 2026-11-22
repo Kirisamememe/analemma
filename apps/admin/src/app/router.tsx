@@ -15,6 +15,10 @@ import type { AuthGate } from "@/features/auth/create-auth-gate";
 import { isPublicPath, toLoginSearch } from "@/features/auth/login-search";
 import type { Authenticator } from "@/features/auth/webauthn";
 import { EnrollPage } from "@/routes/enroll-page";
+import {
+  EditFixedPage,
+  NewFixedPage,
+} from "@/routes/fixed-pages/fixed-page-routes";
 import { HomePage } from "@/routes/home-page";
 import { LoginPage } from "@/routes/login-page";
 import { NotFoundPage } from "@/routes/not-found-page";
@@ -85,10 +89,41 @@ const securityRoute = createRoute({
   component: SecurityPage,
 });
 
+type NewFixedPageSearch = {
+  /** 選んだ種類の名前。 */
+  kind?: string;
+};
+
+const newFixedPageRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/fixed-pages/new",
+  validateSearch: ({ kind }): NewFixedPageSearch => {
+    if (typeof kind === "string") return { kind };
+
+    if (typeof kind === "boolean" || kind === null) {
+      return { kind: String(kind) };
+    }
+
+    return {};
+  },
+  component: NewFixedPage,
+});
+
+const editFixedPageRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/fixed-pages/$id",
+  component: EditFixedPage,
+});
+
 const routeTree = rootRoute.addChildren([
   loginRoute,
   enrollRoute,
-  signedInRoute.addChildren([homeRoute, securityRoute]),
+  signedInRoute.addChildren([
+    homeRoute,
+    securityRoute,
+    newFixedPageRoute,
+    editFixedPageRoute,
+  ]),
 ]);
 
 /** 管理画面を組み立てるときに渡す値。 */
