@@ -7,7 +7,7 @@ import { RevokeDeployTokenDialog } from "@/features/deploy-tokens/revoke-deploy-
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Heading, Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { FocusScope } from "@/ui/primitives/focus-scope";
+import { FocusScope } from "@/ui/primitives/overlays";
 
 type DeployTokenDialog = "issue" | "revoke";
 

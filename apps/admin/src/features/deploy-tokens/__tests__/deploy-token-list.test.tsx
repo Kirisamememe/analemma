@@ -44,8 +44,11 @@ describe("DeployTokenList", () => {
     renderApp({ path: "/deploy-tokens", routes: server.routes });
 
     expect(
-      await screen.findByText(
-        "まだトークンはありません。公開サイトのデプロイに使うトークンを発行してください。",
+      await screen.findByRole("heading", { name: "トークンはまだありません" }),
+    ).toBeDefined();
+    expect(
+      screen.getByText(
+        "公開サイトのデプロイに使うトークンを発行してください。",
       ),
     ).toBeDefined();
     expect(within(screen.getByRole("main")).queryByRole("list")).toBeNull();

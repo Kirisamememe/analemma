@@ -9,6 +9,7 @@ import {
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
+import { EmptyState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Notice } from "@/ui/primitives/notice";
 
@@ -39,7 +40,13 @@ export const DeployTokenList = ({
   }
 
   if (tokens.data.tokens.length === 0) {
-    return <Text tone="muted">{t("deployTokens.empty")}</Text>;
+    return (
+      <EmptyState
+        description={t("deployTokens.emptyDescription")}
+        icon="key-round"
+        title={t("deployTokens.emptyTitle")}
+      />
+    );
   }
 
   return (

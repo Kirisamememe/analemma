@@ -16,6 +16,7 @@ import { isPublicPath, toLoginSearch } from "@/features/auth/login-search";
 import type { Authenticator } from "@/features/auth/webauthn";
 import { DeployTokensPage } from "@/routes/deploy-tokens/deploy-tokens-page";
 import { EnrollPage } from "@/routes/enroll-page";
+import { FixedPagesPage } from "@/routes/fixed-pages/fixed-pages-page";
 import { HomePage } from "@/routes/home-page";
 import { LoginPage } from "@/routes/login-page";
 import { NotFoundPage } from "@/routes/not-found-page";
@@ -80,6 +81,12 @@ const homeRoute = createRoute({
   component: HomePage,
 });
 
+const fixedPagesRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/fixed-pages",
+  component: FixedPagesPage,
+});
+
 const securityRoute = createRoute({
   getParentRoute: () => signedInRoute,
   path: "/security",
@@ -95,7 +102,12 @@ const deployTokensRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   loginRoute,
   enrollRoute,
-  signedInRoute.addChildren([homeRoute, securityRoute, deployTokensRoute]),
+  signedInRoute.addChildren([
+    homeRoute,
+    fixedPagesRoute,
+    securityRoute,
+    deployTokensRoute,
+  ]),
 ]);
 
 /** 管理画面を組み立てるときに渡す値。 */
