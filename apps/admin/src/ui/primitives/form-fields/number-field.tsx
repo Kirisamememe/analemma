@@ -25,19 +25,19 @@ const FORMAT_OPTIONS: Intl.NumberFormatOptions = {
 /** 数値の入力欄に渡す値。 */
 export type NumberFieldProps = {
   /** 入力欄の名前(フォームのキー)。 */
-  readonly name: string;
+  name: string;
   /** 入力欄のラベル。 */
-  readonly label: string;
+  label: string;
   /** 入力欄の補足。 */
-  readonly description?: string | undefined;
+  description?: string | undefined;
   /** 最初に入れておく値。 */
-  readonly defaultValue?: number;
+  defaultValue?: number;
   /** 入力が要るか。 */
-  readonly isRequired?: boolean | undefined;
+  isRequired?: boolean | undefined;
   /** 入力欄が無効か。 */
-  readonly isDisabled?: boolean | undefined;
+  isDisabled?: boolean | undefined;
   /** 読み取り専用か。 */
-  readonly isReadOnly?: boolean | undefined;
+  isReadOnly?: boolean | undefined;
   /** 入力欄の検証の伝え方。 */
   validationBehavior?: "aria" | "native";
   /** 呼び出し元で管理する入力値(空は NaN)。 */
@@ -49,7 +49,7 @@ export type NumberFieldProps = {
   /** 呼び出し元から渡す誤りの知らせ。 */
   errorMessage?: string | undefined;
   /** 送る前に値を確かめ、誤りの知らせを返す関数(合っていれば undefined)。 */
-  readonly validate?: (value: number) => string | undefined;
+  validate?: (value: number) => string | undefined;
 };
 
 /** 数値の入力欄。 */
@@ -124,7 +124,7 @@ export const NumberField = ({
 /** 増減ボタンに渡す値。 */
 type StepButtonProps = {
   /** React Aria Components の slot。 */
-  readonly slot: "decrement" | "increment";
+  slot: "decrement" | "increment";
 };
 
 const StepButton = ({ slot }: StepButtonProps): ReactNode => (

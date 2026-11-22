@@ -18,17 +18,17 @@ const iconButton = tv({
 /** ナビの drawer に渡す値。 */
 export type NavDrawerProps = {
   /** Dialog の名前。 */
-  readonly label: string;
+  label: string;
   /** 閉じるボタンと並べて、上の段に描く見出し。 */
-  readonly heading: ReactNode;
+  heading: ReactNode;
   /** 開いているか。 */
-  readonly isOpen: boolean;
+  isOpen: boolean;
   /** 送信中か。 */
-  readonly isPending?: boolean;
+  isPending?: boolean;
   /** 開け閉めを知らせる関数。 */
-  readonly onOpenChange: (isOpen: boolean) => void;
+  onOpenChange: (isOpen: boolean) => void;
   /** drawer の中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** ナビを左から引き出す drawer。 */

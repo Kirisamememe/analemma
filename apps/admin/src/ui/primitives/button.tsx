@@ -26,21 +26,21 @@ const button = tv({
 /** ボタンに渡す値。 */
 type ButtonProps = {
   /** 見た目の用途。 */
-  readonly tone?: "primary" | "secondary" | "quiet" | "danger";
+  tone?: "primary" | "secondary" | "quiet" | "danger";
   /** 高さ。 */
-  readonly size?: "md" | "sm";
+  size?: "md" | "sm";
   /** フォームを送るボタンか。 */
-  readonly type?: "button" | "submit";
+  type?: "button" | "submit";
   /** 送信中か(押せなくし、待っていることを示す)。 */
-  readonly isPending?: boolean;
+  isPending?: boolean;
   /** 押せないか。 */
-  readonly isDisabled?: boolean;
+  isDisabled?: boolean;
   /** 押したときに呼ぶ関数。 */
-  readonly onPress?: () => void;
+  onPress?: () => void;
   /** ボタンの要素(focus を移すときに使う)。 */
-  readonly ref?: Ref<HTMLButtonElement>;
+  ref?: Ref<HTMLButtonElement>;
   /** ボタンの文言。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 操作のボタン。 */

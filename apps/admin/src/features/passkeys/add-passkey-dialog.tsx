@@ -16,9 +16,9 @@ import { Dialog, useShowToast } from "@/ui/primitives/overlays";
 /** パスキーを追加する Dialog に渡す値。 */
 type AddPasskeyDialogProps = {
   /** 開いているか。 */
-  readonly isOpen: boolean;
+  isOpen: boolean;
   /** 閉じる関数。 */
-  readonly onClose: () => void;
+  onClose: () => void;
 };
 
 /** 再認証をしてから、新しいパスキーを追加する Dialog。 */

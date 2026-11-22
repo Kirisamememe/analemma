@@ -34,13 +34,13 @@ const cluster = tv({
 /** 横に並べる箱に渡す値。 */
 type ClusterProps = {
   /** 子の間の空き。 */
-  readonly gap?: Space;
+  gap?: Space;
   /** 子の横の寄せ方。 */
-  readonly justify?: "start" | "end" | "between";
+  justify?: "start" | "end" | "between";
   /** 子の縦の揃え方。 */
-  readonly align?: "center" | "start" | "baseline";
+  align?: "center" | "start" | "baseline";
   /** 並べる子。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 子を横に並べ、入りきらなければ折り返す箱。 */

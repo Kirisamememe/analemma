@@ -29,13 +29,13 @@ const stack = tv({
 /** 縦に並べる箱に渡す値。 */
 type StackProps = {
   /** 子の間の空き。 */
-  readonly gap?: Space;
+  gap?: Space;
   /** 子の横の揃え方。 */
-  readonly align?: "stretch" | "start" | "center";
+  align?: "stretch" | "start" | "center";
   /** 箱にする要素。 */
-  readonly as?: "div" | "section" | "ul" | "ol";
+  as?: "div" | "section" | "ul" | "ol";
   /** 並べる子。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 子を縦に、決めた空きで並べる箱。 */

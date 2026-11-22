@@ -111,7 +111,7 @@ describe("TanStack Form の TextField", () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  test("送信時の外部エラーを入力欄に結び付け、値を直すと再送できること", async () => {
+  test("送信時に受け取った誤りの知らせを入力欄に結びつけ、値を直すと再送できること", async () => {
     const onSubmit = mock((_title: string) => undefined);
 
     renderWithI18n(<FormCase onSubmit={onSubmit} />);

@@ -110,7 +110,7 @@ type DateSegmentsProps = {
   onBlur?: (incomplete: boolean) => void;
 };
 
-/** キーボードで日付の各部を編集する入力。 */
+/** キーボードで日付の segment を編集する入力。 */
 export const DateSegments = ({ onBlur }: DateSegmentsProps): ReactNode => {
   const state = useContext(DateFieldStateContext);
   const {

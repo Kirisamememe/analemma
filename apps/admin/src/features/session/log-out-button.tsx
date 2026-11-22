@@ -9,7 +9,7 @@ import { Notice } from "@/ui/primitives/notice";
 /** ログアウトのボタンに渡す値。 */
 type LogOutButtonProps = {
   /** ログアウトの状態と操作。 */
-  readonly logOut: Pick<
+  logOut: Pick<
     ReturnType<typeof useLogOut>,
     "isError" | "isPending" | "mutate"
   >;

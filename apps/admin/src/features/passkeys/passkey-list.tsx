@@ -18,9 +18,9 @@ export type PasskeySummary =
 /** パスキーの一覧に渡す値。 */
 type PasskeyListProps = {
   /** 名前の変更を始める関数。 */
-  readonly onRename: (passkey: PasskeySummary) => void;
+  onRename: (passkey: PasskeySummary) => void;
   /** 削除を始める関数。 */
-  readonly onDelete: (passkey: PasskeySummary) => void;
+  onDelete: (passkey: PasskeySummary) => void;
 };
 
 /** 登録したパスキーの一覧。 */
