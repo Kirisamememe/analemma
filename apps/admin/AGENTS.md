@@ -23,7 +23,7 @@
 
 - ロジックはできる限り `.ts` に置き、同じフォルダの `__tests__` に `.test.ts` を置いてテストする。`.tsx` にはマークアップと、それをロジックにつなぐコードを置く。
 - ロジックに切り出しにくい表示の出し分けは、同じフォルダの `__tests__` の `.test.tsx` で確かめる。要素は role・label・text など利用者に見えるもので探し、利用者に見える結果を確かめる。マークアップの作りをなぞるテストは書かない。
-- React の effect は、ほかの手段で書けない処理だけを、目的が分かる名前の hook の直下で使う。hook は `tooling/lint/config/admin-overrides.ts` の一覧と `DECISIONS.md` の表に足す。この決まりはテスト・story・`.storybook/` にも掛かる(lint で止まる)。
+- React の effect は、ほかの手段で書けない処理だけを、目的が分かる名前の hook の直下で使う。hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` と、`DECISIONS.md` の「React の effect」の hook の表に足す。この決まりはテスト・story・`.storybook/` にも掛かる(lint で止まる)。
 - server との通信には contract の型を使い、応答の型を手で書かない。
 - 操作を送っている間は、そのボタンを無効にする。同じ操作を続けて送らせない。
 - パスキーでのログインの最中(options を取ってから、ログインの応答が届くまで)は、ほかの管理用 API を呼ばない。

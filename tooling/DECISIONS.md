@@ -259,7 +259,7 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **字下げのコードのブロック**:用語集の検査は、Markdown の、4つの空白で字下げしたコードのブロックを扱わない。コードはフェンスで書くので、受け入れる。
 - **`Promise.allSettled`・`Promise.any`**:どちらも失敗を値に変えられるが、`no-catch-outside-entry` は止めていない。結果の型に失敗が出るので、握りつぶしがコードから見える。使う場面が出たら、止めるかを決める。
 - **`import()` のほかの読み込み**:`no-dynamic-import` は `import()` だけを止める。`import.meta.require` や `node:module` の `createRequire` を使えば、境界の外のモジュールを読み込めるが、普通は書かない形なので止めていない。
-- **React の effect の間接的な呼び出し**:effect を `const run = useEffect` で別の変数に代入したり、`const { useEffect } = React` と分割代入したりすると、その変数からの呼び出しは診断を出さない。React の import をそのまま使うのが普段の書き方で、代入後の値まで追跡する手間に見合わない。React のオブジェクトから呼ぶ形は、ドットでプロパティを指定する書き方を検査する。
+- **React の effect の間接的な呼び出し**:effect を `const run = useEffect` で別の変数に代入したり、`const { useEffect } = React` と分割代入したりすると、その変数からの呼び出しは診断を出さない。React の import をそのまま使うのが普段の書き方で、代入後の値まで追跡する手間に見合わない。`React.useEffect(…)` のようにドットで呼ぶ形は検査し、`React["useEffect"](…)` の形は見ない。
 - **`-m` で書いたメッセージの `#` の行**:git は、エディタを開かないとき(`-m`・`-F`)はコメントを消さないが、commit-msg の検査は `#` で始まる行を読まない。エディタで書いたときの git のコメントと見分けられないため。commitlint も同じ扱いをする。`core.commentChar` を `auto` にしたときも、`#` として扱う。どちらも、普通の使い方では起きないので受け入れる。
 - **commitlint の既定の除外**:commitlint は、本文のどこかに `Merge branch …` のような行があるメッセージや、`1.2.3` だけのメッセージを、形を確かめずに通す。普通のメッセージには現れず、通っても、名前と「機械で探す語」の検索は流れるので、受け入れる。
 - **既にある hook**:`install.ts` は、ほかの `core.hooksPath` があれば置き換える(前の値を出す)。そのため、`.git/hooks` の hook も流れなくなる。このリポジトリでは、ほかの hook を使っていない。

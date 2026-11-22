@@ -74,15 +74,15 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 
 ## React の effect
 
-`useEffect`・`useLayoutEffect`・`useInsertionEffect` は、ほかの手段で書けない処理を、目的が分かる名前の hook にまとめ、その直下で使う。React の外と同期する処理を hook にまとめると、呼ぶ側から何と同期するかが分かり、どこで effect を使うかを一覧で見られる。
+`useEffect`・`useLayoutEffect`・`useInsertionEffect` は、ほかの手段で書けない処理を、目的が分かる名前の hook にまとめ、その直下で使う。React の外と同期する処理を hook にまとめると、呼ぶ側から何と同期するかが分かり、どこで effect を使うかを hook の表で見られる。
 
 effect でないと書けない処理は、次のとおり。
 
 1. `window`・`document` のイベントを購読し、外すまで持ち続ける処理(キーボードの shortcut、`beforeunload`)。
 2. component が生きている間の timer。
 3. DOM の要素に結びつかない外への接続(WebSocket・EventSource・BroadcastChannel)。
-4. React の外の状態を React の値に合わせる処理(`document.title`、html の属性)。
-5. 描く前の大きさの計測(`useLayoutEffect`)。
+4. React の外の状態のうち、`document.title` や html の属性のように、React が描かない DOM に値を書く処理。
+5. ブラウザが描く前の大きさの計測(`useLayoutEffect`)。
 
 それ以外は、次の手段で書く。
 
@@ -99,13 +99,13 @@ effect でないと書けない処理は、次のとおり。
 | URL の履歴を画面の値に合わせる     | Router の `Navigate`(登録用 URL の画面)                 |
 | i18next の言語を props に合わせる  | 言語ごとに instance を `useMemo` で作る(Storybook の枠) |
 
-effect を使う hook の一覧は、次のとおり。
+effect を使う hook の表は、次のとおり。
 
-| hook                 | 置き場所                              | 処理                                                                |
-| -------------------- | ------------------------------------- | ------------------------------------------------------------------- |
-| `useHtmlPreferences` | `.storybook/use-html-preferences.tsx` | (4) 描く前に html の `lang` と `data-theme` を story の値に合わせる |
+| hook                 | 置き場所                              | 処理                                                                          |
+| -------------------- | ------------------------------------- | ----------------------------------------------------------------------------- |
+| `useHtmlPreferences` | `.storybook/use-html-preferences.tsx` | (4) ブラウザが描く前に html の `lang` と `data-theme` を story の値に合わせる |
 
-表の hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` にも足す。どうしても避けられない呼び出しを一覧の外に書く場合は、`// oxlint-disable-next-line project/no-effect-outside-allowed-hook -- 理由` で抑制する。
+表の hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` にも足す。どうしても避けられない呼び出しを表の hook の外に書く場合は、`// oxlint-disable-next-line project/no-effect-outside-allowed-hook -- 理由` で抑制する。
 
 ## 開発のときの API
 
@@ -174,7 +174,7 @@ effect を使う hook の一覧は、次のとおり。
 - story は CSF 3 で書く。Storybook の文書が勧める形で、CSF Next(factories)は preview の扱いで API が変わりうる。
 - story は、部品の隣の `__stories__` に `<名前>.stories.tsx` で置く。title は `primitives/Button` のように書き、フォルダの名前(`__stories__`)を入れない。story の中の文は、見本の文なので訳を通さずに書く。
 - Storybook の Vite は `vite.config.ts` を読むが、`build` は `target` しか引き継がず、`server` は上書きする(10.6.8 の配布物で確かめた)。`viteFinal` で `build.target` と `build.cssTarget` を `vite.config.ts` と同じ `BROWSER_TARGET` に入れ直す。入れないと、`storybook build` で `light-dark()` が書き換えられ、`scheme-dark` が効かなくなる(`src/ui/DECISIONS.md` の「light と dark」)。開発のサーバーの port・`strictPort`・`/api` の proxy は Storybook が上書きするので、ぶつからない。
-- head に script を書き込む plugin は、Storybook では外す(`withoutVitePlugins`)。言語と配色はツールバーで選ぶ(既定は light と日本語)。story を包む枠(`.storybook/story-frame.tsx`)は、ツールバーの言語で i18next の instance を作り、React Aria Components の `I18nProvider` もその言語を読む。言語が変わったら `useMemo` で新しい instance を作り、Provider の値を差し替えるので、story の state は残る。`useHtmlPreferences` は、描く前に html の `lang` に story に見える文の言語を、`data-theme` に配色を入れる。
+- head に script を書き込む plugin は、Storybook では外す(`withoutVitePlugins`)。言語と配色はツールバーで選ぶ(既定は light と日本語)。story を包む枠(`.storybook/story-frame.tsx`)は、ツールバーの言語で i18next の instance を作り、React Aria Components の `I18nProvider` もその言語を読む。言語が変わったら `useMemo` で新しい instance を作り、Provider の値を差し替えるので、story の state は残る。`useHtmlPreferences` は、ブラウザが描く前に html の `lang` に story に見える文の言語を、`data-theme` に配色を入れる。
 - 部品の story の見本の文は日本語なので、html の `lang` を `ja` にする(`parameters.contentLang`)。ツールバーの言語を `lang` にすると、zh-Hans で、かなが中国語の字体で描かれた(ユーザーが見つけた)。画面の story は訳を出すので、`contentLang: null` にして、ツールバーの言語を `lang` にする(`contentLang` を書かないと、既定の `ja` を引き継ぐ)。文字の見本は、見本の文ごとに `lang` を付ける。言語を付けないと、日本語の字体に無い簡体字だけが別の字体に替わり、1つの文の中で字体が混ざった。
 - 部品の story は、既定で、Storybook の真ん中に置いた展示用の枠(`src/ui/specimens/story-stage.tsx`。面の色と、地の上に重ねる半透明の線)の中に描く(`parameters.stage`)。小さい部品は枠を中身の大きさにし、幅で見え方が変わる部品(`Notice`・入力欄・`Form`・`Text`・`Stack` など)は決めた幅(`w-lg`)にする。画面全体の story(画面・`AppShell`・`Center`)と色・文字の見本は、枠を付けない。枠も寄せも無いと、小さい部品が左上の隅に集まって見えにくかった(ユーザーの指摘)。
 - 枠は TanStack Router の route を描かず、`Link` が読む router だけを `RouterContextProvider` で渡す(router は枠ごとに作り、story のあいだで履歴を持ち越さない)。route を描くと、route の境界が story の想定外の失敗を受け止め、Storybook にもテストにも上がらない。

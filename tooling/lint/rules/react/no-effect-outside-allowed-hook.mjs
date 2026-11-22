@@ -90,7 +90,8 @@ const noEffectOutsideAllowedHook = {
   meta: {
     type: "problem",
     docs: {
-      description: "React の effect を、一覧にある hook の直下に限る。",
+      description:
+        "React の effect を、`allowedHooks` に挙げた hook の直下に限る。",
     },
     schema: [
       {
@@ -103,7 +104,7 @@ const noEffectOutsideAllowedHook = {
     ],
     messages: {
       outsideAllowedHook:
-        "React の `{{effect}}` は、一覧にある hook の直下でだけ呼べます。effect が必要なら、目的が分かる名前の hook を作り、`tooling/lint/config/admin-overrides.ts` の一覧と `apps/admin/DECISIONS.md` の表に足します。どうしても避けられない場合は、理由を書いてこの診断を抑制します。",
+        "React の `{{effect}}` は、`ADMIN_EFFECT_HOOKS` にある hook の直下でだけ呼べます。effect が必要なら、目的が分かる名前の hook を作り、`tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` と、`apps/admin/DECISIONS.md` の「React の effect」の hook の表に足します。どうしても避けられない場合は、理由を書いてこの診断を抑制します。",
     },
   },
   /** React の effect を呼ぶ場所を調べる。 */

@@ -5,12 +5,12 @@ import { lintFixture } from "../fixture-lint";
 test.each([
   {
     label:
-      "React から名前や別名で import した effect と default import の effect",
+      "React から名前や別名で import した effect と、default import した React から呼ぶ effect",
     file: "src/raw-effects.tsx",
     lines: [10, 11, 12, 13, 19],
   },
   {
-    label: "一覧にある hook の中の、入れ子のコールバックにある effect",
+    label: "一覧にある hook の中の、入れ子の関数にある effect",
     file: "src/nested-effect.tsx",
     lines: [8],
   },
