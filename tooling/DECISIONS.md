@@ -31,11 +31,11 @@
 - **管理画面の Tailwind CSS の class の検査**(eslint-plugin-better-tailwindcss を、Oxlint の JS のプラグインで動かす。設定は `tooling/lint/config/admin-classes.ts`)
   - 管理画面の `src/` にだけプラグインを読み込む(`overrides` の `jsPlugins`)。server などのファイルで、Tailwind CSS の設定を読む時間を使わない。プラグインの設定(`settings`)は `overrides` に書けないので、直下に書く。`cwd` を `apps/admin` にし、`entryPoint` に管理画面の `src/ui/app.css` を渡して、theme.css に無い class を「無い class」として落とす。
   - 使うルールは、無い class・止める class・効き目がぶつかる class・重なった class・古い class・余分な空白・canonical な class(`enforce-canonical-classes`)・class の並び。行の折り返しは整形と食い違うので使わない。
-  - 止める class は、場所ごとに違う(画面のコード、`ui/` と `features/*/ui/`、文字の役割を決める `ui/typography.ts`)。`overrides` は同じルールの options を丸ごと置き換えるので、止める形を部品にして、場所ごとの一覧を組み立てる(「設定を TypeScript で組み立てる」)。何を止めるかと理由は `apps/admin/src/ui/DECISIONS.md` にある。
+  - 止める class は、場所ごとに違う(画面のコード、`ui/` と `features/*/ui/`、入力を受ける部品の枠の色 `line-strong` を書ける `ui/primitives/`、文字の役割を決める `ui/typography.ts`)。`overrides` は同じルールの options を丸ごと置き換えるので、止める形を部品にして、場所ごとの一覧を組み立てる(「設定を TypeScript で組み立てる」)。何を止めるかと理由は `apps/admin/src/ui/DECISIONS.md` にある。
   - selectors は、プラグインの既定から、class と関係の無い変数の名前(`style`・`styles`・`classes`)を除き、名前が `ClassName` で終わる属性と変数(`contentClassName` など)と、`ui/tv.ts` の `merge` の呼び出しを足す。既定のままだと、`Intl.NumberFormat` に渡す `const style = "currency"` まで class として止めた。
   - theme.css の色にどれも使ってよい utility を決めてあることと、文字の役割の組が theme.css の目盛りの名前であることを、テスト(`tooling/lint/__tests__/styles.test.ts`)で確かめる。色を足したときに、決まりを書き忘れると落ちる。
   - Storybook の story(`__stories__`)は、`ui/` の中にあっても、画面のコードと同じ決まりで検査する。`ui/` の決まりは部品を作るためのもので、story は部品を組んで見せるだけなので、色や class を選ばせない。story で決まりから外れたくなったら、部品を足すことになる。
-  - 色の見本(`ui/specimens/color-specimen.tsx`)だけ、色ごとに使える utility の決まりを外す。色の見本は、どの色も `bg-` で塗って並べる必要がある(`focus` や `line` は、ふだん `bg-` に使えない)。ほかの決まり(任意の値・不透明度・文字の役割など)は外さない。
+  - 色の見本(`ui/specimens/color-specimen.tsx`)だけ、色ごとに使える utility の決まりと、`line-strong` を `ui/primitives/` の外で止める決まりを外す。色の見本は、どの色も `bg-` で塗って並べる必要がある(`focus` や `line` は、ふだん `bg-` に使えない)。ほかの決まり(任意の値・不透明度・文字の役割など)は外さない。
   - story の import の決まりは、置いた層(primitives・layout)の決まりでなく、画面のコードと同じにする(React Aria Components を直に使えず、ほかの層の部品は使える)。story は描くだけなので、`require-sibling-test` も外す(全部の story を描くテストがある)。
 - **Storybook の設定のファイル**(`apps/admin/.storybook/`):`main.ts` は Storybook が Node で読むので、相対 import に `.ts` を付ける(oxlint の設定と同じく、`import/extensions` を変える)。`.storybook/` の中は、型付きの lint が tsconfig の `noPropertyAccessFromIndexSignature` を読まないように振る舞う(`dataset["x"]` を `dot-notation` が止め、`dataset.x` を tsc が止める。`no-floating-promises` などのほかの型付きのルールは効く)。TypeScript の方を取り、ぶつかる `story-frame.tsx` だけ `dot-notation` を外す。`setAttribute("data-theme", …)` で書くと、こんどは `unicorn/prefer-dom-node-dataset` が止める。tsrs の振る舞いなので、tsrs を上げたら、外したままでよいかを見直す。
 - **TSDoc のタグの検査**(eslint-plugin-jsdoc):`@param` の名前が引数と合うこと(`check-param-names`)、1つでも書いたら全部の引数に書くこと(`require-param`)、何も返さない関数に `@returns` を書かないこと(`require-returns-check`)、タグに型を書かないこと(`no-types`。型は TypeScript が持つ)。
@@ -241,7 +241,7 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **つながりと一貫性のモデル**:Codex にした(エージェントが決めた)。フェーズ全体の差分と、リポジトリ中の文書を読み合わせるので、子のブランチのビジネスロジックとセキュリティと同じく、深く読むモデルを使う。
 - **結果の置き場所**:メインの checkout の `.private/reviews/<ブランチ>/` に、`<観点>-<回>.md`(結果)・`<観点>-<回>.prompt.md`(prompt)・`<観点>-<回>.log`(外の CLI の出力)を書く。コミットしない。worktree を消しても残り、どの worktree から流しても、同じブランチの回数がそろう。メインの checkout は、ほかのリポジトリの名前の一覧と同じく、`git rev-parse --git-common-dir` でたどる。
 - **回数**:今の回は、結果のファイルの一番大きい番号の次にし、観点ごとの上限(子のブランチの観点は3回、つながりと一貫性は2回)を超えたら流さない。文書だけの上限は守られないため(直下の `DECISIONS.md` の「境界はツールで強制する」)。前の回の結果は、次の回の prompt に添えない。前の指摘に引っぱられるうえ、読ませる量が増えるため(ユーザーが決めた)。
-- **レビューしたコミット**:prompt の頭に、base と head の、流したときのコミットの SHA を書く。prompt は結果と同じフォルダに残るので、結果ごとに、どのコミットをレビューしたかが分かる。書き出す中身・差分・「割り切ったこと」も同じ SHA から作り、流している間にブランチが進んでも、記録とずれないようにする。観点ごとに流すので、ある観点が LGTM になった後に、別の観点の指摘を直すコミットを足すことは普通に起きる。そのコミットは PR の本文の観点の表に書き(直下の `AGENTS.md`)、流し直す決まりは足さない。足すと、観点の数だけ回数と費用が増える。
+- **レビューしたコミット**:prompt の頭に、base と head の、流したときのコミットの SHA を書く。prompt は結果と同じフォルダに残るので、結果ごとに、どのコミットをレビューしたかが分かる。SHA は最初に1回だけ決め、差分があるかの判定・書き出す中身・差分・「割り切ったこと」も同じ SHA から作る。流している間にブランチが進んでも、記録とずれず、差分の無いレビューも流れない。観点ごとに流すので、ある観点が LGTM になった後に、別の観点の指摘を直すコミットを足すことは普通に起きる。そのコミットは PR の本文の観点の表に書き(直下の `AGENTS.md`)、流し直す決まりは足さない。足すと、観点の数だけ回数と費用が増える。
 - **結果の最後の行**:`VERDICT: LGTM` か `VERDICT: CHANGES_REQUESTED` のどちらかにさせ、スクリプトが読んで判定を出す。形から外れたら、読めなかったと出して終了コード1で終える。崩れた形を推し量って読むと、LGTM でないものを LGTM と取り違えうる。
 - **失敗**:外の CLI が失敗したときや、結果が空のときは、結果のファイルを消し、その回を数えない。外の CLI の出力は `.log` に残す。
 
