@@ -81,6 +81,7 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "focus-ring-inset": "focus-ring",
   "scheme-dark": "scheme-light",
   "scheme-light": "scheme-dark",
+  "scheme-inverse": "scheme-dark",
   "dialog-backdrop-animation": null,
   "dialog-panel-animation": null,
   "nav-drawer-panel-animation": null,

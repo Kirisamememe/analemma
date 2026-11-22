@@ -229,6 +229,23 @@
   color: var(--color-fg);
 }
 
+@utility scheme-inverse {
+  color-scheme: dark;
+  color: var(--color-fg);
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: light;
+  }
+
+  :root[data-theme="light"] & {
+    color-scheme: dark;
+  }
+
+  :root[data-theme="dark"] & {
+    color-scheme: light;
+  }
+}
+
 @custom-variant is-hovered (&[data-hovered]);
 @custom-variant is-focused (&[data-focused]);
 @custom-variant is-focus-shown (&[data-focus-visible]);

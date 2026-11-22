@@ -49,7 +49,7 @@
 
 - 役割の色は、`light-dark()` で、light と dark にパレットのどの段を使うかを1つの定義に持つ。`dark:` の variant は使わない。1つの定義なら、light だけ直して dark を直し忘れることがない。
 - 利用者が配色を選んだら、html の `data-theme` で `color-scheme` を固定する。選んでいなければ OS に従う。
-- 部分だけを dark(light)にするときは `scheme-dark`(`scheme-light`)を使う。`color-scheme` を変えるだけでは、`:root` から継いだ文字の色が評価し直されないので、文字の色も入れ直す。
+- 部分だけを dark(light)にするときは `scheme-dark`(`scheme-light`)を使う。画面の配色に対して部分だけを逆にするときは `scheme-inverse` を使う。html に `data-theme` があればその配色を、無ければ OS の配色を反転する。`color-scheme` を変えるだけでは、`:root` から継いだ文字の色が評価し直されないので、文字の色も入れ直す。
 - Vite の `build.cssTarget` は、管理画面が対応するブラウザ(`apps/admin/DECISIONS.md`)に合わせて `esnext` にする。`build.target` と `build.cssTarget` の両方を書かずに Vite の既定(`baseline-widely-available` の古いブラウザ)に任せると、圧縮のときに Lightning CSS が `light-dark()` を `--lightningcss-light`・`--lightningcss-dark` の変数に書き換え、`scheme-dark` で部分だけを dark にすると効かなくなる。本番のビルドの出力に `--lightningcss-` が無いことを、テスト(`apps/admin/__tests__/vite-config.test.ts`)で確かめる。
 
 ## 文字
@@ -103,19 +103,19 @@
 - **縁の線**:border を使うのは、背景の色とコンテンツの色をはっきり見分けられるときだけにする(`Badge`・`Notice` のように、意味の色の `/10` の面に同じ色の線を引くときなど)。背景と近い色の面(白い Dialog が明るい地の上にあるときなど)の縁は、半透明の線(`outline`、`fg` の 10%)で描く。面の縁の線は、offset を付けず、塗りの外側の地の上に重ねる(地の色が透けて、縁がくっきり出る)。色の見本の正方形のように、塗りそのものの縁を見せるときは、内側(`-outline-offset-1`)に重ねる。不透明の border は背景の色と混ざってぼやけ、塗りの外に枠を足したように見えた(ユーザーが決めた)。
 - **overlay**(`primitives/overlays/dialog.tsx`):地の上に重ねる半透明の線と `shadow-overlay` を付け、地を `bg-scrim/40` の backdrop で覆う。dark では scrim がほとんど効かないので、半透明の線で地と分ける。送信中は、Escape と backdrop の押下で閉じない(送った操作の結果を見せるため)。backdrop の高さは、React Aria Components が渡す見えている高さ(`--visual-viewport-height`。スマートフォンのキーボードを除いた高さ)にし、中身は backdrop の中に収めて縦に scroll させる(低い画面や拡大で、ボタンに届かなくならないように)。focus は React Aria Components が閉じ込め、閉じたら開いたボタンに戻す。
 - **`Dialog` の animation**:開くときは 200ms、閉じるときは 150ms。本体は opacity と `0.97` から `1` までの scale で出入りする。backdrop は `background-color` の透明度を変えて、本体とは別に濃さを変える。reduced motion では scale を `1` に固定する。React Aria Components は `is-entering` と `is-exiting` の animation が終わるのを待ち、閉じるときは、終わるまで Dialog を取り除かない。閉じ始めたら中身を `inert` にして再送を防ぐ。
-- **`overlays/`**:画面に重ねる部品の Dialog と Toast を `primitives/overlays/` に置く。同じ面と重ね順の決まりを使う部品をまとめ、`primitives/` の直下を10件に収める。
-- **Toast**:操作の結果は `success` と `danger` で知らせる。いずれも色と形の違うアイコンを使う。Toast は Dialog と同じ不透明な面、半透明の縁の線、影で地と分ける。長い語も折り返し、アイコンと閉じるボタンの中心を文の1行目の中心にそろえる。
+- **`overlays/`**:画面に重ねる Dialog と Toast を `primitives/overlays/` にまとめ、`primitives/` の直下を10件に収める。
+- **Toast**:操作の結果を `success` と `danger` で知らせ、tone ごとに色と形の違うアイコンを付ける。地の上ではっきり見分けられるよう、面は `scheme-inverse` で画面の配色と逆にする(light では黒い面、dark では白い面。ユーザーが決めた)。面と地の色がはっきり分かれるので、半透明の縁の線は付けず、`shadow-overlay` だけを付ける。長い語も折り返し、アイコンと閉じるボタンの中心を文の1行目の中心にそろえる。
 - **Toast の表示時間と操作**:`success` は読める時間として5000ms表示し、region に hover や focus がある間は React Aria Components が timer を止める。`danger` は失敗を読み終えるまで利用者の手元に残す。どちらも、訳した名前の閉じるボタンですぐに閉じられる。
 - **Toast の読み上げと queue**:region の訳と landmark、F6 での移動、`alert` の読み上げ、閉じたときの focus の復帰は React Aria Components に任せる。`UiProvider` の下の `ToastProvider` が管理画面の instance ごとに queue を持ち、`useShowToast` に訳した文と `tone` を渡す。これで画面を描き直すテストや Storybook でも知らせを持ち越さない。
-- **Toast の位置**:画面の下と左右に `4` の余白を取り、広い画面では幅24remまでで inline 方向の末尾に寄せる。新しい知らせは下に積む。操作の結果が同じ場所に出て、複数あっても順にたどれるようにする。
-- **Toast の animation**:React Aria Components の Toast には `is-entering` と `is-exiting` が無いので、queue の `wrapUpdate` で View Transitions を始め、DOM の更新を `flushSync` で反映する。snapshot の準備中に queue が続けて変わったときは、1つの transition で反映する。続けて始めると先の transition が中断され、出入りの前後を撮れないため。出入りには opacity と上下0.5remの移動を使い、入るときと残った Toast が詰まるときは200ms・`--ease-standard`、出るときは Dialog と共通の150ms・`--ease-exit` を使う。reduced motion では出入りの opacity だけを残す。Toast の transition 中は画面全体を snapshot から外して Dialog などの animation を止めず、snapshot は pointer 操作を受けないようにする。
+- **Toast の位置**:画面の上の中央に置く(ユーザーが決めた)。上に `4`、左右に少なくとも `4` を空け、幅は24remまでにする。新しい知らせを上に積む。操作の結果が同じ場所に出て、複数あっても順にたどれるようにする。
+- **Toast の animation**:React Aria Components の Toast には `is-entering` と `is-exiting` が無いので、queue の `wrapUpdate` で View Transitions を始め、DOM の更新を `flushSync` で反映する。snapshot の準備中に queue が続けて変わったときは、1つの transition で反映する。続けて始めると先の transition が中断され、出入りの前後を撮れないため。opacity を変えながら、入るときは0.5rem上から下り、出るときは0.5rem上へ抜ける。入るときと残った Toast が詰まるときは200ms・`--ease-standard`、出るときは Dialog と共通の150ms・`--ease-exit` を使う。reduced motion では出入りの opacity だけを残す。Toast の transition 中は画面全体を snapshot から外して Dialog などの animation を止めず、snapshot は pointer 操作を受けないようにする。
 - **引き出したナビの animation**:開くときは 200ms、閉じるときは 150ms。面は `translate` で幅の分だけ左へ動かし、backdrop は Dialog と同じように濃さを変える。reduced motion では、面の位置を固定して opacity だけを変える。閉じ始めたら中身を `inert` にし、backdrop を押しても閉じないようにする。送信中は結果を見せるため、Escape・backdrop の押下・閉じるボタンで閉じられないようにする。
 - **`FocusScope`**:`FocusScope` の中から開いた Dialog を閉じ終えたとき、Dialog を開いたボタンが消えていれば(行ごと削除したなど)、React Aria Components は外側の `FocusScope` の最初の要素に focus を移す。行と一緒に消えるボタンから Dialog を開く欄は `FocusScope` で包み、欄の最初の要素を戻す先にする。`react-aria-components` は `FocusScope` を export しないので、`react-aria` を依存に足す。バージョンは `react-aria-components` が依存するものにそろえる。ずれると `react-aria` が2つ入り、それぞれが別の `FocusScope` の木を持つので、Dialog が外側の `FocusScope` を見つけられない(パスキーの focus のテストで落ちる)。
 - **バッジ**(`Badge`):状態を短く示す。用途(`tone`)ごとの色の組は、`Notice` と同じく `/10` の面と、同じ色の線と文字。
 - **ナビと本文**:広い画面では、`surface-sunken` の地にナビを置き、隣の `surface` の本文を角丸・影・半透明の縁で浮かせる。本文は document と一緒に scroll し、ナビは sticky で残して中だけ scroll できるようにする。狭い画面では sticky の帯の下に全幅の本文を置き、ナビは左の全高の drawer に収める。閉じるボタンは、帯の開くボタンと同じ位置に置く。狭い画面では、focus した要素と ring が帯に隠れないよう、document の scroll-padding-top に帯の高さと ring の幅・offset を足した分を取る。
 - **ナビの左端**:広い画面では、アプリのロゴ・まとまりの見出し・リンクのアイコンを左から24px にそろえ、アプリ名とリンクの文言を48px にそろえる。狭い画面では、本文の左端と開くボタンのアイコンを24px にそろえる。
 - **今いる場所**:`aria-current="page"` を付け、ナビの地に `surface` の行を影と半透明の縁で浮かせ、文字を `label` にする。縁は `::after` に描き、行の focus ring と両方見えるようにする。forced-colors でも縁を残す。hover では、縁を `fg` の 20% に濃くする。面だけが明るくなると、dark で縁が面より暗く見え、不自然だった(ユーザーが見つけた)。
-- 選んだ状態とほかの overlay(Popover・Menu など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す。overlay は地の上に重ねる半透明の線と `shadow-overlay` を付ける)。
+- 選んだ状態とほかの overlay(Popover・Menu など)の決まりは、その部品を足すときに入れる(選んだ状態は hover より強くし、形でも示す)。overlay には `shadow-overlay` を付け、地と近い色の面には半透明の縁の線を重ねる。
 
 ## 検査
 

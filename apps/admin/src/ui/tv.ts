@@ -52,7 +52,7 @@ const MERGE_CONFIG: TWMergeConfig = {
       duration: [{ duration: ["fast", "normal"] }],
       translate: ["state-pressed"],
       "focus-ring": ["focus-ring", "focus-ring-inset"],
-      "color-scheme": ["scheme-dark", "scheme-light"],
+      "color-scheme": ["scheme-dark", "scheme-light", "scheme-inverse"],
     },
   },
 };
