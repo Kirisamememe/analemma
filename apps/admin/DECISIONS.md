@@ -31,9 +31,9 @@ TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen
 
 route ごとの `lazy(() => import(…))` は使わず、`no-dynamic-import` をそのまま効かせる。管理画面を使うのは管理者1人で、全部を1つの bundle にしても大きくない(i18next を足した今の bundle で約 710 KB、gzip で約 224 KB)。`import()` を許すと、境界を守る `no-restricted-imports` を動的な import ですり抜けられる(`tooling/DECISIONS.md`)。エディタのような大きなライブラリを入れるときに、決め直す。
 
-## 対象のブラウザ
+## 対応するブラウザ
 
-最新の Chrome と WebKit だけで動けばよい。古いブラウザには対応せず、Firefox にも必要以上に合わせない(ユーザーが決めた)。新しい CSS・HTML・JS の API は、出てから日が浅くても、UI と UX に役立つなら使う。
+最新の Chrome と WebKit だけで動けばよい。古いブラウザには対応せず、Firefox にも必要以上に合わせない(ユーザーが決めた)。新しい CSS・HTML・JS の API は、出てから日が浅くても、UI/UX に役立つなら使う。
 
 - Vite の `build.target` と `build.cssTarget` を `esnext` にし、古いブラウザのための書き換えをさせない(最初の描画の前に流す script のビルドも同じ)。`modulePreload` の polyfill も入れない。
 - Storybook の Vite にも、同じ対象を入れる(`.storybook/adapt-vite-config.ts`。Storybook は `vite.config.ts` の `build` を `target` しか引き継がない)。
@@ -75,7 +75,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 
 開発では、Vite の開発のサーバー(`http://localhost:5173`)が、`/api/` で始まるパスを server の外部用のポート(`http://localhost:8787`)へ流す。
 
-- ブラウザから見ると、管理画面と API は同じ origin になる。server は、`admin` と `auth` の procedure で、次を確かめる(`apps/server/DECISIONS.md` の「入口の守り」)。GET 以外では、Origin が `AUTH_ORIGIN` と完全に一致すること。GET も含め、ブラウザが `Sec-Fetch-Site` を付けたなら、それが `same-origin` であること。Vite は Origin・`Sec-Fetch-Site`・Host をそのまま流し、server の `Set-Cookie` もそのまま返すので、server の `.env.example` の `AUTH_ORIGIN`(`http://localhost:5173`)のままで通る。`changeOrigin` は使わない。この振る舞いは、作り物の server を立てたテスト(`__tests__/vite-config.test.ts`)で確かめる。
+- ブラウザから見ると、管理画面と API は同じ origin になる。server は、`admin` と `auth` の procedure で、次を確かめる(`apps/server/DECISIONS.md` の「入口の守り」)。GET 以外では、Origin が `AUTH_ORIGIN` と完全に一致すること。GET も含め、`Sec-Fetch-Site` が `same-origin` であること(無いリクエストも断る)。Vite は Origin・`Sec-Fetch-Site`・Host をそのまま流し、server の `Set-Cookie` もそのまま返すので、server の `.env.example` の `AUTH_ORIGIN`(`http://localhost:5173`)のままで通る。`changeOrigin` は使わない。この振る舞いは、作り物の server を立てたテスト(`__tests__/vite-config.test.ts`)で確かめる。
 - 流すのは `/api/` で始まるパスだけにする(`^/api/`)。Vite は文字列のキーを前方一致で比べるので、`/api` と書くと `/api-guide` のような画面のパスまで server へ流れる。
 - 開発のサーバーの origin が `AUTH_ORIGIN` と食い違うと、すべてのログインが 403 になるので、`vite.config.ts` の origin と server の `.env.example` の `AUTH_ORIGIN` が同じことを、テストで確かめる。ポートが空いていなければ、別のポートに移らずに止まる(`strictPort`)。
 - `127.0.0.1` で開くと、origin が `AUTH_ORIGIN` と食い違い、RP ID(`localhost`)ともずれるので、`localhost` で開く。

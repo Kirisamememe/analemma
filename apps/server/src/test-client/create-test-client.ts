@@ -99,8 +99,12 @@ export const createTestClient = async (
       url: `${TEST_ORIGIN}/api`,
       headers: () =>
         jar.header() === ""
-          ? { origin: TEST_ORIGIN }
-          : { origin: TEST_ORIGIN, cookie: jar.header() },
+          ? { origin: TEST_ORIGIN, "sec-fetch-site": "same-origin" }
+          : {
+              origin: TEST_ORIGIN,
+              "sec-fetch-site": "same-origin",
+              cookie: jar.header(),
+            },
       fetch: async (request) => {
         const response = await app.fetch(request);
 

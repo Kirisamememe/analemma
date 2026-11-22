@@ -16,7 +16,11 @@ const VALID_LOOKING_TOKEN = `${"A".repeat(22)}.${"B".repeat(43)}`;
 const post = (path: string, headers: Record<string, string>): Request =>
   new Request(`${TEST_ORIGIN}/api/${path}`, {
     method: "POST",
-    headers: { "content-type": "application/json", ...headers },
+    headers: {
+      "content-type": "application/json",
+      "sec-fetch-site": "same-origin",
+      ...headers,
+    },
     body: JSON.stringify({ json: null }),
   });
 
@@ -92,24 +96,39 @@ describe("Origin の確認", () => {
   test("読むだけの GET では、Origin が無くてもセッションの確認に進むこと", async () => {
     await using server = await createTestClient();
     const response = await server.app.fetch(
-      new Request(`${TEST_ORIGIN}/api/admin/session/get`),
+      new Request(`${TEST_ORIGIN}/api/admin/session/get`, {
+        headers: { "sec-fetch-site": "same-origin" },
+      }),
     );
 
     expect(response.status).toBe(401);
   });
 
-  test("ブラウザが同じ origin からでないと示すリクエストは、GET でも 403 にすること", async () => {
+  test("Sec-Fetch-Site が same-origin でないリクエストは、ヘッダーが無くても、GET でも 403 にすること", async () => {
     await using server = await createTestClient();
 
-    for (const site of ["same-site", "cross-site", "none"]) {
+    for (const headers of [
+      { "sec-fetch-site": "same-site" },
+      { "sec-fetch-site": "cross-site" },
+      { "sec-fetch-site": "none" },
+      {},
+    ]) {
       const response = await server.app.fetch(
-        new Request(`${TEST_ORIGIN}/api/admin/session/get`, {
-          headers: { "sec-fetch-site": site },
-        }),
+        new Request(`${TEST_ORIGIN}/api/admin/session/get`, { headers }),
       );
 
       expect(response.status).toBe(403);
     }
+
+    const withoutSite = await server.app.fetch(
+      new Request(`${TEST_ORIGIN}/api/admin/session/get`, {
+        method: "POST",
+        headers: { "content-type": "application/json", origin: TEST_ORIGIN },
+        body: JSON.stringify({ json: null }),
+      }),
+    );
+
+    expect(withoutSite.status).toBe(403);
 
     const sameOrigin = await server.app.fetch(
       post("admin/session/get", {

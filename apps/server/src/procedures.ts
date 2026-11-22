@@ -18,15 +18,9 @@ const isSameOrigin = ({
   headers,
   method,
   relyingParty,
-}: RequestContext): boolean => {
-  const site = headers.get("sec-fetch-site");
-
-  if (site !== null && site !== "same-origin") {
-    return false;
-  }
-
-  return method === "GET" || headers.get("origin") === relyingParty.origin;
-};
+}: RequestContext): boolean =>
+  headers.get("sec-fetch-site") === "same-origin" &&
+  (method === "GET" || headers.get("origin") === relyingParty.origin);
 
 const rejectOrigin = (context: RequestContext): void => {
   context.logger.write({
