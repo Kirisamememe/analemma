@@ -1,9 +1,6 @@
-import type { KindDefinition } from "@analemma/contract";
+import type { ContentIssue, KindDefinition } from "@analemma/contract";
 
-import {
-  type ContentIssue,
-  createContentCheck,
-} from "@/features/kinds/check-content";
+import { createContentCheck } from "@/features/kinds/check-content";
 import type { KindPage } from "@/features/kinds/push/queries/list-kind-pages.query";
 
 /** 新しい定義に合わない固定ページと、その理由。 */

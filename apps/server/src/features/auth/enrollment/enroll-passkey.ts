@@ -4,8 +4,7 @@ import { REGISTRATION_ERRORS } from "@/features/auth/registration/registration-e
 import { verifyPasskeyRegistration } from "@/features/auth/registration/verify-passkey-registration";
 import { issueSecretToken } from "@/features/auth/secret-token/secret-token";
 import { toSessionExpiry } from "@/features/auth/session/decide-session";
-import { toSessionCookie } from "@/features/auth/session/to-session-cookie";
-import { writeSessionCookie } from "@/features/auth/session/write-session-cookie";
+import { toSessionCookie, writeSessionCookie } from "@/platform/session-cookie";
 import { authProcedures } from "@/procedures";
 
 /** 登録用 URL の token でパスキーを登録し、ログインする procedure。 */

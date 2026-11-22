@@ -14,6 +14,33 @@ const UNRESTRICTED_GLOBALS = {
   "eslint/no-restricted-properties": "off",
 } as const;
 
+const featureImports = (exceptions: readonly string[] = []) =>
+  restrictApis({
+    imports: {
+      patterns: [
+        {
+          group: [
+            "**",
+            "!@analemma/contract",
+            "@analemma/contract/**",
+            "*/**/@analemma/contract",
+            ...exceptions,
+            "!.",
+            "!..",
+            "*/**/.",
+            "*/**/..",
+            "!./**",
+            "!../**",
+            "!@/**",
+          ],
+          message:
+            "server の features で import できるのは、@analemma/contract と、相対パスか @/ で指定する server 内のモジュールです。Drizzle は queries/ の *.query.ts で、bun:test はテストで使います。",
+        },
+      ],
+    },
+    globals: SERVER_BUN_GLOBALS,
+  });
+
 /** server の境界を守る設定(後に書いたものが勝つ)。 */
 export const SERVER_OVERRIDES: readonly OxlintOverride[] = [
   {
@@ -65,6 +92,29 @@ export const SERVER_OVERRIDES: readonly OxlintOverride[] = [
       },
       globals: SERVER_BUN_GLOBALS,
     }),
+  },
+  {
+    files: ["**/apps/server/src/features/**"],
+    rules: featureImports(),
+  },
+  {
+    files: ["**/apps/server/src/features/**/queries/*.query.ts"],
+    rules: featureImports([
+      "!drizzle-orm",
+      "!drizzle-orm/**",
+      "*/**/drizzle-orm",
+      "*/**/drizzle-orm/**",
+    ]),
+  },
+  {
+    files: ["**/apps/server/src/features/**/__tests__/*.{test,spec}.ts"],
+    rules: featureImports(["!bun:test", "bun:test/**", "*/**/bun:test"]),
+  },
+  {
+    files: [
+      "**/apps/server/src/features/auth/webauthn/client-data/parse-client-data.ts",
+    ],
+    rules: featureImports(["!zod", "zod/**", "*/**/zod"]), // TODO: clientDataJSON の検証で zod を使う場所を見直す
   },
   {
     files: [

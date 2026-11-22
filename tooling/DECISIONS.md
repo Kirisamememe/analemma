@@ -67,9 +67,9 @@
   - `import/extensions`:`.mjs` の拡張子を付ける。Node の ES モジュールは、相対 import に拡張子が無いと読み込めない。全体に掛けると、`.mjs` で配布されているパッケージ(oRPC など)の import にまで拡張子を求められたので、範囲を絞った。
   - `typescript/no-unsafe-*` と `strict-boolean-expressions` を外す。Oxlint は JS プラグインへ型の無い構文木を渡すので、型付きのルールを当てても意味が無い。
 - **server の境界**(`apps/server/src/` に `no-restricted-imports`・`no-restricted-globals`・`no-restricted-properties` を掛ける。上書きの設定は、後に書いたものが勝つ)
-  - Drizzle と DB のドライバを値として import できるのは、`*.query.ts`・`src/db/`・`src/platform/` だけ。型だけの import は、mapper のためにどこでも許す。
-  - Bun 専用の API(`Bun` と `HTMLRewriter` のグローバル、`globalThis.Bun`、`bun` と `bun:*` のモジュール、`hono/bun`)を使えるのは、`src/platform/` と `src/main.ts` だけ。テストのための `bun:test` はどこでも使える。
-  - 素の oRPC の builder(`implement`・`os`・`Builder`)を値として使えるのは、`src/procedures.ts` と `src/router.ts` だけ。型だけの import は許す。
+  - Drizzle と DB のドライバを値として import できるのは、`*.query.ts`・`src/db/`・`src/platform/` だけ。`src/features/` の外では、型だけの import も許す。feature には下の制限を掛ける。
+  - Bun 専用の API(`Bun` と `HTMLRewriter` のグローバル、`globalThis.Bun`、`bun` と `bun:*` のモジュール、`hono/bun`)を使えるのは、`src/platform/` と `src/main.ts` だけ。`bun:test` はテストに使う。feature ではテストのファイルだけに許す。
+  - 素の oRPC の builder(`implement`・`os`・`Builder`)を値として使えるのは、`src/procedures.ts` と `src/router.ts` だけ。feature の外では型だけの import も許す。
   - contract・client・管理画面にも、同じ形で Bun の API と `node:*` の禁止を掛ける。
   - ただし、client の CLI(`packages/client/src/cli/`)は Node で動かすコマンドなので、`node:*` の import と Node のグローバルを許す(Bun の API は禁じたまま)。`process.env` は、CLI の入口の `main.ts` でだけ読める。CLI では `node:process` の import を禁じ、グローバルの `process` を使わせる(下の `node/no-process-env` の穴をふさぐため。Codex のレビューで挙がった)。fixture は `packages/client/src/` の下に置く。
   - `node/no-process-env` は、グローバルの `process` の `env` だけを見る。`import process from "node:process"` で読み込んだ `process` の `env` には診断を出さない(fixture を書いていて分かった)。今は server と CLI のどちらも、そう書いていない。
@@ -102,6 +102,12 @@ feature が使う外のライブラリは `src/i18n/` と `src/api/` のモジ�
 features の import には、この pattern を使う。React Aria Components・lucide-react・tailwind-variants・Node・Bun の import も `**` が止めるため、同じ import への診断は1件で済む。
 テストと story は、描画や作り物の server の組み立てに外のライブラリを使える。
 この制限は `src/features/` の製品のコードに掛ける。`src/routes/` は今回の適用範囲から外す。
+
+### server の feature の import
+
+`src/features/` では、server 内への相対パスと `@/`、それに `@analemma/contract` を許す。管理画面と同じ `no-restricted-imports` の pattern で、許していないモジュールは型だけの import も含め、import ごとに1件の診断を出す。相対パスと `@/` が server の外を指していないかは、ワークスペースの境界のルールが確かめる。
+
+用途ごとの `queries/` にある `*.query.ts` では Drizzle、`__tests__/` のテストでは `bun:test` も許す。zod は、WebAuthn の `clientDataJSON` を検証する `parse-client-data.ts` で当面許す。ここで検証するのは、contract が受け取った文字列をデコードした後の値なので、すぐには contract のスキーマに移せない。検証をどこに置くかは、設定の TODO に残す。
 
 ## 手元の検査
 

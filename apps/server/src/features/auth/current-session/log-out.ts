@@ -1,6 +1,5 @@
 import { deleteSession } from "@/features/auth/session/queries/session.query";
-import { toSessionCookie } from "@/features/auth/session/to-session-cookie";
-import { clearSessionCookie } from "@/features/auth/session/write-session-cookie";
+import { clearSessionCookie, toSessionCookie } from "@/platform/session-cookie";
 import { adminProcedures } from "@/procedures";
 
 /** 今のセッションを終え、Cookie を消させる procedure。 */

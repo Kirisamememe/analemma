@@ -1,13 +1,36 @@
 import {
   type SetCookieOptions,
   deleteCookie,
+  getCookie,
   setCookie,
 } from "@orpc/server/helpers";
 
-import type { SessionCookie } from "@/features/auth/session/to-session-cookie";
+/** セッションの token を入れる Cookie の名前と属性。 */
+type SessionCookie = {
+  /** Cookie の名前。 */
+  readonly name: string;
+  /** `Secure` を付けるか。 */
+  readonly secure: boolean;
+};
+
+/** 管理画面の origin から、セッションの Cookie の名前と属性を決める。 */
+export const toSessionCookie = (origin: string): SessionCookie => {
+  const secure = new URL(origin).protocol === "https:";
+
+  return {
+    name: secure ? "__Host-analemma_session" : "analemma_session",
+    secure,
+  };
+};
+
+/** リクエストのヘッダーからセッションの token を読む。 */
+export const readSessionCookie = (
+  headers: Headers,
+  { name }: SessionCookie,
+): string | undefined => getCookie(headers, name);
 
 /** 応答に書くセッションの Cookie。 */
-export type SessionCookieWrite = {
+type SessionCookieWrite = {
   /** Cookie の名前と属性。 */
   readonly cookie: SessionCookie;
   /** Cookie に入れる token。 */
