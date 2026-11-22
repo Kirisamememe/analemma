@@ -1,3 +1,5 @@
+import "example/.";
+import "example/..";
 import type { InferContractRouterInputs } from "@orpc/contract";
 import { getCookie } from "@orpc/server/helpers";
 import type { SQL } from "drizzle-orm";

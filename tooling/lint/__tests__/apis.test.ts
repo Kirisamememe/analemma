@@ -174,7 +174,11 @@ describe("feature の import", () => {
     { app: "admin", file: "dependencies.ts", lines: [1, 2, 3, 4] },
     { app: "admin", file: "dependencies.tsx", lines: [1, 2, 3, 5, 6] },
     { app: "admin", file: "ui-libraries.tsx", lines: [1, 2, 3, 4] },
-    { app: "server", file: "external-imports.ts", lines: [1, 2, 3, 4, 6] },
+    {
+      app: "server",
+      file: "external-imports.ts",
+      lines: [1, 2, 3, 4, 5, 6, 8],
+    },
     {
       app: "server",
       file: "queries/external-imports.query.ts",
