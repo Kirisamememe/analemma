@@ -9,9 +9,26 @@ import { chooseFirstListener } from "@/platform/choose-first-listener";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
 import { readEnv } from "@/platform/env";
+import { loadAdminDist } from "@/platform/load-admin-dist";
 import { stdoutLogger } from "@/platform/logger";
 
 const env = readEnv();
+
+const prepareAdminDist = async (directory: string) => {
+  try {
+    return await loadAdminDist(directory);
+  } catch (cause) {
+    throw new Error(
+      "ADMIN_DIST_DIR から管理画面のビルドを読み込めませんでした",
+      { cause },
+    );
+  }
+};
+
+const adminDist =
+  env.adminDistDir === undefined
+    ? undefined
+    : await prepareAdminDist(env.adminDistDir);
 
 await using resources = new AsyncDisposableStack();
 
@@ -34,7 +51,7 @@ const internalOptions = {
   hostname: env.internal.host,
 };
 const externalOptions = {
-  fetch: createExternalApp(context).fetch,
+  fetch: createExternalApp(context, adminDist).fetch,
   port: env.port,
 };
 const { external, internal } =

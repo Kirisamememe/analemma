@@ -6,9 +6,10 @@
 
 - `src/main.ts`:起動。環境変数の検証と依存の組み立て。SIGINT・SIGTERM で受け付けを止め、DB の接続を閉じて終わる。
 - `src/enroll.ts`:パスキーの登録用 URL を出すコマンド(`bun run passkey:enroll`)。最初の登録と、パスキーを全部失ったときの復旧に使う。
-- `src/app.ts`:HTTP の層。外部用のポート(管理用 API・認証用 API)と内部用のポート(公開 API・デプロイ用 API)の、2つの Hono のアプリを作り、それぞれの middleware に、oRPC の handler を `/api` でつなぐ。
+- `src/app.ts`:HTTP の層。外部用のポート(管理用 API・認証用 API・管理画面)と内部用のポート(公開 API・デプロイ用 API)の、2つの Hono のアプリを作り、それぞれの middleware に、oRPC の handler を `/api` でつなぐ。
 - `src/context.ts`:context の型(起動時に組み立てる `AppContext` と、リクエストごとの `RequestContext`)。
 - `src/platform/`:Bun 専用の API、DB の接続、clock、logger。
+- `src/platform/load-admin-dist.ts`:`ADMIN_DIST_DIR` に指定した管理画面のビルドを読み込み、CSP に使う script の hash を求める。
 - `src/db/schema/`:全テーブルの Drizzle の定義。
 - `src/db/migrate.ts`:migration を適用するコマンド(`bun run db:migrate`)。server の起動とは別に流す。
 - `src/db/migrations/`:drizzle-kit(`bun run db:generate`)が書き出す migration。

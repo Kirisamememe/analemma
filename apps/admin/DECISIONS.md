@@ -60,7 +60,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 
 - 当てる値は、`localStorage` に利用者が選んだ値があればそれ、無ければ言語はブラウザの言語の並びから選び、配色は OS に従う(`data-theme` を付けない)。決める関数(`src/preferences/resolve-preferences.ts`)は純粋関数にしてテストする。
 - script は `src/preferences/boot.ts` を、`vite.config.ts` の plugin が、Vite の lib のビルドで1つの IIFE にまとめ、head に直接書き込む。TypeScript のまま書いてテストでき、`src/i18n/` と同じ言語の判定を使える。module の script は後回しに流れるので、最初の描画の前に流すには、module でない script にする必要がある。
-- 外部のファイルにせず、head に直接書き込む。ファイルにすると、ビルドの出力の名前を head に書き戻す仕組みが要る。server が CSP の `script-src` を決めるときには、この script の hash を許すか、ファイルに分けるかを決める(server の「入口の守り」で、CSP のほかの directive は、管理画面の配信を足すときに決めることになっている)。
+- 最初の描画の前に別のファイルを取りに行かずに済むよう、script は head に直接書き込む。server は起動時にビルド済みの `index.html` から本文の hash を求め、CSP の `script-src` に含める。
 - React は、html の `lang` を読み(`src/i18n/locales.ts` の `toLocale`)、i18next の `lng` に渡す。言語を決める出どころを、head の script の1か所にする。i18next の language detector は使わない。
 - 言語の切り替えは i18next の `changeLanguage` で行い、画面を読み込み直さない。`languageChanged` の event で、html の `lang` と `localStorage` を同じ値にする(`src/preferences/sync-locale.ts`)。html の `lang` は、theme.css の `:lang()` による、言語ごとの字体の切り替えに効く。`useTranslation` を使う部品は、切り替えのたびに描き直されるので、React Aria Components の `I18nProvider`(`UiProvider`)にも、i18next の今の言語が渡る。React Aria Components の辞書は、文字体系ではなく地域で分かれていて(`zh-CN`・`zh-TW`)、`zh-Hans` を渡すと、`zh-` で始まる辞書のうち、並びが先のものを使う。並びに頼らないよう、地域を付けた言語(`zh-CN` など)にして渡す。instance を作ったときの言語は `localStorage` に置かない。head の script がブラウザの言語から選んだ値なので、置くと、ブラウザの言語を変えても追従しなくなる。
 - 本番のビルドの出力で、head の script がアプリの script より前にあることと、作り物の `localStorage`・`navigator` の上で流すと値を当てることを、テスト(`__tests__/vite-config.test.ts`)で確かめる。ビルドの出力そのものを流すので、まとめ方を誤って module の構文が残れば落ちる。

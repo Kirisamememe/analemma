@@ -272,3 +272,11 @@ test(".env.example を写せば、server の環境変数として読めること
     rpId: "localhost",
   });
 });
+
+describe("ADMIN_DIST_DIR", () => {
+  test("空文字は設定の誤りとして、起動時に断ること", () => {
+    expect(readError({ ...AUTH, DATABASE_URL, ADMIN_DIST_DIR: "" })).toContain(
+      "ADMIN_DIST_DIR",
+    );
+  });
+});
