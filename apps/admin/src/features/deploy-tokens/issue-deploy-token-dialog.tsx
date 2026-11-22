@@ -130,6 +130,7 @@ export const IssueDeployTokenDialog = ({
 
     onClose();
   };
+
   const outcome = issuing.isError ? "Unexpected" : issuing.data?._tag;
   const notice =
     outcome === undefined || outcome === "Issued"
