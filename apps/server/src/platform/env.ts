@@ -38,6 +38,10 @@ const databaseEnvSchema = z
 
 const envSchema = z
   .object({
+    ADMIN_DIST_DIR: z
+      .string()
+      .min(1, { error: "フォルダのパスを書く" })
+      .optional(),
     PORT: portSchema.default(8787),
     INTERNAL_PORT: portSchema.default(8788),
     INTERNAL_HOST: hostSchema,
@@ -67,6 +71,7 @@ const envSchema = z
     }
 
     return {
+      adminDistDir: source.ADMIN_DIST_DIR,
       port: source.PORT,
       internal: { port: source.INTERNAL_PORT, host: source.INTERNAL_HOST },
       database: source.DATABASE_URL,

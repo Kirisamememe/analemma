@@ -42,16 +42,20 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 
 ## HTTP の層
 
-- **Hono を使う**:API の仕事(ルーティング、入力と出力の検証、型付きのエラー、認可の middleware)は oRPC が持つ。その外側の HTTP の仕事(セキュリティのヘッダー、CSRF の確認、リクエストの本文の大きさの上限、静的ファイル、ETag、Cookie)は、自分たちで書かずに Hono の middleware を使う。Hono は Web 標準で書かれていて Bun 以外でも動くので、「Web 標準で書く」方針に合う。Elysia は Bun 専用なので使わない。NestJS のような大きなフレームワークは、この規模には重い。
+- **Hono を使う**:API の仕事(ルーティング、入力と出力の検証、型付きのエラー、認可の middleware)は oRPC が持つ。その外側の HTTP のルーティングは Hono が受け持ち、セキュリティのヘッダー、CSRF の確認、リクエストの本文の大きさの上限には Hono の middleware を使う。Hono は Web 標準で書かれていて Bun 以外でも動くので、「Web 標準で書く」方針に合う。Elysia は Bun 専用なので使わない。NestJS のような大きなフレームワークは、この規模には重い。
 - oRPC の handler は、Hono の `/api/*` のルートとしてつなぐ。oRPC のプロトコル(`RPCHandler`)だけを出す。公開サイトも、client(oRPC の client)で公開 API を呼ぶので、contract から作る OpenAPI の handler は、今は足さない。
-- middleware は `secureHeaders`・`csrf`・`bodyLimit`(`/api` は 1MB まで)。管理画面の静的ファイルの配信は、まだ無い。本番の置き場所を決めるときに足す(それまでは、作っても本番の形で確かめられない)。内部用のポートには `bodyLimit` だけを掛ける(「2つのポート」)。
+- 外部用のポートでは、静的ファイルを含むすべての応答に `secureHeaders` を掛ける。API には `csrf` と `bodyLimit`(1 MB)も掛ける。内部用のポートの middleware は `bodyLimit` だけとする。
+- `ADMIN_DIST_DIR` に管理画面のビルドの出力先を指定する。相対パスの起点は server プロセスの cwd。未設定なら、server は管理画面を配信しない(開発では Vite の開発のサーバーが配る)。設定したときは起動時にファイルを読み込み、フォルダや `index.html` が読めなければ、ポートを開く前に止まる。
+- 配信するのは、起動時に読んだ通常のファイルだけ。ドットで始まる名前とシンボリックリンクを除く。管理画面のビルドがメモリに収まるので、リクエストのパスでファイルシステムを開く必要がなく、HTML と CSP も同じビルドのものになる。ビルドを入れ替えたら server を再起動する。
+- `/api` と `/api/` 以下は oRPC に渡す。それ以外は GET・HEAD で静的ファイルを返し、ほかのメソッドには 405 を返す。ファイルに当たらない画面の URL には SPA の入口の `index.html` を返す。`/assets/` 以下の欠落は 404 にし、JS や CSS のリクエストに HTML が返るのを防ぐ。
+- `index.html` は、ビルドを入れ替えると新しいファイルを指し、応答ごとに nonce も変わるので `no-store` とする。Vite がファイル名に hash を含める `/assets/` は `public, max-age=31536000, immutable`、同じ名前のまま差し替わる favicon などは毎回確かめるよう `no-cache` とする。
 - バージョンは安定版で始める(Hono 4、oRPC 1)。Hono 5 と oRPC 2 は、まだ RC と beta。
 
 ## 2つのポート
 
 CMS のプロセスが、外部用のポート(`PORT`、既定は 8787)と内部用のポート(`INTERNAL_PORT`、既定は 8788)の2つで待ち受ける(ユーザーと決めた)。
 
-- 外部用のポートでは、管理用 API と認証用 API(と、後で管理画面の静的ファイル)を受ける。リクエストは、リバースプロキシを通って、ブラウザから届く。
+- 外部用のポートでは、管理用 API と認証用 API を受け、設定に応じて管理画面の静的ファイルを配信する。リクエストは、リバースプロキシを通って、ブラウザから届く。
 - 内部用のポートでは、公開 API とデプロイ用 API を受ける。同じサーバーで動く公開サイト(Amayadori)のサーバーと、デプロイのときの CLI だけが呼ぶ。サーバーの外からは届かない。`INTERNAL_HOST`(既定は 127.0.0.1)で、待ち受けるアドレスを決める。公開サイトを別のコンテナで動かすときは、コンテナの内部のネットワークのアドレスにし、ホストのポートに結び付けない(Compose の `ports:` に書かない)。
 - リバースプロキシのパスの設定で分けない。設定を一つ誤ると、公開 API やデプロイ用 API が外から届く。待ち受けるポートで分ければ、外から届かないようにする約束は「内部用のポートで、サーバーの外から届く場所を待ち受けない」だけになる。
 - 公開 API をサーバーの外から届かないようにすることは、ユーザーと決めた。読む API が外から届かない方が安全で、サーバーの処理を CMS と同じサーバーで動かすサイトしか、公開 API を使えないことは受け入れた。
@@ -79,7 +83,10 @@ contract を4つのアクセス区分に分け、server ではそれぞれの ba
 - 管理用の応答と認証用の応答とデプロイ用の応答には、断ったときも含めて `Cache-Control: no-store` を付ける。認証用の procedure は、ログインのたびに Set-Cookie を返すため。`csrf()` や本文の大きさの上限が procedure の前で断る応答(403・413)にも付くよう、no-store の middleware を、それらより先に置く。Cookie で認可していても、途中のキャッシュに保存されると、後のリクエストが認可を通らずに中身を受け取れてしまう。公開 API の応答のキャッシュは、キャッシュの設計と一緒に決める。
 - `admin` と `auth` の procedure は、GET でなければ、Origin ヘッダーが管理画面の origin(`AUTH_ORIGIN`)と完全に一致するときだけ受け付け、ほかは 403 と `FORBIDDEN` にする(Origin が無いときも)。Hono の `csrf()` はフォームの形の Content-Type だけを見て、JSON の POST はブラウザの CORS の preflight に任せている。CORS の設定や、ブラウザが preflight を送らない Content-Type に頼らないよう、Cookie で認証するアクセス区分では自分で確かめる。確かめるのは oRPC の middleware で、パスではなく contract のアクセス区分で掛ける。パーセントエンコードしたパスのような、Hono と oRPC でパスの読み方が食い違う抜け道を作らない。GET は読むだけの procedure にしか届かない(oRPC の既定で、route を GET にした procedure 以外は GET で呼べない)。同じ origin の GET に、ブラウザは Origin を付けない。代わりに、`Sec-Fetch-Site` が `same-origin` でないリクエストは、GET を含めて断る(`Sec-Fetch-Site` が無いときも。対応するブラウザはどれも付ける)。同じサイトの別の origin のページに、Cookie 付きの GET を送らせないため(理由は `src/features/auth/DECISIONS.md`)。
 - Hono の `csrf()` の許す origin は、リクエストの URL からではなく `AUTH_ORIGIN` から決める。TLS を終端するリバースプロキシの後ろでは、リクエストの URL の scheme やホストが、ブラウザから見た origin と食い違う。
-- 外部用のポートのすべての応答に、`Permissions-Policy: publickey-credentials-create=(self), publickey-credentials-get=(self)` と、`Content-Security-Policy: frame-ancestors 'none'`・`X-Frame-Options: DENY` を付ける。ほかのサイトが管理画面を iframe に入れ、パスキーの操作を任せる(`allow` 属性)ことを、ブラウザに断らせる。Hono の `secureHeaders` には `publickey-credentials-create` の項目が無いので、Permissions-Policy は自分で書く。CSP のほかの directive は、管理画面の配信を足すときに決める。
+- 外部用のポートのすべての応答に、`Permissions-Policy: publickey-credentials-create=(self), publickey-credentials-get=(self)` と `X-Frame-Options: DENY` を付け、CSP に `frame-ancestors 'none'` を含める。ほかのサイトが管理画面を iframe に入れ、パスキーの操作を任せる(`allow` 属性)ことを、ブラウザに断らせる。Hono の `secureHeaders` には `publickey-credentials-create` の項目が無いので、Permissions-Policy は自分で書く。静的ファイルは Cookie を使わないので、別のサイトのリンクやブックマークからも開ける。Origin と `Sec-Fetch-Site` の確認は管理用 API と認証用 API に掛ける。
+- 管理画面を配るときは、外部用のポートの API にも、静的ファイルと同じ次の CSP を付ける。API はリソースを読み込む文書を返さないため、応答ごとにポリシーを切り替える必要がない。`default-src`・`base-uri`・`form-action`・`frame-ancestors`・`object-src` は `'none'`。画像と API への接続は同じ origin に限る。ビルドは外部のフォント、manifest、data URL の画像を読まない。
+- `script-src` は同じ origin の JS と、起動時に `index.html` の src の無い script の本文から Web Crypto で求めた SHA-256 の hash を許す。ビルド時に hash を別ファイルに書く方法では、配信する HTML とそのファイルをそろえる必要がある。Zod は `Function` が使えない環境でも検証できるので、`unsafe-eval` は許さない。
+- `style-src` は同じ origin の CSS と、応答ごとの nonce を許す。React Aria は、press の操作の間と、スクロールを止めるときに、style 要素を head に足し、`<meta name="csp-nonce">` の値を nonce として付ける。server は、`index.html` を返すたびに Hono の `secureHeaders` の `NONCE` で nonce を作り、`<head>` の直後にその meta を差し込む。style 要素の本文の hash を書く方法では、React Aria を上げて本文が変わると、黙って style が効かなくなる。
 - 認可の middleware は、`adminProcedures` に付けるのに加えて、`router.ts` で管理用のルーター全体にも掛ける(oRPC は同じ middleware の重複を1つにまとめる)。管理用の procedure を `adminProcedures` 以外から作る抜け道ができても、認可が外れない。
 - 認可のテストは、server のルーターではなく contract の `admin` を列挙する。ルーターに遅延読み込みの枝が入っても、contract にある procedure は必ず検査される。
 - 想定外の失敗のログは、procedure を呼ぶ段階(`clientInterceptors`)で取る。リクエストを読む段階で取ると、壊れた JSON のような利用者の誤りまで、server の障害として記録されてしまう。

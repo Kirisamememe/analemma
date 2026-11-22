@@ -4,7 +4,7 @@
 
 ## 構成
 
-- React + TanStack Router + TanStack Query の SPA。SSR しない。Vite でビルドし、server が同じ origin で静的ファイルとして配信する(配信は、まだ無い。本番の置き場所を決めるときに作る)。
+- React + TanStack Router + TanStack Query の SPA。SSR しない。Vite でビルドし、server の `ADMIN_DIST_DIR` に出力先を指定すると、外部用のポートで API と同じ origin から配信する。
 - `index.html`:Vite の入口。`vite.config.ts` の plugin が、`src/preferences/boot.ts` を1つの script にまとめて head に書き込む(言語と配色を、最初の描画の前に当てる)。
 - `src/main.tsx`:React を描き始める入口。i18next の instance・ブラウザの履歴・API の client・認証器を組み立てて渡す。
 - `src/app/app.tsx`:i18next の instance・server の状態(TanStack Query)・route をつないだ全体。
