@@ -78,28 +78,30 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 
 effect でないと書けない処理は、次のとおり。
 
-1. 副作用を起こす `window`・`document` のイベントの購読(キーボードの shortcut、`beforeunload`)。
+1. `window`・`document` のイベントを購読し、外すまで持ち続ける処理(キーボードの shortcut、`beforeunload`)。
 2. component が生きている間の timer。
 3. DOM の要素に結びつかない外への接続(WebSocket・EventSource・BroadcastChannel)。
-4. React の外の状態を React の値に合わせる処理(`document.title`、html の属性、URL の履歴、i18next の言語)。
+4. React の外の状態を React の値に合わせる処理(`document.title`、html の属性)。
 5. 描く前の大きさの計測(`useLayoutEffect`)。
 
 それ以外は、次の手段で書く。
 
-| 処理                               | 使う手段                                 |
-| ---------------------------------- | ---------------------------------------- |
-| DOM の要素に結びつく準備と後片付け | cleanup を返す ref callback              |
-| 外の store の値の読み取り          | `useSyncExternalStore`                   |
-| props や state から計算できる値    | 描くときに計算し、重ければ `useMemo`     |
-| 操作がきっかけの処理               | event handler や mutation の `onSuccess` |
-| state を全部消す                   | `key`                                    |
-| データの読み込み                   | TanStack Query と Router の loader       |
-| 初期化                             | `main.tsx` か module の一番外            |
-| effect の中で最新の値を読む        | `useEffectEvent`                         |
+| 処理                               | 使う手段                                                |
+| ---------------------------------- | ------------------------------------------------------- |
+| DOM の要素に結びつく準備と後片付け | cleanup を返す ref callback                             |
+| 外の store の値の読み取り          | `useSyncExternalStore`                                  |
+| props や state から計算できる値    | 描くときに計算し、重ければ `useMemo`                    |
+| 操作がきっかけの処理               | event handler や mutation の `onSuccess`                |
+| 子の state を作り直す              | `key`                                                   |
+| データの読み込み                   | TanStack Query と Router の loader                      |
+| 初期化                             | `main.tsx` か module の一番外                           |
+| effect の中で最新の値を読む        | `useEffectEvent`                                        |
+| URL の履歴を画面の値に合わせる     | Router の `Navigate`(登録用 URL の画面)                 |
+| i18next の言語を props に合わせる  | 言語ごとに instance を `useMemo` で作る(Storybook の枠) |
 
 effect を使う hook の一覧は、次のとおり。
 
-| hook                 | 置き場所                              | ケース                                                              |
+| hook                 | 置き場所                              | 処理                                                                |
 | -------------------- | ------------------------------------- | ------------------------------------------------------------------- |
 | `useHtmlPreferences` | `.storybook/use-html-preferences.tsx` | (4) 描く前に html の `lang` と `data-theme` を story の値に合わせる |
 
