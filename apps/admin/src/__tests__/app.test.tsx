@@ -1,6 +1,8 @@
 import { act, cleanup, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { createPasskeyRoutes } from "../testing/create-passkey-routes";
 import { renderApp } from "../testing/render-app";
 
 afterEach(cleanup);
@@ -24,5 +26,30 @@ describe("App", () => {
 
     expect(screen.getByRole("heading", { name: "找不到页面" })).toBeDefined();
     expect(screen.getByText("/missing 处没有页面。")).toBeDefined();
+  });
+
+  test("言語を切り替えると、React Aria Components が出す文言も、その言語にする", async () => {
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+    const { i18n } = renderApp({ path: "/security", routes: server.routes });
+
+    await userEvent.click(
+      await screen.findByRole("button", { name: "パスキーを追加" }),
+    );
+
+    expect(
+      (await screen.findAllByRole("button", { name: "閉じる" })).length,
+    ).toBeGreaterThan(0);
+
+    await act(async () => i18n.changeLanguage("zh-Hans"));
+
+    expect(
+      screen.getAllByRole("button", { name: "取消" }).length,
+    ).toBeGreaterThan(0);
+
+    await act(async () => i18n.changeLanguage("en"));
+
+    expect(
+      screen.getAllByRole("button", { name: "Dismiss" }).length,
+    ).toBeGreaterThan(0);
   });
 });

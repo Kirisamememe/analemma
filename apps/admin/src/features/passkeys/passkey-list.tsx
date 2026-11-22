@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import type { ApiOutputs } from "../../api/api-types";
 import { formatDateTime } from "../../i18n/format-date-time";
+import { toLocale } from "../../i18n/locales";
 import { Cluster } from "../../ui/layout/cluster";
 import { Stack } from "../../ui/layout/stack";
 import { Text } from "../../ui/layout/text";
@@ -31,6 +32,7 @@ export const PasskeyList = ({
   onDelete,
 }: PasskeyListProps): ReactNode => {
   const { t, i18n } = useTranslation();
+  const locale = toLocale(i18n.language);
   const { api } = useRouteContext({ from: "__root__" });
   const passkeys = useQuery({
     queryKey: PASSKEYS_QUERY_KEY,
@@ -61,8 +63,8 @@ export const PasskeyList = ({
               </Cluster>
               <Text tone="muted" variant="caption">
                 {t("passkeys.dates", {
-                  created: formatDateTime(i18n.language, passkey.createdAt),
-                  lastUsed: formatDateTime(i18n.language, passkey.lastUsedAt),
+                  created: formatDateTime(locale, passkey.createdAt),
+                  lastUsed: formatDateTime(locale, passkey.lastUsedAt),
                 })}
               </Text>
             </Stack>

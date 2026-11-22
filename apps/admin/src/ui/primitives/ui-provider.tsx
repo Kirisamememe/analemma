@@ -7,6 +7,8 @@ import type { ReactNode } from "react";
 import { I18nProvider, RouterProvider } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
+import { type Locale, toLocale } from "../../i18n/locales";
+
 declare module "react-aria-components" {
   // oxlint-disable-next-line typescript/consistent-type-definitions -- React Aria Components の型の登録は、interface の宣言のマージでしか書けない
   interface RouterConfig {
@@ -16,6 +18,13 @@ declare module "react-aria-components" {
     routerOptions: Omit<NavigateOptions, keyof ToOptions>;
   }
 }
+
+/** React Aria Components の辞書を引く言語(辞書は地域ごとにある)。 */
+const ARIA_LOCALES: Readonly<Record<Locale, string>> = {
+  en: "en-US",
+  ja: "ja-JP",
+  "zh-Hans": "zh-CN",
+};
 
 /** `UiProvider` に渡す値。 */
 type UiProviderProps = {
@@ -35,7 +44,9 @@ export const UiProvider = ({ children }: UiProviderProps): ReactNode => {
       }}
       useHref={(to) => router.buildLocation({ to }).href}
     >
-      <I18nProvider locale={i18n.language}>{children}</I18nProvider>
+      <I18nProvider locale={ARIA_LOCALES[toLocale(i18n.language)]}>
+        {children}
+      </I18nProvider>
     </RouterProvider>
   );
 };

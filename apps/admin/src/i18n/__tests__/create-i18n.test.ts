@@ -68,4 +68,15 @@ describe("createI18n", () => {
 
     expect<string>(createI18n("ja").t("notFound.title")).toBe(TITLE.ja);
   });
+
+  test("訳に無いキーと、引数の渡し忘れを、型の誤りにする", () => {
+    const i18n = createI18n("en");
+    // @ts-expect-error -- 訳に無いキー
+    const missingKey: string = i18n.t("notFound.missing");
+    // @ts-expect-error -- 引数の path を渡していない
+    const missingArgument: string = i18n.t("notFound.description");
+
+    expect(missingKey).toBe("notFound.missing");
+    expect(missingArgument).toBe("There is no page at {{path}}.");
+  });
 });
