@@ -5,7 +5,7 @@ import { findEnrollment } from "./find-enrollment.query";
 
 /** 使える登録用の token。 */
 export type ValidEnrollment = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Valid";
   /** 登録用の token の ID。 */
   readonly enrollmentId: string;
@@ -15,7 +15,7 @@ export type ValidEnrollment = {
 
 /** 知らない・使った・期限切れの登録用の token。 */
 export type InvalidEnrollment = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Invalid";
 };
 

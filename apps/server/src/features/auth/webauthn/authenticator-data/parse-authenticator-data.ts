@@ -15,7 +15,7 @@ export type AuthenticatorFlags = {
 
 /** 登録のときに authenticatorData に入る、新しい資格情報。 */
 export type AttestedCredential = {
-  /** 認証器の種類を表す 16 バイト。 */
+  /** 認証器の機種を表す 16 バイト。 */
   readonly aaguid: Uint8Array<ArrayBuffer>;
   /** 資格情報の ID。 */
   readonly credentialId: Uint8Array<ArrayBuffer>;
@@ -25,7 +25,7 @@ export type AttestedCredential = {
 
 /** 読んだ authenticatorData。 */
 export type AuthenticatorData = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Parsed";
   /** RP ID の SHA-256。 */
   readonly rpIdHash: Uint8Array<ArrayBuffer>;
@@ -39,7 +39,7 @@ export type AuthenticatorData = {
 
 /** 資格情報と、読み終えた位置。 */
 type ReadCredential = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Read";
   /** 読んだ資格情報。 */
   readonly credential: AttestedCredential;

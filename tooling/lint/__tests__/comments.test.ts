@@ -29,12 +29,12 @@ describe("コメント", () => {
     {
       label: "宣言の直前に無い TSDoc",
       file: "comments/misplaced-tsdoc.ts",
-      message: "TSDoc は、宣言・型の項目",
+      message: "TSDoc は、宣言・型のプロパティ",
     },
     {
       label: "宣言との間に分割の見出しを挟んだ TSDoc",
       file: "comments/tsdoc-before-divider.ts",
-      message: "TSDoc は、宣言・型の項目",
+      message: "TSDoc は、宣言・型のプロパティ",
     },
   ])("$label に診断を1件だけ出すこと", ({ file, message }) => {
     const messages = commentMessages(file);

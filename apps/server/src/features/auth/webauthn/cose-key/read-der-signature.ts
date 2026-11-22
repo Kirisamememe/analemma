@@ -2,7 +2,7 @@ import { type WebAuthnRejection, reject } from "../rejection";
 
 /** DER から r‖s に直した、ES256 の署名。 */
 export type RawSignature = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Read";
   /** 32 バイトずつの r と s をつないだ署名。 */
   readonly signature: Uint8Array<ArrayBuffer>;
@@ -10,7 +10,7 @@ export type RawSignature = {
 
 /** DER の INTEGER を読んだ値と、続きの位置。 */
 type DerInteger = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Read";
   /** 先頭の 0 を落とした値。 */
   readonly value: Uint8Array;

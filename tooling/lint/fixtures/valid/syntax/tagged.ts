@@ -1,6 +1,6 @@
 /** 記事が見つかった結果。 */
 type Found = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Found";
   /** 記事の題。 */
   readonly title: string;
@@ -8,7 +8,7 @@ type Found = {
 
 /** 記事が見つからなかった結果。 */
 type NotFound = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "NotFound";
 };
 

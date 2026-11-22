@@ -16,7 +16,7 @@ export type VerifySignature = (
 
 /** 署名を検証できる形にした公開鍵。 */
 export type CoseKey = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Imported";
   /** COSE のアルゴリズムの番号。 */
   readonly algorithm: CoseAlgorithm;

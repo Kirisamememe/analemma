@@ -19,7 +19,7 @@ export type PasskeyInsert = {
 
 /** 保存できたパスキーの行。 */
 export type InsertedPasskey = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Inserted";
   /** 保存した行。 */
   readonly row: PasskeyRow;
@@ -27,7 +27,7 @@ export type InsertedPasskey = {
 
 /** 同じ資格情報の ID のパスキーが、すでにあったこと。 */
 export type DuplicatePasskey = {
-  /** 結果の種類。 */
+  /** どの結果か。 */
   readonly _tag: "Duplicate";
 };
 

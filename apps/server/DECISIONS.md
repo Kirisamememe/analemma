@@ -19,14 +19,14 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 - **Bun 専用の API は `src/platform/` と `src/main.ts` だけ**:それ以外は Web 標準で書き、実行環境を替えても直す場所を限る。
 - **テーブルに書き込めるのは、持ち主の feature だけ**:読むのはどこからでもよい。トップページの集約のような、読むだけの feature が他のテーブルを join できるようにする。
 - **公開状態の判定は1つの関数だけで行う**:判定を散らばらせると、どこかで漏れ、公開していないものを見せてしまう。
-- **procedure は、アクセス区分を決めた base(`publicProcedures`・`authProcedures`・`adminProcedures`)からしか作らない**:認可を付けた場所だけを守る方式では、付け忘れがそのまま漏れになる。全部の管理用の procedure が、Cookie なしで `UNAUTHORIZED` を返すことを、contract の `admin` を列挙するテストで確かめる(「入口の守り」)。
+- **procedure は、アクセス区分を決めた base(`publicProcedures`・`authProcedures`・`deployProcedures`・`adminProcedures`)からしか作らない**:認可を付けた場所だけを守る方式では、付け忘れがそのまま漏れになる。全部の管理用の procedure が、Cookie なしで `UNAUTHORIZED` を返すことを、contract の `admin` を列挙するテストで確かめる(「入口の守り」)。
 - **ビジネスイベントは変更の前と後から導く**:公開の判断をする純粋関数が、変更と一緒に出すビジネスイベントも返す。書き込みの経路ごとに出すと、経路を足すたびに、ビジネスイベントやキャッシュの無効化を出し忘れる。
 - **canonical URL は server が作る**:公開サイトが日付などから URL を組み立てると、時刻帯などのずれで壊れる。
 - **見つからないものと、公開していないものは区別しない**:下書きや予約中の記事も「無い」として返し、存在を漏らさない。
 
 ## エラーと依存(Effect から取り入れた考え方)
 
-- 想定内の失敗は `_tag` 付きの判別共用体で返し、想定外の失敗は throw して入口で 500 とログにする。失敗の種類が型に出るので、扱い忘れを `switch` の網羅性の検査で見つけられる。try/catch と `.catch()` は、入口と dispatcher の外では lint で止める(入口に数える場所は `tooling/DECISIONS.md`)。
+- 想定内の失敗は `_tag` 付きの判別共用体で返し、想定外の失敗は throw して入口で 500 とログにする。どの失敗かが型に出るので、扱い忘れを `switch` の網羅性の検査で見つけられる。try/catch と `.catch()` は、入口と dispatcher の外では lint で止める(入口に数える場所は `tooling/DECISIONS.md`)。
 - 依存は oRPC の context で明示的に渡す。グローバルなシングルトンは、テストで差し替えられず、どこで使われているかも追えない。
 - 入力は入口でデコードしてブランド型にし、内側では検証し直さない。
 - リソースの後始末は `await using` で保証し、リクエストの `AbortSignal` を、DB や外部への呼び出しの渡せるところまで渡す。渡す手段の無いところは、「割り切ったこと」に書く。
@@ -45,10 +45,10 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 CMS のプロセスが、外部用のポート(`PORT`、既定は 8787)と内部用のポート(`INTERNAL_PORT`、既定は 8788)の2つで待ち受ける(ユーザーと決めた)。
 
 - 外部用のポートでは、管理用 API と認証用 API(と、後で管理画面の静的ファイル)を受ける。リクエストは、リバースプロキシを通って、ブラウザから届く。
-- 内部用のポートでは、公開 API を受ける。同じサーバーで動く公開サイト(Amayadori)のサーバーだけが呼ぶ。サーバーの外からは届かない。`INTERNAL_HOST`(既定は 127.0.0.1)で、待ち受けるアドレスを決める。公開サイトを別のコンテナで動かすときは、コンテナの内部のネットワークのアドレスにし、ホストのポートに結び付けない(Compose の `ports:` に書かない)。
-- リバースプロキシのパスの設定で分けない。設定を一つ誤ると、公開 API が外から届く。待ち受けるポートで分ければ、外から届かないようにする約束は「内部用のポートで、サーバーの外から届く場所を待ち受けない」だけになる。
+- 内部用のポートでは、公開 API とデプロイ用 API を受ける。同じサーバーで動く公開サイト(Amayadori)のサーバーと、デプロイのときの CLI だけが呼ぶ。サーバーの外からは届かない。`INTERNAL_HOST`(既定は 127.0.0.1)で、待ち受けるアドレスを決める。公開サイトを別のコンテナで動かすときは、コンテナの内部のネットワークのアドレスにし、ホストのポートに結び付けない(Compose の `ports:` に書かない)。
+- リバースプロキシのパスの設定で分けない。設定を一つ誤ると、公開 API やデプロイ用 API が外から届く。待ち受けるポートで分ければ、外から届かないようにする約束は「内部用のポートで、サーバーの外から届く場所を待ち受けない」だけになる。
 - 公開 API をサーバーの外から届かないようにすることは、ユーザーと決めた。読む API が外から届かない方が安全で、サーバーの処理を CMS と同じサーバーで動かすサイトしか、公開 API を使えないことは受け入れた。
-- どちらのポートで、どの procedure を受けるかは、contract のアクセス区分で決める(`app.ts` の `externalRouter`・`internalRouter`)。外部用のポートに公開 API が無いこと、内部用のポートに管理用 API と認証用 API が無いことを、contract を列挙するテスト(`src/__tests__/app.test.ts`)で確かめる。
+- どちらのポートで、どの procedure を受けるかは、contract のアクセス区分で決める(`app.ts` の `externalRouter`・`internalRouter`)。外部用のポートに公開 API とデプロイ用 API が無いこと、内部用のポートに管理用 API と認証用 API が無いことを、contract を列挙するテスト(`src/__tests__/app.test.ts`)で確かめる。
 - 内部用のポートには、ブラウザに向けた守り(`secureHeaders`・`csrf()`・Origin の確認)を掛けない。ブラウザから呼ぶものではなく、Cookie も使わない。本文の大きさの上限と、受けるメソッドの制限は、外部用のポートと同じに掛ける。
 - health(`public.health.get`)は公開 API なので、内部用のポートにだけ置く。コンテナの healthcheck は、同じマシンの中から呼ぶ。
 - `PORT` と `INTERNAL_PORT` が同じ番号なら、起動の時点で断る(どちらも `0` のときを除く)。`INTERNAL_PORT` も、`0` なら OS が空いているポートを選び、起動のログに実際のポートを書く。
@@ -57,9 +57,10 @@ CMS のプロセスが、外部用のポート(`PORT`、既定は 8787)と内部
 
 ## contract の分け方
 
-contract を3つのアクセス区分に分け、server ではそれぞれの base から実装する。
+contract を4つのアクセス区分に分け、server ではそれぞれの base から実装する。
 
-- `public`(公開 API):内部用のポートで受け、資格情報を求めない。公開サイトのサーバーからだけ呼ぶので、CORS も要らない。公開サイト向けの client には、`public` だけを含める。
+- `public`(公開 API):内部用のポートで受け、資格情報を求めない。公開サイトのサーバーからだけ呼ぶので、CORS も要らない。公開サイト向けの client には、`public` と `deploy` だけを含める。
+- `deploy`(デプロイ用 API):内部用のポートで受け、デプロイ用のトークンを求める。公開サイトのデプロイのときに、client の CLI が種類の定義を送る(`src/features/deploy-tokens/DECISIONS.md`)。
 - `auth`(認証用 API):セッション無しで呼ぶ、ログインと登録用 URL からの登録。ログインの前に呼ぶので `admin` には置けないが、公開サイトには要らないので `public` にも置かない。`authProcedures` から作る。
 - `admin`(管理用 API):ログイン中の管理者だけ。
 
@@ -68,7 +69,7 @@ contract を3つのアクセス区分に分け、server ではそれぞれの ba
 ## 入口の守り(Codex のレビューを受けて足した)
 
 - `/api` が受けるのは GET と POST だけ。ほかのメソッドは procedure に渡さずに 405 を返す。Hono は HEAD を GET のルートに回すが、oRPC には HEAD のまま届き、oRPC の既定の検査は GET しか見ない。そのままだと、HEAD や OPTIONS で更新の procedure が動く。
-- 管理用の応答と認証用の応答には、断ったときも含めて `Cache-Control: no-store` を付ける。認証用の procedure は、ログインのたびに Set-Cookie を返すため。`csrf()` や本文の大きさの上限が procedure の前で断る応答(403・413)にも付くよう、no-store の middleware を、それらより先に置く。Cookie で認可していても、途中のキャッシュに保存されると、後のリクエストが認可を通らずに中身を受け取れてしまう。公開 API の応答のキャッシュは、キャッシュの設計と一緒に決める。
+- 管理用の応答と認証用の応答とデプロイ用の応答には、断ったときも含めて `Cache-Control: no-store` を付ける。認証用の procedure は、ログインのたびに Set-Cookie を返すため。`csrf()` や本文の大きさの上限が procedure の前で断る応答(403・413)にも付くよう、no-store の middleware を、それらより先に置く。Cookie で認可していても、途中のキャッシュに保存されると、後のリクエストが認可を通らずに中身を受け取れてしまう。公開 API の応答のキャッシュは、キャッシュの設計と一緒に決める。
 - `admin` と `auth` の procedure は、GET でなければ、Origin ヘッダーが管理画面の origin(`AUTH_ORIGIN`)と完全に一致するときだけ受け付け、ほかは 403 と `FORBIDDEN` にする(Origin が無いときも)。Hono の `csrf()` はフォームの形の Content-Type だけを見て、JSON の POST はブラウザの CORS の preflight に任せている。CORS の設定や、ブラウザが preflight を送らない Content-Type に頼らないよう、Cookie で認証するアクセス区分では自分で確かめる。確かめるのは oRPC の middleware で、パスではなく contract のアクセス区分で掛ける。パーセントエンコードしたパスのような、Hono と oRPC でパスの読み方が食い違う抜け道を作らない。GET は読むだけの procedure にしか届かない(oRPC の既定で、route を GET にした procedure 以外は GET で呼べない)。同じ origin の GET に、ブラウザは Origin を付けない。代わりに、ブラウザの `Sec-Fetch-Site` が `same-origin` でないリクエストは、GET を含めて断る。同じサイトの別の origin のページに、Cookie 付きの GET を送らせないため(理由は `src/features/auth/DECISIONS.md`)。
 - Hono の `csrf()` の許す origin は、リクエストの URL からではなく `AUTH_ORIGIN` から決める。TLS を終端するリバースプロキシの後ろでは、リクエストの URL の scheme やホストが、ブラウザから見た origin と食い違う。
 - 外部用のポートのすべての応答に、`Permissions-Policy: publickey-credentials-create=(self), publickey-credentials-get=(self)` と、`Content-Security-Policy: frame-ancestors 'none'`・`X-Frame-Options: DENY` を付ける。ほかのサイトが管理画面を iframe に入れ、パスキーの操作を任せる(`allow` 属性)ことを、ブラウザに断らせる。Hono の `secureHeaders` には `publickey-credentials-create` の項目が無いので、Permissions-Policy は自分で書く。CSP のほかの directive は、管理画面の配信を足すときに決める。

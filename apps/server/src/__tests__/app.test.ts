@@ -82,20 +82,20 @@ describe.each(PORTS)("$port の API の入口", ({ appOf, path, url }) => {
 });
 
 describe("2つのポートの分け方", () => {
-  test.each(listProcedurePaths(contract.public, "public"))(
-    "%s は、外部用のポートには無いこと",
-    async (procedure) => {
-      await using server = await createTestClient();
-      const response = await server.app.fetch(
-        new Request(
-          `${TEST_ORIGIN}/api/${procedure}`,
-          postJson(TEST_ORIGIN, JSON.stringify({ json: null })),
-        ),
-      );
+  test.each([
+    ...listProcedurePaths(contract.public, "public"),
+    ...listProcedurePaths(contract.deploy, "deploy"),
+  ])("%s は、外部用のポートには無いこと", async (procedure) => {
+    await using server = await createTestClient();
+    const response = await server.app.fetch(
+      new Request(
+        `${TEST_ORIGIN}/api/${procedure}`,
+        postJson(TEST_ORIGIN, JSON.stringify({ json: null })),
+      ),
+    );
 
-      expect(response.status).toBe(404);
-    },
-  );
+    expect(response.status).toBe(404);
+  });
 
   test.each([
     ...listProcedurePaths(contract.admin, "admin"),

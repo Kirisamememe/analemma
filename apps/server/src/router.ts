@@ -16,14 +16,30 @@ import { deletePasskey } from "./features/auth/passkeys/delete-passkey";
 import { getPasskeyOptions } from "./features/auth/passkeys/get-passkey-options";
 import { listPasskeys } from "./features/auth/passkeys/list-passkeys";
 import { renamePasskey } from "./features/auth/passkeys/rename-passkey";
+import { issueDeployToken } from "./features/deploy-tokens/issue-deploy-token";
+import { listDeployTokens } from "./features/deploy-tokens/list-deploy-tokens";
+import { revokeDeployToken } from "./features/deploy-tokens/revoke-deploy-token";
 import { getHealth } from "./features/health/get-health";
-import { adminProcedures, authProcedures } from "./procedures";
+import { getKind } from "./features/kinds/get-kind";
+import { listKinds } from "./features/kinds/list-kinds";
+import { pushKinds } from "./features/kinds/push/push-kinds";
+import {
+  adminProcedures,
+  authProcedures,
+  deployProcedures,
+} from "./procedures";
 
 /** 全 feature の procedure を束ねたルーター。 */
 export const router = implement(contract)
   .$context<RequestContext>()
   .router({
     admin: adminProcedures.router({
+      deployTokens: {
+        list: listDeployTokens,
+        issue: issueDeployToken,
+        revoke: revokeDeployToken,
+      },
+      kinds: { list: listKinds, get: getKind },
       passkeys: {
         list: listPasskeys,
         registrationOptions: getPasskeyOptions,
@@ -42,5 +58,6 @@ export const router = implement(contract)
       enrollment: { options: getEnrollmentOptions, register: enrollPasskey },
       login: { options: getLoginOptions, verify: logIn },
     }),
+    deploy: deployProcedures.router({ kinds: { push: pushKinds } }),
     public: { health: { get: getHealth } },
   });

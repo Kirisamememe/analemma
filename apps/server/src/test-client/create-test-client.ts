@@ -43,8 +43,8 @@ export type TestClient = AsyncDisposable &
     readonly app: Hono;
     /** テストのために組み立てた、内部用のポートのアプリ。 */
     readonly internalApp: Hono;
-    /** 内部用のポートのアプリにつないだ client を作る。 */
-    readonly internal: () => RouterClient<typeof internalRouter>;
+    /** 内部用のポートのアプリにつないだ client を、Authorization の token を添えて作る。 */
+    readonly internal: (token?: string) => RouterClient<typeof internalRouter>;
     /** アプリが書き出したログ。 */
     readonly logs: readonly LogEntry[];
     /** アプリがつないでいる、テストの DB の名前。 */
@@ -116,10 +116,12 @@ export const createTestClient = async (
     };
   };
 
-  const internal = (): RouterClient<typeof internalRouter> =>
+  const internal = (token?: string): RouterClient<typeof internalRouter> =>
     createORPCClient(
       new RPCLink({
         url: `${TEST_INTERNAL_URL}/api`,
+        headers:
+          token === undefined ? {} : { authorization: `Bearer ${token}` },
         fetch: async (request) => internalApp.fetch(request),
       }),
     );
