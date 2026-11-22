@@ -118,6 +118,19 @@ describe("レビューする範囲を決めること", () => {
     });
   });
 
+  test("コミットメッセージの正規表現で head を指定できること", () => {
+    const { cwd, base, head } = makeRepository("message");
+
+    expect(
+      pinRange(cwd, { base: "main", head: ":/^chore: pages[.]md\n$" }),
+    ).toEqual({
+      base,
+      head,
+      headBranch: undefined,
+      resultsBranch: "claude/current",
+    });
+  });
+
   test("detached HEAD でコミットを渡すと、結果を書く先が無いと伝えること", () => {
     const { cwd, head } = makeRepository("detached-commit");
 
@@ -155,7 +168,7 @@ describe("レビューする範囲を決めること", () => {
     const { cwd } = makeRepository("unknown-head");
 
     expect(pinRange(cwd, { base: "main", head: "missing" })).toBe(
-      "手元にブランチ missing が無く、missing をコミットに解けなかった。",
+      "手元にブランチ missing が無く、missing をコミットに解決できなかった。",
     );
   });
 

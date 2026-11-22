@@ -12,7 +12,7 @@ type PinnedHead = {
   readonly resultsBranch: string;
 };
 
-/** 比べる元とレビュー対象のコミットの SHA で固定した範囲と、レビューと結果のフォルダに使うブランチの名前。 */
+/** 比べる元とレビュー対象のコミットの SHA で固定した範囲。 */
 export type PinnedRange = PinnedHead & {
   /** 比べる元のコミットの SHA。 */
   readonly base: string;
@@ -30,15 +30,23 @@ const readGit = (cwd: string, ...args: string[]): string | undefined => {
 const currentBranch = (cwd: string): string | undefined =>
   readGit(cwd, "branch", "--show-current") || undefined;
 
-const resolveCommit = (cwd: string, revision: string): string | undefined =>
+const resolveRevision = (cwd: string, revision: string): string | undefined =>
   readGit(
     cwd,
     "rev-parse",
     "--verify",
     "--quiet",
     "--end-of-options",
-    `${revision}^{commit}`,
+    revision,
   );
+
+const resolveCommit = (cwd: string, revision: string): string | undefined => {
+  const sha = resolveRevision(cwd, revision);
+
+  return sha === undefined
+    ? undefined
+    : resolveRevision(cwd, `${sha}^{commit}`);
+};
 
 const pinHead = (
   cwd: string,
@@ -70,7 +78,7 @@ const pinHead = (
   const commit = resolveCommit(cwd, head);
 
   if (commit === undefined) {
-    return `手元にブランチ ${head} が無く、${head} をコミットに解けなかった。`;
+    return `手元にブランチ ${head} が無く、${head} をコミットに解決できなかった。`;
   }
 
   const resultsBranch = currentBranch(cwd);
@@ -80,7 +88,7 @@ const pinHead = (
     : { head: commit, headBranch: undefined, resultsBranch };
 };
 
-/** レビューする範囲と結果に使うブランチを決める。 */
+/** レビューする範囲と、結果のフォルダに使うブランチを決める。 */
 export const pinRange = (
   cwd: string,
   { base, head }: Pick<ReviewArguments, "base" | "head">,
