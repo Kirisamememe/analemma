@@ -5,7 +5,7 @@ import { Text } from "../layout/text";
 import { tv } from "../tv";
 
 const swatch = tv({
-  base: "size-control shrink-0 rounded-control border",
+  base: "size-control shrink-0 rounded-control outline -outline-offset-1 outline-fg/10",
   variants: {
     color: {
       canvas: "bg-canvas",
