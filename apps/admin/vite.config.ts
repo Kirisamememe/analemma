@@ -12,7 +12,7 @@ export const DEV_API_TARGET = "http://localhost:8787";
 /** 開発のときに server へ流すパスの形。 */
 export const DEV_API_PATH = "^/api/";
 
-/** 出力の JS と CSS の対象のブラウザ。 */
+/** 出力の JS と CSS が対応するブラウザ。 */
 export const BROWSER_TARGET = "esnext";
 
 /** html の head に、最初の描画の前に流す script を書き込む plugin の名前。 */

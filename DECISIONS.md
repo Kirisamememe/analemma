@@ -64,12 +64,21 @@ tsrs はまだ prerelease なので、型エラーの判定は公式の `tsc` �
 - client は contract にだけ依存する。server を import するワークスペースは無い。contract はどのワークスペースも import しない。client は npm で公開して公開サイトが使うので、contract が import したものは公開サイトとその型にまで届いてしまう。
 - 本番は server のプロセス1つで、外部用のポートから `/api` と管理画面の静的ファイルを同じ origin で配信する。公開 API は、内部用のポートでだけ受ける(`apps/server/DECISIONS.md` の「2つのポート」)。
 
+## 対応するブラウザ
+
+server と管理画面が対応するのは、最新の Chrome と WebKit(Safari)だけ。古いブラウザには対応しないし、対応してはならない。Firefox にも、必要以上に合わせない(ユーザーが決めた)。
+
+- 古いブラウザに合わせると、構文の変換、polyfill、fallback、ブラウザの API の代わりに自分で書くコードが増え、コードと判断が重くなる。管理画面は管理者1人が最新のブラウザで使うので、合わせる理由が無い。
+- 管理画面では、Baseline で newly available になったばかりの CSS・HTML・JS の API でも、UI/UX に役立つなら使ってよい(ユーザーが決めた)。出てから日が浅いことは、使わない理由にしない。
+- 管理画面のビルドの target と、WebAuthn の options と資格情報の JSON との変換(ブラウザの `parseRequestOptionsFromJSON()` などに任せる)は、この前提に合わせてある(`apps/admin/DECISIONS.md` の「対応するブラウザ」)。server は、管理用 API と認証用 API で、`Sec-Fetch-Site` が無いリクエストを断る(`apps/server/src/features/auth/DECISIONS.md`)。
+- 公開サイトはもう少し緩くし、下限は出てから1年以内のブラウザにする(ユーザーが決めた)。細かいところは、公開サイトを作るときに決める。公開サイトでも動く contract と client は、公開サイトが対応するブラウザに合わせる。
+
 ## デザインシステム
 
 管理画面と公開サイト(Amayadori)で、同じデザインシステムを使う(ユーザーが決めた)。アプリごとに変えるのは色のパレット(1層目)だけで、役割の名前・文字の目盛り・状態・規則はそろえる。2つの見た目を、同じ考え方と同じ語彙で作れるようにするため。
 
 - 原本は管理画面の `apps/admin/src/ui/theme.css` に置き、判断は `apps/admin/src/ui/DECISIONS.md` に書く。
-- 公開サイトへの配り方(npm で配るか、写すか)は、まだ決めていない。contract と client を npm に公開する方法と一緒に決める。
+- 公開サイトへの配り方(npm で配るか、写すか)は、まだ決めていない(`AGENTS.md` の「まだ決めていないこと」)。
 
 ## DB の形と API の形を分ける
 

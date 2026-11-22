@@ -71,6 +71,7 @@ Next.js、Better Auth、Effect(考え方だけを取り入れる)、ESLint と t
 - DB の形と API の形を分ける。DB の形の出どころは Drizzle のテーブル定義、API の形の出どころは contract の zod。2つは server の中の mapper でつなぎ、ずれは型検査で落とす。同じ形を別の場所に手で写さない。
 - contract はどのワークスペースも import しない。client は contract にだけ依存する。server を import するワークスペースは無い。
 - 境界はツールで強制する。lint やテストで止められない約束は、守られないものと考える。
+- server と管理画面が対応するブラウザは、最新の Chrome と WebKit だけ。古いブラウザに合わせたコード(polyfill・fallback・古い構文への変換・ブラウザの API の代わりに自分で書くコード)を書かない。Firefox にも必要以上に合わせない。管理画面では、Baseline で newly available になったばかりの CSS・HTML・JS の API でも、UI/UX に役立つなら使ってよい。公開サイトでも動く contract と client は、公開サイトが対応するブラウザに合わせる。
 
 ## 割り切り
 
