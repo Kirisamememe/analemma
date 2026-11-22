@@ -7,14 +7,14 @@ type ContentIssue = ReturnType<typeof contentIssues.parse>[number];
 type Submission = {
   /** 送ったときの種類の定義の項目。 */
   readonly fields: readonly FieldDefinition[];
-  /** 送ったときのフォームの値。 */
+  /** 送ったときのフォーム。 */
   readonly submitted: ContentForm;
 };
 
 type BoundIssue = {
   /** フォームの項目のキーと repeat の要素の ID の並び。 */
   readonly location: string[];
-  /** この場所に結んだ中身の issue。 */
+  /** この場所に結びつけた中身の issue。 */
   readonly issue: ContentIssue;
 };
 
@@ -60,7 +60,7 @@ const findLocation = (
   return location.length > 0 ? location : undefined;
 };
 
-/** 中身の issue を送ったときのフォームの場所に結ぶ。 */
+/** 中身の issue を、送ったときのフォームの場所に結びつける。 */
 export const bindContentIssues = (
   submission: Submission,
   issues: readonly ContentIssue[],

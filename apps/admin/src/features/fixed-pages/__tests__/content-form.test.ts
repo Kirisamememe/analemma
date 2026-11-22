@@ -49,7 +49,7 @@ describe("createContentForm", () => {
     expect(createContentForm(fields, {}).values).toEqual(emptyValues);
   });
 
-  test("保存値を contract のスキーマと select の選択肢で確かめる", () => {
+  test("contract のスキーマか select の選択肢に合わない保存した値は、未入力に戻す", () => {
     expect(
       createContentForm(fields, {
         title: "見出し\n改行",

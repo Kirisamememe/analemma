@@ -8,7 +8,7 @@ import {
   toContentSchema,
 } from "@analemma/contract";
 
-import { createContentForm } from "../content-form";
+import { createContentForm, isFormGroup } from "../content-form";
 import { toFixedPageContent } from "../to-fixed-page-content";
 
 const title = { key: "title", type: "text", label: "見出し" };
@@ -75,7 +75,7 @@ describe("toFixedPageContent", () => {
     ).toBe(true);
   });
 
-  test("必須の group と repeat を送り、未入力の項目の場所は server の検査で決まる", () => {
+  test("必須の group と repeat は空でも送り、未入力の必須の項目は server の検査が issue にする", () => {
     const fields = fieldDefinitions.parse([title, group, repeat]);
     const content = toFixedPageContent(fields, createContentForm(fields));
     expect(content).toEqual({ details: {}, rows: [] });
@@ -87,6 +87,46 @@ describe("toFixedPageContent", () => {
       ["title"],
       ["details", "title"],
     ]);
+  });
+
+  test("任意の group は必須の boolean の初期値だけなら省き、true や任意の boolean の false を選ぶと送る", () => {
+    const fields = fieldDefinitions.parse([
+      {
+        ...group,
+        optional: true,
+        fields: [title, { ...flag, key: "pinned", optional: true }, flag],
+      },
+    ]);
+    const form = createContentForm(fields);
+    const content = toFixedPageContent(fields, form);
+    expect(content).toStrictEqual({});
+    expect(
+      toContentSchema({ fields, unknownKeys: "keep" }).safeParse(content)
+        .success,
+    ).toBe(true);
+
+    const details = form.values["details"];
+
+    if (!isFormGroup(details)) throw new Error("details の group が無い");
+
+    const select = (key: string, value: boolean) =>
+      toFixedPageContent(fields, {
+        ...form,
+        values: {
+          details: { ...details, values: { ...details.values, [key]: value } },
+        },
+      });
+    expect(select("flag", true)).toEqual({ details: { flag: true } });
+    expect(select("pinned", false)).toEqual({
+      details: { flag: false, pinned: false },
+    });
+  });
+
+  test("必須の group には、必須の boolean の初期値 false を入れて送る", () => {
+    const fields = fieldDefinitions.parse([{ ...group, fields: [flag] }]);
+    expect(toFixedPageContent(fields, createContentForm(fields))).toEqual({
+      details: { flag: false },
+    });
   });
 
   test("任意の group の中に空の必須の group・repeat があるだけなら省く", () => {

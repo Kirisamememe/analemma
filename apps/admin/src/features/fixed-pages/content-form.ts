@@ -13,11 +13,11 @@ import {
 export type RepeatItem = {
   /** フォームの中で要素を指す ID。 */
   readonly id: string;
-  /** 要素の中のフォームの値。 */
+  /** 要素の中のフォーム。 */
   readonly value: ContentForm;
 };
 
-/** フォームの項目の値。 */
+/** 項目のフォームの値。 */
 export type ContentFormValue =
   | string
   | number
@@ -28,13 +28,13 @@ export type ContentFormValue =
 
 /** 固定ページの中身のフォームの1段。 */
 export type ContentForm = {
-  /** 項目のキーとフォームの値の組。 */
+  /** 項目のキーと、項目のフォームの値の組。 */
   readonly values: Readonly<Record<string, ContentFormValue>>;
-  /** この段の定義に無いキーと保存値の組。 */
+  /** この段の定義に無いキーと、保存したキーの値の組。 */
   readonly unknownKeys: FixedPageContent;
 };
 
-/** フォームの値が group かを確かめる。 */
+/** 項目のフォームの値が group のものかを確かめる。 */
 export const isFormGroup = (
   value: ContentFormValue | undefined,
 ): value is ContentForm =>
@@ -89,7 +89,7 @@ const readField = (
   }
 };
 
-/** 種類の定義と保存値からフォームの値を作る。 */
+/** 項目の定義と保存した中身からフォームを作る。 */
 export const createContentForm = (
   fields: readonly FieldDefinition[],
   content?: FixedPageContent,

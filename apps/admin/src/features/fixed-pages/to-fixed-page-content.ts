@@ -5,7 +5,7 @@ import { type ContentForm, isFormGroup } from "./content-form";
 type GroupContent = {
   /** この段から送る中身。 */
   readonly content: FixedPageContent;
-  /** この段か内側に入力した値や定義に無いキーがあるか。 */
+  /** この段か内側に、入力した値・repeat の要素・定義に無いキーがあるか。 */
   readonly hasInput: boolean;
 };
 
@@ -42,14 +42,15 @@ const writeGroup = (
       typeof value !== "object"
     ) {
       entries.push([field.key, value]);
-      hasInput = true;
+      hasInput ||=
+        field.type !== "boolean" || field.optional || value !== false;
     }
   }
 
   return { content: Object.fromEntries(entries), hasInput };
 };
 
-/** フォームの値から、固定ページの保存で送る中身を作る。 */
+/** フォームから、固定ページの保存で送る中身を作る。 */
 export const toFixedPageContent = (
   fields: readonly FieldDefinition[],
   form: ContentForm,
