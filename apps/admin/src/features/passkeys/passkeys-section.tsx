@@ -10,7 +10,7 @@ import { RenamePasskeyDialog } from "@/features/passkeys/rename-passkey-dialog";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Heading, Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { FocusScope } from "@/ui/primitives/focus-scope";
+import { FocusScope } from "@/ui/primitives/overlays";
 
 type PasskeyDialog = "add" | "rename" | "delete";
 
