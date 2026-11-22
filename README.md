@@ -22,7 +22,7 @@
 
 ## 開発
 
-[Bun](https://bun.com) と Docker(Docker Compose)と Node.js 24.15 以上を使う。テストは Docker でテスト用の PostgreSQL を起動するので、Docker が動いていないと `bun run check` は失敗する。Oxlint は Node で動き、TypeScript で書いた設定(`oxlint.config.ts`)を Node の type stripping で読む。エディタの Oxc の拡張が別の Node を使うときは、拡張の設定 `oxc.path.node` で Node を指定する。
+[Bun](https://bun.com) と Docker(Docker Compose)と Node.js 24.15 以上を使う。server のテストを流すときは、Docker でテスト用の PostgreSQL を起動するので、Docker が動いていないと `bun run check` は失敗する。Oxlint は Node で動き、TypeScript で書いた設定(`oxlint.config.ts`)を Node の type stripping で読む。エディタの Oxc の拡張が別の Node を使うときは、拡張の設定 `oxc.path.node` で Node を指定する。
 
 ```bash
 bun install
@@ -36,7 +36,7 @@ bun run check
 
 | コマンド            | 中身                                                                                                                                                                           |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `bun run check`     | 整形の確認・lint・型検査・テストを順に流す                                                                                                                                     |
+| `bun run check`     | 整形の確認・lint・型検査・テストを順に流す。`apps/server/`・`packages/`・`compose.yaml` に触れていない変更では、server のテストを流さない。`--all` を付けると全部流す(CI)      |
 | `bun run format`    | oxfmt で整形する                                                                                                                                                               |
 | `bun run lint:fix`  | Oxlint で自動で直せるものを直す                                                                                                                                                |
 | `bun run typecheck` | リポジトリの直下の tsconfig と、各ワークスペースの tsconfig を検査する                                                                                                         |

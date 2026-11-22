@@ -11,13 +11,14 @@
 - fixtures はどの tsconfig にも入れず、`oxlint.fixtures.config.ts`(直下の設定から型付きの lint を外したもの)で検査する。型付きのルールは fixture では確かめられない。`bun test` は fixtures を実行しない(`bunfig.toml`)。
 - 型付きのルールは tsrs で動く。型エラーの判定は `tsc` だけで行う。tsrs で困ったら、ユーザーに報告する。`oxlint-tsgolint` に入れ替えると、TS 7.0 と 7.1 の型検査器の食い違いがそのまま残るので、入れ替えるかはユーザーと決める。
 - TypeScript の検査と lint のルールがぶつかったら、TypeScript の方を取り、lint のルールを外すか変える(ユーザーが決めた)。外したら、ほかのルールを外したときと同じく、理由を `tooling/DECISIONS.md` に書く。
+- `bun run check` は `tooling/check/check.ts`。整形の確認・lint・型検査・テストを順に流す。server のテストを流すかは、一番近いフェーズのブランチか main から分かれた後に変えたファイルで決める(`test-scope.ts`)。server のテストが読む場所を足したら、`test-scope.ts` とそのテストを直す。`--all` で、いつも全部流す(CI)。
 - Claude Code では、作業の終わりに `tooling/hooks/stop-check.ts` が `bun run check` を流す(設定は `.claude/settings.json`)。
 - 観点ごとのレビューは `tooling/review/` の `bun run review` が流す(進め方は直下の `AGENTS.md` の「ブランチとレビュー」)。prompt は `prompts/` にあり、観点ごとのファイルと、どの観点にも共通の `common.md` に分ける。観点とモデルの割り当ては `perspectives.ts` にある。観点やモデルを変えたら、`perspectives.ts` とそのテスト、直下の `AGENTS.md` の観点の表、`prompts/` の各ファイルの「見ない範囲」に挙げた観点の名前を合わせて直す。結果は、メインの checkout の `.private/reviews/<ブランチ>/` に書く。
 - git の hook は `tooling/git-hooks/` にある(中身は同じ名前の `.ts`。pre-merge-commit は `pre-commit.ts` を流す)。`bun install` が、`install.ts` で git の `core.hooksPath` をこのフォルダにする。worktree でも、その worktree のブランチにある hook が流れる。
 - pre-commit と pre-merge-commit は、ステージしたファイルのパスと中身から、ほかのリポジトリの名前を探す。整形・lint・型検査・テストは流さない(CI と `bun run check` に任せる)。
 - commit-msg は、commitlint(設定は直下の `commitlint.config.ts`、足したルールは `commit-rules.ts`)と、メッセージの中の、ほかのリポジトリの名前と「機械で探す語」の検索を流す。commitlint は Bun で流す。足したルールが `Bun.stringWidth` を使うので、Node では動かない。
 - hook を飛ばさない。`git commit --no-verify`(`-n`)を使わず、`core.hooksPath` を外さず、hook を飛ばすための環境変数や設定も足さない。通らなければ直してからコミットする。hook の側に無理があるなら、ユーザーに報告する。
-- CI は `.github/workflows/` にある(理由は `tooling/DECISIONS.md` の「CI」)。job の `check`(`check.yml`)は、PR と main への push で `bun install --frozen-lockfile` と `bun run check` を流す。job の `commit-messages`(`commit-messages.yml`)は、PR で、PR のコミットのメッセージと、PR のタイトル(merge commit か squash で入れたときの1行目。` (#番号)` を足したもの)を、`tooling/ci/check-pull-request-messages.ts` で確かめる。
+- CI は `.github/workflows/` にある(理由は `tooling/DECISIONS.md` の「CI」)。job の `check`(`check.yml`)は、PR と main への push で `bun install --frozen-lockfile` と `bun run check --all` を流す。job の `commit-messages`(`commit-messages.yml`)は、PR で、PR のコミットのメッセージと、PR のタイトル(merge commit か squash で入れたときの1行目。` (#番号)` を足したもの)を、`tooling/ci/check-pull-request-messages.ts` で確かめる。
 - job の名前(`check`・`commit-messages`)は、main とフェーズのブランチの ruleset で、通ることを必須にする check として登録した名前。変えるときは、ruleset も直す(ユーザーに頼む)。
 - `commit-messages` は、メッセージを commit-msg の hook のスクリプトに1件ずつ渡すだけ。メッセージの検査を変えるときは `tooling/git-hooks/` を直し、CI の側に検査を書き足さない。
 - 手元との違い:CI には、ほかのリポジトリの名前の一覧が無いので、名前を探さない(ファイルからも、メッセージからも)。名前を探すのは、手元の `bun run check` とコミットのときの hook だけ。PR のタイトルと、GitHub の画面で作ったコミットのメッセージは hook を通らないので、名前が無いかを自分で見る。
