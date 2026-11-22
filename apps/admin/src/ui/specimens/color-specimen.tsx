@@ -23,6 +23,10 @@ const swatch = tv({
       success: "bg-success",
       warning: "bg-warning",
       danger: "bg-danger",
+      "on-info": "bg-on-info",
+      "on-success": "bg-on-success",
+      "on-warning": "bg-on-warning",
+      "on-danger": "bg-on-danger",
       scrim: "bg-scrim",
       "on-media": "bg-on-media",
     },
@@ -54,7 +58,19 @@ const GROUPS: readonly ColorGroup[] = [
     name: "塗り",
     colors: ["primary", "on-primary", "danger-strong", "on-danger-strong"],
   },
-  { name: "意味", colors: ["info", "success", "warning", "danger"] },
+  {
+    name: "意味",
+    colors: [
+      "info",
+      "on-info",
+      "success",
+      "on-success",
+      "warning",
+      "on-warning",
+      "danger",
+      "on-danger",
+    ],
+  },
   { name: "light と dark で変わらない", colors: ["scrim", "on-media"] },
 ];
 
