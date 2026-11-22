@@ -10,7 +10,7 @@ export type TradeOffSection = {
 
 /** レビューする側が読むファイルの場所。 */
 export type PromptPaths = {
-  /** レビューするブランチの中身を書き出したフォルダ。 */
+  /** レビューするコミットの中身を書き出したフォルダ。 */
   readonly tree: string;
   /** 差分のファイル。 */
   readonly diff: string;
@@ -24,11 +24,11 @@ export type PromptMaterial = {
   readonly perspective: Perspective;
   /** 比べる元のブランチ。 */
   readonly base: string;
-  /** レビューするブランチ。 */
-  readonly head: string;
+  /** レビューするブランチの名前。 */
+  readonly headBranch: string | undefined;
   /** 比べる元のブランチの、今のコミットの SHA。 */
   readonly baseCommit: string;
-  /** レビューするブランチの、今のコミットの SHA。 */
+  /** レビューするコミットの SHA。 */
   readonly headCommit: string;
   /** レビューする側が読むファイルの場所。 */
   readonly paths: PromptPaths;
@@ -59,23 +59,36 @@ const tradeOffSection = (tradeOffs: readonly TradeOffSection[]): string =>
 export const buildPrompt = ({
   base,
   baseCommit,
-  head,
+  headBranch,
   headCommit,
   paths,
   perspective,
   rules,
   scope,
   tradeOffs,
-}: PromptMaterial): string =>
-  [
+}: PromptMaterial): string => {
+  const target =
+    headBranch === undefined
+      ? {
+          change: `コミット ${code(headCommit)} の変更`,
+          tree: `レビューするコミットの中身:${code(paths.tree)}。コミット ${code(headCommit)} のすべてのファイル`,
+          diff: `git diff ${baseCommit}...${headCommit}`,
+        }
+      : {
+          change: `ブランチ ${code(headBranch)}(コミット ${code(headCommit)})の変更`,
+          tree: `レビューするブランチの中身:${code(paths.tree)}。ブランチ ${code(headBranch)} にコミットしたすべてのファイル`,
+          diff: `git diff ${base}...${headBranch}`,
+        };
+
+  return [
     `# レビューの依頼:「${perspective.label}」の観点`,
     "",
-    `個人サイトのためのヘッドレス CMS「Analemma」のリポジトリで、ブランチ ${code(head)}(コミット ${code(headCommit)})の変更を、${code(base)}(コミット ${code(baseCommit)})と比べて、「${perspective.label}」の観点だけでレビューする。`,
+    `個人サイトのためのヘッドレス CMS「Analemma」のリポジトリで、${target.change}を、${code(base)}(コミット ${code(baseCommit)})と比べて、「${perspective.label}」の観点だけでレビューする。`,
     "",
     "## 読むもの",
     "",
-    `- レビューするブランチの中身:${code(paths.tree)}。ブランチ ${code(head)} にコミットしたすべてのファイル(変えていないものも含む)で、git の履歴は無い。以下の「直下」は、このフォルダの直下を指す。`,
-    `- 差分:${code(paths.diff)}(${code(`git diff ${base}...${head}`)})`,
+    `- ${target.tree}(変えていないものも含む)で、git の履歴は無い。以下の「直下」は、このフォルダの直下を指す。`,
+    `- 差分:${code(paths.diff)}(${code(target.diff)})`,
     `- コミットのメッセージ:${code(paths.commits)}`,
     "- リポジトリの約束:このフォルダの直下の `AGENTS.md`・`DECISIONS.md`・`GLOSSARY.md` と、変更したファイルに近いフォルダの `AGENTS.md`・`DECISIONS.md`",
     "",
@@ -86,3 +99,4 @@ export const buildPrompt = ({
     rules.trim(),
     "",
   ].join("\n");
+};

@@ -14,7 +14,7 @@
 - TypeScript の検査と lint のルールがぶつかったら、TypeScript の方を取り、lint のルールを外すか変える(ユーザーが決めた)。外したら、ほかのルールを外したときと同じく、理由を `tooling/DECISIONS.md` に書く。
 - `bun run check` は `tooling/check/check.ts`。整形の確認・lint・型検査・テストを順に流す。server のテストを流すかは、一番近いフェーズのブランチか main から分かれた後に変えたファイルで決める(`test-scope.ts`)。server のテストが読む場所を足したら、`test-scope.ts` とそのテストを直す。`--all` で、いつも全部流す(CI)。
 - Claude Code では、作業の終わりに `tooling/hooks/stop-check.ts` が `bun run check` を流す(設定は `.claude/settings.json`)。
-- 観点ごとのレビューは `tooling/review/` の `bun run review` が流す(進め方は直下の `AGENTS.md` の「ブランチとレビュー」)。prompt は `prompts/` にあり、観点ごとのファイルと、どの観点にも共通の `common.md` に分ける。観点とモデルの割り当ては `perspectives.ts` にある。観点やモデルを変えたら、`perspectives.ts` とそのテスト、直下の `AGENTS.md` の観点の表、`prompts/` の各ファイルの「見ない範囲」に挙げた観点の名前を合わせて直す。結果は、メインの checkout の `.private/reviews/<ブランチ>/` に書く。
+- 観点ごとのレビューは `tooling/review/` の `bun run review` が流す(進め方は直下の `AGENTS.md` の「ブランチとレビュー」)。prompt は `prompts/` にあり、観点ごとのファイルと、どの観点にも共通の `common.md` に分ける。観点とモデルの割り当ては `perspectives.ts` にある。観点やモデルを変えたら、`perspectives.ts` とそのテスト、直下の `AGENTS.md` の観点の表、`prompts/` の各ファイルの「見ない範囲」に挙げた観点の名前を合わせて直す。結果は、メインの checkout の `.private/reviews/<ブランチ>/` に書く。`<ブランチ>` は、レビューするブランチの名前とし、`--head` にコミットを渡したときは今のブランチの名前とする。
 - git の hook は `tooling/git-hooks/` にある(中身は同じ名前の `.ts`。pre-merge-commit は `pre-commit.ts` を流す)。`bun install` が、`install.ts` で git の `core.hooksPath` をこのフォルダにする。worktree でも、その worktree のブランチにある hook が流れる。
 - pre-commit と pre-merge-commit は、ステージしたファイルのパスと中身から、ほかのリポジトリの名前を探す。整形・lint・型検査・テストは流さない(CI と `bun run check` に任せる)。
 - commit-msg は、commitlint(設定は直下の `commitlint.config.ts`、足したルールは `commit-rules.ts`)と、メッセージの中の、ほかのリポジトリの名前と「機械で探す語」の検索を流す。commitlint は Bun で流す。足したルールが `Bun.stringWidth` を使うので、Node では動かない。

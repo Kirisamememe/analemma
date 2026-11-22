@@ -10,7 +10,7 @@ export type ReviewArguments = {
   readonly perspective: Perspective;
   /** 比べる元のブランチ。 */
   readonly base: string;
-  /** レビューするブランチ。 */
+  /** レビューするブランチの名前かコミットの指定。 */
   readonly head: string | undefined;
 };
 
