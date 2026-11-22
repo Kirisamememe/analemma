@@ -3,6 +3,11 @@ import { z } from "zod";
 const base64url = (max: number): z.ZodBase64URL =>
   z.base64url().min(1).max(max);
 
+/** 資格情報の ID。 */
+export const credentialId = base64url(1366).describe(
+  "資格情報の ID の base64url。",
+);
+
 /** パスキーに付ける名前。 */
 export const passkeyName = z
   .string()
@@ -63,7 +68,7 @@ export const authenticationOptions = z.object({
 
 /** `PublicKeyCredential.toJSON()` が返す、登録の資格情報。 */
 export const registrationCredential = z.object({
-  id: base64url(1366).describe("資格情報の ID の base64url。"),
+  id: credentialId,
   type: z.literal("public-key"),
   response: z.object({
     clientDataJSON: base64url(8192),
@@ -77,7 +82,7 @@ export const registrationCredential = z.object({
 
 /** `PublicKeyCredential.toJSON()` が返す、ログインの資格情報。 */
 export const authenticationCredential = z.object({
-  id: base64url(1366).describe("資格情報の ID の base64url。"),
+  id: credentialId,
   type: z.literal("public-key"),
   response: z.object({
     clientDataJSON: base64url(8192),

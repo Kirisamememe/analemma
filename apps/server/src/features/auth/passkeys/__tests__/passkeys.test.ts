@@ -149,6 +149,25 @@ describe("パスキーの名前の変更", () => {
   });
 });
 
+test("資格情報の ID の上限(1366文字)を超える ID は、名前の変更でも削除でも入力の誤りにすること", async () => {
+  await using server = await createTestClient();
+  const { passkey } = await signInAsAdmin(server);
+  const rename = async (id: string): Promise<string> =>
+    catchErrorCode(server.client.admin.passkeys.rename({ id, name: "名前" }));
+  const remove = async (id: string): Promise<string> =>
+    catchErrorCode(
+      server.client.admin.passkeys.delete({
+        id,
+        assertion: await answerReauthentication(server, passkey),
+      }),
+    );
+
+  expect(await rename("A".repeat(1366))).toBe("NOT_FOUND");
+  expect(await rename("A".repeat(1367))).toBe("BAD_REQUEST");
+  expect(await remove("A".repeat(1366))).toBe("NOT_FOUND");
+  expect(await remove("A".repeat(1367))).toBe("BAD_REQUEST");
+});
+
 describe("パスキーの削除", () => {
   test("今のパスキーで確かめ直しても、最後の1つは消せないこと", async () => {
     await using server = await createTestClient();

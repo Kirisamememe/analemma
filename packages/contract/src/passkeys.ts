@@ -2,16 +2,15 @@ import { z } from "zod";
 
 import { adminAccess, reauthenticatedAccess } from "./access-errors";
 import {
+  credentialId,
   passkeyName,
   reauthenticationAssertion,
   registrationCredential,
   registrationOptions,
 } from "./webauthn";
 
-const passkeyId = z.base64url().min(1).describe("資格情報の ID の base64url。");
-
 const passkeySummary = z.object({
-  id: passkeyId,
+  id: credentialId,
   name: passkeyName,
   createdAt: z.iso.datetime({ offset: true }).describe("登録した日時。"),
   lastUsedAt: z.iso
@@ -63,7 +62,7 @@ export const passkeys = {
       path: "/admin/passkeys/rename",
       summary: "パスキーの名前を変える",
     })
-    .input(z.object({ id: passkeyId, name: passkeyName }))
+    .input(z.object({ id: credentialId, name: passkeyName }))
     .output(passkeySummary),
   delete: reauthenticatedAccess
     .errors({ NOT_FOUND: { status: 404 }, LAST_PASSKEY: { status: 409 } })
@@ -72,6 +71,6 @@ export const passkeys = {
       path: "/admin/passkeys/delete",
       summary: "パスキーを消す(最後の1つは消せない)",
     })
-    .input(z.object({ id: passkeyId, assertion: reauthenticationAssertion }))
+    .input(z.object({ id: credentialId, assertion: reauthenticationAssertion }))
     .output(z.void()),
 };
