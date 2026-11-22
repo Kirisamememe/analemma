@@ -3,7 +3,7 @@ import type { TestScope } from "./test-scope";
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
-/** bunfig.toml の中身から、`bun test` が外すパスを読む。 */
+/** bunfig.toml の中身から、`bun test` が外すパスのパターンを読む。 */
 export const readIgnorePatterns = (bunfig: unknown): string[] => {
   const test = isRecord(bunfig) ? bunfig["test"] : undefined;
   const patterns = isRecord(test) ? test["pathIgnorePatterns"] : undefined;

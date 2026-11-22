@@ -11,7 +11,7 @@ describe("decideTestScope", () => {
     expect(decideTestScope(["apps/admin/src/main.tsx", path])).toBe("all");
   });
 
-  test("apps/server・packages/・compose.yaml に触れていなければ、server のテストを流さない", () => {
+  test("apps/server/・packages/・compose.yaml に触れていなければ、server のテストを流さない", () => {
     expect(
       decideTestScope([
         "apps/admin/src/main.tsx",

@@ -62,7 +62,7 @@ const makeRepository = (name: string): string => {
 };
 
 describe("findChangedFiles", () => {
-  test("一番近いフェーズのブランチから分かれた後の、コミット・ステージ・作業ツリー・新しいファイルの変更を返す", () => {
+  test("一番近いフェーズのブランチから分かれた後の、コミット・ステージ・作業ツリーで変えたファイルと、untracked のファイルのパスを返す", () => {
     const root = makeRepository("phase");
 
     git(root, "update-ref", "refs/remotes/origin/main", "HEAD");
