@@ -101,4 +101,16 @@ describe("import の形", () => {
     expect(ruleIdsOf(result)).toContain(rule);
     expect(result.status).not.toBe(0);
   });
+
+  test("管理画面で別名を使ってワークスペースの外を指す import と再 export に診断を出すこと", () => {
+    const result = lintFixture(
+      "invalid/apps/admin/src/imports-server-by-alias.ts",
+    );
+
+    expect(
+      result.diagnostics
+        .filter(({ code }) => code === "project(no-cross-workspace-import)")
+        .map(({ line }) => line),
+    ).toEqual([1, 3]);
+  });
 });
