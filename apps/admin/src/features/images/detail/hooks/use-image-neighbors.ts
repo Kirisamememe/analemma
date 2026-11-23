@@ -34,7 +34,7 @@ export const useImageNeighbors = (id: string): ImageNeighbors | undefined => {
 
   if (query._tag === "Failed") return { ...NONE, failure: query };
 
-  if (query._tag !== "Loaded" || query.data._tag !== "Succeeded") return NONE;
+  if (query.data._tag !== "Succeeded") return NONE;
 
   const { newer, older } = query.data.data;
 

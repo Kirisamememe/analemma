@@ -102,6 +102,67 @@ describe("ImageViewerPage", () => {
     await heading("港の灯り");
   }, 15_000);
 
+  test.each(["loading", "failed", "gone", "photo"] as const)(
+    "画像の画面には %s のときも main が1つある",
+    async (state) => {
+      const server = createImageRoutes(IMAGES);
+      const [photo] = server.images();
+
+      if (photo === undefined) throw new Error("画像が必要です");
+
+      if (state === "loading") {
+        server.replyNext(
+          "admin/images/get",
+          () => Promise.withResolvers<FakeReply<"admin/images/get">>().promise,
+        );
+      }
+
+      if (state === "failed") {
+        server.replyNext("admin/images/get", () => ({
+          error: "INTERNAL_SERVER_ERROR",
+          defined: false,
+        }));
+      }
+
+      const id =
+        state === "gone" ? "019b0000-0000-7000-8000-0000000000ff" : photo.id;
+
+      const app = renderApp({ path: "/images/" + id, routes: server.routes });
+      app.queryClient.setDefaultOptions({ queries: { retry: false } });
+      const main = await screen.findByRole("main");
+      const page = within(main);
+
+      if (state === "photo") {
+        await page.findByRole("heading", { name: "夕暮れの稜線" });
+      }
+
+      if (state === "gone") await page.findByText("この画像はもうありません。");
+
+      if (state === "failed") await page.findByRole("alert");
+
+      if (state === "loading") await page.findByRole("status");
+
+      expect(screen.getAllByRole("main")).toHaveLength(1);
+    },
+  );
+
+  test("移った写真の前後とも無いときは、一覧へのリンクに focus を戻す", async () => {
+    const { server } = setUp(0);
+    await heading("夕暮れの稜線");
+    server.replyNext("admin/images/neighbors", () => ({
+      output: { newer: null, older: null },
+    }));
+    const next = await screen.findByRole("link", { name: "次の画像" });
+    next.focus();
+    await userEvent.keyboard("{Enter}");
+    await heading("港の灯り");
+    await waitFor(() => {
+      expect(document.activeElement).toBe(
+        screen.getByRole("link", { name: "画像の一覧" }),
+      );
+    });
+  });
+
   test("画像と前後の行き先を待ってから同じ向きに focus を戻し、端では逆側のリンクに移す", async () => {
     const { server } = setUp(0);
     await heading("夕暮れの稜線");

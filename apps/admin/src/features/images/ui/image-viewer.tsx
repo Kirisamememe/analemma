@@ -32,7 +32,7 @@ export const ViewerFrame = ({
       {back}
       <div className={style.actions()}>{actions}</div>
     </header>
-    {children}
+    <main className={style.content()}>{children}</main>
   </div>
 );
 
