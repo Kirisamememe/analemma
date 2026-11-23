@@ -58,6 +58,10 @@ const page = await cms.fixedPages.get(about, "about");
 
 公開していないページと、無いページは、どちらも `undefined` になる。slug の形(英小文字と数字の kebab-case、100文字まで)に合わない名前も、公開 API を呼ばずに `undefined` を返すので、URL の一部をそのまま渡し、`undefined` なら 404 にすればよい。
 
+## 公開している画像とシリーズを読む
+
+同じ client の `cms.images.get(id)` で画像を、`cms.series.list()` でシリーズの一覧を、`cms.series.get(slug)` でシリーズと並び順どおりの画像を取得する。1件の取得で見つからなければ `undefined` になる。画像の `deliveryImages` には、ブラウザで読める絶対 URL と幅・高さが幅の昇順で入る。
+
 ## 種類の定義を送る
 
 本番のデプロイのときに、新しいサイトに切り替える前に流す。定義のファイルは、`defineKind` で作った種類の配列を default export する。

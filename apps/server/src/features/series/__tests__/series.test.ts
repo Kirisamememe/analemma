@@ -34,12 +34,14 @@ const addTestImages = async (server: TestClient) => {
 
   const ids = rows.map((row) => row.id);
   const [first = ""] = ids;
-  await connection.db.insert(deliveryImage).values({
-    imageId: first,
-    width: 640,
-    height: 480,
-    fileKey: `${first}-640.avif`,
-  });
+  await connection.db.insert(deliveryImage).values(
+    [1280, 640].map((width) => ({
+      imageId: first,
+      width,
+      height: (width * 3) / 4,
+      fileKey: `${first}-${width}.avif`,
+    })),
+  );
 
   return ids;
 };
@@ -138,6 +140,7 @@ test("画像はシリーズごとに並び、公開状態を変えても残り�
   const cover = await server.client.admin.images.get({ id: first });
   expect(cover.deliveryImages).toEqual([
     { width: 640, height: 480, url: `/media/${first}/640.avif` },
+    { width: 1280, height: 960, url: `/media/${first}/1280.avif` },
   ]);
   expect((await api.get({ id })).images[0]).toEqual(cover);
   expect((await api.list()).series).toMatchObject([
@@ -181,4 +184,49 @@ test("無い画像を含む追加と、画像の集まりが食い違う並べ�
     first,
     second,
   ]);
+});
+
+test("公開シリーズの並び順・カバー・件数は公開画像だけを使い、公開画像が無くてもシリーズを返すこと", async () => {
+  await using server = await createTestClient();
+  await signInAsAdmin(server);
+  const admin = server.client.admin;
+  const api = server.internal().public;
+  const { id } = await admin.series.create(fields);
+  const key = { slug: fields.slug };
+  const [cover = "", hidden = "", last = ""] = await addTestImages(server);
+  await admin.series.addImages({ id, imageIds: [hidden, last, cover] });
+  await admin.images.unpublish({ id: hidden });
+  expect(await api.series.list()).toEqual({ series: [] });
+  expect(await catchErrorCode(api.series.get(key))).toBe("NOT_FOUND");
+  expect(await catchErrorCode(api.series.get({ slug: "missing" }))).toBe(
+    "NOT_FOUND",
+  );
+  await admin.series.publish({ id });
+  const first = await api.images.get({ id: cover });
+  const second = await api.images.get({ id: last });
+  expect(await api.series.get(key)).toEqual({
+    ...fields,
+    images: [second, first],
+  });
+  await admin.series.reorder({ id, imageIds: [hidden, cover, last] });
+  const otherFields = { name: "空", slug: "sky", description: "夏の記録" };
+  const other = await admin.series.create(otherFields);
+  await admin.series.addImages({ id: other.id, imageIds: [last] });
+  await admin.series.publish({ id: other.id });
+  expect(await api.series.list()).toEqual({
+    series: [
+      { ...otherFields, imageCount: 1, coverImage: second },
+      { ...fields, imageCount: 2, coverImage: first },
+    ],
+  });
+  await admin.series.unpublish({ id: other.id });
+  await admin.images.delete({ id: cover });
+  expect(await api.series.list()).toEqual({
+    series: [{ ...fields, imageCount: 1, coverImage: second }],
+  });
+  await admin.images.unpublish({ id: last });
+  expect(await api.series.get(key)).toEqual({ ...fields, images: [] });
+  expect(await api.series.list()).toEqual({
+    series: [{ ...fields, imageCount: 0, coverImage: null }],
+  });
 });

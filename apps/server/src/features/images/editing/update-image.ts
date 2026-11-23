@@ -1,6 +1,6 @@
 import { updateImageText } from "@/features/images/editing/queries/update-image.query";
 import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
-import { toAdminImage } from "@/features/images/to-admin-image";
+import { toAdminImage } from "@/features/images/to-image";
 import { adminProcedures } from "@/procedures";
 
 /** 画像のタイトル・説明・alt を書き換える procedure。 */

@@ -67,8 +67,7 @@ export const deliveryImage = z.object({
     .describe("配信する URL。管理画面と同じ origin の、/ で始まる path。"),
 });
 
-/** 管理画面に返す画像。 */
-export const adminImage = z.object({
+const imageDetails = z.object({
   id: imageId,
   title: imageTitle.nullable().describe("タイトル。無ければ null。"),
   description: imageDescription.nullable().describe("説明。無ければ null。"),
@@ -94,6 +93,23 @@ export const adminImage = z.object({
     .nullable()
     .describe("シャッター速度(秒)。分からなければ null。"),
   iso: z.int().nullable().describe("ISO 感度。分からなければ null。"),
+});
+
+/** 公開サイトに返す画像。 */
+export const publishedImage = imageDetails.extend({
+  deliveryImages: z
+    .array(
+      deliveryImage.extend({
+        url: z
+          .url({ protocol: /^https?$/v })
+          .describe("配信用の画像の絶対 URL。"),
+      }),
+    )
+    .describe("配信用の画像。幅の昇順。まだ作っていなければ空。"),
+});
+
+/** 管理画面に返す画像。 */
+export const adminImage = imageDetails.extend({
   published: z.boolean().describe("公開しているか。"),
   publishedAt: z.iso
     .datetime({ offset: true })

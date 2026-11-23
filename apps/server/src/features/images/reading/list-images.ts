@@ -1,6 +1,6 @@
 import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
 import { listImages as listImageRows } from "@/features/images/queries/images.query";
-import { toAdminImage } from "@/features/images/to-admin-image";
+import { toAdminImage } from "@/features/images/to-image";
 import { adminProcedures } from "@/procedures";
 
 /** 公開しているかによらず、画像を新しく足した順に、1ページずつ返す procedure。 */

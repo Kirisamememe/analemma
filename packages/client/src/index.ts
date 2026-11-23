@@ -28,5 +28,8 @@ export {
   type FixedPage,
   type FixedPageFilter,
   type FixedPageSummary,
+  type PublishedImage,
+  type PublishedSeries,
+  type SeriesSummary,
   createAnalemmaClient,
-} from "./fixed-pages/create-analemma-client";
+} from "./public-api/create-analemma-client";

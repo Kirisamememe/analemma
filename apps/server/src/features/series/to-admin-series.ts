@@ -1,6 +1,7 @@
 import type { ContractOutputs } from "@analemma/contract";
 
 import type { series } from "@/db/schema/series";
+import { isPublished } from "@/features/series/published/queries/published-series.query";
 
 /** シリーズの行を管理画面に返す形にする。 */
 export const toAdminSeries = (
@@ -10,6 +11,6 @@ export const toAdminSeries = (
   name: row.name,
   slug: row.slug,
   description: row.description,
-  published: row.publishedAt !== null,
+  published: isPublished(row),
   publishedAt: row.publishedAt?.toISOString() ?? null,
 });

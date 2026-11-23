@@ -1,25 +1,12 @@
 import { z } from "zod";
 
 import { adminAccess } from "../access-errors";
-import { fixedPageSlug } from "../fixed-pages/fixed-page-values";
-import {
-  adminImage,
-  imageDescription,
-  imageId,
-  imageTitle,
-} from "../images/image-values";
+import { adminImage, imageId } from "../images/image-values";
+import { seriesFields } from "./series-values";
 
 const byId = z.object({ id: z.uuid().describe("シリーズの ID。") });
 
-const fields = z.object({
-  name: imageTitle.describe("シリーズの名前。"),
-  slug: fixedPageSlug.describe("シリーズの slug。"),
-  description: imageDescription
-    .nullable()
-    .describe("シリーズの説明。無ければ null。"),
-});
-
-const metadata = fields.extend({
+const metadata = seriesFields.extend({
   ...byId.shape,
   published: z.boolean().describe("公開しているか。"),
   publishedAt: z.iso
@@ -57,7 +44,7 @@ export const series = {
   create: adminAccess
     .errors(slugTaken)
     .route({ method: "POST", path: "/admin/series", summary: "シリーズを作る" })
-    .input(fields)
+    .input(seriesFields)
     .output(metadata),
   update: existing
     .errors(slugTaken)
@@ -66,7 +53,7 @@ export const series = {
       path: "/admin/series/update",
       summary: "シリーズの名前・slug・説明を書き換える",
     })
-    .input(byId.extend(fields.shape))
+    .input(byId.extend(seriesFields.shape))
     .output(metadata),
   delete: existing
     .route({

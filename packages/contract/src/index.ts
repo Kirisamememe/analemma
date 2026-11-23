@@ -11,10 +11,12 @@ import { fixedPages } from "./fixed-pages/admin-fixed-pages";
 import { publicFixedPages } from "./fixed-pages/public-fixed-pages";
 import { health } from "./health";
 import { images } from "./images/admin-images";
+import { publicImages } from "./images/public-images";
 import { kinds } from "./kinds/admin-kinds";
 import { deployKinds } from "./kinds/deploy-kinds";
 import { deployTokens } from "./kinds/deploy-tokens";
 import { series } from "./series/admin-series";
+import { publicSeries } from "./series/public-series";
 
 export {
   type FixedPageContent,
@@ -35,6 +37,7 @@ export {
   PHOTO_MAX_BYTES,
   imageAlt,
   imageDescription,
+  imageId,
   imageTitle,
 } from "./images/image-values";
 export { deployTokenName } from "./kinds/deploy-tokens";
@@ -66,7 +69,12 @@ export const contract = {
   admin: { deployTokens, fixedPages, images, kinds, passkeys, series, session },
   auth: { enrollment, login },
   deploy: { kinds: deployKinds },
-  public: { fixedPages: publicFixedPages, health },
+  public: {
+    fixedPages: publicFixedPages,
+    health,
+    images: publicImages,
+    series: publicSeries,
+  },
 };
 
 /** contract の入力の型。 */
