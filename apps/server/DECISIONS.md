@@ -112,7 +112,7 @@ contract を4つのアクセス区分に分け、server ではそれぞれの ba
 ## DB の接続
 
 - postgres.js の接続を開いて Drizzle で包むのは `src/platform/database.ts` だけにする。`main.ts` が起動時に1つ開き、context の `db` で渡す。
-- 接続先は環境変数 `DATABASE_URL` で受け、起動時に zod で検証する。migration のコマンドは `readDatabaseEnv` で `DATABASE_URL` だけを読み、server と登録用 URL のコマンドは `readEnv` で `AUTH_ORIGIN`・`AUTH_RP_ID` も読む。migration を流す場所に、認証の設定を置かなくて済む。既定値は持たない。本番で設定し忘れたときに、手元の DB を探しに行かないようにする。開発では `apps/server/.env` に書く(`.env.example` を写す)。
+- 接続先は環境変数 `DATABASE_URL` で受け、起動時に zod で検証する。migration のコマンドは `readDatabaseEnv` で `DATABASE_URL` だけを読み、登録用 URL のコマンドは `readEnv` で `AUTH_ORIGIN`・`AUTH_RP_ID` も読み、server は `readServerEnv` でさらに `MEDIA_DIR` も読む。migration を流す場所に、認証の設定を置かなくて済む。既定値は持たない。本番で設定し忘れたときに、手元の DB を探しに行かないようにする。開発では `apps/server/.env` に書く(`.env.example` を写す)。
 - `DATABASE_URL` は、起動時に1回だけ URL として読み、ホスト・ポート・DB の名前・ロール・パスワードに分ける。分けた値を、postgres.js に option で1つずつ渡す。URL のまま渡すと、postgres.js は `?host=`・`?port=` を URL の本体より優先し、省かれた部分を `PGHOST`・`PGPORT`・`PGPASSWORD` などの環境変数で埋める。検証した接続先と、実際につなぐ先が食い違いうる(`?host=` で別の DB に migration が適用されるのを実測した)。
   - ホスト・DB の名前・ロール・パスワードは必ず書かせる。ポートを省いたら 5432 にし、`PGPORT` は見ない。ポートの `0` は拒む(postgres.js は `0` を「指定なし」と見なし、`PGPORT` を使う)。
   - `PG` で始まる環境変数があっても、渡した接続先だけが postgres.js に届くことをテストで確かめる。

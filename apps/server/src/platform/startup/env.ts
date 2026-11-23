@@ -91,7 +91,7 @@ const serverEnvSchema = z
 /** 環境変数の名前と値。 */
 type EnvSource = Readonly<Record<string, string | undefined>>;
 
-/** server の起動時に検証した環境変数。 */
+/** 登録用 URL のコマンドが起動時に検証した環境変数。 */
 export type Env = z.output<typeof envSchema>;
 
 /** server が起動時に検証した、置き場所のフォルダを含む環境変数。 */
@@ -114,7 +114,7 @@ const parseEnv = <T>(schema: z.ZodType<T>, source: EnvSource): T => {
   throw new Error(`環境変数が正しくない。\n${problems.join("\n")}`);
 };
 
-/** server と登録用 URL のコマンドの環境変数を読み、スキーマで検証する。 */
+/** 登録用 URL のコマンドの環境変数を読み、スキーマで検証する。 */
 export const readEnv = (source: EnvSource = Bun.env): Env =>
   parseEnv(envSchema, source);
 
