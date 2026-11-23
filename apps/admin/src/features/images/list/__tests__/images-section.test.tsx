@@ -175,7 +175,9 @@ describe("ImagesSection", () => {
     await renderSection(server.routes);
     expect(await linkNames()).toHaveLength(50);
     const last = server.images().at(-1);
+
     if (last === undefined) throw new Error("画像がありません");
+
     server.routes["admin/images/delete"]({ id: last.id });
     await userEvent.click(
       screen.getByRole("button", { name: "さらに読み込む" }),
