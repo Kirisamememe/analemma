@@ -7,7 +7,7 @@ import { LoadingState } from "@/ui/patterns/loading-state";
 afterEach(cleanup);
 
 describe("LoadingState", () => {
-  test.each(["list", "form"] as const)(
+  test.each(["list", "form", "media"] as const)(
     "%s の形でも、骨組みは読ませず、読み込んでいることだけを伝える",
     async (layout) => {
       renderWithI18n(<LoadingState layout={layout} />, "ja");

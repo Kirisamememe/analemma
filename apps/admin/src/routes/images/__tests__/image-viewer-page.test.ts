@@ -154,7 +154,13 @@ describe("ImageViewerPage", () => {
 
       if (state === "failed") await page.findByRole("heading", { level: 1 });
 
-      if (state === "loading") await page.findByRole("status");
+      if (state === "loading") {
+        expect(page.queryByRole("img")).toBeNull();
+        const status = await page.findByRole("status");
+        expect(
+          status.contains(await page.findByText("画像を読み込んでいます。")),
+        ).toBe(true);
+      }
 
       expect(screen.getAllByRole("main")).toHaveLength(1);
     },
