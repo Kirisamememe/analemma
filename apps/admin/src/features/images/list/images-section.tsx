@@ -188,7 +188,10 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
     );
   }
 
-  if (!query.pages.some((page) => page.images.length > 0)) {
+  if (
+    query.refreshFailure === undefined &&
+    !query.pages.some((page) => page.images.length > 0)
+  ) {
     return (
       <section
         aria-label={t("images.emptyTitle")}
@@ -233,6 +236,15 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
           );
         })}
       </ImageRows>
+      {query.refreshFailure !== undefined && (
+        <ErrorState
+          isRetrying={query.refreshFailure.isRetrying}
+          layout="inline"
+          level={2}
+          onRetry={query.refreshFailure.retry}
+          title={t("images.refreshFailed")}
+        />
+      )}
       <More
         next={query.next}
         retryRef={(button) => {

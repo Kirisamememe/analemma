@@ -233,6 +233,7 @@ export const en = {
   "images.description": "Photos that double as works, newest first.",
   "images.loading": "Loading images.",
   "images.loadFailed": "Could not load images",
+  "images.refreshFailed": "Could not refresh the image list",
   "images.moreFailed": "Could not load more images",
   "images.emptyTitle": "No images yet",
   "images.emptyDescription":

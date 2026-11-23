@@ -244,6 +244,7 @@ export const ja = {
   "images.description": "写真作品を兼ねる画像。新しく足した順に並びます。",
   "images.loading": "画像を読み込んでいます。",
   "images.loadFailed": "画像を読み込めませんでした",
+  "images.refreshFailed": "画像の一覧を更新できませんでした",
   "images.moreFailed": "続きの画像を読み込めませんでした",
   "images.emptyTitle": "画像はまだありません",
   "images.emptyDescription":
