@@ -23,7 +23,7 @@ const setUp = async () => {
 };
 
 describe("useImageNeighbors", () => {
-  test("一覧の並びで、前と次の画像の ID を返し、端では無いことを返す", async () => {
+  test("新しく足した順で、前と次の画像の ID を返し、端では無いことを返す", async () => {
     const { app, ids } = await setUp();
     const [first, second, third] = ids;
 
@@ -36,10 +36,12 @@ describe("useImageNeighbors", () => {
       expect(result.current).toEqual({ previous: first, next: third });
     });
     rerender({ id: first ?? "" });
-    expect(result.current).toEqual({ previous: undefined, next: second });
+    await waitFor(() => {
+      expect(result.current).toEqual({ previous: undefined, next: second });
+    });
   });
 
-  test("一覧に無い画像では、前も次も無いことを返す", async () => {
+  test("無い画像では、前も次も無いことを返す", async () => {
     const { app } = await setUp();
 
     const { result } = renderHook(
@@ -48,7 +50,7 @@ describe("useImageNeighbors", () => {
     );
 
     await waitFor(() => {
-      expect(app.calls).toContain("admin/images/list");
+      expect(app.calls).toContain("admin/images/neighbors");
     });
     expect(result.current).toEqual({ previous: undefined, next: undefined });
   });

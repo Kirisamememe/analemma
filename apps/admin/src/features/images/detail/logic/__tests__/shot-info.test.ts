@@ -35,7 +35,7 @@ const seconds = (value: number, locale: Locale = "ja"): string =>
   }).format(value);
 
 describe("toShotInfo", () => {
-  test("分からない項目は並べない", () => {
+  test("分からない撮影情報は並べない", () => {
     expect(rows({})).toEqual([]);
     expect(rows({ camera: "X-T5", iso: 200 })).toEqual([
       ["imageDetail.camera", "X-T5"],
@@ -43,7 +43,7 @@ describe("toShotInfo", () => {
     ]);
   });
 
-  test("全部の項目を、言語の書き方で、決まった順に並べる", () => {
+  test("撮影の情報をすべて、言語の書き方で、決まった順に並べる", () => {
     const shot = {
       takenAt: "2025-05-01T18:42:07",
       takenAtOffset: "+09:00",
@@ -84,7 +84,7 @@ describe("toShotInfo", () => {
     ]);
   });
 
-  test("シャッター速度は、1/4 秒より短ければ分数、長ければ小数で書く", () => {
+  test("シャッター速度は、1/4 秒とそれより短い露光を分数で、長い露光を小数で書く", () => {
     expect(exposure(1 / 8000)).toEqual([`1/${seconds(8000)}`]);
     expect(exposure(1 / 3)).toEqual([seconds(0.3)]);
     expect(exposure(0.25)).toEqual([`1/${seconds(4)}`]);

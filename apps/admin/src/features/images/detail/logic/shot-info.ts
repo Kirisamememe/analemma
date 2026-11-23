@@ -25,7 +25,7 @@ export type ShotInfoContext = {
 
 /** 撮影の情報の1行。 */
 export type ShotInfoRow = {
-  /** 項目の名前の訳のキー。 */
+  /** 表示名の訳のキー。 */
   readonly label: MessageKey;
   /** 言語の書き方で書いた値。 */
   readonly value: string;
@@ -64,7 +64,7 @@ const formatTakenAt = (
     : t("imageDetail.takenAtWithOffset", { dateTime, offset: takenAtOffset });
 };
 
-/** 画像の撮影の情報を、分かっている項目だけ、言語の書き方で並べる。 */
+/** 画像の撮影の情報を、言語の書き方で並べる。 */
 export const toShotInfo = (
   shot: Shot,
   context: ShotInfoContext,

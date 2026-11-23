@@ -1,40 +1,40 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { ImageDetail } from "@/features/images/detail/image-detail";
-import { createTestApp } from "@/testing/create-test-app";
+import { formatDateTime } from "@/i18n/format-date-time";
 import {
   createImageRoutes,
   type FakeImageSeed,
 } from "@/testing/fake-routes/create-image-routes";
-import { withAppProviders } from "@/testing/hook-wrappers";
+import { renderWithI18n } from "@/testing/render-with-i18n";
 import { samplePhoto } from "@/testing/sample-photos";
 
 afterEach(cleanup);
 
-const open = async (seed: FakeImageSeed) => {
+const open = (seed: FakeImageSeed) => {
   const server = createImageRoutes([seed]);
   const [image] = server.images();
-  const app = createTestApp({ path: "/", routes: server.routes });
 
   if (image === undefined) throw new Error("画像がありません");
 
-  await app.router.load();
-  render(
+  renderWithI18n(
     <ImageDetail
       back={null}
-      image={image}
+      image={{ ...image, updatedAt: "2031-12-31T23:59:00.000Z" }}
       next={undefined}
       onMove={() => undefined}
       previous={undefined}
     />,
-    { wrapper: withAppProviders(app) },
+    "ja",
   );
+
+  return image;
 };
 
 describe("ImageDetail", () => {
   test("タイトル・公開状態・説明・alt・撮影の情報を、情報の欄に出す", async () => {
-    await open({
+    const image = open({
       title: "夕暮れの稜線",
       description: "峠から見た。",
       alt: "山並み",
@@ -48,6 +48,11 @@ describe("ImageDetail", () => {
     expect(
       within(panel).getByRole("heading", { level: 1, name: "夕暮れの稜線" }),
     ).toBeDefined();
+    expect(
+      within(panel).getByText(
+        `${formatDateTime("ja", image.createdAt)} に追加`,
+      ),
+    ).toBeDefined();
     expect(within(panel).getByText("公開中")).toBeDefined();
     expect(within(panel).getByText("峠から見た。")).toBeDefined();
     expect(within(panel).getByText("山並み")).toBeDefined();
@@ -56,8 +61,16 @@ describe("ImageDetail", () => {
     expect(screen.getByRole("img", { name: "山並み" })).toBeDefined();
   });
 
+  test.each([
+    ["山あいの湖", "山あいの湖"],
+    [null, "無題の画像"],
+  ])("alt がない写真も名前で探せる (%s)", (title, name) => {
+    open({ title, deliveryImages: samplePhoto("morning-lake") });
+    expect(screen.getByRole("img", { name })).toBeDefined();
+  });
+
   test("タイトル・説明・alt・撮影の情報が無ければ、無いことが分かるように出す", async () => {
-    await open({ published: false });
+    open({ published: false });
 
     const panel = await screen.findByRole("complementary");
 

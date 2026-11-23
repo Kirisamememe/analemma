@@ -19,9 +19,9 @@ type ImageDetailProps = {
   image: Image;
   /** 帯の左に置く、一覧へ戻るリンク。 */
   back: ReactNode;
-  /** 前の画像を見る画面(無ければ undefined)。 */
+  /** 前の画像への行き先。 */
   previous: AppHref | undefined;
-  /** 次の画像を見る画面(無ければ undefined)。 */
+  /** 次の画像への行き先。 */
   next: AppHref | undefined;
   /** 前後の画像を見る画面に移る関数(スワイプで移るとき)。 */
   onMove: (href: AppHref) => void;
@@ -48,7 +48,7 @@ export const ImageDetail = ({
   return (
     <ImageViewer
       actions={null}
-      alt={image.alt ?? ""}
+      alt={image.alt ?? name}
       back={back}
       images={image.deliveryImages}
       missing={t("images.noDeliveryImage")}
