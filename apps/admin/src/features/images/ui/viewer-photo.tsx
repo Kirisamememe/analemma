@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 
 import { type DeliveryImages, toSrcSet } from "./logic/delivery-image";
 
@@ -50,6 +50,7 @@ export const ViewerPhoto = ({
   >("loading");
 
   const [attempt, setAttempt] = useState(0);
+  const retrySource = useRef<Element | null>(null);
   const style = photo({ visible: status === "loaded" });
 
   return (
@@ -65,6 +66,21 @@ export const ViewerPhoto = ({
         onLoad={() => {
           setStatus("loaded");
         }}
+        ref={(image) => {
+          const source = retrySource.current;
+
+          if (image === null || status !== "loaded" || source === null) return;
+
+          retrySource.current = null;
+
+          if (
+            document.activeElement === source ||
+            (document.activeElement === document.body && !source.isConnected)
+          ) {
+            image.focus();
+          }
+        }}
+        tabIndex={-1}
         sizes="(min-width: 48rem) calc(100vw - 25rem), 100vw"
         src={smallest.url}
         srcSet={toSrcSet(images)}
@@ -85,6 +101,10 @@ export const ViewerPhoto = ({
             layout="screen"
             level={2}
             onRetry={() => {
+              retrySource.current =
+                document.activeElement instanceof HTMLButtonElement
+                  ? document.activeElement
+                  : null;
               setStatus("retrying");
               setAttempt((count) => count + 1);
             }}

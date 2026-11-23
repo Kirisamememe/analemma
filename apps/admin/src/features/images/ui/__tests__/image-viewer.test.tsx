@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, fireEvent, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { ImageViewer } from "@/features/images/ui/image-viewer";
@@ -39,6 +39,19 @@ describe("ImageViewer", () => {
 
     expect(screen.getByRole("link", { name: "次の画像" })).toBeDefined();
     expect(screen.queryByRole("link", { name: "前の画像" })).toBeNull();
+  });
+
+  test("配信に失敗した写真から別の写真に移ると、新しい写真を読み込む", () => {
+    const { rerender } = renderWithI18n(viewer({}));
+    fireEvent.error(screen.getByAltText("山並み"));
+    expect(screen.getByRole("alert")).toBeDefined();
+    rerender(
+      viewer({
+        images: [{ width: 640, height: 420, url: "/media/b/640.avif" }],
+      }),
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByRole("status")).toBeDefined();
   });
 
   test("配信用の画像が無ければ、写真の代わりに知らせを出す", () => {

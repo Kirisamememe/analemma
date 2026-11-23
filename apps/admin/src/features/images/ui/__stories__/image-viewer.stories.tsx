@@ -5,7 +5,6 @@ import {
   ViewerFrame,
   ViewerMessage,
 } from "@/features/images/ui/image-viewer";
-import { InfoList } from "@/features/images/ui/info-list";
 import { samplePhoto } from "@/testing/sample-photos";
 import { Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
@@ -31,15 +30,7 @@ const meta = {
     previous: { href: "/", label: "前の画像" },
     next: { href: "/", label: "次の画像" },
     onSwipe: () => undefined,
-    children: (
-      <InfoList
-        items={[
-          { label: "カメラ", value: "FUJIFILM X-T5" },
-          { label: "絞り", value: "f/8" },
-        ]}
-        layout="columns"
-      />
-    ),
+    children: <Text>FUJIFILM X-T5 · f/8</Text>,
   },
   parameters: { layout: "fullscreen", stage: null },
 } satisfies Meta<typeof ImageViewer>;
@@ -55,6 +46,12 @@ export const Portrait: Story = {
     alt: "朝もやの中で山を映す湖",
     images: samplePhoto("morning-lake"),
     previous: undefined,
+  },
+};
+
+export const FailedPhoto: Story = {
+  args: {
+    images: [{ width: 640, height: 427, url: "/media/samples/missing.avif" }],
   },
 };
 

@@ -8,7 +8,7 @@ export type Stroke = {
   readonly duration: number;
 };
 
-const MIN_DISTANCE = 48; // これより短い動きは、タップや手ぶれと見なす
+const MIN_DISTANCE = 48;
 const MAX_DURATION = 800; // これより長く触れたままの動きは、スワイプと見なさない
 const HORIZONTAL_RATIO = 1.5; // 横の動きが縦の何倍あれば、横のスワイプと見なすか
 

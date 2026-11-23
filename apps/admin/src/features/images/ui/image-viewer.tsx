@@ -38,8 +38,8 @@ const viewer = tv({
     next: "right-0",
     control: [
       "flex size-control items-center justify-center rounded-full",
-      "bg-scrim/40 text-on-media outline outline-fg/20", // 暗い地の上でも写真の上でも、縁が見える
-      "transition group-is-hovered:bg-scrim/60",
+      "bg-scrim/60 text-on-media outline outline-fg/20", // 暗い地の上でも写真の上でも、縁が見える
+      "transition group-is-hovered:bg-scrim",
       "group-is-focus-shown:bg-scrim group-is-focus-shown:outline-2 group-is-focus-shown:-outline-offset-2 group-is-focus-shown:outline-current",
     ],
     panel: [

@@ -23,7 +23,7 @@ const photo = (id: string) => {
 
 describe("ViewerPhoto", () => {
   test("配信に失敗した写真は手動で取り直し、失敗を繰り返したときは知らせる", () => {
-    const { rerender } = renderWithI18n(photo("a"), "ja");
+    renderWithI18n(photo("a"), "ja");
     expect(screen.getByRole("status").textContent).toContain(
       "写真を読み込んでいます",
     );
@@ -31,19 +31,21 @@ describe("ViewerPhoto", () => {
     expect(screen.getByRole("alert").textContent).toContain(
       "写真を読み込めませんでした",
     );
+    const firstAttempt = screen.getByAltText("山並み");
     fireEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+    fireEvent.load(firstAttempt);
+    expect(screen.getByRole("alert")).toBeDefined();
     fireEvent.error(screen.getByAltText("山並み"));
     expect(screen.getByRole("alert").textContent).toContain(
       "まだ読み込めません",
     );
-    fireEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+    const retry = screen.getByRole("button", { name: "もう一度試す" });
+    retry.focus();
+    fireEvent.click(retry);
     fireEvent.load(screen.getByAltText("山並み"));
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByRole("status")).toBeNull();
 
-    fireEvent.error(screen.getByAltText("山並み"));
-    rerender(photo("b"));
-    expect(screen.queryByRole("alert")).toBeNull();
-    expect(screen.getByRole("status")).toBeDefined();
+    expect(document.activeElement).toBe(screen.getByAltText("山並み"));
   });
 });
