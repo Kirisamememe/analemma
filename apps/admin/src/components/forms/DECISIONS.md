@@ -48,7 +48,7 @@ blur で出る誤りと、送信時に受け取る誤りと、入力すると送
 
 止めるときは、部品ごとに読み取り専用(`isReadOnly`)を渡す。`isDisabled`・`fieldset` の `disabled`・`inert` は、focus を外すので使わない。React Aria Components の context で `Form` からまとめて渡す案もあるが、primitives は `isReadOnly` の既定値の `false` を渡し、その `false` が context の値より勝つ。まとめて渡すには primitives が既定値を渡さないように直す必要があり、部品ごとに渡すより差分が大きい。読み取り専用だけでは止まらない `field.Select` と `field.NumberField` は、送信の途中の変更を受け取らない。React Aria Components の Select は読み取り専用を持たず、NumberField は読み取り専用でも、全選択して貼り付けた値を確定する。読み取り専用の見た目は primitives のまま変えない(NumberField の増減のボタンは無効の色になる)。
 
-入力や blur で流れる非同期の validator(`onChangeAsync`・`onBlurAsync`)が答えるまでの間は、入力を止めない。止めると、打つたびに入力欄が止まり、続けて打てなくなる。送信のときに検証を流し直すので、送信の途中だけ止めれば、検証した値と `onSubmit` に渡る値はそろう。6種の部品を送信の途中に操作できる story は `__stories__/submitting.stories.tsx` に置く。
+入力や blur で流れる非同期の validator(`onChangeAsync`・`onBlurAsync`)が答えるまでの間は、入力を止めない。止めると、打つたびに入力欄が止まり、続けて打てなくなる。送信のときに検証を流し直すので、送信の途中だけ止めれば、検証した値と `onSubmit` に渡る値はそろう。送信の途中に6種の部品が入力を受け付けないことを試せる story は `__stories__/submitting.stories.tsx` に置く。
 
 ## Checkbox、Select、DateField
 
@@ -64,5 +64,5 @@ blur で出る誤りと、送信時に受け取る誤りと、入力すると送
 
 ## 割り切ったこと
 
-- **送信の検証で同期の validator が throw するとき**。TanStack Form 1.33.5 は、送信の検証で同期の validator が throw すると、`isSubmitting` を戻さない。入力欄は読み取り専用のまま、ボタンは送信中のままになり、ページを読み込み直すまで直せない(非同期の validator の reject は誤りとして受け取るので、止まらない)。今の validator は誤りを文言で返し(zod の `safeParse` など)、throw しない。直すには、`handleSubmit` を呼ぶ画面ごとに、送信の状態を戻す処理を足す必要がある。
+- **送信の検証で同期の validator が throw するとき**。TanStack Form 1.33.5 は、送信の検証で同期の validator が throw すると、`isSubmitting` を戻さない。フォームを作り直す(画面を開き直す)まで、入力欄は変更を受け付けない。上の例のようにボタンにも `isSubmitting` を渡していると、ボタンの表示も送信中のままになる。非同期の validator の reject は誤りとして受け取るので、入力を再開できる。今の validator は誤りを文言で返し(zod の `safeParse` など)、throw しない。直すには、`handleSubmit` を呼ぶ画面ごとに、送信の状態を戻す処理を足す必要がある。
 - **年 `0000` の日付**。contract が受け付ける年 `0000` は、日付の入力欄では扱わない(ユーザーが決めた)。React Aria Components が日付に使う `CalendarDate` で扱うには、別の入力表現を決める必要がある。

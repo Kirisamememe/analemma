@@ -191,7 +191,7 @@ describe("送信の途中の入力欄", () => {
     expect(titleInput().value).toBe("春の便りの追記");
   });
 
-  test("入力や blur で流れる非同期の検証の間は、入力を止めないこと", async () => {
+  test("入力で流れる非同期の検証の間は、入力を止めないこと", async () => {
     const user = userEvent.setup();
     const titleValidation = Promise.withResolvers<undefined>();
     const validateTitleOnChange = mock(
