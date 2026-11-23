@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
+import { EditImage } from "@/features/images/detail/edit-image";
 import { useImageNeighbors } from "@/features/images/detail/hooks/use-image-neighbors";
 import { ImageDetail } from "@/features/images/detail/image-detail";
 import {
@@ -106,6 +107,7 @@ export const ImageViewerPage = (): ReactNode => {
   const content =
     query._tag === "Loaded" && query.data._tag === "Succeeded" ? (
       <ImageDetail
+        actions={<EditImage image={query.data.data} />}
         navigationError={
           neighbors.failure && (
             <ErrorState

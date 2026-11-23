@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 
-import { EditImage } from "./edit-image";
 import { toShotInfo } from "./logic/shot-info";
 
 import type { ApiOutputs } from "@/api/api-types";
@@ -16,6 +15,8 @@ type Image = ApiOutputs["admin"]["images"]["get"];
 
 /** 写真を見る画面に渡す値。 */
 type ImageDetailProps = {
+  /** 帯に置く操作。 */
+  actions?: ReactNode;
   /** 前後の写真の取得に失敗したときの案内。 */
   navigationError?: ReactNode;
   /** 見る画像。 */
@@ -32,6 +33,7 @@ type ImageDetailProps = {
 
 /** 1枚の画像を大きく出し、情報と、編集の操作を置く。 */
 export const ImageDetail = ({
+  actions,
   navigationError,
   image,
   back,
@@ -51,7 +53,7 @@ export const ImageDetail = ({
 
   return (
     <ImageViewer
-      actions={<EditImage image={image} />}
+      actions={actions}
       alt={image.alt ?? name}
       back={back}
       images={image.deliveryImages}
