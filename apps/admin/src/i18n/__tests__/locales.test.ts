@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { isLocale, toLocale } from "@/i18n/locales";
+import { isLocale, localeName, toLocale } from "@/i18n/locales";
 
 describe("isLocale", () => {
   test.each(["en", "ja", "zh-Hans"])("対応する言語 %s を受け付ける", (tag) => {
@@ -23,5 +23,15 @@ describe("toLocale", () => {
   test("lang が空や、対応していない言語なら、英語にする", () => {
     expect(toLocale("")).toBe("en");
     expect(toLocale("fr")).toBe("en");
+  });
+});
+
+describe("localeName", () => {
+  test.each([
+    ["en", "English"],
+    ["ja", "日本語"],
+    ["zh-Hans", "简体中文"],
+  ] as const)("%s を、その言語で書いた名前 %s にする", (locale, name) => {
+    expect(localeName(locale)).toBe(name);
   });
 });
