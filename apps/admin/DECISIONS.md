@@ -173,6 +173,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - `callApi` は呼び出し側が扱う code だけを `Failed` で返し、ほかの失敗は元の error を throw する。セッション切れを表す `UNAUTHORIZED` を query client に届け、ログインの画面への移動を query client に任せるため。
 - `useApiMutation` は、送信か送信後の処理が想定外の失敗で終わったら `onError` を呼ぶ。操作の失敗を、Dialog の中で送ったものも外で送ったものも、Toast で知らせるため。セッション切れ(`UNAUTHORIZED`)では呼ばない。query client がログインの画面に移すので、閉じるまで残る失敗の Toast を、ログインの画面に持ち越さない。
 - `useApiMutation` は `send` の Promise が resolve したら `onSuccess` を呼ぶ。もう無いパスキーを操作したときの `NotFound` など、操作が断られた結果も `onSuccess` に渡り、その処理が完了すると `data` に入る。`send` や `onSuccess` が error で終わると `isError` が立つ。同じ操作を続けて送らせないよう、`onSuccess` の処理が終わるまで `isPending` を保つ。
+- 取得に失敗したら、`useApiQuery` の `Failed` が返す `retry` で取り直す。TanStack Query は、データの無い取得を取り直すと pending に戻すが、前に失敗していたら(`errorUpdateCount`)、取り直している間も `Failed` を返し、`isRetrying` を立てる。Loading に戻すと、読み込めなかった欄が「読み込んでいます」に替わり、押したボタンと送信中の表示が消える。一度失敗した取得を、画面を開き直して取り直す間も、同じく読み込めなかった欄を出したまま取り直す。
 - 再取得に失敗したときは `useApiQuery` が `Failed` を返す。前のデータを表示すると、再取得できたように見えるため。
 - 画面を離れる前の確かめは、TanStack Router の `useBlocker` を `useLeaveConfirmation`(`src/api/leave-confirmation.ts`)で包む。features は確かめが要るかを返す関数を渡し、確かめの状態(`Idle`・`Asking`)と、離れる・残る操作だけを受け取る。管理画面の中の移動は管理画面の Dialog で確かめ、タブを閉じる・読み込み直すときはブラウザに確かめさせる。確かめが要るかは移るときに関数を呼んで決め、state に持たないので、入力のたびに state を更新せず、effect も要らない。
 - 今回の適用範囲は `src/features/`。route ごとの画面を置く `src/routes/` は今は外のライブラリを直接 import する。

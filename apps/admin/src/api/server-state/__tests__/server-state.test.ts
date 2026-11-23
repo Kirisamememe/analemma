@@ -77,8 +77,102 @@ describe("useApiQuery", () => {
     );
 
     await waitFor(() => {
-      expect(result.current).toEqual({ _tag: "Failed" });
+      expect(result.current).toMatchObject({
+        _tag: "Failed",
+        isRetrying: false,
+      });
     });
+  });
+
+  test("失敗した後に取り直す間は、失敗のまま取り直していることを返し、取れたらデータを返す", async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const retried = Promise.withResolvers<string[]>();
+    let fetches = 0;
+    const { result } = renderHook(
+      () =>
+        useApiQuery({
+          key: KEY,
+          load: () => {
+            fetches += 1;
+
+            return fetches === 1
+              ? Promise.reject(new Error("取得できない"))
+              : retried.promise;
+          },
+        }),
+      { wrapper: withQueryClient(client) },
+    );
+
+    await waitFor(() => {
+      expect(result.current).toMatchObject({ _tag: "Failed" });
+    });
+
+    act(() => {
+      if (result.current._tag === "Failed") result.current.retry();
+    });
+
+    await waitFor(() => {
+      expect(result.current).toMatchObject({
+        _tag: "Failed",
+        isRetrying: true,
+      });
+    });
+
+    retried.resolve(["MacBook"]);
+
+    await waitFor(() => {
+      expect(result.current).toEqual({ _tag: "Loaded", data: ["MacBook"] });
+    });
+    expect(fetches).toBe(2);
+  });
+
+  test("取り直しも失敗したら、取り直していない失敗に戻る", async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const retried = Promise.withResolvers<string[]>();
+    let fetches = 0;
+    const { result } = renderHook(
+      () =>
+        useApiQuery({
+          key: KEY,
+          load: () => {
+            fetches += 1;
+
+            return fetches === 1
+              ? Promise.reject(new Error("取得できない"))
+              : retried.promise;
+          },
+        }),
+      { wrapper: withQueryClient(client) },
+    );
+
+    await waitFor(() => {
+      expect(result.current).toMatchObject({ _tag: "Failed" });
+    });
+
+    act(() => {
+      if (result.current._tag === "Failed") result.current.retry();
+    });
+
+    await waitFor(() => {
+      expect(result.current).toMatchObject({
+        _tag: "Failed",
+        isRetrying: true,
+      });
+    });
+
+    retried.reject(new Error("取り直しても取得できない"));
+
+    await waitFor(() => {
+      expect(result.current).toMatchObject({
+        _tag: "Failed",
+        isRetrying: false,
+      });
+    });
+    expect(fetches).toBe(2);
   });
 
   test("使う画面が無くなったら捨てる指定では、開き直したときに古いデータを返さない", async () => {
@@ -131,7 +225,10 @@ describe("useApiQuery", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.query).toEqual({ _tag: "Failed" });
+      expect(result.current.query).toMatchObject({
+        _tag: "Failed",
+        isRetrying: false,
+      });
     });
   });
 });
