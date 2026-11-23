@@ -41,3 +41,37 @@ test("写真から戻ると、続きを読み直さずに元の写真へ戻り�
   expect(screen.queryByRole("link", { name: /写真 52/v })).toBeNull();
   expect(lists()).toBe(3);
 });
+
+test("続きを読めなかった後に写真から戻っても、元の50枚を見ながら続きを取り直せる", async () => {
+  const server = createImageRoutes(
+    Array.from({ length: 52 }, (_, i) => ({ title: `写真 ${i + 1}` })),
+  );
+
+  let disconnected = true;
+  const user = userEvent.setup();
+  renderApp({
+    path: "/images",
+    routes: {
+      ...server.routes,
+      "admin/images/list": (input) =>
+        disconnected && input.cursor !== undefined
+          ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+          : server.routes["admin/images/list"](input),
+    },
+  });
+  await user.click(
+    await screen.findByRole("button", { name: "さらに読み込む" }),
+  );
+  await screen.findByRole(
+    "heading",
+    { name: "続きの画像を読み込めませんでした" },
+    { timeout: 8000 },
+  );
+  await user.click(screen.getByRole("link", { name: /写真 50/v }));
+  await screen.findByRole("heading", { name: "写真 50" });
+  await user.click(screen.getByRole("link", { name: "画像の一覧" }));
+  await screen.findByRole("link", { name: /写真 50/v });
+  disconnected = false;
+  await user.click(await screen.findByRole("button", { name: "もう一度試す" }));
+  await screen.findByRole("link", { name: /写真 52/v });
+}, 15_000);

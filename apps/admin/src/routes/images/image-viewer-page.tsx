@@ -53,7 +53,7 @@ export const ImageViewerPage = (): ReactNode => {
 
     const target = selected.slice("/images/".length);
 
-    pending.current = { id: target, forward: target < id };
+    pending.current = { id: target, forward: target === neighbors.next };
   };
 
   const restoreFocus = (element: HTMLElement | null): void => {

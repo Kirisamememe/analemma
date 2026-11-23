@@ -9,7 +9,7 @@
 - `src/app/main.tsx`:React を描き始める入口。i18next の instance・ブラウザの履歴・API の client・認証器を組み立てて渡す。
 - `src/app/app.tsx`:i18next の instance・server の状態(TanStack Query)・route をつないだ全体。
 - `src/app/router.ts`:route の木と、router と query client を組み立てる関数(`createApp`)。ログインした後の画面へ移るたびに、移るのを待たせずに、server でセッションを確かめる。
-- `src/api/`:server の API の client(contract の型付き)と、query client。features が使う、oRPC の失敗の仕分け(`call-api.ts`)・TanStack Router の context とログインの画面への移動(`app-context.ts`)・画面を離れる前の確かめ(`leave-confirmation.ts`)・TanStack Query の取得と送信とキャッシュ(`server-state/`)の包みも置く。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
+- `src/api/`:server の API の client(contract の型付き)と、query client。features が使う、oRPC の失敗の仕分け(`call-api.ts`)・TanStack Router の context とログインの画面への移動(`app-context.ts`)・画面を離れる前の確かめ(`leave-confirmation.ts`)・TanStack Query の取得と送信とキャッシュ(`server-state/`)の包みも置く。取得したデータを画面間で保持する条件は `DECISIONS.md` の「server の API の呼び方」に従う。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
 - `src/routes/`:route ごとの画面。
 - `src/queries/`:複数の feature が使う、server の API を呼ぶ処理(再認証)。
 - `src/components/`:複数の feature から使う、管理画面に固有の部品。`@/components/...` で import する。部品のコードは features を import しない(lint で止まる)。
