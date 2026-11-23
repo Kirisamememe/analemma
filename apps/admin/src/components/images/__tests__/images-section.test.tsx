@@ -8,7 +8,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
-import { ImagesSection } from "@/features/images/list/images-section";
+import { ImagesSection } from "@/components/images/images-section";
 import type { FakeRoutes } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
 import {

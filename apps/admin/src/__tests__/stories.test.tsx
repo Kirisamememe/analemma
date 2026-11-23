@@ -11,14 +11,13 @@ import * as componentsQueryContent from "@/components/__stories__/query-content.
 import * as componentsFormFields from "@/components/forms/__stories__/form-fields.stories";
 import * as componentsForm from "@/components/forms/__stories__/form.stories";
 import * as componentsSubmitting from "@/components/forms/__stories__/submitting.stories";
+import * as featuresImagesSection from "@/components/images/__stories__/images-section.stories";
 import * as featuresDeployTokensCopyButton from "@/features/deploy-tokens/ui/__stories__/copy-button.stories";
 import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
 import * as kindRefreshNotice from "@/features/fixed-pages/list/__stories__/kind-refresh-notice.stories";
 import * as featuresFixedPagesContentGroup from "@/features/fixed-pages/ui/__stories__/content-group.stories";
 import * as fixedPageKindGuide from "@/features/fixed-pages/ui/__stories__/kind-guide.stories";
 import * as featuresImagesImageDetail from "@/features/images/detail/__stories__/image-detail.stories";
-import * as featuresImagesSection from "@/features/images/list/__stories__/images-section.stories";
-import * as featuresImagesImageRows from "@/features/images/ui/__stories__/image-rows.stories";
 import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/image-viewer.stories";
 import * as featuresImagesInfoList from "@/features/images/ui/__stories__/info-list.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
@@ -41,6 +40,8 @@ import * as patternsErrorState from "@/ui/patterns/__stories__/error-state.stori
 import * as patternsLoadingState from "@/ui/patterns/__stories__/loading-state.stories";
 import * as patternsPageHeader from "@/ui/patterns/__stories__/page-header.stories";
 import * as patternsSideNav from "@/ui/patterns/__stories__/side-nav.stories";
+import * as featuresImagesImageRows from "@/ui/patterns/photos/__stories__/image-rows.stories";
+import * as imageThumbnail from "@/ui/patterns/photos/__stories__/image-thumbnail.stories";
 import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "@/ui/primitives/__stories__/button.stories";
 import * as primitivesForm from "@/ui/primitives/__stories__/form.stories";
@@ -86,9 +87,10 @@ const MODULES = {
     featuresFixedPagesContentGroup,
   "features/images/detail/__stories__/image-detail.stories.tsx":
     featuresImagesImageDetail,
-  "features/images/list/__stories__/images-section.stories.tsx":
+  "components/images/__stories__/images-section.stories.tsx":
     featuresImagesSection,
-  "features/images/ui/__stories__/image-rows.stories.tsx":
+  "ui/patterns/photos/__stories__/image-thumbnail.stories.ts": imageThumbnail,
+  "ui/patterns/photos/__stories__/image-rows.stories.tsx":
     featuresImagesImageRows,
   "features/images/ui/__stories__/image-viewer.stories.tsx":
     featuresImagesImageViewer,

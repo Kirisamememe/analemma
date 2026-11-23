@@ -23,11 +23,8 @@ import {
 } from "@/api/server-state/server-state";
 import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
 import { checkAfterSubmit, useAppForm } from "@/components/forms";
-import {
-  IMAGES_QUERY_KEY,
-  updateImagePage,
-} from "@/features/images/queries/images-query";
 import { type MessageKey, useTranslate } from "@/i18n/use-translate";
+import { IMAGES_QUERY_KEY, updateImagePage } from "@/queries/images-query";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";

@@ -1,24 +1,28 @@
-import { memo, type ReactNode, useCallback, useRef } from "react";
+import { memo, type ReactNode, type RefObject, useCallback } from "react";
+
+import { useImagePageFocus } from "./hooks/use-image-page-focus";
 
 import { useAppContext } from "@/api/app-context";
 import {
   type NextPage,
   useApiInfiniteQuery,
 } from "@/api/server-state/use-api-infinite-query";
+import { formatLocalDate } from "@/i18n/format-date-time";
+import { useLocale, useTranslate } from "@/i18n/use-translate";
 import {
   type ImageSummary,
   IMAGES_QUERY_KEY,
+  IMAGE_PICKER_KEY,
   loadImagesPage,
-} from "@/features/images/queries/images-query";
+} from "@/queries/images-query";
+import { Stack } from "@/ui/layout";
 import {
+  EmptyState,
+  ErrorState,
   ImageRows,
   ImageRowsPlaceholder,
   ImageTile,
-} from "@/features/images/ui/image-rows";
-import { formatLocalDate } from "@/i18n/format-date-time";
-import { useLocale, useTranslate } from "@/i18n/use-translate";
-import { Stack } from "@/ui/layout";
-import { EmptyState, ErrorState } from "@/ui/patterns";
+} from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 
@@ -70,8 +74,17 @@ const More = ({ next, onLoad, retryRef }: MoreProps): ReactNode => {
 
 /** 画像の一覧に渡す値。 */
 type ImagesSectionProps = {
+  /** 選べる画像が無いときの focus の戻り先。 */
+  fallbackFocus?: RefObject<HTMLButtonElement | null>;
   /** 画像を見る画面への行き先を返す関数。 */
-  imageHref: (id: string) => AppHref;
+  imageHref?: ((id: string) => AppHref) | undefined;
+  /** 写真を選ぶときの入力欄。 */
+  renderChoice?:
+    | ((
+        image: ImageSummary,
+        focus: (element: HTMLElement | null) => void,
+      ) => ReactNode)
+    | undefined;
 };
 
 type ImagePageProps = ImagesSectionProps & {
@@ -80,19 +93,32 @@ type ImagePageProps = ImagesSectionProps & {
   /** ページの番号。 */
   pageIndex: number;
   /** ページの最初のリンクを受け取る関数。 */
-  onFirstLink: (pageIndex: number, link: HTMLAnchorElement | null) => void;
+  onFirstLink: (pageIndex: number, link: HTMLElement | null) => void;
 };
 
-const PageTiles = ({
-  images,
+type GalleryImageProps = Pick<
+  ImagesSectionProps,
+  "imageHref" | "renderChoice"
+> & {
+  /** 表示する画像。 */
+  image: ImageSummary;
+  /** ページの最初の画像か。 */
+  first: boolean;
+  /** ページを読み込んだ後の focus の移動先。 */
+  focusFirst: (element: HTMLElement | null) => void;
+};
+
+const GalleryImageContent = ({
+  image,
+  first,
+  focusFirst,
   imageHref,
-  pageIndex,
-  onFirstLink,
-}: ImagePageProps): ReactNode => {
+  renderChoice,
+}: GalleryImageProps): ReactNode => {
   const t = useTranslate();
   const locale = useLocale();
 
-  return images.map((image, index) => (
+  return (
     <ImageTile
       alt={image.alt}
       badge={image.published ? undefined : t("images.unpublished")}
@@ -101,70 +127,63 @@ const PageTiles = ({
           ? undefined
           : formatLocalDate(locale, image.takenAt)
       }
-      href={imageHref(image.id)}
+      href={imageHref?.(image.id)}
+      choice={renderChoice?.(image, focusFirst)}
       images={image.deliveryImages}
-      key={image.id}
-      linkRef={
-        index === 0
-          ? (link) => {
-              onFirstLink(pageIndex, link);
-            }
-          : undefined
-      }
+      linkRef={first ? focusFirst : undefined}
       missing={t("images.noDeliveryImage")}
       title={image.title}
       untitled={t("images.untitled")}
+    />
+  );
+};
+
+const GalleryImage = memo(GalleryImageContent);
+
+const PageTiles = ({
+  images,
+  imageHref,
+  renderChoice,
+  pageIndex,
+  onFirstLink,
+}: ImagePageProps): ReactNode => {
+  const focusFirst = useCallback(
+    (element: HTMLElement | null) => {
+      if (element !== null && !element.matches(":disabled")) {
+        onFirstLink(pageIndex, element);
+      }
+    },
+    [onFirstLink, pageIndex],
+  );
+
+  return images.map((image, index) => (
+    <GalleryImage
+      key={image.id}
+      image={image}
+      first={index === 0}
+      focusFirst={focusFirst}
+      imageHref={imageHref}
+      renderChoice={renderChoice}
     />
   ));
 };
 
 const ImagePage = memo(PageTiles);
 
-type PendingFocus = {
-  /** 取得後に focus を渡すページの番号。 */
-  page: number;
-  /** 取得を始めたときの focus。 */
-  from: Element | null;
-};
-
 /** 画像の一覧と、続きを読む操作。 */
-export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
+export const ImagesSection = ({
+  fallbackFocus,
+  imageHref,
+  renderChoice,
+}: ImagesSectionProps): ReactNode => {
   const t = useTranslate();
   const { api } = useAppContext();
 
-  const pendingFocus = useRef<PendingFocus>(undefined);
-
-  const rememberFocus = (page: number): void => {
-    pendingFocus.current = { page, from: document.activeElement };
-  };
-
-  const focusResult = useCallback(
-    (page: number, element: HTMLElement | null): void => {
-      const pending = pendingFocus.current;
-
-      if (
-        element === null ||
-        pending?.page !== page ||
-        element === pending.from
-      ) {
-        return;
-      }
-
-      pendingFocus.current = undefined;
-      const active = document.activeElement;
-
-      if (
-        active === pending.from ||
-        (active === document.body && pending.from?.isConnected === false)
-      ) {
-        element.focus();
-      }
-    },
-    [],
-  );
+  const { rememberFocus, focusResult, focusList } =
+    useImagePageFocus(fallbackFocus);
 
   const query = useApiInfiniteQuery({
-    key: IMAGES_QUERY_KEY,
+    key: renderChoice === undefined ? IMAGES_QUERY_KEY : IMAGE_PICKER_KEY,
     load: (cursor) => loadImagesPage(api, cursor),
     next: ({ nextCursor }) => nextCursor ?? undefined,
   });
@@ -215,16 +234,14 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
       <ImageRows
         label={t("images.title")}
         listRef={(list) => {
-          if (query.refreshFailure === undefined) {
-            focusResult(0, list?.querySelector("a") ?? null);
-          }
-
-          if (query.pages.at(-1)?.images.length === 0) {
-            const last =
-              list?.querySelector<HTMLAnchorElement>("li:last-child a");
-
-            focusResult(query.pages.length - 1, last ?? null);
-          }
+          focusList(list, {
+            first: query.refreshFailure === undefined,
+            lastPage:
+              query.next._tag === "None" ||
+              query.pages.at(-1)?.images.length === 0
+                ? query.pages.length - 1
+                : undefined,
+          });
         }}
       >
         {query.pages.map(({ images }, pageIndex) => {
@@ -233,6 +250,7 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
           return first === undefined ? null : (
             <ImagePage
               imageHref={imageHref}
+              renderChoice={renderChoice}
               images={images}
               key={first.id}
               onFirstLink={focusResult}

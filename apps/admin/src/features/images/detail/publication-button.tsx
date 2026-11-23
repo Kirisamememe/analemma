@@ -8,11 +8,8 @@ import { imageQueryKey, type LoadedImage } from "./queries/image-query";
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import {
-  IMAGES_QUERY_KEY,
-  updateImagePage,
-} from "@/features/images/queries/images-query";
 import { useTranslate } from "@/i18n/use-translate";
+import { IMAGES_QUERY_KEY, updateImagePage } from "@/queries/images-query";
 import { Cluster } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import {

@@ -1,13 +1,13 @@
 import { type ReactNode, useRef } from "react";
 
 import { usePhotoGestures } from "./hooks/use-photo-gestures";
-import type { DeliveryImages } from "./logic/delivery-image";
 import { ViewerPhoto } from "./viewer-photo";
 import { viewerStyle as style } from "./viewer-styles";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Text } from "@/ui/layout";
 import { LoadingStatus } from "@/ui/patterns";
+import type { DeliveryImages } from "@/ui/patterns/photos/logic/delivery-image";
 import { Icon, Spinner } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";

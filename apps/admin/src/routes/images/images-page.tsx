@@ -2,9 +2,11 @@ import { useRouteContext } from "@tanstack/react-router";
 import { type ReactNode, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
-import { ImagesSection } from "@/features/images/list/images-section";
+import { ImagesSection } from "@/components/images/images-section";
 import { Center, Stack } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
+
+const imageHref = (id: string): `/images/${string}` => `/images/${id}`;
 
 /** 画像を、写真の縦横比を保って並べる画面。 */
 export const ImagesPage = (): ReactNode => {
@@ -56,7 +58,7 @@ export const ImagesPage = (): ReactNode => {
           title={t("images.title")}
         />
         <div ref={restorePosition}>
-          <ImagesSection imageHref={(id) => `/images/${id}`} />
+          <ImagesSection imageHref={imageHref} />
         </div>
       </Stack>
     </Center>

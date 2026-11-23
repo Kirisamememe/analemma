@@ -13,11 +13,8 @@ import {
   useApiMutation,
   useIsApiMutationPending,
 } from "@/api/server-state/server-state";
-import {
-  IMAGES_QUERY_KEY,
-  updateImagePage,
-} from "@/features/images/queries/images-query";
 import { useTranslate } from "@/i18n/use-translate";
+import { IMAGES_QUERY_KEY, updateImagePage } from "@/queries/images-query";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import {
