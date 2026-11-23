@@ -12,7 +12,10 @@ type Image = ApiOutputs["admin"]["images"]["get"];
 
 /** 表示中の画像の編集・公開・削除の操作。 */
 export const ImageViewerActions = (): ReactNode => {
-  const { id } = useParams({ from: "/images/$id" });
+  const id = useParams({
+    from: "/images/$id",
+    select: (params) => params.id.toLowerCase(),
+  });
   const query = useViewerImage(id);
   const { t } = useTranslation();
   const navigate = useNavigate();

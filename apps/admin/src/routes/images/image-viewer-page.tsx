@@ -89,7 +89,10 @@ const useViewerNavigation = (back: BackProps["back"]) => {
 };
 
 const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
-  const { id } = useParams({ from: "/images/$id" });
+  const id = useParams({
+    from: "/images/$id",
+    select: (params) => params.id.toLowerCase(),
+  });
   const { t } = useTranslation();
   const navigation = useViewerNavigation(back);
   const navigate = useNavigate();
