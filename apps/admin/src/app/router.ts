@@ -205,6 +205,9 @@ export type AppParts = {
   readonly queryClient: QueryClient;
 };
 
+const imagePath = (pathname: string): string =>
+  pathname.toLowerCase().replace(/\/+$/v, "");
+
 const inImages = (pathname: string): boolean =>
   pathname === "/images" || pathname.startsWith("/images/");
 
@@ -242,12 +245,15 @@ export const createApp = (dependencies: AppDependencies): AppParts => {
     gcTime: Infinity,
   });
   router.subscribe("onBeforeNavigate", ({ fromLocation, toLocation }) => {
+    const target = imagePath(toLocation.pathname);
+
     if (
-      fromLocation?.pathname === "/images" &&
-      toLocation.pathname.startsWith("/images/")
+      fromLocation !== undefined &&
+      imagePath(fromLocation.pathname) === "/images" &&
+      target.startsWith("/images/")
     ) {
       imageListPosition.current = {
-        href: toLocation.pathname,
+        href: target,
         top: window.scrollY,
       };
     }
@@ -255,8 +261,8 @@ export const createApp = (dependencies: AppDependencies): AppParts => {
   router.subscribe("onResolved", ({ fromLocation, toLocation }) => {
     if (
       fromLocation !== undefined &&
-      inImages(fromLocation.pathname) &&
-      !inImages(toLocation.pathname)
+      inImages(imagePath(fromLocation.pathname)) &&
+      !inImages(imagePath(toLocation.pathname))
     ) {
       delete imageListPosition.current;
       queryClient.removeQueries({ queryKey: IMAGES_QUERY_KEY, exact: true });

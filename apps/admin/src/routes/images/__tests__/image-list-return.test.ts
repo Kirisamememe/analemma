@@ -1,4 +1,4 @@
-import { cleanup, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
@@ -12,7 +12,7 @@ test("写真から戻ると、続きを読み直さずに元の写真へ戻り�
     Array.from({ length: 52 }, (_, index) => ({ title: `写真 ${index + 1}` })),
   );
 
-  const { calls } = renderApp({ path: "/images", routes: server.routes });
+  const { calls } = renderApp({ path: "/Images/", routes: server.routes });
 
   const lists = () =>
     calls.filter((path) => path === "admin/images/list").length;
@@ -74,4 +74,40 @@ test("続きを読めなかった後に写真から戻っても、元の50枚を
   disconnected = false;
   await user.click(await screen.findByRole("button", { name: "もう一度試す" }));
   await screen.findByRole("link", { name: /写真 52/v });
+}, 15_000);
+
+test("画像一覧を裏で更新できなくても、写真を残してその場で取り直せる", async () => {
+  const server = createImageRoutes([{ title: "山の朝" }]);
+  let offline = false;
+
+  const { queryClient } = renderApp({
+    path: "/images",
+    routes: {
+      ...server.routes,
+      "admin/images/list": (input) =>
+        offline
+          ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+          : server.routes["admin/images/list"](input),
+    },
+  });
+
+  await screen.findByRole("link", { name: /山の朝/v });
+  offline = true;
+  await act(async () => {
+    await queryClient.invalidateQueries();
+  });
+  expect(screen.getByRole("link", { name: /山の朝/v })).toBeDefined();
+  await screen.findByRole("heading", {
+    name: "画像の一覧を更新できませんでした",
+  });
+  offline = false;
+  await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+  await waitFor(() => {
+    expect(
+      screen.queryByRole("heading", {
+        name: "画像の一覧を更新できませんでした",
+      }),
+    ).toBeNull();
+  });
+  expect(screen.getByRole("link", { name: /山の朝/v })).toBeDefined();
 }, 15_000);

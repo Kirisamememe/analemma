@@ -51,6 +51,13 @@ type InfiniteQueryResult<Page> =
       readonly _tag: "Loaded";
       /** 取得したページの並び。 */
       readonly pages: readonly Page[];
+      /** 一覧全体を更新できなかったときの再試行。 */
+      readonly refreshFailure?: {
+        /** 更新をやり直しているか。 */
+        isRetrying: boolean;
+        /** 読み込み済みのページを更新する。 */
+        retry: () => void;
+      };
       /** 続きのページの状態。 */
       readonly next: NextPage;
     };
@@ -87,12 +94,26 @@ export const useApiInfiniteQuery = <Page>({
       nextFailure?.error === query.error &&
       nextFailure.errorUpdateCount === query.errorUpdateCount);
 
-  if (query.data === undefined || (query.isError && !failedNext)) {
+  if (query.data === undefined) {
     return {
       _tag: "Failed",
       isRetrying: query.fetchStatus !== "idle", // 次の試行を待って一時停止している間も、取り直している
       retry: () => {
         void query.refetch();
+      },
+    };
+  }
+
+  if (query.isError && !failedNext) {
+    return {
+      _tag: "Loaded",
+      pages: query.data.pages,
+      next: { _tag: "None" },
+      refreshFailure: {
+        isRetrying: query.fetchStatus !== "idle",
+        retry: () => {
+          void query.refetch();
+        },
       },
     };
   }

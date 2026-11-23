@@ -215,6 +215,7 @@ export const zhHans = {
   "images.description": "兼作摄影作品的图片，按添加时间从新到旧排列。",
   "images.loading": "正在加载图片。",
   "images.loadFailed": "无法加载图片",
+  "images.refreshFailed": "无法更新图片列表",
   "images.moreFailed": "无法加载更多图片",
   "images.emptyTitle": "还没有图片",
   "images.emptyDescription": "上传或从 Dropbox 导入的图片会显示在这里。",
