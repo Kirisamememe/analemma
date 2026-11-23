@@ -1,4 +1,4 @@
-import { cleanup, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -88,18 +88,36 @@ describe("router", () => {
     });
   });
 
-  test("セッションの確認の応答を待たずに、画面を描く", async () => {
+  test("前のセッション確認の応答を待たずに、移った画面を描いてセッションを確かめる", async () => {
     const session = Promise.withResolvers<FakeReply<"admin/session/get">>();
 
-    renderApp({
+    const { calls } = renderApp({
       path: "/",
-      routes: { "admin/session/get": () => session.promise },
+      routes: {
+        "admin/session/get": () => session.promise,
+        "admin/passkeys/list": () => ({ output: { passkeys: [] } }),
+      },
     });
 
-    expect(
-      await screen.findByRole("heading", { name: "ホーム" }),
-    ).toBeDefined();
-    session.resolve({ output: { expiresAt: "2026-01-08T00:00:00.000Z" } });
+    try {
+      await screen.findByRole("heading", { name: "ホーム" });
+      const nav = within(screen.getByRole("navigation"));
+      await userEvent.click(nav.getByRole("link", { name: "セキュリティ" }));
+      await screen.findByRole("heading", { name: "セキュリティ" });
+      await userEvent.click(nav.getByRole("link", { name: "ホーム" }));
+      await screen.findByRole("heading", { name: "ホーム" });
+
+      await waitFor(() => {
+        expect(
+          calls.filter((path) => path === "admin/session/get"),
+        ).toHaveLength(3);
+      });
+    } finally {
+      await act(async () => {
+        session.resolve({ output: { expiresAt: "2026-01-08T00:00:00.000Z" } });
+        await session.promise;
+      });
+    }
   });
 
   test("セッションを確かめられなくても、画面を止めない", async () => {

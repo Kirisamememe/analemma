@@ -71,7 +71,7 @@ const signedInRoute = createRoute({
   beforeLoad: ({ context: { api, queryClient } }) => {
     void queryClient
       .query({
-        queryKey: ["admin", "session"],
+        queryKey: ["admin", "session", crypto.randomUUID()],
         queryFn: () => api.admin.session.get(),
         retry: false,
       })
