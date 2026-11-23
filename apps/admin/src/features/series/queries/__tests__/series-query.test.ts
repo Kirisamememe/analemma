@@ -1,9 +1,16 @@
 import { expect, test } from "bun:test";
 
-import { seriesListQuery } from "../series-query";
+import { saveSeries, seriesListQuery } from "../series-query";
 
 import { createFakeApi } from "@/testing/create-fake-api";
 import { createSeriesRoutes } from "@/testing/fake-routes/create-series-routes";
+
+test("別のシリーズが使っている slug を知らせる", async () => {
+  const { api } = createFakeApi(createSeriesRoutes());
+  expect(
+    await saveSeries(api, { slug: "travel", name: "記録", description: null }),
+  ).toMatchObject({ _tag: "Failed", code: "SLUG_TAKEN" });
+});
 
 test("一覧にはカバーのサムネイルと表示する項目を取り出す", async () => {
   const { api } = createFakeApi(createSeriesRoutes());
