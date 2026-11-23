@@ -78,7 +78,11 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
     await user.keyboard("{ArrowUp}");
     await user.click(screen.getByRole("button", { name: /色/v }));
     await user.click(screen.getByRole("option", { name: "赤" }));
-    await userEvent.click(await screen.findByRole("button", { name: "保存" }));
+    const [save] = await screen.findAllByRole("button", { name: "保存" });
+
+    if (save === undefined) throw new Error("保存のボタンがありません");
+
+    await userEvent.click(save);
     expect(await screen.findByText("固定ページを更新しました。")).toBeDefined();
   } finally {
     collapse.mockRestore();

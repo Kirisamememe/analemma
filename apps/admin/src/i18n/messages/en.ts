@@ -19,7 +19,8 @@ export const en = {
   "fixedPageEditor.save": "Save",
   "fixedPageEditor.saved": "Fixed page updated.",
   "fixedPageEditor.created": "Fixed page created.",
-  "fixedPageEditor.saveFailed": "Could not save the fixed page.",
+  "fixedPageEditor.saveFailed":
+    "Could not save the fixed page. Please try again.",
   "fixedPageEditor.changedKind":
     "The kind definition may have changed. Reload the page to check the fields.",
   "fixedPageEditor.issue.type": "Enter a value.",
@@ -34,6 +35,12 @@ export const en = {
   "fixedPageEditor.remove": "Remove {{label}} {{position}}",
   "fixedPageEditor.add": "Add {{label}}",
   "fixedPageEditor.backToList": "Fixed pages",
+  "fixedPageEditor.delete": "Delete fixed page",
+  "fixedPageEditor.leaveTitle": "You have unsaved changes",
+  "fixedPageEditor.leaveDescription":
+    "If you leave this page, your unsaved changes will be lost.",
+  "fixedPageEditor.stay": "Keep editing",
+  "fixedPageEditor.leave": "Discard changes",
   "fixedPageEditor.urlHint": "Enter a URL starting with http:// or https://.",
   "fixedPageEditor.unboundIssue": "{{path}}: {{message}}",
   "fixedPageEditor.moveUp": "Up",
@@ -203,8 +210,6 @@ export const en = {
     "A deleted fixed page cannot be restored. It will also disappear from the public site.",
   "fixedPages.cancel": "Cancel",
   "fixedPages.deleted": "“{{title}}” was deleted.",
-  "fixedPages.notFound":
-    "This fixed page no longer exists. The list was reloaded.",
   "fixedPages.deleteFailed":
     "Could not delete the fixed page. Please try again.",
 } as const satisfies Readonly<Record<string, string>>;

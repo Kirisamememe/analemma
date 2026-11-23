@@ -1,6 +1,7 @@
 import type { ContentIssue } from "@analemma/contract";
 
 import type { bindContentIssues } from "../bind-content-issues";
+import type { saveFixedPage } from "./save-fixed-page";
 
 import type { MessageKey, useTranslate } from "@/i18n/use-translate";
 
@@ -61,6 +62,32 @@ export const contentErrors = (
     fields,
     notice: [t("fixedPageEditor.changedKind"), ...messages].join(" "),
   };
+};
+
+/** server が断った保存の結果。 */
+type Refused = Exclude<
+  Awaited<ReturnType<typeof saveFixedPage>>,
+  {
+    /** 保存できた結果。 */
+    readonly _tag: "Succeeded";
+  }
+>;
+
+/** server が断った保存の結果を、入力欄とフォーム全体の知らせにする。 */
+export const refusedSaveErrors = (
+  result: Refused,
+  t: ReturnType<typeof useTranslate>,
+): EditorErrors => {
+  switch (result._tag) {
+    case "SLUG_TAKEN":
+      return { fields: { slug: t("fixedPageEditor.slugTaken") } };
+    case "InvalidContent":
+      return contentErrors(result.issues, t);
+    case "NOT_FOUND":
+      return { fields: {}, notice: t("fixedPageEditor.pageGone") };
+    case "UNKNOWN_KIND":
+      return { fields: {}, notice: t("fixedPageEditor.kindGone") };
+  }
 };
 
 /** 値が変わった項目と、その値を含む group や repeat の知らせを消す。 */

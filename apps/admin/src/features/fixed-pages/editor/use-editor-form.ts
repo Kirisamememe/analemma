@@ -2,18 +2,18 @@ import { useRef, useState } from "react";
 
 import { fixedPageSlug, fixedPageTitle } from "@analemma/contract";
 
-import { createContentForm } from "../content-form";
 import {
   clearChangedErrors,
-  contentErrors,
   type EditorErrors,
+  refusedSaveErrors,
 } from "./editor-errors";
 import { fixedPageQueryKey, type LoadedFixedPage } from "./fixed-page-query";
-import { flattenContent, restoreContent } from "./flat-content";
-import { saveFixedPage } from "./save-fixed-page";
+import { createEditorValues, type EditorValues } from "./flat-content";
+import { hasUnsavedChanges, saveFixedPage } from "./save-fixed-page";
 
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
+import { useLeaveConfirmation } from "@/api/leave-confirmation";
 import { useApiMutation, useApiCache } from "@/api/server-state/server-state";
 import { useAppForm } from "@/components/forms";
 import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/list/fixed-pages-query";
@@ -25,11 +25,22 @@ type Page = ApiOutputs["admin"]["fixedPages"]["get"];
 export type FixedPageEditorProps = {
   /** 種類の定義。 */
   kind: ApiOutputs["admin"]["kinds"]["get"];
-  /** 編集する固定ページ。 */
-  page?: Page | undefined;
   /** 保存できたときに呼ぶ関数。 */
   onSaved: (page: Page) => void;
-};
+} & (
+  | {
+      /** 編集する固定ページ(作成では無し)。 */
+      page?: undefined;
+      /** 削除できたときに呼ぶ関数(作成では無し)。 */
+      onDeleted?: undefined;
+    }
+  | {
+      /** 編集する固定ページ。 */
+      page: Page;
+      /** 削除できたときに呼ぶ関数。 */
+      onDeleted: () => void;
+    }
+);
 const SCHEMAS = { slug: fixedPageSlug, title: fixedPageTitle };
 
 const focusError = (root: HTMLElement | null, names: readonly string[]) => {
@@ -48,7 +59,7 @@ const focusError = (root: HTMLElement | null, names: readonly string[]) => {
   }
 };
 
-/** 固定ページの入力と保存の状態を持つ。 */
+/** 固定ページの入力と保存の状態と、保存していない変更を残して離れるときの確かめを持つ。 */
 export const useEditorForm = ({
   kind,
   page,
@@ -59,39 +70,26 @@ export const useEditorForm = ({
   const toast = useShowToast();
   const { refresh, replace } = useApiCache();
   const root = useRef<HTMLDivElement>(null);
-  const [initial] = useState(() => {
-    const { content, items, unknownKeys } = flattenContent(
-      createContentForm(kind.fields, page?.content),
-    );
-
-    return {
-      fields: kind.fields,
-      unknownKeys,
-      values: {
-        slug: page?.slug ?? "",
-        title: page?.title ?? "",
-        content,
-        items,
-      },
-    };
-  });
+  const [{ values: initial, ...base }] = useState(() =>
+    createEditorValues(kind.fields, page),
+  );
+  const saved = useRef(initial); // 開いたときの値か、最後に保存できた値
   const [errors, setErrors] = useState<EditorErrors>({ fields: {} });
 
   const saving = useApiMutation({
-    send: (value: typeof initial.values) =>
-      saveFixedPage(api, {
+    send: async (values: EditorValues) => ({
+      values,
+      result: await saveFixedPage(api, {
+        ...base,
         target: page === undefined ? { kind: kind.name } : { id: page.id },
-        slug: value.slug,
-        title: value.title,
-        fields: initial.fields,
-        submitted: restoreContent(initial.fields, {
-          ...value,
-          unknownKeys: initial.unknownKeys,
-        }),
+        values,
       }),
-    onSuccess: async (result) => {
+    }),
+    onSuccess: async ({ values, result }) => {
       if (result._tag === "Succeeded") {
         const isOpen = root.current !== null;
+
+        saved.current = values;
 
         if (isOpen) {
           toast({
@@ -117,23 +115,7 @@ export const useEditorForm = ({
         return;
       }
 
-      let next: EditorErrors;
-
-      switch (result._tag) {
-        case "SLUG_TAKEN":
-          next = { fields: { slug: t("fixedPageEditor.slugTaken") } };
-          break;
-        case "InvalidContent":
-          next = contentErrors(result.issues, t);
-          break;
-        case "NOT_FOUND":
-          next = { fields: {}, notice: t("fixedPageEditor.pageGone") };
-          break;
-        case "UNKNOWN_KIND":
-          next = { fields: {}, notice: t("fixedPageEditor.kindGone") };
-          break;
-      }
-
+      const next = refusedSaveErrors(result, t);
       const names = Object.keys(next.fields);
 
       setErrors(next);
@@ -141,9 +123,12 @@ export const useEditorForm = ({
         focusError(root.current, names);
       });
     },
+    onError: () => {
+      toast({ tone: "danger", message: t("fixedPageEditor.saveFailed") });
+    },
   });
   const form = useAppForm({
-    defaultValues: initial.values,
+    defaultValues: initial,
     canSubmitWhenInvalid: true,
     onSubmit: ({ value }) => {
       setErrors({ fields: {} });
@@ -158,6 +143,12 @@ export const useEditorForm = ({
       });
     },
   });
+  const leaving = useLeaveConfirmation(() =>
+    hasUnsavedChanges(base, {
+      saved: saved.current,
+      current: form.state.values,
+    }),
+  );
   const check =
     (key: "slug" | "title") =>
     ({ value }: Record<"value", string>) =>
@@ -174,12 +165,13 @@ export const useEditorForm = ({
 
   return {
     form,
-    fields: initial.fields,
+    fields: base.fields,
     errors,
     changed,
     check,
     root,
     saving,
+    leaving,
   };
 };
 

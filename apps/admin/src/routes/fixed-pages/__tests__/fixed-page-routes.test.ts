@@ -1,4 +1,4 @@
-import { cleanup, screen, waitFor } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
@@ -7,6 +7,14 @@ import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
+const clickSave = async (user: ReturnType<typeof userEvent.setup>) => {
+  const [save] = screen.getAllByRole("button", { name: "保存" });
+
+  if (save === undefined) throw new Error("保存のボタンがありません");
+
+  await user.click(save);
+};
+
 const session = {
   "admin/session/get": () => ({
     output: { expiresAt: "2026-11-23T00:00:00.000Z" },
@@ -141,7 +149,7 @@ test("一覧から種類を選んで作り、編集の画面から一覧に戻�
     screen.getByRole("textbox", { name: "リード文" }),
     "こんにちは",
   );
-  await user.click(screen.getByRole("button", { name: "保存" }));
+  await clickSave(user);
 
   expect(await screen.findByText("固定ページを作成しました。")).toBeDefined();
   const [created] = server.pages();
@@ -174,7 +182,7 @@ test("保存した直後にほかの画面へ移って戻っても、保存し�
 
   await user.clear(title);
   await user.type(title, "New title");
-  await user.click(screen.getByRole("button", { name: "保存" }));
+  await clickSave(user);
   await screen.findByText("固定ページを更新しました。");
   history.push("/");
   await screen.findByRole("heading", { name: "ホーム" });
@@ -221,8 +229,15 @@ test("保存の応答を待つ間に画面を離れたら、届いた応答を�
 
   await user.clear(title);
   await user.type(title, "Saved");
-  await user.click(screen.getByRole("button", { name: "保存" }));
+  await clickSave(user);
   history.push("/");
+  await user.click(
+    within(
+      await screen.findByRole("dialog", {
+        name: "保存していない変更があります",
+      }),
+    ).getByRole("button", { name: "変更を破棄" }),
+  );
   await screen.findByRole("heading", { name: "ホーム" });
   saving.resolve(undefined);
   await waitFor(() => {

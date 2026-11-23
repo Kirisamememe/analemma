@@ -20,32 +20,43 @@ import { Notice } from "@/ui/primitives/notice";
 
 type Page = ApiOutputs["admin"]["fixedPages"]["get"];
 
-type ScreenProps = {
-  /** 画面の名前。 */
-  title: string;
-  /** 画面の補足。 */
-  description?: string | undefined;
-  /** 見出しの下に置く中身。 */
+type FrameProps = {
+  /** 一覧へ戻る link の下に置く、見出しと中身。 */
   children: ReactNode;
 };
 
-const Screen = ({ title, description, children }: ScreenProps): ReactNode => {
+const Frame = ({ children }: FrameProps): ReactNode => {
   const { t } = useTranslation();
 
   return (
     <Center width="form">
-      <Stack gap={8}>
-        <Stack gap={3}>
-          <Text variant="caption">
-            <Link href="/fixed-pages">{t("fixedPageEditor.backToList")}</Link>
-          </Text>
-          <PageHeader description={description} title={title} />
-        </Stack>
+      <Stack gap={3}>
+        <Text variant="caption">
+          <Link href="/fixed-pages" icon="arrow-left">
+            {t("fixedPageEditor.backToList")}
+          </Link>
+        </Text>
         {children}
       </Stack>
     </Center>
   );
 };
+
+type ScreenProps = FrameProps & {
+  /** 画面の名前。 */
+  title: string;
+  /** 画面の補足。 */
+  description?: string | undefined;
+};
+
+const Screen = ({ title, description, children }: ScreenProps): ReactNode => (
+  <Frame>
+    <Stack gap={8}>
+      <PageHeader description={description} title={title} />
+      {children}
+    </Stack>
+  </Frame>
+);
 
 const Loading = (): ReactNode => {
   const { t } = useTranslation();
@@ -123,50 +134,39 @@ const NewPageEditor = ({ name }: NewPageEditorProps): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const kind = useKind(name);
-  const loaded = kind._tag === "Loaded" ? kind.data : undefined;
   const choose = (): void => {
     void navigate({ to: "/fixed-pages/new", search: {} });
   };
 
-  let body: ReactNode;
-
-  if (kind._tag === "Loading") {
-    body = <Loading />;
-  } else if (kind._tag === "Failed") {
-    body = <LoadFailed />;
-  } else if (kind.data._tag === "Failed") {
-    body = (
-      <Stack align="start" gap={3}>
-        <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
-        <Button onPress={choose}>{t("fixedPageEditor.chooseAgain")}</Button>
-      </Stack>
-    );
-  } else {
-    body = (
-      <FixedPageEditor
-        key={name}
-        kind={kind.data.data}
-        onSaved={(saved) => {
-          void navigate({
-            to: "/fixed-pages/$id",
-            params: { id: saved.id },
-            replace: true,
-          });
-        }}
-      />
+  if (kind._tag === "Loaded" && kind.data._tag === "Succeeded") {
+    return (
+      <Frame>
+        <FixedPageEditor
+          key={name}
+          kind={kind.data.data}
+          onSaved={(saved) => {
+            void navigate({
+              to: "/fixed-pages/$id",
+              params: { id: saved.id },
+              replace: true,
+              ignoreBlocker: true,
+            });
+          }}
+        />
+      </Frame>
     );
   }
 
   return (
-    <Screen
-      description={
-        loaded?._tag === "Succeeded"
-          ? t("fixedPageEditor.kindOf", { kind: loaded.data.label })
-          : undefined
-      }
-      title={t("fixedPageEditor.new")}
-    >
-      {body}
+    <Screen title={t("fixedPageEditor.new")}>
+      {kind._tag === "Loading" && <Loading />}
+      {kind._tag === "Failed" && <LoadFailed />}
+      {kind._tag === "Loaded" && (
+        <Stack align="start" gap={3}>
+          <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
+          <Button onPress={choose}>{t("fixedPageEditor.chooseAgain")}</Button>
+        </Stack>
+      )}
     </Screen>
   );
 };
@@ -195,34 +195,35 @@ type PageEditorProps = {
 
 const PageEditor = ({ page }: PageEditorProps): ReactNode => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const kind = useKind(page.kind);
-  let body: ReactNode;
-  let kindLabel = page.kind;
 
-  if (kind._tag === "Loading") {
-    body = <Loading />;
-  } else if (kind._tag === "Failed") {
-    body = <LoadFailed />;
-  } else if (kind.data._tag === "Failed") {
-    body = <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>;
-  } else {
-    kindLabel = kind.data.data.label;
-    body = (
-      <FixedPageEditor
-        key={page.id}
-        kind={kind.data.data}
-        onSaved={() => undefined}
-        page={page}
-      />
+  if (kind._tag === "Loaded" && kind.data._tag === "Succeeded") {
+    return (
+      <Frame>
+        <FixedPageEditor
+          key={page.id}
+          kind={kind.data.data}
+          onDeleted={() => {
+            void navigate({ to: "/fixed-pages", ignoreBlocker: true });
+          }}
+          onSaved={() => undefined}
+          page={page}
+        />
+      </Frame>
     );
   }
 
   return (
     <Screen
-      description={t("fixedPageEditor.kindOf", { kind: kindLabel })}
+      description={t("fixedPageEditor.kindOf", { kind: page.kind })}
       title={t("fixedPageEditor.edit")}
     >
-      {body}
+      {kind._tag === "Loading" && <Loading />}
+      {kind._tag === "Failed" && <LoadFailed />}
+      {kind._tag === "Loaded" && (
+        <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
+      )}
     </Screen>
   );
 };

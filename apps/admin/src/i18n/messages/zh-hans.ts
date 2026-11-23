@@ -20,7 +20,7 @@ export const zhHans = {
   "fixedPageEditor.save": "保存",
   "fixedPageEditor.saved": "固定页面已更新。",
   "fixedPageEditor.created": "固定页面已创建。",
-  "fixedPageEditor.saveFailed": "保存失败。",
+  "fixedPageEditor.saveFailed": "无法保存固定页面，请重试。",
   "fixedPageEditor.changedKind":
     "类型定义可能已更改。请重新加载页面并检查字段。",
   "fixedPageEditor.issue.type": "请输入值。",
@@ -35,6 +35,11 @@ export const zhHans = {
   "fixedPageEditor.remove": "删除{{label}}第 {{position}} 项",
   "fixedPageEditor.add": "添加{{label}}",
   "fixedPageEditor.backToList": "固定页面列表",
+  "fixedPageEditor.delete": "删除固定页面",
+  "fixedPageEditor.leaveTitle": "有尚未保存的更改",
+  "fixedPageEditor.leaveDescription": "离开此页面后，尚未保存的更改将会丢失。",
+  "fixedPageEditor.stay": "继续编辑",
+  "fixedPageEditor.leave": "放弃更改",
   "fixedPageEditor.urlHint": "请输入以 http:// 或 https:// 开头的 URL。",
   "fixedPageEditor.unboundIssue": "（{{path}}：{{message}}）",
   "fixedPageEditor.moveUp": "上移",
@@ -189,6 +194,5 @@ export const zhHans = {
     "删除的固定页面无法恢复，也会从公开网站上消失。",
   "fixedPages.cancel": "取消",
   "fixedPages.deleted": "已删除“{{title}}”。",
-  "fixedPages.notFound": "此固定页面已不存在。已重新加载列表。",
   "fixedPages.deleteFailed": "无法删除固定页面，请重试。",
 } satisfies Translation;

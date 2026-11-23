@@ -101,6 +101,8 @@ const signedIn = {
   "admin/fixedPages/update": ({ slug, title, content }) => ({
     output: { ...PAGE, slug, title, content },
   }),
+  "admin/fixedPages/delete": () => ({ output: undefined }),
+  "admin/fixedPages/list": () => ({ output: { pages: [] } }),
 } satisfies FakeRoutes;
 
 const meta = {
@@ -194,6 +196,29 @@ export const SaveFailed: Story = {
         error: "INTERNAL_SERVER_ERROR",
         defined: false,
       }),
+    }),
+  },
+};
+
+export const DeleteFailed: Story = {
+  args: {
+    /** 削除すると想定外の失敗を返す server(ゴミ箱のボタンから削除すると、Dialog の中に知らせが出る)。 */
+    createRoutes: () => ({
+      ...signedIn,
+      "admin/fixedPages/delete": () => ({
+        error: "INTERNAL_SERVER_ERROR",
+        defined: false,
+      }),
+    }),
+  },
+};
+
+export const DeletedElsewhere: Story = {
+  args: {
+    /** 削除するとページが無いと答える server(ほかで消えていたときの Dialog)。 */
+    createRoutes: () => ({
+      ...signedIn,
+      "admin/fixedPages/delete": () => ({ error: "NOT_FOUND" }),
     }),
   },
 };

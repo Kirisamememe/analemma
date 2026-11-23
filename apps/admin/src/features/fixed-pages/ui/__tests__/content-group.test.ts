@@ -39,7 +39,11 @@ test("要素の誤りをまとまりの説明にし、修正すると消し、�
       }),
     },
   });
-  await userEvent.click(await screen.findByRole("button", { name: "保存" }));
+  const [save] = await screen.findAllByRole("button", { name: "保存" });
+
+  if (save === undefined) throw new Error("保存のボタンがありません");
+
+  await userEvent.click(save);
   const row = await screen.findByRole("group", {
     name: "行 1",
     description: "入力してください。",
