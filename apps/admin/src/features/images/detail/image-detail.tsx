@@ -23,8 +23,8 @@ type ImageDetailProps = {
   image: Image;
   /** 読み込んでいる次の写真。 */
   pending?: Image | undefined;
-  /** 次の写真を待っているか。 */
-  waiting?: boolean;
+  /** 写真や情報の取得を待つ間の案内。 */
+  waiting?: string | undefined;
   /** 写真を送った向き。 */
   direction?: "previous" | "next" | undefined;
   /** 次の写真を表示する準備が整ったときに呼ぶ関数。 */
@@ -135,7 +135,7 @@ export const ImageDetail = ({
         const target = side === "previous" ? previous : next;
 
         if (target !== undefined && target.disabled !== true) {
-          onMove(`/images/${target.id}`);
+          onMove(target.href);
         }
       }}
       previous={previous}

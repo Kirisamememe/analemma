@@ -31,7 +31,7 @@ export const useViewerNavigation = (
     id === undefined
       ? undefined
       : {
-          id,
+          href: `/images/${id}`,
           disabled,
           label: t(
             side === "next" ? "imageDetail.next" : "imageDetail.previous",

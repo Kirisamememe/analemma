@@ -261,6 +261,8 @@ export const ja = {
   "imageDetail.backToList": "画像の一覧",
   "imageDetail.untitled": "無題の画像",
   "imageDetail.loading": "画像を読み込んでいます。",
+  "imageDetail.loadingInfo": "写真の情報を読み込んでいます。",
+  "imageDetail.loadingNeighbors": "前後の画像を確認しています。",
   "imageDetail.neighborsFailed": "前後の画像を読み込めませんでした",
   "imageDetail.loadFailed": "画像を読み込めませんでした",
   "imageDetail.gone": "この画像はもうありません。",

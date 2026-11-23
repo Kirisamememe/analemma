@@ -51,7 +51,12 @@ export const Link = ({
     return (
       <a
         aria-disabled={navigation.disabled || undefined}
-        className={link({ variant, className: "focus-visible:focus-ring" })}
+        className={link({
+          variant,
+          className: navigation.disabled
+            ? "focus-visible:focus-ring"
+            : "focus-visible:focus-ring active:state-pressed",
+        })}
         href={navigation.disabled ? undefined : href}
         ref={ref}
         role={navigation.disabled ? "link" : undefined}

@@ -13,17 +13,32 @@ type PhotoPointer = Pick<
   | "timeStamp"
 >;
 
+type GestureOptions = {
+  /** スワイプを始める写真の ID。 */
+  photoId?: string | undefined;
+  /** 写真や情報を取得しているか。 */
+  disabled?: boolean;
+};
+
 /** 写真のタップとスワイプを扱う。 */
 export const usePhotoGestures = (
   onSwipe: (direction: "previous" | "next") => void,
+  { photoId, disabled = false }: GestureOptions = {},
 ) => {
-  const touch = useRef<PhotoPointer>(undefined);
+  const touch = useRef<{
+    /** 指を置いたときのイベント。 */
+    event: PhotoPointer;
+    /** 指を置いた写真の ID。 */
+    photoId: string | undefined;
+  }>(undefined);
+
   const [controlsVisible, setControlsVisible] = useState(false);
 
   const onPointerDown = (event: PhotoPointer) => {
     touch.current = undefined;
 
     if (
+      disabled ||
       !event.isPrimary ||
       event.pointerType === "mouse" ||
       (event.target instanceof Element && event.target.closest("a, button"))
@@ -31,7 +46,7 @@ export const usePhotoGestures = (
       return;
     }
 
-    touch.current = event;
+    touch.current = { event, photoId };
   };
 
   const onPointerCancel = () => {
@@ -39,11 +54,18 @@ export const usePhotoGestures = (
   };
 
   const onPointerUp = (event: PhotoPointer) => {
-    const start = touch.current;
+    const origin = touch.current;
+    const start = origin?.event;
 
     touch.current = undefined;
 
-    if (start?.pointerId !== event.pointerId) return;
+    if (
+      disabled ||
+      origin?.photoId !== photoId ||
+      start?.pointerId !== event.pointerId
+    ) {
+      return;
+    }
 
     const dx = event.clientX - start.clientX;
     const dy = event.clientY - start.clientY;
