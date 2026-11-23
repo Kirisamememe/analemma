@@ -264,9 +264,16 @@ type Snapshot = {
   readonly parents: readonly string[];
   /** 置くファイルの名前と行数。 */
   readonly files: Readonly<Record<string, number>>;
+  /** コミットの日時(Unix 時間の秒)。 */
+  readonly committedAt?: number;
 };
 
-const commitFiles = ({ files, parents, root }: Snapshot): string => {
+const commitFiles = ({
+  committedAt = Math.floor(Date.now() / 1000),
+  files,
+  parents,
+  root,
+}: Snapshot): string => {
   git(root, "read-tree", "--empty");
 
   for (const [name, lines] of Object.entries(files)) {
@@ -274,14 +281,23 @@ const commitFiles = ({ files, parents, root }: Snapshot): string => {
     git(root, "add", name);
   }
 
-  return git(
-    root,
-    "commit-tree",
-    git(root, "write-tree"),
-    ...parents.flatMap((parent) => ["-p", parent]),
-    "-m",
+  const signature = `test <test@example.invalid> ${committedAt} +0000`;
+
+  const commit = [
+    `tree ${git(root, "write-tree")}`,
+    ...parents.map((parent) => `parent ${parent}`),
+    `author ${signature}`,
+    `committer ${signature}`,
+    "",
     "docs: 説明を足す",
-  );
+    "",
+  ].join("\n");
+
+  return spawnSync("git", ["hash-object", "-w", "-t", "commit", "--stdin"], {
+    cwd: root,
+    input: commit,
+    encoding: "utf8",
+  }).stdout.trim();
 };
 
 /** main が hotfix で先に進んだ一時リポジトリ。 */
@@ -304,12 +320,14 @@ const makePhaseWithHotfix = (name: string): PhaseWithHotfix => {
     root,
     parents: [branchPoint],
     files: { "phase.txt": 3 },
+    committedAt: 1_000_000_000,
   });
 
   const hotfix = commitFiles({
     root,
     parents: [branchPoint],
     files: { "hotfix.txt": 900 },
+    committedAt: 1_000_000_001,
   });
 
   git(root, "update-ref", "refs/remotes/origin/main", hotfix);
@@ -354,6 +372,43 @@ describe("PR 作成前の追加行数", () => {
 
     const result = await checkPullRequest({
       pullRequest: { root, base: advanced, commits: [head] },
+      title: "chore: main を取り込む",
+    });
+
+    expect(result.stdout).toContain("追加 10 行");
+    expect(result.status).toBe(0);
+  });
+
+  test("先に main を取り込んだ PR が入った後も、後の取り込みに足した分だけを数えること", async () => {
+    const { root, base, hotfix } = makePhaseWithHotfix("size-main-sync-twice");
+
+    const firstSync = commitFiles({
+      root,
+      parents: [base, hotfix],
+      files: { "phase.txt": 3, "hotfix.txt": 900 },
+    });
+
+    const nextHotfix = commitFiles({
+      root,
+      parents: [hotfix],
+      files: { "hotfix.txt": 900, "next-hotfix.txt": 5 },
+    });
+
+    git(root, "update-ref", "refs/remotes/origin/main", nextHotfix);
+
+    const head = commitFiles({
+      root,
+      parents: [base, nextHotfix],
+      files: {
+        "phase.txt": 3,
+        "hotfix.txt": 900,
+        "next-hotfix.txt": 5,
+        "resolution.txt": 10,
+      },
+    });
+
+    const result = await checkPullRequest({
+      pullRequest: { root, base: firstSync, commits: [head] },
       title: "chore: main を取り込む",
     });
 
