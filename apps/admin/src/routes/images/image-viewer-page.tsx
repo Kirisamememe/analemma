@@ -13,11 +13,8 @@ import {
   imageQueryKey,
   loadImage,
 } from "@/features/images/detail/queries/image-query";
-import {
-  ViewerFrame,
-  ViewerLoading,
-  ViewerMessage,
-} from "@/features/images/ui/image-viewer";
+import { ViewerFrame, ViewerMessage } from "@/features/images/ui/image-viewer";
+import { ViewerLoading } from "@/features/images/ui/viewer-loading";
 import { Text } from "@/ui/layout";
 import { ErrorState } from "@/ui/patterns";
 import { Link } from "@/ui/primitives/navigation";
@@ -45,7 +42,6 @@ export const ImageViewerPage = (): ReactNode => {
 
   const query = useApiQuery({
     key: imageQueryKey(id),
-    keepDataOnRefreshError: true,
     load: () => loadImage(api, id),
   });
 
