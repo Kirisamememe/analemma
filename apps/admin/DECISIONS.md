@@ -173,7 +173,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - `callApi` は呼び出し側が扱う code だけを `Failed` で返し、ほかの失敗は元の error を throw する。セッション切れを表す `UNAUTHORIZED` を query client に届け、ログインの画面への移動を query client に任せるため。
 - `useApiMutation` は、送信か送信後の処理が想定外の失敗で終わったら `onError` を呼ぶ。操作の失敗を、Dialog の中で送ったものも外で送ったものも、Toast で知らせるため。セッション切れ(`UNAUTHORIZED`)では呼ばない。query client がログインの画面に移すので、閉じるまで残る失敗の Toast を、ログインの画面に持ち越さない。
 - `useApiMutation` は `send` の Promise が resolve したら `onSuccess` を呼ぶ。もう無いパスキーを操作したときの `NotFound` など、操作が断られた結果も `onSuccess` に渡り、その処理が完了すると `data` に入る。`send` や `onSuccess` が error で終わると `isError` が立つ。同じ操作を続けて送らせないよう、`onSuccess` の処理が終わるまで `isPending` を保つ。
-- 取得に失敗したら、`useApiQuery` の `Failed` が返す `retry` で取り直す。TanStack Query は、データの無い取得を取り直すと pending に戻すが、前に失敗していたら(`errorUpdateCount`)、取り直している間も `Failed` を返し、`isRetrying` を立てる。`isRetrying` は、取得が終わるまで(`fetchStatus` が `idle` に戻るまで)立てる。TanStack Query は、画面が隠れている間の次の試行を一時停止し(`paused`)、その間は `isFetching` が false になるので、`isFetching` で見ると一時停止を失敗と取り違える。Loading に戻すと、読み込めなかった欄が「読み込んでいます」に替わり、押したボタンと送信中の表示が消える。一度失敗した取得を、画面を開き直して取り直す間も、同じく読み込めなかった欄を出したまま取り直す。
+- 取得に失敗したら、`useApiQuery` の `Failed` が返す `retry` で取り直す。TanStack Query は、データの無い取得を取り直すと pending に戻すが、前に失敗していたら(`errorUpdateCount`)、取り直している間も `Failed` を返し、`isRetrying` を立てる。`isRetrying` は、取得が終わるまで(`fetchStatus` が `idle` に戻るまで)立てる。TanStack Query は、画面が隠れている間の次の試行を一時停止し(`paused`)、その間は `isFetching` が false になるので、`isFetching` で見ると一時停止を失敗と取り違える。Loading に戻すと、読み込めなかった欄が「読み込んでいます」に替わり、押したボタンと送信中の表示が消える。画面を開き直したとき、キャッシュに取得の失敗が残っていれば、読み込めなかった欄を出したまま取り直す。`discardWhenUnused` で画面を離れたときにキャッシュを捨てた取得は、読み込み中から始まる。
 - 再取得に失敗したときは `useApiQuery` が `Failed` を返す。前のデータを表示すると、再取得できたように見えるため。
 - 画面を離れる前の確かめは、TanStack Router の `useBlocker` を `useLeaveConfirmation`(`src/api/leave-confirmation.ts`)で包む。features は確かめが要るかを返す関数を渡し、確かめの状態(`Idle`・`Asking`)と、離れる・残る操作だけを受け取る。管理画面の中の移動は管理画面の Dialog で確かめ、タブを閉じる・読み込み直すときはブラウザに確かめさせる。確かめが要るかは移るときに関数を呼んで決め、state に持たないので、入力のたびに state を更新せず、effect も要らない。
 - 今回の適用範囲は `src/features/`。route ごとの画面を置く `src/routes/` は今は外のライブラリを直接 import する。
@@ -219,7 +219,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - 画面の状態は、その場の `Notice` で知らせる。もう無いページや種類のように、直すか見直すまで続くもの。
 - 読み込めなかったことは、中身の代わりに読み込めなかった欄(`ErrorState`)を出し、その中で取り直せるようにする(ユーザーが決めた)。`Notice` の1行では、次にすることも、取り直す手段も無かった。
 - 押したボタンだけにかかわる結果(トークンのコピー)は、ボタンの文言とアイコンで返す(`src/features/deploy-tokens/DECISIONS.md`)。
-- ログインと登録用 URL の画面の結果は、中身で分ける。押し直しても変わらない、画面の状態を表すもの(URL に token が無い・登録用 URL が使えない・その認証器はもう登録済み)は、読み込めなかったことと同じく、画面の `Notice` に残す。直すには登録用 URL を出し直すか、ログインの画面へ移る必要があり、そのことを画面に残しておく。押し直せば済む、操作の一時的な結果(server がログインや登録を断った・登録されていないパスキー・時間切れ・通信の失敗)は、ほかの操作と同じく失敗の Toast で知らせ、押し直すときに閉じる。利用者が自分で閉じたキャンセルは、Dialog と同じく何も知らせない。
+- ログインと登録用 URL の画面の結果は、中身で分ける。押し直しても変わらない、画面の状態を表すもの(URL に token が無い・登録用 URL が使えない・その認証器はもう登録済み)は、画面の `Notice` に残す。直すには登録用 URL を出し直すか、ログインの画面へ移る必要があり、そのことを画面に残しておく。押し直せば済む、操作の一時的な結果(server がログインや登録を断った・登録されていないパスキー・時間切れ・通信の失敗)は、ほかの操作と同じく失敗の Toast で知らせ、押し直すときに閉じる。利用者が自分で閉じたキャンセルは、Dialog と同じく何も知らせない。
 
 ## `.ts` と `.tsx`
 
