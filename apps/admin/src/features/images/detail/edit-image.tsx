@@ -86,6 +86,8 @@ const EditImageDialog = ({
         showToast({ tone: "success", message: t("imageDetail.saved") });
       } else {
         failure.show(t("imageDetail.gone"));
+        leaving.leave();
+        onClose();
         await refresh(imageQueryKey(image.id)); // もう無いことを、画面にも出す
         await refresh(IMAGES_QUERY_KEY);
       }
