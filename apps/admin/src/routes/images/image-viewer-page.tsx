@@ -1,26 +1,23 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { memo, type ReactNode, type RefObject, useRef, useState } from "react";
+import { memo, type ReactNode, type RefObject, use, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ImageViewerActions } from "./image-viewer-actions";
 import { useViewerNavigation } from "./use-viewer-navigation";
+import { ImageViewerContext } from "./image-viewer-context";
+import { useImageVisit } from "./use-image-visit";
 
 import { useImageNeighbors } from "@/features/images/detail/hooks/use-image-neighbors";
-import { useViewerImage } from "@/features/images/detail/hooks/use-viewer-image";
 import { ImageDetail } from "@/features/images/detail/image-detail";
-import { ViewerFrame, ViewerMessage } from "@/features/images/ui/image-viewer";
+import {
+  ViewerFrame,
+  ViewerMessage,
+} from "@/features/images/ui/image-viewer";
 import { ViewerVisit } from "@/features/images/ui/viewer-visit";
 import { Heading, PageTransition, Text } from "@/ui/layout";
 import { ErrorState, LoadingState } from "@/ui/patterns";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
-
-type PhotoVisit = {
-  /** 表示する写真の ID。 */
-  id: string;
-  /** 一覧を新しい順に並べたときの移動方向。 */
-  direction?: "previous" | "next";
-};
 
 type BackProps = {
   /** 一覧へ戻るリンク。 */
@@ -28,6 +25,7 @@ type BackProps = {
 };
 
 const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
+  const state = use(ImageViewerContext);
   const id = useParams({
     from: "/images/$id",
     select: (params) => params.id.toLowerCase(),
@@ -37,33 +35,38 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
   const navigation = useViewerNavigation(back);
   const navigate = useNavigate();
   const neighbors = useImageNeighbors(id);
-  const query = useViewerImage(id);
   const failure = neighbors?.failure;
-  const [visit, setVisit] = useState<PhotoVisit>({ id });
 
-  if (visit.id !== id) {
-    setVisit({ id, direction: id < visit.id ? "next" : "previous" });
-  }
+  if (state === undefined) return null;
 
-  const image =
-    query._tag === "Loaded" && query.data._tag === "Succeeded"
-      ? query.data.data
-      : undefined;
+  const { shown, pending, query, direction, settle } = state;
 
   const ready =
     query._tag !== "Loading" &&
-    (image === undefined || neighbors !== undefined);
+    (shown === undefined || neighbors !== undefined);
+
+  const error =
+    query._tag === "Failed" ? (
+      <ErrorState
+        retryRef={navigation.retryRef}
+        isRetrying={query.isRetrying}
+        layout={shown === undefined ? "screen" : "inline"}
+        level={shown === undefined ? 1 : 2}
+        onRetry={() => {
+          navigation.retry(id, query.retry);
+        }}
+        title={t("imageDetail.loadFailed")}
+      />
+    ) : undefined;
 
   return (
     <ViewerVisit
-      direction={visit.direction}
       ref={(element) => {
         if (element !== null && ready) navigation.restore(id);
       }}
     >
-      {image !== undefined && (
+      {shown !== undefined && (
         <ImageDetail
-          key={id}
           navigationError={
             failure && (
               <ErrorState
@@ -78,7 +81,12 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
               />
             )
           }
-          image={image}
+          image={shown}
+          error={error}
+          pending={pending}
+          waiting={shown.id !== id}
+          direction={shown.id === id ? direction : undefined}
+          onSettled={settle}
           next={navigation.neighbor("next", neighbors?.next)}
           previous={navigation.neighbor("previous", neighbors?.previous)}
           onMove={(href) => {
@@ -86,24 +94,11 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
           }}
         />
       )}
-      {query._tag === "Loading" && (
-        <LoadingState layout="media" label={t("imageDetail.loading")} />
+      {query._tag === "Loading" && shown === undefined && <LoadingState layout="media" label={t("imageDetail.loading")} />}
+      {error !== undefined && shown === undefined && (
+        <ViewerMessage>{error}</ViewerMessage>
       )}
-      {query._tag === "Failed" && (
-        <ViewerMessage>
-          <ErrorState
-            retryRef={navigation.retryRef}
-            isRetrying={query.isRetrying}
-            layout="screen"
-            level={1}
-            onRetry={() => {
-              navigation.retry(id, query.retry);
-            }}
-            title={t("imageDetail.loadFailed")}
-          />
-        </ViewerMessage>
-      )}
-      {query._tag === "Loaded" && image === undefined && (
+      {query._tag === "Loaded" && shown === undefined && (
         <ViewerMessage>
           <Notice tone="warning">
             <Heading level={1} variant="section">
@@ -129,7 +124,7 @@ const ViewerBack = ({ back }: BackProps): ReactNode => {
 };
 
 /** 写真の切り替えをまたいで、ビューアの帯と一覧へのリンクを保つ。 */
-const ViewerScreen = (): ReactNode => {
+const ViewerScreenContent = (): ReactNode => {
   const back = useRef<HTMLAnchorElement>(null);
   return (
     <PageTransition>
@@ -143,5 +138,19 @@ const ViewerScreen = (): ReactNode => {
   );
 };
 
+const ViewerScreen = memo(ViewerScreenContent);
+
 /** ナビの外に置く写真のビューア。 */
-export const ImageViewerPage = memo(ViewerScreen);
+export const ImageViewerPage = (): ReactNode => {
+  const id = useParams({
+    from: "/images/$id",
+    select: (params) => params.id.toLowerCase(),
+  });
+  const state = useImageVisit(id);
+
+  return (
+    <ImageViewerContext value={state}>
+      <ViewerScreen />
+    </ImageViewerContext>
+  );
+};
