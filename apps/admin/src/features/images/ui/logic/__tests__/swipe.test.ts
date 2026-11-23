@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { toSwipe } from "../swipe";
+import { isTap, toSwipe } from "../swipe";
 
 describe("toSwipe", () => {
   test("右へのスワイプは前の画像、左へのスワイプは次の画像にする", () => {
@@ -19,5 +19,13 @@ describe("toSwipe", () => {
     expect(toSwipe({ dx: 30, dy: 0, duration: 100 })).toBeUndefined();
     expect(toSwipe({ dx: 80, dy: 70, duration: 200 })).toBeUndefined();
     expect(toSwipe({ dx: -200, dy: 0, duration: 1200 })).toBeUndefined();
+  });
+});
+
+describe("isTap", () => {
+  test("10px 以内を、0.5秒より短く触れたときだけ、タップと見なす", () => {
+    expect(isTap({ dx: 6, dy: 8, duration: 499 })).toBe(true);
+    expect(isTap({ dx: 6, dy: 9, duration: 100 })).toBe(false);
+    expect(isTap({ dx: 0, dy: 0, duration: 500 })).toBe(false);
   });
 });

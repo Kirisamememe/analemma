@@ -1,11 +1,11 @@
-import { type ReactNode, useRef, useState } from "react";
+import { memo, type ReactNode, useReducer, useRef } from "react";
 
 import { type DeliveryImages, toSrcSet } from "./logic/delivery-image";
+import { nextPhotoLoad, PHOTO_LOADING } from "./logic/photo-load";
+import { PhotoProgress } from "./photo-progress";
 
 import { useTranslate } from "@/i18n/use-translate";
-import { Text } from "@/ui/layout";
-import { ErrorState, LoadingStatus } from "@/ui/patterns";
-import { Spinner } from "@/ui/primitives/graphics";
+import { ErrorState } from "@/ui/patterns";
 import { tv } from "@/ui/tv";
 
 const photo = tv({
@@ -20,11 +20,6 @@ const photo = tv({
       "md:size-full md:max-h-none md:min-h-0 md:min-w-0",
     ],
     error: "col-start-1 row-start-1 max-h-full overflow-y-auto",
-    notice: "absolute inset-0 flex items-center justify-center",
-    loading: [
-      "flex items-center gap-2 rounded-surface bg-surface px-4 py-2",
-      "transition-opacity loading-delay starting:opacity-0 forced-colors:hidden",
-    ],
   },
   variants: {
     visible: { false: { image: "invisible" } },
@@ -48,28 +43,35 @@ type ViewerPhotoProps = {
   pending?: boolean;
   /** 写真を送った向き。 */
   direction?: "previous" | "next" | undefined;
-  /** 写真の読み込みが成功または失敗したときに呼ぶ関数。 */
-  onSettled?: (() => void) | undefined;
+  /** 読み込みを待っている写真の ID(`onSettled` に渡す)。 */
+  photoId?: string | undefined;
+  /** 写真の読み込みが成功または失敗したときに、写真の ID を渡して呼ぶ関数。 */
+  onSettled?: ((id: string) => void) | undefined;
 };
 
-/** 写真と配信中・配信失敗のお知らせ。 */
-export const ViewerPhoto = ({
+const ViewerPhotoContent = ({
   images,
   smallest,
   largest,
   alt,
   pending = false,
   direction,
+  photoId,
   onSettled,
 }: ViewerPhotoProps): ReactNode => {
   const t = useTranslate();
 
-  const [status, setStatus] = useState<
-    "loading" | "loaded" | "failed" | "retrying"
-  >("loading");
+  const [{ status, attempt }, dispatch] = useReducer(
+    nextPhotoLoad,
+    PHOTO_LOADING,
+  );
 
-  const [attempt, setAttempt] = useState(0);
   const retrySource = useRef<Element | null>(null);
+
+  const settled = (): void => {
+    if (photoId !== undefined) onSettled?.(photoId);
+  };
+
   const style = photo({ visible: status === "loaded", pending });
 
   return (
@@ -86,12 +88,12 @@ export const ViewerPhoto = ({
         height={largest.height}
         key={attempt}
         onError={() => {
-          setStatus("failed");
-          onSettled?.();
+          dispatch("error");
+          settled();
         }}
         onLoad={() => {
-          setStatus("loaded");
-          onSettled?.();
+          dispatch("load");
+          settled();
         }}
         ref={(image) => {
           const source = retrySource.current;
@@ -114,13 +116,7 @@ export const ViewerPhoto = ({
         width={largest.width}
       />
       {status === "loading" && (
-        <div className={style.notice()}>
-          <LoadingStatus label={t("imageViewer.loading")} />
-          <span aria-hidden="true" className={style.loading()}>
-            <Spinner />
-            <Text as="span">{t("imageViewer.loading")}</Text>
-          </span>
-        </div>
+        <PhotoProgress label={t("imageViewer.loading")} place="center" />
       )}
       {(status === "failed" || status === "retrying") && (
         <div className={style.error()}>
@@ -133,8 +129,7 @@ export const ViewerPhoto = ({
                 document.activeElement instanceof HTMLButtonElement
                   ? document.activeElement
                   : null;
-              setStatus("retrying");
-              setAttempt((count) => count + 1);
+              dispatch("retry");
             }}
             title={t("imageViewer.loadFailed")}
           />
@@ -143,3 +138,6 @@ export const ViewerPhoto = ({
     </div>
   );
 };
+
+/** 写真と配信中・配信失敗のお知らせ。 */
+export const ViewerPhoto = memo(ViewerPhotoContent);

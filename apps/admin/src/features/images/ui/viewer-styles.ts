@@ -21,11 +21,6 @@ const viewer = tv({
       "group",
       "touch-pan-y touch-pinch-zoom", // 横の動きはスワイプに使い、縦の scroll と拡大は残す
     ],
-    progress: [
-      "absolute top-4 flex items-center gap-2",
-      "rounded-surface bg-surface px-4 py-2",
-      "pointer-events-none loading-state-animation forced-colors:hidden",
-    ],
     missing: [
       "flex aspect-photo w-full flex-col items-center justify-center gap-2",
       "text-fg-muted md:w-auto md:max-w-md",

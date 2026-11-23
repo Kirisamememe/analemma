@@ -24,3 +24,10 @@ export const toSwipe = ({
 
   return dx > 0 ? "previous" : "next";
 };
+
+const TAP_DISTANCE = 10;
+const TAP_DURATION = 500;
+
+/** 指の動きが、写真を軽く叩いただけかを返す。 */
+export const isTap = ({ dx, dy, duration }: Stroke): boolean =>
+  Math.hypot(dx, dy) <= TAP_DISTANCE && duration < TAP_DURATION;
