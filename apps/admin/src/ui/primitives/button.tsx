@@ -27,6 +27,10 @@ const button = tv({
     size: {
       md: "h-control px-4",
       sm: "h-control-sm px-3",
+      "sm-to-md": [
+        "relative h-control-sm px-3 whitespace-nowrap md:h-control md:px-4",
+        "max-md:after:absolute max-md:after:inset-x-0 max-md:after:-inset-y-2",
+      ],
     },
     iconOnly: {
       true: "aspect-square px-0",
@@ -43,6 +47,13 @@ const button = tv({
       true: { face: "opacity-0" },
     },
   },
+  compoundVariants: [
+    {
+      size: "sm-to-md",
+      iconOnly: true,
+      class: { base: "max-md:after:-inset-x-2 md:px-0" },
+    },
+  ],
 });
 
 /** ボタンの中身(文言か、アクセシブルな名前を付けたアイコン)。 */
@@ -68,8 +79,8 @@ type ButtonContent =
 type ButtonProps = ButtonContent & {
   /** 見た目の用途。 */
   tone?: "primary" | "secondary" | "quiet" | "danger";
-  /** 高さ。 */
-  size?: "md" | "sm";
+  /** 画面幅に応じたボタンの高さ。 */
+  size?: "md" | "sm" | "sm-to-md";
   /** `icon` で指定したアイコンの線の太さ。 */
   iconWeight?: "regular" | "bold";
   /** 角の丸み。 */

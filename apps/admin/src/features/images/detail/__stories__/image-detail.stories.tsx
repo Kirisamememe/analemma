@@ -26,7 +26,7 @@ const meta = {
       <ViewerFrame
         back={
           <Link href="/" variant="back">
-            画像の一覧
+            一覧へ
           </Link>
         }
       >

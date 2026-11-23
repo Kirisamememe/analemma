@@ -258,7 +258,7 @@ export const ja = {
   "images.unpublished": "非公開",
   "images.noDeliveryImage": "表示用の画像がまだありません",
   "images.loadMore": "さらに読み込む",
-  "imageDetail.backToList": "画像の一覧",
+  "imageDetail.backToList": "一覧へ",
   "imageDetail.untitled": "無題の画像",
   "imageDetail.loading": "画像を読み込んでいます。",
   "imageDetail.loadingInfo": "写真の情報を読み込んでいます。",

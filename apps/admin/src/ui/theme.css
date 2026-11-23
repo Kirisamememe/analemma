@@ -158,6 +158,7 @@
   --aspect-photo: 3 / 2;
 
   --container-3xs: 16rem;
+  --container-xs: 20rem;
   --container-sm: 24rem;
   --container-md: 28rem;
   --container-lg: 32rem;
@@ -234,6 +235,10 @@
 
 @utility max-h-viewer-photo {
   max-height: calc(100dvh - var(--size-nav-bar));
+}
+
+@utility min-h-nav-bar {
+  min-height: var(--size-nav-bar);
 }
 
 @utility h-nav-bar {

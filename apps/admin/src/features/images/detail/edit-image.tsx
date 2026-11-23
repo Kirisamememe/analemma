@@ -272,6 +272,7 @@ const EditButton = ({
   return (
     <>
       <Button
+        size="sm-to-md"
         isDisabled={isDisabled}
         isPending={opening.isPending || isSaving}
         onPress={() => {

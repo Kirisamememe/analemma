@@ -27,7 +27,7 @@ test("移った写真の前後とも無いときは、一覧へのリンクに f
   await screen.findByRole("heading", { name: "港の灯り" });
   await waitFor(() => {
     expect(document.activeElement).toBe(
-      screen.getByRole("link", { name: "画像の一覧" }),
+      screen.getByRole("link", { name: "一覧へ" }),
     );
   });
 });

@@ -228,7 +228,7 @@ export const zhHans = {
   "images.unpublished": "未公开",
   "images.noDeliveryImage": "还没有可显示的图片",
   "images.loadMore": "加载更多",
-  "imageDetail.backToList": "图片列表",
+  "imageDetail.backToList": "返回列表",
   "imageDetail.untitled": "无标题图片",
   "imageDetail.loading": "正在加载图片。",
   "imageDetail.loadingInfo": "正在加载照片信息。",

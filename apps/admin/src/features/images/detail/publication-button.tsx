@@ -91,6 +91,7 @@ export const PublicationButton = ({
   return (
     <>
       <Button
+        size="sm-to-md"
         isDisabled={isDisabled}
         isPending={publication.isPending && !confirming}
         onPress={() => {
