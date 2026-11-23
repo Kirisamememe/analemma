@@ -135,7 +135,7 @@ contract を4つのアクセス区分に分け、server ではそれぞれの ba
 - `migrate()` は、migration が空でも、`drizzle` という PostgreSQL のスキーマと `__drizzle_migrations` テーブルを作る。DB への CREATE 権限が要るので、ロールは DB の持ち主にする。開発とテストでは、server も同じロールでつなぐ。本番で実行用のロールを DML だけに絞るかは、本番の置き場所と一緒に決める。
 - migration は drizzle-kit(`bun run db:generate`)で `src/db/migrations/` に書き出す。Drizzle の `migrate()` は、フォルダが無いと失敗する。
 - テーブル定義を変えて migration を生成し忘れると、テストの DB にも本番にも新しい形が入らない。`src/db/__tests__/schema-drift.test.ts` が、migration のフォルダを一時的なフォルダに写して `drizzle-kit generate` を流し、差分が出ないこと(新しい migration が書かれないこと)を確かめる。リポジトリの migration のフォルダには書かない。drizzle-kit の設定は `drizzle.config.ts` を読み込んで `out` だけを差し替え、設定を写さない。
-- bytea の列は、Drizzle の `bytea` ではなく `src/db/schema/bytes.ts` の型で読み書きする。Drizzle の `bytea` は Node の `Buffer` の型を持つ。feature のコードは Web 標準の `Uint8Array` で書くので、読むときに `Uint8Array` に写す。
+- bytea の列は、Drizzle の `bytea` ではなく `src/db/bytes.ts` の型で読み書きする。Drizzle の `bytea` は Node の `Buffer` の型を持つ。feature のコードは Web 標準の `Uint8Array` で書くので、読むときに `Uint8Array` に写す。
 - `src/db/migrations/` は生成物なので、フォルダの名前と数の検査と、oxfmt の整形から外している(理由は `tooling/DECISIONS.md` の「フォルダの整理」)。このフォルダは、`drizzle.config.ts` の `out`・`MIGRATIONS_FOLDER`・structure の検査の除外・`.oxfmtrc.json` の4か所に書くので、そろっていることをテストで確かめる。
 
 ## テストの DB
