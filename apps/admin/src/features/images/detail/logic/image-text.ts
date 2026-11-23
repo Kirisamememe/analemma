@@ -8,7 +8,10 @@ type Image = ApiOutputs["admin"]["images"]["get"];
 export type ImageText = Record<"title" | "description" | "alt", string>;
 
 /** 画像のフォームの欄の名前。 */
-export type ImageTextName = keyof ImageText;
+type ImageTextName = keyof ImageText;
+
+/** 画像のフォームに並ぶ欄。 */
+export const imageTextFields = ["title", "description", "alt"] as const;
 
 const SCHEMAS = {
   title: imageTitle,
@@ -46,22 +49,11 @@ export const toUpdateInput = (
 export const isValidImageText = (name: ImageTextName, value: string): boolean =>
   toNullable(value) === null || SCHEMAS[name].safeParse(value).success;
 
-/** 比べるフォームの値。 */
-type Comparison = {
-  /** 開いたときか、最後に保存できたときの値。 */
-  readonly saved: ImageText;
-  /** 今の値。 */
-  readonly current: ImageText;
-};
-
 /** 保存した値と今の値とで、書き換えで送る値が違うか。 */
-export const hasUnsavedChanges = ({ saved, current }: Comparison): boolean => {
-  const before = toUpdateInput(saved);
-  const after = toUpdateInput(current);
-
-  return (
-    before.title !== after.title ||
-    before.description !== after.description ||
-    before.alt !== after.alt
+export const hasUnsavedChanges = (
+  saved: ImageText,
+  current: ImageText,
+): boolean =>
+  imageTextFields.some(
+    (name) => toNullable(saved[name]) !== toNullable(current[name]),
   );
-};

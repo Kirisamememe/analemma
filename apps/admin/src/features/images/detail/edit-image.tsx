@@ -1,7 +1,8 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useId, useState } from "react";
 
 import {
   hasUnsavedChanges,
+  imageTextFields,
   isValidImageText,
   toImageText,
 } from "./logic/image-text";
@@ -14,8 +15,12 @@ import {
 
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
-import { useLeaveConfirmation } from "@/api/leave-confirmation";
-import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
+import {
+  useApiCache,
+  useApiMutation,
+  useIsApiMutationPending,
+} from "@/api/server-state/server-state";
+import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
 import { checkAfterSubmit, useAppForm } from "@/components/forms";
 import { IMAGES_QUERY_KEY } from "@/features/images/queries/images-query";
 import { type MessageKey, useTranslate } from "@/i18n/use-translate";
@@ -29,6 +34,8 @@ import {
 } from "@/ui/primitives/overlays";
 
 type Image = ApiOutputs["admin"]["images"]["get"];
+
+const saveKey = (id: string) => ["admin", "images", "update", id];
 
 const INVALID: Readonly<Record<"title" | "description" | "alt", MessageKey>> = {
   title: "imageDetail.invalidTitle",
@@ -56,6 +63,7 @@ const EditImageDialog = ({
 
   const [confirmClose, setConfirmClose] = useState(false);
   const initial = toImageText(image);
+  const descriptionId = useId();
 
   const close = (): void => {
     failure.close();
@@ -63,22 +71,22 @@ const EditImageDialog = ({
   };
 
   const saving = useApiMutation({
-    send: async (values: ReturnType<typeof toImageText>) => ({
-      id: image.id,
-      result: await saveImage(api, { id: image.id, values }),
-    }),
-    onSuccess: async ({ result, id }) => {
+    key: saveKey(image.id),
+    send: (values: ReturnType<typeof toImageText>) =>
+      saveImage(api, { id: image.id, values }),
+    onSuccess: async (result) => {
       if (result._tag === "Saved") {
         await replace(imageQueryKey(result.image.id), {
           _tag: "Succeeded",
           data: result.image,
         } satisfies LoadedImage);
         await refresh(IMAGES_QUERY_KEY);
+        leaving.leave();
         onClose();
         showToast({ tone: "success", message: t("imageDetail.saved") });
       } else {
         failure.show(t("imageDetail.gone"));
-        await refresh(imageQueryKey(id)); // もう無いことを、画面にも出す
+        await refresh(imageQueryKey(image.id)); // もう無いことを、画面にも出す
         await refresh(IMAGES_QUERY_KEY);
       }
     },
@@ -96,12 +104,25 @@ const EditImageDialog = ({
     },
   });
 
-  const changed = (): boolean =>
-    hasUnsavedChanges({ saved: initial, current: form.state.values });
+  const changed = (): boolean => hasUnsavedChanges(initial, form.state.values);
 
   const leaving = useLeaveConfirmation(() => saving.isPending || changed());
 
   const leavingWhileSaving = leaving._tag === "Asking" && saving.isPending;
+
+  const prompt = leavingWhileSaving
+    ? {
+        title: t("imageDetail.leavingWhileSaving"),
+        description: t("imageDetail.savingWillContinue"),
+        stay: t("imageDetail.waitForSave"),
+        leave: t("imageDetail.leaveDuringSave"),
+      }
+    : {
+        title: t("imageDetail.discardTitle"),
+        description: t("imageDetail.discardDescription"),
+        stay: t("imageDetail.continueEditing"),
+        leave: t("imageDetail.discard"),
+      };
 
   const requestClose = (): void => {
     if (changed()) setConfirmClose(true);
@@ -109,7 +130,7 @@ const EditImageDialog = ({
   };
 
   const stay = (): void => {
-    if (leaving._tag === "Asking") leaving.stay();
+    leaving.stay();
 
     setConfirmClose(false);
   };
@@ -131,39 +152,31 @@ const EditImageDialog = ({
       >
         <form.AppForm>
           <form.Form isPending={saving.isPending}>
-            <form.AppField
-              name="title"
-              validators={{ onChange: check("title") }}
-            >
-              {(field) => (
-                <field.TextField
-                  isReadOnly={saving.isPending}
-                  autoComplete="off"
-                  label={t("imageDetail.title")}
-                />
-              )}
-            </form.AppField>
-            <form.AppField
-              name="description"
-              validators={{ onChange: check("description") }}
-            >
-              {(field) => (
-                <field.TextArea
-                  isReadOnly={saving.isPending}
-                  label={t("imageDetail.description")}
-                />
-              )}
-            </form.AppField>
-            <form.AppField name="alt" validators={{ onChange: check("alt") }}>
-              {(field) => (
-                <field.TextField
-                  isReadOnly={saving.isPending}
-                  autoComplete="off"
-                  description={t("imageDetail.altHint")}
-                  label={t("imageDetail.alt")}
-                />
-              )}
-            </form.AppField>
+            {imageTextFields.map((name) => (
+              <form.AppField
+                key={name}
+                name={name}
+                validators={{ onChange: check(name) }}
+              >
+                {(field) =>
+                  name === "description" ? (
+                    <field.TextArea
+                      isReadOnly={saving.isPending}
+                      label={t("imageDetail.description")}
+                    />
+                  ) : (
+                    <field.TextField
+                      autoComplete="off"
+                      description={
+                        name === "alt" ? t("imageDetail.altHint") : undefined
+                      }
+                      isReadOnly={saving.isPending}
+                      label={t(`imageDetail.${name}`)}
+                    />
+                  )
+                }
+              </form.AppField>
+            ))}
             <Cluster gap={2} justify="end">
               <Button isDisabled={saving.isPending} onPress={requestClose}>
                 {t("imageDetail.cancel")}
@@ -177,43 +190,26 @@ const EditImageDialog = ({
       </Dialog>
       <Dialog
         isOpen={confirmClose || leaving._tag === "Asking"}
-        title={t(
-          leavingWhileSaving
-            ? "imageDetail.leavingWhileSaving"
-            : "imageDetail.discardTitle",
-        )}
+        descriptionId={descriptionId}
+        title={prompt.title}
         onOpenChange={(open) => {
           if (!open) stay();
         }}
       >
         <Text>
-          {t(
-            leavingWhileSaving
-              ? "imageDetail.savingWillContinue"
-              : "imageDetail.discardDescription",
-          )}
+          <span id={descriptionId}>{prompt.description}</span>
         </Text>
         <Cluster gap={2} justify="end">
-          <Button onPress={stay}>
-            {t(
-              leavingWhileSaving
-                ? "imageDetail.waitForSave"
-                : "imageDetail.continueEditing",
-            )}
-          </Button>
+          <Button onPress={stay}>{prompt.stay}</Button>
           <Button
             tone={leavingWhileSaving ? "secondary" : "danger"}
             onPress={() => {
-              if (leaving._tag === "Asking") leaving.leave();
+              leaving.leave();
 
               close();
             }}
           >
-            {t(
-              leavingWhileSaving
-                ? "imageDetail.leaveDuringSave"
-                : "imageDetail.discard",
-            )}
+            {prompt.leave}
           </Button>
         </Cluster>
       </Dialog>
@@ -232,14 +228,12 @@ const EditButton = ({ image }: EditImageProps): ReactNode => {
   const { api } = useAppContext();
   const { refresh } = useApiCache();
   const failure = useFailureToast();
-  const [editing, setEditing] = useState<Image>();
+  const isSaving = useIsApiMutationPending(saveKey(image.id));
 
   const opening = useApiMutation({
     send: () => loadImage(api, image.id),
     onSuccess: async (result) => {
-      if (result._tag === "Succeeded") {
-        setEditing(result.data);
-      } else {
+      if (result._tag === "Failed") {
         failure.show(t("imageDetail.gone"));
         await refresh(imageQueryKey(image.id));
       }
@@ -252,7 +246,7 @@ const EditButton = ({ image }: EditImageProps): ReactNode => {
   return (
     <>
       <Button
-        isPending={opening.isPending}
+        isPending={opening.isPending || isSaving}
         onPress={() => {
           failure.close();
           opening.mutate();
@@ -261,13 +255,8 @@ const EditButton = ({ image }: EditImageProps): ReactNode => {
         <Icon name="pencil" />
         {t("imageDetail.edit")}
       </Button>
-      {editing !== undefined && (
-        <EditImageDialog
-          image={editing}
-          onClose={() => {
-            setEditing(undefined);
-          }}
-        />
+      {opening.data?._tag === "Succeeded" && (
+        <EditImageDialog image={opening.data.data} onClose={opening.reset} />
       )}
     </>
   );

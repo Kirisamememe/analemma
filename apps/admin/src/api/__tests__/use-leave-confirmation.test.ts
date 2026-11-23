@@ -2,7 +2,7 @@ import { createBrowserHistory } from "@tanstack/react-router";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { useLeaveConfirmation } from "@/api/leave-confirmation";
+import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
 import { createTestApp } from "@/testing/create-test-app";
 import { withRouter } from "@/testing/hook-wrappers";
 

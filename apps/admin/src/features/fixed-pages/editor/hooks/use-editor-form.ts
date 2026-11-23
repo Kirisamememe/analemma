@@ -18,8 +18,8 @@ import { saveFixedPage } from "../queries/save-fixed-page";
 
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
-import { useLeaveConfirmation } from "@/api/leave-confirmation";
 import { useApiMutation, useApiCache } from "@/api/server-state/server-state";
+import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
 import { useAppForm } from "@/components/forms";
 import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";

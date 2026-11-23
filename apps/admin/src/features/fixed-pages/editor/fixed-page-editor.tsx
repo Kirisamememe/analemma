@@ -7,7 +7,7 @@ import {
   useEditorForm,
 } from "./hooks/use-editor-form";
 
-import type { LeaveConfirmation } from "@/api/leave-confirmation";
+import type { LeaveConfirmation } from "@/api/use-leave-confirmation";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
