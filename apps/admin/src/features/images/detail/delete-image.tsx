@@ -40,7 +40,7 @@ export const DeleteImage = ({
   const t = useTranslate();
   const showToast = useShowToast();
   const failure = useFailureToast();
-  const { refresh, updatePages } = useApiCache();
+  const { refresh, update, updatePages } = useApiCache();
   const { api } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -50,11 +50,12 @@ export const DeleteImage = ({
       ...(await deleteImage(api, target.id)),
       target,
     }),
-    onSuccess: async ({ _tag, target }) => {
+    onSuccess: async (result) => {
+      const { target } = result;
       await updatePages(IMAGES_QUERY_KEY, updateImagePage(target.id));
       void refresh(IMAGE_NEIGHBORS_QUERY_KEY, "active"); // ほかの画像の前後に、消した画像を出さない
 
-      if (_tag === "Deleted") {
+      if (result._tag === "Deleted") {
         showToast({
           tone: "success",
           message: t("imageDetail.deleted", { title: target.name }),
@@ -63,14 +64,16 @@ export const DeleteImage = ({
         onDeleted(target.id);
         void refresh(imageQueryKey(target.id), "active");
       } else {
+        await update(imageQueryKey(target.id), () => result.missing);
         setIsOpen(false);
         failure.show(t("imageDetail.gone"));
-        await refresh(imageQueryKey(target.id), "active");
       }
     },
-    onError: () => {
+    onError: (target) => {
       failure.show(t("imageDetail.deleteFailed"));
-      void refresh(IMAGES_QUERY_KEY); // 削除できてから応答だけが失敗したときも、一覧を合わせる
+      void refresh(imageQueryKey(target.id), "active");
+      void refresh(IMAGE_NEIGHBORS_QUERY_KEY, "active");
+      void refresh(IMAGES_QUERY_KEY, "active"); // 削除できてから応答だけが失敗したときも、一覧を合わせる
     },
   });
 

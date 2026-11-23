@@ -45,6 +45,7 @@ export const ImageViewerPage = (): ReactNode => {
 
   const query = useApiQuery({
     key: imageQueryKey(id),
+    keepDataOnRefreshError: true,
     load: () => loadImage(api, id),
   });
 

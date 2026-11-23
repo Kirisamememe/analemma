@@ -356,6 +356,10 @@
     }
   }
 
+  :root:has([data-top-bar="viewer"]) {
+    --viewport-top-inset: var(--size-nav-bar);
+  }
+
   :root[data-theme="light"] {
     color-scheme: light;
   }
