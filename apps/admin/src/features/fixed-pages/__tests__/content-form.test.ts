@@ -10,7 +10,7 @@ const fields = fieldDefinitions.parse([
   { type: "longText", key: "body", label: "本文" },
   { type: "number", key: "count", label: "件数" },
   flag,
-  { ...flag, key: "pinned", optional: true },
+  { ...flag, key: "pinned", default: true },
   { type: "date", key: "day", label: "日付" },
   { type: "url", key: "link", label: "URL" },
   {
@@ -27,29 +27,22 @@ const emptyValues = {
   title: "",
   body: "",
   count: null,
-  flag: null,
-  pinned: null,
+  flag: false,
+  pinned: true,
   day: null,
   link: "",
   color: null,
-  details: { values: { flag: null }, unknownKeys: {} },
+  details: { values: { flag: false }, unknownKeys: {} },
   rows: [],
 };
 
 describe("createContentForm", () => {
-  test("新しい固定ページでは入れ子を含め必須の boolean だけを false にする", () => {
-    expect(createContentForm(fields).values).toEqual({
-      ...emptyValues,
-      flag: false,
-      details: { values: { flag: false }, unknownKeys: {} },
-    });
-  });
-
-  test("保存した固定ページに値が無いときは、必須の boolean も未入力にする", () => {
+  test("新しい固定ページでも、保存した値の無い固定ページでも、入れ子を含め boolean を既定値にする", () => {
+    expect(createContentForm(fields).values).toEqual(emptyValues);
     expect(createContentForm(fields, {}).values).toEqual(emptyValues);
   });
 
-  test("contract のスキーマか select の選択肢に合わない保存した値は、未入力に戻す", () => {
+  test("contract のスキーマか select の選択肢に合わない保存した値は、未入力に戻し、boolean は既定値にする", () => {
     expect(
       createContentForm(fields, {
         title: "見出し\n改行",
@@ -66,7 +59,7 @@ describe("createContentForm", () => {
     ).toEqual(emptyValues);
   });
 
-  test("object でない repeat の要素は、同じ位置に未入力のまま残す", () => {
+  test("object でない repeat の要素は、同じ位置に未入力と既定値のまま残す", () => {
     const rows = createContentForm(fields, {
       rows: [null, [], "旧形式", { flag: true }],
     }).values["rows"];
@@ -74,9 +67,9 @@ describe("createContentForm", () => {
     if (!Array.isArray(rows)) throw new Error("repeat の値が無い");
 
     expect(rows.map(({ value }) => value.values["flag"])).toEqual([
-      null,
-      null,
-      null,
+      false,
+      false,
+      false,
       true,
     ]);
     expect(new Set(rows.map(({ id }) => id)).size).toBe(4);

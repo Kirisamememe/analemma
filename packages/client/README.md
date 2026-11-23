@@ -36,12 +36,13 @@ export const about = defineKind({
 export type AboutContent = KindContent<typeof about>;
 ```
 
-項目の型は `text`・`longText`・`number`・`boolean`・`date`・`url`・`select`・`group`・`repeat`。項目は既定で必須で、`optional(...)` で省けるようにする。項目には、これらの関数で作ったものだけを使える(zod のスキーマを直接渡したり、`.min()` などで絞ったりすると、CMS が同じ検査をできないので、`defineKind` が失敗する)。
+項目の型は `text`・`longText`・`number`・`boolean`・`date`・`url`・`select`・`group`・`repeat`。項目は既定で必須で、`optional(...)` で省けるようにする。真偽値の項目は省けず、いつも値を持つ。`boolean({ label: "連絡先を出す", default: true })` のように既定値を書け(省くと `false`)、値の無いページは既定値として読む。3つ目の状態が要るなら `select` を使う。項目には、これらの関数で作ったものだけを使える(zod のスキーマを直接渡したり、`.min()` などで絞ったりすると、CMS が同じ検査をできないので、`defineKind` が失敗する)。
 
 ### 定義を変えるとき
 
 - 項目を消すのは、いつでもよい。データは CMS に残り、古いサイトに戻しても使える。
 - データの入っている項目の型を変えたり、使われている選択肢を消したりすると、CMS が断る。
+- 真偽値の項目は、ページのある種類に足しても断られない。今あるページは、既定値として読む。
 - ページのある種類に必須の項目を足すと、CMS が断る。デプロイを2回に分ける。1回目で `optional(...)` の項目として足し、管理画面で各ページにデータを入れてから、2回目で必須にする。
 
 ## 公開しているページを読む

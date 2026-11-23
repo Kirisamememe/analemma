@@ -25,7 +25,7 @@ export type FieldOptions = {
 
 type ScalarType = Exclude<
   FieldDefinition["type"],
-  "group" | "repeat" | "select"
+  "boolean" | "group" | "repeat" | "select"
 >;
 
 const defineScalar =
@@ -42,8 +42,19 @@ export const longText = defineScalar("longText", longTextValue);
 /** 数値の項目。 */
 export const number = defineScalar("number", numberValue);
 
+/** 真偽値の項目の、ラベルと既定値。 */
+export type BooleanOptions = FieldOptions & {
+  /** 新しいページと、値の無いページで使う値(省くと false)。 */
+  readonly default?: boolean;
+};
+
 /** 真偽値の項目。 */
-export const boolean = defineScalar("boolean", booleanValue);
+export const boolean = ({ label, default: initial = false }: BooleanOptions) =>
+  registerField(booleanValue.default(initial), {
+    type: "boolean",
+    label,
+    default: initial,
+  });
 
 /** 日付(`YYYY-MM-DD`)の項目。 */
 export const date = defineScalar("date", dateValue);
@@ -122,9 +133,15 @@ export const repeat = <const Shape extends FieldShape>({
 
 /** 項目を、値を省ける項目にする。 */
 export const optional = <Schema extends z.ZodType>(
-  schema: Schema,
-): z.ZodOptional<Schema> =>
-  registerField(schema.optional(), {
-    ...readFieldMeta(schema),
-    optional: true,
-  });
+  schema: z.output<Schema> extends boolean ? never : Schema,
+): z.ZodOptional<Schema> => {
+  const meta = readFieldMeta(schema);
+
+  if (meta.type === "boolean") {
+    throw new Error(
+      "真偽値の項目は省けない。3つ目の状態が要るなら select を使う",
+    );
+  }
+
+  return registerField(schema.optional(), { ...meta, optional: true });
+};

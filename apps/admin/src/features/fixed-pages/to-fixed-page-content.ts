@@ -45,8 +45,7 @@ const writeGroup = (
       typeof value !== "object"
     ) {
       entries.push([field.key, value]);
-      hasInput ||=
-        field.type !== "boolean" || field.optional || value !== false;
+      hasInput ||= field.type !== "boolean" || value !== field.default;
     }
   }
 

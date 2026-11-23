@@ -20,7 +20,7 @@ const ABOUT = {
       key: "showContact",
       type: "boolean",
       label: "連絡先を出す",
-      optional: false,
+      default: true,
     },
     { key: "updated", type: "date", label: "更新日", optional: true },
     {

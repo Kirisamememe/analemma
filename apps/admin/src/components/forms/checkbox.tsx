@@ -12,7 +12,7 @@ type AppCheckboxProps = Pick<
 
 /** TanStack Form につないだ Checkbox。 */
 export const AppCheckbox = (props: AppCheckboxProps): ReactNode => {
-  const field = useFieldContext<boolean | null>();
+  const field = useFieldContext<boolean>();
   const value = useSelector(field.store, (state) => state.value);
   const errorMessage = useFieldError();
 
@@ -23,7 +23,7 @@ export const AppCheckbox = (props: AppCheckboxProps): ReactNode => {
       isRequired={props.isRequired}
       label={props.label}
       errorMessage={errorMessage}
-      isSelected={value ?? false}
+      isSelected={value}
       name={field.name}
       onBlur={field.handleBlur}
       onChange={field.handleChange}
