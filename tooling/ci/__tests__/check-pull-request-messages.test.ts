@@ -337,6 +337,30 @@ describe("PR 作成前の追加行数", () => {
     expect(result.status).toBe(0);
   });
 
+  test("main を取り込んだ後にフェーズのブランチが進んでも、取り込みに足した分だけを数えること", async () => {
+    const { root, base, hotfix } = makePhaseWithHotfix("size-main-sync-behind");
+
+    const head = commitFiles({
+      root,
+      parents: [base, hotfix],
+      files: { "phase.txt": 3, "hotfix.txt": 900, "resolution.txt": 10 },
+    });
+
+    const advanced = commitFiles({
+      root,
+      parents: [base],
+      files: { "phase.txt": 1 },
+    });
+
+    const result = await checkPullRequest({
+      pullRequest: { root, base: advanced, commits: [head] },
+      title: "chore: main を取り込む",
+    });
+
+    expect(result.stdout).toContain("追加 10 行");
+    expect(result.status).toBe(0);
+  });
+
   test("main が先に進んでいても、子の PR は自分で足した分だけを数えること", async () => {
     const { root, base } = makePhaseWithHotfix("size-main-ahead");
 

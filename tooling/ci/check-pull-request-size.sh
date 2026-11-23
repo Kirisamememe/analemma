@@ -24,7 +24,8 @@ fi
 counted_from=("$base...$head")
 main_in_head=$(git merge-base "$head" refs/remotes/origin/main 2>/dev/null || true)
 if [[ -n $main_in_head ]] && ! git merge-base --is-ancestor "$main_in_head" "$base"; then
-  merged=$(git merge-tree --write-tree "$base" "$main_in_head" || true)
+  fork_point=$(git merge-base "$base" "$head")
+  merged=$(git merge-tree --write-tree "$fork_point" "$main_in_head" || true)
   if [[ -n $merged ]]; then
     counted_from=("${merged%%$'\n'*}" "$head")
     echo "main から取り込んだ分は数えません。"
