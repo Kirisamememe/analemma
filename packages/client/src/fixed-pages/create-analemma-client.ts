@@ -7,7 +7,7 @@ import type {
 } from "@orpc/contract";
 import { z } from "zod";
 
-import type { contract } from "@analemma/contract";
+import { type contract, fixedPageSlug } from "@analemma/contract";
 
 import type { AnyKind, KindContent } from "../kinds/define-kind";
 
@@ -72,6 +72,10 @@ export const createAnalemmaClient = ({
         kind: K,
         slug: string,
       ): Promise<FixedPage<K> | undefined> => {
+        if (!fixedPageSlug.safeParse(slug).success) {
+          return undefined;
+        }
+
         const { data, error } = await safe(
           client.public.fixedPages.get({ kind: kind.name, slug }),
         );
