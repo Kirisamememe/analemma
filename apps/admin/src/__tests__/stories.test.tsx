@@ -13,6 +13,7 @@ import * as componentsForm from "@/components/forms/__stories__/form.stories";
 import * as componentsSubmitting from "@/components/forms/__stories__/submitting.stories";
 import * as featuresDeployTokensCopyButton from "@/features/deploy-tokens/ui/__stories__/copy-button.stories";
 import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
+import * as kindRefreshNotice from "@/features/fixed-pages/list/__stories__/kind-refresh-notice.stories";
 import * as featuresFixedPagesContentGroup from "@/features/fixed-pages/ui/__stories__/content-group.stories";
 import * as featuresImagesImageDetail from "@/features/images/detail/__stories__/image-detail.stories";
 import * as featuresImagesSection from "@/features/images/list/__stories__/images-section.stories";
@@ -77,6 +78,8 @@ const MODULES = {
     featuresDeployTokensCopyButton,
   "features/deploy-tokens/ui/__stories__/token-value.stories.ts":
     featuresDeployTokensTokenValue,
+  "features/fixed-pages/list/__stories__/kind-refresh-notice.stories.ts":
+    kindRefreshNotice,
   "features/fixed-pages/ui/__stories__/content-group.stories.tsx":
     featuresFixedPagesContentGroup,
   "features/images/detail/__stories__/image-detail.stories.tsx":

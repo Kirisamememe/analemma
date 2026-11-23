@@ -1,4 +1,8 @@
-import type { FieldDefinition, FixedPageContent } from "@analemma/contract";
+import {
+  type FieldDefinition,
+  type FixedPageContent,
+  toContentSchema,
+} from "@analemma/contract";
 
 import { createContentForm } from "../content-form";
 import {
@@ -41,5 +45,30 @@ export const createEditorValues = (
       content,
       items,
     },
+  };
+};
+
+/** 取得済みの定義で保存した中身を編集できるかを確かめる。 */
+export const storedContentCheck = (content?: FixedPageContent) => {
+  const checked = new WeakMap<readonly FieldDefinition[], boolean>();
+  return (fields: readonly FieldDefinition[]): boolean => {
+    if (content === undefined) return true;
+
+    const known = checked.get(fields);
+
+    if (known !== undefined) return known;
+
+    const result = toContentSchema({ fields, unknownKeys: "keep" }).safeParse(
+      content,
+      { reportInput: true },
+    );
+
+    const usable =
+      result.success ||
+      result.error.issues.every((issue) => issue.input === undefined);
+
+    checked.set(fields, usable);
+
+    return usable;
   };
 };
