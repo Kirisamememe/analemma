@@ -318,13 +318,16 @@ describe("検査の設定と theme.css", () => {
 describe("1つの文字列の class の数", () => {
   const rule = "project(max-classes-per-string)";
 
-  test("tv の設定・tv の関数に渡す className・JSX の className の、9個以上の class の文字列に診断を出すこと", () => {
+  test("class が9個以上の文字列を、属性・関数の引数・変数の初期値と既定値で止めること", () => {
     const expected: Expected[] = [
       [4, "1つの文字列に class が 9 個あります"],
       [7, "1つの文字列に class が 9 個あります"],
       [15, "1つの文字列に class が 9 個あります"],
       [22, "className の文字列に class が 9 個あります"],
       [26, "1つの文字列に class が 9 個あります"],
+      [39, "1つの文字列に class が 9 個あります"],
+      [43, "1つの文字列に class が 9 個あります"],
+      [47, "1つの文字列に class が 9 個あります"],
     ];
 
     expect(

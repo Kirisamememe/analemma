@@ -1,4 +1,4 @@
-import { tv } from "../tv";
+import { merge, tv } from "../tv";
 
 const pressable = tv({
   base: "flex size-10 shrink-0 items-center justify-center rounded-control text-fg outline-hidden transition",
@@ -28,4 +28,24 @@ export const LongClasses = () => (
     />
     <span className={pressable({ isCurrent: true })} />
   </div>
+);
+
+type Props = {
+  /** 部品に足す class。 */
+  contentClassName?: string;
+};
+
+const directClassName =
+  "flex size-10 shrink-0 items-center justify-center rounded-control text-fg outline-hidden transition";
+
+/** 既定の class に追加の class を合わせる部品。 */
+export const Defaults = ({
+  contentClassName = "flex size-10 shrink-0 items-center justify-center rounded-control text-fg outline-hidden transition",
+}: Props) => (
+  <span
+    className={merge(
+      `flex size-10 shrink-0 items-center justify-center rounded-control text-fg outline-hidden transition ${contentClassName}`,
+      directClassName,
+    )}
+  />
 );

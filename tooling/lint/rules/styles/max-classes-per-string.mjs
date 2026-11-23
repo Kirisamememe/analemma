@@ -8,8 +8,8 @@ const stringValue = (node) => {
     return typeof node.value === "string" ? node.value : undefined;
   }
 
-  return node.type === "TemplateLiteral" && node.expressions.length === 0
-    ? node.quasis[0]?.value.cooked
+  return node.type === "TemplateLiteral"
+    ? node.quasis.map((part) => part.value.cooked).join("")
     : undefined;
 };
 
@@ -28,8 +28,24 @@ const propertyName = (node) => {
   return node.key.type === "Identifier" ? node.key.name : node.key.value;
 };
 
-const isObjectKey = (node) =>
-  node.parent?.type === "Property" && node.parent.key === node;
+const isClassVariable = (node) =>
+  node.type === "Identifier" && CLASS_VARIABLE.test(node.name);
+
+const VALUE_CONTAINERS = new Set([
+  "ArrayExpression",
+  "JSXExpressionContainer",
+  "ObjectExpression",
+  "TSAsExpression",
+  "TSSatisfiesExpression",
+]);
+
+const carriesValue = (parent, child) =>
+  VALUE_CONTAINERS.has(parent.type) ||
+  (parent.type === "Property" && parent.value === child) ||
+  (parent.type === "ConditionalExpression" && parent.test !== child) ||
+  (parent.type === "LogicalExpression" &&
+    (parent.operator !== "&&" || parent.right === child)) ||
+  (parent.type === "BinaryExpression" && parent.operator === "+");
 
 const contextOf = (node) => {
   let child = node;
@@ -40,28 +56,25 @@ const contextOf = (node) => {
     }
 
     if (
-      parent.type === "CallExpression" &&
-      parent.callee !== child &&
-      parent.callee.type === "Identifier" &&
-      CLASS_CALLEES.has(parent.callee.name)
+      (parent.type === "CallExpression" &&
+        parent.callee !== child &&
+        parent.callee.type === "Identifier" &&
+        CLASS_CALLEES.has(parent.callee.name)) ||
+      (parent.type === "Property" &&
+        parent.value === child &&
+        CLASS_PROPERTIES.has(propertyName(parent))) ||
+      (parent.type === "VariableDeclarator" &&
+        parent.init === child &&
+        isClassVariable(parent.id)) ||
+      (parent.type === "AssignmentPattern" &&
+        parent.right === child &&
+        isClassVariable(parent.left))
     ) {
       return "array";
     }
 
-    if (
-      parent.type === "Property" &&
-      parent.value === child &&
-      CLASS_PROPERTIES.has(propertyName(parent))
-    ) {
-      return "array";
-    }
-
-    if (
-      parent.type === "VariableDeclarator" &&
-      parent.id.type === "Identifier" &&
-      CLASS_VARIABLE.test(parent.id.name)
-    ) {
-      return "array";
+    if (!carriesValue(parent, child)) {
+      return undefined;
     }
 
     child = parent;
@@ -101,7 +114,7 @@ const maxClassesPerString = {
     const check = (node) => {
       const value = stringValue(node);
 
-      if (value === undefined || isObjectKey(node)) {
+      if (value === undefined) {
         return;
       }
 
