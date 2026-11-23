@@ -396,6 +396,9 @@ test("読み込む間に一覧へ戻るリンクへ移した focus を、編集�
   loading.resolve(undefined);
   await screen.findByRole("textbox", { name: "タイトル" });
 
+  expect(
+    screen.getByText("編集フォームを表示しました。").getAttribute("aria-live"),
+  ).toBe("polite");
   expect(document.activeElement).toBe(back);
 });
 

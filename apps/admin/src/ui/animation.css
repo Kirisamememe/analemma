@@ -240,7 +240,7 @@
     );
     content: "";
     translate: -100%;
-    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    animation: skeleton-shimmer 1.6s ease-in-out 3;
   }
 
   @media (prefers-reduced-motion: reduce) {

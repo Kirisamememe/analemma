@@ -50,6 +50,7 @@ export const zhHans = {
   "fixedPageEditor.kindOf": "类型：{{kind}}",
   "fixedPageEditor.emptyKindsDescription":
     "公开站点在部署时发送类型定义后，会显示在这里。",
+  "fixedPageEditor.editReady": "编辑表单已就绪。",
   "fixedPageEditor.formReady": "新建页面表单已就绪。",
   "fixedPageEditor.chooseAgain": "重新选择类型",
   "app.name": "Stilus",

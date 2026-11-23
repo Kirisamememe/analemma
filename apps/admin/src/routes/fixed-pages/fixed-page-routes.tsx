@@ -28,11 +28,13 @@ import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
 
 type FrameProps = {
+  /** 編集フォームを表示できたか。 */
+  ready?: boolean;
   /** 一覧へ戻るリンクの下に置く、見出しと中身。 */
   children: ReactNode;
 };
 
-const Frame = ({ children }: FrameProps): ReactNode => {
+const Frame = ({ children, ready }: FrameProps): ReactNode => {
   const { t } = useTranslation();
 
   return (
@@ -43,6 +45,11 @@ const Frame = ({ children }: FrameProps): ReactNode => {
             {t("fixedPageEditor.backToList")}
           </Link>
         </Text>
+        {ready !== undefined && (
+          <span aria-live="polite" className="sr-only">
+            {ready && t("fixedPageEditor.editReady")}
+          </span>
+        )}
         {children}
       </Stack>
     </Center>
@@ -261,7 +268,7 @@ export const EditFixedPage = (): ReactNode => {
     kind.data._tag === "Succeeded"
   ) {
     return (
-      <Frame>
+      <Frame ready>
         <FixedPageEditor
           key={page.id}
           kind={kind.data.data}
@@ -275,7 +282,7 @@ export const EditFixedPage = (): ReactNode => {
 
   if (page === undefined || kind._tag === "Loading") {
     return (
-      <Frame>
+      <Frame ready={false}>
         <Titled title={t("fixedPageEditor.edit")}>
           {query._tag === "Failed" ? (
             <ErrorState
@@ -296,7 +303,7 @@ export const EditFixedPage = (): ReactNode => {
   }
 
   return (
-    <Frame>
+    <Frame ready={false}>
       <Titled
         actions={
           <DeleteFixedPage
