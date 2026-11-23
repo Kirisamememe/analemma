@@ -10,15 +10,17 @@ import {
 import { useTranslation } from "react-i18next";
 
 import { ImageViewerActions } from "./image-viewer-actions";
-import { ImageViewerContext } from "./image-viewer-context";
-import { useImageVisit } from "./use-image-visit";
+import { ImageVisitContext } from "./image-viewer-context";
+import { ImageVisitProvider } from "./image-visit-provider";
 import { useViewerNavigation } from "./use-viewer-navigation";
 
-import {
-  type ImageNeighbors,
-  useImageNeighbors,
-} from "@/features/images/detail/hooks/use-image-neighbors";
+import { useImageNeighbors } from "@/features/images/detail/hooks/use-image-neighbors";
 import { ImageDetail } from "@/features/images/detail/image-detail";
+import {
+  keepNeighborLinks,
+  type NeighborIds,
+  viewerProgress,
+} from "@/features/images/detail/logic/viewer-progress";
 import { ViewerFrame, ViewerMessage } from "@/features/images/ui/viewer-frame";
 import { ViewerVisit } from "@/features/images/ui/viewer-visit";
 import { Heading, PageTransition, Text } from "@/ui/layout";
@@ -32,62 +34,37 @@ type BackProps = {
 };
 
 const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
-  const state = use(ImageViewerContext);
-
-  const id = useParams({
-    from: "/images/$id",
-    select: (params) => params.id.toLowerCase(),
-  });
-
+  const state = use(ImageVisitContext);
+  const id = state?.id ?? "";
   const { t } = useTranslation();
   const navigate = useNavigate();
   const currentNeighbors = useImageNeighbors(id);
 
-  const canMove =
-    state?.shown?.id === id &&
-    state.query._tag === "Loaded" &&
-    currentNeighbors !== undefined;
+  const progress = viewerProgress({
+    id,
+    shownId: state?.shown?.id,
+    status: state?.query._tag ?? "Loading",
+    hasNeighbors: currentNeighbors !== undefined,
+  });
 
-  const navigation = useViewerNavigation(back, !canMove);
+  const [lastLinks, setLastLinks] = useState<NeighborIds>();
 
-  const [lastLinks, setLastLinks] =
-    useState<Pick<ImageNeighbors, "previous" | "next">>();
+  const links = keepNeighborLinks(
+    lastLinks,
+    progress.canMove ? currentNeighbors : undefined,
+  );
+
+  if (links !== lastLinks) setLastLinks(links);
+
+  const navigation = useViewerNavigation(back, {
+    ...links,
+    disabled: !progress.canMove,
+  });
 
   if (state === undefined) return null;
 
   const { shown, pending, query, direction, settle } = state;
-
-  const neighbors = canMove ? currentNeighbors : lastLinks;
-  const failure = canMove ? currentNeighbors.failure : undefined;
-
-  if (
-    canMove &&
-    (currentNeighbors.next !== lastLinks?.next ||
-      currentNeighbors.previous !== lastLinks?.previous)
-  ) {
-    setLastLinks({
-      next: currentNeighbors.next,
-      previous: currentNeighbors.previous,
-    });
-  }
-
-  const ready =
-    query._tag !== "Loading" &&
-    (shown === undefined || canMove || query._tag === "Failed");
-
-  const waiting = () => {
-    if (query._tag === "Failed") return undefined;
-
-    if (shown?.id !== id) return t("imageViewer.loading");
-
-    if (query._tag === "Loading") return t("imageDetail.loadingInfo");
-
-    if (currentNeighbors === undefined) {
-      return t("imageDetail.loadingNeighbors");
-    }
-
-    return undefined;
-  };
+  const failure = progress.canMove ? currentNeighbors?.failure : undefined;
 
   const error =
     query._tag === "Failed" ? (
@@ -106,7 +83,7 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
   return (
     <ViewerVisit
       ref={(element) => {
-        if (element !== null && ready) navigation.restore(id);
+        if (element !== null && progress.ready) navigation.restore(id);
       }}
     >
       {shown !== undefined && (
@@ -128,11 +105,11 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
           image={shown}
           error={error}
           pending={pending}
-          waiting={waiting()}
+          waiting={progress.waiting && t(progress.waiting)}
           direction={shown.id === id ? direction : undefined}
           onSettled={settle}
-          next={navigation.neighbor("next", neighbors?.next)}
-          previous={navigation.neighbor("previous", neighbors?.previous)}
+          next={navigation.next}
+          previous={navigation.previous}
           onMove={(href) => {
             void navigate({ href });
           }}
@@ -193,11 +170,9 @@ export const ImageViewerPage = (): ReactNode => {
     select: (params) => params.id.toLowerCase(),
   });
 
-  const state = useImageVisit(id);
-
   return (
-    <ImageViewerContext value={state}>
+    <ImageVisitProvider id={id}>
       <ViewerScreen />
-    </ImageViewerContext>
+    </ImageVisitProvider>
   );
 };

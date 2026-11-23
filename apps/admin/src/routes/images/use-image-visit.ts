@@ -1,58 +1,32 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-import type { ApiOutputs } from "@/api/api-types";
 import { useViewerImage } from "@/features/images/detail/hooks/use-viewer-image";
-
-type Image = ApiOutputs["admin"]["images"]["get"];
-
-type Visit = {
-  /** 現在の URL の画像。 */
-  id: string;
-  /** 写真が切り替わるときの向き。 */
-  direction?: "previous" | "next";
-  /** 現在、情報と一緒に表示している写真。 */
-  shown?: Image;
-};
+import {
+  followVisit,
+  loadedImage,
+  settleVisit,
+  visitPhotos,
+} from "@/features/images/detail/logic/image-visit";
 
 /** URL と表示中の写真を照らし合わせ、次の写真の準備を待つ。 */
 export const useImageVisit = (id: string) => {
   const query = useViewerImage(id);
-  const [visit, setVisit] = useState<Visit>({ id });
+  const latest = loadedImage(query);
+  const [visit, setVisit] = useState(() => followVisit({ id }, { id, latest }));
 
-  const current =
-    query._tag === "Loaded" && query.data._tag === "Succeeded"
-      ? query.data.data
-      : undefined;
+  const followed = followVisit(visit, { id, latest });
 
-  if (visit.id !== id) {
-    setVisit({ ...visit, id, direction: id < visit.id ? "next" : "previous" });
-  } else if (
-    current !== undefined &&
-    current !== visit.shown &&
-    (visit.shown === undefined ||
-      visit.shown.id === id ||
-      current.deliveryImages.length === 0)
-  ) {
-    setVisit({ ...visit, shown: current });
-  }
+  if (followed !== visit) setVisit(followed);
 
-  const shown =
-    query._tag === "Loading" ||
-    current !== undefined ||
-    (query._tag === "Failed" && visit.shown?.id === id)
-      ? visit.shown
-      : undefined;
+  const settle = useCallback((photoId: string) => {
+    setVisit((current) => settleVisit(current, photoId));
+  }, []);
 
-  const pending =
-    current !== undefined && current.id !== shown?.id ? current : undefined;
-
-  const settle = (photoId: string) => {
-    if (current?.id !== photoId) return;
-
-    setVisit((latest) =>
-      latest.id === photoId ? { ...latest, shown: current } : latest,
-    );
+  return {
+    id,
+    direction: followed.direction,
+    ...visitPhotos(followed, { status: query._tag, latest }),
+    query,
+    settle,
   };
-
-  return { id, direction: visit.direction, shown, pending, query, settle };
 };
