@@ -83,7 +83,7 @@ type IconProps = {
   name: IconName;
   /** 大きさ(12・14・16・20・24px)。 */
   size?: "xs" | "sm" | "md" | "lg" | "xl";
-  /** 線の太さ(bold は、描いた線が 1.5px)。 */
+  /** 線の太さ。 */
   weight?: "regular" | "bold";
 };
 

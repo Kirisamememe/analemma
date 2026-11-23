@@ -91,7 +91,10 @@ export const TextArea = ({
       <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
       <AriaTextArea
         className={fieldControl({
-          className: ["resize-y px-3 py-2", typography({ role: "body-long" })],
+          className: [
+            "resize-y px-3 @max-3xs/nested-form:px-1 py-2",
+            typography({ role: "body-long" }),
+          ],
         })}
         maxLength={maxLength}
         rows={4}

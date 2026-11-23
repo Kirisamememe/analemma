@@ -33,7 +33,7 @@ const Frame = ({ children }: FrameProps): ReactNode => {
   const { t } = useTranslation();
 
   return (
-    <Center width="form">
+    <Center width="nestedForm">
       <Stack gap={3}>
         <Text variant="caption">
           <Link href="/fixed-pages" variant="back">

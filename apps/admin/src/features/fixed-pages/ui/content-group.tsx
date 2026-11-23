@@ -7,11 +7,11 @@ import { typography } from "@/ui/typography";
 
 const branch = tv({
   base: "relative",
-  variants: { add: { true: "flex ps-3" } },
+  variants: { add: { true: "flex ps-3 @max-3xs/nested-form:ps-1" } },
 });
 
 const gapLine = tv({
-  base: "relative -inset-s-4.75 block w-0 border-s-2",
+  base: "relative -inset-s-4.75 block w-0 border-s-2 @max-3xs/nested-form:-inset-s-nested-branch",
   variants: {
     parent: { group: "h-4", repeat: "h-6" },
   },
@@ -20,16 +20,21 @@ const gapLine = tv({
 const headingLead = tv({
   base: "grow",
   variants: {
-    connected: { true: "relative -inset-s-4.75 self-start border-s-2" },
+    connected: {
+      true: "relative -inset-s-4.75 self-start border-s-2 @max-3xs/nested-form:-inset-s-nested-branch",
+    },
   },
 });
 
 const elbow = tv({
-  base: "absolute -inset-s-4.75 top-0 w-4.75 rounded-es-control border-s-2 border-b-2",
+  base: [
+    "absolute -inset-s-4.75 top-0 w-4.75 rounded-es-control border-s-2 border-b-2",
+    "@max-3xs/nested-form:-inset-s-nested-branch @max-3xs/nested-form:w-nested-branch",
+  ],
   variants: {
     target: {
-      heading: "h-3.75",
-      item: "h-5.25",
+      heading: "h-3.75 @max-3xs/nested-form:h-nested-heading",
+      item: "h-5.25 @max-3xs/nested-form:h-nested-item",
     },
   },
 });
@@ -58,7 +63,7 @@ export const Branch = ({
       {(!isLast || target === undefined) && (
         <span
           aria-hidden="true"
-          className="absolute inset-y-0 -inset-s-4.75 border-s-2"
+          className="absolute inset-y-0 -inset-s-4.75 border-s-2 @max-3xs/nested-form:-inset-s-nested-branch"
         />
       )}
       {target === "item" && (
@@ -67,7 +72,7 @@ export const Branch = ({
       {target === "add" && (
         <span
           aria-hidden="true"
-          className="absolute -inset-s-4.75 top-0 h-1/2 w-7.75"
+          className="absolute -inset-s-4.75 top-0 h-1/2 w-7.75 @max-3xs/nested-form:-inset-s-nested-branch @max-3xs/nested-form:w-nested-add"
         >
           <span className="absolute inset-x-0 top-0 -bottom-px rounded-es-control border-s-2 border-b-2" />
         </span>
@@ -80,7 +85,7 @@ export const Branch = ({
 const group = tv({
   slots: {
     marker: [
-      "grid size-7 shrink-0 place-items-center rounded-full",
+      "grid size-7 shrink-0 place-items-center rounded-full @max-3xs/nested-form:size-5",
       "border-2 bg-surface text-fg-muted",
     ],
     title: "self-center wrap-anywhere",
@@ -96,6 +101,7 @@ const bar = tv({
   base: [
     "flex min-h-10 flex-wrap items-start gap-2 py-1 ps-3 pe-1",
     "rounded-control bg-surface-muted",
+    "@max-3xs/nested-form:gap-1 @max-3xs/nested-form:ps-1",
   ],
 });
 
@@ -168,14 +174,14 @@ export const ContentGroup = (props: ContentGroupProps): ReactNode => {
               {props.actions}
             </div>
           </div>
-          <div className="flex flex-col gap-4 ps-3 pt-4">
+          <div className="flex flex-col gap-4 ps-3 pt-4 @max-3xs/nested-form:ps-1">
             {message}
             {children}
           </div>
         </>
       ) : (
         <>
-          <div className="flex items-stretch gap-1">
+          <div className="flex items-stretch gap-1 @max-3xs/nested-form:gap-0.5">
             <div
               aria-hidden="true"
               className="flex shrink-0 flex-col items-center"
@@ -197,8 +203,11 @@ export const ContentGroup = (props: ContentGroupProps): ReactNode => {
             </div>
             {title}
           </div>
-          <div className="flex gap-1">
-            <span aria-hidden="true" className="w-7 shrink-0" />
+          <div className="flex gap-1 @max-3xs/nested-form:gap-0.5">
+            <span
+              aria-hidden="true"
+              className="w-7 shrink-0 @max-3xs/nested-form:w-3"
+            />
             <div className="min-w-0 grow">
               {invalid && <Branch parent={kind}>{message}</Branch>}
               {children}

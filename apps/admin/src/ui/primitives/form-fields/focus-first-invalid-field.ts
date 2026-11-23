@@ -18,7 +18,7 @@ export const focusFirstInvalidField = (container: Element | null): void => {
             isFocusTarget(element),
           );
 
-    field?.scrollIntoView({ block: "nearest" });
+    field?.scrollIntoView({ block: field === target ? "start" : "nearest" });
     target?.focus({ preventScroll: true });
   });
 };

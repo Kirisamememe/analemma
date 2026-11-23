@@ -31,6 +31,10 @@
   --*: initial;
 
   --spacing: 0.25rem;
+  --spacing-nested-branch: calc(0.25rem + 1px);
+  --spacing-nested-add: calc(0.5rem + 1px);
+  --spacing-nested-heading: calc(0.625rem + 1px);
+  --spacing-nested-item: calc(1.25rem + 1px);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", monospace;
   --default-font-family: var(--font-sans);
@@ -153,6 +157,7 @@
   --grid-template-columns-thumbnails: repeat(auto-fill, minmax(10rem, 1fr));
   --aspect-photo: 3 / 2;
 
+  --container-3xs: 16rem;
   --container-sm: 24rem;
   --container-md: 28rem;
   --container-lg: 32rem;
@@ -178,7 +183,7 @@
   --size-icon-lg: 1.25rem;
   --size-icon-xl: 1.5rem;
   --size-sidebar: 15rem;
-  --size-nav-bar: --spacing(14);
+  --nav-bar-height: 3.5;
 }
 
 @utility h-control {
@@ -228,7 +233,7 @@
 }
 
 @utility h-nav-bar {
-  height: var(--size-nav-bar);
+  height: calc(var(--nav-bar-height) * 1rem);
 }
 
 @utility top-toast {
@@ -336,8 +341,8 @@
 
   :root:has([data-top-bar]) {
     @variant max-md {
-      --viewport-top-inset: var(--size-nav-bar);
-      scroll-padding-top: calc(var(--viewport-top-inset) + --spacing(1));
+      --viewport-top-inset: calc(var(--nav-bar-height) * 1rem);
+      scroll-padding-top: calc((var(--nav-bar-height) + 0.25) * 1em);
     }
   }
 

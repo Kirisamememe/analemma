@@ -30,6 +30,10 @@ const button = tv({
     },
     iconOnly: {
       true: "aspect-square px-0",
+      false: {
+        base: "@max-3xs/nested-form:max-w-full @max-3xs/nested-form:px-1",
+        face: "@max-3xs/nested-form:wrap-anywhere",
+      },
     },
     rounded: {
       control: "rounded-control",

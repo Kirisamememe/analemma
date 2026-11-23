@@ -117,7 +117,7 @@ export const SelectControl = ({
       <Button
         className={fieldControl({
           className: [
-            "flex h-control items-center justify-between gap-2 px-3",
+            "flex h-control items-center justify-between gap-2 px-3 @max-3xs/nested-form:px-1",
             typography({ role: "body" }),
           ],
         })}
