@@ -14,6 +14,7 @@ import * as componentsSubmitting from "@/components/forms/__stories__/submitting
 import * as featuresDeployTokensCopyButton from "@/features/deploy-tokens/ui/__stories__/copy-button.stories";
 import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
 import * as featuresFixedPagesContentGroup from "@/features/fixed-pages/ui/__stories__/content-group.stories";
+import * as featuresImagesSection from "@/features/images/list/__stories__/images-section.stories";
 import * as featuresImagesImageRows from "@/features/images/ui/__stories__/image-rows.stories";
 import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/image-viewer.stories";
 import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
@@ -74,6 +75,8 @@ const MODULES = {
     featuresDeployTokensTokenValue,
   "features/fixed-pages/ui/__stories__/content-group.stories.tsx":
     featuresFixedPagesContentGroup,
+  "features/images/list/__stories__/images-section.stories.tsx":
+    featuresImagesSection,
   "features/images/ui/__stories__/image-rows.stories.tsx":
     featuresImagesImageRows,
   "features/images/ui/__stories__/image-viewer.stories.tsx":

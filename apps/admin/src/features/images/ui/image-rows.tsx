@@ -35,7 +35,7 @@ const rows = tv({
     caption: "flex w-0 min-w-full flex-col",
     heading: "flex min-w-0 flex-wrap items-center gap-2",
     title: "w-8 max-w-fit min-w-0 grow truncate",
-    badge: "flex shrink-0",
+    badge: "flex max-w-full min-w-0 wrap-anywhere",
   },
   variants: {
     isUntitled: {
@@ -51,14 +51,20 @@ const rows = tv({
 type ImageRowsProps = {
   /** 一覧のアクセシブルな名前。 */
   label: string;
+  /** 一覧の要素。 */
+  listRef?: Ref<HTMLUListElement>;
   /** 並べるタイル(`ImageTile`)。 */
   children: ReactNode;
 };
 
 /** 写真の縦横比を保ったまま、高さをそろえて行の幅いっぱいに並べる一覧。 */
-export const ImageRows = ({ label, children }: ImageRowsProps): ReactNode => (
+export const ImageRows = ({
+  label,
+  listRef,
+  children,
+}: ImageRowsProps): ReactNode => (
   // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- WebKit はマーカーのない ul を group として読み上げる
-  <ul aria-label={label} className={rows().list()} role="list">
+  <ul aria-label={label} className={rows().list()} ref={listRef} role="list">
     {children}
   </ul>
 );
@@ -112,6 +118,9 @@ export const ImageTile = ({
                 <Text as="span" variant="caption">
                   {missing}
                 </Text>
+                {title === null && alt && (
+                  <span className="sr-only">{alt}</span>
+                )}
               </span>
             ) : (
               <img

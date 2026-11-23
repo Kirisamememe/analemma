@@ -75,6 +75,15 @@ describe("ImageTile", () => {
     );
   });
 
+  test("配信用の画像が無い無題の写真を、保存済みの alt で見分けられる", () => {
+    renderWithI18n(tile({ images: [], title: null, alt: "霧の湖" }));
+    expect(
+      screen.getByRole("link", {
+        name: /表示用の画像がまだありません 霧の湖 無題/v,
+      }),
+    ).toBeDefined();
+  });
+
   test("配信用の画像が無ければ、写真の代わりに知らせを出す", () => {
     renderWithI18n(tile({ images: [] }));
 

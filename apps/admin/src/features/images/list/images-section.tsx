@@ -127,7 +127,7 @@ type PendingFocus = {
   from: Element | null;
 };
 
-/** 画像の一覧(新しく足した順)と、続きを読む操作。 */
+/** 画像の一覧と、続きを読む操作。 */
 export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
   const t = useTranslate();
   const { api } = useAppContext();
@@ -208,7 +208,17 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
 
   return (
     <Stack gap={8}>
-      <ImageRows label={t("images.title")}>
+      <ImageRows
+        label={t("images.title")}
+        listRef={(list) => {
+          if (query.pages.at(-1)?.images.length === 0) {
+            const last =
+              list?.querySelector<HTMLAnchorElement>("li:last-child a");
+
+            focusResult(query.pages.length - 1, last ?? null);
+          }
+        }}
+      >
         {query.pages.map(({ images }, pageIndex) => {
           const [first] = images;
 

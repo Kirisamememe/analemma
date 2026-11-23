@@ -170,6 +170,21 @@ describe("ImagesSection", () => {
     expect(document.activeElement).toBe(previous);
   });
 
+  test("続きを押す前に残りが削除されていたら、表示済みの最後の写真に focus を移す", async () => {
+    const server = createImageRoutes(many(51));
+    await renderSection(server.routes);
+    expect(await linkNames()).toHaveLength(50);
+    const last = server.images().at(-1);
+    if (last === undefined) throw new Error("画像がありません");
+    server.routes["admin/images/delete"]({ id: last.id });
+    await userEvent.click(
+      screen.getByRole("button", { name: "さらに読み込む" }),
+    );
+    await waitFor(() => {
+      expect(document.activeElement?.textContent).toBe("写真 50");
+    });
+  });
+
   test("続きを読めなければ50枚を残し、通信が戻れば残りを読んで最初の新しい写真に focus を移す", async () => {
     const { routes } = createImageRoutes(many(55));
     let broken = true;
