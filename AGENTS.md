@@ -10,7 +10,7 @@
 - `bun run check`(整形の確認・lint・型検査・テスト)が通るまで、作業を終えない。server のテストが読む場所(`apps/server/`・`packages/` と、直下の `compose.yaml` などの共有のファイル。`tooling/check/test-scope.ts`)に触れていない変更(一番近いフェーズのブランチか main から分かれた後の変更)では、server のテスト(DB を使うものを含む)を流さない。CI は全部流す。
 - Docker に届かない環境(Codex の既定の sandbox など)では、`bun run test` が `test:prepare` で止まり、テストは1件も流れない。テストを飛ばす抜け道を作らず、届かなかったことを報告して終える。
 - 自動で直せるものは `bun run format` と `bun run lint:fix` で直す。
-- レビューの外の CLI や Storybook のような重い処理は、ほかのセッションの分も含めて、マシン全体で動いている数を見てから始め、使い終えたらすぐに閉じる。
+- レビューを流す外の CLI(Codex・Cursor)や Storybook のような重い処理は、ほかのセッションの分も含めて、マシン全体で動いている数を見てから始め、使い終えたらすぐに閉じる。
 - 依存は、使うワークスペースの package.json に書く。書いていない依存は import できない。
 - ワークスペースの `src/` に最初のファイルを置いたら、その package.json に `"typecheck": "tsc --noEmit -p ."` を足す。ファイルが無いうちに足すと tsc が落ちる。
 
