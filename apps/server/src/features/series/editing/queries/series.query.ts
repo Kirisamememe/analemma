@@ -24,8 +24,6 @@ export const replaceSeries = async (
   { id, ...fields }: ContractInputs["admin"]["series"]["update"],
 ) =>
   db.transaction(async (tx) => {
-    await tx.execute(sql`lock table ${series} in share row exclusive mode`);
-
     const taken = tx
       .select({ id: series.id })
       .from(series)
