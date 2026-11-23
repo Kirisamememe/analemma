@@ -21,7 +21,7 @@ import { Notice } from "@/ui/primitives/notice";
 type Page = ApiOutputs["admin"]["fixedPages"]["get"];
 
 type FrameProps = {
-  /** 一覧へ戻る link の下に置く、見出しと中身。 */
+  /** 一覧へ戻るリンクの下に置く、見出しと中身。 */
   children: ReactNode;
 };
 

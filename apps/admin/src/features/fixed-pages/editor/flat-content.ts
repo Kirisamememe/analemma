@@ -17,7 +17,7 @@ export type FlatContent = {
 
 type UnknownKeys = Map<string, FixedPageContent>;
 
-/** フォームの値(slug・タイトルと、平らにした中身)。 */
+/** フォームの値(slug・タイトルと、項目の値と repeat の並び)。 */
 export type EditorValues = FlatContent & {
   /** slug。 */
   slug: string;

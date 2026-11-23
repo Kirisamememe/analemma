@@ -68,7 +68,7 @@ export const contentErrors = (
 type Refused = Exclude<
   Awaited<ReturnType<typeof saveFixedPage>>,
   {
-    /** 保存できた結果。 */
+    /** どの結果か。 */
     readonly _tag: "Succeeded";
   }
 >;

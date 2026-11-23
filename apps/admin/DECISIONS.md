@@ -141,7 +141,7 @@ effect を使う hook の表は、次のとおり。
 - server の状態は TanStack Query で持つ。query client(`src/api/create-query-client.ts`)は、取得と送信のどちらかがセッションの無いこと(`UNAUTHORIZED`)を返したら、持っている状態を消して、ログインの画面に、今のパスを持たせて移す。セッションの無い失敗は、やり直さない。
 - 画面に focus が戻っても、取り直さない(`refetchOnWindowFocus: false`)。パスキーの操作は OS の画面を開くので、ログインの最中に focus が出入りし、取り直すと、ログインの最中にほかの管理用 API を呼ぶことになる(「server の認証に合わせること」)。
 - 取得したデータは、使う画面が無くなっても、TanStack Query の既定どおり5分は持ち、画面を開き直したときにまず描く。固定ページの編集のように、開いたときの値からフォームを作る画面では、`useApiQuery` の `discardWhenUnused` で、使う画面が無くなったらすぐに捨てる。持っていた古い値からフォームを作ると、ほかのタブで書き換えた中身を、保存で古い値に戻してしまう。送った操作の応答に新しい値があるときは、`useApiCache` の `replace` で、送っている取得を中断してから差し替える。
-- `useApiCache` の `refresh` は、使う画面の無い取得も取り直す(`refetchType: "all"`)。TanStack Query の既定では、使う画面の無い取得は古いとするだけで、画面を開いたときに古い値をまず描いてから取り直す。編集の画面で固定ページを削除してから一覧に戻ると、削除したページが一瞬出た。取り直しが届くまで、送った操作は送信中のままになる。
+- `useApiCache` の `refresh` は、使う画面の無い取得も取り直す(`refetchType: "all"`)。TanStack Query の既定では、使う画面の無い取得は stale にするだけで、画面を開いたときに古い値をまず描いてから取り直す。編集の画面で固定ページを削除してから一覧に戻ると、削除したページが一瞬出た。取り直しが届くまで、送った操作は送信中のままになる。
 - 送信の失敗は、やり直さない。登録やログインを2回送ると、使い切った challenge で失敗する。
 - 送信と取得は、オフラインでも保留せずに送り、失敗をその場で返す(`networkMode: "always"`)。TanStack Query の既定では、オフラインのときの送信を保留し、つながったときに確かめずに送る(すべてのセッションからのログアウトなどが、利用者の知らないうちに送られる。Codex のレビューで見つかった)。取得も保留すると、送信の後に一覧を取り直す処理が待ったままになり、送信が終わらない(Copilot のレビューで見つかった)。
 
@@ -156,7 +156,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - `useApiMutation` は、送信か送信後の処理が想定外の失敗で終わったら `onError` を呼ぶ。Dialog の外の操作(固定ページの公開の切り替えなど)の失敗を、Toast で知らせるため。セッション切れ(`UNAUTHORIZED`)では呼ばない。query client がログインの画面に移すので、閉じるまで残る失敗の Toast を、ログインの画面に持ち越さない。
 - `useApiMutation` は `send` の Promise が resolve したら `onSuccess` を呼ぶ。もう無いパスキーを操作したときの `NotFound` など、操作が断られた結果も `onSuccess` に渡り、その処理が完了すると `data` に入る。`send` や `onSuccess` が error で終わると `isError` が立つ。同じ操作を続けて送らせないよう、`onSuccess` の処理が終わるまで `isPending` を保つ。
 - 再取得に失敗したときは `useApiQuery` が `Failed` を返す。前のデータを表示すると、再取得できたように見えるため。
-- 画面を離れる前の確かめは、TanStack Router の `useBlocker` を `useLeaveConfirmation`(`src/api/leave-confirmation.ts`)で包む。features は確かめが要るかを返す関数を渡し、確かめの状態(`Idle`・`Asking`)と、離れる・残る操作だけを受け取る。管理画面の中の移動は管理画面の Dialog で確かめ、タブを閉じる・読み込み直すときはブラウザに確かめさせる。確かめが要るかは移るときに関数を呼んで決めるので、入力のたびに state を持ち直さず、effect も要らない。
+- 画面を離れる前の確かめは、TanStack Router の `useBlocker` を `useLeaveConfirmation`(`src/api/leave-confirmation.ts`)で包む。features は確かめが要るかを返す関数を渡し、確かめの状態(`Idle`・`Asking`)と、離れる・残る操作だけを受け取る。管理画面の中の移動は管理画面の Dialog で確かめ、タブを閉じる・読み込み直すときはブラウザに確かめさせる。確かめが要るかは移るときに関数を呼んで決め、state に持たないので、入力のたびに state を更新せず、effect も要らない。
 - 今回の適用範囲は `src/features/`。route ごとの画面を置く `src/routes/` は今は外のライブラリを直接 import する。
 
 ## ログインとセッション

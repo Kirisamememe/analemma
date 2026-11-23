@@ -53,7 +53,7 @@ describe("hasUnsavedChanges", () => {
   });
   const [first, second] = saved.items["rows"] ?? [];
 
-  test("保存で送る値が同じなら、入力を経ていても変わっていない", () => {
+  test("保存で送る値が同じなら、送らない未入力の違いがあっても変わっていない", () => {
     expect(hasUnsavedChanges(base, { saved, current: saved })).toBe(false);
     expect(
       hasUnsavedChanges(base, {
