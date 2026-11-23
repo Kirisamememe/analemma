@@ -1,4 +1,11 @@
-import { type ReactNode, useCallback, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  type ReactNode,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { ContentFields } from "./content-fields";
 import { DeleteFixedPage } from "./delete-fixed-page";
@@ -6,6 +13,14 @@ import {
   type FixedPageEditorProps,
   useEditorForm,
 } from "./hooks/use-editor-form";
+import {
+  type EditorHold,
+  fieldsChangedSinceEditing,
+  fieldsInUse,
+  holdWhileDeleting,
+  holdWhileEditing,
+  pageInUse,
+} from "./logic/editor-fields";
 
 import type { LeaveConfirmation } from "@/api/use-leave-confirmation";
 import { KindRefreshNotice } from "@/features/fixed-pages/list/kind-refresh-notice";
@@ -70,7 +85,7 @@ type EditorProps = {
   fieldsChanged: boolean;
 };
 
-const Editor = ({
+const EditorContent = ({
   pageProps: props,
   onEditing,
   onDeleteOpen,
@@ -175,24 +190,15 @@ const Editor = ({
   );
 };
 
+const Editor = memo(EditorContent);
+
 /** 種類の定義に沿って固定ページを作成・編集する、見出しとフォーム。 */
 export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
-  const [editedFields, setEditedFields] =
-    useState<FixedPageEditorProps["kind"]["fields"]>();
-
-  const [deletingFields, setDeletingFields] =
-    useState<FixedPageEditorProps["kind"]["fields"]>();
-
-  const [acknowledged, setAcknowledged] = useState<{
-    /** 保存を送った時点で表示していたページ。 */
-    before: NonNullable<FixedPageEditorProps["page"]>;
-    /** 保存が成功した後のページ。 */
-    saved: NonNullable<FixedPageEditorProps["page"]>;
-  }>();
-
-  const fields = editedFields ?? deletingFields ?? props.kind.fields;
+  const [hold, setHold] = useState<EditorHold>({});
+  const latest = props.kind.fields;
+  const fields = fieldsInUse(hold, latest);
   const key = useMemo(() => JSON.stringify(fields), [fields]);
-
+  const { acknowledged } = hold;
   const activeName = useRef<string>(undefined);
 
   const restoreFocus = useCallback((element: HTMLDivElement | null) => {
@@ -219,34 +225,45 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
     };
   }, []);
 
-  const pageProps =
-    props.page === undefined
-      ? props
-      : {
-          ...props,
-          page:
-            acknowledged?.before === props.page
-              ? acknowledged.saved
-              : props.page,
-          onSaved: (saved: NonNullable<FixedPageEditorProps["page"]>) => {
-            setAcknowledged({ before: props.page, saved });
-            props.onSaved(saved);
-          },
-        };
+  const onEditing = useCallback(
+    (editing: boolean) => {
+      setHold((current) => holdWhileEditing(current, { editing, latest }));
+    },
+    [latest],
+  );
+
+  const onDeleteOpen = useCallback(
+    (open: boolean) => {
+      setHold((current) => holdWhileDeleting(current, { open, latest }));
+    },
+    [latest],
+  );
+
+  const pageProps = useMemo((): FixedPageEditorProps => {
+    const kind = { ...props.kind, fields };
+
+    if (props.page === undefined) return { ...props, kind };
+
+    const before = props.page;
+
+    return {
+      ...props,
+      kind,
+      page: pageInUse({ acknowledged }, before),
+      onSaved: (saved) => {
+        setHold((current) => ({ ...current, acknowledged: { before, saved } }));
+        props.onSaved(saved);
+      },
+    };
+  }, [props, fields, acknowledged]); // 入力を始めた・やめただけでは作り直さず、フォームを描き直さない
 
   return (
     <div key={key} ref={restoreFocus}>
       <Editor
-        pageProps={{ ...pageProps, kind: { ...props.kind, fields } }}
-        fieldsChanged={
-          editedFields !== undefined && editedFields !== props.kind.fields
-        }
-        onDeleteOpen={(open) => {
-          setDeletingFields(open ? fields : undefined);
-        }}
-        onEditing={(editing) => {
-          setEditedFields(editing ? fields : undefined);
-        }}
+        pageProps={pageProps}
+        fieldsChanged={fieldsChangedSinceEditing(hold, latest)}
+        onDeleteOpen={onDeleteOpen}
+        onEditing={onEditing}
       />
     </div>
   );

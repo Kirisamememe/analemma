@@ -70,9 +70,8 @@ export const useEditorForm = (
   const { refresh, replace } = useApiCache();
   const root = useRef<HTMLDivElement>(null);
 
-  const [{ values: initial, ...base }] = useState(() =>
-    createEditorValues(kind.fields, page),
-  );
+  const [created] = useState(() => createEditorValues(kind.fields, page));
+  const { values: initial, ...base } = created;
 
   const saved = useRef(initial); // 開いたときの値か、最後に保存できた値
   const sending = useRef(false);
@@ -160,20 +159,20 @@ export const useEditorForm = (
     },
   });
 
-  const hasChanges = (): boolean => {
+  const hasChanges = useCallback((): boolean => {
     const current = form.state.values;
 
     return (
       Boolean(root.current?.querySelector("[data-uncommitted-input]")) ||
-      hasUnsavedChanges(base, { saved: saved.current, current })
+      hasUnsavedChanges(created, { saved: saved.current, current })
     );
-  };
+  }, [form, created]);
 
   const leaving = useLeaveConfirmation(hasChanges);
 
-  const reportEditing = (): void => {
+  const reportEditing = useCallback((): void => {
     onEditing?.(sending.current || hasChanges());
-  };
+  }, [onEditing, hasChanges]);
 
   const finishSaving = (): void => {
     sending.current = false;
@@ -210,10 +209,13 @@ export const useEditorForm = (
               : "fixedPageEditor.invalidTitle",
           );
 
-  const changed = (name: string) => {
-    reportEditing();
-    setErrors((previous) => clearChangedErrors(previous, name));
-  };
+  const changed = useCallback(
+    (name: string) => {
+      reportEditing();
+      setErrors((previous) => clearChangedErrors(previous, name));
+    },
+    [reportEditing],
+  ); // 入れ子の要素が props で受け取り、memo を保つ
 
   return {
     form,
