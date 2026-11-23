@@ -1,11 +1,12 @@
 import { describe, expect, test } from "bun:test";
 
-import type { ContractOutputs } from "@analemma/contract";
+import type { ContractInputs, ContractOutputs } from "@analemma/contract";
 
 import { image } from "@/db/schema/image";
 import { openDatabase } from "@/platform/database";
 import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
 import {
+  SUCCEEDED,
   catchErrorCode,
   createTestClient,
   signInAsAdmin,
@@ -18,6 +19,9 @@ type ImageValues = Partial<typeof image.$inferInsert>;
 
 /** 画像の一覧の1ページ。 */
 type ImagePage = ContractOutputs["admin"]["images"]["list"];
+
+/** 画像の書き換えで送る値。 */
+type ImageUpdate = ContractInputs["admin"]["images"]["update"];
 
 const MISSING_ID = "019b0000-0000-7000-8000-000000000000";
 
@@ -168,5 +172,154 @@ describe("画像の取得", () => {
     expect(
       await catchErrorCode(server.client.admin.images.get({ id: MISSING_ID })),
     ).toBe("NOT_FOUND");
+  });
+});
+
+describe("画像の書き換え", () => {
+  test("タイトル・説明・alt のどれかを変えたときだけ、更新した日時を進めること", async () => {
+    let now = TEST_NOW;
+    await using server = await createTestClient({ clock: { now: () => now } });
+
+    await signInAsAdmin(server);
+
+    const [id = ""] = await insertImages(server, [
+      { title: "夕立", description: "駅前で。", alt: "横断歩道" },
+    ]);
+
+    let values: ImageUpdate = {
+      id,
+      title: "夕立",
+      description: "駅前で。",
+      alt: "横断歩道",
+    };
+
+    const save = async (
+      day: number,
+      change: Partial<ImageUpdate>,
+    ): Promise<string> => {
+      now = new Date(Date.UTC(2026, 0, day));
+      values = { ...values, ...change };
+
+      return (await server.client.admin.images.update(values)).updatedAt;
+    };
+
+    expect(await save(2, { title: " 夕立のあと " })).toBe(
+      "2026-01-02T00:00:00.000Z",
+    );
+    expect(await save(3, { description: null })).toBe(
+      "2026-01-03T00:00:00.000Z",
+    );
+    expect(await save(4, { alt: "雨に濡れた横断歩道" })).toBe(
+      "2026-01-04T00:00:00.000Z",
+    );
+    expect(await save(5, {})).toBe("2026-01-04T00:00:00.000Z");
+    expect(await server.client.admin.images.get({ id })).toMatchObject({
+      title: "夕立のあと",
+      description: null,
+      alt: "雨に濡れた横断歩道",
+      published: true,
+      updatedAt: "2026-01-04T00:00:00.000Z",
+    });
+  });
+
+  test("無い ID は NOT_FOUND、空のタイトルや改行のある alt は BAD_REQUEST で断ること", async () => {
+    await using server = await createTestClient();
+
+    await signInAsAdmin(server);
+
+    const [id = ""] = await insertImages(server, [{}]);
+
+    const update = async (values: Partial<ImageUpdate>): Promise<string> =>
+      catchErrorCode(
+        server.client.admin.images.update({
+          id,
+          title: null,
+          description: null,
+          alt: null,
+          ...values,
+        }),
+      );
+
+    expect(await update({ id: MISSING_ID })).toBe("NOT_FOUND");
+    expect(await update({ title: "  " })).toBe("BAD_REQUEST");
+    expect(await update({ alt: "雨に濡れた\n横断歩道" })).toBe("BAD_REQUEST");
+    expect(
+      await update({ description: "駅前で。\n傘を持っていなかった。" }),
+    ).toBe(SUCCEEDED);
+  });
+});
+
+describe("公開と非公開", () => {
+  test("非公開にすると公開した日時を消し、公開し直した日時を公開した日時にして、更新した日時は変えないこと", async () => {
+    let now = new Date("2026-01-02T00:00:00.000Z");
+    await using server = await createTestClient({ clock: { now: () => now } });
+
+    await signInAsAdmin(server);
+
+    const [id = ""] = await insertImages(server, [{ title: "夕立" }]);
+    const images = server.client.admin.images;
+
+    expect(await images.unpublish({ id })).toMatchObject({
+      published: false,
+      publishedAt: null,
+      updatedAt: TEST_NOW.toISOString(),
+    });
+
+    const republished = now;
+
+    expect(await images.publish({ id })).toMatchObject({
+      published: true,
+      publishedAt: republished.toISOString(),
+      updatedAt: TEST_NOW.toISOString(),
+    });
+
+    now = new Date("2026-01-03T00:00:00.000Z");
+
+    expect(await images.publish({ id })).toMatchObject({
+      publishedAt: republished.toISOString(),
+    });
+  });
+
+  test("無い ID は NOT_FOUND で断ること", async () => {
+    await using server = await createTestClient();
+
+    await signInAsAdmin(server);
+
+    const images = server.client.admin.images;
+
+    expect(await catchErrorCode(images.publish({ id: MISSING_ID }))).toBe(
+      "NOT_FOUND",
+    );
+    expect(await catchErrorCode(images.unpublish({ id: MISSING_ID }))).toBe(
+      "NOT_FOUND",
+    );
+  });
+});
+
+describe("画像の削除", () => {
+  test("消した画像は一覧からも取得からも無くなり、cursor の画像を消しても続きを読めること", async () => {
+    await using server = await createTestClient();
+
+    await signInAsAdmin(server);
+
+    const [, , id = ""] = await insertImages(server, [
+      { title: "1" },
+      { title: "2" },
+      { title: "3" },
+    ]);
+
+    const images = server.client.admin.images;
+    const first = await images.list({ limit: 1 });
+
+    expect(first.nextCursor).toBe(id);
+
+    await images.delete({ id });
+
+    expect(
+      titlesOf(await images.list({ cursor: first.nextCursor ?? "" })),
+    ).toEqual(["2", "1"]);
+    expect(titlesOf(await images.list({}))).toEqual(["2", "1"]);
+    expect(await catchErrorCode(images.get({ id }))).toBe("NOT_FOUND");
+    expect(await catchErrorCode(images.delete({ id }))).toBe("NOT_FOUND");
   });
 });

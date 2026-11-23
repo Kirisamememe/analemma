@@ -1,7 +1,13 @@
 import { z } from "zod";
 
 import { adminAccess } from "../access-errors";
-import { adminImage, imageId } from "./image-values";
+import {
+  adminImage,
+  imageAlt,
+  imageDescription,
+  imageId,
+  imageTitle,
+} from "./image-values";
 
 const byId = z.object({ id: imageId });
 
@@ -38,4 +44,46 @@ export const images = {
     })
     .input(byId)
     .output(adminImage),
+  update: adminAccess
+    .errors({ NOT_FOUND: { status: 404 } })
+    .route({
+      method: "POST",
+      path: "/admin/images/update",
+      summary: "画像のタイトル・説明・alt を書き換える",
+    })
+    .input(
+      byId.extend({
+        title: imageTitle.nullable(),
+        description: imageDescription.nullable(),
+        alt: imageAlt.nullable(),
+      }),
+    )
+    .output(adminImage),
+  publish: adminAccess
+    .errors({ NOT_FOUND: { status: 404 } })
+    .route({
+      method: "POST",
+      path: "/admin/images/publish",
+      summary: "画像を公開する",
+    })
+    .input(byId)
+    .output(adminImage),
+  unpublish: adminAccess
+    .errors({ NOT_FOUND: { status: 404 } })
+    .route({
+      method: "POST",
+      path: "/admin/images/unpublish",
+      summary: "画像を非公開にする",
+    })
+    .input(byId)
+    .output(adminImage),
+  delete: adminAccess
+    .errors({ NOT_FOUND: { status: 404 } })
+    .route({
+      method: "POST",
+      path: "/admin/images/delete",
+      summary: "画像を消す",
+    })
+    .input(byId)
+    .output(z.void()),
 };
