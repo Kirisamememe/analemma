@@ -1,3 +1,4 @@
+import { waitFor } from "@testing-library/react";
 import { describe, expect, test } from "bun:test";
 
 import { createTestApp } from "@/testing/create-test-app";
@@ -16,6 +17,8 @@ describe("createTestApp", () => {
     await router.load();
 
     expect(calls).toEqual(["admin/session/get"]);
-    expect(router.state.location.pathname).toBe("/login");
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/login");
+    });
   });
 });

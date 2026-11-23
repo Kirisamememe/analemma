@@ -1,14 +1,11 @@
-import { safe } from "@orpc/client";
 import type { QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
-  redirect,
   type RouterHistory,
 } from "@tanstack/react-router";
 
-import { isUnauthorized } from "@/api/api-errors";
 import type { ApiClient } from "@/api/api-types";
 import { createQueryClient } from "@/api/create-query-client";
 import type { AuthGate } from "@/features/auth/create-auth-gate";
@@ -40,6 +37,8 @@ export type RouterContext = {
   readonly authenticator: Authenticator;
   /** ログインの最中に、管理用 API を送らせない gate。 */
   readonly gate: AuthGate;
+  /** server の状態を持つ query client。 */
+  readonly queryClient: QueryClient;
 };
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
@@ -65,20 +64,14 @@ const signedInRoute = createRoute({
   id: "signed-in",
   component: SignedInLayout,
   errorComponent: SessionErrorPage,
-  beforeLoad: async ({ context, location }) => {
-    const [error] = await safe(context.api.admin.session.get());
-
-    if (error !== null && isUnauthorized(error)) {
-      redirect({
-        to: "/login",
-        search: toLoginSearch({ redirect: location.href }),
-        throw: true,
-      });
-    }
-
-    if (error !== null) {
-      throw error;
-    }
+  beforeLoad: ({ context: { api, queryClient } }) => {
+    void queryClient
+      .query({
+        queryKey: ["admin", "session"],
+        queryFn: () => api.admin.session.get(),
+        retry: false,
+      })
+      .catch(() => undefined); // 401 は query client がログインの画面へ移す
   },
 });
 
@@ -146,18 +139,16 @@ const routeTree = rootRoute.addChildren([
 ]);
 
 /** 管理画面を組み立てるときに渡す値。 */
-export type AppDependencies = RouterContext & {
+export type AppDependencies = Omit<RouterContext, "queryClient"> & {
   /** 画面の履歴。 */
   readonly history: RouterHistory;
 };
 
 const createAppRouter = ({
   history,
-  api,
-  authenticator,
-  gate,
-}: AppDependencies) =>
-  createRouter({ routeTree, history, context: { api, authenticator, gate } });
+  ...context
+}: AppDependencies & Pick<RouterContext, "queryClient">) =>
+  createRouter({ routeTree, history, context });
 
 /** 管理画面の router。 */
 export type AppRouter = ReturnType<typeof createAppRouter>;
@@ -172,8 +163,6 @@ export type AppParts = {
 
 /** router と、セッションが切れたらログインの画面に移す query client を組み立てる。 */
 export const createApp = (dependencies: AppDependencies): AppParts => {
-  const router = createAppRouter(dependencies);
-
   const queryClient = createQueryClient({
     onUnauthorized: (client) => {
       client.clear();
@@ -188,6 +177,8 @@ export const createApp = (dependencies: AppDependencies): AppParts => {
       });
     },
   });
+
+  const router = createAppRouter({ ...dependencies, queryClient });
 
   return { router, queryClient };
 };

@@ -2,6 +2,7 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import type { FakeReply } from "@/testing/create-fake-api";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
@@ -50,29 +51,34 @@ describe("router", () => {
     );
   });
 
-  test("セッションを確かめられなければ、訳した知らせを出し、やり直せる", async () => {
-    let reachable = false;
+  test("セッションの確認の応答を待たずに、画面を描く", async () => {
+    const session = Promise.withResolvers<FakeReply<"admin/session/get">>();
 
     renderApp({
       path: "/",
-      routes: {
-        "admin/session/get": () =>
-          reachable
-            ? { output: { expiresAt: "2026-01-08T00:00:00.000Z" } }
-            : { error: "INTERNAL_SERVER_ERROR", defined: false },
-      },
+      routes: { "admin/session/get": () => session.promise },
     });
-
-    expect((await screen.findByRole("alert")).textContent).toBe(
-      "ログイン状態を確認できませんでした。もう一度試してください。",
-    );
-    expect(screen.queryByRole("navigation")).toBeNull();
-
-    reachable = true;
-    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
 
     expect(
       await screen.findByRole("heading", { name: "ホーム" }),
     ).toBeDefined();
+    session.resolve({ output: { expiresAt: "2026-01-08T00:00:00.000Z" } });
+  });
+
+  test("セッションを確かめられなくても、画面を止めない", async () => {
+    renderApp({
+      path: "/",
+      routes: {
+        "admin/session/get": () => ({
+          error: "INTERNAL_SERVER_ERROR",
+          defined: false,
+        }),
+      },
+    });
+
+    expect(
+      await screen.findByRole("heading", { name: "ホーム" }),
+    ).toBeDefined();
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 });
