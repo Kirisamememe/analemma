@@ -160,7 +160,7 @@ effect を使う hook の表は、次のとおり。
 features のビジネスロジックを外のライブラリから独立させるため、features の外部依存を減らす(ユーザーが決めた)。ライブラリを差し替えるときに調べて直す場所を限るために、外のライブラリへの依存を `src/i18n/` と `src/api/` に集める。差し替えへの備えは、抽象化の層を増やすのではなく、依存の場所を限ることで担保する。
 
 - features に渡すのは、今使う操作と値に絞る。ライブラリの型を返したり、名前を変えて出し直したりすると、呼び出し側もライブラリの型や振る舞いに依存するため。
-- query のキーと、再認証などの操作の中身は features が持つ。パスキーなど、feature 専用の hook を `src/api/` に置くと、feature のロジックを呼ぶために `src/api/` が features を import し、依存の向きが逆になる。
+- query のキーと、server の API を呼ぶ操作の中身は features が持つ。複数の feature が使うもの(再認証)だけは `src/queries/` に置く(「hook・純粋な関数・server の API を呼ぶ処理の置き場所」)。パスキーなど、feature 専用の hook を `src/api/` に置くと、feature のロジックを呼ぶために `src/api/` が features を import し、依存の向きが逆になる。`src/queries/reauthenticate.ts` は、認証器の型だけを `@/features/auth/webauthn` から `import type` する。型だけなので、実行時には features に依存しない。
 - ナビには、今いる画面へのリンクかを返す関数を渡す。`SignedInLayout` が既存の route の組み立てと一緒に `useMatchRoute` を使うので、ナビのリンクは同じ照合を使える。
 - `callApi` は呼び出し側が扱う code だけを `Failed` で返し、ほかの失敗は元の error を throw する。セッション切れを表す `UNAUTHORIZED` を query client に届け、ログインの画面への移動を query client に任せるため。
 - `useApiMutation` は、送信か送信後の処理が想定外の失敗で終わったら `onError` を呼ぶ。Dialog の外の操作(固定ページの公開の切り替えなど)の失敗を、Toast で知らせるため。セッション切れ(`UNAUTHORIZED`)では呼ばない。query client がログインの画面に移すので、閉じるまで残る失敗の Toast を、ログインの画面に持ち越さない。
