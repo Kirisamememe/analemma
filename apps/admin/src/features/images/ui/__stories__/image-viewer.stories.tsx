@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { ImageViewer } from "@/features/images/ui/image-viewer";
 import { ViewerFrame } from "@/features/images/ui/viewer-frame";
+import { ViewerActions } from "@/features/images/ui/viewer-visit";
 import { samplePhoto } from "@/testing/sample-photos";
 import { Text } from "@/ui/layout";
 import { LoadingState } from "@/ui/patterns";
@@ -16,14 +17,28 @@ const back = (
   </Text>
 );
 
+type ViewerStoryContext = {
+  /** 待機中の操作ボタンを表示する設定。 */
+  parameters: {
+    /** 次の写真を待っているか。 */
+    waitingForNext?: boolean;
+  };
+};
+
 const meta = {
   title: "features/images/ImageViewer",
   component: ImageViewer,
   decorators: [
-    (Story) => (
+    (Story, { parameters }: ViewerStoryContext) => (
       <ViewerFrame
         back={back}
-        actions={<Button size="sm-to-md">非公開にする</Button>}
+        actions={
+          <ViewerActions disabled={parameters.waitingForNext === true}>
+            <Button size="sm-to-md">編集</Button>
+            <Button size="sm-to-md">非公開にする</Button>
+            <Button aria-label="画像を削除" icon="trash-2" size="sm-to-md" />
+          </ViewerActions>
+        }
       >
         <Story />
       </ViewerFrame>
@@ -68,4 +83,9 @@ export const NoDeliveryImage: Story = {
 export const Loading: Story = {
   /** 写真の代わりに、読み込んでいることを出す骨組み。 */
   render: () => <LoadingState layout="media" />,
+};
+
+export const WaitingForNext: Story = {
+  args: { waiting: true },
+  parameters: { waitingForNext: true },
 };

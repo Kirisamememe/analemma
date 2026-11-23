@@ -234,7 +234,7 @@
 }
 
 @utility max-h-viewer-photo {
-  max-height: calc(100dvh - var(--size-nav-bar));
+  max-height: calc(100dvh - var(--viewer-bar-height, var(--size-nav-bar)));
 }
 
 @utility min-h-nav-bar {
@@ -362,7 +362,7 @@
   }
 
   :root:has([data-top-bar="viewer"]) {
-    --viewport-top-inset: var(--size-nav-bar);
+    --viewport-top-inset: var(--viewer-bar-height, var(--size-nav-bar));
   }
 
   :root[data-theme="light"] {
