@@ -29,6 +29,8 @@ export type FieldErrors = Record<string, string>;
 export type RefusedSave = {
   /** slug・タイトルと、中身の場所ごとの知らせ。 */
   fields: FieldErrors;
+  /** 画像の項目に直接渡す知らせ。 */
+  images?: FieldErrors;
   /** 失敗の Toast に出す文。 */
   message: string;
 };
@@ -39,21 +41,26 @@ export const contentErrors = (
   t: ReturnType<typeof useTranslate>,
 ): RefusedSave => {
   const fields: FieldErrors = {};
+  const images: FieldErrors = {};
   const translate = (issue: ContentIssue) => t(issueMessage(issue.code));
 
-  for (const { location, issue } of issues.bound) {
+  for (const { location, image, issue } of issues.bound) {
     const name = "content." + location.join("/");
     const message = translate(issue);
-    const previous = fields[name];
+    const target = image === true ? images : fields;
+    const previous = target[name];
 
-    fields[name] =
+    target[name] =
       previous === undefined || previous.includes(message)
         ? message
         : previous + " " + message;
   }
 
+  const errors =
+    Object.keys(images).length === 0 ? { fields } : { fields, images };
+
   if (issues.unbound.length === 0 && issues.bound.length > 0) {
-    return { fields, message: t("fixedPageEditor.invalidContent") };
+    return { ...errors, message: t("fixedPageEditor.invalidContent") };
   }
 
   const messages = issues.unbound.map((issue) =>
@@ -64,7 +71,7 @@ export const contentErrors = (
   );
 
   return {
-    fields,
+    ...errors,
     message: [t("fixedPageEditor.changedKind"), ...messages].join(" "),
   };
 };

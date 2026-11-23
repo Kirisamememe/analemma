@@ -9,7 +9,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { imageQueryKey } from "@/features/images/detail/queries/image-query";
+import { imageQueryKey } from "@/queries/image-query";
 import type { FakeReply } from "@/testing/create-fake-api";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { renderApp } from "@/testing/render-app";

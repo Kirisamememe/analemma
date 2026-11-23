@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
-import { imageQueryKey } from "../../queries/image-query";
+import { imageQueryKey } from "@/queries/image-query";
 import { usePublication } from "../use-publication";
 
 import { createTestApp } from "@/testing/create-test-app";

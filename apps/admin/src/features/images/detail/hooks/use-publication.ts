@@ -1,5 +1,5 @@
 import { setPublication } from "../queries/image-actions";
-import type { AdminImage } from "../queries/image-query";
+import type { AdminImage } from "@/queries/image-query";
 import { useImageCache } from "./use-image-cache";
 import { useImageDialog } from "./use-image-dialog";
 

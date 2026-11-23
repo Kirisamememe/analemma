@@ -9,11 +9,6 @@ import {
 } from "./logic/image-text";
 import { mergeImageChange } from "./logic/merge-image-change";
 import { saveImage } from "./queries/image-actions";
-import {
-  imageQueryKey,
-  loadImage,
-  type LoadedImage,
-} from "./queries/image-query";
 
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
@@ -26,6 +21,11 @@ import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
 import { checkAfterSubmit, useAppForm } from "@/components/forms";
 import { createFieldGuide } from "@/components/forms/logic/field-guide";
 import { type MessageKey, useLocale, useTranslate } from "@/i18n/use-translate";
+import {
+  imageQueryKey,
+  loadImage,
+  type LoadedImage,
+} from "@/queries/image-query";
 import { IMAGES_QUERY_KEY, updateImagePage } from "@/queries/images-query";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";

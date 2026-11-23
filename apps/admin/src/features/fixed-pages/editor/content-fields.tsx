@@ -4,8 +4,10 @@ import type { FieldDefinition } from "@analemma/contract";
 
 import { Branch, ContentGroup } from "../ui/content-group";
 import type { EditorForm } from "./hooks/use-editor-form";
+import { ImageField } from "./image-field";
 import { RepeatField } from "./repeat-field";
 
+import { toFieldErrorMessage } from "@/components/forms/logic/to-field-error-message";
 import { useTranslate } from "@/i18n/use-translate";
 
 /** 同じ段にある項目に渡す値。 */
@@ -93,7 +95,19 @@ const ContentFieldsContent = ({
             case "text":
               return <field.TextField label={label} isRequired={required} />;
             case "image":
-              return null;
+              return (
+                <ImageField
+                  label={label}
+                  required={required}
+                  error={toFieldErrorMessage(field.state.meta.errors)}
+                  value={
+                    typeof field.state.value === "string"
+                      ? field.state.value
+                      : null
+                  }
+                  onChange={field.handleChange}
+                />
+              );
             case "url":
               return (
                 <field.TextField

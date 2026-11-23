@@ -1,7 +1,7 @@
 import {
   imageNeighborsQueryKey,
   loadImageNeighbors,
-} from "../queries/image-query";
+} from "../queries/image-neighbors-query";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";

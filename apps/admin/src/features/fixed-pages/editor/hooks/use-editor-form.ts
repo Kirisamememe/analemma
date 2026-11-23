@@ -135,6 +135,10 @@ export const useEditorForm = (
 
       const refused = refusedSaveErrors(result, t);
 
+      if (refused.images !== undefined) {
+        form.setErrorMap({ onSubmit: { fields: refused.images } });
+      }
+
       focusOnRender.current = refused.fields;
       setErrors(refused.fields);
       failure.show(refused.message);

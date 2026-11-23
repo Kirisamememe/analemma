@@ -1,7 +1,7 @@
 import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
-import { useViewerImage } from "@/features/images/detail/hooks/use-viewer-image";
+import { useImage } from "@/components/images/hooks/use-image";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";
@@ -14,10 +14,9 @@ test("上の帯と写真の欄が同じ画像を待っても、画像の取得�
   const app = createTestApp({ path: "/", routes: server.routes });
   await app.router.load();
 
-  const { result } = renderHook(
-    () => [useViewerImage(id), useViewerImage(id)],
-    { wrapper: withAppProviders(app) },
-  );
+  const { result } = renderHook(() => [useImage(id), useImage(id)], {
+    wrapper: withAppProviders(app),
+  });
 
   await waitFor(() => {
     expect(result.current.map((query) => query._tag)).toEqual([

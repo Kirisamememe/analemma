@@ -1,10 +1,10 @@
 import { mergeImageChange } from "../logic/merge-image-change";
+import { IMAGE_NEIGHBORS_QUERY_KEY } from "../queries/image-neighbors-query";
 import {
   type AdminImage,
-  IMAGE_NEIGHBORS_QUERY_KEY,
   imageQueryKey,
   type LoadedImage,
-} from "../queries/image-query";
+} from "@/queries/image-query";
 
 import { useApiCache } from "@/api/server-state/server-state";
 import { IMAGES_QUERY_KEY, updateImagePage } from "@/queries/images-query";

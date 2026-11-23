@@ -1,6 +1,6 @@
 import { imageAlt, imageDescription, imageTitle } from "@analemma/contract";
 
-import type { AdminImage } from "../queries/image-query";
+import type { AdminImage } from "@/queries/image-query";
 
 import type { ApiInputs } from "@/api/api-types";
 

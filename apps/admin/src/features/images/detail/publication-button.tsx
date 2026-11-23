@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { usePublication } from "./hooks/use-publication";
-import type { AdminImage } from "./queries/image-query";
+import type { AdminImage } from "@/queries/image-query";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster } from "@/ui/layout";
