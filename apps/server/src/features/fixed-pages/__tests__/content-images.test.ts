@@ -6,7 +6,9 @@ import type {
 } from "@analemma/contract";
 
 import { deliveryImage } from "@/db/schema/delivery-image";
+import { fixedPage } from "@/db/schema/fixed-page";
 import { image } from "@/db/schema/image";
+import { kind } from "@/db/schema/kind";
 import { openDatabase } from "@/platform/database";
 import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
 import {
@@ -37,6 +39,37 @@ const gallery: KindDefinitionInput = {
 };
 
 const page = { kind: "gallery", slug: "sea", title: "海" };
+
+test("以前の真偽値の定義が残った公開ページを、定義を送り直す前にも読めること", async () => {
+  await using server = await createTestClient();
+  await using connection = openDatabase({
+    target: toTestDatabaseTarget(server.databaseName),
+    logger: { write: () => undefined },
+  });
+  const dates = { createdAt: TEST_NOW, updatedAt: TEST_NOW };
+  await connection.db.insert(kind).values({
+    ...dates,
+    name: page.kind,
+    label: "写真集",
+    fields: [
+      { type: "boolean", key: "listed", label: "表示", optional: false },
+    ],
+  });
+  const content = { listed: false, note: "撮影記録" };
+  await connection.db.insert(fixedPage).values({
+    ...dates,
+    ...page,
+    content,
+    position: 0,
+    publishedAt: TEST_NOW,
+  });
+
+  const result = await server
+    .internal()
+    .public.fixedPages.get({ kind: page.kind, slug: page.slug });
+
+  expect(result.content).toEqual(content);
+});
 
 test("必須の画像の未入力と入れ子の画像の ID の形式を検査すること", async () => {
   await using server = await createTestClient();
