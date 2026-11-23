@@ -11,9 +11,39 @@ const memberName = (node) => {
   return node.computed ? node.property.value : node.property.name;
 };
 
+const isClient = (node, clients) =>
+  clients.has(node.name) || memberName(node) === "api";
+
 const readsApiGroup = (node, clients) =>
-  API_GROUPS.has(memberName(node)) &&
-  (clients.has(node.object.name) || memberName(node.object) === "api");
+  API_GROUPS.has(memberName(node)) && isClient(node.object, clients);
+
+const takesApiGroup = (node, clients) =>
+  node.id.type === "ObjectPattern" &&
+  node.init !== null &&
+  isClient(node.init, clients) &&
+  node.id.properties.some(({ key }) => API_GROUPS.has(key?.name));
+
+const destructuredHookNames = (program) =>
+  new Set(
+    program.body
+      .filter(({ type }) => type === "VariableDeclaration")
+      .flatMap(({ declarations }) => declarations)
+      .filter(({ id }) => id.type === "ObjectPattern")
+      .flatMap(({ id }) => id.properties.map(({ value }) => value?.name))
+      .filter((name) => HOOK_NAME.test(name ?? "")),
+  );
+
+const laterExportedHooks = (program) => {
+  const names = destructuredHookNames(program);
+
+  return program.body
+    .filter(
+      ({ type, source, declaration }) =>
+        type === "ExportNamedDeclaration" && !source && !declaration,
+    )
+    .flatMap(({ specifiers }) => specifiers)
+    .filter(({ local }) => names.has(local.name));
+};
 
 const adminModuleLocation = {
   meta: {
@@ -95,7 +125,19 @@ const adminModuleLocation = {
           context.report({ node, messageId: "query" });
         }
       },
+      VariableDeclarator(node) {
+        if (inFeature && !inQueries && takesApiGroup(node, clients)) {
+          usesApi = true;
+          context.report({ node, messageId: "query" });
+        }
+      },
       "Program:exit"(program) {
+        if (directory !== "hooks") {
+          for (const node of laterExportedHooks(program)) {
+            context.report({ node, messageId: "hook" });
+          }
+        }
+
         for (const node of collectExportedFunctions(program)) {
           if (HOOK_NAME.test(node.id?.name ?? "")) {
             if (directory !== "hooks") {

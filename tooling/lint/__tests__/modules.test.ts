@@ -132,6 +132,16 @@ describe("管理画面のモジュールの置き場所", () => {
       message: "hook は",
     },
     {
+      label: "hooks の外で分割代入し、別の文で export した hook",
+      file: "components/form-hook.ts",
+      message: "hook は",
+    },
+    {
+      label: "queries の外で、client から分割代入で取り出したアクセス区分",
+      file: "features/pages/hooks/use-load-pages.ts",
+      message: "server の API",
+    },
+    {
       label: "queries の外で、型を付けた引数から呼ぶ server の API",
       file: "features/pages/load-pages.ts",
       message: "server の API",
