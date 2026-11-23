@@ -20,16 +20,22 @@ import { typography } from "@/ui/typography";
 
 const toastStyle = tv({
   slots: {
-    region:
-      "fixed inset-x-4 top-toast z-toast mx-auto flex max-w-sm flex-col gap-2 rounded-surface outline-hidden is-focus-shown:focus-ring",
+    region: [
+      "fixed inset-x-4 top-toast z-toast mx-auto max-w-sm",
+      "flex flex-col gap-2",
+      "rounded-surface outline-hidden is-focus-shown:focus-ring",
+    ],
     toast:
       "rounded-surface shadow-overlay toast-animation is-focus-shown:focus-ring",
     panel: "flex items-start gap-2 rounded-surface py-2 ps-4 pe-2",
     content: "flex min-w-0 flex-1 items-start gap-2 py-1.5",
     iconFrame: "flex h-5 shrink-0 items-center",
     message: "min-w-0 wrap-anywhere",
-    close:
-      "inline-flex size-8 shrink-0 items-center justify-center rounded-control border border-transparent outline-hidden transition is-hovered:state-hover is-focus-shown:focus-ring-current is-pressed:state-pressed",
+    close: [
+      "inline-flex size-8 shrink-0 items-center justify-center",
+      "rounded-control border border-transparent outline-hidden transition",
+      "is-hovered:state-hover is-focus-shown:focus-ring-current is-pressed:state-pressed",
+    ],
   },
   variants: {
     tone: {

@@ -14,15 +14,28 @@ import { tv } from "@/ui/tv";
 const list = tv({ base: "flex flex-col gap-2 outline-hidden" });
 
 const row = tv({
-  base: "relative flex items-center gap-1 rounded-control bg-surface py-2 pr-3 pl-1 shadow-control outline-hidden transition after:pointer-events-none after:absolute after:inset-0 after:rounded-control after:outline after:outline-fg/10 forced-colors:after:outline-line is-focus-shown:focus-ring is-dragging:bg-surface-sunken is-dragging:shadow-none is-dragging:after:outline-fg/40 is-dragging:after:outline-dashed",
+  base: [
+    "relative flex items-center gap-1",
+    "rounded-control bg-surface py-2 pr-3 pl-1 shadow-control",
+    "outline-hidden transition is-focus-shown:focus-ring",
+    "after:pointer-events-none after:absolute after:inset-0 after:rounded-control after:outline after:outline-fg/10 forced-colors:after:outline-line",
+    "is-dragging:bg-surface-sunken is-dragging:shadow-none is-dragging:after:outline-fg/40 is-dragging:after:outline-dashed",
+  ],
 });
 
 const handle = tv({
-  base: "inline-flex h-control-sm shrink-0 items-center justify-center rounded-control px-1.5 text-fg-muted outline-hidden transition is-focus-shown:focus-ring is-disabled:state-disabled",
+  base: [
+    "inline-flex h-control-sm shrink-0 items-center justify-center",
+    "rounded-control px-1.5 text-fg-muted",
+    "outline-hidden transition is-focus-shown:focus-ring is-disabled:state-disabled",
+  ],
 });
 
 const dropIndicator = tv({
-  base: "relative -my-1 h-0 outline-hidden before:absolute before:inset-x-0 before:h-0.5 before:-translate-y-1/2 before:rounded-full",
+  base: [
+    "relative -my-1 h-0 outline-hidden",
+    "before:absolute before:inset-x-0 before:h-0.5 before:-translate-y-1/2 before:rounded-full",
+  ],
   variants: {
     isDropTarget: {
       true: "before:bg-primary",

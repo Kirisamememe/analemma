@@ -7,8 +7,12 @@ const tokenValue = tv({
   slots: {
     root: "flex flex-col gap-1.5",
     label: "wrap-anywhere text-fg",
-    value:
-      "block field-sizing-content w-full resize-none rounded-control border bg-surface-sunken px-3 py-2 font-mono wrap-anywhere text-fg outline-hidden focus-visible:focus-ring",
+    value: [
+      "block field-sizing-content w-full resize-none",
+      "rounded-control border bg-surface-sunken px-3 py-2",
+      "font-mono wrap-anywhere text-fg",
+      "outline-hidden focus-visible:focus-ring",
+    ],
   },
 });
 

@@ -11,10 +11,15 @@ import { typography } from "@/ui/typography";
 
 const dialog = tv({
   slots: {
-    overlay:
-      "fixed top-0 left-0 z-overlay flex h-(--visual-viewport-height) w-full dialog-backdrop-animation items-center justify-center bg-scrim/40 p-4",
-    modal:
-      "max-h-full w-full max-w-md dialog-panel-animation overflow-y-auto rounded-surface bg-surface p-6 text-fg shadow-overlay outline outline-fg/10",
+    overlay: [
+      "fixed top-0 left-0 z-overlay h-(--visual-viewport-height) w-full p-4",
+      "flex items-center justify-center",
+      "dialog-backdrop-animation bg-scrim/40",
+    ],
+    modal: [
+      "max-h-full w-full max-w-md overflow-y-auto rounded-surface p-6",
+      "dialog-panel-animation bg-surface text-fg shadow-overlay outline outline-fg/10",
+    ],
     body: "flex flex-col gap-4 outline-hidden",
     title: "wrap-anywhere text-fg",
   },
