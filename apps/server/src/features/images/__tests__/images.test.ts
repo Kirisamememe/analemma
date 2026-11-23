@@ -176,7 +176,7 @@ describe("画像の取得", () => {
 });
 
 describe("画像の書き換え", () => {
-  test("タイトル・説明・alt を書き換え、変えたときだけ更新した日時を進めること", async () => {
+  test("タイトル・説明・alt のどれかを変えたときだけ、更新した日時を進めること", async () => {
     let now = TEST_NOW;
     await using server = await createTestClient({ clock: { now: () => now } });
 
@@ -186,40 +186,39 @@ describe("画像の書き換え", () => {
       { title: "夕立", description: "駅前で。", alt: "横断歩道" },
     ]);
 
-    const edited = new Date("2026-01-02T00:00:00.000Z");
+    let values: ImageUpdate = {
+      id,
+      title: "夕立",
+      description: "駅前で。",
+      alt: "横断歩道",
+    };
 
-    now = edited;
+    const save = async (
+      day: number,
+      change: Partial<ImageUpdate>,
+    ): Promise<string> => {
+      now = new Date(Date.UTC(2026, 0, day));
+      values = { ...values, ...change };
 
-    const update = server.client.admin.images.update;
+      return (await server.client.admin.images.update(values)).updatedAt;
+    };
 
-    expect(
-      await update({
-        id,
-        title: " 夕立のあと ",
-        description: null,
-        alt: "雨に濡れた横断歩道",
-      }),
-    ).toMatchObject({
+    expect(await save(2, { title: " 夕立のあと " })).toBe(
+      "2026-01-02T00:00:00.000Z",
+    );
+    expect(await save(3, { description: null })).toBe(
+      "2026-01-03T00:00:00.000Z",
+    );
+    expect(await save(4, { alt: "雨に濡れた横断歩道" })).toBe(
+      "2026-01-04T00:00:00.000Z",
+    );
+    expect(await save(5, {})).toBe("2026-01-04T00:00:00.000Z");
+    expect(await server.client.admin.images.get({ id })).toMatchObject({
       title: "夕立のあと",
       description: null,
       alt: "雨に濡れた横断歩道",
       published: true,
-      updatedAt: edited.toISOString(),
-    });
-
-    now = new Date("2026-01-03T00:00:00.000Z");
-
-    expect(
-      await update({
-        id,
-        title: "夕立のあと",
-        description: null,
-        alt: "雨に濡れた横断歩道",
-      }),
-    ).toMatchObject({ updatedAt: edited.toISOString() });
-    expect(await server.client.admin.images.get({ id })).toMatchObject({
-      title: "夕立のあと",
-      updatedAt: edited.toISOString(),
+      updatedAt: "2026-01-04T00:00:00.000Z",
     });
   });
 
@@ -251,7 +250,7 @@ describe("画像の書き換え", () => {
 });
 
 describe("公開と非公開", () => {
-  test("非公開にすると公開した日時を消し、公開し直すとその日時で公開して、更新した日時は変えないこと", async () => {
+  test("非公開にすると公開した日時を消し、公開し直した日時を公開した日時にして、更新した日時は変えないこと", async () => {
     let now = new Date("2026-01-02T00:00:00.000Z");
     await using server = await createTestClient({ clock: { now: () => now } });
 
