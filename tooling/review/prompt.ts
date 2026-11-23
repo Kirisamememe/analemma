@@ -18,6 +18,30 @@ export type PromptPaths = {
   readonly commits: string;
 };
 
+/** 直したコミットの差分とメッセージのファイルの場所。 */
+export type FixPaths = {
+  /** 差分のファイル。 */
+  readonly diff: string;
+  /** コミットのメッセージのファイル。 */
+  readonly commits: string;
+};
+
+/** 2回目からのレビューの材料。 */
+export type Rereview = {
+  /** 前の回の番号。 */
+  readonly round: number;
+  /** 前の回がレビューしたコミットの SHA。 */
+  readonly previousHead: string;
+  /** 前の回の結果のファイル。 */
+  readonly result: string;
+  /** 前の回の採否の記録のファイル。 */
+  readonly decisions: string | undefined;
+  /** 直したコミットのファイル。 */
+  readonly fixes: FixPaths | undefined;
+  /** 2回目からのレビューの prompt。 */
+  readonly rules: string;
+};
+
 /** prompt を組み立てる材料。 */
 export type PromptMaterial = {
   /** レビューの観点。 */
@@ -38,6 +62,8 @@ export type PromptMaterial = {
   readonly rules: string;
   /** 各 `DECISIONS.md` の「割り切ったこと」。 */
   readonly tradeOffs: readonly TradeOffSection[];
+  /** 2回目からのレビューの材料。 */
+  readonly rereview?: Rereview | undefined;
 };
 
 const code = (text: string): string => `\`${text}\``;
@@ -55,6 +81,27 @@ const tradeOffSection = (tradeOffs: readonly TradeOffSection[]): string =>
     ]),
   ].join("\n");
 
+const rereviewSection = (
+  { decisions, fixes, previousHead, result, round, rules }: Rereview,
+  headCommit: string,
+): string =>
+  [
+    "## 前の回",
+    "",
+    `これは ${String(round + 1)} 回目のレビュー。前の回(${String(round)} 回目)は、コミット ${code(previousHead)} をレビューした。`,
+    "",
+    `- 前の回の結果:${code(result)}`,
+    `- 前の回の指摘の採否:${decisions === undefined ? "記録が無い" : code(decisions)}`,
+    ...(fixes === undefined
+      ? []
+      : [
+          `- 直したコミットの差分:${code(fixes.diff)}(${code(`git diff ${previousHead} ${headCommit}`)})`,
+          `- 直したコミットのメッセージ:${code(fixes.commits)}`,
+        ]),
+    "",
+    rules.trim(),
+  ].join("\n");
+
 /** 観点ごとの prompt に、読むものと「割り切ったこと」を添えて、prompt を組み立てる。 */
 export const buildPrompt = ({
   base,
@@ -63,6 +110,7 @@ export const buildPrompt = ({
   headCommit,
   paths,
   perspective,
+  rereview,
   rules,
   scope,
   tradeOffs,
@@ -94,6 +142,9 @@ export const buildPrompt = ({
     "",
     scope.trim(),
     "",
+    ...(rereview === undefined
+      ? []
+      : [rereviewSection(rereview, headCommit), ""]),
     tradeOffSection(tradeOffs),
     "",
     rules.trim(),

@@ -49,7 +49,7 @@
 - PR を作る前に必ず `git fetch` し、予定している PR の base を指定して、追加行数とタイトルを手元で `tooling/ci/check-pull-request-messages.ts` に通す(CI は、ほかのリポジトリの名前を探さない。流し方は `tooling/AGENTS.md`)。PR の本文は、どの検査も読まないので、名前が無いかを自分で見る。
 - PR を積み重ねる(stack)なら、PR が2〜3件の軽い stack は手で管理してよい。それより大きな stack は、GitHub の stacked PR(`gh stack`。公式の拡張 `github/gh-stack`)で管理する。stack の中は rebase で履歴を一直線に保ち(linear history。push は `--force-with-lease`)、merge commit を作らない。
 - コミットの粒度が消える merge はしない(複数のコミットを持つ PR を squash で1つにする、フェーズを1つのコミットに潰す、など)。
-- 子のブランチは、観点ごとにレビューする。観点は PR が触るものに合わせて選び、選んだ観点ごとに最低1回・最大3回流す。流すのは、`git fetch` の後に `bun run review -- --perspective <観点> --base origin/<フェーズのブランチ>`(今のブランチをレビューする。`--head` には手元のブランチの名前かコミットを渡せる。コミットを渡すと、今のブランチのフォルダに結果を書く)。数分から数十分かかるので、裏で流す。
+- 子のブランチは、観点ごとにレビューする。観点は PR が触るものに合わせて選び、選んだ観点ごとに最低1回・最大3回流す。流すのは、`git fetch` の後に `bun run review -- --perspective <観点> --base origin/<フェーズのブランチ>`(今のブランチをレビューする。`--head` には手元のブランチの名前かコミットを渡せる。コミットを渡すと、今のブランチのフォルダに結果を書く)。数分から数十分かかるので、裏で流す。2回目からは、前の回の結果と採否、前の回の後に足したコミット(直したコミット)を添え、直したコミットの範囲を見させる。仕様を変えたとき、別の PR を取り込んだとき(rebase を含む)、直しの影響が広がったときは、`--full` を付けてブランチの変更の全体を見させる(rebase した後は、付けないと止まる)。
 
   | 観点                     | `--perspective` | 選ぶとき                                                                                     |
   | ------------------------ | --------------- | -------------------------------------------------------------------------------------------- |
@@ -77,7 +77,7 @@
 - 選んだ観点のすべてで LGTM 相当になり、CI(`check`・`commit-messages`)が通ったら(画面や操作を変える PR は、ユーザーの承認も受けたら)、エージェントが子のブランチをフェーズのブランチへ merge してよい。LGTM 相当は、選んだ観点のすべてで LGTM になるか、上限の回数で残った重要度が高と中の指摘を、退けるか、「割り切ったこと」に書くか、ユーザーの答えに従って片付けた状態を指す。merge する前に、PR の本文に「## エージェントが判断したこと」の節を書き(merge の方法も書く。形は `.github/pull_request_template.md`)、label `agent-merged` を付ける。
 - merge の前に、子のブランチを base の先端にそろえる(ruleset が求める)。`git fetch` して `origin/phase/<番号>` に rebase し、`--force-with-lease` で push して、CI が通ってから merge する。GitHub の「Update branch」で merge commit を作らない。
 - merge した担当は、そのあとのフェーズのブランチへの push の CI(`check`)が通るまで見届け、落ちたら直す。
-- 子のブランチがすべて入ったら、フェーズのブランチを「つながりと一貫性」の観点で1〜2回レビューする(`git fetch` し、手元の `phase/<番号>` を origin に合わせてから、`bun run review -- --perspective coherence --base origin/main --head phase/<番号>`)。main への PR の「## エージェントが判断したこと」には、label `agent-merged` の PR ごとの判断を、PR へのリンク付きでまとめ、「つながりと一貫性」のレビューの結果を添える(形は同じ `.github/pull_request_template.md`)。main への merge は、ユーザーが判断する。
+- 子のブランチがすべて入ったら、フェーズのブランチを「つながりと一貫性」の観点で1〜2回レビューする(`git fetch` し、手元の `phase/<番号>` を origin に合わせてから、`bun run review -- --perspective coherence --base origin/main --head phase/<番号>`)。フェーズの途中で流すときも、最後の子のブランチが入った後に流す回を残す。前の回の後に子のブランチが入ったら、`--full` を付ける。main への PR の「## エージェントが判断したこと」には、label `agent-merged` の PR ごとの判断を、PR へのリンク付きでまとめ、「つながりと一貫性」のレビューの結果を添える(形は同じ `.github/pull_request_template.md`)。main への merge は、ユーザーが判断する。
 
 ## 使わないもの
 
