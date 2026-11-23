@@ -1,4 +1,5 @@
 import { type InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 type InfiniteQueryOptions<Page> = {
   /** query のキー。 */
@@ -73,11 +74,20 @@ export const useApiInfiniteQuery = <Page>({
     getNextPageParam: (page) => next(page),
   });
 
+  const [nextFailure, setNextFailure] =
+    useState<Pick<typeof query, "error" | "errorUpdateCount">>();
+
   if (query.isPending && query.errorUpdateCount === 0) {
     return { _tag: "Loading" };
   }
 
-  if (query.isPending || (query.isError && !query.isFetchNextPageError)) {
+  const failedNext =
+    query.isFetchNextPageError ||
+    (query.isError &&
+      nextFailure?.error === query.error &&
+      nextFailure.errorUpdateCount === query.errorUpdateCount);
+
+  if (query.data === undefined || (query.isError && !failedNext)) {
     return {
       _tag: "Failed",
       isRetrying: query.fetchStatus !== "idle", // 次の試行を待って一時停止している間も、取り直している
@@ -87,14 +97,25 @@ export const useApiInfiniteQuery = <Page>({
     };
   }
 
+  const loadNext = async (): Promise<void> => {
+    const result = await query.fetchNextPage({ cancelRefetch: false });
+
+    if (result.isFetchNextPageError) {
+      setNextFailure({
+        error: result.error,
+        errorUpdateCount: result.errorUpdateCount,
+      });
+    }
+  };
+
   const fetchNext = (): void => {
-    void query.fetchNextPage({ cancelRefetch: false });
+    void loadNext();
   };
 
   const nextPage = (): NextPage => {
     if (!query.hasNextPage) return { _tag: "None" };
 
-    return query.isFetchNextPageError
+    return failedNext
       ? {
           _tag: "Failed",
           isRetrying: query.fetchStatus !== "idle",

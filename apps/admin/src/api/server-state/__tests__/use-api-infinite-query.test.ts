@@ -53,6 +53,22 @@ const items = (result: Rendered) =>
 const nextOf = (result: Rendered) =>
   result.current._tag === "Loaded" ? result.current.next : undefined;
 
+const nextToLoad = (result: Rendered) => {
+  const next = nextOf(result);
+
+  if (next?._tag !== "Available") throw new Error("続きを読めません");
+
+  return next.load;
+};
+
+const nextToRetry = (result: Rendered) => {
+  const next = nextOf(result);
+
+  if (next?._tag !== "Failed") throw new Error("続きの失敗がありません");
+
+  return next.retry;
+};
+
 describe("useApiInfiniteQuery", () => {
   test("最初のページを読み、続きを足していき、最後のページで続きを無くす", async () => {
     const { result } = render(loadPage);
@@ -66,11 +82,7 @@ describe("useApiInfiniteQuery", () => {
       [1, 2, 3, 4],
       [1, 2, 3, 4, 5],
     ]) {
-      const next = nextOf(result);
-
-      if (next?._tag !== "Available") throw new Error("続きを読めません");
-
-      act(next.load);
+      act(nextToLoad(result));
       await waitFor(() => {
         expect(items(result)).toEqual(expected);
       });
@@ -79,42 +91,49 @@ describe("useApiInfiniteQuery", () => {
     expect(result.current).toMatchObject({ next: { _tag: "None" } });
   });
 
-  test("続きを読もうとしても一覧の取り直しを中断せず、新しい内容が届いてから続きを読める", async () => {
+  test("続きの失敗後も一覧の取り直しを待つ間は読んだページを残し、新しい内容から続きを読める", async () => {
     const queryClient = client();
     const refreshed = Promise.withResolvers<Page>();
     let refreshFirstPage = false;
 
-    const { result } = render(
-      (cursor) =>
-        refreshFirstPage && cursor === undefined
-          ? refreshed.promise
-          : loadPage(cursor),
-      queryClient,
-    );
+    const { result } = render((cursor) => {
+      if (cursor === undefined && refreshFirstPage) return refreshed.promise;
+
+      if (cursor !== undefined && !refreshFirstPage) {
+        return Promise.reject(new Error("続きが読めない"));
+      }
+
+      return loadPage(cursor);
+    }, queryClient);
 
     await waitFor(() => {
       expect(items(result)).toEqual([1, 2]);
     });
 
-    const next = nextOf(result);
-
-    if (next?._tag !== "Available") throw new Error("続きを読めません");
+    act(nextToLoad(result));
+    await waitFor(() => {
+      expect(nextOf(result)?._tag).toBe("Failed");
+    });
+    const retry = nextToRetry(result);
 
     refreshFirstPage = true;
     const refreshing = queryClient.invalidateQueries({ queryKey: KEY });
 
-    act(next.load);
+    await waitFor(() => {
+      expect(nextOf(result)).toMatchObject({
+        _tag: "Failed",
+        isRetrying: true,
+      });
+    });
+    expect(items(result)).toEqual([1, 2]);
+    act(retry);
     refreshed.resolve({ items: [2, 3], next: "4" });
     await refreshing;
     await waitFor(() => {
       expect(items(result)).toEqual([2, 3]);
     });
 
-    const afterRefresh = nextOf(result);
-
-    if (afterRefresh?._tag !== "Available") throw new Error("続きを読めません");
-
-    act(afterRefresh.load);
+    act(nextToLoad(result));
     await waitFor(() => {
       expect(items(result)).toEqual([2, 3, 5]);
     });
@@ -156,11 +175,7 @@ describe("useApiInfiniteQuery", () => {
       expect(items(result)).toEqual([1, 2]);
     });
 
-    const next = nextOf(result);
-
-    if (next?._tag !== "Available") throw new Error("続きを読めません");
-
-    act(next.load);
+    act(nextToLoad(result));
     await waitFor(() => {
       expect(result.current).toMatchObject({
         _tag: "Loaded",
@@ -170,11 +185,7 @@ describe("useApiInfiniteQuery", () => {
     expect(items(result)).toEqual([1, 2]);
     broken = false;
 
-    const failed = nextOf(result);
-
-    if (failed?._tag !== "Failed") throw new Error("続きの失敗がありません");
-
-    act(failed.retry);
+    act(nextToRetry(result));
     await waitFor(() => {
       expect(items(result)).toEqual([1, 2, 3, 4]);
     });
@@ -198,21 +209,14 @@ describe("useApiInfiniteQuery", () => {
     await waitFor(() => {
       expect(nextOf(result)?._tag).toBe("Available");
     });
-    const next = nextOf(result);
-
-    if (next?._tag !== "Available") throw new Error("続きを読めません");
-
-    act(next.load);
+    act(nextToLoad(result));
     await waitFor(() => {
       expect(nextOf(result)?._tag).toBe("Failed");
     });
-    const failed = nextOf(result);
-
-    if (failed?._tag !== "Failed") throw new Error("続きの失敗がありません");
 
     try {
       focusManager.setFocused(false);
-      act(failed.retry);
+      act(nextToRetry(result));
       await waitFor(() => {
         expect(queryClient.getQueryState(KEY)?.fetchStatus).toBe("paused");
       });
