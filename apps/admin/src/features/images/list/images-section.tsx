@@ -120,6 +120,7 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
       <ImageRows label={t("images.title")}>
         {images.map((image, index) => (
           <ImageTile
+            alt={image.alt}
             badge={image.published ? undefined : t("images.unpublished")}
             date={
               image.takenAt === null

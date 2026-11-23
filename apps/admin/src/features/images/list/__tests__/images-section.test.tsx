@@ -25,7 +25,7 @@ const deliveryImages = samplePhoto("dusk-ridge");
 const IMAGES: readonly FakeImageSeed[] = [
   { title: "夕暮れの稜線", takenAt: "2025-05-01T18:42:07", deliveryImages },
   { title: "港の灯り", published: false, deliveryImages },
-  { deliveryImages },
+  { alt: "霧に包まれた湖", deliveryImages },
   { title: "変換を待つ写真" },
 ];
 
@@ -73,6 +73,9 @@ describe("ImagesSection", () => {
       "無題",
       "表示用の画像がまだありません変換を待つ写真",
     ]);
+    expect(
+      screen.getByRole("link", { name: "霧に包まれた湖 無題" }),
+    ).toBeDefined();
   });
 
   test("画像が無ければ、中身の無い欄を出す", async () => {
