@@ -1,5 +1,5 @@
+import { loadAdminImage } from "@/features/images/load-admin-images";
 import { findImage } from "@/features/images/queries/images.query";
-import { toAdminImage } from "@/features/images/to-admin-image";
 import { adminProcedures } from "@/procedures";
 
 /** 公開しているかによらず、画像を返す procedure。 */
@@ -11,6 +11,6 @@ export const getImage = adminProcedures.images.get.handler(
       throw errors.NOT_FOUND();
     }
 
-    return toAdminImage(row);
+    return loadAdminImage(context.db, row);
   },
 );

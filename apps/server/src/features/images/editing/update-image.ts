@@ -1,5 +1,5 @@
 import { updateImageText } from "@/features/images/editing/queries/update-image.query";
-import { toAdminImage } from "@/features/images/to-admin-image";
+import { loadAdminImage } from "@/features/images/load-admin-images";
 import { adminProcedures } from "@/procedures";
 
 /** 画像のタイトル・説明・alt を書き換える procedure。 */
@@ -23,6 +23,6 @@ export const updateImage = adminProcedures.images.update.handler(
       details: { imageId: row.id },
     });
 
-    return toAdminImage(row);
+    return loadAdminImage(context.db, row);
   },
 );

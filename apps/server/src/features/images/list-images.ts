@@ -1,5 +1,5 @@
+import { loadAdminImages } from "@/features/images/load-admin-images";
 import { listImages as listImageRows } from "@/features/images/queries/images.query";
-import { toAdminImage } from "@/features/images/to-admin-image";
 import { adminProcedures } from "@/procedures";
 
 /** 公開しているかによらず、画像を新しく足した順に、1ページずつ返す procedure。 */
@@ -14,7 +14,7 @@ export const listImages = adminProcedures.images.list.handler(
     const last = page.at(-1);
 
     return {
-      images: page.map((row) => toAdminImage(row)),
+      images: await loadAdminImages(context.db, page),
       nextCursor:
         rows.length > input.limit && last !== undefined ? last.id : null,
     };

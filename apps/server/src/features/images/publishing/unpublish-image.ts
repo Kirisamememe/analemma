@@ -1,5 +1,5 @@
+import { loadAdminImage } from "@/features/images/load-admin-images";
 import { setPublished } from "@/features/images/publishing/queries/set-published.query";
-import { toAdminImage } from "@/features/images/to-admin-image";
 import { adminProcedures } from "@/procedures";
 
 /** 画像を非公開にする procedure。 */
@@ -21,6 +21,6 @@ export const unpublishImage = adminProcedures.images.unpublish.handler(
       details: { imageId: row.id },
     });
 
-    return toAdminImage(row);
+    return loadAdminImage(context.db, row);
   },
 );

@@ -1,5 +1,7 @@
 import type { ContractOutputs } from "@analemma/contract";
 
+import { toDeliveryImagePath } from "@/features/images/delivery/delivery-image-path";
+import type { DeliveryImageRow } from "@/features/images/queries/delivery-images.query";
 import {
   type ImageRow,
   isPublished,
@@ -18,8 +20,11 @@ const toOffset = (minutes: number): string => {
   return `${minutes < 0 ? "-" : "+"}${twoDigits(Math.trunc(absolute / MINUTES_PER_HOUR))}:${twoDigits(absolute % MINUTES_PER_HOUR)}`;
 };
 
-/** 画像の行を、管理画面に返す形にする。 */
-export const toAdminImage = (row: ImageRow): AdminImage => ({
+/** 画像の行と、その配信用の画像の行を、管理画面に返す形にする。 */
+export const toAdminImage = (
+  row: ImageRow,
+  deliveryImages: readonly DeliveryImageRow[],
+): AdminImage => ({
   id: row.id,
   title: row.title,
   description: row.description,
@@ -39,4 +44,11 @@ export const toAdminImage = (row: ImageRow): AdminImage => ({
   publishedAt: row.publishedAt?.toISOString() ?? null,
   createdAt: row.createdAt.toISOString(),
   updatedAt: row.updatedAt.toISOString(),
+  deliveryImages: deliveryImages
+    .toSorted((a, b) => a.width - b.width)
+    .map(({ height, imageId, width }) => ({
+      width,
+      height,
+      url: toDeliveryImagePath(imageId, width),
+    })),
 });

@@ -26,11 +26,11 @@ const row = (change: Partial<ImageRow> = {}): ImageRow => ({
 
 describe("toAdminImage", () => {
   test("撮影した日時を、時差を含まない ISO 8601 の形で返すこと", () => {
-    expect(toAdminImage(row({ takenAt: "2025-05-01 14:03:27" })).takenAt).toBe(
-      "2025-05-01T14:03:27",
-    );
     expect(
-      toAdminImage(row({ takenAt: "2025-05-01 14:03:27.25" })).takenAt,
+      toAdminImage(row({ takenAt: "2025-05-01 14:03:27" }), []).takenAt,
+    ).toBe("2025-05-01T14:03:27");
+    expect(
+      toAdminImage(row({ takenAt: "2025-05-01 14:03:27.25" }), []).takenAt,
     ).toBe("2025-05-01T14:03:27.25");
   });
 
@@ -44,12 +44,13 @@ describe("toAdminImage", () => {
     expect(
       toAdminImage(
         row({ takenAt: "2025-05-01 14:03:27", takenAtOffsetMinutes: minutes }),
+        [],
       ).takenAtOffset,
     ).toBe(offset);
   });
 
   test("分からない撮影の情報は null のまま返し、公開した日時が無ければ公開していないと返すこと", () => {
-    expect(toAdminImage(row())).toEqual({
+    expect(toAdminImage(row(), [])).toEqual({
       id: "019b0000-0000-7000-8000-000000000000",
       title: null,
       description: null,
@@ -66,6 +67,23 @@ describe("toAdminImage", () => {
       publishedAt: null,
       createdAt: CREATED_AT.toISOString(),
       updatedAt: CREATED_AT.toISOString(),
+      deliveryImages: [],
     });
+  });
+
+  test("配信用の画像を幅の昇順に並べ、画像の ID と幅から URL を作ること", () => {
+    const imageId = "019b0000-0000-7000-8000-000000000000";
+
+    expect(
+      toAdminImage(row(), [
+        { imageId, width: 1707, height: 2560, fileKey: "a.avif" },
+        { imageId, width: 640, height: 960, fileKey: "b.avif" },
+        { imageId, width: 1280, height: 1920, fileKey: "c.avif" },
+      ]).deliveryImages,
+    ).toEqual([
+      { width: 640, height: 960, url: `/media/${imageId}/640.avif` },
+      { width: 1280, height: 1920, url: `/media/${imageId}/1280.avif` },
+      { width: 1707, height: 2560, url: `/media/${imageId}/1707.avif` },
+    ]);
   });
 });
