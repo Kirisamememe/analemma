@@ -39,6 +39,28 @@ describe("DeployTokenList", () => {
     ).toBeDefined();
   });
 
+  test("取り消すボタンは、見える文言を「取り消す」のまま、名前でトークンを見分けられる", async () => {
+    const server = createDeployTokenRoutes([
+      { name: "本番のデプロイ", lastUsedAt: null },
+      { name: "手元の確認", lastUsedAt: null },
+    ]);
+
+    renderApp({ path: "/deploy-tokens", routes: server.routes });
+
+    const [first, second] = await within(
+      await screen.findByRole("main"),
+    ).findAllByRole("listitem");
+    const revokeFirst = within(first!).getByRole("button", {
+      name: "「本番のデプロイ」を取り消す",
+    });
+
+    expect(revokeFirst.textContent).toBe("取り消す");
+    expect(
+      within(second!).getByRole("button", { name: "「手元の確認」を取り消す" })
+        .textContent,
+    ).toBe("取り消す");
+  });
+
   test("トークンが無ければ、発行を促す", async () => {
     const server = createDeployTokenRoutes([]);
 

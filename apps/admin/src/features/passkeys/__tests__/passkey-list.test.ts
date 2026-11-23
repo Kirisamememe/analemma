@@ -56,6 +56,28 @@ describe("PasskeyList", () => {
     ).toBeDefined();
   });
 
+  test("削除のボタンは、見える文言を「削除」のまま、名前でパスキーを見分けられる", async () => {
+    const server = createPasskeyRoutes([
+      { name: "MacBook", backedUp: true },
+      { name: "iPhone", backedUp: true },
+    ]);
+
+    renderApp({ path: "/security", routes: server.routes });
+
+    const [macbook, iphone] = await within(
+      await screen.findByRole("main"),
+    ).findAllByRole("listitem");
+
+    expect(
+      within(macbook!).getByRole("button", { name: "「MacBook」を削除" })
+        .textContent,
+    ).toBe("削除");
+    expect(
+      within(iphone!).getByRole("button", { name: "「iPhone」を削除" })
+        .textContent,
+    ).toBe("削除");
+  });
+
   test("一覧を読み込めなければ、そのことを知らせる", async () => {
     const server = createPasskeyRoutes([]);
 

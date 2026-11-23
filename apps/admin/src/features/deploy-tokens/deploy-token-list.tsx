@@ -73,6 +73,7 @@ export const DeployTokenList = ({
                 </Text>
               </Stack>
               <Button
+                aria-label={t("deployTokens.revokeToken", { name: token.name })}
                 onPress={() => {
                   onRevoke(token);
                 }}

@@ -22,7 +22,7 @@ describe("PasskeysSection", () => {
     });
 
     await userEvent.click(
-      (await screen.findAllByRole("button", { name: "削除" }))[0]!,
+      await screen.findByRole("button", { name: "「MacBook」を削除" }),
     );
 
     const dialog = await screen.findByRole("dialog", {

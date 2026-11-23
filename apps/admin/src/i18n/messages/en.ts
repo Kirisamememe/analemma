@@ -115,6 +115,7 @@ export const en = {
   "passkeys.rename": "Rename",
   "passkeys.renameTitle": "Rename the passkey",
   "passkeys.delete": "Delete",
+  "passkeys.deletePasskey": "Delete “{{name}}”",
   "passkeys.deleteTitle": "Delete “{{name}}”?",
   "passkeys.deleteDescription":
     "You will confirm with a current passkey. Other browsers will be signed out.",
@@ -171,6 +172,7 @@ export const en = {
   "deployTokens.emptyTitle": "No tokens yet",
   "deployTokens.emptyDescription": "Issue a token for your site's deploy.",
   "deployTokens.revoke": "Revoke",
+  "deployTokens.revokeToken": "Revoke “{{name}}”",
   "deployTokens.revokeTitle": "Revoke “{{name}}”?",
   "deployTokens.revokeDescription":
     "Deploys that use this token will no longer be able to send kind definitions. This cannot be undone.",

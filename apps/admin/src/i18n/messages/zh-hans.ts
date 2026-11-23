@@ -107,6 +107,7 @@ export const zhHans = {
   "passkeys.rename": "重命名",
   "passkeys.renameTitle": "重命名通行密钥",
   "passkeys.delete": "删除",
+  "passkeys.deletePasskey": "删除“{{name}}”",
   "passkeys.deleteTitle": "删除“{{name}}”？",
   "passkeys.deleteDescription":
     "将用当前的通行密钥确认后删除，其他浏览器将退出登录。",
@@ -156,6 +157,7 @@ export const zhHans = {
   "deployTokens.emptyTitle": "还没有令牌",
   "deployTokens.emptyDescription": "请签发一个用于公开站点部署的令牌。",
   "deployTokens.revoke": "吊销",
+  "deployTokens.revokeToken": "吊销“{{name}}”",
   "deployTokens.revokeTitle": "吊销“{{name}}”？",
   "deployTokens.revokeDescription":
     "使用此令牌的部署将无法再发送种类定义。吊销后无法恢复。",

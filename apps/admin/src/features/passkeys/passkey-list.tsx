@@ -79,6 +79,7 @@ export const PasskeyList = ({
                 {t("passkeys.rename")}
               </Button>
               <Button
+                aria-label={t("passkeys.deletePasskey", { name: passkey.name })}
                 onPress={() => {
                   onDelete(passkey);
                 }}

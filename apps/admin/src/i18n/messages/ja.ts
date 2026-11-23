@@ -120,6 +120,7 @@ export const ja = {
   "passkeys.rename": "名前を変更",
   "passkeys.renameTitle": "パスキーの名前を変更",
   "passkeys.delete": "削除",
+  "passkeys.deletePasskey": "「{{name}}」を削除",
   "passkeys.deleteTitle": "「{{name}}」を削除しますか?",
   "passkeys.deleteDescription":
     "登録済みのパスキーで本人確認をしてから削除します。ほかのブラウザからはログアウトします。",
@@ -179,6 +180,7 @@ export const ja = {
   "deployTokens.emptyDescription":
     "公開サイトのデプロイに使うトークンを発行してください。",
   "deployTokens.revoke": "取り消す",
+  "deployTokens.revokeToken": "「{{name}}」を取り消す",
   "deployTokens.revokeTitle": "「{{name}}」を取り消しますか?",
   "deployTokens.revokeDescription":
     "このトークンを使うデプロイは、種類の定義を送れなくなります。取り消したトークンは元に戻せません。",
