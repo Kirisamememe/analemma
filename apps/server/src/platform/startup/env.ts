@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { parseDatabaseUrl } from "@/platform/parse-database-url";
-import { parseRelyingParty } from "@/platform/parse-relying-party";
+import { parseDatabaseUrl } from "@/platform/startup/parse-database-url";
+import { parseRelyingParty } from "@/platform/startup/parse-relying-party";
 
 const portSchema = z
   .string()

@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 
-import { session } from "@/db/schema/session";
+import { session } from "@/db/schema/auth/session";
 import { lockAdminUser } from "@/features/auth/admin-user/queries/admin-user.query";
 import {
   type PasskeyUse,

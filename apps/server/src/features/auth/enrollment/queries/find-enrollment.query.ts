@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 
-import { passkeyEnrollment } from "@/db/schema/passkey-enrollment";
+import { passkeyEnrollment } from "@/db/schema/auth/passkey-enrollment";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** 登録用の token の行。 */

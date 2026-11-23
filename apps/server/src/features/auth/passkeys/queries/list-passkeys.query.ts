@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 
-import { passkey } from "@/db/schema/passkey";
+import { passkey } from "@/db/schema/auth/passkey";
 import type { PasskeyRow } from "@/features/auth/registration/queries/insert-passkey.query";
 import type { DatabaseExecutor } from "@/platform/database";
 

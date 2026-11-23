@@ -1,4 +1,4 @@
-import { passkey } from "@/db/schema/passkey";
+import { passkey } from "@/db/schema/auth/passkey";
 import type { NewPasskey } from "@/features/auth/registration/verify-passkey-registration";
 import type { DatabaseExecutor } from "@/platform/database";
 

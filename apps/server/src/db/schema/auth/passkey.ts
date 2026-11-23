@@ -12,7 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { bytes } from "@/db/bytes";
-import { adminUser } from "@/db/schema/admin-user";
+import { adminUser } from "@/db/schema/auth/admin-user";
 
 /** 管理者のパスキーのテーブル。 */
 export const passkey = pgTable(

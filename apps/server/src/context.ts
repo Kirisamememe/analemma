@@ -4,7 +4,7 @@ import type { Clock } from "@/platform/clock";
 import type { Database } from "@/platform/database";
 import type { FileStorage } from "@/platform/file-storage/open-file-storage";
 import type { Logger } from "@/platform/logger";
-import type { RelyingParty } from "@/platform/parse-relying-party";
+import type { RelyingParty } from "@/platform/startup/parse-relying-party";
 
 /** 起動時に組み立て、すべてのリクエストで共有する依存。 */
 export type AppContext = {
