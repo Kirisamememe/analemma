@@ -88,7 +88,7 @@ export const TextArea = ({
       // oxlint-disable-next-line project/styling-boundary -- React Aria の未指定の props を省く。見た目の props は含まない。
       {...fieldState}
     >
-      <FieldLabel>{label}</FieldLabel>
+      <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
       <AriaTextArea
         className={fieldControl({
           className: ["resize-y px-3 py-2", typography({ role: "body-long" })],

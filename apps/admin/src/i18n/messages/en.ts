@@ -70,6 +70,7 @@ export const en = {
   "ui.openNav": "Open navigation",
   "ui.closeNav": "Close navigation",
   "ui.close": "Close",
+  "ui.required": "Required",
   "login.title": "Sign in to Stilus",
   "login.description": "Use a passkey you registered for this admin panel.",
   "login.submit": "Sign in with a passkey",

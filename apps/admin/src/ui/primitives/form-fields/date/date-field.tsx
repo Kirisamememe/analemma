@@ -62,7 +62,7 @@ export const DateField = ({
       validationBehavior={validationBehavior}
       value={value}
     >
-      <FieldLabel>{label}</FieldLabel>
+      <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
       <DateSegments onBlur={draft.onBlur} />
       {description !== undefined && (
         <FieldDescription>{description}</FieldDescription>

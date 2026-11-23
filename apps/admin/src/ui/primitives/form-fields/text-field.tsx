@@ -77,7 +77,7 @@ export const TextField = ({
       // oxlint-disable-next-line project/styling-boundary -- React Aria の未指定の props を省く。見た目の props は含まない。
       {...fieldState}
     >
-      <FieldLabel>{label}</FieldLabel>
+      <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
       <TextInput autoComplete={autoComplete} maxLength={maxLength} />
       {description !== undefined && (
         <FieldDescription>{description}</FieldDescription>

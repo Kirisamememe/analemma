@@ -72,6 +72,7 @@ export const ja = {
   "ui.openNav": "ナビを開く",
   "ui.closeNav": "ナビを閉じる",
   "ui.close": "閉じる",
+  "ui.required": "必須",
   "login.title": "Stilus にログイン",
   "login.description": "この管理画面に登録したパスキーを使います。",
   "login.submit": "パスキーでログイン",

@@ -53,7 +53,7 @@ export const Checkbox = ({
     onChange={onChange}
     validationBehavior={validationBehavior}
   >
-    <CheckboxControl label={label} />
+    <CheckboxControl isRequired={isRequired} label={label} />
     {description !== undefined && (
       <FieldDescription>{description}</FieldDescription>
     )}
