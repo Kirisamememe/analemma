@@ -159,7 +159,7 @@ describe("ImageViewerPage", () => {
         );
         await heading("夕暮れの稜線");
         expect(document.activeElement).toBe(
-          screen.getByRole("link", { name: "画像の一覧" }),
+          screen.getByRole("link", { name: "一覧へ" }),
         );
       }
 
@@ -178,7 +178,7 @@ describe("ImageViewerPage", () => {
   test("画像と前後の行き先を待ってから同じ向きに focus を戻し、端では逆側のリンクに移す", async () => {
     const { server } = setUp(0);
     await heading("夕暮れの稜線");
-    const back = screen.getByRole("link", { name: "画像の一覧" });
+    const back = screen.getByRole("link", { name: "一覧へ" });
     const next = await screen.findByRole("link", { name: "次の画像" });
     const get = Promise.withResolvers<FakeReply<"admin/images/get">>();
 
@@ -194,7 +194,7 @@ describe("ImageViewerPage", () => {
         screen.getByRole("button", { name: "編集" }).hasAttribute("disabled"),
       ).toBe(true);
     });
-    expect(screen.getByRole("link", { name: "画像の一覧" })).toBe(back);
+    expect(screen.getByRole("link", { name: "一覧へ" })).toBe(back);
     expect(
       screen.getByRole("button", { name: "編集" }).hasAttribute("disabled"),
     ).toBe(true);
@@ -219,7 +219,7 @@ describe("ImageViewerPage", () => {
         screen.getByRole("link", { name: "前の画像" }),
       );
     });
-    expect(screen.getByRole("link", { name: "画像の一覧" })).toBe(back);
+    expect(screen.getByRole("link", { name: "一覧へ" })).toBe(back);
   });
 
   test("履歴で移ったら、次の写真を待つ間も前の写真の削除の確認を閉じる", async () => {
@@ -244,7 +244,7 @@ describe("ImageViewerPage", () => {
   test("取得を待つ間に一覧へのリンクへ移した focus をそのまま保つ", async () => {
     const { server } = setUp(0);
     await heading("夕暮れの稜線");
-    const back = screen.getByRole("link", { name: "画像の一覧" });
+    const back = screen.getByRole("link", { name: "一覧へ" });
     const next = await screen.findByRole("link", { name: "次の画像" });
     const get = Promise.withResolvers<FakeReply<"admin/images/get">>();
     server.replyNext("admin/images/get", () => get.promise);
@@ -350,7 +350,7 @@ describe("ImageViewerPage", () => {
       expect(screen.queryByRole("button", { name: "編集" })).toBeNull();
       expect(screen.queryByRole("dialog")).toBeNull();
     });
-    await userEvent.click(screen.getByRole("link", { name: "画像の一覧" }));
+    await userEvent.click(screen.getByRole("link", { name: "一覧へ" }));
     await screen.findByRole("link", { name: /港の灯り/v });
     expect(screen.queryByRole("link", { name: /夕暮れの稜線/v })).toBeNull();
   });
@@ -359,6 +359,6 @@ describe("ImageViewerPage", () => {
     setUp("/images/019b0000-0000-7000-8000-0000000000ff");
 
     expect(await screen.findByText("この画像はもうありません。")).toBeDefined();
-    expect(screen.getByRole("link", { name: "画像の一覧" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "一覧へ" })).toBeDefined();
   });
 });

@@ -94,6 +94,7 @@ export const DeleteImage = ({
   return (
     <>
       <Button
+        size="sm-to-md"
         aria-label={t("imageDetail.delete")}
         icon="trash-2"
         isPending={isDeleting && !isOpen}

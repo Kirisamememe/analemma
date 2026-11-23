@@ -11,7 +11,7 @@ import { Link } from "@/ui/primitives/navigation";
 const back = (
   <Text variant="caption">
     <Link href="/" variant="back">
-      画像の一覧
+      一覧へ
     </Link>
   </Text>
 );
@@ -21,7 +21,10 @@ const meta = {
   component: ImageViewer,
   decorators: [
     (Story) => (
-      <ViewerFrame back={back} actions={<Button>非公開にする</Button>}>
+      <ViewerFrame
+        back={back}
+        actions={<Button size="sm-to-md">非公開にする</Button>}
+      >
         <Story />
       </ViewerFrame>
     ),

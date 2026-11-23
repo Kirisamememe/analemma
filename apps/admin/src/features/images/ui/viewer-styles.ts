@@ -3,13 +3,17 @@ import { tv } from "@/ui/tv";
 
 const viewer = tv({
   slots: {
-    root: "flex min-h-dvh flex-col bg-canvas scheme-dark md:h-dvh",
+    root: "@container flex min-h-dvh flex-col bg-canvas scheme-dark md:h-dvh",
     bar: [
       "sticky top-0 z-sticky short-viewport:static",
-      "flex h-nav-bar shrink-0 items-center justify-between gap-3",
-      "border-b bg-surface px-4",
+      "flex min-h-nav-bar shrink-0 flex-wrap items-center justify-between",
+      "gap-x-3 gap-y-2 py-2",
+      "border-b bg-surface px-4 @max-xs:px-1.5",
     ],
-    actions: "flex items-center gap-2",
+    actions: [
+      "ml-auto flex max-w-full flex-wrap items-center justify-end",
+      "gap-x-2 gap-y-4",
+    ],
     content: "flex min-h-0 grow flex-col",
     body: mediaLayout.body(),
     stage: [

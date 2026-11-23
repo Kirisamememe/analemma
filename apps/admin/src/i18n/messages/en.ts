@@ -247,7 +247,7 @@ export const en = {
   "images.unpublished": "Unpublished",
   "images.noDeliveryImage": "No image to show yet",
   "images.loadMore": "Load more",
-  "imageDetail.backToList": "Images",
+  "imageDetail.backToList": "Back to list",
   "imageDetail.untitled": "Untitled image",
   "imageDetail.loading": "Loading the image.",
   "imageDetail.loadingInfo": "Loading photo details…",
