@@ -88,7 +88,7 @@ describe("bun run review:decide の引数を読むこと", () => {
     }
   });
 
-  test("観点の名前が無いものと、知らない option は、読まないこと", () => {
+  test("一覧に無い観点の名前と、知らない option は、読まないこと", () => {
     const decided = { outcome: "kept-low", reason: "根拠" };
 
     expect(
