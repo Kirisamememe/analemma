@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 import {
+  copyFileSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
@@ -13,18 +14,23 @@ import { basename, join } from "node:path";
 import { findMainCheckout } from "../structure/private-name-list";
 import { parseReviewArguments, type ReviewArguments } from "./arguments";
 import { chooseReviewer, runExternalReview } from "./external-review";
-import { buildPrompt, type TradeOffSection } from "./prompt";
-import { pinRange, type PinnedRange } from "./range";
+import { buildPrompt, type Rereview, type TradeOffSection } from "./prompt";
+import { checkFixRange, pinRange, type PinnedRange } from "./range";
+import { findPreviousRound, type PreviousRound } from "./records/previous";
 import { decideNextRound } from "./records/results";
 import { nextTrial, trialName, type TrialRecord } from "./records/trials";
 import { extractTradeOffs } from "./trade-offs";
+
+// ----------------------------------------
+// コマンドと出力
+// ----------------------------------------
 
 const repoRoot = join(import.meta.dirname, "../..");
 const PROMPTS = join(import.meta.dirname, "prompts");
 const MAX_BUFFER = 256 * 1024 * 1024;
 
 const USAGE =
-  "使い方:bun run review -- --perspective <観点> --base <比べる元のブランチ> [--head <レビューするブランチの名前かコミット>]";
+  "使い方:bun run review -- --perspective <観点> --base <比べる元のブランチ> [--head <レビューするブランチの名前かコミット>] [--full]";
 
 const RUNNER_NAMES = { codex: "Codex", cursor: "Cursor" } as const;
 
@@ -52,6 +58,10 @@ const report = (message: string): void => {
 const say = (message: string): void => {
   process.stdout.write(`${message}\n`);
 };
+
+// ----------------------------------------
+// レビューする側に渡すファイル
+// ----------------------------------------
 
 /** レビューする側に渡すファイルを書き出した場所。 */
 type Workspace = {
@@ -106,6 +116,75 @@ const prepareWorkspace = ({
   return workspace;
 };
 
+/** 2回目からのレビューの材料を書き出す場所と、前の回。 */
+type RereviewRequest = {
+  /** 差分とコミットのメッセージを書き出したフォルダ。 */
+  readonly context: string;
+  /** 前の回。 */
+  readonly previous: PreviousRound;
+  /** 今の回にレビューするコミットの SHA。 */
+  readonly head: string;
+  /** ブランチの変更の全体をレビューするか。 */
+  readonly full: boolean;
+};
+
+const readPrompt = (name: string): string =>
+  readFileSync(join(PROMPTS, `${name}.md`), "utf8");
+
+const prepareRereview = ({
+  context,
+  full,
+  head,
+  previous,
+}: RereviewRequest): Rereview => {
+  const result = join(context, "previous-result.md");
+
+  const decisions =
+    previous.decisions === undefined
+      ? undefined
+      : join(context, "previous-decisions.jsonl");
+
+  copyFileSync(previous.result, result);
+
+  if (previous.decisions !== undefined && decisions !== undefined) {
+    copyFileSync(previous.decisions, decisions);
+  }
+
+  const fixes = full
+    ? undefined
+    : {
+        diff: join(context, "fixes.patch"),
+        commits: join(context, "fix-commits.txt"),
+      };
+
+  if (fixes !== undefined) {
+    writeFileSync(
+      fixes.diff,
+      git("diff", "--find-renames", previous.head, head),
+    );
+    writeFileSync(
+      fixes.commits,
+      git(
+        "log",
+        "--reverse",
+        "--format=commit %H%n%n%B",
+        `${previous.head}..${head}`,
+      ),
+    );
+  }
+
+  return {
+    round: previous.round,
+    previousHead: previous.head,
+    result,
+    decisions,
+    fixes,
+    rules: [readPrompt("rereview"), ...(full ? [] : [readPrompt("fixes")])]
+      .map((text) => text.trim())
+      .join("\n\n"),
+  };
+};
+
 const collectTradeOffs = ({
   head,
   tree,
@@ -118,6 +197,10 @@ const collectTradeOffs = ({
 
       return body === undefined || body === "" ? [] : [{ path, body }];
     });
+
+// ----------------------------------------
+// レビューを流す
+// ----------------------------------------
 
 const review = (request: ReviewArguments): number => {
   const { base, perspective } = request;
@@ -149,6 +232,27 @@ const review = (request: ReviewArguments): number => {
     return 1;
   }
 
+  const previous =
+    next.round === 1
+      ? undefined
+      : findPreviousRound({ results, perspective, round: next.round });
+
+  if (next.round > 1 && !request.full) {
+    const problem =
+      previous === undefined
+        ? "前の回の試行の記録か結果が無いので、直したコミットを決められない。--full を付けて、ブランチの変更の全体をレビューしてください。"
+        : checkFixRange(repoRoot, {
+            previous,
+            head: pinned.head,
+          });
+
+    if (problem !== undefined) {
+      report(problem);
+
+      return 2;
+    }
+  }
+
   const reviewer = chooseReviewer(perspective.reviewer);
 
   if (typeof reviewer === "string") {
@@ -163,6 +267,16 @@ const review = (request: ReviewArguments): number => {
   const name = join(results, trialName({ ...round, trial }));
   const result = join(results, `${perspective.id}-${String(next.round)}.md`);
 
+  const rereview =
+    previous === undefined
+      ? undefined
+      : prepareRereview({
+          context: workspace.context,
+          previous,
+          head: pinned.head,
+          full: request.full,
+        });
+
   const prompt = buildPrompt({
     perspective,
     base,
@@ -174,9 +288,10 @@ const review = (request: ReviewArguments): number => {
       diff: workspace.diff,
       commits: workspace.commits,
     },
-    scope: readFileSync(join(PROMPTS, `${perspective.id}.md`), "utf8"),
-    rules: readFileSync(join(PROMPTS, "common.md"), "utf8"),
+    scope: readPrompt(perspective.id),
+    rules: readPrompt("common"),
     tradeOffs: collectTradeOffs({ head: pinned.head, tree: workspace.tree }),
+    rereview,
   });
 
   writeFileSync(`${name}.prompt.md`, prompt);
@@ -189,6 +304,7 @@ const review = (request: ReviewArguments): number => {
     effort: reviewer.runner === "codex" ? reviewer.effort : undefined,
     base: { name: base, commit: pinned.base },
     head: { branch: pinned.headBranch ?? null, commit: pinned.head },
+    scope: rereview?.fixes === undefined ? "branch" : "fixes",
     startedAt: new Date().toISOString(),
   };
 

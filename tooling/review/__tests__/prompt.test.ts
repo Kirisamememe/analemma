@@ -116,3 +116,65 @@ describe("prompt を組み立てること", () => {
     expect(prompt).toEndWith("最後の行の約束。\n");
   });
 });
+
+describe("2回目からの prompt を組み立てること", () => {
+  const PREVIOUS = "3".repeat(40);
+
+  const REREVIEW = {
+    round: 1,
+    previousHead: PREVIOUS,
+    result: "/tmp/review/context/previous-result.md",
+    decisions: "/tmp/review/context/previous-decisions.jsonl",
+    fixes: {
+      diff: "/tmp/review/context/fixes.patch",
+      commits: "/tmp/review/context/fix-commits.txt",
+    },
+    rules: "## 前の回の指摘\n\n- 前の回の約束。\n",
+  };
+
+  test("前の回の結果・採否・前の回の後に足したコミットの場所と、前の回にレビューしたコミットを書くこと", () => {
+    const prompt = buildPrompt({ ...MATERIAL, rereview: REREVIEW });
+
+    expect(prompt).toContain(
+      [
+        "## 前の回",
+        "",
+        `これは 2 回目のレビュー。前の回(1 回目)は、コミット \`${PREVIOUS}\` をレビューした。`,
+        "",
+        "- 前の回の結果:`/tmp/review/context/previous-result.md`",
+        "- 前の回の指摘の採否:`/tmp/review/context/previous-decisions.jsonl`",
+        `- 前の回の後に足したコミットの差分:\`/tmp/review/context/fixes.patch\`(\`git diff ${PREVIOUS} ${"2".repeat(40)}\`)`,
+        "- 前の回の後に足したコミットのメッセージ:`/tmp/review/context/fix-commits.txt`",
+        "",
+        "## 前の回の指摘",
+      ].join("\n"),
+    );
+  });
+
+  test("ブランチの全体を見るときは前の回の後に足したコミットを書かず、採否の記録が無ければそう書くこと", () => {
+    const prompt = buildPrompt({
+      ...MATERIAL,
+      rereview: { ...REREVIEW, decisions: undefined, fixes: undefined },
+    });
+
+    expect(prompt).toContain(
+      "- 前の回の指摘の採否:記録が無い\n\n## 前の回の指摘",
+    );
+    expect(prompt).not.toContain("前の回の後に足したコミット");
+  });
+
+  test("前の回の節を、観点ごとの範囲の後、「割り切ったこと」の前に置くこと", () => {
+    const prompt = buildPrompt({ ...MATERIAL, rereview: REREVIEW });
+
+    const order = ["## 見ない範囲", "## 前の回", "## 割り切ったこと"].map(
+      (heading) => prompt.indexOf(`\n${heading}\n`),
+    );
+
+    expect(order.every((index) => index > 0)).toBe(true);
+    expect(order).toEqual(order.toSorted((left, right) => left - right));
+  });
+
+  test("1回目には、前の回の節を書かないこと", () => {
+    expect(buildPrompt(MATERIAL)).not.toContain("## 前の回");
+  });
+});

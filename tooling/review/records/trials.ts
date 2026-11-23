@@ -45,6 +45,8 @@ export type TrialRecord = {
     /** コミットの SHA。 */
     readonly commit: string;
   };
+  /** ブランチの変更の全体と、直したコミットの、どちらをレビューしたか。 */
+  readonly scope: "branch" | "fixes";
   /** 始めた時刻(ISO 8601)。 */
   readonly startedAt: string;
   /** 試行の終わり。 */

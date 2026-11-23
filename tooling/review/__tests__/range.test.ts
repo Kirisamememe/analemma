@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { pinRange } from "../range";
+import { checkFixRange, pinRange } from "../range";
 
 const temporaryRoot = mkdtempSync(join(tmpdir(), "analemma-review-test-"));
 
@@ -269,5 +269,51 @@ describe("レビューする範囲を決めること", () => {
     expect(
       git(cwd, "diff", "--name-only", `${pinned.base}...${pinned.head}`),
     ).toBe("pages.md");
+  });
+});
+
+describe("直したコミットの範囲を確かめること", () => {
+  test("前の回のコミットが今のコミットの祖先なら、直したコミットとして読むこと", () => {
+    const { cwd, head } = makeRepository("fixes");
+
+    git(cwd, "switch", "--quiet", "claude/pages");
+    const fixed = commit(cwd, "fix.md");
+
+    expect(
+      checkFixRange(cwd, { previous: { head, hasVerdict: true }, head: fixed }),
+    ).toBeUndefined();
+  });
+
+  test("前の回からコミットが足されていなくても、空の範囲として読めること", () => {
+    const { cwd, head } = makeRepository("no-fixes");
+
+    expect(
+      checkFixRange(cwd, { previous: { head, hasVerdict: true }, head }),
+    ).toBeUndefined();
+  });
+
+  test("同じコミットで前の回の判定を読めなければ、--full を求めること", () => {
+    const { cwd, head } = makeRepository("unreadable-verdict");
+
+    expect(
+      checkFixRange(cwd, { previous: { head, hasVerdict: false }, head }),
+    ).toContain("--full");
+  });
+
+  test("rebase して前の回のコミットが祖先に無ければ、--full を求めること", () => {
+    const { cwd, head } = makeRepository("rebased");
+
+    git(cwd, "switch", "--quiet", "main");
+    commit(cwd, "other-pull-request.md");
+    git(cwd, "switch", "--quiet", "claude/pages");
+    git(cwd, "rebase", "--quiet", "main");
+    const rebased = git(cwd, "rev-parse", "HEAD");
+
+    expect(
+      checkFixRange(cwd, {
+        previous: { head, hasVerdict: true },
+        head: rebased,
+      }),
+    ).toContain("--full");
   });
 });

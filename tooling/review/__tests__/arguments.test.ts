@@ -34,6 +34,20 @@ describe("bun run review の引数を読むこと", () => {
     ).toMatchObject({ _tag: "Parsed", head: undefined });
   });
 
+  test("--full を値なしで指定したときだけ full を true と読むこと", () => {
+    const base = ["--perspective", "logic", "--base", "phase/1"];
+
+    expect(parseReviewArguments([...base, "--full"])).toMatchObject({
+      _tag: "Parsed",
+      full: true,
+    });
+    expect(parseReviewArguments(base)).toMatchObject({
+      _tag: "Parsed",
+      full: false,
+    });
+    expect(parseReviewArguments([...base, "--full=yes"])._tag).toBe("Invalid");
+  });
+
   test("--head に空の文字列を渡すと、省いたものとして読むこと", () => {
     expect(
       parseReviewArguments([

@@ -12,6 +12,8 @@ export type ReviewArguments = {
   readonly base: string;
   /** レビューするブランチの名前かコミットの指定。 */
   readonly head: string | undefined;
+  /** 2回目から、ブランチの変更の全体をレビューするか。 */
+  readonly full: boolean;
 };
 
 /** 引数を読めなかったこと。 */
@@ -30,6 +32,8 @@ type OptionValues = {
   readonly base?: string | undefined;
   /** `--head` の値。 */
   readonly head?: string | undefined;
+  /** `--full` の値。 */
+  readonly full?: boolean | undefined;
 };
 
 const readOptions = (argv: readonly string[]): OptionValues | string => {
@@ -40,6 +44,7 @@ const readOptions = (argv: readonly string[]): OptionValues | string => {
         perspective: { type: "string" },
         base: { type: "string" },
         head: { type: "string" },
+        full: { type: "boolean" },
       },
       strict: true,
       allowPositionals: false,
@@ -82,5 +87,6 @@ export const parseReviewArguments = (
     perspective,
     base: options.base,
     head: options.head === "" ? undefined : options.head,
+    full: options.full === true,
   };
 };
