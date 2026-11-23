@@ -8,7 +8,7 @@ import { withRouter } from "@/testing/hook-wrappers";
 
 afterEach(cleanup);
 
-const setUp = async (needsConfirmation: () => boolean) => {
+const setUp = async (needsConfirmation: (destination?: string) => boolean) => {
   const app = createTestApp({ path: "/login", routes: {} });
   await app.router.load();
 
@@ -28,6 +28,24 @@ describe("useLeaveConfirmation", () => {
     await waitFor(() => {
       expect(history.location.pathname).toBe("/enroll");
     });
+    expect(result.current._tag).toBe("Idle");
+  });
+
+  test("移る先のパスを渡し、確かめが要らない先へは止めずに移る", async () => {
+    const destinations: (string | undefined)[] = [];
+
+    const { history, result } = await setUp((destination) => {
+      destinations.push(destination);
+
+      return destination !== "/enroll";
+    });
+
+    history.push("/enroll");
+
+    await waitFor(() => {
+      expect(history.location.pathname).toBe("/enroll");
+    });
+    expect(destinations).toContain("/enroll");
     expect(result.current._tag).toBe("Idle");
   });
 
