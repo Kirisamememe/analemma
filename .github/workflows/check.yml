@@ -25,6 +25,12 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
+      - name: HEIC と AVIF に使うコマンドを入れる
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libheif-examples libheif-plugin-libde265 ffmpeg
+          heif-dec --version
+          ffmpeg -version
       - run: bun run check --all
       - name: client の CLI を、ビルドした形で1回流す
         working-directory: packages/client
