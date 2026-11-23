@@ -18,6 +18,8 @@ type QueryOptions<Data> = {
   readonly key: readonly unknown[];
   /** データを取得する関数。 */
   readonly load: (() => Promise<Data>) | undefined;
+  /** タブ内で取得結果を使い回す期間(ミリ秒)。 */
+  readonly tabStaleTime?: number;
 };
 
 /** server のデータを読んだ結果。 */
@@ -94,10 +96,14 @@ export const useApiQuery = <Data>({
   key,
   load,
   keepDataOnRefreshError,
+  tabStaleTime,
 }: QueryOptions<Data>): ApiQueryResult<Data> => {
   const query = useQuery({
     queryKey: key,
     queryFn: load ?? skipToken,
+    ...(load === undefined || tabStaleTime === undefined
+      ? {}
+      : { staleTime: tabStaleTime, gcTime: Infinity }),
   });
 
   if (query.isPending && query.errorUpdateCount === 0) {
@@ -105,10 +111,14 @@ export const useApiQuery = <Data>({
   }
 
   if (
-    keepDataOnRefreshError === true &&
+    tabStaleTime !== undefined &&
     query.isRefetchError &&
     !isUnauthorized(query.error)
   ) {
+    return { _tag: "Loaded", data: query.data };
+  }
+
+  if (keepDataOnRefreshError === true && query.isRefetchError && !isUnauthorized(query.error)) {
     return { _tag: "Loaded", data: query.data };
   }
 

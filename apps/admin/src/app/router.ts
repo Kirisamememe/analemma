@@ -14,6 +14,7 @@ import {
   toLoginSearch,
 } from "@/features/auth/logic/login-search";
 import type { Authenticator } from "@/features/auth/webauthn";
+import { FIXED_PAGE_KINDS_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { IMAGES_QUERY_KEY } from "@/features/images/queries/images-query";
 import { EnrollPage } from "@/routes/auth/enroll-page";
 import { LoginPage } from "@/routes/auth/login-page";
@@ -108,9 +109,17 @@ const homeRoute = createRoute({
   component: HomePage,
 });
 
-const fixedPagesRoute = createRoute({
+const fixedPagesTab = createRoute({
   getParentRoute: () => signedInRoute,
   path: "/fixed-pages",
+  onLeave: ({ context }) => {
+    context.queryClient.removeQueries({ queryKey: FIXED_PAGE_KINDS_KEY });
+  },
+});
+
+const fixedPagesRoute = createRoute({
+  getParentRoute: () => fixedPagesTab,
+  path: "/",
   component: FixedPagesPage,
 });
 
@@ -126,8 +135,8 @@ type NewFixedPageSearch = {
 };
 
 const newFixedPageRoute = createRoute({
-  getParentRoute: () => signedInRoute,
-  path: "/fixed-pages/new",
+  getParentRoute: () => fixedPagesTab,
+  path: "new",
   validateSearch: ({ kind }): NewFixedPageSearch => {
     if (typeof kind === "string") return { kind };
 
@@ -141,8 +150,8 @@ const newFixedPageRoute = createRoute({
 });
 
 const editFixedPageRoute = createRoute({
-  getParentRoute: () => signedInRoute,
-  path: "/fixed-pages/$id",
+  getParentRoute: () => fixedPagesTab,
+  path: "$id",
   component: EditFixedPage,
 });
 
@@ -172,9 +181,11 @@ const routeTree = rootRoute.addChildren([
   imageViewerRoute,
   signedInRoute.addChildren([
     homeRoute,
-    fixedPagesRoute,
-    newFixedPageRoute,
-    editFixedPageRoute,
+    fixedPagesTab.addChildren([
+      fixedPagesRoute,
+      newFixedPageRoute,
+      editFixedPageRoute,
+    ]),
     imagesRoute,
     securityRoute,
     deployTokensRoute,

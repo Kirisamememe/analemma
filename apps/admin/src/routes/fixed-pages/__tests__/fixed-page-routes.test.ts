@@ -41,24 +41,6 @@ test("種類を読み込んでいる間と選べる種類が無いときの知�
     await screen.findByRole("heading", { name: "選べる種類がありません" }),
   ).toBeDefined();
 });
-test("固定ページの一覧から作成画面を開くと、種類の選択肢は新しく取得できてから出る", async () => {
-  const server = createFixedPageRoutes({ kinds: [kind], pages: [page] });
-  const pending = Promise.withResolvers<FakeReply<"admin/kinds/list">>();
-  renderApp({ path: "/fixed-pages", routes: server.routes });
-  await screen.findByRole("row", { name: page.title });
-  server.replyNext("admin/kinds/list", () => pending.promise);
-
-  await userEvent.click(
-    screen.getByRole("button", { name: "新しい固定ページ" }),
-  );
-  await screen.findByRole("heading", { name: "新しい固定ページ" });
-  expect(screen.queryByRole("button", { name: kind.label })).toBeNull();
-
-  pending.resolve({ output: { kinds: [{ ...kind, label: "プロフィール" }] } });
-  expect(
-    await screen.findByRole("button", { name: "プロフィール" }),
-  ).toBeDefined();
-});
 test("選んだ種類が無いときはフォームを出さずに知らせる", async () => {
   renderApp({
     path: "/fixed-pages/new?kind=missing",
