@@ -12,6 +12,10 @@ export const SHOT_TAGS = [
   "FNumber",
   "ExposureTime",
   "ISOSpeedRatings",
+  "SensitivityType",
+  "StandardOutputSensitivity",
+  "RecommendedExposureIndex",
+  "ISOSpeed",
 ] as const; // GPS の tag は挙げない
 
 /** 撮影の情報として読む、Exif の tag の名前。 */
@@ -41,6 +45,17 @@ const EXIF_DATE_TIME = /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/v;
 const OFFSET = /^([+\-])(\d{2}):(\d{2})$/v;
 const MINUTES_PER_HOUR = 60;
 const MAX_OFFSET_MINUTES = 18 * MINUTES_PER_HOUR; // DB の check の制約と同じ
+const ISO_LIMIT = 65_535; // ISOSpeedRatings に書ける上限
+
+const SENSITIVITY_TAGS: Readonly<Record<number, ShotTagName>> = {
+  1: "StandardOutputSensitivity",
+  2: "RecommendedExposureIndex",
+  3: "ISOSpeed",
+  4: "StandardOutputSensitivity",
+  5: "StandardOutputSensitivity",
+  6: "RecommendedExposureIndex",
+  7: "StandardOutputSensitivity",
+}; // SensitivityType の値ごとの、感度を書く tag
 
 const first = (value: ExifValue | undefined) =>
   Array.isArray(value) ? value[0] : value;
@@ -111,10 +126,27 @@ const joinMakeAndModel = (
     : `${make} ${model}`;
 };
 
-const toIso = (value: ExifValue | undefined): number | undefined => {
-  const iso = toPositive(value);
+const toPositiveInteger = (
+  value: ExifValue | undefined,
+): number | undefined => {
+  const number = toPositive(value);
 
-  return Number.isInteger(iso) ? iso : undefined;
+  return Number.isInteger(number) ? number : undefined;
+};
+
+const toIso = (
+  tags: ReadonlyMap<ShotTagName, ExifValue>,
+): number | undefined => {
+  const iso = toPositiveInteger(tags.get("ISOSpeedRatings"));
+
+  if (iso !== undefined && iso < ISO_LIMIT) return iso;
+
+  const type = first(tags.get("SensitivityType"));
+  const tag = typeof type === "number" ? SENSITIVITY_TAGS[type] : undefined;
+
+  if (tag === undefined) return iso;
+
+  return toPositiveInteger(tags.get(tag)) ?? iso;
 };
 
 /** 読んだ Exif の tag を、撮影の情報にする。 */
@@ -141,7 +173,7 @@ export const toShotInfo = (
   const focalLength = toPositive(tags.get("FocalLength"));
   const fNumber = toPositive(tags.get("FNumber"));
   const exposureTime = toPositive(tags.get("ExposureTime"));
-  const iso = toIso(tags.get("ISOSpeedRatings"));
+  const iso = toIso(tags);
 
   return {
     ...(takenAt === undefined ? {} : { takenAt }),

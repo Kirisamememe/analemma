@@ -111,6 +111,41 @@ describe("カメラとレンズ", () => {
   });
 });
 
+describe("ISO 感度", () => {
+  test.each([
+    { type: 2, tag: "RecommendedExposureIndex", iso: 102_400 },
+    { type: 1, tag: "StandardOutputSensitivity", iso: 204_800 },
+    { type: 3, tag: "ISOSpeed", iso: 409_600 },
+  ] as const)(
+    "ISOSpeedRatings が上限の 65535 なら、SensitivityType $type が指す $tag の感度を返すこと",
+    ({ type, tag, iso }) => {
+      expect(
+        shotInfoOf({
+          ISOSpeedRatings: 65_535,
+          SensitivityType: type,
+          [tag]: iso,
+        }),
+      ).toStrictEqual({ iso });
+    },
+  );
+
+  test("上限でなければ、ISOSpeedRatings の感度を返すこと", () => {
+    expect(
+      shotInfoOf({
+        ISOSpeedRatings: 6400,
+        SensitivityType: 2,
+        RecommendedExposureIndex: 12_800,
+      }),
+    ).toStrictEqual({ iso: 6400 });
+  });
+
+  test("上限で、感度を書く tag が無ければ、65535 を返すこと", () => {
+    expect(
+      shotInfoOf({ ISOSpeedRatings: 65_535, SensitivityType: 0 }),
+    ).toStrictEqual({ iso: 65_535 });
+  });
+});
+
 describe("露出", () => {
   test("値が複数あれば、最初の値を使うこと", () => {
     expect(
