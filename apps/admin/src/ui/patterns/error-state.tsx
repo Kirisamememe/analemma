@@ -1,4 +1,4 @@
-import { type ReactNode, useRef } from "react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Heading, Stack, Text } from "@/ui/layout";
@@ -40,8 +40,6 @@ type ErrorStateProps = {
   layout: "inline" | "screen";
   /** 取り直しているか。 */
   isRetrying: boolean;
-  /** 取り直しを始めるボタンを受け取る関数。 */
-  onRetryPress?: (button: HTMLButtonElement) => void;
   /** 取り直す関数。 */
   onRetry: () => void;
 };
@@ -53,11 +51,9 @@ export const ErrorState = ({
   level,
   layout,
   isRetrying,
-  onRetryPress,
   onRetry,
 }: ErrorStateProps): ReactNode => {
   const { t } = useTranslation();
-  const button = useRef<HTMLButtonElement>(null);
   const failedRetries = useFailedRetries(isRetrying);
 
   return (
@@ -78,15 +74,7 @@ export const ErrorState = ({
           </Stack>
         )}
       </div>
-      <Button
-        ref={button}
-        isPending={isRetrying}
-        onPress={() => {
-          if (button.current !== null) onRetryPress?.(button.current);
-
-          onRetry();
-        }}
-      >
+      <Button isPending={isRetrying} onPress={onRetry}>
         {t("ui.errorState.retry")}
       </Button>
     </div>

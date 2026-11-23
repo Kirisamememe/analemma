@@ -17,12 +17,7 @@ import {
   loadKinds,
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
-import {
-  EmptyState,
-  ErrorState,
-  PageHeader,
-  useRetryFocus,
-} from "@/ui/patterns";
+import { EmptyState, ErrorState, PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
@@ -96,7 +91,6 @@ type KindPickerProps = {
 };
 
 const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
-  const { remember, focus } = useRetryFocus();
   const { api } = useAppContext();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -111,7 +105,6 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
   if (query._tag === "Failed") {
     return (
       <ErrorState
-        onRetryPress={remember}
         isRetrying={query.isRetrying}
         layout="inline"
         level={2}
@@ -123,46 +116,34 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
 
   if (query.data.kinds.length === 0) {
     return (
-      <section
-        aria-label={t("fixedPageEditor.chooseKind")}
-        ref={focus}
-        tabIndex={-1}
-      >
-        <EmptyState
-          description={t("fixedPageEditor.emptyKindsDescription")}
-          icon="file-text"
-          title={t("fixedPageEditor.emptyKinds")}
-        />
-      </section>
+      <EmptyState
+        description={t("fixedPageEditor.emptyKindsDescription")}
+        icon="file-text"
+        title={t("fixedPageEditor.emptyKinds")}
+      />
     );
   }
 
   return (
-    <section
-      aria-label={t("fixedPageEditor.chooseKind")}
-      ref={focus}
-      tabIndex={-1}
-    >
-      <Stack gap={3}>
-        <Heading level={2}>{t("fixedPageEditor.chooseKind")}</Heading>
-        <Cluster gap={2}>
-          {query.data.kinds.map((kind) => (
-            <Button
-              key={kind.name}
-              onPress={() => {
-                onPick();
-                void navigate({
-                  to: "/fixed-pages/new",
-                  search: { kind: kind.name },
-                });
-              }}
-            >
-              {kind.label}
-            </Button>
-          ))}
-        </Cluster>
-      </Stack>
-    </section>
+    <Stack gap={3}>
+      <Heading level={2}>{t("fixedPageEditor.chooseKind")}</Heading>
+      <Cluster gap={2}>
+        {query.data.kinds.map((kind) => (
+          <Button
+            key={kind.name}
+            onPress={() => {
+              onPick();
+              void navigate({
+                to: "/fixed-pages/new",
+                search: { kind: kind.name },
+              });
+            }}
+          >
+            {kind.label}
+          </Button>
+        ))}
+      </Cluster>
+    </Stack>
   );
 };
 
@@ -174,7 +155,6 @@ type NewPageEditorProps = {
 };
 
 const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
-  const { remember, focus } = useRetryFocus();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const kind = useKind(name);
@@ -185,21 +165,19 @@ const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
 
   if (kind._tag === "Loaded" && kind.data._tag === "Succeeded") {
     return (
-      <section aria-label={t("fixedPageEditor.new")} ref={focus} tabIndex={-1}>
-        <FixedPageEditor
-          key={name}
-          kind={kind.data.data}
-          picked={picked}
-          onSaved={(saved) => {
-            void navigate({
-              to: "/fixed-pages/$id",
-              params: { id: saved.id },
-              replace: true,
-              ignoreBlocker: true,
-            });
-          }}
-        />
-      </section>
+      <FixedPageEditor
+        key={name}
+        kind={kind.data.data}
+        picked={picked}
+        onSaved={(saved) => {
+          void navigate({
+            to: "/fixed-pages/$id",
+            params: { id: saved.id },
+            replace: true,
+            ignoreBlocker: true,
+          });
+        }}
+      />
     );
   }
 
@@ -208,7 +186,6 @@ const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
       {kind._tag === "Loading" && <Loading />}
       {kind._tag === "Failed" && (
         <ErrorState
-          onRetryPress={remember}
           description={t("fixedPageEditor.kindLoadFailedDescription")}
           isRetrying={kind.isRetrying}
           layout="screen"
@@ -218,16 +195,10 @@ const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
         />
       )}
       {kind._tag === "Loaded" && (
-        <section
-          aria-label={t("fixedPageEditor.new")}
-          ref={focus}
-          tabIndex={-1}
-        >
-          <Stack align="start" gap={3}>
-            <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
-            <Button onPress={choose}>{t("fixedPageEditor.chooseAgain")}</Button>
-          </Stack>
-        </section>
+        <Stack align="start" gap={3}>
+          <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
+          <Button onPress={choose}>{t("fixedPageEditor.chooseAgain")}</Button>
+        </Stack>
       )}
     </Titled>
   );
@@ -262,13 +233,9 @@ export const NewFixedPage = (): ReactNode => {
 type PageEditorProps = {
   /** 編集する固定ページ。 */
   page: Page;
-  /** 固定ページや種類を取り直した後の focus。 */
-  remember: ReturnType<typeof useRetryFocus>["remember"];
-  /** 読み込んだ欄へ focus を移す関数。 */
-  focus: ReturnType<typeof useRetryFocus>["focus"];
 };
 
-const PageEditor = ({ page, remember, focus }: PageEditorProps): ReactNode => {
+const PageEditor = ({ page }: PageEditorProps): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const kind = useKind(page.kind);
@@ -279,15 +246,13 @@ const PageEditor = ({ page, remember, focus }: PageEditorProps): ReactNode => {
 
   if (kind._tag === "Loaded" && kind.data._tag === "Succeeded") {
     return (
-      <section aria-label={t("fixedPageEditor.edit")} ref={focus} tabIndex={-1}>
-        <FixedPageEditor
-          key={page.id}
-          kind={kind.data.data}
-          onDeleted={onDeleted}
-          onSaved={() => undefined}
-          page={page}
-        />
-      </section>
+      <FixedPageEditor
+        key={page.id}
+        kind={kind.data.data}
+        onDeleted={onDeleted}
+        onSaved={() => undefined}
+        page={page}
+      />
     );
   }
 
@@ -308,7 +273,6 @@ const PageEditor = ({ page, remember, focus }: PageEditorProps): ReactNode => {
       {kind._tag === "Loading" && <Loading />}
       {kind._tag === "Failed" && (
         <ErrorState
-          onRetryPress={remember}
           description={t("fixedPageEditor.kindLoadFailedDescription")}
           isRetrying={kind.isRetrying}
           layout="screen"
@@ -318,13 +282,7 @@ const PageEditor = ({ page, remember, focus }: PageEditorProps): ReactNode => {
         />
       )}
       {kind._tag === "Loaded" && (
-        <section
-          aria-label={t("fixedPageEditor.edit")}
-          ref={focus}
-          tabIndex={-1}
-        >
-          <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
-        </section>
+        <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
       )}
     </Titled>
   );
@@ -332,7 +290,6 @@ const PageEditor = ({ page, remember, focus }: PageEditorProps): ReactNode => {
 
 /** 固定ページと種類の定義を読んで編集する画面。 */
 export const EditFixedPage = (): ReactNode => {
-  const { remember, focus } = useRetryFocus();
   const { api } = useAppContext();
   const { t } = useTranslation();
   const { id } = useParams({ from: "/signed-in/fixed-pages/$id" });
@@ -346,13 +303,12 @@ export const EditFixedPage = (): ReactNode => {
   return (
     <Frame>
       {query._tag === "Loaded" && query.data._tag === "Succeeded" ? (
-        <PageEditor page={query.data.data} remember={remember} focus={focus} />
+        <PageEditor page={query.data.data} />
       ) : (
         <Titled title={t("fixedPageEditor.edit")}>
           {query._tag === "Loading" && <Loading />}
           {query._tag === "Failed" && (
             <ErrorState
-              onRetryPress={remember}
               isRetrying={query.isRetrying}
               layout="screen"
               level={2}
@@ -361,13 +317,7 @@ export const EditFixedPage = (): ReactNode => {
             />
           )}
           {query._tag === "Loaded" && (
-            <section
-              aria-label={t("fixedPageEditor.edit")}
-              ref={focus}
-              tabIndex={-1}
-            >
-              <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
-            </section>
+            <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
           )}
         </Titled>
       )}
