@@ -10,9 +10,10 @@ import {
 } from "@/features/passkeys/queries/passkeys-query";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
-import { ActionList, ActionListRow, Cluster, Stack, Text } from "@/ui/layout";
+import { Cluster, Stack, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
+import { ActionList, ActionListRow } from "@/ui/primitives/collections";
 
 /** 一覧に出す、1つのパスキー。 */
 export type PasskeySummary =

@@ -10,9 +10,10 @@ import {
 } from "@/features/deploy-tokens/queries/deploy-tokens-query";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
-import { ActionList, ActionListRow, Stack, Text } from "@/ui/layout";
+import { Stack, Text } from "@/ui/layout";
 import { EmptyState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
+import { ActionList, ActionListRow } from "@/ui/primitives/collections";
 
 /** デプロイ用のトークンの一覧に渡す値。 */
 type DeployTokenListProps = {

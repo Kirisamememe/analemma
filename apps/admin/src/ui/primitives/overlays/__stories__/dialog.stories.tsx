@@ -98,21 +98,12 @@ export const Saved: Story = {
   render: function SavedDialog() {
     const [open, setOpen] = useState(true);
     return (
-      <>
-        <Button
-          onPress={() => {
-            setOpen(true);
-          }}
-        >
-          Dialog を開く
-        </Button>
-        <Dialog
-          isOpen={open}
-          onOpenChange={setOpen}
-          status="success"
-          title="固定ページを更新しました。"
-        />
-      </>
+      <Dialog
+        isOpen={open}
+        onOpenChange={setOpen}
+        status="success"
+        title="固定ページを更新しました。"
+      />
     );
   },
 };

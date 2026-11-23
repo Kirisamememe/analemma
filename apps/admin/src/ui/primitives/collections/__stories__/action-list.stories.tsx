@@ -1,8 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { ActionList, ActionListRow } from "@/ui/layout/action-list";
 import { Text } from "@/ui/layout/text";
 import { Button } from "@/ui/primitives/button";
+import {
+  ActionList,
+  ActionListRow,
+} from "@/ui/primitives/collections/action-list";
 
 const rows = (card: boolean) =>
   ["MacBook Air", "iPhone"].map((name) => (
@@ -15,7 +18,7 @@ const rows = (card: boolean) =>
   ));
 
 const meta = {
-  title: "layout/ActionList",
+  title: "primitives/ActionList",
   component: ActionList,
   args: { children: rows(false) },
   parameters: { stage: "fill" },

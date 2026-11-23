@@ -5,8 +5,9 @@ import { IssueDeployTokenDialog } from "@/features/deploy-tokens/issue/issue-dep
 import type { DeployTokenSummary } from "@/features/deploy-tokens/queries/deploy-tokens-query";
 import { RevokeDeployTokenDialog } from "@/features/deploy-tokens/revoke-deploy-token-dialog";
 import { useTranslate } from "@/i18n/use-translate";
-import { ActionList, Heading, Stack } from "@/ui/layout";
+import { Heading, Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
+import { ActionList } from "@/ui/primitives/collections";
 import { Icon } from "@/ui/primitives/graphics";
 import { FocusScope } from "@/ui/primitives/overlays";
 

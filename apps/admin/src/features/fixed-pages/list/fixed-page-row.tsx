@@ -9,9 +9,10 @@ import {
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
-import { ActionListRow, Cluster, Stack, Text } from "@/ui/layout";
+import { Cluster, Stack, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
+import { ActionListRow } from "@/ui/primitives/collections";
 import { useShowToast } from "@/ui/primitives/overlays";
 
 const DONE = {

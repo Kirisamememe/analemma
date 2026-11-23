@@ -29,7 +29,6 @@ import * as routesFixedPageEditor from "@/routes/fixed-pages/__stories__/fixed-p
 import * as routesFixedPagesPage from "@/routes/fixed-pages/__stories__/fixed-pages-page.stories";
 import * as routesImageViewerPage from "@/routes/images/__stories__/image-viewer-page.stories";
 import * as routesImagesPage from "@/routes/images/__stories__/images-page.stories";
-import * as layoutActionList from "@/ui/layout/__stories__/action-list.stories";
 import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
 import * as layoutCenter from "@/ui/layout/__stories__/center.stories";
 import * as layoutCluster from "@/ui/layout/__stories__/cluster.stories";
@@ -46,6 +45,7 @@ import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "@/ui/primitives/__stories__/button.stories";
 import * as primitivesForm from "@/ui/primitives/__stories__/form.stories";
 import * as primitivesNotice from "@/ui/primitives/__stories__/notice.stories";
+import * as collectionsActionList from "@/ui/primitives/collections/__stories__/action-list.stories";
 import * as primitivesReorderableList from "@/ui/primitives/collections/__stories__/reorderable-list.stories";
 import * as primitivesNumberField from "@/ui/primitives/form-fields/__stories__/number-field.stories";
 import * as primitivesTextArea from "@/ui/primitives/form-fields/__stories__/text-area.stories";
@@ -112,7 +112,8 @@ const MODULES = {
   "ui/layout/__stories__/page-transition.stories.tsx": layoutPageTransition,
   "features/fixed-pages/ui/__stories__/kind-guide.stories.ts":
     fixedPageKindGuide,
-  "ui/layout/__stories__/action-list.stories.tsx": layoutActionList,
+  "ui/primitives/collections/__stories__/action-list.stories.tsx":
+    collectionsActionList,
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.ts": layoutText,
   "ui/patterns/__stories__/empty-state.stories.tsx": patternsEmptyState,

@@ -8,8 +8,9 @@ import {
 } from "@/features/passkeys/passkey-list";
 import { RenamePasskeyDialog } from "@/features/passkeys/rename-passkey-dialog";
 import { useTranslate } from "@/i18n/use-translate";
-import { ActionList, Heading, Stack } from "@/ui/layout";
+import { Heading, Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
+import { ActionList } from "@/ui/primitives/collections";
 import { Icon } from "@/ui/primitives/graphics";
 import { FocusScope } from "@/ui/primitives/overlays";
 
