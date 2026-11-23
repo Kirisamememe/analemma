@@ -21,24 +21,29 @@ const HEIF_BRANDS = new Set([
   "avif",
 ]);
 
-const hasHeifBrand = (bytes: Buffer): boolean => {
-  if (bytes.toString("latin1", 4, 8) !== "ftyp") return false;
+const heifBrand = (bytes: Buffer): "avif" | "heif" | undefined => {
+  if (bytes.toString("latin1", 4, 8) !== "ftyp") return undefined;
 
   const major = bytes.toString("latin1", 8, 12);
   const end = Math.min(bytes.readUInt32BE(0), bytes.length);
-  let supported = HEIF_BRANDS.has(major);
+  let hasAvif = major === "avif";
+  let hasHeif = HEIF_BRANDS.has(major);
 
-  if (major === "avis") return false;
+  if (major === "avis") return undefined;
 
   for (let offset = 16; offset + 4 <= end; offset += 4) {
     const brand = bytes.toString("latin1", offset, offset + 4);
 
-    if (brand === "avis") return false;
+    if (brand === "avis") return undefined;
 
-    if (HEIF_BRANDS.has(brand)) supported = true;
+    if (brand === "avif") hasAvif = true;
+
+    if (HEIF_BRANDS.has(brand)) hasHeif = true;
   }
 
-  return supported;
+  if (hasAvif) return "avif";
+
+  return hasHeif ? "heif" : undefined;
 };
 
 /** 写真の bytes から、形式を見分ける。 */
@@ -58,7 +63,9 @@ export const detectImageFormat = async (
     return "webp";
   }
 
-  if (!hasHeifBrand(data)) return undefined;
+  const brand = heifBrand(data);
+
+  if (brand !== "heif") return brand;
 
   const { compression } = await sharp(bytes).metadata();
 

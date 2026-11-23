@@ -16,7 +16,7 @@
 
 ## 形式
 
-- JPEG・PNG・WebP は先頭の署名で見分ける。HEIF の候補は `ftyp` にある brand で絞ってから、sharp の `metadata().compression` で AVIF と HEIC を分ける。AVIF のシーケンスを示す brand（avis）があれば、写真としては受け付けない。対応しない形式は画像として開かずに呼ぶ側へ返す。
+- JPEG・PNG・WebP は先頭の署名で見分ける。静止画の AVIF は `ftyp` の major brand か compatible brand にある `avif` で判定する。major brand が `mif1` の場合、sharp が AVIF を HEVC と判定するため。残りの HEIF の候補は sharp の `metadata().compression` を確認する。AVIF のシーケンスを示す brand（avis）があれば、写真としては受け付けない。対応しない形式は画像として開かずに呼ぶ側へ返す。
 
 ## ICC の無い AVIF
 

@@ -30,6 +30,18 @@ test("HEIF を、中の圧縮の形式で AVIF と HEIC に分けること", asy
   ).toBe("heic");
 });
 
+test("major brand が mif1 でも compatible brand が avif なら AVIF として読むこと", async () => {
+  const file = await fetch(
+    new URL("../heif/__tests__/p3-red.avif", import.meta.url),
+  );
+
+  const bytes = new Uint8Array(await file.arrayBuffer());
+
+  bytes.set(new TextEncoder().encode("mif1"), 8);
+
+  expect(await detectImageFormat(bytes)).toBe("avif");
+});
+
 test("アニメーション AVIF を受けないこと", async () => {
   const animation = await fetch(new URL("animated.avif", import.meta.url));
 
