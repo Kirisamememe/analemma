@@ -13,7 +13,7 @@ import {
   loadFixedPage,
 } from "@/features/fixed-pages/editor/queries/fixed-page-query";
 import {
-  KINDS_QUERY_KEY,
+  fixedPageKindsQueryKey,
   loadKinds,
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
@@ -95,7 +95,7 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
   const navigate = useNavigate();
 
   const query = useApiQuery({
-    key: KINDS_QUERY_KEY,
+    key: fixedPageKindsQueryKey("create"),
     load: () => loadKinds(api),
   });
 
