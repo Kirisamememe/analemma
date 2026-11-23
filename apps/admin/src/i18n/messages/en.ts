@@ -53,6 +53,7 @@ export const en = {
   "fixedPageEditor.kindOf": "Kind: {{kind}}",
   "fixedPageEditor.emptyKindsDescription":
     "Kinds appear here after the public site sends its kind definitions during deployment.",
+  "fixedPageEditor.formReady": "The new page form is ready.",
   "fixedPageEditor.chooseAgain": "Choose another kind",
   "app.name": "Stilus",
   "home.title": "Home",

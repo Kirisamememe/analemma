@@ -55,6 +55,7 @@ export const ja = {
   "fixedPageEditor.kindOf": "種類:{{kind}}",
   "fixedPageEditor.emptyKindsDescription":
     "公開サイトのデプロイで種類の定義を送ると、ここに並びます。",
+  "fixedPageEditor.formReady": "作成フォームを表示しました。",
   "fixedPageEditor.chooseAgain": "種類を選び直す",
   "app.name": "Stilus",
   "home.title": "ホーム",

@@ -155,44 +155,54 @@ const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
     void navigate({ to: "/fixed-pages/new", search: {} });
   };
 
-  if (kind._tag === "Loaded" && kind.data._tag === "Succeeded") {
-    return (
-      <FixedPageEditor
-        key={name}
-        kind={kind.data.data}
-        picked={picked}
-        onSaved={(saved) => {
-          void navigate({
-            to: "/fixed-pages/$id",
-            params: { id: saved.id },
-            replace: true,
-            ignoreBlocker: true,
-          });
-        }}
-      />
-    );
-  }
+  const definition =
+    kind._tag === "Loaded" && kind.data._tag === "Succeeded"
+      ? kind.data.data
+      : undefined;
 
   return (
-    <Titled title={t("fixedPageEditor.new")}>
-      {kind._tag === "Loading" && <LoadingState layout="form" />}
-      {kind._tag === "Failed" && (
-        <ErrorState
-          description={t("fixedPageEditor.kindLoadFailedDescription")}
-          isRetrying={kind.isRetrying}
-          layout="screen"
-          level={2}
-          onRetry={kind.retry}
-          title={t("fixedPageEditor.kindLoadFailed")}
+    <>
+      <output className="sr-only">
+        {definition !== undefined && t("fixedPageEditor.formReady")}
+      </output>
+      {definition === undefined ? (
+        <Titled title={t("fixedPageEditor.new")}>
+          {kind._tag === "Loading" && <LoadingState layout="form" />}
+          {kind._tag === "Failed" && (
+            <ErrorState
+              description={t("fixedPageEditor.kindLoadFailedDescription")}
+              isRetrying={kind.isRetrying}
+              layout="screen"
+              level={2}
+              onRetry={kind.retry}
+              title={t("fixedPageEditor.kindLoadFailed")}
+            />
+          )}
+          {kind._tag === "Loaded" && (
+            <Stack align="start" gap={3}>
+              <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
+              <Button onPress={choose}>
+                {t("fixedPageEditor.chooseAgain")}
+              </Button>
+            </Stack>
+          )}
+        </Titled>
+      ) : (
+        <FixedPageEditor
+          key={name}
+          kind={definition}
+          picked={picked}
+          onSaved={(saved) => {
+            void navigate({
+              to: "/fixed-pages/$id",
+              params: { id: saved.id },
+              replace: true,
+              ignoreBlocker: true,
+            });
+          }}
         />
       )}
-      {kind._tag === "Loaded" && (
-        <Stack align="start" gap={3}>
-          <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
-          <Button onPress={choose}>{t("fixedPageEditor.chooseAgain")}</Button>
-        </Stack>
-      )}
-    </Titled>
+    </>
   );
 };
 

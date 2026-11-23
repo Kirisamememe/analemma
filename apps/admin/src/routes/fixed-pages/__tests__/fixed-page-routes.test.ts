@@ -417,6 +417,12 @@ test("種類を選んだ後、読み込む間にほかへ移した focus は、�
 
   await userEvent.click(await screen.findByRole("button", { name: "紹介" }));
   await screen.findByText("読み込んでいます");
+
+  const ready = screen
+    .getAllByRole("status")
+    .find((status) => status.textContent === "");
+
+  expect(ready).toBeDefined();
   const back = screen.getByRole("link", { name: "固定ページの一覧" });
 
   act(() => {
@@ -425,5 +431,6 @@ test("種類を選んだ後、読み込む間にほかへ移した focus は、�
   loading.resolve(undefined);
   await screen.findByRole("textbox", { name: "slug" });
 
+  expect(ready?.textContent).toBe("作成フォームを表示しました。");
   expect(document.activeElement).toBe(back);
 });
