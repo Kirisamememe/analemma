@@ -52,6 +52,21 @@ const resolveCommit = (cwd: string, revision: string): string | undefined => {
     : resolveRevision(cwd, `${sha}^{commit}`);
 };
 
+const branchCommit = (cwd: string, ref: string): string | undefined =>
+  readGit(cwd, "show-ref", "--verify", "--hash", "--", ref);
+
+const isBehindOrigin = (cwd: string, base: string): boolean => {
+  const local = branchCommit(cwd, `refs/heads/${base}`);
+  const remote = branchCommit(cwd, `refs/remotes/origin/${base}`);
+
+  return (
+    local !== undefined &&
+    remote !== undefined &&
+    local !== remote &&
+    git(cwd, "merge-base", "--is-ancestor", local, remote).status === 0
+  );
+};
+
 const pinHead = (
   cwd: string,
   head: string | undefined,
@@ -62,17 +77,10 @@ const pinHead = (
     return "今のブランチが無い(detached HEAD)。--head に手元のブランチを渡してください。";
   }
 
-  const branchCommit = readGit(
-    cwd,
-    "show-ref",
-    "--verify",
-    "--hash",
-    "--",
-    `refs/heads/${branch}`,
-  );
+  const headCommit = branchCommit(cwd, `refs/heads/${branch}`);
 
-  if (branchCommit !== undefined) {
-    return { head: branchCommit, headBranch: branch, resultsBranch: branch };
+  if (headCommit !== undefined) {
+    return { head: headCommit, headBranch: branch, resultsBranch: branch };
   }
 
   if (head === undefined) {
@@ -107,6 +115,10 @@ export const pinRange = (
 
   if (baseCommit === undefined) {
     return `${base} が無い。`;
+  }
+
+  if (isBehindOrigin(cwd, base)) {
+    return `手元の ${base} は、origin/${base} より古い。git fetch してから、--base に origin/${base} を渡してください。`;
   }
 
   return git(cwd, "diff", "--quiet", `${baseCommit}...${pinnedHead.head}`)

@@ -16,14 +16,8 @@ export type CursorReviewer = {
   readonly models: readonly string[];
 };
 
-/** prompt を書き出し、Claude の subagent に渡すレビュー。 */
-export type SubagentReviewer = {
-  /** レビューを流すもの。 */
-  readonly runner: "subagent";
-};
-
 /** レビューを流すものとモデル。 */
-export type Reviewer = CodexReviewer | CursorReviewer | SubagentReviewer;
+export type Reviewer = CodexReviewer | CursorReviewer;
 
 /** レビューの観点。 */
 export type Perspective = {
@@ -62,10 +56,7 @@ export const PERSPECTIVES: readonly Perspective[] = [
   {
     id: "ui",
     label: "UI/UX とアクセシビリティ",
-    reviewer: {
-      runner: "cursor",
-      models: ["gemini-4-neon-xhigh", "grok-4.7-xhigh"],
-    },
+    reviewer: CODEX,
     maxRounds: CHILD_BRANCH_ROUNDS,
   },
   {
@@ -77,7 +68,7 @@ export const PERSPECTIVES: readonly Perspective[] = [
   {
     id: "wording",
     label: "言葉",
-    reviewer: { runner: "subagent" },
+    reviewer: { runner: "cursor", models: ["grok-4.7-xhigh"] },
     maxRounds: CHILD_BRANCH_ROUNDS,
   },
   {

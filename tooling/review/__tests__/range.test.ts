@@ -225,6 +225,34 @@ describe("レビューする範囲を決めること", () => {
     );
   });
 
+  test("手元の base のブランチが origin の同じ名前のブランチより古ければ、origin の方を渡すよう伝えること", () => {
+    const { cwd, head } = makeRepository("behind-origin");
+
+    git(cwd, "switch", "--quiet", "-c", "claude/merged", "main");
+    const merged = commit(cwd, "merged.md");
+
+    git(cwd, "update-ref", "refs/remotes/origin/main", merged);
+
+    expect(pinRange(cwd, { base: "main", head: "claude/pages" })).toBe(
+      "手元の main は、origin/main より古い。git fetch してから、--base に origin/main を渡してください。",
+    );
+    expect(
+      pinRange(cwd, { base: "origin/main", head: "claude/pages" }),
+    ).toMatchObject({ base: merged, head });
+  });
+
+  test("手元の base のブランチが origin より新しければ、手元のまま比べること", () => {
+    const { cwd, base, head } = makeRepository("ahead-of-origin");
+
+    git(cwd, "update-ref", "refs/remotes/origin/main", base);
+    git(cwd, "switch", "--quiet", "main");
+    const local = commit(cwd, "local.md");
+
+    expect(pinRange(cwd, { base: "main", head: "claude/pages" })).toMatchObject(
+      { base: local, head },
+    );
+  });
+
   test("base と head のブランチが進んだ後も、先に決めた SHA の組を使えること", () => {
     const { cwd, base, head } = makeRepository("pinned");
     const pinned = pinRange(cwd, { base: "main", head: "claude/pages" });

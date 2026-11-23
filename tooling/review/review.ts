@@ -147,10 +147,7 @@ const review = (request: ReviewArguments): number => {
     return 1;
   }
 
-  const reviewer =
-    perspective.reviewer.runner === "subagent"
-      ? perspective.reviewer
-      : chooseReviewer(perspective.reviewer);
+  const reviewer = chooseReviewer(perspective.reviewer);
 
   if (typeof reviewer === "string") {
     report(reviewer);
@@ -179,20 +176,6 @@ const review = (request: ReviewArguments): number => {
   });
 
   writeFileSync(`${name}.prompt.md`, prompt);
-
-  if (reviewer.runner === "subagent") {
-    say(
-      [
-        `「${perspective.label}」の観点の ${String(next.round)} 回目は、Claude の subagent でレビューする。prompt を書き出した。`,
-        `- prompt:${name}.prompt.md`,
-        `- 結果を書く先:${result}`,
-        `subagent に prompt のファイルを読ませ、返ってきた結果を、そのまま結果を書く先に書いてください。prompt で読ませるファイル(レビューするコミットの中身・差分・コミットのメッセージ)は ${workspace.root} に残してある。`,
-      ].join("\n"),
-    );
-
-    return 0;
-  }
-
   say(
     `「${perspective.label}」の観点の ${String(next.round)} 回目のレビューを、${RUNNER_NAMES[reviewer.runner]} の ${reviewer.model} で流す。数分から数十分かかる。`,
   );
