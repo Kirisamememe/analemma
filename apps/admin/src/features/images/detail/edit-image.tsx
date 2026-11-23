@@ -73,14 +73,14 @@ const EditImageDialog = ({
           _tag: "Succeeded",
           data: result.image,
         } satisfies LoadedImage);
+        await refresh(IMAGES_QUERY_KEY);
         onClose();
         showToast({ tone: "success", message: t("imageDetail.saved") });
       } else {
         failure.show(t("imageDetail.gone"));
         await refresh(imageQueryKey(id)); // もう無いことを、画面にも出す
+        await refresh(IMAGES_QUERY_KEY);
       }
-
-      await refresh(IMAGES_QUERY_KEY);
     },
     onError: () => {
       failure.show(t("imageDetail.saveFailed"));
