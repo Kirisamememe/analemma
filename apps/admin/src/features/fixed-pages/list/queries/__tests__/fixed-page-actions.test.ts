@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-  deleteFixedPage,
   reorderFixedPages,
   setPublication,
 } from "@/features/fixed-pages/list/queries/fixed-page-actions";
@@ -50,16 +49,6 @@ describe("setPublication", () => {
     ).toEqual({
       _tag: "NotFound",
     });
-  });
-});
-
-describe("deleteFixedPage", () => {
-  test("削除し、もう無いページは NotFound にする", async () => {
-    const { api, server, about } = setUp();
-
-    expect(await deleteFixedPage(api, about)).toEqual({ _tag: "Deleted" });
-    expect(server.pages().map(({ slug }) => slug)).toEqual(["colophon"]);
-    expect(await deleteFixedPage(api, about)).toEqual({ _tag: "NotFound" });
   });
 });
 

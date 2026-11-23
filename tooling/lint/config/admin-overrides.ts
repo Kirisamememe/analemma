@@ -109,11 +109,7 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   },
   {
     files: ["**/apps/admin/src/{features,components,ui}/**/*.{ts,tsx}"],
-    excludeFiles: [
-      "**/__tests__/**",
-      "**/__stories__/**",
-      "**/apps/admin/src/features/fixed-pages/**", // TODO: 固定ページの画面の PR が入ったら移して外す
-    ],
+    excludeFiles: ["**/__tests__/**", "**/__stories__/**"],
     rules: {
       "project/admin-module-location": [
         "error",
@@ -123,6 +119,8 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
             "features/auth/webauthn/create-authenticator.ts",
             "features/auth/webauthn/create-browser-web-authn.ts",
             "features/deploy-tokens/issue/copy-text.ts",
+            "features/fixed-pages/content-form.ts",
+            "features/fixed-pages/editor/create-editor-values.ts",
           ],
         },
       ],

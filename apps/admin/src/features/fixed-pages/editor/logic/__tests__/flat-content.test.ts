@@ -4,14 +4,12 @@ import { fieldDefinitions } from "@analemma/contract";
 
 import { createContentForm } from "@/features/fixed-pages/content-form";
 import {
-  createEditorValues,
   flattenContent,
   restoreContent,
 } from "@/features/fixed-pages/editor/logic/flat-content";
 import { toFixedPageContent } from "@/features/fixed-pages/logic/to-fixed-page-content";
 
 const name = { key: "name", label: "名前", type: "text" };
-
 const fields = fieldDefinitions.parse([
   { key: "hero", label: "紹介", type: "group", fields: [name] },
   { key: "rows", label: "行", type: "repeat", fields: [name] },
@@ -27,7 +25,6 @@ test("各段の定義に無いキーを保ち、現在の並びにある要素�
       { name: "C", extra: 3 },
     ],
   });
-
   const flat = flattenContent(form);
   const [first, , last] = flat.items["rows"] ?? [];
 
@@ -47,30 +44,4 @@ test("各段の定義に無いキーを保ち、現在の並びにある要素�
       { name: "A", extra: 1 },
     ],
   });
-});
-
-test("作成では slug とタイトルを空にし、編集では保存した固定ページの値から始める", () => {
-  const created = createEditorValues(fields);
-
-  const edited = createEditorValues(fields, {
-    slug: "about",
-    title: "紹介",
-    content: { hero: { name: "Aoi" }, rows: [{ name: "A" }] },
-  });
-
-  const [row] = edited.values.items["rows"] ?? [];
-
-  expect(created.values).toEqual({
-    slug: "",
-    title: "",
-    content: { "hero/name": "" },
-    items: { rows: [] },
-  });
-  expect(edited.values).toEqual({
-    slug: "about",
-    title: "紹介",
-    content: { "hero/name": "Aoi", [`rows/${String(row)}/name`]: "A" },
-    items: { rows: [String(row)] },
-  });
-  expect(edited.fields).toBe(fields);
 });

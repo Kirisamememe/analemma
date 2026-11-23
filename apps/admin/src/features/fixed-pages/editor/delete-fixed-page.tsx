@@ -2,7 +2,7 @@ import { type ReactNode, useRef, useState } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { deleteFixedPage } from "@/features/fixed-pages/list/queries/fixed-page-actions";
+import { deleteFixedPage } from "@/features/fixed-pages/editor/queries/delete-fixed-page";
 import {
   FIXED_PAGES_QUERY_KEY,
   type FixedPageSummary,

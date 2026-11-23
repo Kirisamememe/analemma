@@ -2,17 +2,19 @@ import { useRef, useState } from "react";
 
 import { fixedPageSlug, fixedPageTitle } from "@analemma/contract";
 
+import { createEditorValues } from "../create-editor-values";
 import {
   clearChangedErrors,
   type EditorErrors,
   refusedSaveErrors,
 } from "../logic/editor-errors";
-import { createEditorValues, type EditorValues } from "../logic/flat-content";
+import type { EditorValues } from "../logic/flat-content";
+import { hasUnsavedChanges } from "../logic/save-input";
 import {
   fixedPageQueryKey,
   type LoadedFixedPage,
 } from "../queries/fixed-page-query";
-import { hasUnsavedChanges, saveFixedPage } from "../queries/save-fixed-page";
+import { saveFixedPage } from "../queries/save-fixed-page";
 
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";

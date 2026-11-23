@@ -8,10 +8,8 @@ import {
   toContentSchema,
 } from "@analemma/contract";
 
-import {
-  createContentForm,
-  isFormGroup,
-} from "@/features/fixed-pages/content-form";
+import { createContentForm } from "@/features/fixed-pages/content-form";
+import { isFormGroup } from "@/features/fixed-pages/logic/is-form-group";
 import { toFixedPageContent } from "@/features/fixed-pages/logic/to-fixed-page-content";
 
 const title = { key: "title", type: "text", label: "見出し" };

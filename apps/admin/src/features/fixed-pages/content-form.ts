@@ -34,12 +34,6 @@ export type ContentForm = {
   readonly unknownKeys: FixedPageContent;
 };
 
-/** 項目のフォームの値が group のものかを確かめる。 */
-export const isFormGroup = (
-  value: ContentFormValue | undefined,
-): value is ContentForm =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
-
 const groupContent = (
   value: FixedPageContent[string] | undefined,
 ): FixedPageContent =>

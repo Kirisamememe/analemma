@@ -7,12 +7,6 @@ export type PublicationResult = {
   readonly _tag: "Published" | "Unpublished" | "NotFound";
 };
 
-/** 固定ページを削除した結果。 */
-export type DeleteFixedPageResult = {
-  /** どの結果か。 */
-  readonly _tag: "Deleted" | "NotFound";
-};
-
 /** 公開状態の変え方。 */
 export type PublicationChange = {
   /** 固定ページの ID。 */
@@ -44,18 +38,6 @@ export const setPublication = async (
   }
 
   return { _tag: result.data.published ? "Published" : "Unpublished" };
-};
-
-/** 固定ページを削除する。 */
-export const deleteFixedPage = async (
-  api: ApiClient,
-  id: string,
-): Promise<DeleteFixedPageResult> => {
-  const result = await callApi(api.admin.fixedPages.delete({ id }), [
-    "NOT_FOUND",
-  ]);
-
-  return { _tag: result._tag === "Succeeded" ? "Deleted" : "NotFound" };
 };
 
 /** すべての固定ページの ID を、並べたい順に送る。 */

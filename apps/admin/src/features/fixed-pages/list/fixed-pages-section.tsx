@@ -7,6 +7,8 @@ import { useReorderFixedPages } from "@/features/fixed-pages/list/hooks/use-reor
 import {
   FIXED_PAGES_QUERY_KEY,
   KINDS_QUERY_KEY,
+  loadFixedPages,
+  loadKinds,
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
@@ -35,12 +37,12 @@ export const FixedPagesSection = ({
 
   const pages = useApiQuery({
     key: FIXED_PAGES_QUERY_KEY,
-    load: () => api.admin.fixedPages.list(),
+    load: () => loadFixedPages(api),
   });
 
   const kinds = useApiQuery({
     key: KINDS_QUERY_KEY,
-    load: () => api.admin.kinds.list(),
+    load: () => loadKinds(api),
   });
 
   if (pages._tag === "Loading" || kinds._tag === "Loading") {

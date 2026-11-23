@@ -1,10 +1,6 @@
 import { bindContentIssues } from "../../logic/bind-content-issues";
-import { toFixedPageContent } from "../../logic/to-fixed-page-content";
-import {
-  type EditorBase,
-  type EditorValues,
-  restoreContent,
-} from "../logic/flat-content";
+import type { EditorBase, EditorValues } from "../logic/flat-content";
+import { toSaveInput } from "../logic/save-input";
 
 import type { ApiClient, ApiInputs } from "@/api/api-types";
 import { callApi } from "@/api/call-api";
@@ -18,26 +14,12 @@ type Submission = EditorBase & {
   values: EditorValues;
 };
 
-const toInput = ({ fields, unknownKeys }: EditorBase, values: EditorValues) => {
-  const submitted = restoreContent(fields, { ...values, unknownKeys });
-
-  return {
-    submitted,
-    input: {
-      slug: values.slug,
-      title: values.title,
-      content: toFixedPageContent(fields, submitted),
-    },
-  };
-};
-
 /** 固定ページを保存し、中身の誤りを送った時点の項目に結び付ける。 */
 export const saveFixedPage = async (
   api: ApiClient,
   { target, values, ...base }: Submission,
 ) => {
-  const { submitted, input } = toInput(base, values);
-
+  const { submitted, input } = toSaveInput(base, values);
   const result =
     "id" in target
       ? await callApi(api.admin.fixedPages.update({ ...target, ...input }), [
@@ -67,19 +49,3 @@ export const saveFixedPage = async (
 
   return { _tag: error.code };
 };
-
-/** 比べるフォームの値。 */
-type Comparison = {
-  /** 開いたときか、最後に保存できたときの値。 */
-  readonly saved: EditorValues;
-  /** 今の値。 */
-  readonly current: EditorValues;
-};
-
-/** 保存した値と今の値とで、保存で送る slug・タイトル・中身が違うか。 */
-export const hasUnsavedChanges = (
-  base: EditorBase,
-  { saved, current }: Comparison,
-): boolean =>
-  JSON.stringify(toInput(base, saved).input) !==
-  JSON.stringify(toInput(base, current).input);
