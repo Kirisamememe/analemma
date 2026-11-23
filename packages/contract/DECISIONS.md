@@ -9,7 +9,7 @@ client の型(`.d.ts`)は contract を import するので、利用者は client
   - 実行するコードは、client の利用者には読まれない。client は SDK と CLI の bundle に contract を含めるので、client の JS は contract を import しない。
   - 実行するコードまで build した JS にすると、リポジトリの中(server・管理画面・client のテストと build)にソースを読ませる仕組みが要る。condition で分けるには、Bun は condition を設定のファイルから読まないので、Bun を流すすべてのコマンド(server の起動・テスト・スクリプト)に `--conditions` を付けることになる(実測)。付け忘れたコマンドは、`dist/` に残った古い JS を黙って読む。
 - `exports` は、リポジトリの中でだけ使う condition `@analemma/source` と `default` をソースに、`types` を `.d.ts` に向ける。リポジトリの tsc は、`tsconfig.base.json` の `customConditions` でこの condition を読み、`dist/types/` があってもソースを検査する(condition が無いと、`dist/types/` があるときは、その型を読む。実測)。Bun・Vite・Bun の build は `types` を読まないので、`default` のソースを読む。
-- `files` は、`dist/types` と、テストを除いた `src` にする。tsconfig(リポジトリの外の `tsconfig.base.json` を extends する)とテストは入れない。
+- `files` は、`dist/types` と、テストを除いた `src` にする。tsconfig とテストは入れない(tsconfig は、パッケージの外の、リポジトリの直下の `tsconfig.base.json` を extends するので、入れた先では extends の先が無い)。
 - `dist/types/` は、contract の build が作り直す。build は、`bun pm pack` の `prepack` と、client の build が流す。
   - client のフォルダをつないで使う公開サイト(client の README の「開発」)の tsc は、client の `.d.ts` から、contract の `types` の `.d.ts` を読む。client を build し直すたびに contract の `.d.ts` も作り直し、client の型と contract の型を同じソースにそろえる。
   - 固めた後に `.d.ts` を消す形は採らない。固めるのが途中で失敗すると `postpack` が流れず、古い `.d.ts` が残るため。
