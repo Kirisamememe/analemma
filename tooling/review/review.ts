@@ -15,7 +15,8 @@ import { parseReviewArguments, type ReviewArguments } from "./arguments";
 import { chooseReviewer, runExternalReview } from "./external-review";
 import { buildPrompt, type TradeOffSection } from "./prompt";
 import { pinRange, type PinnedRange } from "./range";
-import { decideNextRound } from "./results";
+import { decideNextRound } from "./records/results";
+import { nextTrial, trialName, type TrialRecord } from "./records/trials";
 import { extractTradeOffs } from "./trade-offs";
 
 const repoRoot = join(import.meta.dirname, "../..");
@@ -137,7 +138,8 @@ const review = (request: ReviewArguments): number => {
 
   mkdirSync(results, { recursive: true });
 
-  const next = decideNextRound({ perspective, files: readdirSync(results) });
+  const files = readdirSync(results);
+  const next = decideNextRound({ perspective, files });
 
   if (next._tag === "Exhausted") {
     report(
@@ -156,8 +158,10 @@ const review = (request: ReviewArguments): number => {
   }
 
   const workspace = prepareWorkspace(pinned);
-  const name = join(results, `${perspective.id}-${String(next.round)}`);
-  const result = `${name}.md`;
+  const round = { perspective: perspective.id, round: next.round };
+  const trial = nextTrial({ perspective, round: next.round, files });
+  const name = join(results, trialName({ ...round, trial }));
+  const result = join(results, `${perspective.id}-${String(next.round)}.md`);
 
   const prompt = buildPrompt({
     perspective,
@@ -176,17 +180,38 @@ const review = (request: ReviewArguments): number => {
   });
 
   writeFileSync(`${name}.prompt.md`, prompt);
+
+  const record: TrialRecord = {
+    ...round,
+    trial,
+    runner: reviewer.runner,
+    model: reviewer.model,
+    effort: reviewer.runner === "codex" ? reviewer.effort : undefined,
+    base: { name: base, commit: pinned.base },
+    head: { branch: pinned.headBranch ?? null, commit: pinned.head },
+    startedAt: new Date().toISOString(),
+  };
+
+  const writeRecord = (value: TrialRecord): void => {
+    writeFileSync(`${name}.json`, `${JSON.stringify(value, null, 2)}\n`);
+  };
+
+  writeRecord(record);
   say(
     `「${perspective.label}」の観点の ${String(next.round)} 回目のレビューを、${RUNNER_NAMES[reviewer.runner]} の ${reviewer.model} で流す。数分から数十分かかる。`,
   );
 
   try {
-    return runExternalReview({
+    const end = runExternalReview({
       reviewer,
       paths: { tree: workspace.tree, context: workspace.context, result },
       log: `${name}.log`,
       prompt,
     });
+
+    writeRecord({ ...record, end: { at: new Date().toISOString(), ...end } });
+
+    return end.reason === "lgtm" || end.reason === "changes-requested" ? 0 : 1;
   } finally {
     rmSync(workspace.root, { recursive: true, force: true });
   }

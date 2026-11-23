@@ -1,4 +1,4 @@
-import type { Perspective } from "./perspectives";
+import type { Perspective } from "../perspectives";
 
 /** 次の回の番号を決める材料。 */
 type RoundQuery = {

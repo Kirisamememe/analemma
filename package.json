@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && bun run --workspaces --if-present typecheck",
     "test": "bun --cwd=apps/server run test:prepare && bun test && bun --cwd=apps/admin run test",
     "review": "bun tooling/review/review.ts",
+    "review:decide": "bun tooling/review/records/decide.ts",
     "storybook": "bun --cwd=apps/admin run storybook",
     "prepare": "bun tooling/git-hooks/install.ts"
   },
