@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { type KindDefinition, contract } from "@analemma/contract";
 
 import { defineKind } from "../../kinds/define-kind";
-import { text } from "../../kinds/fields";
+import { text, image } from "../../kinds/fields";
 import { type CliIo, runCli } from "../run-cli";
 
 const TOKEN = `${"A".repeat(22)}.${"B".repeat(43)}`;
@@ -13,7 +13,10 @@ const TOKEN = `${"A".repeat(22)}.${"B".repeat(43)}`;
 const about = defineKind({
   name: "about",
   label: "自己紹介",
-  fields: { headline: text({ label: "見出し" }) },
+  fields: {
+    headline: text({ label: "見出し" }),
+    photo: image({ label: "写真" }),
+  },
 });
 
 /** テスト用の CMS の答え方。 */

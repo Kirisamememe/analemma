@@ -1,6 +1,7 @@
 import {
   type FieldDefinition,
   type FixedPageContent,
+  imageId,
   booleanValue,
   dateValue,
   longTextValue,
@@ -48,6 +49,8 @@ const readField = (
   const value = content?.[field.key];
 
   switch (field.type) {
+    case "image":
+      return imageId.safeParse(value).data ?? null;
     case "text":
       return textValue.safeParse(value).data ?? "";
     case "longText":

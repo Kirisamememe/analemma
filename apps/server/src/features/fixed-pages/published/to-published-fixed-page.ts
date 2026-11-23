@@ -1,4 +1,4 @@
-import { type ContractOutputs, fixedPageContent } from "@analemma/contract";
+import type { ContractOutputs, FixedPageContent } from "@analemma/contract";
 
 import type {
   FixedPageRow,
@@ -30,10 +30,11 @@ export const toPublishedSummary = (
   };
 };
 
-/** 公開している固定ページを、保存した中身のまま返す形にする。 */
+/** 公開している固定ページを、画像の項目を解いた中身と一緒に返す形にする。 */
 export const toPublishedFixedPage = (
   row: FixedPageRow,
+  content: FixedPageContent,
 ): PublishedFixedPage => ({
   ...toPublishedSummary(row),
-  content: fixedPageContent.parse(row.content),
+  content,
 });

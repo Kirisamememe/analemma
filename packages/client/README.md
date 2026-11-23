@@ -36,7 +36,9 @@ export const about = defineKind({
 export type AboutContent = KindContent<typeof about>;
 ```
 
-項目の型は `text`・`longText`・`number`・`boolean`・`date`・`url`・`select`・`group`・`repeat`。項目は既定で必須で、`optional(...)` で省けるようにする。真偽値の項目は省けず、いつも値を持つ。`boolean({ label: "連絡先を出す", default: true })` のように既定値を書け(省くと `false`)、値の無いページは既定値として読む。3つ目の状態が要るなら `select` を使う。項目には、これらの関数で作ったものだけを使える(zod のスキーマを直接渡したり、`.min()` などで絞ったりすると、CMS が同じ検査をできないので、`defineKind` が失敗する)。
+項目の型は `text`・`longText`・`number`・`boolean`・`date`・`url`・`select`・`image`・`group`・`repeat`。項目は既定で必須で、`optional(...)` で省けるようにする。真偽値の項目は省けず、いつも値を持つ。`boolean({ label: "連絡先を出す", default: true })` のように既定値を書け(省くと `false`)、値の無いページは既定値として読む。3つ目の状態が要るなら `select` を使う。項目には、これらの関数で作ったものだけを使える(zod のスキーマを直接渡したり、`.min()` などで絞ったりすると、CMS が同じ検査をできないので、`defineKind` が失敗する)。
+
+`image({ label: "写真" })` は画像1枚の項目。取得できたかは `available` で判別でき、`true` なら `image` に公開している画像が入る。未入力の任意の項目は省かれる。複数の画像を並べるときは `repeat` の中に置く。
 
 ### 定義を変えるとき
 

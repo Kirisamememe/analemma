@@ -10,6 +10,7 @@ const { fields } = kindDefinition.parse({
   fields: [
     { key: "headline", label: "見出し", type: "text" },
     { key: "bio", label: "本文", type: "longText", optional: true },
+    { key: "photo", label: "写真", type: "image", optional: true },
     { key: "age", label: "年", type: "number", optional: true },
     { key: "open", label: "受付中", type: "boolean", default: true },
     { key: "born", label: "生まれた日", type: "date", optional: true },
@@ -46,6 +47,7 @@ const strip = toContentSchema({ fields, unknownKeys: "strip" });
 
 const fullContent = {
   headline: "こんにちは",
+  photo: "019b0000-0000-7000-8000-000000000001",
   bio: "1行目\n2行目\tタブ",
   age: 30,
   open: false,
@@ -99,6 +101,16 @@ describe("中身の検査", () => {
   });
 
   test.each([
+    {
+      title: "ID の形に合わない画像",
+      value: { headline: "a", photo: "海" },
+      path: "photo",
+    },
+    {
+      title: "画像の配列",
+      value: { headline: "a", photo: [fullContent.photo] },
+      path: "photo",
+    },
     { title: "空のテキスト", value: { headline: "" }, path: "headline" },
     {
       title: "改行のあるテキスト",

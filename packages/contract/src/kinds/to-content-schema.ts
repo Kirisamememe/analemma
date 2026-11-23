@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { imageId } from "../images/image-values";
 import {
   booleanValue,
   dateValue,
@@ -36,6 +37,8 @@ const toValueSchema = (
       return booleanValue.default(field.default);
     case "date":
       return dateValue;
+    case "image":
+      return imageId;
     case "url":
       return urlValue;
     case "select":

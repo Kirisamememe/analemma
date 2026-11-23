@@ -14,6 +14,7 @@ export {
   boolean,
   date,
   group,
+  image,
   longText,
   number,
   optional,

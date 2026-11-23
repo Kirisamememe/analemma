@@ -70,6 +70,8 @@ const booleanField = z.object({
 const dateField = z.object({ ...common, type: z.literal("date") });
 const urlField = z.object({ ...common, type: z.literal("url") });
 
+const imageField = z.object({ ...common, type: z.literal("image") });
+
 const selectField = z.object({
   ...common,
   type: z.literal("select"),
@@ -90,6 +92,7 @@ type ScalarField = z.output<
   | typeof numberField
   | typeof booleanField
   | typeof dateField
+  | typeof imageField
   | typeof urlField
   | typeof selectField
 >;
@@ -100,6 +103,7 @@ type ScalarFieldInput = z.input<
   | typeof numberField
   | typeof booleanField
   | typeof dateField
+  | typeof imageField
   | typeof urlField
   | typeof selectField
 >;
@@ -149,6 +153,7 @@ export const fieldDefinition: z.ZodType<FieldDefinition, FieldDefinitionInput> =
     booleanField,
     dateField,
     urlField,
+    imageField,
     selectField,
     groupField,
     repeatField,
