@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { Input } from "react-aria-components";
 
 import { fieldControl } from "./field-control";
@@ -24,6 +24,8 @@ type TextInputProps = {
   onChange?: (value: string) => void;
   /** 入力欄から focus が外れたときに呼ぶ関数。 */
   onBlur?: () => void;
+  /** 入力欄の要素。 */
+  ref?: Ref<HTMLInputElement> | undefined;
 };
 
 /** 1行のテキストを入力する部品。 */
@@ -37,6 +39,7 @@ export const TextInput = ({
   value,
   onChange,
   onBlur,
+  ref,
 }: TextInputProps): ReactNode => (
   <Input
     aria-label={ariaLabel}
@@ -49,6 +52,7 @@ export const TextInput = ({
     maxLength={maxLength}
     name={name}
     onBlur={onBlur}
+    ref={ref}
     onChange={
       onChange === undefined
         ? undefined

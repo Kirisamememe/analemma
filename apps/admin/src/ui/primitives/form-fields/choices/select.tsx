@@ -53,7 +53,7 @@ export const Select = ({
     onChange={onChange}
     validationBehavior={validationBehavior}
   >
-    <FieldLabel>{label}</FieldLabel>
+    <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
     <SelectControl isRequired={isRequired} options={options} />
     {description !== undefined && (
       <FieldDescription>{description}</FieldDescription>

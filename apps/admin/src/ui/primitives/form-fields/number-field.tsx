@@ -101,7 +101,7 @@ export const NumberField = ({
       // oxlint-disable-next-line project/styling-boundary -- React Aria の未指定の props を省く。見た目の props は含まない。
       {...fieldState}
     >
-      <FieldLabel>{label}</FieldLabel>
+      <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
       <Group
         className={fieldControl({
           className:

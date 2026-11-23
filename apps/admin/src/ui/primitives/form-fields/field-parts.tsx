@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { FieldError, Label, Text } from "react-aria-components";
+import { useTranslation } from "react-i18next";
 
+import { Badge } from "@/ui/primitives/badge";
 import { typography } from "@/ui/typography";
 
 /** 入力欄の文言。 */
@@ -9,10 +11,38 @@ type FieldTextProps = {
   children: string;
 };
 
+/** 入力が要ることを示すラベル。 */
+export const RequiredBadge = (): ReactNode => {
+  const { t } = useTranslation();
+
+  return (
+    <span aria-hidden="true" className="flex shrink-0">
+      <Badge tone="danger" variant="soft">
+        {t("ui.required")}
+      </Badge>
+    </span>
+  );
+};
+
+/** 入力欄のラベルに渡す値。 */
+type FieldLabelProps = FieldTextProps & {
+  /** 入力が要るか。 */
+  isRequired?: boolean | undefined;
+};
+
 /** 入力欄のラベル。 */
-export const FieldLabel = ({ children }: FieldTextProps): ReactNode => (
-  <Label className={typography({ role: "label", className: "text-fg" })}>
-    {children}
+export const FieldLabel = ({
+  children,
+  isRequired = false,
+}: FieldLabelProps): ReactNode => (
+  <Label
+    className={typography({
+      role: "label",
+      className: "flex items-start gap-2 text-fg",
+    })}
+  >
+    <span className="min-w-0 wrap-anywhere">{children}</span>
+    {isRequired && <RequiredBadge />}
   </Label>
 );
 

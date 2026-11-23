@@ -82,3 +82,13 @@ export const LoadFailed: Story = {
     }),
   },
 };
+
+export const AddReauthenticationFailed: Story = {
+  args: {
+    /** パスキーを追加しようとすると、再認証を断る server。 */
+    createRoutes: () => ({
+      ...createPasskeyRoutes(PASSKEYS).routes,
+      "admin/passkeys/register": () => ({ error: "REAUTHENTICATION_FAILED" }),
+    }),
+  },
+};

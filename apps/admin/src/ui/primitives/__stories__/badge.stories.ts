@@ -23,3 +23,21 @@ export const Warning: Story = {
 };
 
 export const Danger: Story = { args: { tone: "danger", children: "失敗" } };
+
+export const NeutralSoft: Story = { args: { variant: "soft" } };
+
+export const InfoSoft: Story = {
+  args: { tone: "info", variant: "soft", children: "予約" },
+};
+
+export const SuccessSoft: Story = {
+  args: { tone: "success", variant: "soft", children: "公開中" },
+};
+
+export const WarningSoft: Story = {
+  args: { tone: "warning", variant: "soft", children: "期限が近い" },
+};
+
+export const DangerSoft: Story = {
+  args: { tone: "danger", variant: "soft", children: "必須" },
+};

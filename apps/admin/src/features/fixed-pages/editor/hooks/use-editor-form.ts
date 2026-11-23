@@ -5,7 +5,7 @@ import { fixedPageSlug, fixedPageTitle } from "@analemma/contract";
 import { createEditorValues } from "../create-editor-values";
 import {
   clearChangedErrors,
-  type EditorErrors,
+  type FieldErrors,
   refusedSaveErrors,
 } from "../logic/editor-errors";
 import type { EditorValues } from "../logic/flat-content";
@@ -23,7 +23,8 @@ import { useApiMutation, useApiCache } from "@/api/server-state/server-state";
 import { useAppForm } from "@/components/forms";
 import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
-import { useShowToast } from "@/ui/primitives/overlays";
+import { focusFirstInvalidField } from "@/ui/primitives/form-fields";
+import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
 
 type Page = ApiOutputs["admin"]["fixedPages"]["get"];
 /** 固定ページのフォームに渡す値。 */
@@ -32,6 +33,8 @@ export type FixedPageEditorProps = {
   kind: ApiOutputs["admin"]["kinds"]["get"];
   /** 保存できたときに呼ぶ関数。 */
   onSaved: (page: Page) => void;
+  /** 種類を選んで開いたか(focus の行き先が無ければ slug に移す)。 */
+  picked?: boolean | undefined;
 } & (
   | {
       /** 編集する固定ページ(作成では無し)。 */
@@ -47,28 +50,6 @@ export type FixedPageEditorProps = {
     }
 );
 const SCHEMAS = { slug: fixedPageSlug, title: fixedPageTitle };
-
-const focusError = (root: HTMLElement | null, names: readonly string[]) => {
-  if (names.length === 0) {
-    root?.querySelector<HTMLElement>("[data-form-error]")?.focus();
-    return;
-  }
-
-  const targets = root?.querySelectorAll<HTMLElement>("[data-field]");
-
-  const target = Array.from(targets ?? []).find((element) =>
-    names.includes(element.dataset["field"] ?? ""),
-  );
-
-  if (target instanceof HTMLFieldSetElement) target.focus();
-  else {
-    target
-      ?.querySelector<HTMLElement>(
-        "input:not([type=hidden]),textarea,[role=spinbutton],button",
-      )
-      ?.focus();
-  }
-};
 
 /** 固定ページの入力と保存の状態と、保存していない変更を残して離れるときの確かめを持つ。 */
 export const useEditorForm = ({
@@ -88,8 +69,8 @@ export const useEditorForm = ({
 
   const saved = useRef(initial); // 開いたときの値か、最後に保存できた値
   const submitted = useRef(initial);
-  const closeSaveFailure = useRef<() => void>(undefined);
-  const [errors, setErrors] = useState<EditorErrors>({ fields: {} });
+  const failure = useFailureToast();
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   const saving = useApiMutation({
     send: async (values: EditorValues) => ({
@@ -130,19 +111,14 @@ export const useEditorForm = ({
         return;
       }
 
-      const next = refusedSaveErrors(result, t);
-      const names = Object.keys(next.fields);
+      const refused = refusedSaveErrors(result, t);
 
-      setErrors(next);
-      requestAnimationFrame(() => {
-        focusError(root.current, names);
-      });
+      setErrors(refused.fields);
+      failure.show(refused.message);
+      focusFirstInvalidField(root.current);
     },
     onError: () => {
-      closeSaveFailure.current = toast({
-        tone: "danger",
-        message: t("fixedPageEditor.saveFailed"),
-      });
+      failure.show(t("fixedPageEditor.saveFailed"));
     },
   });
 
@@ -150,20 +126,10 @@ export const useEditorForm = ({
     defaultValues: initial,
     canSubmitWhenInvalid: true,
     onSubmit: ({ value }) => {
-      closeSaveFailure.current?.();
-      closeSaveFailure.current = undefined;
-      setErrors({ fields: {} });
+      failure.close();
+      setErrors({});
       submitted.current = value;
       saving.mutate(value);
-    },
-    onSubmitInvalid: ({ formApi }) => {
-      const invalid = (["slug", "title"] as const).filter(
-        (key) => (formApi.getFieldMeta(key)?.errors.length ?? 0) > 0,
-      );
-
-      requestAnimationFrame(() => {
-        focusError(root.current, invalid);
-      });
     },
   });
 

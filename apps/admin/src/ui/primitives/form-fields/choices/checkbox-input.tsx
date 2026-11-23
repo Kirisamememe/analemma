@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { CheckboxButton, CheckboxField } from "react-aria-components";
 
 import { fieldRoot } from "@/ui/primitives/form-fields/field-control";
+import { RequiredBadge } from "@/ui/primitives/form-fields/field-parts";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
@@ -111,10 +112,15 @@ const checkboxBox = tv({
 type CheckboxControlProps = {
   /** チェックに添えるラベル。 */
   label?: string;
+  /** チェックが必須か。 */
+  isRequired?: boolean | undefined;
 };
 
 /** チェックを切り替えるボタン。 */
-export const CheckboxControl = ({ label }: CheckboxControlProps): ReactNode => (
+export const CheckboxControl = ({
+  label,
+  isRequired = false,
+}: CheckboxControlProps): ReactNode => (
   <CheckboxButton
     className={typography({
       role: "label",
@@ -127,7 +133,10 @@ export const CheckboxControl = ({ label }: CheckboxControlProps): ReactNode => (
         <CheckMark />
       </span>
     </span>
-    {label !== undefined && <span className="wrap-anywhere">{label}</span>}
+    {label !== undefined && (
+      <span className="min-w-0 wrap-anywhere">{label}</span>
+    )}
+    {label !== undefined && isRequired && <RequiredBadge />}
   </CheckboxButton>
 );
 

@@ -1,4 +1,4 @@
-import { cleanup, screen, within } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -78,7 +78,7 @@ describe("DeletePasskeyDialog", () => {
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  test("再認証をキャンセルしたら、削除せずに知らせる", async () => {
+  test("再認証をキャンセルしたら、削除せずに Dialog を開いたままにし、知らせは出さない", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
 
     renderApp({
@@ -91,9 +91,14 @@ describe("DeletePasskeyDialog", () => {
 
     await confirmDelete();
 
-    expect(
-      await screen.findByText("パスキーの操作をキャンセルしました。"),
-    ).toBeDefined();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "キャンセル" })).toHaveProperty(
+        "disabled",
+        false,
+      );
+    });
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByRole("dialog")).toBeDefined();
     expect(server.passkeys()).toHaveLength(1);
   });
 

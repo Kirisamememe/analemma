@@ -3,7 +3,6 @@ import { type ReactNode, useState } from "react";
 
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Notice } from "@/ui/primitives/notice";
 import { Dialog } from "@/ui/primitives/overlays/dialog";
 
 /** `DeleteDialog` に渡す値。 */
@@ -12,14 +11,14 @@ type DeleteDialogProps = {
   name: string;
   /** 送信中か。 */
   isPending: boolean;
-  /** Dialog の中の知らせ。 */
-  notice: ReactNode;
+  /** backdrop の押下で閉じるか。 */
+  isDismissable: boolean;
 };
 
 const DeleteDialog = ({
   name,
   isPending,
-  notice,
+  isDismissable,
 }: DeleteDialogProps): ReactNode => {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -33,6 +32,7 @@ const DeleteDialog = ({
         Dialog を開く
       </Button>
       <Dialog
+        isDismissable={isDismissable}
         isOpen={isOpen}
         isPending={isPending}
         onOpenChange={setIsOpen}
@@ -41,7 +41,6 @@ const DeleteDialog = ({
         <Text>
           登録済みのパスキーで本人確認をしてから削除します。ほかのブラウザからはログアウトします。
         </Text>
-        {notice}
         <Cluster gap={2} justify="end">
           <Button
             isDisabled={isPending}
@@ -63,7 +62,7 @@ const DeleteDialog = ({
 const meta = {
   title: "primitives/Dialog",
   component: DeleteDialog,
-  args: { name: "MacBook Air", isPending: false, notice: undefined },
+  args: { name: "MacBook Air", isPending: false, isDismissable: true },
 } satisfies Meta<typeof DeleteDialog>;
 
 export default meta;
@@ -74,11 +73,7 @@ export const Default: Story = {};
 
 export const Pending: Story = { args: { isPending: true } };
 
-export const WithError: Story = {
-  args: {
-    notice: <Notice tone="danger">本人確認ができませんでした。</Notice>,
-  },
-};
+export const NotDismissable: Story = { args: { isDismissable: false } };
 
 export const LongName: Story = {
   args: {

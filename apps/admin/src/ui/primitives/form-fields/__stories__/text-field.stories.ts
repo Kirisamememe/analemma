@@ -23,6 +23,17 @@ export const Filled: Story = { args: { defaultValue: "MacBook Air" } };
 
 export const Required: Story = { args: { isRequired: true } };
 
+export const RequiredInvalid: Story = {
+  args: { isRequired: true, errorMessage: "名前を入力してください" },
+};
+
+export const RequiredLongLabel: Story = {
+  args: {
+    isRequired: true,
+    label: "公開サイトのフッターに表示する、問い合わせ先のメールアドレス",
+  },
+};
+
 export const ReadOnly: Story = {
   args: { defaultValue: "MacBook Air", isReadOnly: true },
 };

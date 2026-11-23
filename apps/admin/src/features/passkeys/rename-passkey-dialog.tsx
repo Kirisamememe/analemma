@@ -2,16 +2,19 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { PasskeyNameField } from "@/components/passkey-name-field";
+import { checkAfterSubmit, useAppForm } from "@/components/forms";
+import { checkPasskeyName } from "@/components/logic/check-passkey-name";
 import type { PasskeySummary } from "@/features/passkeys/passkey-list";
 import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";
 import { renamePasskey } from "@/features/passkeys/queries/rename-passkey";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
-import { Notice } from "@/ui/primitives/notice";
-import { Dialog, useShowToast } from "@/ui/primitives/overlays";
+import {
+  Dialog,
+  useFailureToast,
+  useShowToast,
+} from "@/ui/primitives/overlays";
 
 /** パスキーの名前を変更する Dialog に渡す値。 */
 type RenamePasskeyDialogProps = {
@@ -31,6 +34,13 @@ export const RenamePasskeyDialog = ({
 }: RenamePasskeyDialogProps): ReactNode => {
   const t = useTranslate();
   const showToast = useShowToast();
+  const failure = useFailureToast();
+
+  const close = (): void => {
+    failure.close();
+    onClose();
+  };
+
   const { refresh } = useApiCache();
   const { api } = useAppContext();
 
@@ -42,7 +52,21 @@ export const RenamePasskeyDialog = ({
       if (_tag === "Renamed") {
         onClose();
         showToast({ tone: "success", message: t("passkeys.renamed") });
+      } else {
+        failure.show(t("passkeys.notFound"));
       }
+    },
+    onError: () => {
+      failure.show(t("passkeys.failed"));
+    },
+  });
+
+  const form = useAppForm({
+    canSubmitWhenInvalid: true,
+    defaultValues: { name: passkey.name },
+    onSubmit: ({ value }) => {
+      failure.close();
+      renaming.mutate(value.name);
     },
   });
 
@@ -52,35 +76,41 @@ export const RenamePasskeyDialog = ({
       isPending={renaming.isPending}
       onOpenChange={(open) => {
         if (!open) {
-          onClose();
+          close();
         }
       }}
       title={t("passkeys.renameTitle")}
     >
-      <Form
-        isPending={renaming.isPending}
-        onSubmit={(data) => {
-          const name = data.get("name");
+      <form.AppForm>
+        <form.Form isPending={renaming.isPending}>
+          <form.AppField
+            name="name"
+            validators={{
+              onChange: checkAfterSubmit((value: string) => {
+                const problem = checkPasskeyName(value);
 
-          renaming.mutate(typeof name === "string" ? name : "");
-        }}
-      >
-        <PasskeyNameField defaultValue={passkey.name} />
-        {renaming.data?._tag === "NotFound" && (
-          <Notice tone="warning">{t("passkeys.notFound")}</Notice>
-        )}
-        {renaming.isError && (
-          <Notice tone="danger">{t("passkeys.failed")}</Notice>
-        )}
-        <Cluster gap={2} justify="end">
-          <Button isDisabled={renaming.isPending} onPress={onClose}>
-            {t("passkeys.cancel")}
-          </Button>
-          <Button isPending={renaming.isPending} tone="primary" type="submit">
-            {t("passkeys.save")}
-          </Button>
-        </Cluster>
-      </Form>
+                return problem === undefined ? undefined : t(problem);
+              }),
+            }}
+          >
+            {(field) => (
+              <field.TextField
+                autoComplete="off"
+                isRequired
+                label={t("enroll.name")}
+              />
+            )}
+          </form.AppField>
+          <Cluster gap={2} justify="end">
+            <Button isDisabled={renaming.isPending} onPress={close}>
+              {t("passkeys.cancel")}
+            </Button>
+            <Button isPending={renaming.isPending} tone="primary" type="submit">
+              {t("passkeys.save")}
+            </Button>
+          </Cluster>
+        </form.Form>
+      </form.AppForm>
     </Dialog>
   );
 };

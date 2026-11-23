@@ -12,8 +12,6 @@ import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
-import { Notice } from "@/ui/primitives/notice";
 import { Dialog } from "@/ui/primitives/overlays";
 
 /** 離れる前の確かめに渡す値。 */
@@ -53,6 +51,12 @@ const LeaveDialog = ({ leaving }: LeaveDialogProps): ReactNode => {
   );
 };
 
+const focusIfLost = (input: HTMLInputElement | null): void => {
+  const active = document.activeElement;
+
+  if (active === null || active === document.body) input?.focus(); // 押した種類のボタンが消え、focus の行き先が無いとき
+};
+
 /** 種類の定義に沿って固定ページを作成・編集する、見出しとフォーム。 */
 export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
   const { form, fields, errors, changed, check, root, saving, leaving } =
@@ -69,37 +73,32 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
 
   return (
     <div ref={root}>
-      <Form
-        isPending={saving.isPending}
-        onSubmit={() => {
-          if (!form.state.isSubmitting) void form.handleSubmit();
-        }}
-        validationErrors={errors.fields}
-      >
-        <Stack gap={8}>
-          <PageHeader
-            actions={
-              <>
-                {props.page !== undefined && (
-                  <DeleteFixedPage
-                    onDeleted={props.onDeleted}
-                    page={props.page}
-                  />
-                )}
-                {save}
-              </>
-            }
-            description={t("fixedPageEditor.kindOf", { kind: kind.label })}
-            title={t(
-              page === undefined
-                ? "fixedPageEditor.new"
-                : "fixedPageEditor.edit",
-            )}
-          />
-          <Stack gap={4}>
-            {(["slug", "title"] as const).map((name) => (
-              <div key={name} data-field={name}>
+      <form.AppForm>
+        <form.Form isPending={saving.isPending} validationErrors={errors}>
+          <Stack gap={8}>
+            <PageHeader
+              actions={
+                <>
+                  {props.page !== undefined && (
+                    <DeleteFixedPage
+                      onDeleted={props.onDeleted}
+                      page={props.page}
+                    />
+                  )}
+                  {save}
+                </>
+              }
+              description={t("fixedPageEditor.kindOf", { kind: kind.label })}
+              title={t(
+                page === undefined
+                  ? "fixedPageEditor.new"
+                  : "fixedPageEditor.edit",
+              )}
+            />
+            <Stack gap={4}>
+              {(["slug", "title"] as const).map((name) => (
                 <form.AppField
+                  key={name}
                   name={name}
                   validators={{ onBlur: check(name) }}
                   listeners={{
@@ -120,28 +119,28 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
                           ? t("fixedPageEditor.slugHint")
                           : undefined
                       }
+                      inputRef={
+                        name === "slug" && props.picked === true
+                          ? focusIfLost
+                          : undefined
+                      }
                       isRequired
                     />
                   )}
                 </form.AppField>
-              </div>
-            ))}
-            <ContentFields
-              form={form}
-              fields={fields}
-              prefix=""
-              errors={errors.fields}
-              changed={changed}
-            />
-            {errors.notice !== undefined && (
-              <div data-form-error tabIndex={-1}>
-                <Notice tone="danger">{errors.notice}</Notice>
-              </div>
-            )}
-            <Cluster justify="end">{save}</Cluster>
+              ))}
+              <ContentFields
+                form={form}
+                fields={fields}
+                prefix=""
+                errors={errors}
+                changed={changed}
+              />
+              <Cluster justify="end">{save}</Cluster>
+            </Stack>
           </Stack>
-        </Stack>
-      </Form>
+        </form.Form>
+      </form.AppForm>
       <LeaveDialog leaving={leaving} />
     </div>
   );

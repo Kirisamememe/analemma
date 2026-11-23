@@ -1,3 +1,4 @@
+export { focusFirstInvalidField } from "./focus-first-invalid-field";
 export { NumberField, type NumberFieldProps } from "./number-field";
 export { TextArea, type TextAreaProps } from "./text-area";
 export { TextField, type TextFieldProps } from "./text-field";

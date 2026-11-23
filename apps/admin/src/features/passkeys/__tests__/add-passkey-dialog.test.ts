@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -88,6 +88,34 @@ describe("AddPasskeyDialog", () => {
     await screen.findByRole("dialog");
 
     expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  test("失敗してから送り直すと、前の失敗の Toast を閉じ、成功だけを知らせる", async () => {
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+
+    server.replyNext("admin/passkeys/register", () => ({
+      error: "REAUTHENTICATION_FAILED",
+    }));
+    renderApp({
+      path: "/security",
+      routes: server.routes,
+      authenticator: createFakeAuthenticator(),
+    });
+
+    await openAndSubmit("iPhone");
+
+    const dialog = screen.getByRole("dialog", { name: "パスキーを追加" });
+
+    await screen.findByRole("alert");
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "パスキーを追加" }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getAllByRole("alert").map((toast) => toast.textContent),
+      ).toEqual(["パスキーを追加しました。"]);
+    });
   });
 
   test("最初の一覧の取得が遅れて届いても、追加したパスキーを一覧に出す", async () => {

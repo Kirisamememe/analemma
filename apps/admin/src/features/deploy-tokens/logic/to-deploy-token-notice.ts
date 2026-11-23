@@ -2,44 +2,30 @@ import type { IssueDeployTokenResult } from "@/features/deploy-tokens/issue/quer
 import type { RevokeDeployTokenResult } from "@/features/deploy-tokens/queries/revoke-deploy-token";
 import type { MessageKey } from "@/i18n/use-translate";
 
-type DeployTokenNotice = {
-  /** 知らせの用途。 */
-  readonly tone: "info" | "success" | "warning" | "danger";
-  /** 知らせの文言の訳のキー。 */
-  readonly message: MessageKey;
-};
-
 /** 想定外の失敗で終わったこと。 */
 type Unexpected = "Unexpected";
 
-type IssueNoticeOutcome =
-  | Exclude<IssueDeployTokenResult["_tag"], "Issued">
+type IssueFailure =
+  | Exclude<IssueDeployTokenResult["_tag"], "Issued" | "Cancelled">
   | Unexpected;
-type RevokeNoticeOutcome =
+type RevokeFailure =
   | Exclude<RevokeDeployTokenResult["_tag"], "Revoked">
   | Unexpected;
 
-const ISSUE: Readonly<Record<IssueNoticeOutcome, DeployTokenNotice>> = {
-  Cancelled: { tone: "info", message: "deployTokens.cancelled" },
-  ReauthenticationFailed: {
-    tone: "danger",
-    message: "deployTokens.reauthenticationFailed",
-  },
-  Unexpected: { tone: "danger", message: "deployTokens.failed" },
+const ISSUE: Readonly<Record<IssueFailure, MessageKey>> = {
+  ReauthenticationFailed: "deployTokens.reauthenticationFailed",
+  Unexpected: "deployTokens.failed",
 };
 
-const REVOKE: Readonly<Record<RevokeNoticeOutcome, DeployTokenNotice>> = {
-  NotFound: { tone: "warning", message: "deployTokens.notFound" },
-  Unexpected: { tone: "danger", message: "deployTokens.failed" },
+const REVOKE: Readonly<Record<RevokeFailure, MessageKey>> = {
+  NotFound: "deployTokens.notFound",
+  Unexpected: "deployTokens.failed",
 };
 
-/** 発行の結果を、Dialog の知らせにする。 */
-export const toIssueNotice = (
-  outcome: IssueDeployTokenResult["_tag"] | Unexpected | undefined,
-): DeployTokenNotice | undefined =>
-  outcome === undefined || outcome === "Issued" ? undefined : ISSUE[outcome];
+/** 発行の失敗を、失敗の Toast の文言の訳のキーにする。 */
+export const toIssueFailure = (outcome: IssueFailure): MessageKey =>
+  ISSUE[outcome];
 
-/** 取り消しの失敗を、Dialog の知らせにする。 */
-export const toRevokeNotice = (
-  outcome: RevokeNoticeOutcome,
-): DeployTokenNotice => REVOKE[outcome];
+/** 取り消しの失敗を、失敗の Toast の文言の訳のキーにする。 */
+export const toRevokeFailure = (outcome: RevokeFailure): MessageKey =>
+  REVOKE[outcome];

@@ -3,7 +3,6 @@ import { useState, type ReactNode } from "react";
 
 import { useAppForm } from "@/components/forms";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
 import { Notice } from "@/ui/primitives/notice";
 
 const FormExample = (): ReactNode => {
@@ -28,34 +27,33 @@ const FormExample = (): ReactNode => {
   return (
     <form.Subscribe selector={(state) => state.isSubmitting}>
       {(isSubmitting) => (
-        <Form
-          isPending={isSubmitting}
-          onSubmit={() => {
-            void form.handleSubmit();
-          }}
-        >
-          <form.AppField
-            name="title"
-            validators={{
-              onBlur: ({ value }) =>
-                value.trim() === "" ? "タイトルを入力してください" : undefined,
-            }}
-          >
-            {(field) => (
-              <field.TextField
-                description="「お知らせ」は使用済みのタイトルです。"
-                isRequired
-                label="タイトル"
-              />
+        <form.AppForm>
+          <form.Form>
+            <form.AppField
+              name="title"
+              validators={{
+                onBlur: ({ value }) =>
+                  value.trim() === ""
+                    ? "タイトルを入力してください"
+                    : undefined,
+              }}
+            >
+              {(field) => (
+                <field.TextField
+                  description="「お知らせ」は使用済みのタイトルです。"
+                  isRequired
+                  label="タイトル"
+                />
+              )}
+            </form.AppField>
+            <Button isPending={isSubmitting} type="submit">
+              保存
+            </Button>
+            {savedTitle !== undefined && (
+              <Notice tone="success">「{savedTitle}」を保存しました。</Notice>
             )}
-          </form.AppField>
-          <Button isPending={isSubmitting} type="submit">
-            保存
-          </Button>
-          {savedTitle !== undefined && (
-            <Notice tone="success">「{savedTitle}」を保存しました。</Notice>
-          )}
-        </Form>
+          </form.Form>
+        </form.AppForm>
       )}
     </form.Subscribe>
   );

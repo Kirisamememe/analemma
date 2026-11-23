@@ -22,20 +22,23 @@ const issueMessage = (code: string): MessageKey => {
   }
 };
 
-/** 入力欄とフォーム全体に出す、訳した誤りの知らせ。 */
-export type EditorErrors = {
+/** 入力欄ごとの、訳した誤りの知らせ。 */
+export type FieldErrors = Record<string, string>;
+
+/** server が断った保存から作る、入力欄の知らせと、失敗の Toast の文。 */
+export type RefusedSave = {
   /** slug・タイトルと、中身の場所ごとの知らせ。 */
-  fields: Record<string, string>;
-  /** フォーム全体の知らせ。 */
-  notice?: string;
+  fields: FieldErrors;
+  /** 失敗の Toast に出す文。 */
+  message: string;
 };
 
-/** 中身の issue を項目ごとにまとめ、結べないものには server の返した場所を添える。 */
+/** 中身の issue を項目ごとにまとめ、結べないものは server の返した場所を添えて Toast の文にする。 */
 export const contentErrors = (
   issues: ReturnType<typeof bindContentIssues>,
   t: ReturnType<typeof useTranslate>,
-): EditorErrors => {
-  const fields: Record<string, string> = {};
+): RefusedSave => {
+  const fields: FieldErrors = {};
   const translate = (issue: ContentIssue) => t(issueMessage(issue.code));
 
   for (const { location, issue } of issues.bound) {
@@ -49,7 +52,9 @@ export const contentErrors = (
         : previous + " " + message;
   }
 
-  if (issues.unbound.length === 0 && issues.bound.length > 0) return { fields };
+  if (issues.unbound.length === 0 && issues.bound.length > 0) {
+    return { fields, message: t("fixedPageEditor.invalidContent") };
+  }
 
   const messages = issues.unbound.map((issue) =>
     t("fixedPageEditor.unboundIssue", {
@@ -60,7 +65,7 @@ export const contentErrors = (
 
   return {
     fields,
-    notice: [t("fixedPageEditor.changedKind"), ...messages].join(" "),
+    message: [t("fixedPageEditor.changedKind"), ...messages].join(" "),
   };
 };
 
@@ -73,35 +78,38 @@ type Refused = Exclude<
   }
 >;
 
-/** server が断った保存の結果を、入力欄とフォーム全体の知らせにする。 */
+/** server が断った保存の結果を、入力欄の知らせと失敗の Toast の文にする。 */
 export const refusedSaveErrors = (
   result: Refused,
   t: ReturnType<typeof useTranslate>,
-): EditorErrors => {
+): RefusedSave => {
   switch (result._tag) {
     case "SLUG_TAKEN":
-      return { fields: { slug: t("fixedPageEditor.slugTaken") } };
+      return {
+        fields: { slug: t("fixedPageEditor.slugTaken") },
+        message: t("fixedPageEditor.slugTaken"),
+      };
     case "InvalidContent":
       return contentErrors(result.issues, t);
     case "NOT_FOUND":
-      return { fields: {}, notice: t("fixedPageEditor.pageGone") };
+      return { fields: {}, message: t("fixedPageEditor.pageGone") };
     case "UNKNOWN_KIND":
-      return { fields: {}, notice: t("fixedPageEditor.kindGone") };
+      return { fields: {}, message: t("fixedPageEditor.kindGone") };
   }
 };
 
 /** 値が変わった項目と、その値を含む group や repeat の知らせを消す。 */
 export const clearChangedErrors = (
-  errors: EditorErrors,
+  fields: FieldErrors,
   name: string,
-): EditorErrors => {
-  const entries = Object.entries(errors.fields);
+): FieldErrors => {
+  const entries = Object.entries(fields);
 
   const remaining = entries.filter(
     ([key]) => key !== name && !name.startsWith(key + "/"),
   );
 
   return entries.length === remaining.length
-    ? errors
-    : { ...errors, fields: Object.fromEntries(remaining) };
+    ? fields
+    : Object.fromEntries(remaining);
 };

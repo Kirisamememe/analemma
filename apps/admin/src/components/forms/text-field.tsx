@@ -9,12 +9,18 @@ import { TextField, type TextFieldProps } from "@/ui/primitives/form-fields";
 
 type AppTextFieldProps = Pick<
   TextFieldProps,
-  "autoComplete" | "description" | "isRequired" | "label" | "maxLength"
+  | "autoComplete"
+  | "inputRef"
+  | "description"
+  | "isRequired"
+  | "label"
+  | "maxLength"
 >;
 
 /** TanStack Form につないだ1行の入力欄。 */
 export const AppTextField = ({
   autoComplete,
+  inputRef,
   description,
   isRequired,
   label,
@@ -30,6 +36,7 @@ export const AppTextField = ({
       autoComplete={autoComplete}
       description={description}
       errorMessage={errorMessage}
+      inputRef={inputRef}
       isReadOnly={isSubmitting}
       isRequired={isRequired}
       label={label}

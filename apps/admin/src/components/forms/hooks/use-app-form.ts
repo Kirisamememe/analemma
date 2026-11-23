@@ -2,6 +2,7 @@ import { createFormHook } from "@tanstack/react-form";
 
 import { AppCheckbox } from "../checkbox";
 import { AppDateField } from "../date-field";
+import { BoundForm } from "../form";
 import { AppNumberField } from "../number-field";
 import { AppSelect } from "../select";
 import { AppTextArea } from "../text-area";
@@ -18,6 +19,6 @@ export const { useAppForm } = createFormHook({
     TextField: AppTextField,
   },
   fieldContext,
-  formComponents: {},
+  formComponents: { Form: BoundForm },
   formContext,
 });

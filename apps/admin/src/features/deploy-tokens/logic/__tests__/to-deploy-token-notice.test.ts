@@ -1,26 +1,24 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-  toIssueNotice,
-  toRevokeNotice,
+  toIssueFailure,
+  toRevokeFailure,
 } from "@/features/deploy-tokens/logic/to-deploy-token-notice";
 
-describe("toIssueNotice", () => {
-  test("キャンセルは誤りとして読み上げず、失敗は誤りとして知らせる", () => {
-    expect(toIssueNotice("Cancelled")?.tone).toBe("info");
-    expect(toIssueNotice("ReauthenticationFailed")?.tone).toBe("danger");
-    expect(toIssueNotice("Unexpected")?.tone).toBe("danger");
-  });
-
-  test("まだ送っていないときと、発行できたときは知らせない", () => {
-    expect(toIssueNotice(undefined)).toBeUndefined();
-    expect(toIssueNotice("Issued")).toBeUndefined();
+describe("toIssueFailure", () => {
+  test.each([
+    ["ReauthenticationFailed", "deployTokens.reauthenticationFailed"],
+    ["Unexpected", "deployTokens.failed"],
+  ] as const)("%s は %s の文言で知らせる", (outcome, message) => {
+    expect(toIssueFailure(outcome)).toBe(message);
   });
 });
 
-describe("toRevokeNotice", () => {
-  test("もう無いトークンは注意、想定外の失敗は誤りとして知らせる", () => {
-    expect(toRevokeNotice("NotFound").tone).toBe("warning");
-    expect(toRevokeNotice("Unexpected").tone).toBe("danger");
+describe("toRevokeFailure", () => {
+  test.each([
+    ["NotFound", "deployTokens.notFound"],
+    ["Unexpected", "deployTokens.failed"],
+  ] as const)("%s は %s の文言で知らせる", (outcome, message) => {
+    expect(toRevokeFailure(outcome)).toBe(message);
   });
 });

@@ -141,16 +141,17 @@ describe("DeleteFixedPage", () => {
     expect(history.location.pathname).toBe("/fixed-pages/" + id);
   });
 
-  test("ほかで消えていたら、Dialog の中で知らせ、削除のボタンを止める", async () => {
+  test("ほかで消えていたら、Dialog を開いたまま Toast で知らせ、削除のボタンを止める", async () => {
     const { server, id } = setUp("editor");
     const dialog = await openDelete();
 
     server.routes["admin/fixedPages/delete"]({ id });
     await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
 
-    expect(
-      await within(dialog).findByText("この固定ページはもうありません。"),
-    ).toBeDefined();
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "この固定ページはもうありません。",
+    );
+    expect(screen.getByRole("dialog")).toBe(dialog);
     expect(
       within(dialog)
         .getByRole("button", { name: "削除" })
@@ -158,7 +159,7 @@ describe("DeleteFixedPage", () => {
     ).toBe(true);
   });
 
-  test("削除できなければ、Dialog を開いたまま知らせ、開き直すと知らせを消す", async () => {
+  test("削除できなければ、Dialog を開いたまま Toast で知らせ、閉じると Toast も閉じる", async () => {
     const { server } = setUp("editor");
     const dialog = await openDelete();
 
@@ -168,7 +169,7 @@ describe("DeleteFixedPage", () => {
     }));
     await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
 
-    expect((await within(dialog).findByRole("alert")).textContent).toBe(
+    expect((await screen.findByRole("alert")).textContent).toBe(
       "固定ページを削除できませんでした。もう一度試してください。",
     );
     expect(server.pages()).toHaveLength(2);
@@ -180,6 +181,8 @@ describe("DeleteFixedPage", () => {
       expect(screen.queryByRole("dialog")).toBeNull();
     });
 
-    expect(within(await openDelete()).queryByRole("alert")).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByRole("alert")).toBeNull();
+    });
   });
 });

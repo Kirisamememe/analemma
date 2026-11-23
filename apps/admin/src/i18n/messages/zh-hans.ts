@@ -21,6 +21,7 @@ export const zhHans = {
   "fixedPageEditor.saved": "固定页面已更新。",
   "fixedPageEditor.created": "固定页面已创建。",
   "fixedPageEditor.saveFailed": "无法保存固定页面，请重试。",
+  "fixedPageEditor.invalidContent": "有无法保存的值。请修改标出错误的字段。",
   "fixedPageEditor.changedKind":
     "类型定义可能已更改。请重新加载页面并检查字段。",
   "fixedPageEditor.issue.type": "请输入值。",
@@ -68,10 +69,10 @@ export const zhHans = {
   "ui.openNav": "打开导航",
   "ui.closeNav": "关闭导航",
   "ui.close": "关闭",
+  "ui.required": "必填",
   "login.title": "登录 Stilus",
   "login.description": "使用为此管理后台注册的通行密钥。",
   "login.submit": "使用通行密钥登录",
-  "login.cancelled": "已取消登录。",
   "login.expired": "耗时过长，请重新登录。",
   "login.unknownPasskey": "此通行密钥未注册，可能已被删除。",
   "login.rejected": "无法验证通行密钥。",
@@ -82,7 +83,6 @@ export const zhHans = {
   "enroll.nameDescription": "用于区分通行密钥的名称（例如设备名称）。",
   "enroll.submit": "注册通行密钥",
   "enroll.missingToken": "注册链接不完整，请用服务器命令重新生成。",
-  "enroll.cancelled": "已取消注册。",
   "enroll.invalid":
     "此注册链接已无法使用，可能已过期或已被使用。请用服务器命令重新生成。",
   "enroll.expired": "耗时过长，请重新注册。",
@@ -116,7 +116,6 @@ export const zhHans = {
   "passkeys.loadFailed": "无法加载通行密钥。",
   "passkeys.added": "已添加通行密钥。",
   "passkeys.deleted": "已删除通行密钥，其他浏览器已退出登录。",
-  "passkeys.cancelled": "已取消通行密钥操作。",
   "passkeys.reauthenticationFailed": "无法用当前的通行密钥确认。",
   "passkeys.expired": "耗时过长，请重试。",
   "passkeys.alreadyRegistered": "此认证器中已有此管理后台的通行密钥。",
@@ -161,7 +160,6 @@ export const zhHans = {
   "deployTokens.revokeDescription":
     "使用此令牌的部署将无法再发送种类定义。吊销后无法恢复。",
   "deployTokens.revoked": "已吊销“{{name}}”。",
-  "deployTokens.cancelled": "已取消签发令牌。",
   "deployTokens.reauthenticationFailed": "无法用当前的通行密钥确认。",
   "deployTokens.notFound": "此令牌已不存在。",
   "deployTokens.failed": "出现问题，请稍后重试。",

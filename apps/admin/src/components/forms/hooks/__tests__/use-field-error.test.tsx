@@ -6,7 +6,6 @@ import type { ReactNode } from "react";
 import { useAppForm } from "@/components/forms";
 import { renderWithI18n } from "@/testing/render-with-i18n";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
 
 const DESCRIPTION = "ページの見出しに使います";
 const MISSING_TITLE = "タイトルを入力してください";
@@ -35,31 +34,28 @@ const FormCase = ({ onSubmit }: FormCaseProps): ReactNode => {
   return (
     <form.Subscribe selector={(state) => state.isSubmitting}>
       {(isSubmitting) => (
-        <Form
-          isPending={isSubmitting}
-          onSubmit={() => {
-            void form.handleSubmit();
-          }}
-        >
-          <form.AppField
-            name="title"
-            validators={{
-              onBlur: ({ value }) =>
-                value.trim() === "" ? MISSING_TITLE : undefined,
-            }}
-          >
-            {(field) => (
-              <field.TextField
-                description={DESCRIPTION}
-                isRequired
-                label="タイトル"
-              />
-            )}
-          </form.AppField>
-          <Button isPending={isSubmitting} type="submit">
-            保存
-          </Button>
-        </Form>
+        <form.AppForm>
+          <form.Form>
+            <form.AppField
+              name="title"
+              validators={{
+                onBlur: ({ value }) =>
+                  value.trim() === "" ? MISSING_TITLE : undefined,
+              }}
+            >
+              {(field) => (
+                <field.TextField
+                  description={DESCRIPTION}
+                  isRequired
+                  label="タイトル"
+                />
+              )}
+            </form.AppField>
+            <Button isPending={isSubmitting} type="submit">
+              保存
+            </Button>
+          </form.Form>
+        </form.AppForm>
       )}
     </form.Subscribe>
   );

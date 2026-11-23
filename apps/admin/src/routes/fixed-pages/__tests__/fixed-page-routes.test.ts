@@ -326,3 +326,32 @@ test("読み込む間に一覧へ戻るリンクへ移した focus を、編集�
 
   expect(document.activeElement).toBe(back);
 });
+
+test("種類を選んだ後、読み込む間にほかへ移した focus は、作成のフォームを出しても slug へ移さない", async () => {
+  const loading = Promise.withResolvers<undefined>();
+
+  renderApp({
+    path: "/fixed-pages/new",
+    routes: {
+      ...session,
+      "admin/kinds/list": () => ({ output: { kinds: [kind] } }),
+      "admin/kinds/get": async () => {
+        await loading.promise;
+
+        return { output: kind };
+      },
+    },
+  });
+
+  await userEvent.click(await screen.findByRole("button", { name: "紹介" }));
+  await screen.findByText("読み込んでいます。");
+  const back = screen.getByRole("link", { name: "固定ページの一覧" });
+
+  act(() => {
+    back.focus();
+  });
+  loading.resolve(undefined);
+  await screen.findByRole("textbox", { name: "slug" });
+
+  expect(document.activeElement).toBe(back);
+});

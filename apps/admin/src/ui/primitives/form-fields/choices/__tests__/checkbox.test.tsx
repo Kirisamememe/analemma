@@ -2,6 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { renderWithI18n } from "@/testing/render-with-i18n";
 import { Form } from "@/ui/primitives/form";
 import { Checkbox } from "@/ui/primitives/form-fields/choices/checkbox";
 
@@ -22,6 +23,21 @@ describe("Checkbox", () => {
         name: "先頭に表示する",
         description: "一覧でこのページを先頭に表示します。",
       }),
+    ).toBeDefined();
+  });
+
+  test("チェックが必須のときだけ、ラベルに「必須」を添え、名前には含めないこと", () => {
+    renderWithI18n(
+      <>
+        <Checkbox isRequired label="規約に同意する" name="agreed" />
+        <Checkbox label="先頭に表示する" name="pinned" />
+      </>,
+      "ja",
+    );
+
+    expect(screen.getAllByText("必須")).toHaveLength(1);
+    expect(
+      screen.getByRole("checkbox", { name: "規約に同意する" }),
     ).toBeDefined();
   });
 

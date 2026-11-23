@@ -18,6 +18,7 @@ import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
+import { useFailureToast } from "@/ui/primitives/overlays";
 
 const PASSKEY_NAME_MAX_LENGTH = 64;
 
@@ -39,11 +40,18 @@ export const EnrollPage = (): ReactNode => {
   }
 
   const { token } = opened;
+  const failure = useFailureToast();
 
   const enrollment = useMutation({
     mutationFn: async (input: EnrollInput) =>
       gate.authenticate(async () => enroll({ api, authenticator }, input)),
     onSuccess: ({ _tag }) => {
+      const notice = toEnrollNotice(_tag);
+
+      if (notice?.place === "Toast") {
+        failure.show(t(notice.message));
+      }
+
       if (_tag !== "Enrolled") {
         return;
       }
@@ -54,9 +62,12 @@ export const EnrollPage = (): ReactNode => {
         router.history.replace("/");
       }
     },
+    onError: () => {
+      failure.show(t("enroll.failed"));
+    },
   });
 
-  const result = enrollment.isError ? "Unexpected" : enrollment.data?._tag;
+  const result = enrollment.data?._tag;
   const outcome = enrollment.variables?.token === token ? result : undefined;
   const notice = outcome === undefined ? undefined : toEnrollNotice(outcome);
 
@@ -77,6 +88,7 @@ export const EnrollPage = (): ReactNode => {
               onSubmit={(data) => {
                 const name = data.get("name");
 
+                failure.close();
                 enrollment.mutate({
                   token,
                   name: typeof name === "string" ? name : "",
@@ -87,8 +99,8 @@ export const EnrollPage = (): ReactNode => {
                 maxLength={PASSKEY_NAME_MAX_LENGTH}
                 showDescription
               />
-              {notice !== undefined && (
-                <Notice tone={notice.tone}>{t(notice.message)}</Notice>
+              {notice?.place === "Notice" && (
+                <Notice tone="danger">{t(notice.message)}</Notice>
               )}
               {outcome === "AlreadyRegistered" && (
                 <Text>

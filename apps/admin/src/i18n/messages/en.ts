@@ -21,6 +21,8 @@ export const en = {
   "fixedPageEditor.created": "Fixed page created.",
   "fixedPageEditor.saveFailed":
     "Could not save the fixed page. Please try again.",
+  "fixedPageEditor.invalidContent":
+    "Some values could not be saved. Fix the fields marked with errors.",
   "fixedPageEditor.changedKind":
     "The kind definition may have changed. Reload the page to check the fields.",
   "fixedPageEditor.issue.type": "Enter a value.",
@@ -70,10 +72,10 @@ export const en = {
   "ui.openNav": "Open navigation",
   "ui.closeNav": "Close navigation",
   "ui.close": "Close",
+  "ui.required": "Required",
   "login.title": "Sign in to Stilus",
   "login.description": "Use a passkey you registered for this admin panel.",
   "login.submit": "Sign in with a passkey",
-  "login.cancelled": "Sign-in was cancelled.",
   "login.expired": "It took too long. Please sign in again.",
   "login.unknownPasskey":
     "This passkey is not registered. It may have been deleted.",
@@ -87,7 +89,6 @@ export const en = {
   "enroll.submit": "Register the passkey",
   "enroll.missingToken":
     "This registration URL is incomplete. Issue a new one with the server command.",
-  "enroll.cancelled": "Registration was cancelled.",
   "enroll.invalid":
     "This registration URL can no longer be used. It may have expired or been used. Issue a new one with the server command.",
   "enroll.expired": "It took too long. Please register again.",
@@ -124,7 +125,6 @@ export const en = {
   "passkeys.added": "The passkey was added.",
   "passkeys.deleted":
     "The passkey was deleted. Other browsers were signed out.",
-  "passkeys.cancelled": "The passkey operation was cancelled.",
   "passkeys.reauthenticationFailed":
     "Could not confirm with a current passkey.",
   "passkeys.expired": "It took too long. Please try again.",
@@ -175,7 +175,6 @@ export const en = {
   "deployTokens.revokeDescription":
     "Deploys that use this token will no longer be able to send kind definitions. This cannot be undone.",
   "deployTokens.revoked": "“{{name}}” was revoked.",
-  "deployTokens.cancelled": "Issuing the token was cancelled.",
   "deployTokens.reauthenticationFailed":
     "Could not confirm with a current passkey.",
   "deployTokens.notFound": "This token no longer exists.",

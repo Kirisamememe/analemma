@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 
 import { useAppForm } from "@/components/forms";
 import { renderWithI18n } from "@/testing/render-with-i18n";
-import { Form } from "@/ui/primitives/form";
 
 afterEach(cleanup);
 
@@ -41,19 +40,17 @@ const Example = ({ initial, onSubmit }: ExampleProps): ReactNode => {
   });
 
   return (
-    <Form
-      onSubmit={() => {
-        void form.handleSubmit();
-      }}
-    >
-      <form.AppField name="order">
-        {(field) => <field.NumberField label="順番" />}
-      </form.AppField>
-      <form.AppField name="body">
-        {(field) => <field.TextArea label="本文" />}
-      </form.AppField>
-      <button type="submit">保存</button>
-    </Form>
+    <form.AppForm>
+      <form.Form>
+        <form.AppField name="order">
+          {(field) => <field.NumberField label="順番" />}
+        </form.AppField>
+        <form.AppField name="body">
+          {(field) => <field.TextArea label="本文" />}
+        </form.AppField>
+        <button type="submit">保存</button>
+      </form.Form>
+    </form.AppForm>
   );
 };
 

@@ -6,48 +6,46 @@ import {
 } from "@/features/auth/logic/to-auth-notice";
 
 describe("toLogInNotice", () => {
-  test("ログインできたら、何も知らせない", () => {
-    expect(toLogInNotice("LoggedIn")).toBeUndefined();
-  });
-
-  test.each([
-    { outcome: "Cancelled", tone: "info", message: "login.cancelled" },
-    { outcome: "ChallengeExpired", tone: "warning", message: "login.expired" },
-    {
-      outcome: "UnknownPasskey",
-      tone: "danger",
-      message: "login.unknownPasskey",
-    },
-    { outcome: "Rejected", tone: "danger", message: "login.rejected" },
-    { outcome: "Unexpected", tone: "danger", message: "login.failed" },
-  ] as const)(
-    "$outcome は $tone の知らせにする",
-    ({ outcome, tone, message }) => {
-      expect(toLogInNotice(outcome)).toEqual({ tone, message });
+  test.each(["LoggedIn", "Cancelled"] as const)(
+    "%s は、何も知らせない",
+    (outcome) => {
+      expect(toLogInNotice(outcome)).toBeUndefined();
     },
   );
+
+  test.each([
+    ["ChallengeExpired", "login.expired"],
+    ["UnknownPasskey", "login.unknownPasskey"],
+    ["Rejected", "login.rejected"],
+    ["Unexpected", "login.failed"],
+  ] as const)("%s は、失敗の Toast で %s を知らせる", (outcome, message) => {
+    expect(toLogInNotice(outcome)).toEqual({ place: "Toast", message });
+  });
 });
 
 describe("toEnrollNotice", () => {
-  test("登録できたら、何も知らせない", () => {
-    expect(toEnrollNotice("Enrolled")).toBeUndefined();
-  });
-
-  test.each([
-    { outcome: "Cancelled", tone: "info", message: "enroll.cancelled" },
-    { outcome: "InvalidEnrollment", tone: "danger", message: "enroll.invalid" },
-    { outcome: "ChallengeExpired", tone: "warning", message: "enroll.expired" },
-    {
-      outcome: "AlreadyRegistered",
-      tone: "danger",
-      message: "enroll.alreadyRegistered",
-    },
-    { outcome: "Rejected", tone: "danger", message: "enroll.rejected" },
-    { outcome: "Unexpected", tone: "danger", message: "enroll.failed" },
-  ] as const)(
-    "$outcome は $tone の知らせにする",
-    ({ outcome, tone, message }) => {
-      expect(toEnrollNotice(outcome)).toEqual({ tone, message });
+  test.each(["Enrolled", "Cancelled"] as const)(
+    "%s は、何も知らせない",
+    (outcome) => {
+      expect(toEnrollNotice(outcome)).toBeUndefined();
     },
   );
+
+  test.each([
+    ["InvalidEnrollment", "enroll.invalid"],
+    ["AlreadyRegistered", "enroll.alreadyRegistered"],
+  ] as const)(
+    "%s は、押し直しても変わらないので、画面の Notice で %s を知らせる",
+    (outcome, message) => {
+      expect(toEnrollNotice(outcome)).toEqual({ place: "Notice", message });
+    },
+  );
+
+  test.each([
+    ["ChallengeExpired", "enroll.expired"],
+    ["Rejected", "enroll.rejected"],
+    ["Unexpected", "enroll.failed"],
+  ] as const)("%s は、失敗の Toast で %s を知らせる", (outcome, message) => {
+    expect(toEnrollNotice(outcome)).toEqual({ place: "Toast", message });
+  });
 });

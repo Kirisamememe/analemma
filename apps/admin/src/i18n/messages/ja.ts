@@ -23,6 +23,8 @@ export const ja = {
   "fixedPageEditor.created": "固定ページを作成しました。",
   "fixedPageEditor.saveFailed":
     "固定ページを保存できませんでした。もう一度試してください。",
+  "fixedPageEditor.invalidContent":
+    "保存できない値があります。誤りの出た欄を直してください。",
   "fixedPageEditor.changedKind":
     "種類の定義が変わった可能性があります。読み込み直して項目を確認してください。",
   "fixedPageEditor.issue.type": "入力してください。",
@@ -72,10 +74,10 @@ export const ja = {
   "ui.openNav": "ナビを開く",
   "ui.closeNav": "ナビを閉じる",
   "ui.close": "閉じる",
+  "ui.required": "必須",
   "login.title": "Stilus にログイン",
   "login.description": "この管理画面に登録したパスキーを使います。",
   "login.submit": "パスキーでログイン",
-  "login.cancelled": "ログインをキャンセルしました。",
   "login.expired": "時間がかかりすぎました。もう一度ログインしてください。",
   "login.unknownPasskey":
     "このパスキーは登録されていません。削除されたパスキーかもしれません。",
@@ -89,7 +91,6 @@ export const ja = {
   "enroll.submit": "パスキーを登録",
   "enroll.missingToken":
     "登録用 URL が不完全です。サーバーのコマンドで発行し直してください。",
-  "enroll.cancelled": "登録をキャンセルしました。",
   "enroll.invalid":
     "この登録用 URL は使えません。期限切れか、使用済みの可能性があります。サーバーのコマンドで発行し直してください。",
   "enroll.expired": "時間がかかりすぎました。もう一度登録してください。",
@@ -129,7 +130,6 @@ export const ja = {
   "passkeys.added": "パスキーを追加しました。",
   "passkeys.deleted":
     "パスキーを削除しました。ほかのブラウザからはログアウトしました。",
-  "passkeys.cancelled": "パスキーの操作をキャンセルしました。",
   "passkeys.reauthenticationFailed": "本人確認ができませんでした。",
   "passkeys.expired": "時間がかかりすぎました。もう一度試してください。",
   "passkeys.alreadyRegistered":
@@ -183,7 +183,6 @@ export const ja = {
   "deployTokens.revokeDescription":
     "このトークンを使うデプロイは、種類の定義を送れなくなります。取り消したトークンは元に戻せません。",
   "deployTokens.revoked": "「{{name}}」を取り消しました。",
-  "deployTokens.cancelled": "トークンの発行をキャンセルしました。",
   "deployTokens.reauthenticationFailed": "本人確認ができませんでした。",
   "deployTokens.notFound": "このトークンはもうありません。",
   "deployTokens.failed":

@@ -8,7 +8,7 @@ import { logIn } from "@/features/auth/queries/log-in";
 import { AppShell, Center, Stack } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
-import { Notice } from "@/ui/primitives/notice";
+import { useFailureToast } from "@/ui/primitives/overlays";
 
 /** パスキーでログインする画面。 */
 export const LoginPage = (): ReactNode => {
@@ -17,11 +17,18 @@ export const LoginPage = (): ReactNode => {
   const queryClient = useQueryClient();
   const { api, authenticator, gate } = useRouteContext({ from: "/login" });
   const { redirect } = useSearch({ from: "/login" });
+  const failure = useFailureToast();
 
   const login = useMutation({
     mutationFn: async () =>
       gate.authenticate(async () => logIn({ api, authenticator })),
     onSuccess: ({ _tag }) => {
+      const notice = toLogInNotice(_tag);
+
+      if (notice !== undefined) {
+        failure.show(t(notice.message));
+      }
+
       if (_tag !== "LoggedIn") {
         return;
       }
@@ -32,10 +39,10 @@ export const LoginPage = (): ReactNode => {
         router.history.push(redirect ?? "/");
       }
     },
+    onError: () => {
+      failure.show(t("login.failed"));
+    },
   });
-
-  const outcome = login.isError ? "Unexpected" : login.data?._tag;
-  const notice = outcome === undefined ? undefined : toLogInNotice(outcome);
 
   return (
     <AppShell>
@@ -45,12 +52,10 @@ export const LoginPage = (): ReactNode => {
             description={t("login.description")}
             title={t("login.title")}
           />
-          {notice !== undefined && (
-            <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-          )}
           <Button
             isPending={login.isPending}
             onPress={() => {
+              failure.close();
               login.mutate();
             }}
             tone="primary"

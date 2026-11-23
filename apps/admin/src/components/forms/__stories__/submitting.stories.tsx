@@ -3,7 +3,6 @@ import { useState, type ReactNode } from "react";
 
 import { useAppForm } from "@/components/forms";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
 import { Notice } from "@/ui/primitives/notice";
 
 type Values = {
@@ -66,42 +65,39 @@ const SubmittingForm = ({
   return (
     <form.Subscribe selector={(state) => state.isSubmitting}>
       {(isSubmitting) => (
-        <Form
-          isPending={isSubmitting}
-          onSubmit={() => {
-            void form.handleSubmit();
-          }}
-        >
-          <form.AppField name="title">
-            {(field) => (
-              <field.TextField
-                description="保存を押すと、検証が終わるまで入力を止めます。"
-                label="タイトル"
-              />
+        <form.AppForm>
+          <form.Form>
+            <form.AppField name="title">
+              {(field) => (
+                <field.TextField
+                  description="保存を押すと、検証が終わるまで入力を止めます。"
+                  label="タイトル"
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="body">
+              {(field) => <field.TextArea label="本文" />}
+            </form.AppField>
+            <form.AppField name="order">
+              {(field) => <field.NumberField label="順番" />}
+            </form.AppField>
+            <form.AppField name="published">
+              {(field) => <field.DateField label="公開日" />}
+            </form.AppField>
+            <form.AppField name="pinned">
+              {(field) => <field.Checkbox label="先頭に表示する" />}
+            </form.AppField>
+            <form.AppField name="season">
+              {(field) => <field.Select label="季節" options={OPTIONS} />}
+            </form.AppField>
+            <Button isPending={isSubmitting} type="submit">
+              保存
+            </Button>
+            {saved !== undefined && (
+              <Notice tone="success">{JSON.stringify(saved)}</Notice>
             )}
-          </form.AppField>
-          <form.AppField name="body">
-            {(field) => <field.TextArea label="本文" />}
-          </form.AppField>
-          <form.AppField name="order">
-            {(field) => <field.NumberField label="順番" />}
-          </form.AppField>
-          <form.AppField name="published">
-            {(field) => <field.DateField label="公開日" />}
-          </form.AppField>
-          <form.AppField name="pinned">
-            {(field) => <field.Checkbox label="先頭に表示する" />}
-          </form.AppField>
-          <form.AppField name="season">
-            {(field) => <field.Select label="季節" options={OPTIONS} />}
-          </form.AppField>
-          <Button isPending={isSubmitting} type="submit">
-            保存
-          </Button>
-          {saved !== undefined && (
-            <Notice tone="success">{JSON.stringify(saved)}</Notice>
-          )}
-        </Form>
+          </form.Form>
+        </form.AppForm>
       )}
     </form.Subscribe>
   );

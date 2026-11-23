@@ -217,7 +217,7 @@ export const SaveFailed: Story = {
 
 export const DeleteFailed: Story = {
   args: {
-    /** 削除すると想定外の失敗を返す server(ゴミ箱のボタンから削除すると、Dialog の中に知らせが出る)。 */
+    /** 削除すると想定外の失敗を返す server。 */
     createRoutes: () => ({
       ...signedIn,
       "admin/fixedPages/delete": () => ({

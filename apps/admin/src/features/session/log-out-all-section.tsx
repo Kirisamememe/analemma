@@ -6,8 +6,7 @@ import { sendLogOutAll } from "@/features/session/queries/log-out";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Heading, Stack, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Notice } from "@/ui/primitives/notice";
-import { Dialog } from "@/ui/primitives/overlays";
+import { Dialog, useFailureToast } from "@/ui/primitives/overlays";
 
 /** すべてのセッションからログアウトする操作。 */
 export const LogOutAllSection = (): ReactNode => {
@@ -16,12 +15,16 @@ export const LogOutAllSection = (): ReactNode => {
   const { clear } = useApiCache();
   const { api } = useAppContext();
   const [isConfirming, setConfirming] = useState(false);
+  const failure = useFailureToast();
 
   const logOutAll = useApiMutation({
     send: () => sendLogOutAll(api),
     onSuccess: () => {
       clear();
       goToLogin();
+    },
+    onError: () => {
+      failure.show(t("sessions.logOutAllFailed"));
     },
   });
 
@@ -32,7 +35,6 @@ export const LogOutAllSection = (): ReactNode => {
       <Cluster>
         <Button
           onPress={() => {
-            logOutAll.reset();
             setConfirming(true);
           }}
           tone="danger"
@@ -43,17 +45,21 @@ export const LogOutAllSection = (): ReactNode => {
       <Dialog
         isOpen={isConfirming}
         isPending={logOutAll.isPending}
-        onOpenChange={setConfirming}
+        onOpenChange={(open) => {
+          if (!open) {
+            failure.close();
+          }
+
+          setConfirming(open);
+        }}
         title={t("sessions.logOutAllTitle")}
       >
         <Text>{t("sessions.description")}</Text>
-        {logOutAll.isError && (
-          <Notice tone="danger">{t("sessions.logOutAllFailed")}</Notice>
-        )}
         <Cluster gap={2} justify="end">
           <Button
             isDisabled={logOutAll.isPending}
             onPress={() => {
+              failure.close();
               setConfirming(false);
             }}
           >
@@ -62,6 +68,7 @@ export const LogOutAllSection = (): ReactNode => {
           <Button
             isPending={logOutAll.isPending}
             onPress={() => {
+              failure.close();
               logOutAll.mutate();
             }}
             tone="danger"
