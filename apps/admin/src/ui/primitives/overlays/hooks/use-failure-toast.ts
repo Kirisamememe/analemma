@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 
 import { useShowToast } from "@/ui/primitives/overlays/hooks/use-show-toast";
 
@@ -7,16 +7,18 @@ export const useFailureToast = (id?: string) => {
   const showToast = useShowToast();
   const shown = useRef(new Map<string | undefined, () => void>()); // id を替えても描き直さないよう、state にしない
 
-  const close = (): void => {
+  const close = useCallback((): void => {
     shown.current.get(id)?.();
     shown.current.delete(id);
-  };
+  }, [id]);
 
-  return {
-    show: (message: string): void => {
+  const show = useCallback(
+    (message: string): void => {
       close();
       shown.current.set(id, showToast({ tone: "danger", message }));
     },
-    close,
-  };
+    [close, id, showToast],
+  );
+
+  return { show, close };
 };

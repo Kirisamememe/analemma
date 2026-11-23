@@ -80,6 +80,18 @@ describe("useFailureToast", () => {
     expect(renders).toBe(2);
   });
 
+  test("同じ対象のうちは、描き直しても同じ関数を返す", () => {
+    const { result, rerender } = renderHook(
+      (id: string) => useFailureToast(id),
+      { initialProps: "A", wrapper: withToast },
+    );
+
+    const first = result.current;
+    rerender("A");
+    expect(result.current.show).toBe(first.show);
+    expect(result.current.close).toBe(first.close);
+  });
+
   test("閉じる関数で、出した失敗の Toast を閉じる", () => {
     const { result } = renderHook(useFailureToast, { wrapper: withToast });
 
