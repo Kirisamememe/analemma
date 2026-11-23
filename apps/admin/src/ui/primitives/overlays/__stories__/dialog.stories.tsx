@@ -80,3 +80,39 @@ export const LongName: Story = {
     name: "passkey-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijkl",
   },
 };
+
+export const Saving: Story = {
+  /** 保存中のまま表示する。 */
+  render: () => (
+    <Dialog
+      isOpen
+      onOpenChange={() => undefined}
+      status="pending"
+      title="固定ページを保存しています"
+    />
+  ),
+};
+
+export const Saved: Story = {
+  /** 保存が成功した状態を表示し、閉じる操作を試せる。 */
+  render: function SavedDialog() {
+    const [open, setOpen] = useState(true);
+    return (
+      <>
+        <Button
+          onPress={() => {
+            setOpen(true);
+          }}
+        >
+          Dialog を開く
+        </Button>
+        <Dialog
+          isOpen={open}
+          onOpenChange={setOpen}
+          status="success"
+          title="固定ページを更新しました。"
+        />
+      </>
+    );
+  },
+};

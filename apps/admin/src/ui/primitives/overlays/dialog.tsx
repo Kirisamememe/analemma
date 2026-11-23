@@ -35,7 +35,7 @@ const dialog = tv({
         modal: "relative w-80 max-w-full p-2",
         body: "items-center gap-3 px-4 py-6 text-center",
         emblem: "bg-surface-muted text-fg-muted",
-        indicator: "motion-safe:animate-spin",
+        indicator: "motion-safe:animate-spin motion-reduce:animate-pulse",
       },
       success: {
         modal: "relative w-80 max-w-full p-2",
@@ -98,24 +98,16 @@ export const Dialog = ({
         return;
       }
 
-      const keepFocus = (): void => {
-        element.focus({ preventScroll: true });
-      };
+      element.focus({ preventScroll: true });
 
       const keepTab = (event: KeyboardEvent): void => {
-        if (event.key === "Tab") {
-          event.preventDefault();
-          keepFocus();
-        }
+        if (event.key === "Tab") event.preventDefault();
       };
 
-      keepFocus();
-      document.addEventListener("click", keepFocus);
-      document.addEventListener("keydown", keepTab, true);
+      element.addEventListener("keydown", keepTab);
 
       return () => {
-        document.removeEventListener("click", keepFocus);
-        document.removeEventListener("keydown", keepTab, true);
+        element.removeEventListener("keydown", keepTab);
       };
     },
     [isOpen, status],
@@ -126,6 +118,11 @@ export const Dialog = ({
   return (
     <ModalOverlay
       className={overlay()}
+      onPointerDownCapture={(event) => {
+        if (status === "pending" && event.target === event.currentTarget) {
+          event.preventDefault();
+        }
+      }}
       isDismissable={isOpen && !locked && isDismissable}
       isKeyboardDismissDisabled={locked}
       isOpen={isOpen}

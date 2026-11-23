@@ -98,14 +98,21 @@ export const useEditorForm = (
   );
 
   const saving = useApiMutation({
-    send: async (values: EditorValues) => ({
-      values,
-      result: await saveFixedPage(api, {
-        ...base,
-        target: page === undefined ? { kind: kind.name } : { id: page.id },
-        values,
-      }),
-    }),
+    send: async (values: EditorValues) => {
+      try {
+        const result = await saveFixedPage(api, {
+          ...base,
+          target: page === undefined ? { kind: kind.name } : { id: page.id },
+          values,
+        });
+
+        return { values, result };
+      } catch (error) {
+        if (root.current !== null) setSaveStatus(undefined);
+
+        throw error;
+      }
+    },
     onSuccess: async ({ values, result }) => {
       if (result._tag === "Succeeded") {
         const isOpen = root.current !== null;
@@ -140,8 +147,6 @@ export const useEditorForm = (
       finishSaving();
     },
     onError: () => {
-      if (root.current !== null) setSaveStatus(undefined);
-
       failure.show(t("fixedPageEditor.saveFailed"));
       finishSaving();
     },

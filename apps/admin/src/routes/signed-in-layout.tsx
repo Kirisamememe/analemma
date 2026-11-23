@@ -13,8 +13,15 @@ export const SignedInLayout = (): ReactNode => {
     select: (state) => state.matches.at(-1)?.pathname, // 移り終えた画面のパス(URL は、移り始めたときに替わる)
   });
 
+  const editorLocation = useRouterState({
+    select: ({ resolvedLocation }) =>
+      resolvedLocation?.pathname.startsWith("/fixed-pages/") === true
+        ? resolvedLocation.href
+        : undefined,
+  });
+
   return (
-    <SaveStatusProvider active={pathname?.startsWith("/fixed-pages/") === true}>
+    <SaveStatusProvider location={editorLocation}>
       <AppShell
         nav={
           <AppNavigation

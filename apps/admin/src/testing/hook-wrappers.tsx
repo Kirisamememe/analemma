@@ -40,7 +40,9 @@ export const withAppProviders = ({ queryClient, router }: AppParts) => {
       <QueryClientProvider client={queryClient}>
         <RouterContextProvider router={router}>
           <ToastProvider>
-            <SaveStatusProvider active>{children}</SaveStatusProvider>
+            <SaveStatusProvider location="/fixed-pages/new">
+              {children}
+            </SaveStatusProvider>
           </ToastProvider>
         </RouterContextProvider>
       </QueryClientProvider>
