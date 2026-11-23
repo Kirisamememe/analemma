@@ -51,9 +51,6 @@ export const ja = {
   "fixedPageEditor.leave": "変更を破棄",
   "fixedPageEditor.urlHint": "http:// か https:// で始まる URL を入力します。",
   "fixedPageEditor.unboundIssue": "({{path}}:{{message}})",
-  "fixedPageEditor.moveUp": "上へ",
-  "fixedPageEditor.moveDown": "下へ",
-  "fixedPageEditor.removeItem": "削除",
   "fixedPageEditor.newDescription":
     "種類を選び、slug・タイトル・中身を入力します。",
   "fixedPageEditor.kindOf": "種類:{{kind}}",

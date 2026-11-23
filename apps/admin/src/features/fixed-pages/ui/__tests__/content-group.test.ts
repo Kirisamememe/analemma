@@ -54,6 +54,13 @@ test("要素の誤りをまとまりの説明にしてまとまりに focus を�
   await waitFor(() => {
     expect(document.activeElement).toBe(row);
   });
+  const title = within(row).getByText("行 1");
+  expect(row.getAttribute("aria-labelledby")).toBe(title.id);
+
+  for (const name of ["行 1 を上へ", "行 1 を下へ", "行 1 を削除"]) {
+    expect(within(row).getByRole("button", { name }).textContent).toBe("");
+  }
+
   await userEvent.type(
     within(row).getByRole("textbox", { name: "名前" }),
     "記入",

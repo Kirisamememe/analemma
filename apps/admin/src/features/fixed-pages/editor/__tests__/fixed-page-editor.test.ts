@@ -167,16 +167,13 @@ test("行を動かし、追加・削除して保存しても各段の定義に�
       ],
     },
   });
-  expect(
-    within(screen.getByRole("group", { name: "見出し" })).getByText(
-      "値を確認してください。",
-    ),
-  ).toBeDefined();
-  expect(
-    within(screen.getByRole("group", { name: "行" })).getByText(
-      "値を確認してください。",
-    ),
-  ).toBeDefined();
+  const description = "値を確認してください。";
+  const group = screen.getByRole("group", { name: "見出し", description });
+  await waitFor(() => {
+    expect(document.activeElement).toBe(group);
+  });
+  expect(within(group).getByRole("alert").textContent).toBe(description);
+  expect(screen.getByRole("group", { name: "行", description })).toBeDefined();
   expect(await screen.findByText(/種類の定義が変わった可能性/v)).toBeDefined();
   expect(await screen.findByText(/missing.*形式/v)).toBeDefined();
   await userEvent.click(screen.getByRole("button", { name: "行 1 を下へ" }));

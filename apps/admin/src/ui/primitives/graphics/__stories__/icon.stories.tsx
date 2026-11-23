@@ -4,6 +4,8 @@ import { Cluster, Stack, Text } from "@/ui/layout";
 import { Icon, type IconName } from "@/ui/primitives/graphics/icon";
 
 const NAMES: readonly IconName[] = [
+  "arrow-down",
+  "arrow-up",
   "check",
   "chevron-down",
   "chevron-left",
@@ -16,11 +18,14 @@ const NAMES: readonly IconName[] = [
   "house",
   "key-round",
   "languages",
+  "layers",
+  "list",
   "shield-check",
   "log-out",
   "menu",
   "monitor",
   "moon",
+  "plus",
   "sun",
   "trash-2",
   "x",
@@ -60,6 +65,22 @@ export const Sizes: Story = {
           <Icon name="file-text" size={size} />
           <Icon name="key-round" size={size} />
           <Icon name="check" size={size} />
+          <Text>{size}</Text>
+        </Cluster>
+      ))}
+    </Stack>
+  ),
+};
+
+export const Bold: Story = {
+  name: "Bold (1.5px)",
+  /** 線幅が 1.5px の見本。 */
+  render: () => (
+    <Stack gap={3}>
+      {SIZES.map((size) => (
+        <Cluster align="center" gap={2} key={size}>
+          <Icon name="layers" size={size} weight="bold" />
+          <Icon name="list" size={size} weight="bold" />
           <Text>{size}</Text>
         </Cluster>
       ))}

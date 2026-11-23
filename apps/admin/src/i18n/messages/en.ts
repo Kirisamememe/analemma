@@ -49,9 +49,6 @@ export const en = {
   "fixedPageEditor.leave": "Discard changes",
   "fixedPageEditor.urlHint": "Enter a URL starting with http:// or https://.",
   "fixedPageEditor.unboundIssue": "{{path}}: {{message}}",
-  "fixedPageEditor.moveUp": "Up",
-  "fixedPageEditor.moveDown": "Down",
-  "fixedPageEditor.removeItem": "Remove",
   "fixedPageEditor.newDescription":
     "Choose a kind, then enter the slug, title, and content.",
   "fixedPageEditor.kindOf": "Kind: {{kind}}",

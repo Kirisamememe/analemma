@@ -62,6 +62,8 @@ type ButtonProps = ButtonContent & {
   tone?: "primary" | "secondary" | "quiet" | "danger";
   /** 高さ。 */
   size?: "md" | "sm";
+  /** アイコンの線の太さ。 */
+  iconWeight?: "regular" | "bold";
   /** フォームを送るボタンか。 */
   type?: "button" | "submit";
   /** 送信中か(押せなくし、待っていることを示す)。 */
@@ -84,6 +86,7 @@ export const Button = ({
   onPress,
   ref,
   icon,
+  iconWeight = "regular",
   "aria-label": ariaLabel,
   children,
 }: ButtonProps): ReactNode => {
@@ -112,7 +115,11 @@ export const Button = ({
         </ProgressBar>
       )}
       <span className={style.face()}>
-        {icon === undefined ? children : <Icon name={icon} />}
+        {icon === undefined ? (
+          children
+        ) : (
+          <Icon name={icon} weight={iconWeight} />
+        )}
       </span>
     </AriaButton>
   );

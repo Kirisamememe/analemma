@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import type { FieldDefinition } from "@analemma/contract";
 
-import { ContentGroup } from "../ui/content-group";
+import { Branch, ContentGroup } from "../ui/content-group";
 import type { EditorForm } from "./hooks/use-editor-form";
 import { RepeatField } from "./repeat-field";
 
@@ -20,6 +20,8 @@ export type ContentFieldsProps = {
   errors: Record<string, string>;
   /** 値の変更を知らせる関数。 */
   changed: (name: string) => void;
+  /** group の直下の項目か。 */
+  inGroup?: boolean;
 };
 
 /** 定義の順に、中身の各項目を描く。 */
@@ -29,10 +31,11 @@ export const ContentFields = ({
   form,
   errors,
   changed,
+  inGroup = false,
 }: ContentFieldsProps): ReactNode => {
   const t = useTranslate();
 
-  return fields.map((definition) => {
+  const draw = (definition: FieldDefinition): ReactNode => {
     const path = prefix + definition.key;
     const name = `content.${path}` as const;
 
@@ -44,11 +47,18 @@ export const ContentFields = ({
           form={form}
           errors={errors}
           changed={changed}
+          inGroup={definition.type === "group"}
         />
       );
 
       return (
-        <ContentGroup key={path} label={definition.label} error={errors[name]}>
+        <ContentGroup
+          key={path}
+          inGroup={inGroup}
+          kind={definition.type}
+          label={definition.label}
+          error={errors[name]}
+        >
           {definition.type === "group" ? (
             nested(path)
           ) : (
@@ -110,6 +120,25 @@ export const ContentFields = ({
           }
         }}
       </form.AppField>
+    );
+  };
+
+  return fields.map((definition, index) => {
+    const element = draw(definition);
+
+    if (!inGroup) return element;
+
+    const isLast = index === fields.length - 1;
+
+    return (
+      <Branch
+        key={prefix + definition.key}
+        isLast={isLast}
+        parent="group"
+        target={"fields" in definition ? "heading" : undefined}
+      >
+        {element}
+      </Branch>
     );
   });
 };
