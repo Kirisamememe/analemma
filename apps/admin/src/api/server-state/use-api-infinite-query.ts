@@ -18,7 +18,7 @@ export type NextPage =
   | {
       /** どの状態か。 */
       readonly _tag: "Available";
-      /** 続きを取得しているか。 */
+      /** 一覧か続きを取得しているか。 */
       readonly isLoading: boolean;
       /** 続きを取得する関数。 */
       readonly load: () => void;
@@ -88,7 +88,7 @@ export const useApiInfiniteQuery = <Page>({
   }
 
   const fetchNext = (): void => {
-    void query.fetchNextPage();
+    void query.fetchNextPage({ cancelRefetch: false });
   };
 
   const nextPage = (): NextPage => {
@@ -97,12 +97,12 @@ export const useApiInfiniteQuery = <Page>({
     return query.isFetchNextPageError
       ? {
           _tag: "Failed",
-          isRetrying: query.isFetchingNextPage,
+          isRetrying: query.fetchStatus !== "idle",
           retry: fetchNext,
         }
       : {
           _tag: "Available",
-          isLoading: query.isFetchingNextPage,
+          isLoading: query.fetchStatus !== "idle",
           load: fetchNext,
         };
   };
