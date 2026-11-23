@@ -50,7 +50,7 @@ const titlesOf = (page: ImagePage): (string | null)[] =>
   page.images.map(({ title }) => title);
 
 describe("画像の一覧", () => {
-  test("公開していない画像も含めて、新しく足した順に、cursor で続きを返すこと", async () => {
+  test("公開していない画像も含めて、新しく足した順に、cursor で続きを返し、途中で足した画像で続きがずれないこと", async () => {
     await using server = await createTestClient();
 
     await signInAsAdmin(server);
@@ -69,6 +69,8 @@ describe("画像の一覧", () => {
     expect(titlesOf(first)).toEqual(["5", "4"]);
     expect(first.nextCursor).toBe(ids[3] ?? "");
 
+    await insertImages(server, [{ title: "6" }]);
+
     const second = await list({ cursor: first.nextCursor ?? "", limit: 2 });
 
     expect(titlesOf(second)).toEqual(["3", "2"]);
@@ -76,12 +78,18 @@ describe("画像の一覧", () => {
       true,
       false,
     ]);
+    expect(
+      await server.client.admin.images.get({ id: ids[1] ?? "" }),
+    ).toMatchObject({ title: "2", published: false, publishedAt: null });
 
     const last = await list({ cursor: second.nextCursor ?? "", limit: 2 });
 
     expect(titlesOf(last)).toEqual(["1"]);
     expect(last.nextCursor).toBeNull();
-    expect(await list({ limit: 5 })).toMatchObject({ nextCursor: null });
+    const all = await list({ limit: 6 });
+
+    expect(titlesOf(all)).toEqual(["6", "5", "4", "3", "2", "1"]);
+    expect(all.nextCursor).toBeNull();
   });
 
   test("件数を省くと、50件ずつ返すこと", async () => {

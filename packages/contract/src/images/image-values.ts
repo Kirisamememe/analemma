@@ -43,9 +43,7 @@ export const imageDescription = trimmedText(10_000, MULTI_LINE).describe(
 );
 
 /** 画像の alt。 */
-export const imageAlt = trimmedText(1000, SINGLE_LINE).describe(
-  "画像の代わりに読み上げる文。",
-);
+export const imageAlt = trimmedText(1000, SINGLE_LINE).describe("画像の alt。");
 
 /** 管理画面に返す画像。 */
 export const adminImage = z.object({
