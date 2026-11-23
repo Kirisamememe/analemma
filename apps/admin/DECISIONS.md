@@ -75,6 +75,14 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 言語の切り替えは i18next の `changeLanguage` で行い、画面を読み込み直さない。`languageChanged` の event で、html の `lang` と `localStorage` を同じ値にする(`src/preferences/sync-locale.ts`)。html の `lang` は、theme.css の `:lang()` による、言語ごとの字体の切り替えに効く。`useTranslation` を使う部品は、切り替えのたびに描き直されるので、React Aria Components の `I18nProvider`(`UiProvider`)にも、i18next の今の言語が渡る。React Aria Components の辞書は、文字体系ではなく地域で分かれていて(`zh-CN`・`zh-TW`)、`zh-Hans` を渡すと、`zh-` で始まる辞書のうち、並びが先のものを使う。並びに頼らないよう、地域を付けた言語(`zh-CN` など)にして渡す。instance を作ったときの言語は `localStorage` に置かない。head の script がブラウザの言語から選んだ値なので、置くと、ブラウザの言語を変えても追従しなくなる。
 - 本番のビルドの出力で、head の script がアプリの script より前にあることと、作り物の `localStorage`・`navigator` の上で流すと値を当てることを、テスト(`__tests__/vite-config.test.ts`)で確かめる。ビルドの出力そのものを流すので、まとめ方を誤って module の構文が残れば落ちる。
 
+## Zod に検査のコードを作らせない
+
+`src/main.tsx` の最初の import で `src/app/zod-config.ts` を読み込み、`z.config({ jitless: true })` にする(エージェントが決めた)。
+
+- Zod 4 は、object のスキーマを作るときに `new Function` を使えるかを試し、使えれば、検査のコードを作って速くする。server が外部用のポートで管理画面を配るときの CSP は `unsafe-eval` を許さない(`apps/server/DECISIONS.md`)ので、試しは失敗する。Zod は失敗を捕まえて、コードを作らずに検査するので、検査の結果は変わらないが、ブラウザは CSP の違反として console に出す。`jitless` にすると、Zod は試さない。管理画面が検査するのは、フォームの値やパスキーの応答のような小さな値なので、コードを作らなくても遅さは分からない。
+- 試しはスキーマを作るときに走るので、contract のスキーマを作る前に設定を当てる。ES module は、import を書いた順に評価するので、`main.tsx` の最初の import にする。整形(oxfmt)の import の並べ替えは、副作用だけの import を動かさない(確かめた)。
+- 設定を当てると、その後に作ったスキーマの検査で `new Function` を使わないことを、テスト(`src/app/__tests__/zod-config.test.ts`)で確かめる。管理画面は、設定のために zod を直接の依存に持つ。
+
 ## i18n
 
 `en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `RESOURCES`(`src/i18n/resources.ts`)と、React Aria Components に渡す地域を付けた言語(`src/ui/primitives/ui-provider.tsx` の `ARIA_LOCALES`)に足し、`messages/` にファイルを置くだけにする。
@@ -275,3 +283,4 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 - **画面を移ったときの focus**:引き出したナビのリンクで画面を移ると、閉じ終えた後の focus は開くボタンに戻る。広い画面のナビで移ると、focus はリンクに残る。どちらも、スクリーンリーダーには画面が移ったことが読まれない(見た目には影響しない)。画面を移るたびに見出しへ focus を移すか、画面の名前を読ませるかは、管理画面の全体の扱いとして別に決める(ユーザーが決めた)。
 - **ナビを描き直した後のログアウトの失敗の Toast**:ログアウトを送り直すときに前の失敗の Toast を閉じる関数は、ナビ(`useLogOut`)が持つ。失敗の Toast を閉じずに画面を移り、その画面のセッションの確認も失敗してナビが取り除かれると、閉じる関数を失う。やり直してナビが戻り、ログアウトを送り直して成功すると、ログインの画面に前の失敗の Toast が残る。ログアウトとセッションの確認が続けて失敗し、その間に画面を移ったときだけ起き、残るのは閉じるボタンで消せる Toast 1つ。閉じる関数を Toast の queue と同じ寿命で持つ仕組みは、手間に見合わないので受け入れる。 ログアウトの応答を待つ間にほかの画面でセッション切れが分かり、ログインの画面へ移った後にログアウトが 500 を返したときも、失敗の Toast が出る。これを防ぐには応答を受けた時点のセッションも確かめる必要があり、どちらも表示された Toast を閉じれば済む。
 - **引き出したナビの上のログアウトの失敗の Toast**:狭い画面で、引き出したナビからログアウトに失敗すると、Toast はナビを開いたまま画面の上の中央に出て、ナビの最初のリンクに重なる。重なりは Toast を閉じるか、ログアウトを送り直すまで続く。Toast は閉じるボタンで消せ、ナビの閉じるボタンは覆わない。ナビを開いているときだけ Toast の位置を変えるには、Toast の位置の決まり(`src/ui/DECISIONS.md` の「Toast の位置」)をナビと一緒に組み直す必要があり、ログアウトの失敗のときだけなので受け入れる。
+- **Zod の設定を当てる順**:`main.tsx` の最初の import で Zod の設定を当てることは、テストで確かめていない。順が崩れると、CSP の違反が console に1件戻るだけで、検査の結果は変わらない。確かめるには、CSP を掛けたブラウザでビルドを開くテストが要り、手間に見合わない。
