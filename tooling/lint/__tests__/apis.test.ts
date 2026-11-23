@@ -15,11 +15,6 @@ describe("使える API と書き方", () => {
       rule: "eslint(no-restricted-imports)",
     },
     {
-      label: "管理画面の .ts での React の import",
-      file: "apps/admin/src/uses-react.ts",
-      rule: "eslint(no-restricted-imports)",
-    },
-    {
       label: "管理画面の本番のコードでの、Node の API のサブパスの import",
       file: "apps/admin/src/uses-node-subpath.ts",
       rule: "eslint(no-restricted-imports)",
@@ -78,25 +73,25 @@ describe("使える API と書き方", () => {
     {
       label:
         "管理画面の ui/layout/ から primitives のフォルダを指定した import",
-      file: "apps/admin/src/ui/layout/uses-primitive-entry.tsx",
+      file: "apps/admin/src/ui/layout/uses-primitive-entry.ts",
       rule: "eslint(no-restricted-imports)",
     },
     {
       label:
         "管理画面の ui/layout/ から patterns のフォルダを相対パスで指定した import",
-      file: "apps/admin/src/ui/layout/uses-pattern-entry.tsx",
+      file: "apps/admin/src/ui/layout/uses-pattern-entry.ts",
       rule: "eslint(no-restricted-imports)",
     },
     {
       label:
         "管理画面の ui/layout/ から primitives の下のフォルダを指定した import",
-      file: "apps/admin/src/ui/layout/uses-primitive-group-entry.tsx",
+      file: "apps/admin/src/ui/layout/uses-primitive-group-entry.ts",
       rule: "eslint(no-restricted-imports)",
     },
     {
       label:
         "管理画面の ui/primitives/ から patterns のフォルダを指定した import",
-      file: "apps/admin/src/ui/primitives/uses-pattern-entry.tsx",
+      file: "apps/admin/src/ui/primitives/uses-pattern-entry.ts",
       rule: "eslint(no-restricted-imports)",
     },
     {
@@ -205,9 +200,9 @@ describe("使える API と書き方", () => {
 
 describe("feature の import", () => {
   test.each([
-    { app: "admin", file: "dependencies.ts", lines: [1, 2, 3, 4] },
-    { app: "admin", file: "dependencies.tsx", lines: [1, 2, 3, 5, 6] },
-    { app: "admin", file: "ui-libraries.tsx", lines: [1, 2, 3, 4] },
+    { app: "admin", file: "dependencies.ts", lines: [1, 2, 4] },
+    { app: "admin", file: "react-libraries.ts", lines: [1, 2, 3, 5, 6] },
+    { app: "admin", file: "ui-libraries.ts", lines: [1, 2, 3, 4] },
     {
       app: "server",
       file: "external-imports.ts",

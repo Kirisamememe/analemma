@@ -7,16 +7,23 @@ import { isTestFile } from "./files.mjs";
 const LOGIC_FILE = /\.([cm]?ts)$/v;
 const TEST_CALL = /\b(?:test|it)(?:\.each)?\s*\(/v;
 
-const hasTests = (path) =>
-  statSync(path, { throwIfNoEntry: false })?.isFile() === true &&
-  TEST_CALL.test(readFileSync(path, "utf8"));
-
-const testFileFor = (filename, extension) =>
-  join(
-    dirname(filename),
-    "__tests__",
-    basename(filename).replace(/\.[^.]+$/v, `.test.${extension}`),
+const hasTests = (paths) =>
+  paths.some(
+    (path) =>
+      statSync(path, { throwIfNoEntry: false })?.isFile() === true &&
+      TEST_CALL.test(readFileSync(path, "utf8")),
   );
+
+const testFilesFor = (filename) =>
+  [filename.match(LOGIC_FILE)?.[1] ?? "ts", "tsx"].map((extension) =>
+    join(
+      dirname(filename),
+      "__tests__",
+      basename(filename).replace(/\.[^.]+$/v, `.test.${extension}`),
+    ),
+  );
+
+const testNames = (paths) => paths.map((path) => basename(path)).join(" か ");
 
 const isJsx = (node) => {
   if (node?.type === "ParenthesizedExpression") {
@@ -96,19 +103,19 @@ const requireSiblingTest = {
       return {};
     }
 
-    if (LOGIC_FILE.test(filename)) {
-      const testFile = testFileFor(filename, filename.match(LOGIC_FILE)?.[1]);
+    const testFiles = testFilesFor(filename);
 
+    if (LOGIC_FILE.test(filename)) {
       return {
         "Program:exit"(program) {
           if (
             collectExportedFunctions(program).size > 0 &&
-            !hasTests(testFile)
+            !hasTests(testFiles)
           ) {
             context.report({
               node: program,
               messageId: "missingLogicTest",
-              data: { test: basename(testFile) },
+              data: { test: testNames(testFiles) },
             });
           }
         },
@@ -119,7 +126,6 @@ const requireSiblingTest = {
       return {};
     }
 
-    const testFile = testFileFor(filename, "tsx");
     let branches = false;
 
     return {
@@ -127,11 +133,11 @@ const requireSiblingTest = {
         branches = true;
       }),
       "Program:exit"(program) {
-        if (branches && !hasTests(testFile)) {
+        if (branches && !hasTests(testFiles)) {
           context.report({
             node: program,
             messageId: "missingComponentTest",
-            data: { test: basename(testFile) },
+            data: { test: testNames(testFiles) },
           });
         }
       },

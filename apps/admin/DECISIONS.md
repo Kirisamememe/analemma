@@ -37,7 +37,7 @@ Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・�
 
 ## route はコードで定義する
 
-TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen.ts` を生成する plugin)は使わず、`src/app/router.tsx` で `createRoute` を組む。
+TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen.ts` を生成する plugin)は使わず、`src/app/router.ts` で `createRoute` を組む。
 
 - 生成するファイルは、整形・lint・用語集の検査から外す設定が要り、生成し忘れると型が古いまま残る。
 - ファイルの名前に `__root.tsx`・`$id.tsx`・`_layout.tsx` のような形を求めるので、kebab-case の検査とぶつかり、route が増えると1つのフォルダに10件を超えて並ぶ。
@@ -117,9 +117,9 @@ effect でないと書けない処理は、次のとおり。
 
 effect を使う hook の表は、次のとおり。
 
-| hook                 | 置き場所                              | 処理                                                                          |
-| -------------------- | ------------------------------------- | ----------------------------------------------------------------------------- |
-| `useHtmlPreferences` | `.storybook/use-html-preferences.tsx` | (4) ブラウザが描く前に html の `lang` と `data-theme` を story の値に合わせる |
+| hook                 | 置き場所                             | 処理                                                                          |
+| -------------------- | ------------------------------------ | ----------------------------------------------------------------------------- |
+| `useHtmlPreferences` | `.storybook/use-html-preferences.ts` | (4) ブラウザが描く前に html の `lang` と `data-theme` を story の値に合わせる |
 
 表の hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` にも足す。どうしても避けられない呼び出しを表の hook の外に書く場合は、`// oxlint-disable-next-line project/no-effect-outside-allowed-hook -- 理由` で抑制する。
 
@@ -194,11 +194,23 @@ features のビジネスロジックを外のライブラリから独立させ�
 - 押したボタンだけにかかわる結果(トークンのコピー)は、ボタンの文言とアイコンで返す(`src/features/deploy-tokens/DECISIONS.md`)。
 - ログインと登録用 URL の画面の結果(キャンセル・期限切れ・登録されていないパスキーなど)は、`Notice` で知らせる。画面がその操作のためだけにあり、同じ画面で送り直すので、Dialog の中で送った操作と同じに扱う。
 
+## `.ts` と `.tsx`
+
+`.tsx` は、JSX の要素か fragment を書くファイルだけにする(ユーザーが決めた。`project/require-jsx-in-tsx` で止まる)。JSX を書かない hook・context・router の組み立て・テスト・story は `.ts` に置く。
+
+- 拡張子で、マークアップを持つファイルかどうかが分かる。JSX の無い `.tsx` は、hook や組み立ての関数を、部品のファイルのように見せる。
+- `.tsx` では、generic な arrow function の型引数を JSX と読み分けるために、`<Value,>` のように `,` を足す必要がある。
+- ロジックを React なしでテストできるように、React の値を import できる `.ts` を次の2つに限る(ユーザーが決めた。`project/no-react-in-logic` で止まる)。型だけの `import type` は、どの `.ts` でもよい。
+  - hook のファイル:名前が `use-` で始まり、export する関数が、名前が `use` で始まる1つだけ。
+  - context のファイル:名前が `-context.ts` で終わり、`createContext` の結果(1つ以上)と型だけを export する。context を読む hook は、hook のファイルに分ける(`use-show-toast.ts`)。
+- 前は `.ts` から React を一切 import させなかった。そのため、hook と context が `.tsx` に置かれ、JSX の無い `.tsx` を生んでいた。
+- `src/` の hook のファイルにも、関数を export する `.ts` と同じく、隣のテストを求める(`project/require-sibling-test`)。`.storybook/` の `useHtmlPreferences` は、全部の story を描くテスト(`src/__tests__/stories.test.tsx`)で確かめる(`tooling/DECISIONS.md` の `require-sibling-test`)。hook が呼び出し側に約束する振る舞い(`useShowToast` は Provider の外で呼ぶと throw する、`useLogOut` はログアウトを送ってログインの画面へ移る、など)を、`renderHook` で確かめる。テストのファイルの拡張子も JSX の有無で決まるので、`.test.ts` と `.test.tsx` のどちらでも数える。
+
 ## テスト
 
 マークアップの作りをなぞるだけのテストは書かない。実装をなぞるテストは、実装を変えるたびに直すだけで、何も守らない。
 
-- ロジックはできる限りマークアップから分けて `.ts` に置き、テストを必ず書く。`.ts` から React を import できないようにして、`.ts` をテストできるロジックだけにする。
+- ロジックはできる限りマークアップから分けて `.ts` に置き、テストを必ず書く。hook にもテストを書く(「`.ts` と `.tsx`」)。
 - ロジックに切り出しにくい出し分けは、コンポーネントのテストで確かめる。要素は role・label・text など利用者に見えるもので探し、利用者に見える結果を確かめる。test id、DOM のたどり方、クラス名、スナップショットのように、マークアップの作りに依存する探し方と確かめ方は使わない。
 - 出し分けの無いコンポーネントには、テストを求めない。
 - 決まった文言を描画して確かめるだけのテストは lint を通ってしまうので、セルフレビューで見る。
@@ -215,7 +227,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 部品と画面を、light と dark、言語ごとに見比べるために使う(ユーザーが決めた)。Storybook 10.6(`storybook`・`@storybook/react-vite`・`@storybook/addon-a11y`)で、`bun run storybook` で `http://localhost:6006` に起動する。
 
 - story は CSF 3 で書く。Storybook の文書が勧める形で、CSF Next(factories)は preview の扱いで API が変わりうる。
-- story は、部品の隣の `__stories__` に `<名前>.stories.tsx` で置く。title は `primitives/Button` のように書き、フォルダの名前(`__stories__`)を入れない。story の中の文は、見本の文なので訳を通さずに書く。
+- story は、部品の隣の `__stories__` に `<名前>.stories.ts`(JSX を書くなら `.stories.tsx`)で置く。title は `primitives/Button` のように書き、フォルダの名前(`__stories__`)を入れない。story の中の文は、見本の文なので訳を通さずに書く。
 - Storybook の Vite は `vite.config.ts` を読むが、`build` は `target` しか引き継がず、`server` は上書きする(10.6.8 の配布物で確かめた)。`viteFinal` で `build.target` と `build.cssTarget` を `vite.config.ts` と同じ `BROWSER_TARGET` に入れ直す。入れないと、`storybook build` で `light-dark()` が書き換えられ、`scheme-dark` が効かなくなる(`src/ui/DECISIONS.md` の「light と dark」)。開発のサーバーの port・`strictPort`・`/api` の proxy は Storybook が上書きするので、ぶつからない。
 - head に script を書き込む plugin は、Storybook では外す(`withoutVitePlugins`)。言語と配色はツールバーで選ぶ(既定は light と日本語)。story を包む枠(`.storybook/story-frame.tsx`)は、ツールバーの言語で i18next の instance を作り、React Aria Components の `I18nProvider` もその言語を読む。言語が変わったら `useMemo` で新しい instance を作り、Provider の値を差し替えるので、story の state は残る。`useHtmlPreferences` は、ブラウザが描く前に html の `lang` に story に見える文の言語を、`data-theme` に配色を入れる。
 - 部品の story の見本の文は日本語なので、html の `lang` を `ja` にする(`parameters.contentLang`)。ツールバーの言語を `lang` にすると、zh-Hans で、かなが中国語の字体で描かれた(ユーザーが見つけた)。画面の story は訳を出すので、`contentLang: null` にして、ツールバーの言語を `lang` にする(`contentLang` を書かないと、既定の `ja` を引き継ぐ)。文字の見本は、見本の文ごとに `lang` を付ける。言語を付けないと、日本語の字体に無い簡体字だけが別の字体に替わり、1つの文の中で字体が混ざった。

@@ -97,13 +97,16 @@ describe("story の置き場所", () => {
   test("__stories__ の中の story でないファイルと、__stories__ の外の story を返すこと", () => {
     const paths = [
       "apps/admin/src/ui/__stories__/a.stories.tsx",
+      "apps/admin/src/ui/__stories__/b.stories.ts",
       "apps/admin/src/ui/__stories__/helper.ts",
       "apps/admin/src/ui/a.stories.tsx",
+      "apps/admin/src/ui/b.stories.ts",
     ];
 
     expect(findStrayStoryFiles(paths)).toEqual([
       "apps/admin/src/ui/__stories__/helper.ts",
       "apps/admin/src/ui/a.stories.tsx",
+      "apps/admin/src/ui/b.stories.ts",
     ]);
   });
 });
