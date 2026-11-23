@@ -4,6 +4,7 @@ import { avif } from "exifreader/formats";
 import { exif, gps, icc } from "exifreader/groups";
 import sharp from "sharp";
 
+import { createDeliveryImages } from "@/features/images/processing/create-delivery-images";
 import { encodeAvif } from "@/platform/images/encode-avif";
 import { shrinkImage } from "@/platform/images/shrink-image";
 
@@ -93,5 +94,62 @@ test.each([
         Math.abs((pixels.data[index] ?? -255) - value),
       ).toBeLessThanOrEqual(3);
     }
+  },
+);
+
+const cmykJpeg = async (): Promise<Uint8Array> => {
+  const cyan = await sharp({
+    create: { width: 3000, height: 32, channels: 3, background: "#00a0bb" },
+  })
+    .pipelineColourspace("rgb16")
+    .withIccProfile("p3")
+    .png()
+    .toBuffer();
+
+  return sharp(cyan, { ignoreIcc: true })
+    .withIccProfile("cmyk")
+    .jpeg({ quality: 100 })
+    .toBuffer();
+};
+
+test.each([
+  {
+    name: "cICP で Display P3 を指定した PNG",
+    input: async () => {
+      const response = await fetch(new URL("cicp-red.png", import.meta.url));
+
+      return new Uint8Array(await response.arrayBuffer());
+    },
+    expected: [253, 0, 0],
+  },
+  {
+    name: "ICC のある CMYK JPEG",
+    input: cmykJpeg,
+    expected: [3, 140, 161],
+  },
+])(
+  "$name から作った4段の AVIF が元の色を保つこと",
+  async ({ input, expected }) => {
+    const result = await createDeliveryImages(await input());
+
+    if (result._tag !== "Created") throw new Error(result._tag);
+
+    const widths = await Promise.all(
+      result.images.map(async ({ avif: bytes }) => {
+        const { data, info } = await sharp(bytes, { ignoreIcc: true })
+          .raw()
+          .toBuffer({ resolveWithObject: true });
+
+        for (const [channel, value] of expected.entries()) {
+          expect(Math.abs((data[channel] ?? -255) - value)).toBeLessThanOrEqual(
+            3,
+          );
+        }
+
+        return info.width;
+      }),
+    );
+
+    expect(widths).toEqual([2560, 1920, 1280, 640]);
   },
 );

@@ -2,6 +2,7 @@ import sharp from "sharp";
 
 import type { ImageFormat } from "@/platform/images/detect-image-format";
 import { decodeHeif } from "@/platform/images/heif/decode-heif";
+import { convertPngCicp, readPngCicp } from "@/platform/images/png-cicp";
 
 /** 色を変換する先の ICC profile。 */
 export type IccProfile = "p3" | "srgb";
@@ -37,22 +38,34 @@ export const shrinkImage = async (
       ? await decodeHeif(bytes, format)
       : undefined;
 
+  const cicp = format === "png" ? readPngCicp(bytes) : undefined;
+
   const image = sharp(decoded?.path ?? bytes, {
-    ignoreIcc: space === "srgb",
-  });
-
-  if (format === "png" && space === "rgb16" && !hasProfile) {
-    image.pipelineColourspace("srgb");
-  }
-
-  const { data, info } = await image
+    ignoreIcc: cicp !== undefined || space === "srgb",
+  })
     .autoOrient()
     .resize({
       width: longestEdge,
       height: longestEdge,
       fit: "inside",
       withoutEnlargement: true,
-    })
+    });
+
+  if (space === "cmyk" && hasProfile) {
+    image.pipelineColourspace("cmyk").toColourspace("cmyk");
+  } else if (
+    format === "png" &&
+    space === "rgb16" &&
+    !hasProfile &&
+    cicp === undefined
+  ) {
+    image.pipelineColourspace("srgb");
+  }
+
+  const oriented =
+    cicp === undefined ? image : sharp(await convertPngCicp(image, cicp));
+
+  const { data, info } = await oriented
     .withIccProfile(iccProfile)
     .png({ compressionLevel: 0 })
     .toBuffer({ resolveWithObject: true });

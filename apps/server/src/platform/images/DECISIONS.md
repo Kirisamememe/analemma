@@ -21,7 +21,8 @@
 ## 縮めることと AVIF
 
 - `shrinkImage` は、向きを `autoOrient()` で画素に当て、長辺を上限まで縮め(元より大きくしない)、指定の ICC profile に色を変換して、可逆の PNG(`compressionLevel` 0)にする。HEIC は、libheif が回転の指定を当てて返し、EXIF の Orientation を向きとして渡さないので、二重には回らない。回転の指定と EXIF の Orientation 6 を両方持つ HEIC の見本で確かめる。
-- 下の段は、元の写真からでなく、縮めた PNG から作る(`encodeAvif`)。元の大きな写真を何度も decode しないため。AVIF の段から下の段を作ると、非可逆の圧縮を2回重ねる。縮めるときは、8-bit RGB の入力を sharp が先に sRGB に変換する処理を省き、埋め込み ICC から出力先の ICC に直接変換する。ICC の無い16-bit RGB の PNG は sRGB として処理する。sharp は16-bit RGB に既定で P3 を用いるため。各段は `keepIccProfile` で PNG の ICC と色を保つ。6000×4000 の合成の写真で、AVIF の段から作るときと時間はほぼ同じだった(2.2〜2.6秒。Mac M1 Max)。
+- 下の段は、元の写真からでなく、縮めた PNG から作る(`encodeAvif`)。元の大きな写真を何度も decode しないため。AVIF の段から下の段を作ると、非可逆の圧縮を2回重ねる。縮めるときは、8-bit RGB の入力を sharp が先に sRGB に変換する処理を省き、埋め込み ICC から出力先の ICC に直接変換する。ICC のある CMYK JPEG は、縮小と ICC 変換の直前まで CMYK のまま扱う。sRGB を経由すると、Display P3 で表せるシアンがくすむため。ICC と cICP の無い16-bit RGB の PNG は sRGB として処理する。sharp は16-bit RGB に既定で P3 を用いるため。各段は `keepIccProfile` で PNG の ICC と色を保つ。6000×4000 の合成の写真で、AVIF の段から作るときと時間はほぼ同じだった(2.2〜2.6秒。Mac M1 Max)。
+- PNG に cICP があれば、その指定を優先する。sharp は cICP を読まないため、向きを直して縮めた16-bit RGB の画素に元の cICP を付け、FFmpeg で Display P3 に変換する。FFmpeg にはこの PNG だけを標準入力から渡す。
 - EXIF・GPS・XMP は、PNG にも AVIF にも残さない。`withMetadata`・`keepExif`・`keepMetadata` を使うと GPS が残るので使わない。`withIccProfile` は ICC だけを付ける。
 
 ## ICC の無い AVIF
@@ -43,6 +44,7 @@
 - 撮った写真や個人のファイルを入れない(リポジトリは公開する)。EXIF の検査では JPEG・PNG・WebP・AVIF をテストの中で sharp で作り、`withExif` で EXIF と GPS を書く。
 - AVIF の色の見本は libavif の `avifenc --lossless --ignore-icc --cicp` を使い、赤の画素に Display P3 は `12/13/0`、sRGB は `1/13/0` を指定した。Display P3 の alpha は 50% にした。`--premultiply` を指定したものと、左が半透明の赤、右が不透明の青の2タイルも用意した。
 - 縮小と配信のテストには、同じ赤の Display P3 の ICC 付き PNG、sRGB の PNG、色空間を `sRGB` chunk で指定した16-bit PNG を使う。幅の段を確かめる JPEG と、対応外の BMP・JPEG 2000 も単色の赤で作った。
+- 幅3000px の Display P3 の赤は FFmpeg の `setparams` で cICP を付けた。CMYK のシアンは sharp に同梱の ICC で JPEG を作り、Little CMS の `jpgicc` で Display P3 に直接変換した画素を期待値にした。どちらも配信する4段を decode して比較する。
 - HEIC の見本は、sharp では書けない(prebuilt に HEVC の encoder が無い)ので、合成したファイル `__tests__/rotated-with-gps.heic`(2KB)をコミットする。青の 96×64 の左上の 48×32 を赤にした JPEG を sharp で作り、EXIF(撮影日時 `2025:05:01 14:03:27`・時差 `+09:00`・`Apple` の `iPhone 15 Pro`・焦点距離 6.765・F1.78・1/120 秒・ISO 80・レンズ)と GPS と Orientation 6 を書いてから、macOS の `sips -s format heic` で変えた。iPhone の HEIC と同じく、表示の向き(64×96)に回す指定と、EXIF の Orientation 6 の両方を持つ。画像の feature のテストも、この見本を読む。
 - `__tests__` にテストのファイルだけを置く決まり(lint の `test-location`)は、コードのファイルを対象にする。画像の見本は、使うテストと同じ `__tests__` に置く。
 

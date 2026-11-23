@@ -30,7 +30,7 @@ bun install
 
 `bun install` は、コミットのときに検査を流す git の hook も入れる(git の `core.hooksPath` を `tooling/git-hooks` にする)。
 
-server は、HEIC の写真を `heif-dec` で PNG にしてから変換する。ICC の無い AVIF は、FFmpeg で写真が指定した色域から Display P3 に変換する。server のテストも両方のコマンドを使うので、入っていないと `bun run check` は失敗する。Mac では Homebrew で入れる(CI では workflow が入れる)。
+server は、HEIC の写真を `heif-dec` で PNG にしてから変換する。ICC の無い AVIF と、cICP で色を指定した PNG は、FFmpeg で写真が指定した色域から Display P3 に変換する。server のテストも両方のコマンドを使うので、入っていないと `bun run check` は失敗する。Mac では Homebrew で入れる(CI では workflow が入れる)。
 
 ```bash
 brew install libheif ffmpeg
