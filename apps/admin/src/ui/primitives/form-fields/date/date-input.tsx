@@ -142,7 +142,7 @@ export const DateSegments = ({ onBlur }: DateSegmentsProps): ReactNode => {
       <AriaDateInput
         className={fieldControl({
           className: [
-            "flex h-control items-center px-2 tabular-nums focus-within:focus-ring",
+            "flex h-control items-center px-2 tabular-nums @max-3xs/nested-form:px-1 focus-within:focus-ring",
             typography({ role: "body" }),
           ],
         })}

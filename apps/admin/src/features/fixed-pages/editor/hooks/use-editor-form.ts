@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { fixedPageSlug, fixedPageTitle } from "@analemma/contract";
 
@@ -71,6 +71,19 @@ export const useEditorForm = ({
   const submitted = useRef(initial);
   const failure = useFailureToast();
   const [errors, setErrors] = useState<FieldErrors>({});
+  const focusOnRender = useRef<FieldErrors>(undefined);
+
+  const attachRoot = useCallback(
+    (element: HTMLDivElement | null) => {
+      root.current = element;
+
+      if (element !== null && focusOnRender.current === errors) {
+        focusOnRender.current = undefined;
+        focusFirstInvalidField(element);
+      }
+    },
+    [errors],
+  );
 
   const saving = useApiMutation({
     send: async (values: EditorValues) => ({
@@ -113,9 +126,9 @@ export const useEditorForm = ({
 
       const refused = refusedSaveErrors(result, t);
 
+      focusOnRender.current = refused.fields;
       setErrors(refused.fields);
       failure.show(refused.message);
-      focusFirstInvalidField(root.current);
     },
     onError: () => {
       failure.show(t("fixedPageEditor.saveFailed"));
@@ -165,7 +178,7 @@ export const useEditorForm = ({
     errors,
     changed,
     check,
-    root,
+    root: attachRoot,
     saving,
     leaving,
   };

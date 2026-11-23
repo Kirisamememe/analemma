@@ -31,6 +31,10 @@
   --*: initial;
 
   --spacing: 0.25rem;
+  --spacing-nested-branch: calc(0.25rem + 1px);
+  --spacing-nested-add: calc(0.5rem + 1px);
+  --spacing-nested-heading: calc(0.625rem + 1px);
+  --spacing-nested-item: calc(1.25rem + 1px);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", monospace;
   --default-font-family: var(--font-sans);
@@ -153,6 +157,7 @@
   --grid-template-columns-thumbnails: repeat(auto-fill, minmax(10rem, 1fr));
   --aspect-photo: 3 / 2;
 
+  --container-3xs: 16rem;
   --container-sm: 24rem;
   --container-md: 28rem;
   --container-lg: 32rem;

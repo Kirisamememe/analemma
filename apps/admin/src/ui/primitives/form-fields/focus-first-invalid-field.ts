@@ -18,7 +18,14 @@ export const focusFirstInvalidField = (container: Element | null): void => {
             isFocusTarget(element),
           );
 
-    field?.scrollIntoView({ block: "nearest" });
+    const heading =
+      field instanceof HTMLFieldSetElement && field === target
+        ? field.ariaLabelledByElements?.[0]
+        : undefined;
+
+    (heading ?? field)?.scrollIntoView({
+      block: heading === undefined ? "nearest" : "center",
+    });
     target?.focus({ preventScroll: true });
   });
 };

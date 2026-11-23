@@ -9,11 +9,11 @@ import { typography } from "@/ui/typography";
 const button = tv({
   slots: {
     base: [
-      "inline-grid place-items-center",
-      "rounded-control border outline-hidden transition",
+      "inline-grid min-h-min place-items-center",
+      "border outline-hidden transition",
       "is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-pending:cursor-wait is-disabled:state-disabled",
     ],
-    face: "col-start-1 row-start-1 flex items-center gap-2",
+    face: "col-start-1 row-start-1 flex items-center gap-2 py-0.5",
     progress: "col-start-1 row-start-1",
   },
   variants: {
@@ -30,6 +30,14 @@ const button = tv({
     },
     iconOnly: {
       true: "aspect-square px-0",
+      false: {
+        base: "@max-3xs/nested-form:max-w-full @max-3xs/nested-form:px-1",
+        face: "@max-3xs/nested-form:wrap-anywhere",
+      },
+    },
+    rounded: {
+      control: "rounded-control",
+      xs: "rounded-xs",
     },
     isPending: {
       true: { face: "opacity-0" },
@@ -62,6 +70,10 @@ type ButtonProps = ButtonContent & {
   tone?: "primary" | "secondary" | "quiet" | "danger";
   /** 高さ。 */
   size?: "md" | "sm";
+  /** `icon` で指定したアイコンの線の太さ。 */
+  iconWeight?: "regular" | "bold";
+  /** 角の丸み。 */
+  rounded?: "control" | "xs";
   /** フォームを送るボタンか。 */
   type?: "button" | "submit";
   /** 送信中か(押せなくし、待っていることを示す)。 */
@@ -84,12 +96,21 @@ export const Button = ({
   onPress,
   ref,
   icon,
+  iconWeight = "regular",
+  rounded = "control",
   "aria-label": ariaLabel,
   children,
 }: ButtonProps): ReactNode => {
   const { t } = useTranslation();
   const labelling = ariaLabel === undefined ? {} : { "aria-label": ariaLabel };
-  const style = button({ tone, size, iconOnly: icon !== undefined, isPending });
+
+  const style = button({
+    tone,
+    size,
+    iconOnly: icon !== undefined,
+    isPending,
+    rounded,
+  });
 
   return (
     <AriaButton
@@ -112,7 +133,11 @@ export const Button = ({
         </ProgressBar>
       )}
       <span className={style.face()}>
-        {icon === undefined ? children : <Icon name={icon} />}
+        {icon === undefined ? (
+          children
+        ) : (
+          <Icon name={icon} weight={iconWeight} />
+        )}
       </span>
     </AriaButton>
   );

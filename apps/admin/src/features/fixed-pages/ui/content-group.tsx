@@ -1,45 +1,220 @@
 import { useId, type ReactNode } from "react";
 
-import { Stack, Text } from "@/ui/layout";
+import { Text } from "@/ui/layout";
+import { Icon } from "@/ui/primitives/graphics";
+import { tv } from "@/ui/tv";
+import { typography } from "@/ui/typography";
 
-type ContentGroupProps = {
-  /** まとまりの名前。 */
-  label: string;
-  /** まとまりに付いた誤りの知らせ。 */
-  error: string | undefined;
-  /** 中の項目と操作。 */
+const branch = tv({
+  base: "relative",
+  variants: { add: { true: "flex ps-3 @max-3xs/nested-form:ps-1" } },
+});
+
+const gapLine = tv({
+  base: "relative -inset-s-4.75 block w-0 border-s-2 @max-3xs/nested-form:-inset-s-nested-branch",
+  variants: {
+    parent: { group: "h-4", repeat: "h-6" },
+  },
+});
+
+const headingLead = tv({
+  base: "grow",
+  variants: {
+    connected: {
+      true: "relative -inset-s-4.75 self-start border-s-2 @max-3xs/nested-form:-inset-s-nested-branch",
+    },
+  },
+});
+
+const elbow = tv({
+  base: [
+    "absolute -inset-s-4.75 top-0 w-4.75 rounded-es-control border-s-2 border-b-2",
+    "@max-3xs/nested-form:-inset-s-nested-branch @max-3xs/nested-form:w-nested-branch",
+  ],
+  variants: {
+    target: {
+      heading: "h-3.75 @max-3xs/nested-form:h-nested-heading",
+      item: "h-5.25 @max-3xs/nested-form:h-nested-item",
+    },
+  },
+});
+
+type BranchProps = {
+  /** 線を引く親のまとまり。 */
+  parent: "group" | "repeat";
+  /** 枝をつなぐ先。 */
+  target?: "heading" | "item" | "add" | undefined;
+  /** 親の最後の子か。 */
+  isLast?: boolean;
+  /** 線の横に置く中身。 */
   children: ReactNode;
 };
 
-/** group・repeat・要素のラベルを中の項目に結び付ける。 */
-export const ContentGroup = ({
-  label,
-  error,
+/** 中身の一区間を通る線と、見出しや追加ボタンへの枝。 */
+export const Branch = ({
+  parent,
+  target,
+  isLast = false,
   children,
-}: ContentGroupProps): ReactNode => {
-  const id = useId();
+}: BranchProps): ReactNode => (
+  <div>
+    <span aria-hidden="true" className={gapLine({ parent })} />
+    <div className={branch({ add: target === "add" })}>
+      {(!isLast || target === undefined) && (
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-0 -inset-s-4.75 border-s-2 @max-3xs/nested-form:-inset-s-nested-branch"
+        />
+      )}
+      {target === "item" && (
+        <span aria-hidden="true" className={elbow({ target })} />
+      )}
+      {target === "add" && (
+        <span
+          aria-hidden="true"
+          className="absolute -inset-s-4.75 top-0 h-1/2 w-7.75 @max-3xs/nested-form:-inset-s-nested-branch @max-3xs/nested-form:w-nested-add"
+        >
+          <span className="absolute inset-x-0 top-0 -bottom-px rounded-es-control border-s-2 border-b-2" />
+        </span>
+      )}
+      {children}
+    </div>
+  </div>
+);
+
+const group = tv({
+  slots: {
+    marker: [
+      "grid size-7 shrink-0 place-items-center rounded-full @max-3xs/nested-form:size-5",
+      "border-2 bg-surface text-fg-muted",
+    ],
+    title: "self-center wrap-anywhere",
+  },
+  variants: {
+    invalid: {
+      true: { marker: "border-danger text-danger", title: "text-danger" },
+    },
+  },
+});
+
+const bar = tv({
+  base: [
+    "flex min-h-10 flex-wrap items-start gap-2 py-1 ps-3 pe-1",
+    "rounded-control bg-surface-muted",
+    "@max-3xs/nested-form:gap-1 @max-3xs/nested-form:ps-1",
+  ],
+});
+
+type ContentGroupProps = {
+  /** 見出しの名前。 */
+  label: string;
+  /** まとまりに結び付いた誤り。 */
+  error: string | undefined;
+  /** まとまりの中身。 */
+  children: ReactNode;
+} & (
+  | {
+      /** 項目の型。 */
+      kind: "group" | "repeat";
+      /** 親の group から見出しに枝をつなぐか。 */
+      inGroup?: boolean;
+    }
+  | {
+      /** repeat の要素。 */
+      kind: "item";
+      /** 要素の帯に置く操作。 */
+      actions: ReactNode;
+    }
+);
+
+/** group・repeat・要素に、見出しの名前と誤りの説明を結び付ける。 */
+export const ContentGroup = (props: ContentGroupProps): ReactNode => {
+  const { label, error, kind, children } = props;
+  const titleId = useId();
+  const errorId = useId();
+  const invalid = error !== undefined;
+  const style = group({ invalid });
+
+  const title = (
+    <span
+      id={titleId}
+      className={style.title({
+        className: typography({ role: "section" }),
+      })}
+    >
+      {label}
+    </span>
+  );
+
+  const message = invalid && (
+    <div id={errorId} role="alert">
+      <Text tone="danger" variant="caption">
+        {error}
+      </Text>
+    </div>
+  );
+
   return (
     <fieldset
-      className="min-w-0 rounded-control border p-4"
-      data-invalid={error === undefined ? undefined : true} // 送信の後の focus の行き先にする
-      tabIndex={-1}
-      aria-describedby={error === undefined ? undefined : id}
+      aria-describedby={invalid ? errorId : undefined}
+      aria-labelledby={titleId}
+      className="min-w-0 outline-hidden focus-visible:*:first:focus-ring"
+      data-invalid={invalid || undefined}
+      tabIndex={invalid ? -1 : undefined}
     >
-      <legend className="-ms-1 px-1">
-        <Text as="span" variant="label">
-          {label}
-        </Text>
-      </legend>
-      <Stack gap={4}>
-        {error !== undefined && (
-          <div id={id} role="alert">
-            <Text tone="danger" variant="caption">
-              {error}
-            </Text>
+      {kind === "item" ? (
+        <>
+          <div className={bar()}>
+            <div className="self-start py-1.5" id={titleId}>
+              <Text variant="label" tone={invalid ? "danger" : "default"}>
+                {label}
+              </Text>
+            </div>
+            <div className="ms-auto flex max-w-full flex-wrap justify-end gap-1">
+              {props.actions}
+            </div>
           </div>
-        )}
-        {children}
-      </Stack>
+          <div className="flex flex-col gap-4 ps-3 pt-4 @max-3xs/nested-form:ps-1">
+            {message}
+            {children}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex items-stretch gap-1 @max-3xs/nested-form:gap-0.5">
+            <div
+              aria-hidden="true"
+              className="flex shrink-0 flex-col items-center"
+            >
+              <span className={headingLead({ connected: props.inGroup })} />
+              <div className="relative">
+                {props.inGroup === true && (
+                  <span className={elbow({ target: "heading" })} />
+                )}
+                <span className={style.marker()}>
+                  <Icon
+                    name={kind === "group" ? "layers" : "list"}
+                    size="md"
+                    weight="bold"
+                  />
+                </span>
+              </div>
+              <span className="grow border-s-2" />
+            </div>
+            {title}
+          </div>
+          <div className="flex gap-1 @max-3xs/nested-form:gap-0.5">
+            <span
+              aria-hidden="true"
+              className="w-7 shrink-0 @max-3xs/nested-form:w-3"
+            />
+            <div className="min-w-0 grow">
+              {invalid && <Branch parent={kind}>{message}</Branch>}
+              {children}
+            </div>
+          </div>
+        </>
+      )}
     </fieldset>
   );
 };

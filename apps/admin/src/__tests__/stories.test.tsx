@@ -12,6 +12,7 @@ import * as componentsForm from "@/components/forms/__stories__/form.stories";
 import * as componentsSubmitting from "@/components/forms/__stories__/submitting.stories";
 import * as featuresDeployTokensCopyButton from "@/features/deploy-tokens/ui/__stories__/copy-button.stories";
 import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
+import * as featuresFixedPagesContentGroup from "@/features/fixed-pages/ui/__stories__/content-group.stories";
 import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/__stories__/login-page.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
@@ -65,6 +66,8 @@ const MODULES = {
     featuresDeployTokensCopyButton,
   "features/deploy-tokens/ui/__stories__/token-value.stories.ts":
     featuresDeployTokensTokenValue,
+  "features/fixed-pages/ui/__stories__/content-group.stories.tsx":
+    featuresFixedPagesContentGroup,
   "routes/__stories__/enroll-page.stories.ts": routesEnrollPage,
   "routes/__stories__/login-page.stories.ts": routesLoginPage,
   "routes/__stories__/security-page.stories.ts": routesSecurityPage,

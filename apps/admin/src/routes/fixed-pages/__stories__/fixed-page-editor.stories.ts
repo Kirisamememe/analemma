@@ -45,6 +45,21 @@ const ABOUT = {
       fields: [
         { key: "name", type: "text", label: "名前", optional: false },
         { key: "role", type: "text", label: "肩書き", optional: true },
+        {
+          key: "accounts",
+          type: "repeat",
+          label: "アカウント",
+          optional: true,
+          fields: [
+            {
+              key: "service",
+              type: "text",
+              label: "サービス",
+              optional: false,
+            },
+            { key: "url", type: "url", label: "URL", optional: false },
+          ],
+        },
       ],
     },
     {
@@ -80,7 +95,13 @@ const PAGE = {
     showContact: true,
     updated: "2026-02-28",
     layout: "narrow",
-    profile: { name: "Aoi", role: "写真を撮る人" },
+    profile: {
+      name: "Aoi",
+      role: "写真を撮る人",
+      accounts: [
+        { service: "写真の置き場", url: "https://example.com/photos" },
+      ],
+    },
     links: [
       { label: "写真", url: "https://example.com/photos" },
       { label: "日記", url: "https://example.com/notes" },
@@ -181,9 +202,27 @@ export const InvalidContent: Story = {
           issues: [
             { path: ["lead"], code: "too_big", message: "Too big" },
             { path: ["profile", "name"], code: "invalid_type", message: "" },
+            { path: ["profile", "accounts", 0], code: "custom", message: "" },
             { path: ["links"], code: "custom", message: "Invalid" },
             { path: ["links", 1, "url"], code: "invalid_format", message: "" },
             { path: ["retired"], code: "invalid_type", message: "" },
+          ],
+        },
+      }),
+    }),
+  },
+};
+
+export const InvalidRepeatItem: Story = {
+  args: {
+    /** 保存すると最初のアカウントに誤りを返す server。 */
+    createRoutes: () => ({
+      ...signedIn,
+      "admin/fixedPages/update": () => ({
+        error: "INVALID_CONTENT",
+        data: {
+          issues: [
+            { path: ["profile", "accounts", 0], code: "custom", message: "" },
           ],
         },
       }),

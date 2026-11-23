@@ -47,9 +47,6 @@ export const zhHans = {
   "fixedPageEditor.leave": "放弃更改",
   "fixedPageEditor.urlHint": "请输入以 http:// 或 https:// 开头的 URL。",
   "fixedPageEditor.unboundIssue": "（{{path}}：{{message}}）",
-  "fixedPageEditor.moveUp": "上移",
-  "fixedPageEditor.moveDown": "下移",
-  "fixedPageEditor.removeItem": "删除",
   "fixedPageEditor.newDescription": "选择类型后，输入 slug、标题和内容。",
   "fixedPageEditor.kindOf": "类型：{{kind}}",
   "fixedPageEditor.emptyKindsDescription":

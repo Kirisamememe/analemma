@@ -25,4 +25,6 @@ export const Small: Story = {};
 
 export const Form: Story = { args: { width: "form" } };
 
+export const NestedForm: Story = { args: { width: "nestedForm" } };
+
 export const Page: Story = { args: { width: "page" } };

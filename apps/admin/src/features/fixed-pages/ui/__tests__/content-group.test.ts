@@ -8,7 +8,7 @@ import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
-test("要素の誤りをまとまりの説明にしてまとまりに focus を移し、修正すると消し、最後の要素を削除すると追加のボタンへ focus を移す", async () => {
+test("要素の誤りをまとまりの説明にしてまとまりに focus を移し、修正すると消して見出しを押してもまとまりに focus を移さず、最後の要素を削除すると追加のボタンへ focus を移す", async () => {
   const fields = fieldDefinitions.parse([
     {
       type: "repeat",
@@ -54,11 +54,19 @@ test("要素の誤りをまとまりの説明にしてまとまりに focus を�
   await waitFor(() => {
     expect(document.activeElement).toBe(row);
   });
+  const title = within(row).getByText("行 1");
+
+  for (const name of ["行 1 を上へ", "行 1 を下へ", "行 1 を削除"]) {
+    expect(within(row).getByRole("button", { name }).textContent).toBe("");
+  }
+
   await userEvent.type(
     within(row).getByRole("textbox", { name: "名前" }),
     "記入",
   );
   expect(screen.queryByText("入力してください。")).toBeNull();
+  await userEvent.click(title);
+  expect(document.activeElement).not.toBe(row);
   await userEvent.click(
     within(row).getByRole("button", { name: "行 1 を削除" }),
   );

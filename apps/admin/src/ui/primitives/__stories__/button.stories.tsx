@@ -38,6 +38,30 @@ export const IconOnlySmall: Story = {
   },
 };
 
+export const BoldIcon: Story = {
+  name: "Bold Icon (1.5px)",
+  args: {
+    children: undefined,
+    icon: "arrow-up",
+    iconWeight: "bold",
+    "aria-label": "上へ",
+    tone: "quiet",
+    size: "sm",
+  },
+};
+
+export const InsetCorner: Story = {
+  args: {
+    children: undefined,
+    icon: "trash-2",
+    iconWeight: "bold",
+    "aria-label": "削除",
+    tone: "quiet",
+    size: "sm",
+    rounded: "xs",
+  },
+};
+
 export const Pending: Story = { args: { tone: "primary", isPending: true } };
 
 export const Disabled: Story = { args: { tone: "primary", isDisabled: true } };

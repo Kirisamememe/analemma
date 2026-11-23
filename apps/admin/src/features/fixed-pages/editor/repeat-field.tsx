@@ -3,13 +3,13 @@ import { useRef, type ReactNode } from "react";
 import type { FieldDefinition } from "@analemma/contract";
 
 import { createContentForm } from "../content-form";
-import { ContentGroup } from "../ui/content-group";
+import { Branch, ContentGroup } from "../ui/content-group";
 import type { ContentFieldsProps } from "./content-fields";
 import { flattenContent } from "./logic/flat-content";
 
 import { useTranslate } from "@/i18n/use-translate";
-import { Cluster, Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
+import { Icon } from "@/ui/primitives/graphics";
 
 type RepeatFieldProps = Pick<
   ContentFieldsProps,
@@ -58,7 +58,7 @@ export const RepeatField = ({
         };
 
         return (
-          <Stack gap={3}>
+          <>
             {ids.map((id, index) => {
               const item = path + "/" + id;
               const label = { label: definition.label, position: index + 1 };
@@ -74,54 +74,66 @@ export const RepeatField = ({
               };
 
               return (
-                <ContentGroup
-                  key={id}
-                  error={errors["content." + item]}
-                  label={t("fixedPageEditor.item", label)}
-                >
-                  {children(item)}
-                  <Cluster gap={2}>
-                    <Button
-                      aria-label={t("fixedPageEditor.up", label)}
-                      ref={remember(id + "up")}
-                      size="sm"
-                      isDisabled={index === 0}
-                      onPress={() => {
-                        move(-1);
-                      }}
-                    >
-                      {t("fixedPageEditor.moveUp")}
-                    </Button>
-                    <Button
-                      aria-label={t("fixedPageEditor.down", label)}
-                      ref={remember(id + "down")}
-                      size="sm"
-                      isDisabled={index === ids.length - 1}
-                      onPress={() => {
-                        move(1);
-                      }}
-                    >
-                      {t("fixedPageEditor.moveDown")}
-                    </Button>
-                    <Button
-                      aria-label={t("fixedPageEditor.remove", label)}
-                      ref={remember(id + "remove")}
-                      size="sm"
-                      onPress={() => {
-                        const next = ids[index + 1];
-                        update(ids.toSpliced(index, 1));
-                        focus(next === undefined ? "add" : next + "remove");
-                      }}
-                    >
-                      {t("fixedPageEditor.removeItem")}
-                    </Button>
-                  </Cluster>
-                </ContentGroup>
+                <Branch key={id} parent="repeat" target="item">
+                  <ContentGroup
+                    actions={
+                      <>
+                        <Button
+                          aria-label={t("fixedPageEditor.up", label)}
+                          icon="arrow-up"
+                          iconWeight="bold"
+                          rounded="xs"
+                          ref={remember(id + "up")}
+                          size="sm"
+                          tone="quiet"
+                          isDisabled={index === 0}
+                          onPress={() => {
+                            move(-1);
+                          }}
+                        />
+                        <Button
+                          aria-label={t("fixedPageEditor.down", label)}
+                          icon="arrow-down"
+                          iconWeight="bold"
+                          rounded="xs"
+                          ref={remember(id + "down")}
+                          size="sm"
+                          tone="quiet"
+                          isDisabled={index === ids.length - 1}
+                          onPress={() => {
+                            move(1);
+                          }}
+                        />
+                        <Button
+                          aria-label={t("fixedPageEditor.remove", label)}
+                          icon="trash-2"
+                          iconWeight="bold"
+                          rounded="xs"
+                          ref={remember(id + "remove")}
+                          size="sm"
+                          tone="quiet"
+                          onPress={() => {
+                            const next = ids[index + 1];
+                            update(ids.toSpliced(index, 1));
+                            focus(next === undefined ? "add" : next + "remove");
+                          }}
+                        />
+                      </>
+                    }
+                    error={errors["content." + item]}
+                    kind="item"
+                    label={t("fixedPageEditor.item", label)}
+                  >
+                    {children(item)}
+                  </ContentGroup>
+                </Branch>
               );
             })}
-            <Cluster>
+            <Branch parent="repeat" target="add" isLast>
               <Button
                 ref={remember("add")}
+                size="sm"
+                tone="secondary"
                 onPress={() => {
                   const id = crypto.randomUUID();
 
@@ -141,10 +153,11 @@ export const RepeatField = ({
                   update([...ids, id]);
                 }}
               >
+                <Icon name="plus" size="md" weight="bold" />
                 {t("fixedPageEditor.add", { label: definition.label })}
               </Button>
-            </Cluster>
-          </Stack>
+            </Branch>
+          </>
         );
       }}
     </form.Field>

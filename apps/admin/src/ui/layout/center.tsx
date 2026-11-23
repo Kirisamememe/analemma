@@ -9,6 +9,7 @@ const center = tv({
       sm: "max-w-sm",
       md: "max-w-md",
       form: "max-w-form",
+      nestedForm: "@container/nested-form max-w-form @max-3xs:px-0",
       page: "max-w-page",
     },
   },
@@ -17,7 +18,7 @@ const center = tv({
 /** 中身を真ん中に寄せる箱に渡す値。 */
 type CenterProps = {
   /** 中身の幅の上限。 */
-  width: "sm" | "md" | "form" | "page";
+  width: "sm" | "md" | "form" | "nestedForm" | "page";
   /** 寄せる中身。 */
   children: ReactNode;
 };

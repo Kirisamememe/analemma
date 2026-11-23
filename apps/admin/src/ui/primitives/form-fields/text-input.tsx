@@ -45,7 +45,10 @@ export const TextInput = ({
     aria-label={ariaLabel}
     autoComplete={autoComplete}
     className={fieldControl({
-      className: ["h-control px-3", typography({ role: "body" })],
+      className: [
+        "h-control px-3 @max-3xs/nested-form:px-1",
+        typography({ role: "body" }),
+      ],
     })}
     defaultValue={defaultValue}
     id={id}
