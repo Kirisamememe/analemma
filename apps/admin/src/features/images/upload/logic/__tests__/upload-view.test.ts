@@ -68,8 +68,8 @@ describe("送る写真の一覧の見せ方", () => {
 
 describe("ファイルの大きさ", () => {
   test("1 MB に満たなければ KB に切り上げ、ほかは MB を小数1桁までにすること", () => {
-    expect(formatFileSize("ja", 10)).toBe("1 kB");
-    expect(formatFileSize("ja", 1536)).toBe("2 kB");
+    expect(formatFileSize("ja", 10)).toMatch(/^1 kB$/iv); // KB か kB かは ICU の版で変わる
+    expect(formatFileSize("ja", 1536)).toMatch(/^2 kB$/iv);
     expect(formatFileSize("ja", 64 * 1024 * 1024)).toBe("64 MB");
     expect(formatFileSize("en", 4.25 * 1024 * 1024)).toBe("4.3 MB");
   });
