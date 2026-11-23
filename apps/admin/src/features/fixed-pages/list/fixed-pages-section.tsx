@@ -116,7 +116,10 @@ export const FixedPagesSection = ({
   };
 
   return (
-    <Stack gap={3}>
+    <Stack gap={2}>
+      <ListCreateButton card onPress={onCreate}>
+        {t("fixedPages.create")}
+      </ListCreateButton>
       {showRows && rows.length > 1 && (
         <Cluster align="center" gap={2} justify="between">
           <Text tone="muted" variant="caption">
@@ -134,18 +137,13 @@ export const FixedPagesSection = ({
           </output>
         </Cluster>
       )}
-      <Stack gap={2}>
-        <ListCreateButton card onPress={onCreate}>
-          {t("fixedPages.create")}
-        </ListCreateButton>
-        {kinds._tag === "Loaded" && kinds.refreshFailure !== undefined && (
-          <KindRefreshNotice
-            source="list"
-            refreshFailure={kinds.refreshFailure}
-          />
-        )}
-        {content()}
-      </Stack>
+      {kinds._tag === "Loaded" && kinds.refreshFailure !== undefined && (
+        <KindRefreshNotice
+          source="list"
+          refreshFailure={kinds.refreshFailure}
+        />
+      )}
+      {content()}
     </Stack>
   );
 };

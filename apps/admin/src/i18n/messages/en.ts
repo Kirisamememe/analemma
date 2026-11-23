@@ -12,6 +12,8 @@ export const en = {
   "fixedPageEditor.addKindExample": "Definition and example command",
   "fixedPageEditor.defineKind":
     "In the public site’s definitions file, use defineKind from @analemma/client to define the kind and add it to the file’s default export array.",
+  "fixedPageEditor.refreshAfterDeploy":
+    "After the command succeeds, reload this page to select the new kind.",
   "fixedPageEditor.deployKind":
     "During deployment, set ANALEMMA_URL to the internal CMS URL and ANALEMMA_DEPLOY_TOKEN to your deploy token. Run the command with the path to your definitions file, as in this example.",
   "fixedPageEditor.emptyKinds": "No kinds yet",

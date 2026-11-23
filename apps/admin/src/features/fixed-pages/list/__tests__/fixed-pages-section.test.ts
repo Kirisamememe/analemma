@@ -80,6 +80,38 @@ describe("FixedPagesSection", () => {
     ).toBeDefined();
   });
 
+  test.each(["読み込み中", "読み込み失敗"] as const)(
+    "固定ページの一覧が%sでも、作成ボタンから種類を選べる",
+    async (state) => {
+      const server = createFixedPageRoutes(STATE);
+      const held = Promise.withResolvers<FakeReply<"admin/fixedPages/list">>();
+
+      if (state === "読み込み失敗") {
+        held.resolve({ error: "INTERNAL_SERVER_ERROR", defined: false });
+      }
+
+      renderApp({
+        path: "/fixed-pages",
+        routes: {
+          ...server.routes,
+          "admin/fixedPages/list": () => held.promise,
+        },
+      });
+
+      if (state === "読み込み失敗") {
+        await screen.findByRole("alert", {}, { timeout: 5000 });
+      } else await screen.findByText("読み込んでいます");
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "新しい固定ページ" }),
+      );
+      expect(
+        await screen.findByRole("button", { name: "基本のページ" }),
+      ).toBeDefined();
+      held.resolve({ output: { pages: [] } });
+    },
+  );
+
   test("一覧も種類も読み込めなければ、知らせ、もう一度試すと、両方を取り直して一覧を出す", async () => {
     const server = createFixedPageRoutes(STATE);
 

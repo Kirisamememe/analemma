@@ -45,6 +45,9 @@ export const KindGuide = (): ReactNode => {
               <Text>
                 <code>analemma push-kinds ./src/lib/kinds.ts</code>
               </Text>
+              <Text tone="muted">
+                {t("fixedPageEditor.refreshAfterDeploy")}
+              </Text>
             </Stack>
           </div>
         </details>

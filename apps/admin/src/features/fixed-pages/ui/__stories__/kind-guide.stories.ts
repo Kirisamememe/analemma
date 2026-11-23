@@ -5,7 +5,7 @@ import { KindGuide } from "@/features/fixed-pages/ui/kind-guide";
 const meta = {
   title: "features/fixed-pages/KindGuide",
   component: KindGuide,
-  parameters: { stage: "fill" },
+  parameters: { stage: "fill", contentLang: null },
 } satisfies Meta<typeof KindGuide>;
 
 export default meta;

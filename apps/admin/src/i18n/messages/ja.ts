@@ -14,6 +14,8 @@ export const ja = {
   "fixedPageEditor.addKindExample": "定義の書き方とコマンド例",
   "fixedPageEditor.defineKind":
     "公開サイトの定義ファイルで、@analemma/client の defineKind を使って種類を定義し、default export の配列に加えます。",
+  "fixedPageEditor.refreshAfterDeploy":
+    "送信に成功したら、この画面を再読み込みして追加した種類を選びます。",
   "fixedPageEditor.deployKind":
     "公開サイトのデプロイ時に、ANALEMMA_URL に CMS の内部 URL、ANALEMMA_DEPLOY_TOKEN にデプロイ用のトークンを設定して、定義を送ります。次の例のパスは、定義ファイルに合わせてください。",
   "fixedPageEditor.emptyKinds": "選べる種類がありません",

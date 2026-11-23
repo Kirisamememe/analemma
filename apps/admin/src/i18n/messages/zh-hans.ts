@@ -14,6 +14,8 @@ export const zhHans = {
   "fixedPageEditor.addKindExample": "定义方式和命令示例",
   "fixedPageEditor.defineKind":
     "在公开站点的定义文件中，用 @analemma/client 的 defineKind 定义新类型，再将它加入默认导出的数组。",
+  "fixedPageEditor.refreshAfterDeploy":
+    "发送成功后，刷新此页面即可选择新类型。",
   "fixedPageEditor.deployKind":
     "部署公开站点时，将 ANALEMMA_URL 设为 CMS 的内部 URL，将 ANALEMMA_DEPLOY_TOKEN 设为部署令牌。运行以下命令发送定义，并将示例路径替换为实际的定义文件路径。",
   "fixedPageEditor.emptyKinds": "还没有可选的类型",

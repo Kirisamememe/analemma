@@ -14,11 +14,11 @@ const row = tv({
 type ActionListProps = {
   /** 一覧か、一覧とその先頭の操作を囲む箱か。 */
   as?: "div" | "ul";
-  /** 並べる項目。 */
+  /** 並べる行。 */
   children: ReactNode;
 };
 
-/** 操作のある項目を並べる一覧。 */
+/** 操作のある行を並べる一覧。 */
 export const ActionList = ({
   as: Element = "ul",
   children,
@@ -29,11 +29,11 @@ export const ActionList = ({
 type ActionListRowProps = {
   /** 枠のあるカードの中か。 */
   card?: boolean;
-  /** 項目の情報と操作。 */
+  /** 行に表示する情報と操作。 */
   children: ReactNode;
 };
 
-/** 項目の情報と、それに対する操作を並べる行。 */
+/** 一覧の1行に、情報とそれに対する操作を並べる。 */
 export const ActionListRow = ({
   card = false,
   children,
