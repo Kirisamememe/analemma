@@ -245,6 +245,7 @@ export const en = {
   "imageDetail.backToList": "Images",
   "imageDetail.untitled": "Untitled image",
   "imageDetail.loading": "Loading the image.",
+  "imageDetail.neighborsFailed": "Could not load the previous and next images",
   "imageDetail.loadFailed": "Could not load the image",
   "imageDetail.gone": "This image no longer exists.",
   "imageDetail.published": "Published",
