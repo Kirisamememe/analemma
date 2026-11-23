@@ -1,9 +1,11 @@
 import { z } from "zod";
 
 import { adminAccess } from "../access-errors";
-import { dropboxConnection } from "./dropbox-values";
+import { dropboxConnection, dropboxPhoto } from "./dropbox-values";
 
 const NOT_CONFIGURED = { NOT_CONFIGURED: { status: 409 } };
+const NOT_CONNECTED = { NOT_CONNECTED: { status: 409 } };
+const CONNECTION_LOST = { CONNECTION_LOST: { status: 409 } };
 
 /** 管理画面で Dropbox につなぐ procedure の contract。 */
 export const dropbox = {
@@ -49,4 +51,12 @@ export const dropbox = {
       summary: "Dropbox との接続を切り、Dropbox に預けた認可を取り消す",
     })
     .output(z.void()),
+  photos: adminAccess
+    .errors({ ...NOT_CONNECTED, ...CONNECTION_LOST })
+    .route({
+      method: "GET",
+      path: "/admin/dropbox/photos",
+      summary: "App folder にある写真の一覧(Dropbox で新しく変わった順)",
+    })
+    .output(z.object({ photos: z.array(dropboxPhoto) })),
 };
