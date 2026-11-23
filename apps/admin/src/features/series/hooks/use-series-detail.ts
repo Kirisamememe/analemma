@@ -6,7 +6,11 @@ import {
   seriesPendingOrder,
 } from "../logic/series-detail";
 import { seriesMutationScope } from "../logic/series-mutation-scope";
-import { changeSeries, type SeriesChange } from "../queries/change-series";
+import {
+  changeSeries,
+  missingSeriesImages,
+  type SeriesChange,
+} from "../queries/change-series";
 import {
   SERIES_LIST_KEY,
   seriesKey,
@@ -21,7 +25,10 @@ import {
   useIsApiMutationPending,
 } from "@/api/server-state/server-state";
 import { useTranslate } from "@/i18n/use-translate";
+import { IMAGE_PICKER_KEY } from "@/queries/images-query";
 import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
+
+const EMPTY_IDS: ReadonlySet<string> = new Set();
 
 /** シリーズへの操作を送り、結果を表示中の詳細と一覧へ反映する。 */
 export const useSeriesDetail = (
@@ -61,11 +68,22 @@ export const useSeriesDetail = (
 
       if (latest.current !== change) return;
 
-      if (result.kind === "failed") {
+      if (result.kind === "checkImages") {
+        const [missing] = await Promise.all([
+          missingSeriesImages(api, result.imageIds),
+          refresh(IMAGE_PICKER_KEY, "active"),
+        ]);
+
+        if (latest.current !== change) return;
+
+        dispatch({ type: "failed", change, missing });
+
+        if (missing.size > 0) showFailure(t("series.selectionChanged"));
+      } else if (result.kind === "failed") {
         dispatch({ type: "failed", change });
         showFailure(t(result.message));
       } else {
-        dispatch({ type: "changed", change });
+        dispatch({ type: "changed", change, focusAdd: result.focusAdd });
         toast({
           tone: "success",
           message: result.withTitle
@@ -94,14 +112,26 @@ export const useSeriesDetail = (
     [closeFailure, mutate],
   );
 
+  const focusAdd = useCallback(
+    (button: HTMLButtonElement | null) => {
+      if (button !== null && !isPending && state.focusAdd === true) {
+        button.focus();
+        dispatch({ type: "focused" });
+      }
+    },
+    [isPending, state.focusAdd],
+  );
+
   return {
     dialog: state.dialog,
+    missing: state.missing ?? EMPTY_IDS,
     pending: state.pending,
     order: seriesPendingOrder(state.pending),
     isPending,
     isSaving,
+    focusAdd,
     change,
-    openDialog: (dialog: "edit" | "delete") => {
+    openDialog: (dialog: "edit" | "delete" | "picker") => {
       dispatch({ type: "dialog", dialog });
     },
     closeDialog: () => {
