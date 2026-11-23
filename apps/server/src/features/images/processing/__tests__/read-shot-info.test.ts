@@ -23,6 +23,14 @@ const shotInfoOf = (tags: Partial<Record<ShotTagName, ExifValue>>) =>
   );
 
 describe("写真から読む", () => {
+  test("ISO 102400 の JPEG から、RecommendedExposureIndex に記録した感度を読むこと", async () => {
+    const response = await fetch(new URL("./high-iso.jpg", import.meta.url));
+
+    expect(
+      await readShotInfo(new Uint8Array(await response.arrayBuffer())),
+    ).toMatchObject({ iso: 102_400 });
+  });
+
   test("回転と GPS を持つ HEIC から、撮影の情報を読み、GPS は返さないこと", async () => {
     const response = await fetch(
       new URL(
