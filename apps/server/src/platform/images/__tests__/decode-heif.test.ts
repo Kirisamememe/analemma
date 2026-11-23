@@ -84,8 +84,8 @@ describe("ICC の無い AVIF を Display P3 に変換する", () => {
         .toBuffer({ resolveWithObject: true });
 
       expect(info.width).toBe(width);
-      expect([...data.subarray(0, info.channels)]).toEqual(first);
-      expect([...data.subarray(-info.channels)]).toEqual(last);
+      expect([...data.subarray(0, info.channels)]).toEqual([...first]);
+      expect([...data.subarray(-info.channels)]).toEqual([...last]);
     },
   );
 });
