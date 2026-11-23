@@ -10,7 +10,7 @@ const button = tv({
   slots: {
     base: [
       "inline-grid place-items-center",
-      "rounded-control border outline-hidden transition",
+      "border outline-hidden transition",
       "is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-pending:cursor-wait is-disabled:state-disabled",
     ],
     face: "col-start-1 row-start-1 flex items-center gap-2",
@@ -30,6 +30,10 @@ const button = tv({
     },
     iconOnly: {
       true: "aspect-square px-0",
+    },
+    rounded: {
+      control: "rounded-control",
+      xs: "rounded-xs",
     },
     isPending: {
       true: { face: "opacity-0" },
@@ -64,6 +68,8 @@ type ButtonProps = ButtonContent & {
   size?: "md" | "sm";
   /** アイコンの線の太さ。 */
   iconWeight?: "regular" | "bold";
+  /** 角の丸み(xs は、角の丸い面の内側に間を空けて置くとき)。 */
+  rounded?: "control" | "xs";
   /** フォームを送るボタンか。 */
   type?: "button" | "submit";
   /** 送信中か(押せなくし、待っていることを示す)。 */
@@ -87,12 +93,20 @@ export const Button = ({
   ref,
   icon,
   iconWeight = "regular",
+  rounded = "control",
   "aria-label": ariaLabel,
   children,
 }: ButtonProps): ReactNode => {
   const { t } = useTranslation();
   const labelling = ariaLabel === undefined ? {} : { "aria-label": ariaLabel };
-  const style = button({ tone, size, iconOnly: icon !== undefined, isPending });
+
+  const style = button({
+    tone,
+    size,
+    iconOnly: icon !== undefined,
+    isPending,
+    rounded,
+  });
 
   return (
     <AriaButton

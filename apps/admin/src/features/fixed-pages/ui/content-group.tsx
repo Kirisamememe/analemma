@@ -145,9 +145,9 @@ export const ContentGroup = (props: ContentGroupProps): ReactNode => {
     <fieldset
       aria-describedby={invalid ? errorId : undefined}
       aria-labelledby={titleId}
-      className="min-w-0 outline-hidden focus-visible:focus-ring"
+      className="min-w-0 outline-hidden"
       data-invalid={invalid || undefined}
-      tabIndex={-1}
+      tabIndex={invalid ? -1 : undefined}
     >
       {kind === "item" ? (
         <>

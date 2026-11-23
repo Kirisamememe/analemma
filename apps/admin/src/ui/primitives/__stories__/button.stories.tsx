@@ -50,6 +50,18 @@ export const BoldIcon: Story = {
   },
 };
 
+export const InsetCorner: Story = {
+  args: {
+    children: undefined,
+    icon: "trash-2",
+    iconWeight: "bold",
+    "aria-label": "削除",
+    tone: "quiet",
+    size: "sm",
+    rounded: "xs",
+  },
+};
+
 export const Pending: Story = { args: { tone: "primary", isPending: true } };
 
 export const Disabled: Story = { args: { tone: "primary", isDisabled: true } };
