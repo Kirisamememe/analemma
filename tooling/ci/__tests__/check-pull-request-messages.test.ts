@@ -255,3 +255,42 @@ describe("PR のタイトル", () => {
     expect(overflows.stdout).toContain("[header-max-width]");
   });
 });
+
+describe("PR 作成前の追加行数", () => {
+  test.each([
+    { lines: 500, status: 0, notice: false },
+    { lines: 501, status: 0, notice: true },
+    { lines: 800, status: 0, notice: true },
+    { lines: 801, status: 1, notice: false },
+  ])(
+    "追加 $lines 行なら終了コード $status を返すこと",
+    async ({ lines, status, notice }) => {
+      const { root, base } = makePullRequest(`size-${lines}`, {
+        base: [],
+        pullRequest: [],
+      });
+
+      writeFileSync(join(root, "changes.txt"), "追加\n".repeat(lines));
+      git(root, "add", "changes.txt");
+
+      const head = git(
+        root,
+        "commit-tree",
+        git(root, "write-tree"),
+        "-p",
+        base,
+        "-m",
+        "docs: 説明を足す",
+      );
+
+      const result = await checkPullRequest({
+        pullRequest: { root, base, commits: [head] },
+        title: "docs: 説明を足す",
+      });
+
+      expect(result.stdout).toContain(`追加 ${lines} 行`);
+      expect(result.stdout.includes("目安の500行を超えています")).toBe(notice);
+      expect(result.status).toBe(status);
+    },
+  );
+});
