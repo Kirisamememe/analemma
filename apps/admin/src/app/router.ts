@@ -29,14 +29,18 @@ import { SecurityPage } from "@/routes/security-page";
 import { SessionErrorPage } from "@/routes/session-error-page";
 import { SignedInLayout } from "@/routes/signed-in-layout";
 
-/** 画面が route から受け取る、server と認証器の窓口。 */
-export type RouterContext = {
+/** 画面が使う、server と認証器の窓口。 */
+export type AppContext = {
   /** server の API。 */
   readonly api: ApiClient;
   /** パスキーの認証器。 */
   readonly authenticator: Authenticator;
   /** ログインの最中に、管理用 API を送らせない gate。 */
   readonly gate: AuthGate;
+};
+
+/** route が受け取る値。 */
+type RouterContext = AppContext & {
   /** server の状態を持つ query client。 */
   readonly queryClient: QueryClient;
 };
@@ -139,7 +143,7 @@ const routeTree = rootRoute.addChildren([
 ]);
 
 /** 管理画面を組み立てるときに渡す値。 */
-export type AppDependencies = Omit<RouterContext, "queryClient"> & {
+export type AppDependencies = AppContext & {
   /** 画面の履歴。 */
   readonly history: RouterHistory;
 };

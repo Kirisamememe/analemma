@@ -3,5 +3,5 @@ export {
   createApp,
   type AppParts,
   type AppRouter,
-  type RouterContext,
+  type AppContext,
 } from "./router";
