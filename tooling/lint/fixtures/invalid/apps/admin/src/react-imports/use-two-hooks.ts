@@ -4,4 +4,4 @@ import { useState } from "react";
 export const useOpen = () => useState(false);
 
 /** 選んでいるかどうかの状態。 */
-export const useSelected = () => useState(false);
+export const useSelected = (() => useState(false)) satisfies () => unknown;

@@ -1,5 +1,7 @@
 import { basename } from "node:path";
 
+import { unwrapExpression } from "../modules/exported-functions.mjs";
+
 const REACT_MODULE = /^react(?:-dom)?(?:\/|$)/v;
 const HOOK_FILE = /^use-.+\.ts$/v;
 const HOOK_NAME = /^use[A-Z]/v;
@@ -79,17 +81,32 @@ const isCreateContext = (node, { createContexts, namespaces }) => {
 };
 
 const kindOf = (node, bindings) => {
-  if (FUNCTIONS.has(node?.type)) {
+  const expression = unwrapExpression(node);
+
+  if (FUNCTIONS.has(expression?.type)) {
     return "function";
   }
 
-  return isCreateContext(node, bindings) ? "context" : "value";
+  return isCreateContext(expression, bindings) ? "context" : "value";
 };
 
 const localKinds = (program, bindings) => {
   const kinds = new Map();
 
   for (const statement of program.body) {
+    if (
+      statement.type === "ImportDeclaration" &&
+      statement.importKind !== "type"
+    ) {
+      for (const specifier of statement.specifiers) {
+        if (specifier.importKind !== "type") {
+          kinds.set(specifier.local.name, "unknown");
+        }
+      }
+
+      continue;
+    }
+
     const declaration =
       statement.type === "ExportNamedDeclaration"
         ? statement.declaration
@@ -142,7 +159,7 @@ const valueExports = (statement, { kinds, bindings }) => {
   }
 
   if (statement.type === "ExportDefaultDeclaration") {
-    const { declaration } = statement;
+    const declaration = unwrapExpression(statement.declaration);
     const kind =
       declaration.type === "Identifier"
         ? (kinds.get(declaration.name) ?? "value")

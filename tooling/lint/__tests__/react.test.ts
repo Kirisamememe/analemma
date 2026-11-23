@@ -38,7 +38,13 @@ describe("React の import", () => {
       count: 1,
     },
     {
-      label: "名前が use- で始まり、関数を2つ export するファイル",
+      label: "自前の hook と、import した React の関数を export するファイル",
+      file: "use-imported.ts",
+      count: 1,
+    },
+    {
+      label:
+        "名前が use- で始まり、satisfies を付けた関数ともう1つの関数を export するファイル",
       file: "use-two-hooks.ts",
       count: 1,
     },
