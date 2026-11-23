@@ -2,13 +2,21 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { z } from "zod";
+
+const manifestSchema = z.object({
+  exports: z.record(
+    z.string(),
+    z.union([z.string(), z.record(z.string(), z.string())]),
+  ),
+});
 
 /** `bun pm pack` で固めたものの中身。 */
 type Packed = {
   /** 固めたものに入るファイルのパス(`package/` を除く)。 */
   readonly files: readonly string[];
   /** 固めたものの package.json。 */
-  readonly manifest: unknown;
+  readonly manifest: z.infer<typeof manifestSchema>;
 };
 
 const packageRoot = join(import.meta.dirname, "..");
@@ -41,25 +49,24 @@ const pack = async (): Promise<Packed> => {
 
   const manifest = entries.get("package/package.json");
 
+  if (manifest === undefined) {
+    throw new Error("固めたものに package.json が無い。");
+  }
+
   return {
     files: [...entries.keys()]
       .map((path) => path.replace(/^package\//v, ""))
       .toSorted(),
-    manifest: manifest === undefined ? undefined : await manifest.json(),
+    manifest: manifestSchema.parse(await manifest.json()),
   };
 };
 
-const fieldOf = (value: unknown, key: string): unknown =>
-  typeof value === "object" && value !== null && key in value
-    ? Object.entries(value).find(([name]) => name === key)?.[1]
-    : undefined;
-
-const stringsIn = (value: unknown): string[] =>
-  typeof value === "string"
-    ? [value]
-    : typeof value === "object" && value !== null
-      ? Object.values(value).flatMap((item) => stringsIn(item))
-      : [];
+const exportTargets = (
+  exports: z.infer<typeof manifestSchema>["exports"],
+): string[] =>
+  Object.values(exports).flatMap((target) =>
+    typeof target === "string" ? [target] : Object.values(target),
+  );
 
 const sources = [...new Bun.Glob("src/**/*.ts").scanSync(packageRoot)].filter(
   (path) => !path.includes("/__tests__/"),
@@ -89,8 +96,8 @@ describe("contract を固めたもの", () => {
     );
   });
 
-  test("exports の条件が指すファイルが、どれも入っていること", () => {
-    const targets = stringsIn(fieldOf(packed.manifest, "exports"));
+  test("exports が指すファイルが、どれも入っていること", () => {
+    const targets = exportTargets(packed.manifest.exports);
 
     expect(targets).not.toEqual([]);
     expect(

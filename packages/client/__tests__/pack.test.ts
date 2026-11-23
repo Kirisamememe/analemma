@@ -2,13 +2,25 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { z } from "zod";
+
+const exportsSchema = z.record(
+  z.string(),
+  z.union([z.string(), z.record(z.string(), z.string())]),
+);
+
+const manifestSchema = z.object({
+  exports: exportsSchema,
+  bin: z.record(z.string(), z.string()),
+  dependencies: z.record(z.string(), z.string()),
+});
 
 /** `bun pm pack` で固めたものの中身。 */
 type Packed = {
   /** 固めたものに入るファイルのパス(`package/` を除く)。 */
   readonly files: readonly string[];
   /** 固めたものの package.json。 */
-  readonly manifest: unknown;
+  readonly manifest: z.infer<typeof manifestSchema>;
 };
 
 const packageRoot = join(import.meta.dirname, "..");
@@ -41,25 +53,24 @@ const pack = async (): Promise<Packed> => {
 
   const manifest = entries.get("package/package.json");
 
+  if (manifest === undefined) {
+    throw new Error("固めたものに package.json が無い。");
+  }
+
   return {
     files: [...entries.keys()]
       .map((path) => path.replace(/^package\//v, ""))
       .toSorted(),
-    manifest: manifest === undefined ? undefined : await manifest.json(),
+    manifest: manifestSchema.parse(await manifest.json()),
   };
 };
 
-const fieldOf = (value: unknown, key: string): unknown =>
-  typeof value === "object" && value !== null && key in value
-    ? Object.entries(value).find(([name]) => name === key)?.[1]
-    : undefined;
-
-const stringsIn = (value: unknown): string[] =>
-  typeof value === "string"
-    ? [value]
-    : typeof value === "object" && value !== null
-      ? Object.values(value).flatMap((item) => stringsIn(item))
-      : [];
+const exportTargets = (
+  exports: z.infer<typeof manifestSchema>["exports"],
+): string[] =>
+  Object.values(exports).flatMap((target) =>
+    typeof target === "string" ? [target] : Object.values(target),
+  );
 
 const sdkSources = [
   ...new Bun.Glob("src/**/*.ts").scanSync(packageRoot),
@@ -94,8 +105,8 @@ describe("client を固めたもの", () => {
 
   test("exports と bin が指すファイルが、どれも入っていること", () => {
     const targets = [
-      ...stringsIn(fieldOf(packed.manifest, "exports")),
-      ...stringsIn(fieldOf(packed.manifest, "bin")),
+      ...exportTargets(packed.manifest.exports),
+      ...Object.values(packed.manifest.bin),
     ];
 
     expect(targets).not.toEqual([]);
@@ -107,15 +118,17 @@ describe("client を固めたもの", () => {
   });
 
   test("contract への依存を、workspace の指定でなく、contract の version で書くこと", async () => {
-    const contract: unknown = await Bun.file(
-      join(packageRoot, "../contract/package.json"),
-    ).json();
+    const contract = z
+      .object({ version: z.string() })
+      .parse(
+        await Bun.file(join(packageRoot, "../contract/package.json")).json(),
+      );
 
+    expect(packed.manifest.dependencies["@analemma/contract"]).toBe(
+      contract.version,
+    );
     expect(
-      fieldOf(fieldOf(packed.manifest, "dependencies"), "@analemma/contract"),
-    ).toBe(fieldOf(contract, "version"));
-    expect(
-      stringsIn(fieldOf(packed.manifest, "dependencies")).filter((version) =>
+      Object.values(packed.manifest.dependencies).filter((version) =>
         version.startsWith("workspace:"),
       ),
     ).toEqual([]);
