@@ -9,7 +9,11 @@ export const ja = {
   "fixedPageEditor.kindGone": "この種類はもうありません。",
   "fixedPageEditor.pageGone": "この固定ページはもうありません。",
   "fixedPageEditor.loading": "読み込んでいます。",
-  "fixedPageEditor.loadFailed": "読み込めませんでした。",
+  "fixedPageEditor.loadFailed": "固定ページを読み込めませんでした",
+  "fixedPageEditor.kindsLoadFailed": "種類を読み込めませんでした",
+  "fixedPageEditor.kindLoadFailed": "種類の定義を読み込めませんでした",
+  "fixedPageEditor.kindLoadFailedDescription":
+    "中身の項目は、種類の定義から作ります。接続を確かめてから、もう一度試してください。",
   "fixedPageEditor.slug": "slug",
   "fixedPageEditor.title": "タイトル",
   "fixedPageEditor.slugHint":
@@ -75,6 +79,10 @@ export const ja = {
   "ui.closeNav": "ナビを閉じる",
   "ui.close": "閉じる",
   "ui.required": "必須",
+  "ui.errorState.description": "接続を確かめてから、もう一度試してください。",
+  "ui.errorState.failedAgain": "まだ読み込めません。",
+  "ui.errorState.retryLater": "時間をおいて試してください。",
+  "ui.errorState.retry": "もう一度試す",
   "login.title": "Stilus にログイン",
   "login.description": "この管理画面に登録したパスキーを使います。",
   "login.submit": "パスキーでログイン",
@@ -118,15 +126,17 @@ export const ja = {
   "passkeys.dates": "登録 {{created}}・最終使用 {{lastUsed}}",
   "passkeys.synced": "同期済み",
   "passkeys.rename": "名前を変更",
+  "passkeys.renamePasskey": "「{{name}}」の名前を変更",
   "passkeys.renameTitle": "パスキーの名前を変更",
   "passkeys.delete": "削除",
+  "passkeys.deletePasskey": "「{{name}}」を削除",
   "passkeys.deleteTitle": "「{{name}}」を削除しますか?",
   "passkeys.deleteDescription":
     "登録済みのパスキーで本人確認をしてから削除します。ほかのブラウザからはログアウトします。",
   "passkeys.cancel": "キャンセル",
   "passkeys.save": "保存",
   "passkeys.loading": "パスキーを読み込んでいます。",
-  "passkeys.loadFailed": "パスキーを読み込めませんでした。",
+  "passkeys.loadFailed": "パスキーを読み込めませんでした",
   "passkeys.added": "パスキーを追加しました。",
   "passkeys.deleted":
     "パスキーを削除しました。ほかのブラウザからはログアウトしました。",
@@ -174,11 +184,12 @@ export const ja = {
   "deployTokens.dates": "発行 {{created}}・最終使用 {{lastUsed}}",
   "deployTokens.datesUnused": "発行 {{created}}・未使用",
   "deployTokens.loading": "トークンを読み込んでいます。",
-  "deployTokens.loadFailed": "トークンを読み込めませんでした。",
+  "deployTokens.loadFailed": "トークンを読み込めませんでした",
   "deployTokens.emptyTitle": "トークンはまだありません",
   "deployTokens.emptyDescription":
     "公開サイトのデプロイに使うトークンを発行してください。",
   "deployTokens.revoke": "取り消す",
+  "deployTokens.revokeToken": "「{{name}}」を取り消す",
   "deployTokens.revokeTitle": "「{{name}}」を取り消しますか?",
   "deployTokens.revokeDescription":
     "このトークンを使うデプロイは、種類の定義を送れなくなります。取り消したトークンは元に戻せません。",
@@ -190,7 +201,7 @@ export const ja = {
   "fixedPages.title": "固定ページ",
   "fixedPages.description": "About など、公開サイトに置くページ。",
   "fixedPages.loading": "固定ページを読み込んでいます。",
-  "fixedPages.loadFailed": "固定ページを読み込めませんでした。",
+  "fixedPages.loadFailed": "固定ページを読み込めませんでした",
   "fixedPages.emptyTitle": "固定ページはまだありません",
   "fixedPages.emptyDescription": "作った固定ページは、ここに並びます。",
   "fixedPages.reorderHint":
@@ -206,6 +217,8 @@ export const ja = {
   "fixedPages.details": "{{slug}}・{{kind}}・{{updated}} に更新",
   "fixedPages.publish": "公開する",
   "fixedPages.unpublish": "非公開にする",
+  "fixedPages.publishPage": "「{{title}}」を公開する",
+  "fixedPages.unpublishPage": "「{{title}}」を非公開にする",
   "fixedPages.publishDone": "「{{title}}」を公開しました。",
   "fixedPages.unpublishDone": "「{{title}}」を非公開にしました。",
   "fixedPages.gone":
@@ -213,6 +226,7 @@ export const ja = {
   "fixedPages.publicationFailed":
     "「{{title}}」の公開状態を変えられませんでした。もう一度試してください。",
   "fixedPages.edit": "編集",
+  "fixedPages.editPage": "「{{title}}」を編集",
   "fixedPages.create": "新しい固定ページ",
   "fixedPages.delete": "削除",
   "fixedPages.deleteTitle": "「{{title}}」を削除しますか?",

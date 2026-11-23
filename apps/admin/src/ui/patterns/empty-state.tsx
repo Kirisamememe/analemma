@@ -13,7 +13,7 @@ const emptyState = tv({
 });
 
 const mark = tv({
-  base: "flex size-control items-center justify-center rounded-full bg-surface-sunken text-fg-muted",
+  base: "flex size-control items-center justify-center rounded-full bg-surface-muted text-fg-muted",
 });
 
 /** 中身の無い欄に渡す値。 */
@@ -40,7 +40,7 @@ export const EmptyState = ({
 }: EmptyStateProps): ReactNode => (
   <div className={emptyState()}>
     <span className={mark()}>
-      <Icon name={icon} />
+      <Icon name={icon} size="lg" />
     </span>
     <Stack align="center" gap={1}>
       <Heading level={2}>{title}</Heading>

@@ -10,9 +10,9 @@ import {
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
+import { ErrorState } from "@/ui/patterns";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
-import { Notice } from "@/ui/primitives/notice";
 
 /** 一覧に出す、1つのパスキー。 */
 export type PasskeySummary =
@@ -45,7 +45,15 @@ export const PasskeyList = ({
   }
 
   if (passkeys._tag === "Failed") {
-    return <Notice tone="danger">{t("passkeys.loadFailed")}</Notice>;
+    return (
+      <ErrorState
+        isRetrying={passkeys.isRetrying}
+        layout="inline"
+        level={3}
+        onRetry={passkeys.retry}
+        title={t("passkeys.loadFailed")}
+      />
+    );
   }
 
   return (
@@ -71,6 +79,7 @@ export const PasskeyList = ({
             </Stack>
             <Cluster gap={2}>
               <Button
+                aria-label={t("passkeys.renamePasskey", { name: passkey.name })}
                 onPress={() => {
                   onRename(passkey);
                 }}
@@ -79,6 +88,7 @@ export const PasskeyList = ({
                 {t("passkeys.rename")}
               </Button>
               <Button
+                aria-label={t("passkeys.deletePasskey", { name: passkey.name })}
                 onPress={() => {
                   onDelete(passkey);
                 }}

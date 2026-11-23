@@ -25,6 +25,7 @@ import * as layoutHeading from "@/ui/layout/__stories__/heading.stories";
 import * as layoutStack from "@/ui/layout/__stories__/stack.stories";
 import * as layoutText from "@/ui/layout/__stories__/text.stories";
 import * as patternsEmptyState from "@/ui/patterns/__stories__/empty-state.stories";
+import * as patternsErrorState from "@/ui/patterns/__stories__/error-state.stories";
 import * as patternsPageHeader from "@/ui/patterns/__stories__/page-header.stories";
 import * as patternsSideNav from "@/ui/patterns/__stories__/side-nav.stories";
 import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
@@ -77,6 +78,7 @@ const MODULES = {
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.ts": layoutText,
   "ui/patterns/__stories__/empty-state.stories.tsx": patternsEmptyState,
+  "ui/patterns/__stories__/error-state.stories.tsx": patternsErrorState,
   "ui/patterns/__stories__/page-header.stories.tsx": patternsPageHeader,
   "ui/patterns/__stories__/side-nav.stories.tsx": patternsSideNav,
   "ui/primitives/__stories__/badge.stories.ts": primitivesBadge,

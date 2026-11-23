@@ -13,6 +13,7 @@ const MERGE_CONFIG: TWMergeConfig = {
         "canvas",
         "surface",
         "surface-sunken",
+        "surface-muted",
         "fg",
         "fg-muted",
         "line",
@@ -44,7 +45,14 @@ const MERGE_CONFIG: TWMergeConfig = {
     classGroups: {
       h: ["h-control", "h-control-sm", "h-nav-bar"],
       top: ["top-toast"],
-      size: ["size-icon", "size-control"],
+      size: [
+        "size-icon-xs",
+        "size-icon-sm",
+        "size-icon",
+        "size-icon-lg",
+        "size-icon-xl",
+        "size-control",
+      ],
       w: ["w-sidebar"],
       "object-position": ["object-focal"],
       z: [{ z: ["sticky", "overlay", "toast"] }],

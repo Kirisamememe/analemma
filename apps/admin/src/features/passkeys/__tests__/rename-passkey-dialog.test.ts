@@ -11,7 +11,7 @@ afterEach(cleanup);
 
 const renameTo = async (name: string): Promise<void> => {
   await userEvent.click(
-    await screen.findByRole("button", { name: "名前を変更" }),
+    await screen.findByRole("button", { name: "「MacBook」の名前を変更" }),
   );
 
   const field = await screen.findByRole("textbox", { name: "パスキーの名前" });
@@ -28,7 +28,7 @@ describe("RenamePasskeyDialog", () => {
     renderApp({ path: "/security", routes: server.routes });
 
     await userEvent.click(
-      await screen.findByRole("button", { name: "名前を変更" }),
+      await screen.findByRole("button", { name: "「MacBook」の名前を変更" }),
     );
 
     expect(
@@ -77,7 +77,7 @@ describe("RenamePasskeyDialog", () => {
     await screen.findByText("このパスキーはもうありません。");
     await userEvent.click(screen.getByRole("button", { name: "キャンセル" }));
     await userEvent.click(
-      await screen.findByRole("button", { name: "名前を変更" }),
+      await screen.findByRole("button", { name: "「MacBook」の名前を変更" }),
     );
 
     expect(
@@ -101,7 +101,7 @@ describe("RenamePasskeyDialog", () => {
     renderApp({ path: "/security", routes: server.routes });
 
     await userEvent.click(
-      (await screen.findAllByRole("button", { name: "名前を変更" }))[0]!,
+      await screen.findByRole("button", { name: "「MacBook」の名前を変更" }),
     );
     await screen.findByRole("dialog");
     await api.admin.session.reauthenticationOptions();
@@ -138,12 +138,12 @@ describe("RenamePasskeyDialog", () => {
       },
     });
 
-    await screen.findByRole("button", { name: "名前を変更" });
+    await screen.findByRole("button", { name: "「MacBook」の名前を変更" });
     isListBroken = true;
     await renameTo("Mac mini");
-    await screen.findByText(
-      "パスキーを読み込めませんでした。",
-      {},
+    await screen.findByRole(
+      "heading",
+      { name: "パスキーを読み込めませんでした" },
       { timeout: 5000 },
     );
     await new Promise((resolve) => {

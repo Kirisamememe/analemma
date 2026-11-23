@@ -241,6 +241,47 @@ export const KindLoadFailed: Story = {
   },
 };
 
+export const PageLoadFailed: Story = {
+  args: {
+    /** 固定ページを取得できない server。 */
+    createRoutes: () => ({
+      ...signedIn,
+      "admin/fixedPages/get": () => ({
+        error: "INTERNAL_SERVER_ERROR",
+        defined: false,
+      }),
+    }),
+  },
+};
+
+export const KindsLoadFailed: Story = {
+  args: {
+    path: "/fixed-pages/new",
+    /** 選べる種類の一覧を取得できない server。 */
+    createRoutes: () => ({
+      ...signedIn,
+      "admin/kinds/list": () => ({
+        error: "INTERNAL_SERVER_ERROR",
+        defined: false,
+      }),
+    }),
+  },
+};
+
+export const NewKindLoadFailed: Story = {
+  args: {
+    path: "/fixed-pages/new?kind=about",
+    /** 選んだ種類の定義を取得できない server。 */
+    createRoutes: () => ({
+      ...signedIn,
+      "admin/kinds/get": () => ({
+        error: "INTERNAL_SERVER_ERROR",
+        defined: false,
+      }),
+    }),
+  },
+};
+
 export const DeletedElsewhere: Story = {
   args: {
     /** 削除するとページが無いと答える server(ほかで消えていたときの Dialog)。 */

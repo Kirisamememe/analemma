@@ -15,7 +15,14 @@ const normal = source.replace(FORCED_COLORS, "");
 
 const AA = 4.5;
 const SCHEMES = ["light", "dark"] as const;
-const SURFACES = ["canvas", "surface", "surface-sunken"] as const;
+
+const SURFACES = [
+  "canvas",
+  "surface",
+  "surface-sunken",
+  "surface-muted",
+] as const;
+
 const MEANINGS = ["info", "success", "warning", "danger"] as const;
 const TINT = 0.1;
 const WITHOUT_FILL = ["on-media"];
@@ -219,6 +226,24 @@ describe("theme.css の色のコントラスト(WCAG の AA)", () => {
           foreground,
           over({ color: foreground, alpha: TINT }, background),
         ),
+      ).toBeGreaterThanOrEqual(AA);
+    },
+  );
+
+  test.each(
+    SCHEMES.flatMap((scheme) =>
+      SURFACES.map((surface) => ({ scheme, surface })),
+    ),
+  )(
+    "$scheme の $surface の上で、fg と fg-muted の文字が 4.5:1 に届く",
+    ({ scheme, surface }) => {
+      const background = colorOf(surface, scheme);
+
+      expect(
+        contrast(colorOf("fg", scheme), background),
+      ).toBeGreaterThanOrEqual(AA);
+      expect(
+        contrast(colorOf("fg-muted", scheme), background),
       ).toBeGreaterThanOrEqual(AA);
     },
   );

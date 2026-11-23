@@ -12,11 +12,10 @@ import {
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
-import { EmptyState } from "@/ui/patterns";
+import { EmptyState, ErrorState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { ReorderableList } from "@/ui/primitives/collections";
 import { Spinner } from "@/ui/primitives/graphics";
-import { Notice } from "@/ui/primitives/notice";
 
 /** 固定ページの一覧に渡す値。 */
 type FixedPagesSectionProps = {
@@ -45,13 +44,28 @@ export const FixedPagesSection = ({
     load: () => loadKinds(api),
   });
 
-  if (pages._tag === "Loading" || kinds._tag === "Loading") {
-    return <Text tone="muted">{t("fixedPages.loading")}</Text>;
-  }
+  const kindsRetrying = kinds._tag === "Failed" && kinds.isRetrying;
+  const loading = <Text tone="muted">{t("fixedPages.loading")}</Text>;
+
+  if (pages._tag === "Loading" || kinds._tag === "Loading") return loading;
 
   if (pages._tag === "Failed") {
-    return <Notice tone="danger">{t("fixedPages.loadFailed")}</Notice>;
+    return (
+      <ErrorState
+        isRetrying={pages.isRetrying || kindsRetrying}
+        layout="inline"
+        level={2}
+        onRetry={() => {
+          pages.retry();
+
+          if (kinds._tag === "Failed") kinds.retry(); // 種類のラベルも読めていなければ、一緒に取り直す
+        }}
+        title={t("fixedPages.loadFailed")}
+      />
+    );
   }
+
+  if (kindsRetrying) return loading; // 種類のラベルが届くまで、名前で出さない
 
   const labels = new Map(
     kinds._tag === "Loaded"

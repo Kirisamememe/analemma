@@ -19,6 +19,10 @@ type QueryResult<Data> =
   | {
       /** どの結果か。 */
       readonly _tag: "Failed";
+      /** 取り直しているか。 */
+      readonly isRetrying: boolean;
+      /** 取り直す関数。 */
+      readonly retry: () => void;
     }
   | {
       /** どの結果か。 */
@@ -70,12 +74,18 @@ export const useApiQuery = <Data>({
     ...(discardWhenUnused ? { gcTime: 0 } : {}),
   });
 
-  if (query.isPending) {
+  if (query.isPending && query.errorUpdateCount === 0) {
     return { _tag: "Loading" };
   }
 
-  if (query.isError) {
-    return { _tag: "Failed" };
+  if (query.isPending || query.isError) {
+    return {
+      _tag: "Failed",
+      isRetrying: query.fetchStatus !== "idle", // 次の試行を待って一時停止している間も、取り直している
+      retry: () => {
+        void query.refetch();
+      },
+    };
   }
 
   return { _tag: "Loaded", data: query.data };

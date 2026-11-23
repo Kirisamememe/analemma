@@ -16,7 +16,9 @@ describe("DeployTokensSection", () => {
     renderApp({ path: "/deploy-tokens", routes: server.routes });
 
     await userEvent.click(
-      await screen.findByRole("button", { name: "取り消す" }),
+      await screen.findByRole("button", {
+        name: "「本番のデプロイ」を取り消す",
+      }),
     );
 
     const dialog = await screen.findByRole("dialog");

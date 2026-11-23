@@ -1,8 +1,8 @@
-import { cleanup, screen, within } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import type { FakeReply } from "@/testing/create-fake-api";
+import { type FakeReply, wrapFakeRoute } from "@/testing/create-fake-api";
 import {
   createFixedPageRoutes,
   type FakeFixedPageState,
@@ -70,27 +70,131 @@ describe("FixedPagesSection", () => {
     expect(screen.queryByRole("grid")).toBeNull();
   });
 
-  test("一覧を読み込めなければ、知らせる", async () => {
+  test("一覧も種類も読み込めなければ、知らせ、もう一度試すと、両方を取り直して一覧を出す", async () => {
     const server = createFixedPageRoutes(STATE);
+
+    const { "admin/fixedPages/list": list, "admin/kinds/list": kinds } =
+      server.routes;
+
+    let isBroken = true;
 
     renderApp({
       path: "/fixed-pages",
       routes: {
         ...server.routes,
-        "admin/fixedPages/list": () => ({
-          error: "INTERNAL_SERVER_ERROR",
-          defined: false,
-        }),
+        "admin/fixedPages/list": wrapFakeRoute(list, (input) =>
+          isBroken
+            ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+            : list(input),
+        ),
+        "admin/kinds/list": wrapFakeRoute(kinds, (input) =>
+          isBroken
+            ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+            : kinds(input),
+        ),
       },
     });
 
+    const alert = await screen.findByRole("alert", {}, { timeout: 5000 });
+
     expect(
-      await screen.findByText(
-        "固定ページを読み込めませんでした。",
-        {},
-        { timeout: 5000 },
+      within(alert).getByRole("heading", {
+        level: 2,
+        name: "固定ページを読み込めませんでした",
+      }),
+    ).toBeDefined();
+
+    isBroken = false;
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+
+    expect(
+      within(await findRow("About")).getByText(/基本のページ/v),
+    ).toBeDefined();
+  });
+
+  test("両方を取り直したとき、種類の一覧が届くまで一覧を出さず、固定ページが先に失敗してもボタンを送信中のままにする", async () => {
+    const server = createFixedPageRoutes(STATE);
+
+    const { "admin/fixedPages/list": list, "admin/kinds/list": kinds } =
+      server.routes;
+
+    let arePagesBroken = true;
+    let kindsReply = Promise.withResolvers<FakeReply<"admin/kinds/list">>();
+    let areKindsHeld = false;
+
+    const { calls } = renderApp({
+      path: "/fixed-pages",
+      routes: {
+        ...server.routes,
+        "admin/fixedPages/list": wrapFakeRoute(list, (input) =>
+          arePagesBroken
+            ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+            : list(input),
+        ),
+        "admin/kinds/list": wrapFakeRoute(kinds, async () =>
+          areKindsHeld
+            ? kindsReply.promise
+            : { error: "INTERNAL_SERVER_ERROR", defined: false },
+        ),
+      },
+    });
+
+    await screen.findByRole("alert", {}, { timeout: 5000 });
+    areKindsHeld = true;
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+    await waitFor(
+      () => {
+        expect(
+          calls.filter((call) => call === "admin/fixedPages/list"),
+        ).toHaveLength(6);
+      },
+      { timeout: 5000 },
+    );
+
+    expect(
+      within(screen.getByRole("button", { name: /もう一度試す/v })).getByRole(
+        "progressbar",
       ),
     ).toBeDefined();
+
+    kindsReply.resolve({ error: "INTERNAL_SERVER_ERROR", defined: false });
+    await screen.findByText("まだ読み込めません。", {}, { timeout: 5000 });
+    arePagesBroken = false;
+    kindsReply = Promise.withResolvers<FakeReply<"admin/kinds/list">>();
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+
+    expect(
+      await screen.findByText("固定ページを読み込んでいます。"),
+    ).toBeDefined();
+    expect(screen.queryByRole("row")).toBeNull();
+
+    kindsReply.resolve(kinds(undefined));
+
+    expect(
+      within(await findRow("About")).getByText(/基本のページ/v),
+    ).toBeDefined();
+  }, 20000);
+
+  test("編集と公開の切り替えのボタンは、見える文言をそのままに、タイトルでページを見分けられる", async () => {
+    setUp();
+
+    const about = within(await findRow("About"));
+    const colophon = within(await findRow("Colophon"));
+
+    expect(
+      about.getByRole("button", { name: "「About」を編集" }).textContent,
+    ).toBe("編集");
+    expect(
+      colophon.getByRole("button", { name: "「Colophon」を編集" }).textContent,
+    ).toBe("編集");
+    expect(
+      about.getByRole("button", { name: "「About」を非公開にする" })
+        .textContent,
+    ).toBe("非公開にする");
+    expect(
+      colophon.getByRole("button", { name: "「Colophon」を公開する" })
+        .textContent,
+    ).toBe("公開する");
   });
 
   test("公開と非公開を切り替え、結果を Toast で知らせる", async () => {
@@ -98,7 +202,7 @@ describe("FixedPagesSection", () => {
 
     await userEvent.click(
       within(await findRow("Colophon")).getByRole("button", {
-        name: "公開する",
+        name: "「Colophon」を公開する",
       }),
     );
 
@@ -107,9 +211,9 @@ describe("FixedPagesSection", () => {
     );
     expect(
       within(await findRow("Colophon")).getByRole("button", {
-        name: "非公開にする",
-      }),
-    ).toBeDefined();
+        name: "「Colophon」を非公開にする",
+      }).textContent,
+    ).toBe("非公開にする");
     expect(server.pages().map(({ published }) => published)).toEqual([
       true,
       true,
@@ -124,7 +228,7 @@ describe("FixedPagesSection", () => {
 
     server.routes["admin/fixedPages/delete"]({ id: page?.id ?? "" });
     await userEvent.click(
-      within(about).getByRole("button", { name: "非公開にする" }),
+      within(about).getByRole("button", { name: "「About」を非公開にする" }),
     );
 
     expect((await screen.findByRole("alert")).textContent).toBe(
@@ -142,7 +246,7 @@ describe("FixedPagesSection", () => {
     }));
     await userEvent.click(
       within(await findRow("About")).getByRole("button", {
-        name: "非公開にする",
+        name: "「About」を非公開にする",
       }),
     );
 
@@ -162,7 +266,7 @@ describe("FixedPagesSection", () => {
     });
     await userEvent.click(
       within(await findRow("About")).getByRole("button", {
-        name: "非公開にする",
+        name: "「About」を非公開にする",
       }),
     );
 
@@ -171,7 +275,7 @@ describe("FixedPagesSection", () => {
     );
     expect(
       await within(await findRow("About")).findByRole("button", {
-        name: "公開する",
+        name: "「About」を公開する",
       }),
     ).toBeDefined();
   });

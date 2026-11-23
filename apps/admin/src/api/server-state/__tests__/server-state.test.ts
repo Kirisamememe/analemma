@@ -77,7 +77,10 @@ describe("useApiQuery", () => {
     );
 
     await waitFor(() => {
-      expect(result.current).toEqual({ _tag: "Failed" });
+      expect(result.current).toMatchObject({
+        _tag: "Failed",
+        isRetrying: false,
+      });
     });
   });
 
@@ -131,7 +134,10 @@ describe("useApiQuery", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.query).toEqual({ _tag: "Failed" });
+      expect(result.current.query).toMatchObject({
+        _tag: "Failed",
+        isRetrying: false,
+      });
     });
   });
 });

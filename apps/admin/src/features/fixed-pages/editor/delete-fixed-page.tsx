@@ -22,12 +22,15 @@ type DeleteFixedPageProps = {
   page: Pick<FixedPageSummary, "id" | "title">;
   /** 削除できたときに呼ぶ関数。 */
   onDeleted: () => void;
+  /** 削除のボタンを押せないか。 */
+  isDisabled?: boolean;
 };
 
 /** 押すとタイトルを見せて確かめ、固定ページを削除するボタン。 */
 export const DeleteFixedPage = ({
   page,
   onDeleted,
+  isDisabled = false,
 }: DeleteFixedPageProps): ReactNode => {
   const t = useTranslate();
   const showToast = useShowToast();
@@ -69,6 +72,7 @@ export const DeleteFixedPage = ({
       <Button
         aria-label={t("fixedPageEditor.delete")}
         icon="trash-2"
+        isDisabled={isDisabled}
         ref={trigger}
         onPress={() => {
           deleting.reset(); // 開き直したら、前の送信の結果を消す

@@ -20,7 +20,9 @@ const renderTokens = () => {
 
 const openRevoke = async (): Promise<HTMLElement> => {
   await userEvent.click(
-    (await screen.findAllByRole("button", { name: "取り消す" }))[0]!,
+    await screen.findByRole("button", {
+      name: "「本番のデプロイ」を取り消す",
+    }),
   );
 
   return screen.findByRole("dialog", {

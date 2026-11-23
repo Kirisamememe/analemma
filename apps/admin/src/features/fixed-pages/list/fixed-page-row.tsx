@@ -87,6 +87,7 @@ export const FixedPageRow = ({
       </Stack>
       <Cluster gap={2}>
         <Button
+          aria-label={t("fixedPages.editPage", { title })}
           onPress={() => {
             onEdit(page.id);
           }}
@@ -95,6 +96,12 @@ export const FixedPageRow = ({
           {t("fixedPages.edit")}
         </Button>
         <Button
+          aria-label={t(
+            page.published
+              ? "fixedPages.unpublishPage"
+              : "fixedPages.publishPage",
+            { title },
+          )}
           isPending={publication.isPending}
           onPress={() => {
             publication.mutate();
