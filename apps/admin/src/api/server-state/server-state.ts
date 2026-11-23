@@ -19,7 +19,7 @@ type QueryOptions<Data> = {
   /** データを取得する関数。 */
   readonly load: (() => Promise<Data>) | undefined;
   /** タブ内で取得結果を使い回す期間(ミリ秒)。 */
-  readonly tabStaleTime?: number;
+  readonly tabStaleTime?: number | ((data: Data | undefined) => number);
 };
 
 /** server のデータを読んだ結果。 */
@@ -98,23 +98,36 @@ export const useApiQuery = <Data>({
   keepDataOnRefreshError,
   tabStaleTime,
 }: QueryOptions<Data>): ApiQueryResult<Data> => {
-  const query = useQuery({
+  const query = useQuery<Data>({
     queryKey: key,
     queryFn: load ?? skipToken,
     ...(load === undefined || tabStaleTime === undefined
       ? {}
-      : { staleTime: tabStaleTime, gcTime: Infinity }),
+      : {
+          staleTime:
+            typeof tabStaleTime === "number"
+              ? tabStaleTime
+              : (stored) => tabStaleTime(stored.state.data),
+          gcTime: Infinity,
+        }),
   });
 
-  if (query.isPending && query.errorUpdateCount === 0) {
+  const keepInTab =
+    typeof tabStaleTime === "function"
+      ? tabStaleTime(query.data) > 0
+      : tabStaleTime !== undefined;
+
+  if (
+    (query.isPending && query.errorUpdateCount === 0) ||
+    (query.isFetching &&
+      query.isSuccess &&
+      typeof tabStaleTime === "function" &&
+      !keepInTab)
+  ) {
     return { _tag: "Loading" };
   }
 
-  if (
-    tabStaleTime !== undefined &&
-    query.isRefetchError &&
-    !isUnauthorized(query.error)
-  ) {
+  if (keepInTab && query.isRefetchError && !isUnauthorized(query.error)) {
     return { _tag: "Loaded", data: query.data };
   }
 

@@ -52,11 +52,10 @@ export type FixedPageEditorProps = {
 const SCHEMAS = { slug: fixedPageSlug, title: fixedPageTitle };
 
 /** 固定ページの入力と保存の状態と、保存していない変更を残して離れるときの確かめを持つ。 */
-export const useEditorForm = ({
-  kind,
-  page,
-  onSaved,
-}: FixedPageEditorProps) => {
+export const useEditorForm = (
+  { kind, page, onSaved }: FixedPageEditorProps,
+  onEditing?: (editing: boolean) => void,
+) => {
   const t = useTranslate();
   const { api } = useAppContext();
   const toast = useShowToast();
@@ -99,6 +98,8 @@ export const useEditorForm = ({
         const isOpen = root.current !== null;
 
         saved.current = values;
+
+        if (isOpen) reportEditing();
 
         if (isOpen) {
           toast({
@@ -146,7 +147,7 @@ export const useEditorForm = ({
     },
   });
 
-  const leaving = useLeaveConfirmation(() => {
+  const hasChanges = (): boolean => {
     const current = form.state.values;
 
     return (
@@ -155,7 +156,33 @@ export const useEditorForm = ({
       (saving.isPending &&
         hasUnsavedChanges(base, { saved: submitted.current, current }))
     );
-  });
+  };
+
+  const leaving = useLeaveConfirmation(hasChanges);
+
+  const reportEditing = (): void => {
+    onEditing?.(
+      (saved.current === initial && !form.state.isDefaultValue) || hasChanges(),
+    );
+  };
+
+  const observeInput = (node: HTMLDivElement | null) => {
+    root.current = node;
+
+    if (node === null) return;
+
+    const observer = new MutationObserver(reportEditing);
+    observer.observe(node, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-uncommitted-input"],
+    });
+
+    return () => {
+      observer.disconnect();
+      root.current = null;
+    };
+  };
 
   const check =
     (key: "slug" | "title") =>
@@ -169,12 +196,14 @@ export const useEditorForm = ({
           );
 
   const changed = (name: string) => {
+    reportEditing();
     setErrors((previous) => clearChangedErrors(previous, name));
   };
 
   return {
     form,
     fields: base.fields,
+    observeInput,
     errors,
     changed,
     check,

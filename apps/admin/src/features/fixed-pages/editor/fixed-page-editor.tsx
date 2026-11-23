@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 
 import { ContentFields } from "./content-fields";
 import { DeleteFixedPage } from "./delete-fixed-page";
@@ -12,6 +12,7 @@ import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
+import { Notice } from "@/ui/primitives/notice";
 import { Dialog } from "@/ui/primitives/overlays";
 
 /** 離れる前の確かめに渡す値。 */
@@ -57,10 +58,30 @@ const focusIfLost = (input: HTMLInputElement | null): void => {
   if (active === null || active === document.body) input?.focus(); // 押した種類のボタンが消え、focus の行き先が無いとき
 };
 
-/** 種類の定義に沿って固定ページを作成・編集する、見出しとフォーム。 */
-export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
-  const { form, fields, errors, changed, check, root, saving, leaving } =
-    useEditorForm(props);
+type EditorProps = {
+  /** 編集する固定ページと種類。 */
+  pageProps: FixedPageEditorProps;
+  /** 未保存の入力があるかが変わったときに呼ぶ関数。 */
+  onEditing: (editing: boolean) => void;
+  /** 入力を始めた後に項目が更新されたか。 */
+  fieldsChanged: boolean;
+};
+
+const Editor = ({
+  pageProps: props,
+  onEditing,
+  fieldsChanged,
+}: EditorProps): ReactNode => {
+  const {
+    form,
+    fields,
+    observeInput,
+    errors,
+    changed,
+    check,
+    saving,
+    leaving,
+  } = useEditorForm(props, onEditing);
 
   const { kind, page } = props;
   const t = useTranslate();
@@ -72,7 +93,7 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
   );
 
   return (
-    <div ref={root}>
+    <div ref={observeInput}>
       <form.AppForm>
         <form.Form isPending={saving.isPending} validationErrors={errors}>
           <Stack gap={8}>
@@ -95,6 +116,11 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
                   : "fixedPageEditor.edit",
               )}
             />
+            {fieldsChanged && (
+              <Notice tone="warning">
+                {t("fixedPageEditor.updatedFields")}
+              </Notice>
+            )}
             <Stack gap={4}>
               {(["slug", "title"] as const).map((name) => (
                 <form.AppField
@@ -143,5 +169,25 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
       </form.AppForm>
       <LeaveDialog leaving={leaving} />
     </div>
+  );
+};
+
+/** 種類の定義に沿って固定ページを作成・編集する、見出しとフォーム。 */
+export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
+  const [editedFields, setEditedFields] =
+    useState<FixedPageEditorProps["kind"]["fields"]>();
+
+  const fields = editedFields ?? props.kind.fields;
+  const key = useMemo(() => JSON.stringify(fields), [fields]);
+
+  return (
+    <Editor
+      key={key}
+      pageProps={{ ...props, kind: { ...props.kind, fields } }}
+      fieldsChanged={fields !== props.kind.fields}
+      onEditing={(editing) => {
+        setEditedFields(editing ? fields : undefined);
+      }}
+    />
   );
 };
