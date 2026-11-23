@@ -1,5 +1,11 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { mkdtempSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { z } from "zod";
@@ -25,6 +31,9 @@ type Packed = {
 
 const packageRoot = join(import.meta.dirname, "..");
 const contractRoot = join(packageRoot, "../contract");
+const contractDeclarations = join(contractRoot, "dist/types");
+const contractTarball = join(contractRoot, "dist/pack-test.tgz");
+const STALE_DECLARATION = "export declare const stale: true;\n";
 const destination = mkdtempSync(join(tmpdir(), "analemma-client-pack-"));
 
 const pack = async (): Promise<Packed> => {
@@ -85,12 +94,16 @@ const sdkSources = [
 let packed: Packed;
 
 beforeAll(async () => {
-  rmSync(join(contractRoot, "dist"), { recursive: true, force: true });
+  mkdirSync(contractDeclarations, { recursive: true });
+  writeFileSync(join(contractDeclarations, "index.d.ts"), STALE_DECLARATION);
+  writeFileSync(join(contractDeclarations, "removed.d.ts"), STALE_DECLARATION);
+  writeFileSync(contractTarball, "");
   packed = await pack();
 }, 60_000);
 
 afterAll(() => {
   rmSync(destination, { recursive: true, force: true });
+  rmSync(contractTarball, { force: true });
 });
 
 describe("client を固めたもの", () => {
@@ -137,14 +150,19 @@ describe("client を固めたもの", () => {
     ).toEqual([]);
   });
 
-  test("client を build すると、contract のソースごとの型の宣言も作り直すこと", () => {
-    expect(filesIn(contractRoot, "dist/**/*.d.ts")).toEqual(
+  test("client を build すると、contract の型の宣言を、今のソースから作り直すこと", async () => {
+    expect(filesIn(contractDeclarations, "**/*.d.ts")).toEqual(
       filesIn(contractRoot, "src/**/*.ts")
         .filter((path) => !path.includes("/__tests__/"))
-        .map((path) =>
-          path.replace(/^src\//v, "dist/").replace(/\.ts$/v, ".d.ts"),
-        )
+        .map((path) => path.replace(/^src\//v, "").replace(/\.ts$/v, ".d.ts"))
         .toSorted(),
     );
+    expect(
+      await Bun.file(join(contractDeclarations, "index.d.ts")).text(),
+    ).not.toBe(STALE_DECLARATION);
+  });
+
+  test("client を build しても、contract の dist に固めた .tgz を消さないこと", () => {
+    expect(existsSync(contractTarball)).toBe(true);
   });
 });

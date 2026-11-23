@@ -92,7 +92,7 @@ describe("contract を固めたもの", () => {
         "package.json",
         ...sources,
         ...sources.map((path) =>
-          path.replace(/^src\//v, "dist/").replace(/\.ts$/v, ".d.ts"),
+          path.replace(/^src\//v, "dist/types/").replace(/\.ts$/v, ".d.ts"),
         ),
       ].toSorted(),
     );
@@ -119,6 +119,6 @@ describe("contract を固めたもの", () => {
             TYPESCRIPT_CONDITIONS.has(condition),
           )?.[1];
 
-    expect(target).toBe("./dist/index.d.ts");
+    expect(target).toBe("./dist/types/index.d.ts");
   });
 });

@@ -44,7 +44,7 @@
 - build は、先に contract の build を流し、contract の `.d.ts` も作り直す。このフォルダをつないで使う公開サイトの tsc は、client の `.d.ts` から contract の `.d.ts` を読むので、client だけを作り直すと、contract の型が古いまま残る。
 - ビルドした CLI は、CI(`check.yml`)で1回流す。`package.json` の `bin` のパスのファイルを shebang で直に実行し、相対パスで渡した、名前だけが形に合わない定義のファイルで、終了コード 1 になり、その名前の誤り(`0.name`)が出ることを確かめる。定義のファイルを読み、default export の配列の中身まで検査したことが分かる(読み込みが壊れて、配列に届かないときは、別の文言になる)。bin のパス・shebang・bundle の external・定義のファイルの読み込みは、`runCli` を直に呼ぶテストでは通らないため。CMS に送るところは `runCli` のテストが確かめるので、CI では送らない。
 - 公開するときは `bun publish`、固めるときは `bun pm pack` を使う。`package.json` の `workspace:*` を、contract の `version` に書き換えるのは Bun だけで、`npm pack`・`npm publish` は `workspace:*` を残し、利用者の側で依存を解決できない。
-- 固めたものに、build した SDK と CLI と、SDK のソースごとの `.d.ts` と、README と package.json だけが入り、`exports` と `bin` の指すファイルがどれも入り、contract への依存が contract の `version` になることと、build が contract の `.d.ts` を作り直すことを、テスト(`__tests__/pack.test.ts`)で確かめる。テストは、contract と同じく `src/` の外に置く(`packages/contract/DECISIONS.md`)。
+- 固めたものに、build した SDK と CLI と、SDK のソースごとの `.d.ts` と、README と package.json だけが入り、`exports` と `bin` の指すファイルがどれも入り、contract への依存が contract の `version` になることと、build が contract の `.d.ts` を今のソースから作り直し、contract の `dist/` に固めた `.tgz` を消さないことを、テスト(`__tests__/pack.test.ts`)で確かめる。テストは、contract と同じく `src/` の外に置く(`packages/contract/DECISIONS.md`)。
 - `private: true` は、公開するときに外す(ユーザーが決めるまで公開しない)。
 
 ## TypeScript の設定

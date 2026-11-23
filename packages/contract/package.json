@@ -6,12 +6,12 @@
   "exports": {
     ".": {
       "@analemma/source": "./src/index.ts",
-      "types": "./dist/index.d.ts",
+      "types": "./dist/types/index.d.ts",
       "default": "./src/index.ts"
     }
   },
   "files": [
-    "dist",
+    "dist/types",
     "src",
     "!src/**/__tests__"
   ],
@@ -23,7 +23,7 @@
     "zod": "4.6.7"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "build": "rm -rf dist/types && tsc -p tsconfig.build.json",
     "prepack": "bun run build",
     "typecheck": "tsc --noEmit -p tsconfig.src.json && tsc --noEmit -p ."
   },
