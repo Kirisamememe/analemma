@@ -21,35 +21,15 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: PR の追加行数
-        shell: bash
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
-        run: |
-          if [[ "$GITHUB_BASE_REF" == main && "$GITHUB_HEAD_REF" =~ ^phase/[0-9]+$ && "$HEAD_REPO" == "$GITHUB_REPOSITORY" ]]; then
-            echo "フェーズ全体を main に入れる PR は行数制限の対象外です。"
-            exit 0
-          fi
-
-          added=$(git diff --numstat --find-renames "$BASE_SHA...$HEAD_SHA" -- . \
-            ':(exclude)bun.lock' ':(exclude)apps/server/src/db/migrations' |
-            awk '{ total += $1 } END { print total + 0 }')
-          echo "追加 ${added} 行"
-          if (( added > 800 )); then
-            echo "::error::追加 ${added} 行です。800行以下になるように PR を分けてください。"
-            exit 1
-          elif (( added > 500 )); then
-            echo "::notice::追加 ${added} 行です。目安の500行を超えています。"
-          fi
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
-      - env:
+      - name: PR の追加行数とメッセージ
+        env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |

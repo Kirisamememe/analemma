@@ -45,7 +45,7 @@
 
 - フェーズや大きなリリースごとに、main からフェーズのブランチ(`phase/<番号>`)を切る。小さな課題は、フェーズのブランチから切った子のブランチで進め、PR の base をフェーズのブランチにする。
 - 子の PR は追加500行を目安にし、800行までとする。テスト・story・文書も数える。削除行、内容を変えずに移動した行、生成物(`bun.lock` と DB の migration)は数えない。
-- PR を作る前に、タイトルを手元で `tooling/ci/check-pull-request-messages.ts` に通す(CI は、ほかのリポジトリの名前を探さない。流し方は `tooling/AGENTS.md`)。PR の本文は、どの検査も読まないので、名前が無いかを自分で見る。
+- PR を作る前に必ず `git fetch` し、予定している PR の base を指定して、追加行数とタイトルを手元で `tooling/ci/check-pull-request-messages.ts` に通す(CI は、ほかのリポジトリの名前を探さない。流し方は `tooling/AGENTS.md`)。PR の本文は、どの検査も読まないので、名前が無いかを自分で見る。
 - PR を積み重ねる(stack)なら、PR が2〜3件の軽い stack は手で管理してよい。それより大きな stack は、GitHub の stacked PR(`gh stack`。公式の拡張 `github/gh-stack`)で管理する。stack の中は rebase で履歴を一直線に保ち(linear history。push は `--force-with-lease`)、merge commit を作らない。
 - コミットの粒度が消える merge はしない(複数のコミットを持つ PR を squash で1つにする、フェーズを1つのコミットに潰す、など)。
 - 子のブランチは、観点ごとにレビューする。観点は PR が触るものに合わせて選び、選んだ観点ごとに最低1回・最大3回流す。流すのは、`git fetch` の後に `bun run review -- --perspective <観点> --base origin/<フェーズのブランチ>`(今のブランチをレビューする。`--head` には手元のブランチの名前かコミットを渡せる。コミットを渡すと、今のブランチのフォルダに結果を書く)。数分から数十分かかるので、裏で流す。

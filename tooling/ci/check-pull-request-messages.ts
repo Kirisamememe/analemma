@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { parseArgs } from "node:util";
 
 const COMMIT_MSG = join(import.meta.dirname, "../git-hooks/commit-msg.ts");
+const SIZE_CHECK = join(import.meta.dirname, "check-pull-request-size.sh");
 const TITLE_FILE = "pull-request-title";
 
 /** commit-msg の hook のスクリプトに渡すメッセージ。 */
@@ -46,7 +47,9 @@ if (base === undefined || head === undefined || number === undefined) {
     "--base と --head に PR の base と head の SHA を、--number に PR の番号を渡し、PR のタイトルを標準入力に渡してください。\n",
   );
   process.exitCode = 2;
-} else {
+} else if (
+  spawnSync("bash", [SIZE_CHECK, base, head], { stdio: "inherit" }).status === 0
+) {
   const title = (await Bun.stdin.text()).trimEnd();
 
   const messages = [
@@ -86,4 +89,6 @@ if (base === undefined || head === undefined || number === undefined) {
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
+} else {
+  process.exitCode = 1;
 }
