@@ -1,41 +1,25 @@
-import { useNavigate, useParams, useRouter } from "@tanstack/react-router";
-import { Fragment, useState, type ReactNode } from "react";
+import { useNavigate, useRouter } from "@tanstack/react-router";
+import { Fragment, use, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { ApiOutputs } from "@/api/api-types";
+import { ImageViewerContext } from "./image-viewer-context";
+
 import { DeleteImage } from "@/features/images/detail/delete-image";
 import { EditImage } from "@/features/images/detail/edit-image";
-import { useViewerImage } from "@/features/images/detail/hooks/use-viewer-image";
 import { PublicationButton } from "@/features/images/detail/publication-button";
-
-type Image = ApiOutputs["admin"]["images"]["get"];
 
 /** 表示中の画像の編集・公開・削除の操作。 */
 export const ImageViewerActions = (): ReactNode => {
-  const id = useParams({
-    from: "/images/$id",
-    select: (params) => params.id.toLowerCase(),
-  });
-
-  const query = useViewerImage(id);
+  const state = use(ImageViewerContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const router = useRouter();
 
-  const current =
-    query._tag === "Loaded" && query.data._tag === "Succeeded"
-      ? query.data.data
-      : undefined;
+  if (state?.shown === undefined) return null;
 
-  const [last, setLast] = useState<Image>();
+  const { id, shown } = state;
 
-  if (current !== undefined && current !== last) setLast(current);
-
-  const shown = current ?? (query._tag === "Loading" ? last : undefined);
-
-  if (shown === undefined) return null;
-
-  const isDisabled = current === undefined || current.id !== id;
+  const isDisabled = shown.id !== id;
 
   return (
     <Fragment key={id}>

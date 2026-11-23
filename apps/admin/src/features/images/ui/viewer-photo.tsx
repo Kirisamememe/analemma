@@ -11,7 +11,7 @@ import { tv } from "@/ui/tv";
 const photo = tv({
   slots: {
     frame: [
-      "relative grid w-full place-items-center overflow-clip",
+      "grid w-full place-items-center overflow-clip",
       "md:size-full md:min-h-0 md:min-w-0 md:grid-cols-1 md:grid-rows-1",
     ],
     image: [
@@ -26,7 +26,13 @@ const photo = tv({
       "transition-opacity loading-delay starting:opacity-0 forced-colors:hidden",
     ],
   },
-  variants: { visible: { false: { image: "invisible" } } },
+  variants: {
+    visible: { false: { image: "invisible" } },
+    pending: {
+      true: { frame: "pointer-events-none invisible absolute inset-0" },
+      false: { frame: "relative" },
+    },
+  },
 });
 
 type ViewerPhotoProps = {
@@ -38,6 +44,12 @@ type ViewerPhotoProps = {
   largest: DeliveryImages[number];
   /** 写真の代替テキスト。 */
   alt: string;
+  /** 読み込みを待っている次の写真か。 */
+  pending?: boolean;
+  /** 写真を送った向き。 */
+  direction?: "previous" | "next" | undefined;
+  /** 写真の読み込みが成功または失敗したときに呼ぶ関数。 */
+  onSettled?: (() => void) | undefined;
 };
 
 /** 写真と配信中・配信失敗のお知らせ。 */
@@ -46,6 +58,9 @@ export const ViewerPhoto = ({
   smallest,
   largest,
   alt,
+  pending = false,
+  direction,
+  onSettled,
 }: ViewerPhotoProps): ReactNode => {
   const t = useTranslate();
 
@@ -55,10 +70,15 @@ export const ViewerPhoto = ({
 
   const [attempt, setAttempt] = useState(0);
   const retrySource = useRef<Element | null>(null);
-  const style = photo({ visible: status === "loaded" });
+  const style = photo({ visible: status === "loaded", pending });
 
   return (
-    <div className={style.frame()}>
+    <div
+      className={style.frame()}
+      aria-hidden={pending || undefined}
+      inert={pending}
+      data-photo-direction={direction}
+    >
       <img
         alt={alt}
         className={style.image()}
@@ -67,9 +87,11 @@ export const ViewerPhoto = ({
         key={attempt}
         onError={() => {
           setStatus("failed");
+          onSettled?.();
         }}
         onLoad={() => {
           setStatus("loaded");
+          onSettled?.();
         }}
         ref={(image) => {
           const source = retrySource.current;

@@ -7,7 +7,8 @@ import { viewerStyle as style } from "./viewer-styles";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Text } from "@/ui/layout";
-import { Icon } from "@/ui/primitives/graphics";
+import { LoadingStatus } from "@/ui/patterns";
+import { Icon, Spinner } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 /** 写真を見る画面の骨組みに渡す値。 */
@@ -58,8 +59,28 @@ export type Neighbor = {
   readonly onKeyboardNavigate?: (() => void) | undefined;
 };
 
+/** 情報と一緒に表示する前に、読み込んでおく写真。 */
+export type PendingPhoto = {
+  /** 画像の ID。 */
+  id: string;
+  /** 配信用の画像の候補。 */
+  images: DeliveryImages;
+  /** 写真の代替テキスト。 */
+  alt: string;
+};
+
 /** 写真を見る画面に渡す値。 */
 type ImageViewerProps = {
+  /** 表示している画像の ID。 */
+  photoId?: string;
+  /** 読み込みを待っている写真。 */
+  pending?: PendingPhoto | undefined;
+  /** 写真の切り替えを待っているか。 */
+  waiting?: boolean | undefined;
+  /** 写真を送った向き。 */
+  direction?: "previous" | "next" | undefined;
+  /** 画像を切り替えられるときに呼ぶ関数。 */
+  onSettled?: ((id: string) => void) | undefined;
   /** 配信用の画像(幅の昇順)。 */
   images: DeliveryImages;
   /** 写真の alt。 */
@@ -117,8 +138,26 @@ const SideLink = ({
   </span>
 );
 
-/** 写真と、その情報を表示する画面。 */
+const Progress = (): ReactNode => {
+  const t = useTranslate();
+  return (
+    <>
+      <LoadingStatus label={t("imageViewer.loading")} />
+      <div aria-hidden="true" className={style.progress()}>
+        <Spinner />
+        <Text as="span">{t("imageViewer.loading")}</Text>
+      </div>
+    </>
+  );
+};
+
+/** 暗い地に写真を大きく出し、横に情報の欄を置く、写真を見る画面。 */
 export const ImageViewer = ({
+  photoId,
+  pending,
+  waiting,
+  direction,
+  onSettled,
   images,
   alt,
   missing,
@@ -131,6 +170,8 @@ export const ImageViewer = ({
   const { controlsVisible, handlers } = usePhotoGestures(onSwipe);
   const smallest = images[0];
   const largest = images.at(-1);
+  const pendingSmallest = pending?.images[0];
+  const pendingLargest = pending?.images.at(-1);
 
   return (
     <div className={style.body()}>
@@ -149,11 +190,26 @@ export const ImageViewer = ({
           <ViewerPhoto
             alt={alt}
             images={images}
-            key={smallest.url}
+            key={photoId ?? smallest.url}
+            direction={direction}
             largest={largest}
             smallest={smallest}
           />
         )}
+        {pending !== undefined &&
+          pendingSmallest !== undefined &&
+          pendingLargest !== undefined && (
+            <ViewerPhoto
+              key={pending.id}
+              alt={pending.alt}
+              images={pending.images}
+              largest={pendingLargest}
+              smallest={pendingSmallest}
+              pending
+              onSettled={() => onSettled?.(pending.id)}
+            />
+          )}
+        {waiting === true && <Progress />}
         {previous !== undefined && (
           <SideLink
             controlsVisible={controlsVisible}
