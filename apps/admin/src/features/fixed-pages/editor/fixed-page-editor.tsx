@@ -95,16 +95,16 @@ const Editor = ({
           <Stack gap={8}>
             <PageHeader
               actions={
-                <>
-                  {props.page !== undefined && (
+                props.page !== undefined && (
+                  <>
                     <DeleteFixedPage
                       onDeleted={props.onDeleted}
                       onOpenChange={onDeleteOpen}
                       page={props.page}
                     />
-                  )}
-                  {save}
-                </>
+                    {save}
+                  </>
+                )
               }
               description={t("fixedPageEditor.kindOf", { kind: kind.label })}
               title={t(

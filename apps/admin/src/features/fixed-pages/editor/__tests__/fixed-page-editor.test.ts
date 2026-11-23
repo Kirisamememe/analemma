@@ -60,12 +60,11 @@ test("種類を選ぶと slug の欄に focus を移し、作成の送信中の�
     "紹介",
   );
   const length = history.length;
-  await save();
+  const create = screen.getByRole("button", { name: "保存" });
+  await userEvent.keyboard("{Enter}");
   await screen.findAllByRole("progressbar");
 
-  for (const button of screen.getAllByRole("button", { name: /保存/v })) {
-    await userEvent.click(button);
-  }
+  await userEvent.click(create);
 
   await userEvent.keyboard("{Enter}");
   expect(
