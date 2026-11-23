@@ -138,7 +138,7 @@ describe("開発のときの origin", () => {
 });
 
 describe("開発のときの import", () => {
-  test.each(["../src/routes/login-page.tsx", "../.storybook/story-frame.tsx"])(
+  test.each(["../src/routes/home-page.tsx", "../.storybook/story-frame.tsx"])(
     "%s から別名で src/ のモジュールを解決すること",
     async (path) => {
       const server = await createServer({

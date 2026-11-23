@@ -19,8 +19,8 @@ import * as featuresImagesSection from "@/features/images/list/__stories__/image
 import * as featuresImagesImageRows from "@/features/images/ui/__stories__/image-rows.stories";
 import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/image-viewer.stories";
 import * as featuresImagesInfoList from "@/features/images/ui/__stories__/info-list.stories";
-import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
-import * as routesLoginPage from "@/routes/__stories__/login-page.stories";
+import * as routesEnrollPage from "@/routes/auth/__stories__/enroll-page.stories";
+import * as routesLoginPage from "@/routes/auth/__stories__/login-page.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
 import * as routesDeployTokensPage from "@/routes/deploy-tokens/__stories__/deploy-tokens-page.stories";
 import * as routesFixedPageEditor from "@/routes/fixed-pages/__stories__/fixed-page-editor.stories";
@@ -86,8 +86,8 @@ const MODULES = {
   "features/images/ui/__stories__/image-viewer.stories.tsx":
     featuresImagesImageViewer,
   "features/images/ui/__stories__/info-list.stories.ts": featuresImagesInfoList,
-  "routes/__stories__/enroll-page.stories.ts": routesEnrollPage,
-  "routes/__stories__/login-page.stories.ts": routesLoginPage,
+  "routes/auth/__stories__/enroll-page.stories.ts": routesEnrollPage,
+  "routes/auth/__stories__/login-page.stories.ts": routesLoginPage,
   "routes/__stories__/security-page.stories.ts": routesSecurityPage,
   "routes/deploy-tokens/__stories__/deploy-tokens-page.stories.ts":
     routesDeployTokensPage,

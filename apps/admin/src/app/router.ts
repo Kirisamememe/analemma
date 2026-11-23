@@ -14,15 +14,15 @@ import {
   toLoginSearch,
 } from "@/features/auth/logic/login-search";
 import type { Authenticator } from "@/features/auth/webauthn";
+import { EnrollPage } from "@/routes/auth/enroll-page";
+import { LoginPage } from "@/routes/auth/login-page";
 import { DeployTokensPage } from "@/routes/deploy-tokens/deploy-tokens-page";
-import { EnrollPage } from "@/routes/enroll-page";
 import {
   EditFixedPage,
   NewFixedPage,
 } from "@/routes/fixed-pages/fixed-page-routes";
 import { FixedPagesPage } from "@/routes/fixed-pages/fixed-pages-page";
 import { HomePage } from "@/routes/home-page";
-import { LoginPage } from "@/routes/login-page";
 import { NotFoundPage } from "@/routes/not-found-page";
 import { RootLayout } from "@/routes/root-layout";
 import { SecurityPage } from "@/routes/security-page";
