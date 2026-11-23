@@ -16,6 +16,7 @@ export const ImageViewerActions = (): ReactNode => {
     from: "/images/$id",
     select: (params) => params.id.toLowerCase(),
   });
+
   const query = useViewerImage(id);
   const { t } = useTranslation();
   const navigate = useNavigate();
