@@ -81,7 +81,7 @@ export const useApiQuery = <Data>({
   if (query.isPending || query.isError) {
     return {
       _tag: "Failed",
-      isRetrying: query.isFetching,
+      isRetrying: query.fetchStatus !== "idle", // 次の試行を待って一時停止している間も、取り直している
       retry: () => {
         void query.refetch();
       },
