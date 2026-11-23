@@ -35,7 +35,9 @@ export const AppNumberField = (props: AppNumberFieldProps): ReactNode => {
       name={field.name}
       onBlur={field.handleBlur}
       onChange={(next) => {
-        field.handleChange(Number.isNaN(next) ? null : next);
+        if (!field.form.state.isSubmitting) {
+          field.handleChange(Number.isNaN(next) ? null : next);
+        }
       }}
       validationBehavior="aria"
       value={value ?? Number.NaN}

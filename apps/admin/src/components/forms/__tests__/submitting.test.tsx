@@ -143,7 +143,10 @@ describe("送信の途中の入力欄", () => {
 
     await user.type(titleInput(), "の追記");
     await user.type(screen.getByRole("textbox", { name: "本文" }), "の追記");
-    await user.type(screen.getByRole("textbox", { name: "順番" }), "5");
+    const order = screen.getByRole("textbox", { name: "順番" });
+    await user.type(order, "5");
+    await user.tripleClick(order);
+    await user.paste("5");
     await user.click(screen.getByRole("spinbutton", { name: /day.*公開日/iv }));
     await user.keyboard("{ArrowUp}");
     await user.click(screen.getByRole("checkbox", { name: "先頭に表示する" }));
@@ -188,7 +191,7 @@ describe("送信の途中の入力欄", () => {
     expect(titleInput().value).toBe("春の便りの追記");
   });
 
-  test("送信の前に流れる非同期の検証の間は、入力を止めないこと", async () => {
+  test("入力や blur で流れる非同期の検証の間は、入力を止めないこと", async () => {
     const user = userEvent.setup();
     const titleValidation = Promise.withResolvers<undefined>();
     const validateTitleOnChange = mock(

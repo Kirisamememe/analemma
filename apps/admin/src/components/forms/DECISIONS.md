@@ -44,11 +44,11 @@ blur で出る誤りと、送信時に受け取る誤りと、入力すると送
 
 ## 送信の途中の入力
 
-`form.handleSubmit` を呼んでから、送信の検証と `onSubmit` が終わるまで(TanStack Form の `isSubmitting`)、`field.*` の部品は入力を受け付けない。送信の検証は、onChange・onBlur・onSubmit の validator を、その時点の値ですべて流し直す。応答を待つ間に入力を変えると、検証した値と異なる値が `onSubmit` に渡る。`isSubmitting` は送信の検証の間も立つので、上の例の `Button` の `isPending` も、検証の応答を待つ間から送信中になる。
+`form.handleSubmit` を呼んでから、送信の検証と `onSubmit` が終わるまで(TanStack Form の `isSubmitting`)、`field.*` の部品は入力を受け付けない。送信の検証は、onChange・onBlur・onSubmit の validator を、その時点の値ですべて流し直す。止めないと、応答を待つ間に変えた入力が、検証した値と異なる値として `onSubmit` に渡る。`isSubmitting` は送信の検証の間も立つので、上の例の `Button` の `isPending` も、検証の応答を待つ間から送信中になる。
 
-止めるときは、部品ごとに読み取り専用(`isReadOnly`)を渡す。`isDisabled`・`fieldset` の `disabled`・`inert` は、focus を外すので使わない。React Aria Components の context で `Form` からまとめて渡す案は、`isReadOnly` の既定値の `false` を渡す primitives では、その `false` が context の値より勝つので、primitives をそろえ直す分だけ部品ごとに渡すより差分が大きい。React Aria Components の Select は読み取り専用を持たないので、`field.Select` は送信の途中に選んだ値を受け取らない。読み取り専用の見た目は primitives のまま変えない(NumberField の増減のボタンは無効の色になる)。
+止めるときは、部品ごとに読み取り専用(`isReadOnly`)を渡す。`isDisabled`・`fieldset` の `disabled`・`inert` は、focus を外すので使わない。React Aria Components の context で `Form` からまとめて渡す案もあるが、primitives は `isReadOnly` の既定値の `false` を渡し、その `false` が context の値より勝つ。まとめて渡すには primitives が既定値を渡さないように直す必要があり、部品ごとに渡すより差分が大きい。読み取り専用だけでは止まらない `field.Select` と `field.NumberField` は、送信の途中の変更を受け取らない。React Aria Components の Select は読み取り専用を持たず、NumberField は読み取り専用でも、全選択して貼り付けた値を確定する。読み取り専用の見た目は primitives のまま変えない(NumberField の増減のボタンは無効の色になる)。
 
-送信の前に流れる非同期の validator(`onChangeAsync`・`onBlurAsync`)が答えるまでの間は、入力を止めない。打つたびに入力欄が止まり、続けて打てなくなる。送信のときに検証を流し直すので、送信の途中だけ止めれば、検証した値と `onSubmit` に渡る値はそろう。6種の部品を送信の途中に操作できる story は `__stories__/submitting.stories.tsx` に置く。
+入力や blur で流れる非同期の validator(`onChangeAsync`・`onBlurAsync`)が答えるまでの間は、入力を止めない。止めると、打つたびに入力欄が止まり、続けて打てなくなる。送信のときに検証を流し直すので、送信の途中だけ止めれば、検証した値と `onSubmit` に渡る値はそろう。6種の部品を送信の途中に操作できる story は `__stories__/submitting.stories.tsx` に置く。
 
 ## Checkbox、Select、DateField
 
