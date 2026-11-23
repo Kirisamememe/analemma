@@ -88,7 +88,7 @@ const Example = ({ defaultValues, onSubmit }: ExampleProps): ReactNode => {
 };
 
 const CASES: readonly {
-  /** 誤りを出す入力欄の種類。 */
+  /** テスト名に使う入力欄の名前。 */
   readonly kind: string;
   /** 空にする値。 */
   readonly empty: Partial<Values>;

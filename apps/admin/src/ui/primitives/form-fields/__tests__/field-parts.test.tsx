@@ -12,7 +12,7 @@ import { TextField } from "@/ui/primitives/form-fields/text-field";
 afterEach(cleanup);
 
 const FIELDS: readonly {
-  /** 入力欄の種類。 */
+  /** 入力欄を描く部品の名前。 */
   readonly name: string;
   /** 入力が要るかを受けて、ラベルを「名前」にした入力欄を描く関数。 */
   readonly render: (isRequired: boolean) => ReactElement;

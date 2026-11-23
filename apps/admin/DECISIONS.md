@@ -212,9 +212,9 @@ features のビジネスロジックを外のライブラリから独立させ�
 - 入力の誤り(送るときに validator が見つけるもの)は、入力欄に出す。送信の検証で止めたら、最初の誤りの欄を見える位置まで scroll して focus を移す(`src/components/forms/DECISIONS.md` の「送信の検証で止めたときの focus」)。どこを直すかは、欄の場所で分かるので、Toast は出さない。
 - server の応答で分かる誤り(通信の失敗・再認証の失敗・もう無い対象・並べ直しでの ID の不一致・slug の重複・中身の issue など)は、失敗の Toast(`danger`)で知らせる。server が欄を名指す誤り(slug の重複など)は、Toast に加えて、その欄も誤りの状態にし、どこを直せばよいかを欄でも示す。
 - Dialog の中で送った操作の失敗も、Toast で知らせ、Dialog は開いたままにする。画面の上で送った操作の失敗と、出し方をそろえる。送り直せるように、Dialog は閉じない。
-- 失敗の Toast は、同じ操作を送り直すときと、その Dialog を閉じるときに閉じる(`useFailureToast`)。閉じないと、送り直して成功したとき、失敗と成功の Toast が並ぶ。Dialog の中で送った操作の失敗は、Dialog を閉じれば用が済む。ログアウトを送り直すときも、前の失敗の Toast を閉じる(Toast の queue はログインの前と後で共通なので、閉じないと、ログインの画面に失敗の Toast が残る)。
+- 失敗の Toast は、同じ操作を送り直すときと、その Dialog を閉じるときに閉じる(`useFailureToast`)。閉じないと、送り直して成功したとき、失敗と成功の Toast が並ぶ。Dialog の中で送った操作の失敗は、Dialog を閉じれば用が済む。引き出したナビからのログアウトに失敗したときも、広い画面と同じく Toast で知らせる。ログアウトを送り直すときも、前の失敗の Toast を閉じる(Toast の queue はログインの前と後で共通なので、閉じないと、ログインの画面に失敗の Toast が残る)。
 - 再認証をキャンセルしたときは、何も知らせない。利用者が自分で OS の画面を閉じたもので、Dialog は送る前のまま開いている。Toast には `success` と `danger` しかなく、キャンセルは失敗ではない。
-- 操作の成功は Toast で知らせる。固定ページの公開の切り替え・並べ直しの結果もこれに当たる。たとえば並べ直しの途中でページが増減したときは、一覧を取り直したことを Toast で知らせる。ログアウトのボタンは、狭い画面では引き出したナビの中にあるが、広い画面と同じく Toast にする。
+- 操作の成功は Toast で知らせる。固定ページの公開を切り替えたときや、並び順を保存したときに表示する。
 - 画面の状態は、その場の `Notice` で知らせる。読み込めなかったことのように、直すか見直すまで続くもの。
 - 押したボタンだけにかかわる結果(トークンのコピー)は、ボタンの文言とアイコンで返す(`src/features/deploy-tokens/DECISIONS.md`)。
 - ログインと登録用 URL の画面の結果は、中身で分ける。押し直しても変わらない、画面の状態を表すもの(URL に token が無い・登録用 URL が使えない・その認証器はもう登録済み)は、読み込めなかったことと同じく、画面の `Notice` に残す。直すには登録用 URL を出し直すか、ログインの画面へ移る必要があり、そのことを画面に残しておく。押し直せば済む、操作の一時的な結果(server がログインや登録を断った・登録されていないパスキー・時間切れ・通信の失敗)は、ほかの操作と同じく失敗の Toast で知らせ、押し直すときに閉じる。利用者が自分で閉じたキャンセルは、Dialog と同じく何も知らせない。
@@ -260,7 +260,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - 枠は TanStack Router の route を描かず、`Link` が読む router だけを `RouterContextProvider` で渡す(router は枠ごとに作り、story のあいだで履歴を持ち越さない)。route を描くと、route の境界が story の想定外の失敗を受け止め、Storybook にもテストにも上がらない。
 - a11y は `@storybook/addon-a11y` の panel で見る(コントラストを含む)。Vitest を入れていないので、a11y の誤りで落とすテストにはしない。
 - 全部の story を `composeStories` で happy-dom の上に描き、想定外の失敗も `console.error` も出さないことを、テスト(`src/__tests__/stories.test.tsx`)で確かめる。ツールバーの値が html の `lang`・`data-theme` と部品の訳に届くことと、`viteFinal` が `cssTarget` を入れて head の script の plugin を外すことも、テストで確かめる。CI では Storybook を起動もビルドもしないので、壊れた story に気づけるのはこのテストだけ。手間は、story のファイルを足すたびに import を1行足すことで、足し忘れると、一覧と `__stories__` のファイルを比べるテストで落ちる。happy-dom は配置を計算しないので、見た目(並び・中心・余白)は Storybook をブラウザで開いて測る(セルフレビューの観点)。
-- 画面の story(`src/routes/` の下の `__stories__`)は、`src/testing/app-preview.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体を描く。テストと同じ作り物なので、ボタンを押せば、作り物の server の答えで画面が進む。server の状態は、story を開いたときに作る(`createRoutes`。Controls で変えても作り直さないので、`path` などは Controls から外す)。ログインと登録の story は、成功した後にパスキーの画面まで進めるよう、パスキーの作り物の server もつなぐ。ボタンを押してから出る状態(ログインのキャンセル・使えない登録用 URL など)は、story ごとに作り物の server と認証器の答えを決めておき、story を開いて押すと見られるようにする。play で押させると、Storybook が操作を React の `act` の中で流し、router の suspend とぶつかって、入力した名前が消えた画面に描き直された。そのため play は使わない。押した後の状態は、画面のテストが確かめている。
+- 画面の story(`src/routes/` の下の `__stories__`)は、`src/testing/app-preview.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体を描く。テストと同じ作り物なので、ボタンを押せば、作り物の server の答えで画面が進む。server の状態は、story を開いたときに作る(`createRoutes`。Controls で変えても作り直さないので、`path` などは Controls から外す)。ログインと登録の story は、成功した後にパスキーの画面まで進めるよう、パスキーの作り物の server もつなぐ。ボタンを押してから出る状態(登録していないパスキーでのログイン・使えない登録用 URL など)は、story ごとに作り物の server と認証器の答えを決めておき、story を開いて押すと見られるようにする。play で押させると、Storybook が操作を React の `act` の中で流し、router の suspend とぶつかって、入力した名前が消えた画面に描き直された。そのため play は使わない。押した後の状態は、画面のテストが確かめている。
 - 画面の story は訳を出すので、html の `lang` をツールバーの言語にする(`contentLang: null`)。
 - telemetry は切る(`core.disableTelemetry`)。
 
