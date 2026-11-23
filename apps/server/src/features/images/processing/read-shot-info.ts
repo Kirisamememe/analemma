@@ -193,6 +193,6 @@ export const toShotInfo = (
   };
 };
 
-/** 写真の bytes から、EXIF の撮影の情報を読む。 */
+/** 写真のバイト列から、EXIF の撮影の情報を読む。 */
 export const readShotInfo = async (bytes: Uint8Array): Promise<ShotInfo> =>
   toShotInfo(await readExifTags(bytes, SHOT_TAGS));

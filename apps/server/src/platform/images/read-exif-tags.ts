@@ -29,7 +29,7 @@ export type ExifValue = Exclude<
   undefined
 >;
 
-/** 写真の bytes から、名前を挙げた Exif の tag だけを読む。 */
+/** 写真のバイト列から、名前を挙げた Exif の tag だけを読む。 */
 export const readExifTags = async <const Name extends ExifTagName>(
   bytes: Uint8Array,
   names: readonly Name[],

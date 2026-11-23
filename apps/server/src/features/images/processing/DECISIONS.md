@@ -5,7 +5,7 @@
 ## 撮影の情報
 
 - 読むのは、撮影日時(DateTimeOriginal)・時差(OffsetTimeOriginal)・カメラ(Make・Model)・レンズ(LensMake・LensModel)・焦点距離・絞り・シャッター速度・ISO(ISOSpeedRatings と、上限を超えたときに感度を書く SensitivityType・StandardOutputSensitivity・RecommendedExposureIndex・ISOSpeed)の tag だけ。GPS の tag は挙げない(ユーザーと決めた)。ExifReader は挙げていない tag の値を decode しないので、GPS は読みもしない。
-- 無い項目は、返す値に持たせない(`undefined` も入れない)。DB の列で null にするのは、行を作る側。
+- 値が無いプロパティは省く(`undefined` も入れない)。DB の列で null にするのは、行を作る側。
 
 ### 値の形
 
