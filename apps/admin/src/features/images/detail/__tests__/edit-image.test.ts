@@ -190,19 +190,22 @@ describe("EditImage", () => {
     });
     await userEvent.type(alt, "余分");
     expect(alt.value).toBe("夜景");
+
     const offline = (): FakeReply<"admin/images/get"> => {
       server.replyNext("admin/images/get", offline);
       return { error: "INTERNAL_SERVER_ERROR", defined: false };
     };
+
     server.replyNext("admin/images/get", offline);
     deferred.resolve({ error: "INTERNAL_SERVER_ERROR", defined: false });
     await screen.findByText(/画像を保存できませんでした/v);
     await waitFor(
-      () =>
+      () => {
         expect(
           queryClient.getQueryState(["admin", "images", "get", image.id])
             ?.status,
-        ).toBe("error"),
+        ).toBe("error");
+      },
       { timeout: 8000 },
     );
     expect(alt.isConnected).toBe(true);
