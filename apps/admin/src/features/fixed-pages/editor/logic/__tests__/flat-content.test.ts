@@ -10,6 +10,7 @@ import {
 import { toFixedPageContent } from "@/features/fixed-pages/logic/to-fixed-page-content";
 
 const name = { key: "name", label: "名前", type: "text" };
+
 const fields = fieldDefinitions.parse([
   { key: "hero", label: "紹介", type: "group", fields: [name] },
   { key: "rows", label: "行", type: "repeat", fields: [name] },
@@ -25,6 +26,7 @@ test("各段の定義に無いキーを保ち、現在の並びにある要素�
       { name: "C", extra: 3 },
     ],
   });
+
   const flat = flattenContent(form);
   const [first, , last] = flat.items["rows"] ?? [];
 

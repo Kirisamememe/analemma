@@ -6,6 +6,7 @@ import { createEditorValues } from "../../create-editor-values";
 import { hasUnsavedChanges } from "../save-input";
 
 const name = { type: "text", key: "name", label: "名前" };
+
 const fields = fieldDefinitions.parse([
   { type: "text", key: "lead", label: "リード文", optional: true },
   { type: "repeat", key: "rows", label: "行", fields: [name] },
@@ -17,6 +18,7 @@ describe("hasUnsavedChanges", () => {
     title: "紹介",
     content: { legacy: 1, rows: [{ name: "A" }, { name: "B" }] },
   });
+
   const [first, second] = saved.items["rows"] ?? [];
 
   test("保存で送る値が同じなら、送らない未入力の違いがあっても変わっていない", () => {
