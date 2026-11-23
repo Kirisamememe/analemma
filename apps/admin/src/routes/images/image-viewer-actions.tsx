@@ -38,7 +38,7 @@ export const ImageViewerActions = (): ReactNode => {
   const isDisabled = current === undefined || current.id !== id;
 
   return (
-    <Fragment key={shown.id}>
+    <Fragment key={id}>
       <EditImage image={shown} isDisabled={isDisabled} />
       <PublicationButton image={shown} isDisabled={isDisabled} />
       <DeleteImage

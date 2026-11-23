@@ -61,50 +61,54 @@ type LoadingStateProps =
 export const LoadingState = (props: LoadingStateProps): ReactNode => {
   const { base, rows, row, lines, field } = loading();
 
-  const media = props.layout === "media";
+  if (props.layout === "custom" || props.layout === "media") {
+    return (
+      <div
+        className={base({
+          className: props.layout === "media" ? mediaLayout.body() : rows(),
+        })}
+      >
+        <LoadingStatus label={props.label} />
+        {props.layout === "custom" ? (
+          props.children
+        ) : (
+          <>
+            <div aria-hidden="true" className={mediaLayout.stage()}>
+              <span className="relative aspect-photo max-h-full w-full overflow-hidden rounded-control">
+                <Skeleton shape="media" width="full" />
+              </span>
+            </div>
+            <div aria-hidden="true" className={mediaLayout.panel()}>
+              <Skeleton shape="text" width="lg" />
+              <Skeleton shape="caption" width="sm" />
+              <Skeleton shape="text" width="md" />
+              <Skeleton shape="caption" width="lg" />
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className={base({ className: media ? mediaLayout.body() : rows() })}>
-      <LoadingStatus
-        label={
-          props.layout === "custom" || props.layout === "media"
-            ? props.label
-            : undefined
-        }
-      />
-      {props.layout === "custom" && props.children}
-      {media && (
-        <>
-          <div aria-hidden="true" className={mediaLayout.stage()}>
-            <span className="relative aspect-photo max-h-full w-full overflow-hidden rounded-control">
-              <Skeleton shape="media" width="full" />
+    <div className={base({ className: rows() })}>
+      <LoadingStatus />
+      {ROWS.map((index) =>
+        props.layout === "list" ? (
+          <span className={row()} key={index}>
+            <span className={lines()}>
+              <Skeleton shape="text" width="md" />
+              <Skeleton shape="caption" width="lg" />
             </span>
-          </div>
-          <div aria-hidden="true" className={mediaLayout.panel()}>
-            <Skeleton shape="text" width="lg" />
-            <Skeleton shape="caption" width="sm" />
-            <Skeleton shape="text" width="md" />
-            <Skeleton shape="caption" width="lg" />
-          </div>
-        </>
+            <Skeleton shape="control-sm" width="xs" />
+          </span>
+        ) : (
+          <span className={field()} key={index}>
+            <Skeleton shape="text" width="sm" />
+            <Skeleton shape="control" width="full" />
+          </span>
+        ),
       )}
-      {(props.layout === "list" || props.layout === "form") &&
-        ROWS.map((index) =>
-          props.layout === "list" ? (
-            <span className={row()} key={index}>
-              <span className={lines()}>
-                <Skeleton shape="text" width="md" />
-                <Skeleton shape="caption" width="lg" />
-              </span>
-              <Skeleton shape="control-sm" width="xs" />
-            </span>
-          ) : (
-            <span className={field()} key={index}>
-              <Skeleton shape="text" width="sm" />
-              <Skeleton shape="control" width="full" />
-            </span>
-          ),
-        )}
     </div>
   );
 };
