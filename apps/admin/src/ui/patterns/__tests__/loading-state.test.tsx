@@ -9,10 +9,14 @@ afterEach(cleanup);
 describe("LoadingState", () => {
   test.each(["list", "form"] as const)(
     "%s の形でも、骨組みは読ませず、読み込んでいることだけを伝える",
-    (layout) => {
+    async (layout) => {
       renderWithI18n(<LoadingState layout={layout} />, "ja");
 
-      expect(screen.getByRole("status").textContent).toBe("読み込んでいます");
+      const status = screen.getByRole("status");
+      expect(status.textContent).toBe("");
+      expect(status.contains(await screen.findByText("読み込んでいます"))).toBe(
+        true,
+      );
     },
   );
 });

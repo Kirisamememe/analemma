@@ -17,7 +17,10 @@ test("取得してよくなるまでは、取得せずに読み込み中を返�
 
   const { result, rerender } = renderHook(
     ({ enabled }: Props) =>
-      useApiQuery({ key: ["admin", "passkeys", "list"], load, enabled }),
+      useApiQuery({
+        key: ["admin", "passkeys", "list"],
+        load: enabled ? load : undefined,
+      }),
     {
       wrapper: withQueryClient(new QueryClient()),
       initialProps: { enabled: false },

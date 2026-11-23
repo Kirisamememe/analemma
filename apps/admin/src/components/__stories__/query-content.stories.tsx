@@ -37,6 +37,10 @@ export const Failed: Story = {
   },
 };
 
+export const Retrying: Story = {
+  args: { query: { _tag: "Failed", isRetrying: true, retry } },
+};
+
 export const Loaded: Story = {
   args: { query: { _tag: "Loaded", data: ["MacBook", "iPhone"] } },
 };

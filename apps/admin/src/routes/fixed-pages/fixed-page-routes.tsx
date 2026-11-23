@@ -77,9 +77,10 @@ const useKind = (name: string | undefined) => {
 
   return useApiQuery({
     key: ["admin", "kinds", "get", name],
-    load: () =>
-      callApi(api.admin.kinds.get({ name: name ?? "" }), ["NOT_FOUND"]),
-    enabled: name !== undefined,
+    load:
+      name === undefined
+        ? undefined
+        : () => callApi(api.admin.kinds.get({ name }), ["NOT_FOUND"]),
   });
 };
 
@@ -238,7 +239,7 @@ export const EditFixedPage = (): ReactNode => {
       ? query.data.data
       : undefined;
 
-  const kind = useKind(page?.kind); // 固定ページを読むまで、種類の定義は読まない
+  const kind = useKind(page?.kind);
 
   const onDeleted = (): void => {
     void navigate({ to: "/fixed-pages", ignoreBlocker: true });

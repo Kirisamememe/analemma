@@ -23,10 +23,14 @@ const renderContent = (
   );
 
 describe("QueryContent", () => {
-  test("読み込み中は、中身の代わりに読み込んでいることを伝える", () => {
+  test("読み込み中は、中身の代わりに読み込んでいることを伝える", async () => {
     renderContent({ _tag: "Loading" });
 
-    expect(screen.getByRole("status").textContent).toBe("読み込んでいます");
+    const status = screen.getByRole("status");
+    expect(status.textContent).toBe("");
+    expect(status.contains(await screen.findByText("読み込んでいます"))).toBe(
+      true,
+    );
     expect(screen.queryByRole("alert")).toBeNull();
   });
 

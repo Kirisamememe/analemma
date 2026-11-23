@@ -8,6 +8,7 @@ import { renderApp } from "@/testing/render-app";
 afterEach(cleanup);
 
 test("固定ページと種類の定義を読み終えるまで、種類の名前を出さずに読み込み中のままにする", async () => {
+  const pageReply = Promise.withResolvers<FakeReply<"admin/fixedPages/get">>();
   const kindReply = Promise.withResolvers<FakeReply<"admin/kinds/get">>();
 
   const { calls } = renderApp({
@@ -16,12 +17,18 @@ test("固定ページと種類の定義を読み終えるまで、種類の名�
       "admin/session/get": () => ({
         output: { expiresAt: "2026-11-23T00:00:00.000Z" },
       }),
-      "admin/fixedPages/get": () => ({ output: page }),
+      "admin/fixedPages/get": () => pageReply.promise,
       "admin/kinds/get": () => kindReply.promise,
     },
   });
 
   const loading = await screen.findByRole("status");
+
+  await waitFor(() => {
+    expect(calls).toContain("admin/fixedPages/get");
+  });
+  expect(calls).not.toContain("admin/kinds/get");
+  pageReply.resolve({ output: page });
 
   await waitFor(() => {
     expect(calls).toContain("admin/kinds/get");

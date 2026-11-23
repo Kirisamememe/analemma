@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { useLoadingAnnouncement } from "@/ui/patterns/hooks/use-loading-announcement";
 import { Skeleton } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 
@@ -15,6 +16,24 @@ const loading = tv({
   },
 });
 
+/** 読み込み中の通知に渡す値。 */
+type LoadingStatusProps = {
+  /** 読み込んでいる内容を伝える文言。 */
+  label?: string;
+};
+
+/** 読み込みが続いたときに、先に置いた通知欄の中身を更新する。 */
+export const LoadingStatus = ({ label }: LoadingStatusProps): ReactNode => {
+  const { t } = useTranslation();
+  const ready = useLoadingAnnouncement();
+
+  return (
+    <output className="sr-only forced-colors:not-sr-only">
+      {ready && (label ?? t("ui.loading"))}
+    </output>
+  );
+};
+
 /** 読み込み中の欄に渡す値。 */
 type LoadingStateProps = {
   /** 読み込む中身の形。 */
@@ -23,12 +42,11 @@ type LoadingStateProps = {
 
 /** 中身の形をなぞる骨組みで、読み込んでいることを伝える欄。 */
 export const LoadingState = ({ layout }: LoadingStateProps): ReactNode => {
-  const { t } = useTranslation();
   const { base, row, lines, field } = loading();
 
   return (
-    <output className={base()}>
-      <span className="sr-only">{t("ui.loading")}</span>
+    <div className={base()}>
+      <LoadingStatus />
       {ROWS.map((index) =>
         layout === "list" ? (
           <span className={row()} key={index}>
@@ -45,6 +63,6 @@ export const LoadingState = ({ layout }: LoadingStateProps): ReactNode => {
           </span>
         ),
       )}
-    </output>
+    </div>
   );
 };

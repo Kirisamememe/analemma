@@ -35,7 +35,7 @@
 - features の製品のコードから import できるのは、`react`(`.ts` では hook と context のファイルだけ)・`@analemma/contract`・管理画面の中のモジュールだけ。外のライブラリは `src/i18n/` と `src/api/` の部品を通して使う(lint で止まる)。`src/routes/` は今は対象外。
 - features で API の失敗を仕分けるときは `callApi` を使う。
 - 操作を送っている間は、そのボタンを無効にする。同じ操作を続けて送らせない。
-- route の `beforeLoad`・`loader` で、通信の応答を待たない。server のデータは画面の中で読み、読み込み中は `LoadingState`、読み込めなかったことは `ErrorState` で出す。1つの取得を出し分けるだけなら `QueryContent` を使う。
+- route の `beforeLoad`・`loader` で、通信の応答を待たない。server のデータは画面の中で読み、読み込み中は `LoadingState`、読み込めなかったことは `ErrorState` で出す。見出しや操作を保ったまま、欄の中で1つの取得を出し分けるときは `QueryContent` を使う。
 - パスキーでのログインの最中(options を取ってから、ログインの応答が届くまで)は、ほかの管理用 API を呼ばない。
 - 登録用 URL は `/enroll#{token}`。token は URL の `#` の後ろから読み、server に送るだけにする。登録したら、履歴から登録用 URL を消す(`replace`)。
 - パスキーの追加と削除は、再認証(`src/queries/reauthenticate.ts`)の資格情報と一緒に送る。取り消せない操作は、確認の Dialog を出してから送る。
