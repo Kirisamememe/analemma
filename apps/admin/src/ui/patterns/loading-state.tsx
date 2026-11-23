@@ -10,7 +10,8 @@ const ROWS = [0, 1, 2] as const;
 
 const loading = tv({
   slots: {
-    base: "flex loading-state-animation flex-col gap-4",
+    base: "loading-state-animation",
+    rows: "flex flex-col gap-4",
     row: "flex items-center justify-between gap-4",
     lines: "flex min-w-0 grow flex-col gap-0.5",
     field: "flex flex-col gap-1.5",
@@ -41,7 +42,12 @@ type LoadingStateProps =
       /** 読み込む中身の形。 */
       layout: "list" | "form";
     }
-  | { layout: "media"; label?: string }
+  | {
+      /** 写真と情報の読み込み表示。 */
+      layout: "media";
+      /** 読み込んでいる内容を伝える文言。 */
+      label?: string;
+    }
   | {
       /** 画面の形に合わせた骨組み。 */
       layout: "custom";
@@ -53,15 +59,12 @@ type LoadingStateProps =
 
 /** 中身の形をなぞる骨組みで、読み込んでいることを伝える欄。 */
 export const LoadingState = (props: LoadingStateProps): ReactNode => {
-  const { base, row, lines, field } = loading();
+  const { base, rows, row, lines, field } = loading();
 
   const media = props.layout === "media";
-  const className = media
-    ? mediaLayout.body({ className: "loading-state-animation" })
-    : base();
 
   return (
-    <div className={className}>
+    <div className={base({ className: media ? mediaLayout.body() : rows() })}>
       <LoadingStatus
         label={
           props.layout === "custom" || props.layout === "media"

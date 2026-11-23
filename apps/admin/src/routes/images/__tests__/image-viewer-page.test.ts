@@ -114,7 +114,7 @@ describe("ImageViewerPage", () => {
   test.each(["loading", "failed", "gone", "photo"] as const)(
     "画像の画面には %s のときも main が1つある",
     async (state) => {
-      const server = createImageRoutes(IMAGES);
+      const server = createImageRoutes([{ title: "夕暮れの稜線" }]);
       const [photo] = server.images();
 
       if (photo === undefined) throw new Error("画像が必要です");
@@ -152,7 +152,16 @@ describe("ImageViewerPage", () => {
         });
       }
 
-      if (state === "failed") await page.findByRole("heading", { level: 1 });
+      if (state === "failed") {
+        await page.findByRole("heading", { level: 1 });
+        await userEvent.click(
+          page.getByRole("button", { name: "もう一度試す" }),
+        );
+        await heading("夕暮れの稜線");
+        expect(document.activeElement).toBe(
+          screen.getByRole("link", { name: "画像の一覧" }),
+        );
+      }
 
       if (state === "loading") {
         expect(page.queryByRole("img")).toBeNull();
@@ -165,23 +174,6 @@ describe("ImageViewerPage", () => {
       expect(screen.getAllByRole("main")).toHaveLength(1);
     },
   );
-
-  test("移った写真の前後とも無いときは、一覧へのリンクに focus を戻す", async () => {
-    const { server } = setUp(0);
-    await heading("夕暮れの稜線");
-    server.replyNext("admin/images/neighbors", () => ({
-      output: { newer: null, older: null },
-    }));
-    const next = await screen.findByRole("link", { name: "次の画像" });
-    next.focus();
-    await userEvent.keyboard("{Enter}");
-    await heading("港の灯り");
-    await waitFor(() => {
-      expect(document.activeElement).toBe(
-        screen.getByRole("link", { name: "画像の一覧" }),
-      );
-    });
-  });
 
   test("画像と前後の行き先を待ってから同じ向きに focus を戻し、端では逆側のリンクに移す", async () => {
     const { server } = setUp(0);
