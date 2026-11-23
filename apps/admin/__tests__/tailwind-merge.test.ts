@@ -71,6 +71,7 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "h-control": "h-full",
   "h-control-sm": "h-full",
   "h-nav-bar": "h-full",
+  "max-h-viewer-photo": "max-h-dvh",
   "top-toast": "top-0",
   "size-icon-xs": "size-full",
   "size-icon-sm": "size-full",
