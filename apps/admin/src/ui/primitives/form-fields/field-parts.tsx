@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { FieldError, Label, Text } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { Badge } from "@/ui/primitives/badge";
+import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
 /** 入力欄の文言。 */
@@ -11,13 +11,21 @@ type FieldTextProps = {
   children: string;
 };
 
+const requiredBadge = tv({
+  base: [
+    "inline-flex shrink-0 items-center rounded-xs px-1.5",
+    "border border-transparent bg-danger/10 text-danger",
+    typography({ role: "caption" }),
+  ],
+});
+
 /** 入力が要ることを示すラベル。 */
 export const RequiredBadge = (): ReactNode => {
   const { t } = useTranslation();
 
   return (
-    <span aria-hidden="true" className="flex shrink-0">
-      <Badge tone="neutral">{t("ui.required")}</Badge>
+    <span aria-hidden="true" className={requiredBadge()}>
+      {t("ui.required")}
     </span>
   );
 };
