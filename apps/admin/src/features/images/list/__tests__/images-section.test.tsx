@@ -6,7 +6,7 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import { ImagesSection } from "@/features/images/list/images-section";
 import type { FakeRoutes } from "@/testing/create-fake-api";
@@ -54,11 +54,14 @@ const failingAfterFirstPage = (
   };
 };
 
-const renderSection = async (routes: FakeRoutes) => {
+const renderSection = async (
+  routes: FakeRoutes,
+  imageHref = (_id: string): "/fixed-pages" => "/fixed-pages",
+) => {
   const app = createTestApp({ path: "/", routes });
 
   await app.router.load();
-  render(<ImagesSection imageHref={() => "/fixed-pages"} />, {
+  render(<ImagesSection imageHref={imageHref} />, {
     wrapper: withAppProviders(app),
   });
 };
@@ -111,7 +114,9 @@ describe("ImagesSection", () => {
   }, 15_000);
 
   test("続きを読むと下に足して、足した最初の画像に focus を移し、最後まで読むと操作を消す", async () => {
-    await renderSection(createImageRoutes(many(55)).routes);
+    const imageHref = mock((_id: string): "/fixed-pages" => "/fixed-pages");
+
+    await renderSection(createImageRoutes(many(55)).routes, imageHref);
 
     expect(await linkNames()).toHaveLength(50);
     await userEvent.click(
@@ -124,6 +129,7 @@ describe("ImagesSection", () => {
       expect(document.activeElement?.textContent).toBe("写真 51");
     });
     expect(screen.queryByRole("button", { name: "さらに読み込む" })).toBeNull();
+    expect(imageHref).toHaveBeenCalledTimes(55);
   });
 
   test("続きを読めなければ、読んだ画像を残したまま、続きを読めなかった欄を出す", async () => {

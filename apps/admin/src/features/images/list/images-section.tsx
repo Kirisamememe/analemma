@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { memo, type ReactNode, useCallback, useRef } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import {
@@ -6,6 +6,7 @@ import {
   useApiInfiniteQuery,
 } from "@/api/server-state/use-api-infinite-query";
 import {
+  type ImageSummary,
   IMAGES_QUERY_KEY,
   loadImagesPage,
 } from "@/features/images/queries/images-query";
@@ -67,12 +68,67 @@ type ImagesSectionProps = {
   imageHref: (id: string) => AppHref;
 };
 
+type ImagePageProps = ImagesSectionProps & {
+  /** 1ページ分の画像。 */
+  images: readonly ImageSummary[];
+  /** ページの番号。 */
+  pageIndex: number;
+  /** ページの最初のリンクを受け取る関数。 */
+  onFirstLink: (pageIndex: number, link: HTMLAnchorElement | null) => void;
+};
+
+const PageTiles = ({
+  images,
+  imageHref,
+  pageIndex,
+  onFirstLink,
+}: ImagePageProps): ReactNode => {
+  const t = useTranslate();
+  const locale = useLocale();
+
+  return images.map((image, index) => (
+    <ImageTile
+      alt={image.alt}
+      badge={image.published ? undefined : t("images.unpublished")}
+      date={
+        image.takenAt === null
+          ? undefined
+          : formatLocalDate(locale, image.takenAt)
+      }
+      href={imageHref(image.id)}
+      images={image.deliveryImages}
+      key={image.id}
+      linkRef={
+        index === 0
+          ? (link) => {
+              onFirstLink(pageIndex, link);
+            }
+          : undefined
+      }
+      missing={t("images.noDeliveryImage")}
+      title={image.title}
+      untitled={t("images.untitled")}
+    />
+  ));
+};
+
+const ImagePage = memo(PageTiles);
+
 /** 画像の一覧(新しく足した順)と、続きを読む操作。 */
 export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
   const t = useTranslate();
-  const locale = useLocale();
   const { api } = useAppContext();
-  const [focusAt, setFocusAt] = useState<number>(); // 続きを読んだら、足した最初の写真に focus を移す
+  const focusPage = useRef<number>(undefined);
+
+  const focusFirstLink = useCallback(
+    (pageIndex: number, link: HTMLAnchorElement | null): void => {
+      if (link === null || pageIndex !== focusPage.current) return;
+
+      focusPage.current = undefined;
+      link.focus();
+    },
+    [],
+  );
 
   const query = useApiInfiniteQuery({
     key: IMAGES_QUERY_KEY,
@@ -96,9 +152,7 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
     );
   }
 
-  const images = query.pages.flatMap((page) => page.images);
-
-  if (images.length === 0) {
+  if (!query.pages.some((page) => page.images.length > 0)) {
     return (
       <EmptyState
         description={t("images.emptyDescription")}
@@ -108,39 +162,27 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
     );
   }
 
-  const focusOnce = (link: HTMLAnchorElement | null): void => {
-    if (link === null) return;
-
-    link.focus();
-    setFocusAt(undefined);
-  };
-
   return (
     <Stack gap={8}>
       <ImageRows label={t("images.title")}>
-        {images.map((image, index) => (
-          <ImageTile
-            alt={image.alt}
-            badge={image.published ? undefined : t("images.unpublished")}
-            date={
-              image.takenAt === null
-                ? undefined
-                : formatLocalDate(locale, image.takenAt)
-            }
-            href={imageHref(image.id)}
-            images={image.deliveryImages}
-            key={image.id}
-            linkRef={index === focusAt ? focusOnce : undefined}
-            missing={t("images.noDeliveryImage")}
-            title={image.title}
-            untitled={t("images.untitled")}
-          />
-        ))}
+        {query.pages.map(({ images }, pageIndex) => {
+          const [first] = images;
+
+          return first === undefined ? null : (
+            <ImagePage
+              imageHref={imageHref}
+              images={images}
+              key={first.id}
+              onFirstLink={focusFirstLink}
+              pageIndex={pageIndex}
+            />
+          );
+        })}
       </ImageRows>
       <More
         next={query.next}
         onLoad={() => {
-          setFocusAt(images.length);
+          focusPage.current = query.pages.length;
         }}
       />
     </Stack>
