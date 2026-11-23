@@ -10,6 +10,8 @@ export const en = {
   "fixedPageEditor.kindGone": "This kind no longer exists.",
   "fixedPageEditor.pageGone": "This fixed page no longer exists.",
   "fixedPageEditor.loadFailed": "Could not load the fixed page",
+  "fixedPageEditor.kindsRefreshFailed": "Could not refresh the list of kinds.",
+  "fixedPageEditor.reloadKinds": "Reload",
   "fixedPageEditor.kindsLoadFailed": "Could not load kinds",
   "fixedPageEditor.kindLoadFailed": "Could not load the kind definition",
   "fixedPageEditor.kindLoadFailedDescription":

@@ -68,6 +68,7 @@ export const useEditorForm = (
 
   const saved = useRef(initial); // 開いたときの値か、最後に保存できた値
   const submitted = useRef(initial);
+  const sending = useRef(false);
   const failure = useFailureToast();
   const [errors, setErrors] = useState<FieldErrors>({});
   const focusOnRender = useRef<FieldErrors>(undefined);
@@ -99,8 +100,6 @@ export const useEditorForm = (
 
         saved.current = values;
 
-        if (isOpen) reportEditing();
-
         if (isOpen) {
           toast({
             tone: "success",
@@ -121,6 +120,7 @@ export const useEditorForm = (
         }
 
         await refresh(FIXED_PAGES_QUERY_KEY);
+        finishSaving();
 
         return;
       }
@@ -130,9 +130,11 @@ export const useEditorForm = (
       focusOnRender.current = refused.fields;
       setErrors(refused.fields);
       failure.show(refused.message);
+      finishSaving();
     },
     onError: () => {
       failure.show(t("fixedPageEditor.saveFailed"));
+      finishSaving();
     },
   });
 
@@ -143,6 +145,8 @@ export const useEditorForm = (
       failure.close();
       setErrors({});
       submitted.current = value;
+      sending.current = true;
+      onEditing?.(true);
       saving.mutate(value);
     },
   });
@@ -162,12 +166,20 @@ export const useEditorForm = (
 
   const reportEditing = (): void => {
     onEditing?.(
-      (saved.current === initial && !form.state.isDefaultValue) || hasChanges(),
+      sending.current ||
+        (saved.current === initial && !form.state.isDefaultValue) ||
+        hasChanges(),
     );
   };
 
+  const finishSaving = (): void => {
+    sending.current = false;
+
+    if (root.current !== null) reportEditing();
+  };
+
   const observeInput = (node: HTMLDivElement | null) => {
-    root.current = node;
+    attachRoot(node);
 
     if (node === null) return;
 
@@ -180,7 +192,7 @@ export const useEditorForm = (
 
     return () => {
       observer.disconnect();
-      root.current = null;
+      attachRoot(null);
     };
   };
 
@@ -203,11 +215,10 @@ export const useEditorForm = (
   return {
     form,
     fields: base.fields,
-    observeInput,
     errors,
     changed,
     check,
-    root: attachRoot,
+    root: observeInput,
     saving,
     leaving,
   };

@@ -63,6 +63,8 @@ type EditorProps = {
   pageProps: FixedPageEditorProps;
   /** 未保存の入力があるかが変わったときに呼ぶ関数。 */
   onEditing: (editing: boolean) => void;
+  /** 削除の確認を開いたときと閉じたときに呼ぶ関数。 */
+  onDeleteOpen: (open: boolean) => void;
   /** 入力を始めた後に項目が更新されたか。 */
   fieldsChanged: boolean;
 };
@@ -70,18 +72,11 @@ type EditorProps = {
 const Editor = ({
   pageProps: props,
   onEditing,
+  onDeleteOpen,
   fieldsChanged,
 }: EditorProps): ReactNode => {
-  const {
-    form,
-    fields,
-    observeInput,
-    errors,
-    changed,
-    check,
-    saving,
-    leaving,
-  } = useEditorForm(props, onEditing);
+  const { form, fields, root, errors, changed, check, saving, leaving } =
+    useEditorForm(props, onEditing);
 
   const { kind, page } = props;
   const t = useTranslate();
@@ -93,7 +88,7 @@ const Editor = ({
   );
 
   return (
-    <div ref={observeInput}>
+    <div ref={root}>
       <form.AppForm>
         <form.Form isPending={saving.isPending} validationErrors={errors}>
           <Stack gap={8}>
@@ -103,6 +98,7 @@ const Editor = ({
                   {props.page !== undefined && (
                     <DeleteFixedPage
                       onDeleted={props.onDeleted}
+                      onOpenChange={onDeleteOpen}
                       page={props.page}
                     />
                   )}
@@ -177,14 +173,44 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
   const [editedFields, setEditedFields] =
     useState<FixedPageEditorProps["kind"]["fields"]>();
 
-  const fields = editedFields ?? props.kind.fields;
+  const [deletingFields, setDeletingFields] =
+    useState<FixedPageEditorProps["kind"]["fields"]>();
+
+  const [acknowledged, setAcknowledged] = useState<{
+    /** 保存を送った時点で表示していたページ。 */
+    before: NonNullable<FixedPageEditorProps["page"]>;
+    /** 保存が成功した後のページ。 */
+    saved: NonNullable<FixedPageEditorProps["page"]>;
+  }>();
+
+  const fields = editedFields ?? deletingFields ?? props.kind.fields;
   const key = useMemo(() => JSON.stringify(fields), [fields]);
+
+  const pageProps =
+    props.page === undefined
+      ? props
+      : {
+          ...props,
+          page:
+            acknowledged?.before === props.page
+              ? acknowledged.saved
+              : props.page,
+          onSaved: (saved: NonNullable<FixedPageEditorProps["page"]>) => {
+            setAcknowledged({ before: props.page, saved });
+            props.onSaved(saved);
+          },
+        };
 
   return (
     <Editor
       key={key}
-      pageProps={{ ...props, kind: { ...props.kind, fields } }}
-      fieldsChanged={fields !== props.kind.fields}
+      pageProps={{ ...pageProps, kind: { ...props.kind, fields } }}
+      fieldsChanged={
+        editedFields !== undefined && editedFields !== props.kind.fields
+      }
+      onDeleteOpen={(open) => {
+        setDeletingFields(open ? fields : undefined);
+      }}
       onEditing={(editing) => {
         setEditedFields(editing ? fields : undefined);
       }}
