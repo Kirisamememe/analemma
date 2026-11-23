@@ -99,6 +99,7 @@ export const runCli = async (io: CliIo): Promise<number> => {
     kinds: read.kinds,
     fetch: io.fetch,
   });
+
   const lines = formatPushResult(result);
 
   if (result._tag === "Accepted") {

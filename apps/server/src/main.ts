@@ -34,6 +34,7 @@ await using resources = new AsyncDisposableStack();
 const database = resources.use(
   openDatabase({ target: env.database, logger: stdoutLogger }),
 );
+
 const context: AppContext = {
   clock: systemClock,
   db: database.db,
@@ -44,15 +45,18 @@ const context: AppContext = {
     lifetimeMs: CHALLENGE_LIFETIME_MS,
   }),
 };
+
 const internalOptions = {
   fetch: createInternalApp(context).fetch,
   port: env.internal.port,
   hostname: env.internal.host,
 };
+
 const externalOptions = {
   fetch: createExternalApp(context, adminDist).fetch,
   port: env.port,
 };
+
 const { external, internal } =
   chooseFirstListener({ external: env.port, internal: env.internal.port }) ===
   "external"

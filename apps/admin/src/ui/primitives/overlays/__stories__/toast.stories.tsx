@@ -12,6 +12,7 @@ type ToastPreviewProps = {
 
 const ToastPreview = ({ messages }: ToastPreviewProps): ReactNode => {
   const showToast = useShowToast();
+
   const showMessages = useCallback(() => {
     for (const message of messages) {
       showToast(message);

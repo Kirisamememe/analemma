@@ -89,11 +89,14 @@ const COLORS = Object.keys(COLOR_USAGE).toSorted(
 
 const colorRestriction = (color: string): Restriction => {
   const allowed = COLOR_USAGE[color] ?? [];
+
   const utilities = allowed.map((utility) =>
     utility === "border" ? BORDER : utility,
   );
+
   const usage = utilities.length === 0 ? "(?!)" : `(?:${utilities.join("|")})`;
   const longer = COLORS.filter((other) => other.endsWith(`-${color}`));
+
   const notLonger =
     longer.length === 0 ? "" : `(?!.*-(?:${longer.join("|")})${MODIFIER}$)`;
 

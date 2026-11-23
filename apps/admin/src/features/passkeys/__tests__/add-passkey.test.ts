@@ -47,6 +47,7 @@ const SUMMARY = {
 
 const serverReplying = (register: FakeReply<"admin/passkeys/register">) => {
   let sent: unknown;
+
   const fake = createFakeApi({
     "admin/session/reauthenticationOptions": () => ({
       output: AUTHENTICATION_OPTIONS,
@@ -161,6 +162,7 @@ describe("addPasskey", () => {
     const server = serverReplying({ output: SUMMARY });
     const timeouts: number[] = [];
     const fake = createFakeAuthenticator();
+
     const authenticator: Authenticator = {
       authenticate: fake.authenticate,
       register: async (options) => {
@@ -169,6 +171,7 @@ describe("addPasskey", () => {
         return fake.register(options);
       },
     };
+
     let clock = 0;
 
     await addPasskey(
@@ -212,6 +215,7 @@ describe("addPasskey", () => {
     const server = serverReplying({ output: SUMMARY });
     const requested: number[] = [];
     const signals: (AbortSignal | undefined)[] = [];
+
     const authenticator: Authenticator = {
       authenticate: createFakeAuthenticator().authenticate,
       register: (_options, signal) => {

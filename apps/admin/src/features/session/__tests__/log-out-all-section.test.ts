@@ -28,6 +28,7 @@ const confirmLogOutAll = async (): Promise<void> => {
 describe("LogOutAllSection", () => {
   test("確認してからログアウトし、ログインの画面に移る", async () => {
     const server = createPasskeyRoutes([]);
+
     const { calls, history } = renderApp({
       path: "/security",
       routes: server.routes,

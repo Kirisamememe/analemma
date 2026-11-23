@@ -40,6 +40,7 @@ describe("toFixedPageContent", () => {
       { ...group, optional: true },
       { ...repeat, optional: true },
     ]);
+
     const saved = {
       title: "   ",
       body: "\n\t",
@@ -50,6 +51,7 @@ describe("toFixedPageContent", () => {
       details: { title: "旧" },
       rows: [{ title: "行" }],
     };
+
     const form = createContentForm(fields, saved);
     expect(toFixedPageContent(fields, form)).toEqual(saved);
 
@@ -67,6 +69,7 @@ describe("toFixedPageContent", () => {
         rows: [],
       },
     };
+
     const content = toFixedPageContent(fields, cleared);
     expect(Object.keys(content)).toEqual([]);
     expect(
@@ -83,6 +86,7 @@ describe("toFixedPageContent", () => {
     const result = toContentSchema({ fields, unknownKeys: "keep" }).safeParse(
       content,
     );
+
     expect(result.error?.issues.map(({ path }) => path)).toEqual([
       ["title"],
       ["details", "title"],
@@ -97,6 +101,7 @@ describe("toFixedPageContent", () => {
         fields: [title, { ...flag, key: "pinned", default: true }, flag],
       },
     ]);
+
     const form = createContentForm(fields);
     const content = toFixedPageContent(fields, form);
     expect(content).toStrictEqual({});
@@ -116,6 +121,7 @@ describe("toFixedPageContent", () => {
           details: { ...details, values: { ...details.values, [key]: value } },
         },
       });
+
     expect(select("flag", true)).toEqual({
       details: { flag: true, pinned: true },
     });
@@ -128,6 +134,7 @@ describe("toFixedPageContent", () => {
     const fields = fieldDefinitions.parse([
       { ...group, fields: [flag, { ...flag, key: "pinned", default: true }] },
     ]);
+
     expect(toFixedPageContent(fields, createContentForm(fields))).toEqual({
       details: { flag: false, pinned: true },
     });
@@ -141,8 +148,10 @@ describe("toFixedPageContent", () => {
         fields: [group, repeat, flag],
       },
     ]);
+
     const send = (content: FixedPageContent) =>
       toFixedPageContent(fields, createContentForm(fields, content));
+
     expect(send({ details: { details: {}, rows: [] } })).toEqual({});
     expect(send({ details: { flag: true } })).toEqual({
       details: { flag: true, details: {}, rows: [] },
@@ -160,6 +169,7 @@ describe("toFixedPageContent", () => {
       { ...group, optional: true },
       { ...repeat, fields: [group] },
     ]);
+
     const saved: unknown = JSON.parse(
       '{"__proto__":{"old":1},"details":{"__proto__":{"old":2}},"rows":[{"__proto__":{"old":3},"details":{"__proto__":{"old":4}}}]}',
     );
@@ -201,6 +211,7 @@ describe("toFixedPageContent", () => {
       label: "記事",
       fields: [{ ...repeat, fields: [group] }],
     });
+
     const saved = {
       rows: [
         {
@@ -209,6 +220,7 @@ describe("toFixedPageContent", () => {
         },
       ],
     };
+
     const first = toFixedPageContent(fields, createContentForm(fields, saved));
     expect(first).toStrictEqual(saved);
     expect(

@@ -115,6 +115,7 @@ export const createChallengeStore = ({
       }
 
       const challenge = crypto.getRandomValues(new Uint8Array(CHALLENGE_BYTES));
+
       const key = challenge.toBase64({
         alphabet: "base64url",
         omitPadding: true,

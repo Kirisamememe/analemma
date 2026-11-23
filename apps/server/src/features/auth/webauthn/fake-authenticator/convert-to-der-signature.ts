@@ -3,6 +3,7 @@ const toDerInteger = (bytes: Uint8Array): number[] => {
     bytes.findIndex((byte) => byte !== 0),
     bytes.length - 1,
   );
+
   const value = [...bytes.subarray(start === -1 ? bytes.length - 1 : start)];
   const body = (value[0] ?? 0) >= 0x80 ? [0, ...value] : value;
 

@@ -16,6 +16,7 @@ test("同じ項目の issue をまとめ、値を変えたらその項目と親�
     path: ["hero", "name"],
     message: "Invalid",
   };
+
   const errors = contentErrors(
     {
       bound: [
@@ -28,6 +29,7 @@ test("同じ項目の issue をまとめ、値を変えたらその項目と親�
     },
     t,
   );
+
   expect(errors.fields["content.hero/name"]).toBe(
     "fixedPageEditor.issue.format fixedPageEditor.issue.large",
   );

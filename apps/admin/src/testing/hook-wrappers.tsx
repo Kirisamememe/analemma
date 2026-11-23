@@ -33,6 +33,7 @@ export const withRouter = (router: AppRouter) => {
 /** 管理画面の hook のテストに日本語の訳、query client、router、Toast を渡す。 */
 export const withAppProviders = ({ queryClient, router }: AppParts) => {
   const I18n = withI18n(createI18n("ja"));
+
   const Wrapper = ({ children }: WrapperProps): ReactNode => (
     <I18n>
       <QueryClientProvider client={queryClient}>

@@ -22,6 +22,7 @@ describe("CheckboxInput", () => {
     const checkbox = screen.getByRole<HTMLInputElement>("checkbox", {
       name: "先頭に表示する",
     });
+
     expect(screen.queryByText("先頭に表示する")).toBeNull();
     await user.tab();
     await user.keyboard(" ");

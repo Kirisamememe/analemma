@@ -95,6 +95,7 @@ describe("RenamePasskeyDialog", () => {
       { name: "MacBook", backedUp: true },
       { name: "iPhone", backedUp: true },
     ]);
+
     const { api } = createFakeApi(server.routes);
 
     renderApp({ path: "/security", routes: server.routes });

@@ -12,6 +12,7 @@ const renderTokens = () => {
     { name: "本番のデプロイ", lastUsedAt: null },
     { name: "手元の確認", lastUsedAt: null },
   ]);
+
   const app = renderApp({ path: "/deploy-tokens", routes: server.routes });
 
   return { server, app };
@@ -66,6 +67,7 @@ describe("RevokeDeployTokenDialog", () => {
 
   test("もう無いトークンなら、Dialog を開いたまま知らせ、一覧を取り直す", async () => {
     const { server, app } = renderTokens();
+
     const listCalls = (): number =>
       app.calls.filter((path) => path === "admin/deployTokens/list").length;
 

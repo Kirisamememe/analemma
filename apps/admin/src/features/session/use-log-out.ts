@@ -13,6 +13,7 @@ export const useLogOut = () => {
   const { clear } = useApiCache();
   const { api } = useAppContext();
   const closeFailure = useRef<() => void>(undefined); // 前の失敗の Toast を閉じる関数
+
   const logOut = useApiMutation({
     send: () => api.admin.session.logOut(),
     onSuccess: () => {

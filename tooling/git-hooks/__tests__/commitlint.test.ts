@@ -20,6 +20,7 @@ const lintMessage = async (message: string): Promise<LintResult> => {
     stdout: "pipe",
     stderr: "pipe",
   });
+
   const [stdout, status] = await Promise.all([
     new Response(child.stdout).text(),
     child.exited,
@@ -148,6 +149,7 @@ const results = new Map<string, LintResult>();
 
 beforeAll(async () => {
   const messages = [...passing, ...failing].map(({ message }) => message);
+
   const linted = await Promise.all(
     messages.map(async (message) => lintMessage(message)),
   );

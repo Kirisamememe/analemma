@@ -114,9 +114,11 @@ describe("パスキーでのログイン", () => {
     await using server = await createTestClient();
     const { passkey } = await signInAsAdmin(server);
     const token = new URL(await server.issueEnrollmentUrl()).hash.slice(1);
+
     const enrollmentOptions = await server.client.auth.enrollment.options({
       token,
     });
+
     const credential = await answerAuthentication({
       passkey,
       options: {
@@ -133,6 +135,7 @@ describe("パスキーでのログイン", () => {
   test("登録していないパスキーを UNKNOWN_CREDENTIAL で断ること", async () => {
     await using server = await createTestClient();
     const { passkey } = await signInAsAdmin(server);
+
     const stranger = {
       ...passkey,
       authenticator: await createFakeAuthenticator(),
@@ -150,6 +153,7 @@ describe("パスキーでのログイン", () => {
   test("同じ資格情報の ID でも、別の鍵の署名を断ること", async () => {
     await using server = await createTestClient();
     const { passkey } = await signInAsAdmin(server);
+
     const forged = {
       ...passkey,
       authenticator: {
@@ -194,6 +198,7 @@ describe("パスキーでのログイン", () => {
       await using server = await createTestClient();
       const { passkey } = await signInAsAdmin(server);
       const browser = server.openBrowser();
+
       const credential = await answerAuthentication({
         passkey,
         options: await browser.client.auth.login.options(),

@@ -17,6 +17,7 @@ export const DeployTokensSection = (): ReactNode => {
   const [openDialog, setOpenDialog] = useState<DeployTokenDialog>();
   const [openCount, setOpenCount] = useState(0); // Dialog の key。開くたびに作り直す
   const [token, setToken] = useState<DeployTokenSummary>(); // 閉じても持ち、閉じる animation の間も出す
+
   const open = (dialog: DeployTokenDialog): void => {
     setOpenDialog(dialog);
     setOpenCount((count) => count + 1);

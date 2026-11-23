@@ -27,6 +27,7 @@ const testLocation = {
     const inTestsDirectory = directories.at(-1) === TESTS_DIRECTORY;
     const nested = !inTestsDirectory && directories.includes(TESTS_DIRECTORY);
     const testFile = isTestFile(context.filename);
+
     const messageId = nested
       ? "nestedInTests"
       : testFile && !inTestsDirectory

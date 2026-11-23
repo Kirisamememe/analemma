@@ -70,6 +70,7 @@ export const IssueDeployTokenDialog = ({
   onClose,
 }: IssueDeployTokenDialogProps): ReactNode => {
   const t = useTranslate();
+
   const { issued, isPending, notice, issue, close } = useIssueDeployToken({
     onClose,
   });

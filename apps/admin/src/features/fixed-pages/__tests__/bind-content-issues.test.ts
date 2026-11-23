@@ -37,6 +37,7 @@ describe("bindContentIssues", () => {
       details: {},
       rows: [{ details: {} }, { details: { title: "末尾" } }],
     });
+
     const items = form.values["rows"];
 
     if (!Array.isArray(items) || items[0] === undefined) {
@@ -47,6 +48,7 @@ describe("bindContentIssues", () => {
       ...form,
       values: { ...form.values, rows: items.toReversed() },
     };
+
     const issues = issuesFor(fields, toFixedPageContent(fields, submitted));
     expect(issues.map(({ path }) => path)).toEqual([
       ["details", "title"],
@@ -77,6 +79,7 @@ describe("bindContentIssues", () => {
         rows: [null],
       }),
     ];
+
     const result = bindContentIssues({ fields, submitted }, issues);
     expect(result.bound.map(({ location }) => location)).toEqual([
       ["details"],
@@ -89,12 +92,14 @@ describe("bindContentIssues", () => {
 
   test("送ったフォームに結べる issue と結べない issue を、それぞれ元の順で返す", () => {
     const submitted = createContentForm(fields);
+
     const otherFields = fieldDefinitions.parse([
       { ...group, key: "old" },
       { ...group, key: "title" },
       { ...repeat, key: "details" },
       { ...group, key: "rows" },
     ]);
+
     const unbound = [
       ...issuesFor(fields, null),
       ...issuesFor(otherFields, { title: {}, details: [null], rows: {} }),
@@ -104,6 +109,7 @@ describe("bindContentIssues", () => {
         rows: [{}],
       }),
     ];
+
     const bound = issuesFor(fields, { details: {}, rows: [] });
     const issues = [...unbound, ...bound];
     expect(unbound.map(({ path }) => path)).toEqual([

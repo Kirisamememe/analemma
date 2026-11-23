@@ -7,10 +7,12 @@ import { build, createServer } from "vite";
 import { DEV_API_PATH, DEV_ORIGIN } from "../vite.config";
 
 const ADMIN_ROOT = fileURLToPath(new URL("../", import.meta.url));
+
 const SERVER_ENV_EXAMPLE = new URL(
   "../../server/.env.example",
   import.meta.url,
 );
+
 const INLINE_SCRIPT = /<script>(?<code>.*?)<\/script>/sv;
 
 /** 本番のビルドの出力のうち、確かめるもの。 */
@@ -27,9 +29,11 @@ const buildAdmin = async (): Promise<Built> => {
     logLevel: "silent",
     build: { write: false },
   });
+
   const files = (Array.isArray(output) ? output : [output]).flatMap((result) =>
     "output" in result ? result.output : [],
   );
+
   const sourceOf = (pattern: RegExp): string =>
     files
       .flatMap((file) =>
@@ -146,6 +150,7 @@ describe("開発のときの import", () => {
 
       try {
         const importer = fileURLToPath(new URL(path, import.meta.url));
+
         const resolved =
           await server.environments.client.pluginContainer.resolveId(
             "@/ui/layout/center",
@@ -193,6 +198,7 @@ describe("開発のときのプロキシ", () => {
           },
         ),
     });
+
     const server = await createServer({
       root: ADMIN_ROOT,
       logLevel: "silent",
@@ -208,10 +214,12 @@ describe("開発のときのプロキシ", () => {
 
     try {
       const base = server.resolvedUrls?.local[0] ?? "";
+
       const api = await fetch(new URL("/api/auth/login/options", base), {
         method: "POST",
         headers: { Origin: DEV_ORIGIN, "Sec-Fetch-Site": "same-origin" },
       });
+
       const page = await fetch(new URL("/api-guide", base));
 
       expect(await api.json()).toEqual({

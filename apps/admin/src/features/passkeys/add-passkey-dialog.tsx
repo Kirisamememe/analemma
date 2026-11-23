@@ -30,6 +30,7 @@ export const AddPasskeyDialog = ({
   const showToast = useShowToast();
   const { refresh } = useApiCache();
   const { api, authenticator } = useAppContext();
+
   const adding = useApiMutation({
     send: (name: string) => addPasskey({ api, authenticator }, name),
     onSuccess: async ({ _tag }) => {
@@ -45,7 +46,9 @@ export const AddPasskeyDialog = ({
       }
     },
   });
+
   const outcome = adding.isError ? "Unexpected" : adding.data?._tag;
+
   const notice =
     outcome === undefined || outcome === "Added"
       ? undefined

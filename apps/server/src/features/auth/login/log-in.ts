@@ -26,6 +26,7 @@ const LOGIN_ERRORS = {
 export const logIn = authProcedures.login.verify.handler(
   async ({ context, errors, input }) => {
     const now = context.clock.now();
+
     const verified = await verifyLogin({
       db: context.db,
       challenges: context.challenges,
@@ -49,10 +50,12 @@ export const logIn = authProcedures.login.verify.handler(
 
     const cookie = toSessionCookie(context.relyingParty.origin);
     const previousToken = readSessionCookie(context.headers, cookie);
+
     const previous =
       previousToken === undefined
         ? undefined
         : await readSecretToken(previousToken);
+
     const issued = await issueSecretToken();
 
     const recorded = await recordLogin(context.db, {

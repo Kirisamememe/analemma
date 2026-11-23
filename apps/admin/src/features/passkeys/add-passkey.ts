@@ -37,6 +37,7 @@ export const addPasskey = async (
     now = Date.now,
     abortAfter = (milliseconds: number) => AbortSignal.timeout(milliseconds),
   } = dependencies;
+
   const confirmation = await reauthenticate(dependencies);
 
   if (confirmation._tag === "Cancelled") {
@@ -51,6 +52,7 @@ export const addPasskey = async (
   }
 
   const deadline = abortAfter(remaining);
+
   const answer = await authenticator.register(
     { ...options, timeout: Math.min(options.timeout, remaining) },
     deadline,

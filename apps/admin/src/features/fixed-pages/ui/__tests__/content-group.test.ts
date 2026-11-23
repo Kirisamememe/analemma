@@ -17,6 +17,7 @@ test("要素の誤りをまとまりの説明にし、修正すると消し、�
       fields: [{ type: "text", key: "name", label: "名前" }],
     },
   ]);
+
   renderApp({
     path: "/fixed-pages/" + page.id,
     routes: {
@@ -44,10 +45,12 @@ test("要素の誤りをまとまりの説明にし、修正すると消し、�
   if (save === undefined) throw new Error("保存のボタンがありません");
 
   await userEvent.click(save);
+
   const row = await screen.findByRole("group", {
     name: "行 1",
     description: "入力してください。",
   });
+
   await userEvent.type(
     within(row).getByRole("textbox", { name: "名前" }),
     "記入",

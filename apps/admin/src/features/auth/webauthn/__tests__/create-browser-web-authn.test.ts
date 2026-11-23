@@ -32,6 +32,7 @@ const CREATION: PublicKeyCredentialCreationOptionsJSON = {
 };
 
 const PARSED_REQUEST = { challenge: new Uint8Array([1, 2, 3]) };
+
 const PARSED_CREATION = {
   challenge: new Uint8Array([1, 2, 3]),
   rp: { name: "Analemma" },

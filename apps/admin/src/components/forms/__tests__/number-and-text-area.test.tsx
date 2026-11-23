@@ -74,6 +74,7 @@ describe("TanStack Form の NumberField と TextArea", () => {
     const order = screen.getByRole<HTMLInputElement>("textbox", {
       name: "順番",
     });
+
     expect(order.value).toBe("3");
     await user.clear(order);
     await user.click(screen.getByRole("button", { name: "保存" }));

@@ -30,6 +30,7 @@ export const useReorderFixedPages = (): FixedPagesReordering => {
   const { refresh } = useApiCache();
   const { api } = useAppContext();
   const [order, setOrder] = useState<readonly string[]>(); // 送っている並び
+
   const reordering = useApiMutation({
     send: (ids: readonly string[]) => reorderFixedPages(api, ids),
     onSuccess: async ({ _tag }) => {

@@ -96,6 +96,7 @@ const requireSiblingTest = {
   /** ファイルごとに、__tests__ のテストのファイルが要るかを調べる。 */
   create(context) {
     const { filename } = context;
+
     const branchingComponents =
       context.options[0]?.branchingComponents === true;
 

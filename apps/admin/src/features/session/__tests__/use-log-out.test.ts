@@ -13,8 +13,10 @@ describe("useLogOut", () => {
       path: "/enroll",
       routes: { "admin/session/logOut": () => ({ output: undefined }) },
     });
+
     await app.router.load();
     app.queryClient.setQueryData(["passkeys"], []);
+
     const { result } = renderHook(useLogOut, {
       wrapper: withAppProviders(app),
     });

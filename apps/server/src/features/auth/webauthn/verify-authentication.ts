@@ -90,6 +90,7 @@ export const verifyAuthentication = async (
   const clientDataHash = new Uint8Array(
     await crypto.subtle.digest("SHA-256", response.clientDataJSON),
   );
+
   const signature = await key.verify(
     response.signature,
     new Uint8Array([...response.authenticatorData, ...clientDataHash]),

@@ -50,6 +50,7 @@ describe("パスキーの追加", () => {
       name: "  2つめ  ",
       current: first,
     });
+
     const { passkeys } = await server.client.admin.passkeys.list();
 
     expect(
@@ -129,6 +130,7 @@ describe("パスキーの名前の変更", () => {
   test("無いパスキーは NOT_FOUND、空・長すぎる・制御文字のある名前は入力の誤りにすること", async () => {
     await using server = await createTestClient();
     const { passkey } = await signInAsAdmin(server);
+
     const rename = async (id: string, name: string): Promise<string> =>
       catchErrorCode(server.client.admin.passkeys.rename({ id, name }));
 
@@ -144,8 +146,10 @@ describe("パスキーの名前の変更", () => {
 test("資格情報の ID の上限(1366文字)を超える ID は、名前の変更でも削除でも入力の誤りにすること", async () => {
   await using server = await createTestClient();
   const { passkey } = await signInAsAdmin(server);
+
   const rename = async (id: string): Promise<string> =>
     catchErrorCode(server.client.admin.passkeys.rename({ id, name: "名前" }));
+
   const remove = async (id: string): Promise<string> =>
     catchErrorCode(
       server.client.admin.passkeys.delete({
@@ -181,6 +185,7 @@ describe("パスキーの削除", () => {
   test("2つあれば、確かめ直したパスキー自身も消せ、消したパスキーではログインできないこと", async () => {
     await using server = await createTestClient();
     const { passkey: first } = await signInAsAdmin(server);
+
     const second = await addTestPasskey(server, {
       name: "2つめ",
       current: first,
@@ -220,10 +225,12 @@ describe("パスキーの削除", () => {
   test("パスキーを消すと、今のセッションのほかは、すべてログアウトさせること", async () => {
     await using server = await createTestClient();
     const { passkey: first } = await signInAsAdmin(server);
+
     const second = await addTestPasskey(server, {
       name: "2つめ",
       current: first,
     });
+
     const lost = server.openBrowser();
     const other = server.openBrowser();
 
@@ -282,14 +289,17 @@ describe("パスキーの削除", () => {
   test("2つを同時に消そうとしても、ちょうど1つだけ消えること", async () => {
     await using server = await createTestClient();
     const { passkey: first } = await signInAsAdmin(server);
+
     const second = await addTestPasskey(server, {
       name: "2つめ",
       current: first,
     });
+
     const assertions = [
       await answerReauthentication(server, first),
       await answerReauthentication(server, first),
     ];
+
     const results = await Promise.all(
       [first, second].map(async (passkey, index) =>
         catchErrorCode(
@@ -312,16 +322,21 @@ test("パスキーを消すのと同時のログインは、500 にならず、�
   for (let round = 0; round < 3; round += 1) {
     await using server = await createTestClient();
     const { passkey: first } = await signInAsAdmin(server);
+
     const second = await addTestPasskey(server, {
       name: "2つめ",
       current: first,
     });
+
     const browser = server.openBrowser();
+
     const credential = await answerAuthentication({
       passkey: first,
       options: await browser.client.auth.login.options(),
     });
+
     const assertion = await answerReauthentication(server, second);
+
     const [login, deletion] = await Promise.all([
       catchErrorCode(browser.client.auth.login.verify(credential)),
       catchErrorCode(

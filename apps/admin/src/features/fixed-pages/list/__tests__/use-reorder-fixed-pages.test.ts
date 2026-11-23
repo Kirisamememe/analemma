@@ -18,11 +18,14 @@ const setUp = async () => {
       { kind: "page", slug: "contact", title: "連絡先" },
     ],
   });
+
   const app = createTestApp({ path: "/enroll", routes: server.routes });
   await app.router.load();
+
   const { result } = renderHook(useReorderFixedPages, {
     wrapper: withAppProviders(app),
   });
+
   const pages = server.pages();
   const ids = pages.map(({ id }) => id);
   const slugs = () => result.current.arrange(pages).map(({ slug }) => slug);
@@ -35,6 +38,7 @@ describe("useReorderFixedPages", () => {
     const { server, result, ids, slugs } = await setUp();
     const [about, colophon, contact] = ids;
     const sent = [String(contact), String(about), String(colophon)];
+
     const reply =
       Promise.withResolvers<FakeReply<"admin/fixedPages/reorder">>();
 

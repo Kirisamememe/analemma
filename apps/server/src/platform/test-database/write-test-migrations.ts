@@ -27,6 +27,7 @@ export const writeTestMigrations = async (
   const written = await Promise.allSettled(
     Object.entries(migrations).map(async ([name, body]) => rewrite(name, body)),
   );
+
   const failed = written.find((result) => result.status === "rejected");
 
   if (failed !== undefined) {

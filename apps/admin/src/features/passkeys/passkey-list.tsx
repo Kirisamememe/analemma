@@ -31,6 +31,7 @@ export const PasskeyList = ({
   const t = useTranslate();
   const locale = useLocale();
   const { api } = useAppContext();
+
   const passkeys = useApiQuery({
     key: PASSKEYS_QUERY_KEY,
     load: () => api.admin.passkeys.list(),

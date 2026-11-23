@@ -15,6 +15,7 @@ export const LogOutAllSection = (): ReactNode => {
   const { clear } = useApiCache();
   const { api } = useAppContext();
   const [isConfirming, setConfirming] = useState(false);
+
   const logOutAll = useApiMutation({
     send: () => api.admin.session.logOutAll(),
     onSuccess: () => {

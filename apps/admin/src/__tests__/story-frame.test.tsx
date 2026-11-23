@@ -26,6 +26,7 @@ const StoryCounter = (): ReactNode => {
 
 test("ツールバーの言語を切り替えると、story の訳が変わり、子の state が残る", async () => {
   const story = <StoryCounter />;
+
   const { rerender } = render(
     <StoryFrame contentLang={undefined} locale="ja" theme="light">
       {story}

@@ -72,6 +72,7 @@ describe("TanStack Form の TextField", () => {
     const onSubmit = mock((_title: string) => undefined);
 
     renderWithI18n(<FormCase onSubmit={onSubmit} />);
+
     const input = screen.getByRole("textbox", {
       name: "タイトル",
       description: DESCRIPTION,
@@ -123,6 +124,7 @@ describe("TanStack Form の TextField", () => {
       name: "タイトル",
       description: `${DESCRIPTION} ${TAKEN_TITLE}`,
     });
+
     expect(invalidInput.getAttribute("aria-invalid")).toBe("true");
     expect(onSubmit).not.toHaveBeenCalled();
 

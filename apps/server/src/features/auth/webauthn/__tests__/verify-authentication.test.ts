@@ -141,6 +141,7 @@ describe("ログインの検証", () => {
   test("署名・authenticatorData・clientDataJSON のどれかを変えると、署名が合わないこと", async () => {
     const authenticator = await createFakeAuthenticator();
     const response = await respond(authenticator);
+
     const withExtraField = new TextEncoder().encode(
       new TextDecoder()
         .decode(response.clientDataJSON)
@@ -217,6 +218,7 @@ describe("ログインの検証", () => {
 
   test("登録したときと BE が違っても拒まず、変わったことを返すこと", async () => {
     const authenticator = await createFakeAuthenticator();
+
     const changed = async (
       registered: boolean,
       flags: number,
@@ -265,6 +267,7 @@ describe("ログインの検証", () => {
 
   test("signCount が戻っても拒まず、戻ったことを返すこと", async () => {
     const authenticator = await createFakeAuthenticator();
+
     const wentBack = async (
       stored: number,
       received: number,

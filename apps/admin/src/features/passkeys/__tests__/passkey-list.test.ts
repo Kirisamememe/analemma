@@ -34,6 +34,7 @@ describe("PasskeyList", () => {
 
   test("言語を切り替えると、登録と最後に使った日時を、その言語の書き方で出し直す", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+
     const { i18n } = renderApp({
       path: "/security",
       routes: server.routes,

@@ -73,13 +73,16 @@ export const createTestClient = async (
 ): Promise<TestClient> => {
   await using stack = new AsyncDisposableStack();
   const logs: LogEntry[] = [];
+
   const logger: Logger = {
     write: (entry) => {
       logs.push(entry);
     },
   };
+
   const clock = options.clock ?? { now: () => TEST_NOW };
   const database = stack.use(await createTestDatabase({ logger }));
+
   const context = {
     clock,
     db: database.db,
@@ -90,11 +93,13 @@ export const createTestClient = async (
       lifetimeMs: CHALLENGE_LIFETIME_MS,
     }),
   };
+
   const app = createExternalApp(context);
   const internalApp = createInternalApp(context);
 
   const openBrowser = (seed = ""): TestBrowser => {
     const jar = createCookieJar(seed);
+
     const link = new RPCLink({
       url: `${TEST_ORIGIN}/api`,
       headers: () =>
@@ -129,6 +134,7 @@ export const createTestClient = async (
         fetch: async (request) => internalApp.fetch(request),
       }),
     );
+
   const browser = openBrowser(options.cookie);
   const resources = stack.move();
 

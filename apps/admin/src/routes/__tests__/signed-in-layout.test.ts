@@ -33,6 +33,7 @@ describe("ログインした後のナビ", () => {
       path: "/",
       routes: createPasskeyRoutes([]).routes,
     });
+
     const banner = within(await screen.findByRole("banner"));
     const open = banner.getByRole("button", { name: "ナビを開く" });
 

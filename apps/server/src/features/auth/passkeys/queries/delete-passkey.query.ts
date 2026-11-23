@@ -48,6 +48,7 @@ export const deletePasskey = async (
     }
 
     const { adminUserId } = reauthentication.use;
+
     const owned = await tx
       .select({ id: passkey.id })
       .from(passkey)

@@ -42,6 +42,7 @@ describe("Checkbox", () => {
     const checkbox = screen.getByRole<HTMLInputElement>("checkbox", {
       name: "先頭に表示する",
     });
+
     const submit = screen.getByRole("button", { name: "保存" });
 
     await userEvent.tab();

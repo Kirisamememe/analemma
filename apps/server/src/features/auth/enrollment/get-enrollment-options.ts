@@ -8,6 +8,7 @@ import { authProcedures } from "@/procedures";
 export const getEnrollmentOptions = authProcedures.enrollment.options.handler(
   async ({ context, errors, input }) => {
     const now = context.clock.now();
+
     const enrollment = await checkEnrollment({
       db: context.db,
       token: input.token,

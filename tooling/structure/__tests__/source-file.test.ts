@@ -4,6 +4,7 @@ import { checkSourceFile } from "../source-file";
 
 const EXCEPTION =
   "// oxlint-disable project/max-code-lines -- 表で、分けると追えない";
+
 const DIVIDER = [
   "// ----------------------------------------",
   "// 値",

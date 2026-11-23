@@ -21,6 +21,7 @@ const ISSUED = {
 
 const serverReplying = (reply: FakeReply<"admin/deployTokens/issue">) => {
   let sent: unknown;
+
   const fake = createFakeApi({
     "admin/session/reauthenticationOptions": () => ({
       output: {

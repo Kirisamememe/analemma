@@ -78,6 +78,7 @@ const lintAllFixtures = (): FixturesReport => {
   }
 
   const report: unknown = JSON.parse(result.stdout);
+
   const values: unknown[] =
     isRecord(report) && Array.isArray(report["diagnostics"])
       ? report["diagnostics"]

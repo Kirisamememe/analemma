@@ -5,6 +5,7 @@ import { formatDateTime } from "@/i18n/format-date-time";
 describe("formatDateTime", () => {
   test("言語ごとの書き方で、日付と時刻を出す", () => {
     const iso = "2026-03-04T05:06:00.000Z";
+
     const expected = (locale: string): string =>
       new Intl.DateTimeFormat(locale, {
         dateStyle: "medium",

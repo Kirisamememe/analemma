@@ -43,6 +43,7 @@ export const DateField = ({
 }: DateFieldProps): ReactNode => {
   const { t } = useTranslation();
   const draft = useDateDraft({ value, onBlur, onChange });
+
   const message = draft.incomplete
     ? t("ui.dateField.incomplete")
     : errorMessage;

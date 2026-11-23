@@ -14,6 +14,7 @@ import { router } from "@/router";
 const API_PREFIX = "/api";
 const API_BODY_LIMIT = 1024 * 1024;
 const API_METHODS = new Set(["GET", "POST"]);
+
 const PERMISSIONS_POLICY =
   "publickey-credentials-create=(self), publickey-credentials-get=(self)";
 

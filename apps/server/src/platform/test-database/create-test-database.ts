@@ -30,6 +30,7 @@ const createDatabase = async (
 ): Promise<void> => {
   await using admin = connectTestAdmin();
   const { sql } = admin;
+
   const found = await sql`
     select 1 from pg_database where datname = ${template}
   `;
@@ -73,6 +74,7 @@ export const createTestDatabase = async ({
       max: TEST_POOL_SIZE,
     }),
   );
+
   const resources = stack.move();
 
   return {

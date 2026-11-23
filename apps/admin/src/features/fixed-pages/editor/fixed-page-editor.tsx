@@ -21,6 +21,7 @@ type LeaveDialogProps = {
 
 const LeaveDialog = ({ leaving }: LeaveDialogProps): ReactNode => {
   const t = useTranslate();
+
   const stay = (): void => {
     if (leaving._tag === "Asking") leaving.stay();
   };
@@ -53,8 +54,10 @@ const LeaveDialog = ({ leaving }: LeaveDialogProps): ReactNode => {
 export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
   const { form, fields, errors, changed, check, root, saving, leaving } =
     useEditorForm(props);
+
   const { kind, page } = props;
   const t = useTranslate();
+
   const save = (
     <Button isPending={saving.isPending} type="submit" tone="primary">
       {t("fixedPageEditor.save")}

@@ -28,6 +28,7 @@ const openAndClose = async (
       }),
     { wrapper: withQueryClient(client) },
   );
+
   const first = hook.result.current;
 
   await waitFor(() => {
@@ -47,6 +48,7 @@ const openAndClose = async (
 describe("useApiQuery", () => {
   test("読み込み中の後、取得したデータを返す", async () => {
     const response = Promise.withResolvers<string[]>();
+
     const { result } = renderHook(
       () => useApiQuery({ key: KEY, load: () => response.promise }),
       { wrapper: withQueryClient(new QueryClient()) },
@@ -64,6 +66,7 @@ describe("useApiQuery", () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
+
     const { result } = renderHook(
       () =>
         useApiQuery({
@@ -96,7 +99,9 @@ describe("useApiQuery", () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
+
     let fetches = 0;
+
     const { result } = renderHook(
       () => ({
         query: useApiQuery({
@@ -135,6 +140,7 @@ describe("useApiMutation", () => {
   test("成功後の処理が終わるまで送信中のままにし、reset で結果を消す", async () => {
     const afterSuccess = Promise.withResolvers<undefined>();
     const saved = Promise.withResolvers<string>();
+
     const { result } = renderHook(
       () =>
         useApiMutation({
@@ -196,6 +202,7 @@ describe("useApiMutation", () => {
 
   test("想定外の失敗では onError を呼び、セッション切れでは呼ばない", async () => {
     let errors = 0;
+
     const { result } = renderHook(
       () =>
         useApiMutation({
@@ -229,6 +236,7 @@ describe("useApiCache", () => {
   test("操作の前に送った最初の取得が遅れて届いても、操作の後の一覧を出す", async () => {
     const first = Promise.withResolvers<string[]>();
     let fetches = 0;
+
     const { result } = renderHook(
       () => ({
         query: useApiQuery({
@@ -266,6 +274,7 @@ describe("useApiCache", () => {
     const client = new QueryClient();
     let list = ["MacBook"];
     const load = () => Promise.resolve(list);
+
     const first = renderHook(() => useApiQuery({ key: KEY, load }), {
       wrapper: withQueryClient(client),
     });
@@ -300,6 +309,7 @@ describe("useApiCache", () => {
   test("送っている取得を中断し、取り直さずにデータを差し替える", async () => {
     const pending = Promise.withResolvers<string[]>();
     let fetches = 0;
+
     const { result } = renderHook(
       () => ({
         query: useApiQuery({
@@ -352,6 +362,7 @@ describe("useApiCache", () => {
         mutationFn: () => Promise.resolve("完了"),
       })
       .execute(undefined);
+
     const { result } = renderHook(useApiCache, {
       wrapper: withQueryClient(client),
     });

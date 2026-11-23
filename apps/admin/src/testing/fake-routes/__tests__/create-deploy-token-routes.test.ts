@@ -22,6 +22,7 @@ describe("createDeployTokenRoutes", () => {
       name: " 手元の確認 ",
       assertion: FAKE_ASSERTION,
     });
+
     const { tokens } = await api.admin.deployTokens.list();
 
     expect(issued.name).toBe("手元の確認");

@@ -15,6 +15,7 @@ describe("createAuthGate", () => {
     const gate = createAuthGate();
     const events: string[] = [];
     const login = Promise.withResolvers<undefined>();
+
     const running = gate.authenticate(async () => {
       events.push("ログインの開始");
       await login.promise;
@@ -44,11 +45,13 @@ describe("createAuthGate", () => {
     const gate = createAuthGate();
     const events: string[] = [];
     const response = Promise.withResolvers<undefined>();
+
     const admin = gate.sendAdmin(async () => {
       events.push("管理用 API の送信");
       await response.promise;
       events.push("管理用 API の応答");
     });
+
     const running = gate.authenticate(() => {
       events.push("ログインの開始");
 
@@ -82,11 +85,13 @@ describe("gateAdminRequests", () => {
   test("管理用 API だけを gate に通し、認証用 API はそのまま送る", async () => {
     const gate = createAuthGate();
     const sent: string[] = [];
+
     const fetch = gateAdminRequests(gate, (request) => {
       sent.push(new URL(request.url).pathname);
 
       return Promise.resolve(new Response());
     });
+
     const login = Promise.withResolvers<undefined>();
     const running = gate.authenticate(async () => login.promise);
 

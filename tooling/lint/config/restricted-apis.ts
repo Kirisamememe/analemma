@@ -48,12 +48,16 @@ export type RestrictedApis = {
 
 const BUN_MODULES = ["bun", "bun:*", "!bun:test", "hono/bun"];
 const BUN_GLOBALS = ["Bun", "HTMLRewriter"];
+
 const SERVER_BUN =
   "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。";
+
 const WORKSPACE_BUN =
   "Bun 専用の API は server の src/platform/ と src/main.ts だけで使います。";
+
 const DATABASE =
   "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。";
+
 const BUILDER =
   "procedure は procedures.ts の base(publicProcedures・authProcedures・adminProcedures)から作ります。素の builder は procedures.ts と router.ts だけで使います。";
 

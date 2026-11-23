@@ -44,6 +44,7 @@ const inlineScriptHashes = async (html: string): Promise<string[]> => {
 export const loadAdminDist = async (directory: string): Promise<AdminDist> => {
   const cwd = resolve(directory);
   const files = new Map<string, Blob>();
+
   const paths = new Bun.Glob("**/*").scan({
     cwd,
     dot: false,

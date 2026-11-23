@@ -32,6 +32,7 @@ export const DeletePasskeyDialog = ({
   const showToast = useShowToast();
   const { refresh } = useApiCache();
   const { api, authenticator } = useAppContext();
+
   const deleting = useApiMutation({
     send: () => deletePasskey({ api, authenticator }, passkey.id),
     onSuccess: async ({ _tag }) => {
@@ -47,7 +48,9 @@ export const DeletePasskeyDialog = ({
       }
     },
   });
+
   const outcome = deleting.isError ? "Unexpected" : deleting.data?._tag;
+
   const notice =
     outcome === undefined || outcome === "Deleted"
       ? undefined

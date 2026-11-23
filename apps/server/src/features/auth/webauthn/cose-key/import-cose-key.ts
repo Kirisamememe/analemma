@@ -72,6 +72,7 @@ export const importCoseKey = async (
   }
 
   const { importParams, jwk, readSignature, verifyParams } = keyImport;
+
   const key = await crypto.subtle.importKey("jwk", jwk, importParams, false, [
     "verify",
   ]);

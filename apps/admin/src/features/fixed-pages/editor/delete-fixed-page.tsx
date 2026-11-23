@@ -32,6 +32,7 @@ export const DeleteFixedPage = ({
   const { api } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null); // 画面を閉じると null になる
+
   const deleting = useApiMutation({
     send: () => deleteFixedPage(api, page.id),
     onSuccess: async ({ _tag }) => {
@@ -50,6 +51,7 @@ export const DeleteFixedPage = ({
       void refresh(FIXED_PAGES_QUERY_KEY); // 削除できてから応答だけが失敗したときも、一覧を合わせる
     },
   });
+
   const close = (): void => {
     setIsOpen(false);
   };

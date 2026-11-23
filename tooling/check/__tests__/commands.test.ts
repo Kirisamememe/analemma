@@ -18,6 +18,7 @@ const write = (path: string, text: string): void => {
 };
 
 const PASSING = 'import { test } from "bun:test";\n\ntest("通る", () => {});\n';
+
 const FAILING =
   'import { test } from "bun:test";\n\ntest("流れたら落ちる", () => {\n  throw new Error("流れた");\n});\n';
 
@@ -43,10 +44,12 @@ describe("buildCommands", () => {
     const bunfig: unknown = Bun.TOML.parse(
       '[test]\npathIgnorePatterns = ["fixtures/**"]\n',
     );
+
     const [rootTests, adminTests] = buildCommands(
       "without-server",
       readIgnorePatterns(bunfig),
     ).slice(3);
+
     const result = spawnSync(rootTests?.[0] ?? "", rootTests?.slice(1) ?? [], {
       cwd: temporaryRoot,
       encoding: "utf8",

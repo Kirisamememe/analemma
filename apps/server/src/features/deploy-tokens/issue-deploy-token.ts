@@ -8,6 +8,7 @@ import { adminProcedures } from "@/procedures";
 export const issueDeployToken = adminProcedures.deployTokens.issue.handler(
   async ({ context, errors, input }) => {
     const sessionId = context.session.id;
+
     const reauthenticated = await reauthenticate(context, {
       action: "deployTokens.issue",
       assertion: input.assertion,
@@ -18,6 +19,7 @@ export const issueDeployToken = adminProcedures.deployTokens.issue.handler(
     }
 
     const issued = await issueSecretToken();
+
     const recorded = await recordIssue(context.db, {
       reauthentication: { sessionId, use: reauthenticated.use },
       token: { id: issued.id, secretHash: issued.secretHash, name: input.name },

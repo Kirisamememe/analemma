@@ -9,6 +9,7 @@ import { adminProcedures } from "@/procedures";
 export const addPasskey = adminProcedures.passkeys.register.handler(
   async ({ context, errors, input }) => {
     const { adminUserId, id: sessionId } = context.session;
+
     const reauthenticated = await reauthenticate(context, {
       action: "passkeys.register",
       assertion: input.assertion,

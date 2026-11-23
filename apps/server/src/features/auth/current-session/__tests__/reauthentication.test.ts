@@ -92,19 +92,23 @@ describe.each(ACTIONS)("$title の前の再認証", ({ run }) => {
   test("セッションの Cookie だけでは、確かめ直せずに断ること", async () => {
     await using server = await createTestClient();
     const { passkey } = await signInAsAdmin(server);
+
     const second = await addTestPasskey(server, {
       name: "2つめ",
       current: passkey,
     });
+
     const laptop = server.openBrowser();
 
     await logInWithPasskey(laptop, passkey);
 
     const thief = server.openBrowser(server.cookie());
+
     const attempt = async (
       assertion: AuthenticationCredentialJson,
     ): Promise<string> =>
       catchErrorCode(run({ browser: thief, passkey: second }, assertion));
+
     const reauthenticationOptions = async () =>
       thief.client.admin.session.reauthenticationOptions();
 
@@ -155,14 +159,17 @@ describe.each(ACTIONS)("$title の前の再認証", ({ run }) => {
   test("同じ再認証の資格情報を、2回は使えないこと", async () => {
     await using server = await createTestClient();
     const { passkey } = await signInAsAdmin(server);
+
     const second = await addTestPasskey(server, {
       name: "2つめ",
       current: passkey,
     });
+
     const third = await addTestPasskey(server, {
       name: "3つめ",
       current: passkey,
     });
+
     const assertion = await answerReauthentication(server, passkey);
 
     expect(

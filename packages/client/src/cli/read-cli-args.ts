@@ -27,8 +27,10 @@ export const readCliArgs = (
     tokens: true,
     options: { url: { type: "string" } },
   });
+
   const [command, file, ...rest] = positionals;
   const options = tokens.filter((token) => token.kind === "option");
+
   const misusedOption =
     options.length > 1 ||
     options.some(

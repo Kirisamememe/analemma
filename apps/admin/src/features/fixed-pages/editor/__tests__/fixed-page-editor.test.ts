@@ -15,11 +15,13 @@ const routes = {
   "admin/kinds/get": () => ({ output: kind }),
   "admin/fixedPages/get": () => ({ output: page }),
 } satisfies FakeRoutes;
+
 const edit = (overrides: FakeRoutes) =>
   renderApp({
     path: "/fixed-pages/" + page.id,
     routes: { ...routes, ...overrides },
   });
+
 const save = async (position: "top" | "bottom" = "top") => {
   const buttons = await screen.findAllByRole("button", { name: "保存" });
   const button = position === "top" ? buttons.at(0) : buttons.at(-1);
@@ -32,6 +34,7 @@ const save = async (position: "top" | "bottom" = "top") => {
 test("種類を選んで作成し、送信中の二重送信を防ぎ、履歴を置き換えて編集画面を開く", async () => {
   const pending = Promise.withResolvers<undefined>();
   let sent: unknown;
+
   const { history, calls } = renderApp({
     path: "/fixed-pages/new",
     routes: {
@@ -45,6 +48,7 @@ test("種類を選んで作成し、送信中の二重送信を防ぎ、履歴�
       },
     },
   });
+
   await userEvent.click(await screen.findByRole("button", { name: "紹介" }));
   await userEvent.type(
     await screen.findByRole("textbox", { name: "slug" }),
@@ -81,10 +85,12 @@ test("種類を選んで作成し、送信中の二重送信を防ぎ、履歴�
 
 test("行を動かし、追加・削除して保存しても各段の定義に無いキーを保ち、issue は送った並びの行に付く", async () => {
   const name = { type: "text", key: "name", label: "名前" };
+
   const fields = fieldDefinitions.parse([
     { type: "group", key: "hero", label: "見出し", fields: [name] },
     { type: "repeat", key: "rows", label: "行", fields: [name] },
   ]);
+
   let sent: unknown;
   edit({
     "admin/kinds/get": () => ({ output: { ...kind, fields } }),
@@ -139,10 +145,12 @@ test("行を動かし、追加・削除して保存しても各段の定義に�
     "D",
   );
   await save();
+
   const invalid = await screen.findByRole("textbox", {
     name: "名前",
     description: "長すぎます。",
   });
+
   expect(invalid).toBe(screen.getByDisplayValue("B"));
   expect(sent).toEqual({
     id: page.id,
@@ -204,6 +212,7 @@ test("保存の失敗を Toast で知らせ、送り直して成功したら失�
     },
   });
   await save();
+
   const toast = await within(
     await screen.findByRole("region", { name: /通知/v }),
   ).findByRole("alert");
@@ -222,10 +231,12 @@ test("保存の失敗を Toast で知らせ、送り直して成功したら失�
 test("slug の重複は入力欄で知らせ、変更すると消す", async () => {
   edit({ "admin/fixedPages/update": () => ({ error: "SLUG_TAKEN" }) });
   await save();
+
   const input = await screen.findByRole("textbox", {
     name: "slug",
     description: /この slug は、ほかの固定ページが使っています。/v,
   });
+
   await waitFor(() => {
     expect(document.activeElement).toBe(input);
   });
@@ -243,6 +254,7 @@ test("slug は blur、空のタイトルは送信時に知らせ、種類が消�
       "admin/fixedPages/create": () => ({ error: "UNKNOWN_KIND" }),
     },
   });
+
   const slug = await screen.findByRole("textbox", { name: "slug" });
   await userEvent.type(slug, "A");
   await userEvent.tab();
@@ -272,9 +284,11 @@ test("値を変えたまま一覧へ移ろうとすると確かめ、編集を�
 
   await userEvent.type(title, "の続き");
   await userEvent.click(screen.getByRole("link", { name: "固定ページの一覧" }));
+
   const dialog = await screen.findByRole("dialog", {
     name: "保存していない変更があります",
   });
+
   await userEvent.click(
     within(dialog).getByRole("button", { name: "編集を続ける" }),
   );
@@ -303,6 +317,7 @@ test("値を変えていないときと、変えた値を保存した後は、�
   const { history } = edit({
     "admin/fixedPages/update": (input) => ({ output: { ...page, ...input } }),
   });
+
   const title = await screen.findByRole("textbox", { name: "タイトル" });
 
   await userEvent.type(title, "X");
@@ -326,12 +341,14 @@ test("値を変えていないときと、変えた値を保存した後は、�
 
 test("保存の応答を待つ間に元のタイトルに戻しても、離れる前に確かめる", async () => {
   const pending = Promise.withResolvers<undefined>();
+
   const { history } = edit({
     "admin/fixedPages/update": async (input) => {
       await pending.promise;
       return { output: { ...page, ...input } };
     },
   });
+
   const title = await screen.findByRole("textbox", { name: "タイトル" });
   await userEvent.type(title, "X");
   await save();
@@ -340,9 +357,11 @@ test("保存の応答を待つ間に元のタイトルに戻しても、離れ�
   expect(screen.getByDisplayValue(page.title)).toBe(title);
 
   history.push("/");
+
   const dialog = await screen.findByRole("dialog", {
     name: "保存していない変更があります",
   });
+
   await userEvent.click(
     within(dialog).getByRole("button", { name: "編集を続ける" }),
   );

@@ -21,8 +21,10 @@ import { extractTradeOffs } from "./trade-offs";
 const repoRoot = join(import.meta.dirname, "../..");
 const PROMPTS = join(import.meta.dirname, "prompts");
 const MAX_BUFFER = 256 * 1024 * 1024;
+
 const USAGE =
   "使い方:bun run review -- --perspective <観点> --base <比べる元のブランチ> [--head <レビューするブランチの名前かコミット>]";
+
 const RUNNER_NAMES = { codex: "Codex", cursor: "Cursor" } as const;
 
 const execute = (command: string, args: readonly string[]) =>
@@ -69,6 +71,7 @@ const prepareWorkspace = ({
   head,
 }: Pick<PinnedRange, "base" | "head">): Workspace => {
   const root = mkdtempSync(join(tmpdir(), "analemma-review-"));
+
   const workspace = {
     root,
     tree: join(root, "tree"),
@@ -76,6 +79,7 @@ const prepareWorkspace = ({
     diff: join(root, "context", "diff.patch"),
     commits: join(root, "context", "commits.txt"),
   };
+
   const archive = join(root, "tree.tar");
 
   mkdirSync(workspace.tree);
@@ -157,6 +161,7 @@ const review = (request: ReviewArguments): number => {
   const workspace = prepareWorkspace(pinned);
   const name = join(results, `${perspective.id}-${String(next.round)}`);
   const result = `${name}.md`;
+
   const prompt = buildPrompt({
     perspective,
     base,

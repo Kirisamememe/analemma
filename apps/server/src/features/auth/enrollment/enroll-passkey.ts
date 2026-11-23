@@ -11,6 +11,7 @@ import { authProcedures } from "@/procedures";
 export const enrollPasskey = authProcedures.enrollment.register.handler(
   async ({ context, errors, input }) => {
     const now = context.clock.now();
+
     const enrollment = await checkEnrollment({
       db: context.db,
       token: input.token,
@@ -46,6 +47,7 @@ export const enrollPasskey = authProcedures.enrollment.register.handler(
     }
 
     const issued = await issueSecretToken();
+
     const completed = await completeEnrollment(context.db, {
       enrollmentId: enrollment.enrollmentId,
       passkey: {

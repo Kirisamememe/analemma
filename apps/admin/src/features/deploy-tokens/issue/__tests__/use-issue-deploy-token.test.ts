@@ -18,13 +18,16 @@ afterEach(cleanup);
 describe("useIssueDeployToken", () => {
   test("発行した名前と token を返し、閉じたときに発行を知らせる", async () => {
     const server = createDeployTokenRoutes([]);
+
     const app = createTestApp({
       path: "/enroll",
       authenticator: createFakeAuthenticator(),
       routes: server.routes,
     });
+
     await app.router.load();
     const onClose = mock(() => undefined);
+
     const { result } = renderHook(() => useIssueDeployToken({ onClose }), {
       wrapper: withAppProviders(app),
     });

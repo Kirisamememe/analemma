@@ -90,6 +90,7 @@ describe("公開している固定ページを引く", () => {
       ...PAGE,
       content: { headline: "こんにちは", showContact: true, toc: false },
     });
+
     const expected = z.object({
       headline: z.string(),
       note: z.string().optional(),
@@ -139,6 +140,7 @@ describe("CMS へのリクエスト", () => {
   test("リダイレクトを追わず、失敗として扱わせること", async () => {
     const redirects: string[] = [];
     const fake = serveFakeCms({ headline: "a" });
+
     const client = createAnalemmaClient({
       url: "http://127.0.0.1:8788",
       fetch: async (request) => {

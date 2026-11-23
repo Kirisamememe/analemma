@@ -1,5 +1,6 @@
 const EFFECTS = new Set(["useEffect", "useLayoutEffect", "useInsertionEffect"]);
 const REACT_OBJECT = Symbol("React");
+
 const FUNCTIONS = new Set([
   "ArrowFunctionExpression",
   "FunctionDeclaration",

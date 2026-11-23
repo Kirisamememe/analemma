@@ -31,6 +31,7 @@ test(
     );
 
     const before = await readdir(out);
+
     const generated = spawnSync(
       process.execPath,
       [DRIZZLE_KIT, "generate", "--config", config],

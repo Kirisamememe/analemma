@@ -46,6 +46,7 @@ export const createTestApp = ({
 }: TestAppOptions): TestApp => {
   const { calls, fetch } = createFakeApi(routes);
   const gate = createAuthGate();
+
   const api = createApiClient({
     origin: "http://localhost:5173",
     fetch: gateAdminRequests(gate, fetch),

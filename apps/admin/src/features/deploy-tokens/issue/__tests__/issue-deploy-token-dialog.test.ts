@@ -28,6 +28,7 @@ const openAndSubmit = async (name: string): Promise<HTMLElement> => {
 
 const renderIssuing = (authenticator = createFakeAuthenticator()) => {
   const server = createDeployTokenRoutes([]);
+
   const app = renderApp({
     path: "/deploy-tokens",
     routes: server.routes,
@@ -65,6 +66,7 @@ describe("IssueDeployTokenDialog", () => {
     await openAndSubmit("本番のデプロイ");
 
     const token = await issuedToken();
+
     const dialog = await screen.findByRole("dialog", {
       name: "新しいトークンをコピー",
     });

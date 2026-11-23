@@ -104,6 +104,7 @@ describe("ログインしたセッション", () => {
           headers: { cookie: server.cookie(), "sec-fetch-site": site },
         }),
       );
+
     const sameSite = await get("same-site");
 
     expect(sameSite.status).toBe(403);

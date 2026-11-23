@@ -232,10 +232,12 @@ describe("管理画面の画面のコードの class", () => {
 
   test("部品の __stories__ でも、画面のコードと同じく、決めた class の外と style に診断を出すこと", () => {
     const stories = "invalid/apps/admin/src/ui/__stories__/styled.stories.tsx";
+
     const classes: Expected[] = [
       [3, "画面のコードは"],
       [3, "画面のコードは"],
     ];
+
     const boundary: Expected[] = [[5, "style は ui/ の部品"]];
 
     expect(diagnosticsOf({ file: stories, rule: RESTRICTED }, classes)).toEqual(
@@ -288,6 +290,7 @@ describe("検査の設定と theme.css", () => {
     join(import.meta.dirname, "../../../apps/admin/src/ui/theme.css"),
     "utf8",
   );
+
   const namesOf = (prefix: string): string[] => [
     ...new Set(
       [

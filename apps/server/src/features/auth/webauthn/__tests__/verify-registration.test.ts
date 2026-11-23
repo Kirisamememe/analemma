@@ -150,6 +150,7 @@ describe("登録の検証", () => {
 
   test("資格情報の無い authenticatorData を拒むこと", async () => {
     const response = await respond(await createFakeAuthenticator());
+
     const attestationObject = encodeCbor(
       new Map<string, CborInput>([
         ["fmt", "none"],
@@ -250,10 +251,12 @@ describe("登録の検証", () => {
 
   test("UTF-8 として読めないバイトは置換文字になり、origin の照合で拒むこと", async () => {
     const response = await respond(await createFakeAuthenticator());
+
     const challenge = CHALLENGE.toBase64({
       alphabet: "base64url",
       omitPadding: true,
     });
+
     const clientDataJSON = new Uint8Array([
       ...text(
         `{"type":"webauthn.create","challenge":"${challenge}","origin":"${ORIGIN}`,
@@ -328,6 +331,7 @@ describe("登録の検証", () => {
     }
 
     const authData = decoded.value.get("authData") ?? null;
+
     const withEntries = (
       entries: [string, CborInput][],
     ): Uint8Array<ArrayBuffer> =>
@@ -373,6 +377,7 @@ describe("登録の検証", () => {
 
   test("clientDataJSON の先頭の BOM を、UTF-8 の読み取りで落とすこと", async () => {
     const response = await respond(await createFakeAuthenticator());
+
     const clientDataJSON = new Uint8Array([
       0xef,
       0xbb,

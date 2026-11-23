@@ -125,6 +125,7 @@ export const SideNav = ({
   footer,
 }: SideNavProps): ReactNode => {
   const [isOpen, setIsOpen] = useState(false);
+
   const heading = (
     <p
       className={typography({

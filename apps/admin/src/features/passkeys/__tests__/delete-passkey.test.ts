@@ -9,6 +9,7 @@ import {
 
 const serverReplying = (reply: FakeReply<"admin/passkeys/delete">) => {
   let sent: unknown;
+
   const fake = createFakeApi({
     "admin/session/reauthenticationOptions": () => ({
       output: {

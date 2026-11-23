@@ -25,7 +25,9 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
     },
     { type: "text", key: "empty", label: "補足", optional: true },
   ]);
+
   let sent: unknown;
+
   const { calls } = renderApp({
     path: "/fixed-pages/" + page.id,
     routes: {
@@ -40,6 +42,7 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
       },
     },
   });
+
   const user = userEvent.setup();
   const slug = await screen.findByRole("textbox", { name: "slug" });
   await user.clear(slug);
@@ -55,9 +58,11 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
     }),
     "https://example.com",
   );
+
   const pin = screen.getByRole<HTMLInputElement>("checkbox", {
     name: "先頭に表示",
   });
+
   expect([pin.required, pin.getAttribute("aria-required")]).toEqual([
     false,
     null,
@@ -111,6 +116,7 @@ test.each(["入力中", "別の欄に移った後"])(
   "空の日付に年だけ入れて離れるとき、%sも確かめる",
   async (when) => {
     const user = userEvent.setup();
+
     const { history } = renderApp({
       path: "/fixed-pages/" + page.id,
       routes: {
@@ -128,6 +134,7 @@ test.each(["入力中", "別の欄に移った後"])(
         }),
       },
     });
+
     const year = await screen.findByRole("spinbutton", { name: /年.*日付/v });
     const selection = window.getSelection();
 
@@ -175,9 +182,11 @@ test("数値を入力した欄から focus を移さずに離れるときも確�
       }),
     },
   });
+
   const input = await screen.findByRole<HTMLInputElement>("textbox", {
     name: "件数",
   });
+
   await userEvent.type(input, "{End}2");
   expect(input.value).toBe("72");
   history.push("/");

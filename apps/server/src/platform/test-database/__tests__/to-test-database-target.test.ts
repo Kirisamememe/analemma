@@ -53,6 +53,7 @@ test("アプリのロールが、compose.yaml の init で作るロールと DB 
 
 test(".env.example の接続先が、compose.yaml の開発用のポートとアプリのロールにそろっていること", () => {
   const example = readFileSync(join(SERVER_ROOT, ".env.example"), "utf8");
+
   const values = Object.fromEntries(
     example
       .split("\n")
@@ -62,6 +63,7 @@ test(".env.example の接続先が、compose.yaml の開発用のポートとア
         line.slice(line.indexOf("=") + 1),
       ]),
   );
+
   const { database } = readDatabaseEnv(values);
 
   expect(compose.services.postgres.ports[0]).toBe(

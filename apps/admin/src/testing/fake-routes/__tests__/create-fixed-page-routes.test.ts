@@ -56,6 +56,7 @@ describe("createFixedPageRoutes", () => {
 
   test("作ったページは非公開で最後に付き、取得で中身を返す", async () => {
     const { api } = setUp();
+
     const created = await api.admin.fixedPages.create({
       kind: "page",
       slug: "contact",
@@ -135,12 +136,14 @@ describe("createFixedPageRoutes", () => {
   test("更新は中身を丸ごと置き換え、変わったときだけ updatedAt を進める", async () => {
     const { api } = setUp();
     const before = await api.admin.fixedPages.get({ id: ABOUT_ID });
+
     const same = await api.admin.fixedPages.update({
       id: ABOUT_ID,
       slug: "about",
       title: "About",
       content: { body: "自己紹介" },
     });
+
     const changed = await api.admin.fixedPages.update({
       id: ABOUT_ID,
       slug: "about-me",
@@ -159,12 +162,14 @@ describe("createFixedPageRoutes", () => {
 
   test("オブジェクトのキーの順だけが違う中身では、updatedAt を進めない", async () => {
     const { api } = setUp();
+
     const first = await api.admin.fixedPages.update({
       id: ABOUT_ID,
       slug: "about",
       title: "About",
       content: { body: "自己紹介", note: "補足" },
     });
+
     const reordered = await api.admin.fixedPages.update({
       id: ABOUT_ID,
       slug: "about",

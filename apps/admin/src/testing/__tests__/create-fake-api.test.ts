@@ -21,6 +21,7 @@ const ENROLLMENT_OPTIONS: FakeOutput<"auth/enrollment/options"> = {
 describe("createFakeApi", () => {
   test("決めた出力を、client の戻り値として返し、入力を受け取る", async () => {
     let received: unknown;
+
     const { api, calls } = createFakeApi({
       "auth/enrollment/options": (input) => {
         received = input;
@@ -42,6 +43,7 @@ describe("createFakeApi", () => {
     const { api } = createFakeApi({
       "admin/session/get": () => ({ error: "UNAUTHORIZED" }),
     });
+
     const failure: unknown = await api.admin.session
       .get()
       .catch((error: unknown) => error);
@@ -80,6 +82,7 @@ describe("createFakeApi", () => {
 
   test("contract のスキーマに合わない入力は handler に渡さない", async () => {
     let received = false;
+
     const { api } = createFakeApi({
       "auth/enrollment/options": () => {
         received = true;
@@ -102,6 +105,7 @@ describe("createFakeApi", () => {
 
   test("決めていない procedure は NOT_FOUND にする", async () => {
     const { api, calls, fetch } = createFakeApi({});
+
     const failure: unknown = await api.admin.session
       .logOut()
       .catch((error: unknown) => error);

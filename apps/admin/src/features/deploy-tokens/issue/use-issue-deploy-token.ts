@@ -29,6 +29,7 @@ export const useIssueDeployToken = ({ onClose }: IssueDeployTokenOptions) => {
   const { refresh } = useApiCache();
   const { api, authenticator } = useAppContext();
   const [issued, setIssued] = useState<IssuedToken>(); // token は query client に入れない
+
   const issuing = useApiMutation({
     send: async (name: string) => {
       const result = await issueDeployToken({ api, authenticator }, name);

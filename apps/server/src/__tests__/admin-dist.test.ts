@@ -14,17 +14,20 @@ import { loadAdminDist } from "@/platform/load-admin-dist";
 import { stdoutLogger } from "@/platform/logger";
 
 const ORIGIN = "https://cms.example.com";
+
 const ENV = {
   DATABASE_URL: "postgres://test:test@127.0.0.1:1/test",
   AUTH_ORIGIN: ORIGIN,
   AUTH_RP_ID: "cms.example.com",
 };
+
 const BOOT = "\n  document.documentElement.lang = 'ja';\n";
 const SECOND = "window.ready = true;";
 const INDEX = `<!doctype html><html><head><!-- <script>ignored</script> --><script>${BOOT.replaceAll("\n", "\r\n")}</script><script src="/assets/index-abc.js">ignored</script><script>${SECOND}</script></head><body>Stilus</body></html>`;
 const ASSET = "export default 1;";
 const env = readEnv(ENV);
 const database = openDatabase({ target: env.database, logger: stdoutLogger });
+
 const context = {
   db: database.db,
   relyingParty: env.relyingParty,
@@ -32,6 +35,7 @@ const context = {
   clock: systemClock,
   challenges: createChallengeStore({ capacity: 1, lifetimeMs: 1000 }),
 };
+
 const root = await mkdtemp(join(tmpdir(), "analemma-admin-dist-"));
 const dir = join(root, "dist");
 let app: ReturnType<typeof createExternalApp>;
@@ -72,7 +76,9 @@ describe("管理画面の静的ファイル", () => {
       const response = await app.request(path, {
         headers: { "sec-fetch-site": "cross-site" },
       });
+
       const csp = response.headers.get("content-security-policy");
+
       const hashes = [BOOT, SECOND].map(
         (script) =>
           `'sha256-${createHash("sha256").update(script).digest("base64")}'`,
@@ -172,6 +178,7 @@ describe("管理画面の静的ファイル", () => {
     "%s には API のメソッド制限と CSRF の確認が掛かること",
     async (path) => {
       const head = await app.request(path, { method: "HEAD" });
+
       const form = await app.request(path, {
         method: "POST",
         headers: {
@@ -179,6 +186,7 @@ describe("管理画面の静的ファイル", () => {
           origin: "https://other.example",
         },
       });
+
       expect(head.status).toBe(405);
       expect(head.headers.get("allow")).toBe("GET, POST");
       expect(form.status).toBe(403);
@@ -195,6 +203,7 @@ describe("管理画面の静的ファイル", () => {
           "content-type": "text/plain",
         },
       });
+
       expect(response.status).toBe(405);
       expect(response.headers.get("allow")).toBe("GET, HEAD");
     },
@@ -218,6 +227,7 @@ describe("管理画面の静的ファイル", () => {
           timeout: 5000,
         },
       );
+
       expect(result.status).toBe(1);
       expect(result.stderr).toContain("ADMIN_DIST_DIR");
     },

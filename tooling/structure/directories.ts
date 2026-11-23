@@ -84,11 +84,13 @@ export const findCrowdedDirectories = ({
 
 const isBadDirectory = (directory: string): boolean => {
   const segments = directory.split("/");
+
   const nestedInSide = segments
     .slice(0, -1)
     .some((segment) => SIDE_DIRECTORIES.has(segment));
 
   const name = segments.at(-1) ?? "";
+
   const strayStories =
     name === "__stories__" && !directory.startsWith(STORY_ROOT);
 

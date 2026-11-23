@@ -133,6 +133,7 @@ export const createFixedPageRoutes = ({
   pages: pageSeeds = [],
 }: FakeFixedPageState) => {
   let ticks = 0;
+
   const now = (): string => {
     const moment = new Date(FIRST_MOMENT + ticks * MINUTE).toISOString();
 
@@ -142,6 +143,7 @@ export const createFixedPageRoutes = ({
   };
 
   let created = 0;
+
   const nextId = (): string => {
     created += 1;
 
@@ -256,6 +258,7 @@ export const createFixedPageRoutes = ({
         }
 
         const moment = now();
+
         const page: FakeFixedPage = {
           id: nextId(),
           kind: input.kind,
@@ -281,6 +284,7 @@ export const createFixedPageRoutes = ({
         }
 
         const kind = kinds.find(({ name }) => name === page.kind);
+
         const invalid =
           kind === undefined ? undefined : checkContent(kind, input.content);
 

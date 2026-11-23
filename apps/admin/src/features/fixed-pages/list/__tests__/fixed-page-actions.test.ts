@@ -16,6 +16,7 @@ const setUp = () => {
       { kind: "page", slug: "colophon", title: "Colophon", published: true },
     ],
   });
+
   const [about, colophon] = server.pages().map(({ id }) => id);
 
   return {

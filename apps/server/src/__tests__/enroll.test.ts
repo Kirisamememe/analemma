@@ -25,11 +25,13 @@ const tokenOf = (stdout: string): string =>
 
 test("登録用 URL だけを標準出力に1行で書き、その token で登録の options を取れること", async () => {
   await using server = await createTestClient({ clock: systemClock });
+
   const env = {
     DATABASE_URL: toTestDatabaseUrl(server.databaseName),
     AUTH_ORIGIN: TEST_ORIGIN,
     AUTH_RP_ID: TEST_RP_ID,
   };
+
   const first = runEnroll(env);
   const second = runEnroll(env);
 

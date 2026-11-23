@@ -38,6 +38,7 @@ const maxExportedFunctions = {
     }
 
     const max = context.options[0]?.max ?? DEFAULT_MAX_EXPORTED_FUNCTIONS;
+
     const limitedAfter =
       context.options[0]?.limitedAfter ?? DEFAULT_LIMITED_AFTER;
 
@@ -47,6 +48,7 @@ const maxExportedFunctions = {
           comments: context.sourceCode.getAllComments(),
           text: context.sourceCode.text,
         });
+
         const exported = collectExportedFunctions(program);
 
         if (lines > limitedAfter && exported.size > max) {

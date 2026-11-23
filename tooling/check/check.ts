@@ -12,10 +12,12 @@ const { values } = parseArgs({
   options: { all: { type: "boolean", default: false } },
   strict: true,
 });
+
 const scope = decideTestScope({
   all: values.all,
   changedFiles: findChangedFiles(repoRoot),
 });
+
 const bunfig: unknown = Bun.TOML.parse(
   await Bun.file(join(repoRoot, "bunfig.toml")).text(),
 );

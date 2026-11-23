@@ -20,6 +20,7 @@ export const PasskeysSection = (): ReactNode => {
   const [openDialog, setOpenDialog] = useState<PasskeyDialog>();
   const [openCount, setOpenCount] = useState(0); // Dialog の key。開くたびに前の送信の結果を消す
   const [passkey, setPasskey] = useState<PasskeySummary>(); // 閉じても持ち、閉じる animation の間も出す
+
   const open = (dialog: PasskeyDialog): void => {
     setOpenDialog(dialog);
     setOpenCount((count) => count + 1);

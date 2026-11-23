@@ -6,6 +6,7 @@ const SOURCE_ALIAS_WORKSPACES = new Set(["apps/admin", "apps/server"]);
 
 const workspaceRoot = (filename) => {
   const segments = filename.split(sep);
+
   const groupIndex = segments.findLastIndex(
     (segment, index) =>
       WORKSPACE_GROUPS.has(segment) && index < segments.length - 2,
@@ -36,6 +37,7 @@ const noCrossWorkspaceImport = {
     }
 
     const directory = dirname(context.filename);
+
     const usesSourceAlias = SOURCE_ALIAS_WORKSPACES.has(
       root.split(sep).slice(-2).join("/"),
     );

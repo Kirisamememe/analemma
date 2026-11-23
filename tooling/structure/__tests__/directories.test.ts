@@ -151,9 +151,11 @@ describe("drizzle-kit が書き出す migration のフォルダ", () => {
 
 test("drizzle-kit の書き出し先を、生成物のフォルダとして、検査からも整形からも外していること", () => {
   const out = join("apps/server", drizzleConfig.out ?? "");
+
   const oxfmt: unknown = JSON.parse(
     readFileSync(join(import.meta.dirname, "../../../.oxfmtrc.json"), "utf8"),
   );
+
   const ignorePatterns =
     typeof oxfmt === "object" &&
     oxfmt !== null &&

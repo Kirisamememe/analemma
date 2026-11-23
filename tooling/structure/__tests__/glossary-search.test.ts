@@ -95,6 +95,7 @@ test("ソースから取り出した文の中の表記を、元のファイル�
     "旧名`;",
     "// XYZ",
   ].join("\n");
+
   const { prose } = extractProse({ path: "a.ts", text });
 
   expect(find("a.ts", prose)).toEqual(["2:旧名", "4:旧名", "5:XYZ"]);

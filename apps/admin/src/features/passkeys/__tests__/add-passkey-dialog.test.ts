@@ -29,6 +29,7 @@ const openAndSubmit = async (name: string): Promise<void> => {
 describe("AddPasskeyDialog", () => {
   test("再認証をして追加すると、Dialog を閉じ、一覧に出し、Toast で知らせる", async () => {
     const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+
     const { calls } = renderApp({
       path: "/security",
       routes: server.routes,

@@ -32,10 +32,12 @@ export const FixedPagesSection = ({
   const t = useTranslate();
   const { api } = useAppContext();
   const reordering = useReorderFixedPages();
+
   const pages = useApiQuery({
     key: FIXED_PAGES_QUERY_KEY,
     load: () => api.admin.fixedPages.list(),
   });
+
   const kinds = useApiQuery({
     key: KINDS_QUERY_KEY,
     load: () => api.admin.kinds.list(),
@@ -54,6 +56,7 @@ export const FixedPagesSection = ({
       ? kinds.data.kinds.map(({ name, label }) => [name, label])
       : [],
   );
+
   const rows = reordering.arrange(pages.data.pages);
 
   if (rows.length === 0) {

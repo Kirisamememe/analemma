@@ -221,6 +221,7 @@ describe("feature の import", () => {
       const { diagnostics } = lintFixture(
         `invalid/apps/${app}/src/features/dependencies/${file}`,
       );
+
       const restrictedImports = diagnostics.filter(
         ({ code }) => code === "eslint(no-restricted-imports)",
       );

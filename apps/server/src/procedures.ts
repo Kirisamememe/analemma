@@ -94,6 +94,7 @@ const requireDeployToken = api.deploy.middleware(
   async ({ context, errors, next }) => {
     const token = BEARER.exec(context.headers.get("authorization") ?? "")
       ?.groups?.["token"];
+
     const verified =
       token === undefined
         ? undefined

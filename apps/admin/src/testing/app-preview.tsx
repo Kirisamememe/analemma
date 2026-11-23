@@ -23,6 +23,7 @@ export const AppPreview = ({
   authenticator,
 }: AppPreviewProps): ReactNode => {
   const { i18n } = useTranslation();
+
   const [{ router, queryClient }] = useState(() =>
     createTestApp({
       path,
