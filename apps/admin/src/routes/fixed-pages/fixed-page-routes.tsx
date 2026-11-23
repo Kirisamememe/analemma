@@ -17,7 +17,7 @@ import {
   loadKinds,
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
-import { EmptyState, PageHeader } from "@/ui/patterns";
+import { EmptyState, ErrorState, PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
@@ -75,12 +75,6 @@ const Loading = (): ReactNode => {
   return <Text tone="muted">{t("fixedPageEditor.loading")}</Text>;
 };
 
-const LoadFailed = (): ReactNode => {
-  const { t } = useTranslation();
-
-  return <Notice tone="danger">{t("fixedPageEditor.loadFailed")}</Notice>;
-};
-
 const useKind = (name: string) => {
   const { api } = useAppContext();
 
@@ -108,7 +102,17 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
 
   if (query._tag === "Loading") return <Loading />;
 
-  if (query._tag === "Failed") return <LoadFailed />;
+  if (query._tag === "Failed") {
+    return (
+      <ErrorState
+        isRetrying={query.isRetrying}
+        layout="inline"
+        level={2}
+        onRetry={query.retry}
+        title={t("fixedPageEditor.kindsLoadFailed")}
+      />
+    );
+  }
 
   if (query.data.kinds.length === 0) {
     return (
@@ -180,7 +184,16 @@ const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
   return (
     <Titled title={t("fixedPageEditor.new")}>
       {kind._tag === "Loading" && <Loading />}
-      {kind._tag === "Failed" && <LoadFailed />}
+      {kind._tag === "Failed" && (
+        <ErrorState
+          description={t("fixedPageEditor.kindLoadFailedDescription")}
+          isRetrying={kind.isRetrying}
+          layout="screen"
+          level={2}
+          onRetry={kind.retry}
+          title={t("fixedPageEditor.kindLoadFailed")}
+        />
+      )}
       {kind._tag === "Loaded" && (
         <Stack align="start" gap={3}>
           <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
@@ -254,7 +267,16 @@ const PageEditor = ({ page }: PageEditorProps): ReactNode => {
       title={t("fixedPageEditor.edit")}
     >
       {kind._tag === "Loading" && <Loading />}
-      {kind._tag === "Failed" && <LoadFailed />}
+      {kind._tag === "Failed" && (
+        <ErrorState
+          description={t("fixedPageEditor.kindLoadFailedDescription")}
+          isRetrying={kind.isRetrying}
+          layout="screen"
+          level={2}
+          onRetry={kind.retry}
+          title={t("fixedPageEditor.kindLoadFailed")}
+        />
+      )}
       {kind._tag === "Loaded" && (
         <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
       )}
@@ -281,7 +303,15 @@ export const EditFixedPage = (): ReactNode => {
       ) : (
         <Titled title={t("fixedPageEditor.edit")}>
           {query._tag === "Loading" && <Loading />}
-          {query._tag === "Failed" && <LoadFailed />}
+          {query._tag === "Failed" && (
+            <ErrorState
+              isRetrying={query.isRetrying}
+              layout="screen"
+              level={2}
+              onRetry={query.retry}
+              title={t("fixedPageEditor.loadFailed")}
+            />
+          )}
           {query._tag === "Loaded" && (
             <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
           )}

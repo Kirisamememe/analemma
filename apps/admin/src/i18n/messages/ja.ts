@@ -9,7 +9,11 @@ export const ja = {
   "fixedPageEditor.kindGone": "この種類はもうありません。",
   "fixedPageEditor.pageGone": "この固定ページはもうありません。",
   "fixedPageEditor.loading": "読み込んでいます。",
-  "fixedPageEditor.loadFailed": "読み込めませんでした。",
+  "fixedPageEditor.loadFailed": "固定ページを読み込めませんでした",
+  "fixedPageEditor.kindsLoadFailed": "種類を読み込めませんでした",
+  "fixedPageEditor.kindLoadFailed": "種類の定義を読み込めませんでした",
+  "fixedPageEditor.kindLoadFailedDescription":
+    "中身の項目は、種類の定義から作ります。接続を確かめてから、もう一度試してください。",
   "fixedPageEditor.slug": "slug",
   "fixedPageEditor.title": "タイトル",
   "fixedPageEditor.slugHint":
@@ -196,7 +200,7 @@ export const ja = {
   "fixedPages.title": "固定ページ",
   "fixedPages.description": "About など、公開サイトに置くページ。",
   "fixedPages.loading": "固定ページを読み込んでいます。",
-  "fixedPages.loadFailed": "固定ページを読み込めませんでした。",
+  "fixedPages.loadFailed": "固定ページを読み込めませんでした",
   "fixedPages.emptyTitle": "固定ページはまだありません",
   "fixedPages.emptyDescription": "作った固定ページは、ここに並びます。",
   "fixedPages.reorderHint":

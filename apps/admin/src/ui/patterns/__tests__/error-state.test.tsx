@@ -9,6 +9,17 @@ afterEach(cleanup);
 
 const TITLE = "トークンを読み込めませんでした";
 
+const describedView = (isRetrying: boolean) => (
+  <ErrorState
+    description="中身の項目は、種類の定義から作ります。"
+    isRetrying={isRetrying}
+    layout="screen"
+    level={2}
+    onRetry={() => undefined}
+    title="種類の定義を読み込めませんでした"
+  />
+);
+
 describe("ErrorState", () => {
   test("読み込めなかったことと次にすることを、すぐに読み上げる知らせで出す", () => {
     renderWithI18n(
@@ -28,6 +39,28 @@ describe("ErrorState", () => {
     expect(
       alert.getByText("接続を確かめてから、もう一度試してください。"),
     ).toBeDefined();
+  });
+
+  test("次にすることを渡すと、既定の補足の代わりに出し、取り直しも失敗したら共通の文に替える", () => {
+    const { rerender } = renderWithI18n(describedView(false), "ja");
+    const alert = within(screen.getByRole("alert"));
+
+    expect(
+      alert.getByText("中身の項目は、種類の定義から作ります。"),
+    ).toBeDefined();
+    expect(
+      alert.queryByText("接続を確かめてから、もう一度試してください。"),
+    ).toBeNull();
+
+    rerender(describedView(true));
+    rerender(describedView(false));
+
+    const again = within(screen.getByRole("alert"));
+
+    expect(again.getByText("まだ読み込めません。")).toBeDefined();
+    expect(
+      again.queryByText("中身の項目は、種類の定義から作ります。"),
+    ).toBeNull();
   });
 
   test("もう一度試すボタンを押すと、取り直す", async () => {

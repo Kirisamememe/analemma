@@ -32,6 +32,8 @@ const message = tv({
 type ErrorStateProps = {
   /** 何を読み込めなかったかを伝える見出し。 */
   title: string;
+  /** 次にすることの補足(既定は接続を確かめて試し直すこと)。 */
+  description?: string | undefined;
   /** 見出しのレベル。 */
   level: 2 | 3;
   /** 置く場所(一覧の中か、画面の中身の全体か)。 */
@@ -45,6 +47,7 @@ type ErrorStateProps = {
 /** 読み込めなかったことと次にすることを伝え、取り直せる欄。 */
 export const ErrorState = ({
   title,
+  description,
   level,
   layout,
   isRetrying,
@@ -61,7 +64,9 @@ export const ErrorState = ({
       <div className={message()} key={failedRetries} role="alert">
         <Heading level={level}>{title}</Heading>
         {failedRetries === 0 ? (
-          <Text tone="muted">{t("ui.errorState.description")}</Text>
+          <Text tone="muted">
+            {description ?? t("ui.errorState.description")}
+          </Text>
         ) : (
           <Stack gap={0}>
             <Text tone="muted">{t("ui.errorState.failedAgain")}</Text>

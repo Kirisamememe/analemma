@@ -2,7 +2,7 @@ import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import type { FakeReply } from "@/testing/create-fake-api";
+import { type FakeReply, wrapFakeRoute } from "@/testing/create-fake-api";
 import {
   createFixedPageRoutes,
   type FakeFixedPageState,
@@ -70,26 +70,43 @@ describe("FixedPagesSection", () => {
     expect(screen.queryByRole("grid")).toBeNull();
   });
 
-  test("一覧を読み込めなければ、知らせる", async () => {
+  test("一覧も種類も読み込めなければ、知らせ、もう一度試すと、両方を取り直して一覧を出す", async () => {
     const server = createFixedPageRoutes(STATE);
+    const { "admin/fixedPages/list": list, "admin/kinds/list": kinds } =
+      server.routes;
+    let isBroken = true;
 
     renderApp({
       path: "/fixed-pages",
       routes: {
         ...server.routes,
-        "admin/fixedPages/list": () => ({
-          error: "INTERNAL_SERVER_ERROR",
-          defined: false,
-        }),
+        "admin/fixedPages/list": wrapFakeRoute(list, (input) =>
+          isBroken
+            ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+            : list(input),
+        ),
+        "admin/kinds/list": wrapFakeRoute(kinds, (input) =>
+          isBroken
+            ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+            : kinds(input),
+        ),
       },
     });
 
+    const alert = await screen.findByRole("alert", {}, { timeout: 5000 });
+
     expect(
-      await screen.findByText(
-        "固定ページを読み込めませんでした。",
-        {},
-        { timeout: 5000 },
-      ),
+      within(alert).getByRole("heading", {
+        level: 2,
+        name: "固定ページを読み込めませんでした",
+      }),
+    ).toBeDefined();
+
+    isBroken = false;
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+
+    expect(
+      within(await findRow("About")).getByText(/基本のページ/v),
     ).toBeDefined();
   });
 

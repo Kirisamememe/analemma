@@ -2,6 +2,7 @@ import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
+import { wrapFakeRoute } from "@/testing/create-fake-api";
 import { createFixedPageRoutes } from "@/testing/fake-routes/create-fixed-page-routes";
 import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
@@ -78,7 +79,18 @@ test("種類の読み込みに失敗しても、取得した固定ページを�
       }),
     },
   });
-  await screen.findByText("読み込めませんでした。", {}, { timeout: 5000 });
+  const alert = await screen.findByRole("alert", {}, { timeout: 5000 });
+
+  expect(
+    within(alert).getByRole("heading", {
+      name: "種類の定義を読み込めませんでした",
+    }),
+  ).toBeDefined();
+  expect(
+    within(alert).getByText(
+      "中身の項目は、種類の定義から作ります。接続を確かめてから、もう一度試してください。",
+    ),
+  ).toBeDefined();
   await userEvent.click(
     screen.getByRole("button", { name: "固定ページを削除" }),
   );
@@ -90,6 +102,34 @@ test("種類の読み込みに失敗しても、取得した固定ページを�
   await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
   await screen.findByRole("heading", { name: "固定ページはまだありません" });
   expect(server.pages()).toHaveLength(0);
+}, 10000);
+test("種類の定義を読み込めなければ、もう一度試すと編集のフォームを出す", async () => {
+  const server = createFixedPageRoutes({ kinds: [kind], pages: [page] });
+  const [target] = server.pages();
+  const get = server.routes["admin/kinds/get"];
+  let isBroken = true;
+
+  if (target === undefined) throw new Error("固定ページがありません");
+
+  renderApp({
+    path: "/fixed-pages/" + target.id,
+    routes: {
+      ...server.routes,
+      "admin/kinds/get": wrapFakeRoute(get, (input) =>
+        isBroken
+          ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+          : get(input),
+      ),
+    },
+  });
+  await screen.findByRole("alert", {}, { timeout: 5000 });
+  isBroken = false;
+  await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+
+  expect(
+    await screen.findByRole("textbox", { name: /タイトル/v }),
+  ).toBeDefined();
+  expect(screen.queryByRole("alert")).toBeNull();
 }, 10000);
 test("編集する固定ページを読み込めないときは失敗を知らせる", async () => {
   renderApp({
@@ -103,8 +143,13 @@ test("編集する固定ページを読み込めないときは失敗を知ら�
     },
   });
   expect(
-    await screen.findByText("読み込めませんでした。", {}, { timeout: 5000 }),
+    await screen.findByRole(
+      "heading",
+      { level: 2, name: "固定ページを読み込めませんでした" },
+      { timeout: 5000 },
+    ),
   ).toBeDefined();
+  expect(screen.getByRole("button", { name: "もう一度試す" })).toBeDefined();
 }, 10000);
 
 test.each(["true", "false", "null"])(

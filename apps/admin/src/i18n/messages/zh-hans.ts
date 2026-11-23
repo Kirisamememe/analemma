@@ -9,7 +9,11 @@ export const zhHans = {
   "fixedPageEditor.kindGone": "此类型已不存在。",
   "fixedPageEditor.pageGone": "此固定页面已不存在。",
   "fixedPageEditor.loading": "正在加载。",
-  "fixedPageEditor.loadFailed": "加载失败。",
+  "fixedPageEditor.loadFailed": "无法加载固定页面",
+  "fixedPageEditor.kindsLoadFailed": "无法加载类型",
+  "fixedPageEditor.kindLoadFailed": "无法加载类型定义",
+  "fixedPageEditor.kindLoadFailedDescription":
+    "内容的项目根据类型定义生成。请检查网络连接，然后重试。",
   "fixedPageEditor.slug": "slug",
   "fixedPageEditor.title": "标题",
   "fixedPageEditor.slugHint":
@@ -172,7 +176,7 @@ export const zhHans = {
   "fixedPages.title": "固定页面",
   "fixedPages.description": "公开网站上的 About 等页面。",
   "fixedPages.loading": "正在加载固定页面。",
-  "fixedPages.loadFailed": "无法加载固定页面。",
+  "fixedPages.loadFailed": "无法加载固定页面",
   "fixedPages.emptyTitle": "还没有固定页面",
   "fixedPages.emptyDescription": "创建的固定页面会列在这里。",
   "fixedPages.reorderHint": "拖动左侧的手柄即可调整顺序。",

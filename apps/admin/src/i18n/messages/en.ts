@@ -7,7 +7,11 @@ export const en = {
   "fixedPageEditor.kindGone": "This kind no longer exists.",
   "fixedPageEditor.pageGone": "This fixed page no longer exists.",
   "fixedPageEditor.loading": "Loading…",
-  "fixedPageEditor.loadFailed": "Could not load.",
+  "fixedPageEditor.loadFailed": "Could not load the fixed page",
+  "fixedPageEditor.kindsLoadFailed": "Could not load kinds",
+  "fixedPageEditor.kindLoadFailed": "Could not load the kind definition",
+  "fixedPageEditor.kindLoadFailedDescription":
+    "The content fields come from the kind definition. Check your connection, then try again.",
   "fixedPageEditor.slug": "Slug",
   "fixedPageEditor.title": "Title",
   "fixedPageEditor.slugHint":
@@ -188,7 +192,7 @@ export const en = {
   "fixedPages.title": "Fixed pages",
   "fixedPages.description": "Pages such as About on the public site.",
   "fixedPages.loading": "Loading fixed pages.",
-  "fixedPages.loadFailed": "Could not load fixed pages.",
+  "fixedPages.loadFailed": "Could not load fixed pages",
   "fixedPages.emptyTitle": "No fixed pages yet",
   "fixedPages.emptyDescription": "Fixed pages you create will be listed here.",
   "fixedPages.reorderHint": "Drag a handle on the left to change the order.",
