@@ -90,6 +90,6 @@ export const Loading: Story = {
 };
 
 export const WaitingForNext: Story = {
-  args: { waiting: true },
+  args: { waiting: "写真を読み込んでいます。" },
   parameters: { waitingForNext: true },
 };

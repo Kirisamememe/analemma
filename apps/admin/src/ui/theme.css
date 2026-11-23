@@ -363,6 +363,15 @@
 
   :root:has([data-top-bar="viewer"]) {
     --viewport-top-inset: var(--viewer-bar-height, var(--size-nav-bar));
+
+    @variant short-viewport {
+      --viewport-top-inset: 0px;
+
+      .top-toast {
+        max-height: calc(100dvh - env(safe-area-inset-top, 0px) - --spacing(8));
+        overflow-y: auto;
+      }
+    }
   }
 
   :root[data-theme="light"] {

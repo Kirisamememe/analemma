@@ -8,8 +8,12 @@ import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
 
-const open = () => {
-  const server = createImageRoutes([{ title: "港" }, { title: "朝の湖" }]);
+const open = (published = true) => {
+  const server = createImageRoutes([
+    { title: "港", published },
+    { title: "朝の湖" },
+  ]);
+
   const [first, second] = server.images();
 
   if (first === undefined || second === undefined) {
@@ -44,6 +48,77 @@ describe("表示中の画像への操作", () => {
       expect(screen.queryByRole("dialog")).toBeNull();
     },
   );
+
+  test("前の公開の応答が届いても、戻った写真で開いた非公開の確認を残す", async () => {
+    const { server, first, second, history } = open(false);
+    const response = Promise.withResolvers<FakeReply<"admin/images/publish">>();
+    server.replyNext("admin/images/publish", () => {
+      server.routes["admin/images/publish"]({ id: first.id });
+      return response.promise;
+    });
+    await userEvent.click(
+      await screen.findByRole("button", { name: "公開する" }),
+    );
+    act(() => {
+      history.push("/images/" + second.id);
+    });
+    await screen.findByRole("heading", { name: "朝の湖" });
+    act(() => {
+      history.push("/images/" + first.id);
+    });
+    await screen.findByRole("heading", { name: "港" });
+    await userEvent.click(
+      await screen.findByRole("button", { name: "非公開にする" }),
+    );
+    await screen.findByRole("dialog");
+    await act(async () => {
+      response.resolve({ output: { ...first, published: true } });
+      await response.promise;
+    });
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: "非公開にする",
+      }),
+    );
+    await screen.findByRole("button", { name: "公開する" });
+    expect(server.images()[0]?.published).toBe(false);
+  });
+
+  test("削除の応答を待つ間に写真を往復しても、削除をもう一度送れない", async () => {
+    const { server, first, second, history, calls } = open();
+    const response = Promise.withResolvers<FakeReply<"admin/images/delete">>();
+    server.replyNext("admin/images/delete", () => response.promise);
+    await userEvent.click(
+      await screen.findByRole("button", { name: "画像を削除" }),
+    );
+    await userEvent.click(
+      within(await screen.findByRole("dialog")).getByRole("button", {
+        name: "削除",
+      }),
+    );
+    const load = Promise.withResolvers<FakeReply<"admin/images/get">>();
+    server.replyNext("admin/images/get", () => load.promise);
+    act(() => {
+      history.push("/images/" + second.id);
+    });
+    await waitFor(() => {
+      expect(history.location.pathname).toBe("/images/" + second.id);
+    });
+    act(() => {
+      history.push("/images/" + first.id);
+    });
+    await screen.findByRole("heading", { name: "港" });
+    await userEvent.click(screen.getByRole("button", { name: /画像を削除/v }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(calls.filter((call) => call === "admin/images/delete")).toHaveLength(
+      1,
+    );
+    await act(async () => {
+      load.resolve({ output: second });
+      response.resolve({ output: undefined });
+      await Promise.all([load.promise, response.promise]);
+    });
+  });
 
   test("編集前の情報を待つ間に別の画像へ移れば、戻った後にその応答が届いても Dialog は開かない", async () => {
     const { server, first, second, history } = open();
