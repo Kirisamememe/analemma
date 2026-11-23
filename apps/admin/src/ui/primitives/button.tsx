@@ -159,7 +159,7 @@ const createButton = tv({
     "flex w-full items-center gap-2 px-3 text-start",
     "rounded-control border border-dashed border-line-strong text-fg",
     "outline-hidden transition is-focus-shown:focus-ring",
-    "is-hovered:bg-surface-muted is-pressed:bg-surface-sunken",
+    "is-hovered:state-hover is-pressed:state-pressed",
   ],
   variants: {
     card: { true: "min-h-11 md:min-h-16", false: "min-h-11 md:min-h-10" },
