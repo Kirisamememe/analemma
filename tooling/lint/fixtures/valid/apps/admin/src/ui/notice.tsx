@@ -24,9 +24,10 @@ type NoticeProps = {
 /** 画面の中に知らせを出す部品。 */
 export const Notice = ({ children, progress }: NoticeProps) => (
   <div
-    className="flex gap-2 rounded-control border border-danger bg-danger/10 px-3 py-1.5 text-danger focus-ring is-hovered:state-hover"
+    className="flex gap-2 rounded-control border border-danger bg-danger/10 px-3 py-1.5"
     style={{ "--progress": progress }}
   >
+    <span className="text-danger focus-ring is-hovered:state-hover" />
     <span className="w-(--progress) bg-fg/10" />
     <svg className="stroke-(length:--progress)" />
     <span className="w-1/2 rounded-surface" />
