@@ -110,3 +110,23 @@ test("取得が失敗して、データの無いまま取り直す間は、待�
     expect(result.current.loading).toBe(false);
   });
 });
+
+test("画面が使わなくなった取得は、終わっていなくても数えない", async () => {
+  const client = new QueryClient();
+  const response = Promise.withResolvers<string[]>();
+  const opened = renderWithQuery(client, [() => response.promise]);
+
+  const waiting = renderHook(useIsLoadingFirstData, {
+    wrapper: withQueryClient(client),
+  });
+
+  await waitFor(() => {
+    expect(waiting.result.current).toBe(true);
+  });
+  opened.unmount();
+
+  await waitFor(() => {
+    expect(waiting.result.current).toBe(false);
+  });
+  response.resolve(["MacBook"]);
+});
