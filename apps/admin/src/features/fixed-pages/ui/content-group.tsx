@@ -90,7 +90,7 @@ const group = tv({
 
 const bar = tv({
   base: [
-    "flex min-h-10 items-start gap-2 py-1 ps-3 pe-1",
+    "flex min-h-10 flex-wrap items-start gap-2 py-1 ps-3 pe-1",
     "rounded-control bg-surface-muted",
   ],
 });
