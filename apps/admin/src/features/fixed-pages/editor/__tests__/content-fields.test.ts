@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, spyOn, test } from "bun:test";
 
@@ -81,7 +81,9 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
   try {
     await user.click(screen.getByRole("spinbutton", { name: /日.*日付/v }));
     await user.keyboard("{ArrowUp}");
-    await user.click(screen.getByRole("button", { name: /色/v }));
+    await user.click(
+      within(screen.getByRole("main")).getByRole("button", { name: /色/v }),
+    );
     await user.click(screen.getByRole("option", { name: "赤" }));
     const [save] = await screen.findAllByRole("button", { name: "保存" });
 
@@ -163,6 +165,52 @@ test.each(["入力中", "別の欄に移った後"])(
     }
   },
 );
+
+test("空の日付に年だけ入れてから、ナビで言語を替えても、入れた年を残す", async () => {
+  const user = userEvent.setup();
+
+  renderApp({
+    path: "/fixed-pages/" + page.id,
+    routes: {
+      "admin/session/get": () => ({ output: { expiresAt: page.createdAt } }),
+      "admin/kinds/get": () => ({
+        output: {
+          ...kind,
+          fields: fieldDefinitions.parse([
+            { type: "date", key: "day", label: "日付", optional: true },
+          ]),
+        },
+      }),
+      "admin/fixedPages/get": () => ({ output: page }),
+    },
+  });
+
+  const year = await screen.findByRole("spinbutton", { name: /年.*日付/v });
+  const selection = window.getSelection();
+
+  if (selection === null) throw new Error("Selection がありません");
+
+  const collapse = spyOn(selection, "collapse").mockImplementation(
+    () => undefined,
+  );
+
+  try {
+    await user.click(year);
+    await user.keyboard("2026");
+    await user.click(screen.getByRole("textbox", { name: "タイトル" }));
+
+    const sidebar = within(screen.getByRole("complementary"));
+    await user.click(sidebar.getByRole("button", { name: /言語/v }));
+    await user.click(await screen.findByRole("option", { name: "English" }));
+  } finally {
+    collapse.mockRestore();
+  }
+
+  expect(
+    (await screen.findByRole("spinbutton", { name: /year.*日付/v }))
+      .textContent,
+  ).toBe("2026");
+});
 
 test("数値を入力した欄から focus を移さずに離れるときも確かめる", async () => {
   const { history } = renderApp({

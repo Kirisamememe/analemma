@@ -43,6 +43,8 @@ type ListBoxPopoverProps = {
   placement?: "bottom" | "top";
   /** 一覧の上に出す見出し(読み上げでは、一覧の名前が伝える)。 */
   heading?: string | undefined;
+  /** 押した選択肢の値を受け取る関数。 */
+  onOptionPress?: (value: string) => void;
 };
 
 /** Select の選択肢の一覧を出す Popover。 */
@@ -50,6 +52,7 @@ export const ListBoxPopover = ({
   options,
   placement = "bottom",
   heading,
+  onOptionPress,
 }: ListBoxPopoverProps): ReactNode => (
   <Popover className={popover()} offset={4} placement={placement}>
     {heading !== undefined && (
@@ -60,11 +63,26 @@ export const ListBoxPopover = ({
         {heading}
       </p>
     )}
-    <ListBox className="flex flex-col gap-1 p-1 outline-hidden" items={options}>
+    <ListBox
+      className="flex flex-col gap-1 p-1 outline-hidden"
+      dependencies={[onOptionPress]}
+      items={options}
+    >
       {({ value, label, icon, lang }) => (
         <ListBoxItem
           className={typography({ role: "body", className: option() })}
           id={value}
+          lang={lang}
+          onPressStart={(event) => {
+            if (event.pointerType === "keyboard") {
+              onOptionPress?.(value);
+            }
+          }}
+          onPressUp={(event) => {
+            if (event.pointerType !== "keyboard") {
+              onOptionPress?.(value);
+            }
+          }}
           textValue={label}
         >
           {icon !== undefined && (
@@ -72,9 +90,7 @@ export const ListBoxPopover = ({
               <Icon name={icon} />
             </span>
           )}
-          <span className="min-w-0 grow wrap-anywhere" lang={lang}>
-            {label}
-          </span>
+          <span className="min-w-0 grow wrap-anywhere">{label}</span>
           <span
             className={mark({
               className: "opacity-0 group-is-selected:opacity-100",

@@ -72,7 +72,16 @@ export const NavSelect = <Value extends string>({
           <Icon name="chevrons-up-down" />
         </span>
       </AriaButton>
-      <ListBoxPopover heading={label} options={options} placement="top" />
+      <ListBoxPopover
+        heading={label}
+        onOptionPress={(key) => {
+          if (key === value) {
+            onChange(value);
+          }
+        }}
+        options={options}
+        placement="top"
+      />
     </AriaSelect>
   );
 };

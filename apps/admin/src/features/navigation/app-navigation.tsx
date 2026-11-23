@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { LocaleSelect, ThemeSelect } from "@/features/preferences";
 import { LogOutButton, useLogOut } from "@/features/session";
 import { type MessageKey, useTranslate } from "@/i18n/use-translate";
 import { SideNav } from "@/ui/patterns";
@@ -55,7 +56,13 @@ export const AppNavigation = ({ isCurrent }: AppNavigationProps): ReactNode => {
     <SideNav
       appName={t("app.name")}
       drawerLabel={t("navigation.drawer")}
-      footer={<LogOutButton logOut={logOut} />}
+      footer={
+        <>
+          <LocaleSelect />
+          <ThemeSelect />
+          <LogOutButton logOut={logOut} />
+        </>
+      }
       groups={GROUPS.map(({ heading, items }) => ({
         heading: heading === undefined ? undefined : t(heading),
         items: items.map(({ href, label, icon }) => ({

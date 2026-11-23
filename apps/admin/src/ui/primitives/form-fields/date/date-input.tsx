@@ -93,6 +93,7 @@ export const DateRoot = ({
       className={fieldRoot()}
       defaultValue={defaultDate}
       granularity="day"
+      hourCycle={24} // 言語を替えても、入力途中の値を作り直させない
       isDisabled={isDisabled}
       isReadOnly={isReadOnly}
       isRequired={isRequired}

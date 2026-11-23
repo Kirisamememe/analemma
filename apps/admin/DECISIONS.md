@@ -27,7 +27,7 @@ Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・�
 
 ## フォルダを指定する import
 
-認証器の組み立てと型を使うコードは `@/features/auth/webauthn` から、ログアウトのボタン・hook・すべてのセッションからログアウトする欄を使うコードは `@/features/session` から import する。フォルダの外で使うものを `index.ts` に明示しておくと、中のファイルの名前や分け方を変えても、呼び出し元を直さずに済む。フォルダの中のコードと、それぞれの実装を確かめるテストは、対象のファイルを直接 import する。
+認証器の組み立てと型を使うコードは `@/features/auth/webauthn` から、ログアウトのボタン・hook・すべてのセッションからログアウトする欄を使うコードは `@/features/session` から、言語と配色の選択を使うコードは `@/features/preferences` から import する。フォルダの外で使うものを `index.ts` に明示しておくと、中のファイルの名前や分け方を変えても、呼び出し元を直さずに済む。フォルダの中のコードと、それぞれの実装を確かめるテストは、対象のファイルを直接 import する。
 
 `App` と `createApp` は `src/app/` に置く。どちらも API・router・言語などを組み合わせるため、組み立てに関わるコードを同じ場所に置き、外からは `@/app` を使う。
 
@@ -75,6 +75,16 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - 言語の切り替えは i18next の `changeLanguage` で行い、画面を読み込み直さない。`languageChanged` の event で、html の `lang` と `localStorage` を同じ値にする(`src/preferences/sync-locale.ts`)。html の `lang` は、theme.css の `:lang()` による、言語ごとの字体の切り替えに効く。`useTranslation` を使う部品は、切り替えのたびに描き直されるので、React Aria Components の `I18nProvider`(`UiProvider`)にも、i18next の今の言語が渡る。React Aria Components の辞書は、文字体系ではなく地域で分かれていて(`zh-CN`・`zh-TW`)、`zh-Hans` を渡すと、`zh-` で始まる辞書のうち、並びが先のものを使う。並びに頼らないよう、地域を付けた言語(`zh-CN` など)にして渡す。instance を作ったときの言語は `localStorage` に置かない。head の script がブラウザの言語から選んだ値なので、置くと、ブラウザの言語を変えても追従しなくなる。
 - 本番のビルドの出力で、head の script がアプリの script より前にあることと、作り物の `localStorage`・`navigator` の上で流すと値を当てることを、テスト(`__tests__/vite-config.test.ts`)で確かめる。ビルドの出力そのものを流すので、まとめ方を誤って module の構文が残れば落ちる。
 
+## 言語と配色の切り替え
+
+利用者は、ナビの下の段(ログアウトの上)で、言語と配色を切り替える。広い画面のナビと、狭い画面の引き出したナビの両方に置く。部品の形と見た目の理由は `src/ui/DECISIONS.md` の「ナビの選択」にある。
+
+- 言語の選択肢は、それぞれの言語で書いた名前(English・日本語・简体中文)にする。画面の言語が読めなくても、自分の言語を見つけられる。名前は、ブラウザの `Intl.DisplayNames` で、その言語自身の名前を引く(`src/i18n/locales.ts` の `localeName`)。訳に書くと、どの言語の訳にも同じ名前を写すことになり、言語を足すたびに3か所を直す。
+- 言語は、i18next の `changeLanguage` で切り替える(`src/i18n/use-change-locale.ts`)。html の `lang` と `localStorage` は、今までどおり `syncLocale` がそろえる。features は i18next を直接 import できないので、hook で包む。
+- 配色は「自動」(OS に従う)・ライト・ダークの3つ。「OS に合わせる」は長く、かえって分かりにくいので、「自動」にした(ユーザーが決めた)。
+- 今の配色の出どころは、html の `data-theme` にする(`src/preferences/use-theme.ts`)。最初の描画の前に head の script が当てた値を、そのまま読める。`useSyncExternalStore` で読み、`MutationObserver` で `data-theme` の書き換えを追うので、広い画面と引き出したナビの2つの選択が、同じ値を出す。Storybook のツールバーが当てた配色も、そのまま出す。React の state に持つと、2つのナビの選択の値が食い違う。
+- 選んだ配色は、html の `data-theme` に当ててから、`localStorage` に置く。当てる処理(`src/preferences/apply-theme.ts`)は、head の script と共有する。自動を選んだら `data-theme` を外し、`localStorage` には `system` を置く(置いていないときと同じく、OS に従う)。
+
 ## Zod に検査のコードを作らせない
 
 `src/main.tsx` の最初の import で `src/app/zod-config.ts` を読み込み、`z.config({ jitless: true })` にする(エージェントが決めた)。
@@ -104,7 +114,6 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 - ブラウザの言語の並びから選ぶときは、`Intl.Locale` の `maximize()` で言語と文字体系の組にしてから比べる。`zh-CN`・`zh-SG`・`zh` は `zh-Hans`、`ja-JP` は `ja` になる。`zh-TW`・`zh-HK` は文字体系が違う(繁体字)ので、`zh-Hans` に寄せず、並びの次の言語に進む。どれにも対応していなければ英語にする。
 - `Intl.Locale` が読めない tag(`i-klingon` など。BCP 47 では正しくても、Intl が受け付けないものがある)は、飛ばして次の言語に進む。head の script の中で throw すると、言語と配色のどちらも当たらなくなる(Codex のレビューで見つかった)。
 - 利用者が選んだ言語と配色は、`localStorage` の `analemma:locale`・`analemma:theme` に置く。server には送らない。管理者は1人で、端末ごとに違ってよい。
-- 言語を切り替える画面を作るときは、入力欄の誤りの知らせを出したまま切り替えたときの言語を確かめる。React Aria Components は、値を確かめたときの文字列を持ち続けるので、今の部品では、知らせが前の言語のまま残る(Dialog や画面を開き直すと、部品を作り直すので、今の言語になる)。直すなら、入力欄の部品が訳のキーを受け取り、描くときに訳す形にする。
 
 ## React の effect
 
@@ -291,3 +300,4 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 - **画面を離れた Dialog の失敗の Toast**:Dialog の中の送信が失敗して失敗の Toast が出たまま、Dialog を閉じずに履歴で画面を離れると、Toast を閉じる関数(`useFailureToast`)が Dialog と一緒に無くなる。戻って同じ操作を送り直し、成功すると、前の失敗と成功の Toast が並ぶ。Dialog を開いたまま履歴で移り、戻って送り直したときだけ起き、残るのは閉じるボタンで消せる Toast 1つ。上のログアウトと同じく、閉じる関数を Toast の queue と同じ寿命で持つか、部品が取り除かれるときに閉じる effect が要るので受け入れる。
 - **引き出したナビの上のログアウトの失敗の Toast**:狭い画面で、引き出したナビからログアウトに失敗すると、Toast はナビを開いたまま画面の上の中央に出て、ナビの最初のリンクに重なる。重なりは Toast を閉じるか、ログアウトを送り直すまで続く。Toast は閉じるボタンで消せ、ナビの閉じるボタンは覆わない。ナビを開いているときだけ Toast の位置を変えるには、Toast の位置の決まり(`src/ui/DECISIONS.md` の「Toast の位置」)をナビと一緒に組み直す必要があり、ログアウトの失敗のときだけなので受け入れる。
 - **Zod の設定を当てる順**:`main.tsx` の最初の import で Zod の設定を当てることは、テストで確かめていない。順が崩れると、CSP の違反が console に1件戻るだけで、検査の結果は変わらない。確かめるには、CSP を掛けたブラウザでビルドを開くテストが要り、手間に見合わない。
+- **言語を切り替えたときに出ている知らせ**:入力欄の誤りの知らせか、失敗の Toast を出したまま、ナビで言語を切り替えると、その文は前の言語のまま残る(固定ページの編集で、タイトルを空にして保存し、English に替えて確かめた)。フォームの部品と、固定ページ・パスキー・デプロイ用のトークンの検証は、確かめたときに訳した文字列を持ち、React Aria Components もその文字列を持ち続ける。Toast も、出したときに訳した文字列を queue に持つ。誤りの知らせは、次に確かめたとき(送り直す・入力を直す)か、Dialog や画面を開き直したときに、今の言語になる。Toast は閉じれば消える。出るのは、知らせを出したまま言語を替えたときだけで、中身は正しい。直すには、誤りと Toast を訳のキーと引数で持ち、描くときに訳す形に、フォームの部品・Toast・各 feature をそろえて替える必要があり、手間に見合わないので受け入れる。

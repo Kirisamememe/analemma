@@ -13,8 +13,8 @@
 - `src/routes/`:route ごとの画面。
 - `src/queries/`:複数の feature が使う、server の API を呼ぶ処理(再認証)。
 - `src/components/`:複数の feature から使う、管理画面に固有の部品。`@/components/...` で import する。部品のコードは features を import しない(lint で止まる)。
-- `src/i18n/`:訳と言語(i18next と react-i18next)。訳は `messages/` に言語ごとに1ファイル。i18next の instance は `create-i18n.ts` で作る。features が使う、訳を引く hook と今の言語を読む hook と訳のキーの型は `use-translate.ts` が包む。
-- `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値と、最初の描画の前に流す script(`boot.ts`)。言語の切り替えに html の `lang` と置き場所をそろえる関数(`sync-locale.ts`)。
+- `src/i18n/`:訳と言語(i18next と react-i18next)。訳は `messages/` に言語ごとに1ファイル。i18next の instance は `create-i18n.ts` で作る。features が使う、訳を引く hook と今の言語を読む hook と訳のキーの型は `use-translate.ts` が、言語を切り替える hook は `use-change-locale.ts` が包む。
+- `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値と、最初の描画の前に流す script(`boot.ts`)。言語の切り替えに html の `lang` と置き場所をそろえる関数(`sync-locale.ts`)。今の配色を読んで切り替える hook(`use-theme.ts`)と、html の `data-theme` に配色を当てる関数(`apply-theme.ts`。head の script と共有する)。
 - `src/features/<名前>/`:画面をまたぐ、ひとまとまりの事柄(ログインと登録の判断、WebAuthn の変換など)。1つの画面だけの部品は `features/<名前>/ui/`。
 - `.storybook/`:Storybook の設定(`main.ts`・`preview.tsx`)と、story を管理画面と同じ言語・配色・router の中で描く枠(`story-frame.tsx`)と、html の `lang` と `data-theme` を当てる hook(`use-html-preferences.ts`)。
 - `src/testing/`:テストの部品(contract で型を付けた作り物の server と、管理画面の全体を描く関数と、部品を i18next の instance の下で描く関数)。テストと story だけが import できる(`tooling/structure/` のテストが止める)。
@@ -37,7 +37,7 @@
 - 登録用 URL は `/enroll#{token}`。token は URL の `#` の後ろから読み、server に送るだけにする。登録したら、履歴から登録用 URL を消す(`replace`)。
 - パスキーの追加と削除は、再認証(`src/queries/reauthenticate.ts`)の資格情報と一緒に送る。取り消せない操作は、確認の Dialog を出してから送る。
 - 画面のテストは、`src/testing/render-app.tsx` で、作り物の server(`create-fake-api.ts`)と作り物の認証器につないだ管理画面の全体を描いて、利用者に見える結果で確かめる。`App` を通さずに部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で、i18next の instance の下で描く。
-- 画面に出す文言は、すべて `src/i18n/messages/` の訳から引く。features は `useTranslate` を使い、`src/routes/` は今は react-i18next の `useTranslation` を直接使う。キーは英語の訳(`en.ts`)に足し、同じキーをほかの言語にも足す。引数は `{{name}}` で書き、どの言語も英語と同じ引数を持つ(テストで止まる)。features で引数を取らないキーを値として持つ型は `MessageKey` にする。
+- 画面に出す文言は `src/i18n/messages/` の訳から引く。言語の選択肢の名前だけは、その言語での名前を `localeName`(`Intl.DisplayNames`)で引く。features は `useTranslate` を使い、`src/routes/` は今は react-i18next の `useTranslation` を直接使う。キーは英語の訳(`en.ts`)に足し、同じキーをほかの言語にも足す。引数は `{{name}}` で書き、どの言語も英語と同じ引数を持つ(テストで止まる)。features で引数を取らないキーを値として持つ型は `MessageKey` にする。
 - 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/resources.ts` の `RESOURCES` と、`src/ui/primitives/ui-provider.tsx` の `ARIA_LOCALES`(React Aria Components に渡す地域を付けた言語)に足し、`messages/` にファイルを置く。
 - 言語は i18next の `changeLanguage` で切り替える。html の `lang` と `localStorage` は、`sync-locale.ts` がそろえる。
 - route の code splitting(`import()`)は使わない。`no-dynamic-import` は、今はそのまま効かせる。

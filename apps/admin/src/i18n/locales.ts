@@ -16,3 +16,10 @@ export const isLocale = (value: string): value is Locale =>
 /** html の `lang` の値を、対応する言語にする。 */
 export const toLocale = (lang: string): Locale =>
   isLocale(lang) ? lang : FALLBACK_LOCALE;
+
+/** 言語の、その言語で書いた名前(English・日本語・简体中文)。 */
+export const localeName = (locale: Locale): string =>
+  new Intl.DisplayNames([locale], {
+    type: "language",
+    languageDisplay: "dialect",
+  }).of(locale) ?? locale;

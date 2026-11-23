@@ -88,10 +88,7 @@ describe("ListBoxPopover", () => {
 
     expect(
       LANGUAGES.map(
-        ({ label }) =>
-          within(within(list).getByRole("option", { name: label })).getByText(
-            label,
-          ).lang,
+        ({ label }) => within(list).getByRole("option", { name: label }).lang,
       ),
     ).toEqual(["en", "ja", "zh-Hans"]);
   });
