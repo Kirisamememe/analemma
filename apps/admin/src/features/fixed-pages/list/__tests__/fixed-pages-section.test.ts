@@ -163,9 +163,7 @@ describe("FixedPagesSection", () => {
     kindsReply = Promise.withResolvers<FakeReply<"admin/kinds/list">>();
     await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
 
-    expect(
-      await screen.findByText("固定ページを読み込んでいます。"),
-    ).toBeDefined();
+    expect(await screen.findByText("読み込んでいます")).toBeDefined();
     expect(screen.queryByRole("row")).toBeNull();
 
     kindsReply.resolve(kinds(undefined));

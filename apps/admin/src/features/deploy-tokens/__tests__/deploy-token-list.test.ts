@@ -91,9 +91,7 @@ describe("DeployTokenList", () => {
       },
     });
 
-    expect(
-      await screen.findByText("トークンを読み込んでいます。"),
-    ).toBeDefined();
+    expect(await screen.findByText("読み込んでいます")).toBeDefined();
   });
 
   test("一覧を読み込めなければ、そのことを知らせ、もう一度試すと一覧を出す", async () => {

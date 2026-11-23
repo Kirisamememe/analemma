@@ -1,4 +1,5 @@
 import {
+  skipToken,
   useIsFetching,
   useMutation,
   useQuery,
@@ -11,10 +12,11 @@ type QueryOptions<Data> = {
   /** query のキー。 */
   readonly key: readonly unknown[];
   /** データを取得する関数。 */
-  readonly load: () => Promise<Data>;
+  readonly load: (() => Promise<Data>) | undefined;
 };
 
-type QueryResult<Data> =
+/** server のデータを読んだ結果。 */
+export type ApiQueryResult<Data> =
   | {
       /** どの結果か。 */
       readonly _tag: "Loading";
@@ -69,10 +71,10 @@ type ApiCache = {
 export const useApiQuery = <Data>({
   key,
   load,
-}: QueryOptions<Data>): QueryResult<Data> => {
+}: QueryOptions<Data>): ApiQueryResult<Data> => {
   const query = useQuery({
     queryKey: key,
-    queryFn: () => load(),
+    queryFn: load ?? skipToken,
   });
 
   if (query.isPending && query.errorUpdateCount === 0) {

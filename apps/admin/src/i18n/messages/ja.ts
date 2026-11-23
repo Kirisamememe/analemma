@@ -8,7 +8,6 @@ export const ja = {
   "fixedPageEditor.emptyKinds": "選べる種類がありません",
   "fixedPageEditor.kindGone": "この種類はもうありません。",
   "fixedPageEditor.pageGone": "この固定ページはもうありません。",
-  "fixedPageEditor.loading": "読み込んでいます。",
   "fixedPageEditor.loadFailed": "固定ページを読み込めませんでした",
   "fixedPageEditor.kindsLoadFailed": "種類を読み込めませんでした",
   "fixedPageEditor.kindLoadFailed": "種類の定義を読み込めませんでした",
@@ -56,6 +55,8 @@ export const ja = {
   "fixedPageEditor.kindOf": "種類:{{kind}}",
   "fixedPageEditor.emptyKindsDescription":
     "公開サイトのデプロイで種類の定義を送ると、ここに並びます。",
+  "fixedPageEditor.editReady": "編集フォームを表示しました。",
+  "fixedPageEditor.formReady": "作成フォームを表示しました。",
   "fixedPageEditor.chooseAgain": "種類を選び直す",
   "app.name": "Stilus",
   "home.title": "ホーム",
@@ -138,7 +139,6 @@ export const ja = {
     "登録済みのパスキーで本人確認をしてから削除します。ほかのブラウザからはログアウトします。",
   "passkeys.cancel": "キャンセル",
   "passkeys.save": "保存",
-  "passkeys.loading": "パスキーを読み込んでいます。",
   "passkeys.loadFailed": "パスキーを読み込めませんでした",
   "passkeys.added": "パスキーを追加しました。",
   "passkeys.deleted":
@@ -186,7 +186,6 @@ export const ja = {
   "deployTokens.close": "閉じる",
   "deployTokens.dates": "発行 {{created}}・最終使用 {{lastUsed}}",
   "deployTokens.datesUnused": "発行 {{created}}・未使用",
-  "deployTokens.loading": "トークンを読み込んでいます。",
   "deployTokens.loadFailed": "トークンを読み込めませんでした",
   "deployTokens.emptyTitle": "トークンはまだありません",
   "deployTokens.emptyDescription":
@@ -203,7 +202,6 @@ export const ja = {
     "操作できませんでした。時間をおいて、もう一度試してください。",
   "fixedPages.title": "固定ページ",
   "fixedPages.description": "About など、公開サイトに置くページ。",
-  "fixedPages.loading": "固定ページを読み込んでいます。",
   "fixedPages.loadFailed": "固定ページを読み込めませんでした",
   "fixedPages.emptyTitle": "固定ページはまだありません",
   "fixedPages.emptyDescription": "作った固定ページは、ここに並びます。",
