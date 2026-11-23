@@ -56,8 +56,6 @@ const DATABASE =
   "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。";
 const BUILDER =
   "procedure は procedures.ts の base(publicProcedures・authProcedures・adminProcedures)から作ります。素の builder は procedures.ts と router.ts だけで使います。";
-const REACT =
-  "React を使うコードは .tsx に置きます。.ts にはテストできるロジックだけを置きます。";
 
 /** Drizzle と DB のドライバ。 */
 export const DATABASE_PATHS: readonly RestrictedPath[] = [
@@ -156,14 +154,8 @@ export const ADMIN_FEATURE_PATTERNS: readonly RestrictedPattern[] = [
       "!@/**",
     ],
     message:
-      "管理画面の features で import できるのは、React (.tsx)・@analemma/contract・相対パスか @/ で指定する管理画面内のモジュールだけです。訳・API・認証器・server の状態は src/i18n/ と src/api/ の部品を、画面の部品は ui/ の部品を通して使います。Node と Bun の API は使いません。",
+      "管理画面の features で import できるのは、React・@analemma/contract・相対パスか @/ で指定する管理画面内のモジュールだけです。訳・API・認証器・server の状態は src/i18n/ と src/api/ の部品を、画面の部品は ui/ の部品を通して使います。Node と Bun の API は使いません。",
   },
-];
-
-/** 管理画面の `.ts` で止める、React。 */
-export const REACT_PATHS: readonly RestrictedPath[] = [
-  { name: "react", message: REACT },
-  { name: "react-dom", message: REACT },
 ];
 
 /** 3つのルールの設定を組み立てる。 */

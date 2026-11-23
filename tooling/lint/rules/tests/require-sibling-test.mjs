@@ -6,17 +6,28 @@ import { isTestFile } from "./files.mjs";
 
 const LOGIC_FILE = /\.([cm]?ts)$/v;
 const TEST_CALL = /\b(?:test|it)(?:\.each)?\s*\(/v;
+const HOOK_NAME = /^use[A-Z]/v;
 
-const hasTests = (path) =>
-  statSync(path, { throwIfNoEntry: false })?.isFile() === true &&
-  TEST_CALL.test(readFileSync(path, "utf8"));
-
-const testFileFor = (filename, extension) =>
-  join(
-    dirname(filename),
-    "__tests__",
-    basename(filename).replace(/\.[^.]+$/v, `.test.${extension}`),
+const hasTests = (paths) =>
+  paths.some(
+    (path) =>
+      statSync(path, { throwIfNoEntry: false })?.isFile() === true &&
+      TEST_CALL.test(readFileSync(path, "utf8")),
   );
+
+const testFilesFor = (filename) =>
+  [filename.match(LOGIC_FILE)?.[1] ?? "ts", "tsx"].map((extension) =>
+    join(
+      dirname(filename),
+      "__tests__",
+      basename(filename).replace(/\.[^.]+$/v, `.test.${extension}`),
+    ),
+  );
+
+const testNames = (paths) => paths.map((path) => basename(path)).join(" か ");
+
+const isHook = (node) =>
+  node.id?.type === "Identifier" && HOOK_NAME.test(node.id.name);
 
 const isJsx = (node) => {
   if (node?.type === "ParenthesizedExpression") {
@@ -66,7 +77,7 @@ const requireSiblingTest = {
     type: "problem",
     docs: {
       description:
-        "ロジックの .ts と、表示を出し分けるコンポーネントに、同じフォルダの __tests__ のテストのファイルを求める。",
+        "hook でない関数を export する .ts と、表示を出し分けるコンポーネントに、同じフォルダの __tests__ のテストのファイルを求める。",
     },
     schema: [
       {
@@ -81,7 +92,7 @@ const requireSiblingTest = {
     ],
     messages: {
       missingLogicTest:
-        "このファイルは関数を export しています。同じフォルダの __tests__ に {{test}} を置き、ロジックのテストを書きます。",
+        "このファイルは、hook でない関数を export しています。同じフォルダの __tests__ に {{test}} を置き、ロジックのテストを書きます。",
       missingComponentTest:
         "このコンポーネントは表示を出し分けています。同じフォルダの __tests__ に {{test}} を置き、出し分けの結果を利用者に見えるもので確かめます。",
     },
@@ -96,19 +107,21 @@ const requireSiblingTest = {
       return {};
     }
 
-    if (LOGIC_FILE.test(filename)) {
-      const testFile = testFileFor(filename, filename.match(LOGIC_FILE)?.[1]);
+    const testFiles = testFilesFor(filename);
 
+    if (LOGIC_FILE.test(filename)) {
       return {
         "Program:exit"(program) {
           if (
-            collectExportedFunctions(program).size > 0 &&
-            !hasTests(testFile)
+            [...collectExportedFunctions(program)].some(
+              (node) => !isHook(node),
+            ) &&
+            !hasTests(testFiles)
           ) {
             context.report({
               node: program,
               messageId: "missingLogicTest",
-              data: { test: basename(testFile) },
+              data: { test: testNames(testFiles) },
             });
           }
         },
@@ -119,7 +132,6 @@ const requireSiblingTest = {
       return {};
     }
 
-    const testFile = testFileFor(filename, "tsx");
     let branches = false;
 
     return {
@@ -127,11 +139,11 @@ const requireSiblingTest = {
         branches = true;
       }),
       "Program:exit"(program) {
-        if (branches && !hasTests(testFile)) {
+        if (branches && !hasTests(testFiles)) {
           context.report({
             node: program,
             messageId: "missingComponentTest",
-            data: { test: basename(testFile) },
+            data: { test: testNames(testFiles) },
           });
         }
       },

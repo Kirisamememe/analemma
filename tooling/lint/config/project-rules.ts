@@ -123,6 +123,7 @@ export const PROJECT_RULES = {
   ],
   "project/no-cross-workspace-import": "error",
   "project/no-dynamic-import": "error",
+  "project/require-jsx-in-tsx": "error",
   "project/test-location": "error",
   "project/file-length-limit": [
     "error",

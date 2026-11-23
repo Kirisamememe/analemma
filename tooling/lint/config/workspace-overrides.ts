@@ -71,7 +71,7 @@ export const WORKSPACE_OVERRIDES: readonly OxlintOverride[] = [
     },
   },
   {
-    files: ["**/apps/admin/.storybook/use-html-preferences.tsx"],
+    files: ["**/apps/admin/.storybook/use-html-preferences.ts"],
     rules: { "typescript/dot-notation": "off" },
   },
   {

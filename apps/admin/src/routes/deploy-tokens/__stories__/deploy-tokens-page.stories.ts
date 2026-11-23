@@ -15,7 +15,7 @@ const TOKENS: readonly FakeDeployTokenSeed[] = [
   { name: "手元の確認", lastUsedAt: null },
 ];
 
-const waitForever = <Value,>(): Promise<Value> =>
+const waitForever = <Value>(): Promise<Value> =>
   Promise.withResolvers<Value>().promise;
 
 /** 再認証の OS の画面を開いたまま、答えない認証器。 */

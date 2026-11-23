@@ -2,7 +2,6 @@ import type { OxlintOverride } from "oxlint";
 
 import {
   ADMIN_FEATURE_PATTERNS,
-  REACT_PATHS,
   UI_LIBRARY_PATTERNS,
   VARIANT_LIBRARY_PATTERNS,
   WORKSPACE_BUN_GLOBALS,
@@ -36,30 +35,24 @@ const COMPONENT_LAYERS = layerPatterns(
   "components/ は features を import しません(複数の feature から使う部品を置く場所)。",
 );
 
-const adminApis = (
-  logic: boolean,
-  { imports, globals }: RestrictedApis,
-): RestrictedApis => ({
+const adminApis = ({ imports, globals }: RestrictedApis): RestrictedApis => ({
   imports: {
-    paths: [...(logic ? REACT_PATHS : []), ...(imports.paths ?? [])],
+    ...imports,
     patterns: [...WORKSPACE_RUNTIME_PATTERNS, ...(imports.patterns ?? [])],
   },
   globals: [...WORKSPACE_BUN_GLOBALS, ...globals],
 });
 
-const byExtension = (
+const inDirectory = (
   directory: string,
   apis: RestrictedApis,
-): OxlintOverride[] => [
-  {
-    files: [`**/apps/admin/src/${directory}*.ts`],
-    rules: restrictApis(adminApis(true, apis)),
-  },
-  {
-    files: [`**/apps/admin/src/${directory}*.tsx`],
-    rules: restrictApis(adminApis(false, apis)),
-  },
-];
+): OxlintOverride => ({
+  files: [
+    `**/apps/admin/src/${directory}*.ts`,
+    `**/apps/admin/src/${directory}*.tsx`,
+  ],
+  rules: restrictApis(adminApis(apis)),
+});
 
 /** 管理画面の境界を守る設定(後に書いたものが勝つ)。 */
 export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
@@ -73,13 +66,13 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
       ],
     },
   },
-  ...byExtension("**/", {
+  inDirectory("**/", {
     imports: {
       patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
     },
     globals: [],
   }),
-  ...byExtension("components/**/", {
+  inDirectory("components/**/", {
     imports: {
       patterns: [
         ...VARIANT_LIBRARY_PATTERNS,
@@ -89,13 +82,13 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     },
     globals: [],
   }),
-  ...byExtension("ui/primitives/**/", {
+  inDirectory("ui/primitives/**/", {
     imports: {
       patterns: [...VARIANT_LIBRARY_PATTERNS, ...PRIMITIVE_LAYERS],
     },
     globals: [],
   }),
-  ...byExtension("ui/layout/**/", {
+  inDirectory("ui/layout/**/", {
     imports: {
       patterns: [
         ...VARIANT_LIBRARY_PATTERNS,
@@ -108,7 +101,7 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   {
     files: ["**/apps/admin/src/ui/tv.ts"],
     rules: restrictApis(
-      adminApis(true, {
+      adminApis({
         imports: { patterns: UI_LIBRARY_PATTERNS },
         globals: [],
       }),
@@ -124,20 +117,17 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
       "project/require-sibling-test": ["error", { branchingComponents: true }],
     },
   },
-  ...(["ts", "tsx"] as const).map((extension) => ({
-    files: [`**/apps/admin/src/features/**/*.${extension}`],
+  {
+    files: [
+      "**/apps/admin/src/features/**/*.ts",
+      "**/apps/admin/src/features/**/*.tsx",
+    ],
     rules: restrictApis({
-      imports: {
-        paths:
-          extension === "ts"
-            ? REACT_PATHS.filter(({ name }) => name === "react")
-            : [],
-        patterns: ADMIN_FEATURE_PATTERNS,
-      },
+      imports: { patterns: ADMIN_FEATURE_PATTERNS },
       globals: WORKSPACE_BUN_GLOBALS,
     }),
-  })),
-  ...byExtension("**/__stories__/", {
+  },
+  inDirectory("**/__stories__/", {
     imports: {
       patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
     },
@@ -147,14 +137,16 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     files: ["**/apps/admin/src/**/__stories__/**"],
     rules: { "project/require-sibling-test": "off" },
   },
-  ...(["ts", "tsx"] as const).map((extension) => ({
-    files: [`**/apps/admin/src/**/__tests__/*.${extension}`],
+  {
+    files: [
+      "**/apps/admin/src/**/__tests__/*.ts",
+      "**/apps/admin/src/**/__tests__/*.tsx",
+    ],
     rules: restrictApis({
       imports: {
-        paths: extension === "ts" ? REACT_PATHS : [],
         patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
       },
       globals: [],
     }),
-  })),
+  },
 ];

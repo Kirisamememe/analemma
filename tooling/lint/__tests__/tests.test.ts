@@ -33,6 +33,11 @@ describe("テストの置き場所", () => {
       label: "テストの無い、表示を出し分けるコンポーネント",
       file: "apps/admin/src/branchy.tsx",
     },
+    {
+      label:
+        "テストの無い、hook と hook でない関数を export する管理画面のロジック",
+      file: "apps/admin/src/hook-with-helper.ts",
+    },
   ])("$label に診断を出すこと", ({ file }) => {
     expect(countRule(file, "project(require-sibling-test)")).toBe(1);
   });

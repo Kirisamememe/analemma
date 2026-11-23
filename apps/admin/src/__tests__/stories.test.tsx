@@ -55,34 +55,34 @@ const MODULES = {
   "components/forms/__stories__/form.stories.tsx": componentsForm,
   "components/forms/__stories__/form-fields.stories.tsx": componentsFormFields,
   "components/forms/__stories__/submitting.stories.tsx": componentsSubmitting,
-  "components/__stories__/passkey-name-field.stories.tsx":
+  "components/__stories__/passkey-name-field.stories.ts":
     componentsPasskeyNameField,
   "features/deploy-tokens/ui/__stories__/copy-button.stories.tsx":
     featuresDeployTokensCopyButton,
-  "features/deploy-tokens/ui/__stories__/token-value.stories.tsx":
+  "features/deploy-tokens/ui/__stories__/token-value.stories.ts":
     featuresDeployTokensTokenValue,
-  "routes/__stories__/enroll-page.stories.tsx": routesEnrollPage,
-  "routes/__stories__/login-page.stories.tsx": routesLoginPage,
-  "routes/__stories__/security-page.stories.tsx": routesSecurityPage,
-  "routes/deploy-tokens/__stories__/deploy-tokens-page.stories.tsx":
+  "routes/__stories__/enroll-page.stories.ts": routesEnrollPage,
+  "routes/__stories__/login-page.stories.ts": routesLoginPage,
+  "routes/__stories__/security-page.stories.ts": routesSecurityPage,
+  "routes/deploy-tokens/__stories__/deploy-tokens-page.stories.ts":
     routesDeployTokensPage,
-  "routes/fixed-pages/__stories__/fixed-page-editor.stories.tsx":
+  "routes/fixed-pages/__stories__/fixed-page-editor.stories.ts":
     routesFixedPageEditor,
-  "routes/fixed-pages/__stories__/fixed-pages-page.stories.tsx":
+  "routes/fixed-pages/__stories__/fixed-pages-page.stories.ts":
     routesFixedPagesPage,
   "ui/layout/__stories__/app-shell.stories.tsx": layoutAppShell,
   "ui/layout/__stories__/center.stories.tsx": layoutCenter,
   "ui/layout/__stories__/cluster.stories.tsx": layoutCluster,
-  "ui/layout/__stories__/heading.stories.tsx": layoutHeading,
+  "ui/layout/__stories__/heading.stories.ts": layoutHeading,
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
-  "ui/layout/__stories__/text.stories.tsx": layoutText,
+  "ui/layout/__stories__/text.stories.ts": layoutText,
   "ui/patterns/__stories__/empty-state.stories.tsx": patternsEmptyState,
   "ui/patterns/__stories__/page-header.stories.tsx": patternsPageHeader,
   "ui/patterns/__stories__/side-nav.stories.tsx": patternsSideNav,
-  "ui/primitives/__stories__/badge.stories.tsx": primitivesBadge,
-  "ui/primitives/__stories__/button.stories.tsx": primitivesButton,
+  "ui/primitives/__stories__/badge.stories.ts": primitivesBadge,
+  "ui/primitives/__stories__/button.stories.ts": primitivesButton,
   "ui/primitives/__stories__/form.stories.tsx": primitivesForm,
-  "ui/primitives/__stories__/notice.stories.tsx": primitivesNotice,
+  "ui/primitives/__stories__/notice.stories.ts": primitivesNotice,
   "ui/primitives/collections/__stories__/reorderable-list.stories.tsx":
     primitivesReorderableList,
   "ui/primitives/form-fields/choices/__stories__/checkbox.stories.tsx":
@@ -95,14 +95,14 @@ const MODULES = {
     primitivesNumberField,
   "ui/primitives/form-fields/__stories__/text-area.stories.tsx":
     primitivesTextArea,
-  "ui/primitives/form-fields/__stories__/text-field.stories.tsx":
+  "ui/primitives/form-fields/__stories__/text-field.stories.ts":
     primitivesTextField,
-  "ui/primitives/form-fields/__stories__/text-input.stories.tsx":
+  "ui/primitives/form-fields/__stories__/text-input.stories.ts":
     primitivesTextInput,
-  "ui/primitives/graphics/__stories__/app-mark.stories.tsx": primitivesAppMark,
+  "ui/primitives/graphics/__stories__/app-mark.stories.ts": primitivesAppMark,
   "ui/primitives/graphics/__stories__/icon.stories.tsx": primitivesIcon,
-  "ui/primitives/graphics/__stories__/spinner.stories.tsx": primitivesSpinner,
-  "ui/primitives/navigation/__stories__/link.stories.tsx": primitivesLink,
+  "ui/primitives/graphics/__stories__/spinner.stories.ts": primitivesSpinner,
+  "ui/primitives/navigation/__stories__/link.stories.ts": primitivesLink,
   "ui/primitives/navigation/__stories__/nav-drawer.stories.tsx":
     primitivesNavDrawer,
   "ui/primitives/navigation/__stories__/nav-item.stories.tsx":
@@ -111,11 +111,11 @@ const MODULES = {
   "ui/primitives/overlays/__stories__/focus-scope.stories.tsx":
     primitivesFocusScope,
   "ui/primitives/overlays/__stories__/toast.stories.tsx": primitivesToast,
-  "ui/specimens/__stories__/colors.stories.tsx": specimensColors,
-  "ui/specimens/__stories__/typography.stories.tsx": specimensTypography,
+  "ui/specimens/__stories__/colors.stories.ts": specimensColors,
+  "ui/specimens/__stories__/typography.stories.ts": specimensTypography,
 };
 
-const STORY_FILE = /(?:^|\/)__stories__\/[^\/]+\.stories\.tsx$/v;
+const STORY_FILE = /(?:^|\/)__stories__\/[^\/]+\.stories\.tsx?$/v;
 
 setProjectAnnotations(preview);
 

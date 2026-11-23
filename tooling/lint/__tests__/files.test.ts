@@ -32,6 +32,23 @@ describe("ファイルの長さ", () => {
   });
 });
 
+describe("拡張子", () => {
+  test("JSX の要素も fragment も含まない .tsx に診断を出すこと", () => {
+    expect(
+      messagesOf("files/without-jsx.tsx", "project(require-jsx-in-tsx)"),
+    ).toEqual([
+      "JSX を含まないファイルは `.ts` にします。`.tsx` には、JSX の要素か fragment を書くファイルだけを置きます。",
+    ]);
+  });
+
+  test.each(["files/jsx-element.tsx", "files/jsx-fragment.tsx"])(
+    "JSX を含む %s には診断を出さないこと",
+    (file) => {
+      expect(lintFixture(`valid/${file}`).diagnostics).toEqual([]);
+    },
+  );
+});
+
 describe("lint の抑制", () => {
   test("理由の無い抑制に診断を出すこと", () => {
     const messages = messagesOf(
