@@ -112,9 +112,9 @@ describe("EditImage", () => {
     expect(server.images()[1]?.description).toBeNull();
   });
 
-  test.each([true, false])(
-    "保存中に移動を頼み、先に離れるか(%p)にかかわらず元の写真に保存する",
-    async (leaveFirst) => {
+  test.each(["先に離れる", "保存が先に完了", "先に削除された"] as const)(
+    "保存中に別の写真への移動を頼むと、%s場合も URL の写真を表示する",
+    async (order) => {
       const deferred = Promise.withResolvers<undefined>();
       const { history, image, next, server } = setup(deferred.promise);
       const editor = await openEditor();
@@ -132,7 +132,7 @@ describe("EditImage", () => {
         description: /保存に失敗した場合/v,
       });
 
-      if (leaveFirst) {
+      if (order === "先に離れる") {
         await userEvent.click(
           within(confirm).getByRole("button", { name: "画面を離れる" }),
         );
@@ -150,10 +150,17 @@ describe("EditImage", () => {
         expect(screen.queryByRole("dialog")).toBeNull();
       }
 
-      deferred.resolve(undefined);
-      await screen.findByText("画像を更新しました。");
+      if (order === "先に削除された") {
+        server.routes["admin/images/delete"]({ id: image.id });
+      }
 
-      if (leaveFirst) {
+      deferred.resolve(undefined);
+
+      if (order !== "先に削除された") {
+        await screen.findByText("画像を更新しました。");
+      }
+
+      if (order === "先に離れる") {
         expect(
           (await openEditor()).getByRole<HTMLTextAreaElement>("textbox", {
             name: "説明",
@@ -164,7 +171,9 @@ describe("EditImage", () => {
         expect(history.location.pathname).toBe("/images/" + next.id);
       }
 
-      expect(server.images()[1]?.description).toBeNull();
+      expect(
+        server.images().find(({ id }) => id === next.id)?.description,
+      ).toBeNull();
     },
   );
 
