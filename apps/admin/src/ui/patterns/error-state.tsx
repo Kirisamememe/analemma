@@ -35,7 +35,7 @@ type ErrorStateProps = {
   /** 次にすることの補足(既定は接続を確かめて試し直すこと)。 */
   description?: string | undefined;
   /** 見出しのレベル。 */
-  level: 2 | 3;
+  level: 1 | 2 | 3;
   /** 置く場所(一覧の中か、画面の中身の全体か)。 */
   layout: "inline" | "screen";
   /** 取り直しているか。 */

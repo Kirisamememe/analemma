@@ -75,11 +75,12 @@ describe("ImageViewerPage", () => {
     await expectLinkFocus("前の画像");
   });
 
-  test("前後の取得に失敗しても写真を表示し、取り直した後は次の写真へ進める", async () => {
+  test("前後の取得に失敗しても写真を表示し、取り直した後は同じ向きのリンクへ focus を戻す", async () => {
     const server = createImageRoutes(IMAGES);
-    let offline = true;
-    renderApp({
-      path: `/images/${server.images()[0]?.id ?? ""}`,
+    let offline = false;
+
+    const { queryClient } = renderApp({
+      path: `/images/${server.images()[2]?.id ?? ""}`,
       routes: {
         ...server.routes,
         "admin/images/neighbors": (input) =>
@@ -88,18 +89,26 @@ describe("ImageViewerPage", () => {
             : server.routes["admin/images/neighbors"](input),
       },
     });
-    await heading("夕暮れの稜線");
-    await screen.findByRole(
-      "heading",
-      { name: "前後の画像を読み込めませんでした" },
-      { timeout: 8000 },
-    );
-    offline = false;
-    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
-    await userEvent.click(
-      await screen.findByRole("link", { name: "次の画像" }),
-    );
+
+    queryClient.setDefaultOptions({ queries: { retry: false } });
+    const previous = await screen.findByRole("link", { name: "前の画像" });
+    offline = true;
+    previous.focus();
+    await userEvent.keyboard("{Enter}");
     await heading("港の灯り");
+    const retry = await screen.findByRole("button", { name: "もう一度試す" });
+    await waitFor(() => {
+      expect(document.activeElement).toBe(retry);
+    });
+    offline = false;
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(document.activeElement).toBe(
+        screen.getByRole("link", { name: "前の画像" }),
+      );
+    });
+    await userEvent.keyboard("{Enter}");
+    await heading("夕暮れの稜線");
   }, 15_000);
 
   test.each(["loading", "failed", "gone", "photo"] as const)(
@@ -136,9 +145,14 @@ describe("ImageViewerPage", () => {
         await page.findByRole("heading", { name: "夕暮れの稜線" });
       }
 
-      if (state === "gone") await page.findByText("この画像はもうありません。");
+      if (state === "gone") {
+        await page.findByRole("heading", {
+          level: 1,
+          name: "この画像はもうありません。",
+        });
+      }
 
-      if (state === "failed") await page.findByRole("alert");
+      if (state === "failed") await page.findByRole("heading", { level: 1 });
 
       if (state === "loading") await page.findByRole("status");
 
