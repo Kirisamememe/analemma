@@ -94,7 +94,7 @@ const ImageInfoContent = ({
 
 const ImageInfo = memo(ImageInfoContent);
 
-/** 1枚の画像を大きく出し、情報と、編集・公開と非公開・削除の操作を置く。 */
+/** 1枚の画像を大きく出し、その情報を添える。 */
 export const ImageDetail = ({
   image,
   navigationError,
@@ -134,8 +134,9 @@ export const ImageDetail = ({
       onSwipe={(side) => {
         const target = side === "previous" ? previous : next;
 
-        if (target !== undefined && target.disabled !== true)
-          onMove(target.href);
+        if (target !== undefined && target.disabled !== true) {
+          onMove(`/images/${target.id}`);
+        }
       }}
       previous={previous}
     >

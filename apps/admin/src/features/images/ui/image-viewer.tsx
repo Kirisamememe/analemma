@@ -10,11 +10,10 @@ import { Text } from "@/ui/layout";
 import { LoadingStatus } from "@/ui/patterns";
 import { Icon, Spinner } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
-import type { AppHref } from "@/ui/primitives/ui-provider";
 /** 前後の画像へ移るリンク。 */
 export type Neighbor = {
   /** 移る先。 */
-  readonly href: AppHref;
+  readonly id: string;
   /** 次の写真を待っていて、この向きの移動を受け付けないか。 */
   readonly disabled?: boolean;
   /** リンクのアクセシブルな名前。 */
@@ -67,6 +66,8 @@ type ImageViewerProps = {
 type SideLinkProps = {
   /** 移る先。 */
   neighbor: Neighbor;
+  /** 表示している写真からこの向きに移る。 */
+  onMove: () => void;
   /** 向きのアイコン。 */
   icon: "chevron-left" | "chevron-right";
   /** 置く側。 */
@@ -76,7 +77,8 @@ type SideLinkProps = {
 };
 
 const SideLink = ({
-  neighbor: { href, label, attach, onKeyboardNavigate, disabled },
+  neighbor: { id, label, attach, onKeyboardNavigate, disabled },
+  onMove,
   icon,
   place,
   controlsVisible,
@@ -84,14 +86,8 @@ const SideLink = ({
   <span
     className={style.side({ controlsVisible, className: style[place]() })}
     onClickCapture={(event) => {
-      if (disabled === true) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        return;
-      }
-
       if (
+        disabled !== true &&
         event.detail === 0 &&
         !event.altKey &&
         !event.ctrlKey &&
@@ -102,7 +98,12 @@ const SideLink = ({
       }
     }}
   >
-    <Link href={href} variant="block" ref={attach} aria-disabled={disabled}>
+    <Link
+      href={`/images/${id}`}
+      variant="block"
+      ref={attach}
+      navigation={{ disabled: disabled ?? false, open: onMove }}
+    >
       <span className={style.control()}>
         <Icon name={icon} size="lg" />
         <span className="sr-only">{label}</span>
@@ -189,6 +190,9 @@ export const ImageViewer = ({
             controlsVisible={controlsVisible}
             icon="chevron-left"
             neighbor={previous}
+            onMove={() => {
+              onSwipe("previous");
+            }}
             place="previous"
           />
         )}
@@ -197,6 +201,9 @@ export const ImageViewer = ({
             controlsVisible={controlsVisible}
             icon="chevron-right"
             neighbor={next}
+            onMove={() => {
+              onSwipe("next");
+            }}
             place="next"
           />
         )}

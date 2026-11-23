@@ -31,7 +31,7 @@ describe("ImageViewer", () => {
   test("前後の画像は、渡したときだけリンクを置く", () => {
     renderWithI18n(
       viewer({
-        next: { href: "/fixed-pages", label: "次の画像" },
+        next: { id: "019b0000-0000-7000-8000-000000000001", label: "次の画像" },
       }),
     );
 

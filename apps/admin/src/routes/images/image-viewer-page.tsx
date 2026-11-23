@@ -12,94 +12,23 @@ import { useTranslation } from "react-i18next";
 import { ImageViewerActions } from "./image-viewer-actions";
 import { ImageViewerContext } from "./image-viewer-context";
 import { useImageVisit } from "./use-image-visit";
+import { useViewerNavigation } from "./use-viewer-navigation";
 
 import {
   type ImageNeighbors,
   useImageNeighbors,
 } from "@/features/images/detail/hooks/use-image-neighbors";
 import { ImageDetail } from "@/features/images/detail/image-detail";
-import type { Neighbor } from "@/features/images/ui/image-viewer";
 import { ViewerFrame, ViewerMessage } from "@/features/images/ui/viewer-frame";
-import { ViewerLoading } from "@/features/images/ui/viewer-loading";
 import { ViewerVisit } from "@/features/images/ui/viewer-visit";
 import { Heading, PageTransition, Text } from "@/ui/layout";
-import { ErrorState } from "@/ui/patterns";
+import { ErrorState, LoadingState } from "@/ui/patterns";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
 
 type BackProps = {
   /** 一覧へ戻るリンク。 */
   back: RefObject<HTMLAnchorElement | null>;
-};
-
-type PhotoSide = "previous" | "next";
-
-type PendingFocus = {
-  /** キーボードで開く写真の ID。 */
-  id: string;
-  /** 押したリンクの向き。 */
-  side: PhotoSide;
-};
-
-const useViewerNavigation = (back: BackProps["back"], disabled: boolean) => {
-  const { t } = useTranslation();
-  const previous = useRef<HTMLAnchorElement>(null);
-  const next = useRef<HTMLAnchorElement>(null);
-  const pending = useRef<PendingFocus>(undefined);
-  const retryRef = useRef<HTMLButtonElement>(null);
-  const links = { previous, next };
-
-  const neighbor = (
-    side: PhotoSide,
-    id: string | undefined,
-  ): Neighbor | undefined =>
-    id === undefined
-      ? undefined
-      : {
-          href: `/images/${id}`,
-          disabled,
-          label: t(
-            side === "next" ? "imageDetail.next" : "imageDetail.previous",
-          ),
-          attach: (element) => {
-            links[side].current = element;
-          },
-          onKeyboardNavigate: () => {
-            pending.current = { id, side };
-          },
-        };
-
-  const restore = (id: string) => {
-    const move = pending.current;
-
-    if (move?.id !== id) return;
-
-    const active = document.activeElement;
-
-    if (active !== null && active !== document.body) {
-      if (active !== retryRef.current) pending.current = undefined;
-
-      return;
-    }
-
-    if (retryRef.current !== null) {
-      retryRef.current.focus();
-      return;
-    }
-
-    pending.current = undefined;
-
-    const opposite = move.side === "previous" ? next : previous;
-    (links[move.side].current ?? opposite.current ?? back.current)?.focus();
-  };
-
-  const retry = (id: string, again: () => void) => {
-    if (pending.current?.id !== id) pending.current = { id, side: "next" };
-
-    again();
-  };
-
-  return { neighbor, restore, retry, retryRef };
 };
 
 const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
@@ -115,6 +44,7 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
   const currentNeighbors = useImageNeighbors(id);
   const canMove = state?.shown?.id === id && currentNeighbors !== undefined;
   const navigation = useViewerNavigation(back, !canMove);
+
   const [lastLinks, setLastLinks] =
     useState<Pick<ImageNeighbors, "previous" | "next">>();
 
@@ -179,7 +109,7 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
           image={shown}
           error={error}
           pending={pending}
-          waiting={shown.id !== id}
+          waiting={shown.id !== id || currentNeighbors === undefined}
           direction={shown.id === id ? direction : undefined}
           onSettled={settle}
           next={navigation.neighbor("next", neighbors?.next)}
@@ -189,7 +119,9 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
           }}
         />
       )}
-      {query._tag === "Loading" && shown === undefined && <ViewerLoading />}
+      {query._tag === "Loading" && shown === undefined && (
+        <LoadingState layout="media" label={t("imageDetail.loading")} />
+      )}
       {error !== undefined && shown === undefined && (
         <ViewerMessage>{error}</ViewerMessage>
       )}

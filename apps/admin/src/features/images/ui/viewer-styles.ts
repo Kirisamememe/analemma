@@ -35,8 +35,8 @@ const viewer = tv({
     control: [
       "flex size-control items-center justify-center rounded-full",
       "bg-scrim/60 text-on-media outline outline-fg/20", // 暗い地の上でも写真の上でも、縁が見える
-      "transition group-is-hovered:bg-scrim",
-      "group-is-focus-shown:bg-scrim group-is-focus-shown:outline-2 group-is-focus-shown:-outline-offset-2 group-is-focus-shown:outline-current",
+      "transition group-hover:bg-scrim",
+      "group-focus-visible:bg-scrim group-focus-visible:outline-2 group-focus-visible:-outline-offset-2 group-focus-visible:outline-current",
     ],
     panel: [mediaLayout.panel(), "focus-visible:focus-ring-inset"],
     message: "flex grow items-center justify-center p-6",

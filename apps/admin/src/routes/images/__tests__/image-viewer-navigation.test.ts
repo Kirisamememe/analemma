@@ -45,8 +45,12 @@ describe("写真を送るときの表示", () => {
     );
 
     expect(old.isConnected).toBe(true);
-    expect(title.isConnected).toBe(true);
+    expect(within(panel).getByRole("heading", { level: 1 }).textContent).toBe(
+      title.textContent,
+    );
     expect(screen.getByRole("link", { name: "次の画像" })).toBe(forward);
+    expect(forward.getAttribute("aria-disabled")).toBe("true");
+    expect(forward.hasAttribute("href")).toBe(false);
     await userEvent.keyboard("{Enter}");
     await userEvent.click(forward);
     expect(history.location.pathname).toBe("/images/" + second.id);
@@ -60,6 +64,7 @@ describe("写真を送るときの表示", () => {
     );
     expect(panel.scrollTop).toBe(0);
     expect(document.activeElement).toBe(forward);
+    expect(forward.getAttribute("aria-disabled")).toBeNull();
   });
 
   test("編集している画像を取り直せなくても入力が残り、変更を破棄して別の画像に移ると Dialog を閉じる", async () => {
@@ -82,7 +87,11 @@ describe("写真を送るときの表示", () => {
     expect(queryClient.getQueryState(imageQueryKey(first.id))?.status).toBe(
       "error",
     );
-    expect(within(dialog).getByDisplayValue("入力の途中")).toBe(input);
+    expect(
+      within(dialog).getByRole<HTMLInputElement>("textbox", {
+        name: "タイトル",
+      }).value,
+    ).toBe("入力の途中");
     expect(dialog.isConnected).toBe(true);
     act(() => {
       history.push("/images/" + second.id);
