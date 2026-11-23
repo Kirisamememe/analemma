@@ -17,7 +17,17 @@ const renderEditorForm = async (target: FixedPageEditorProps["page"]) => {
   await app.router.load();
 
   return renderHook(
-    () => useEditorForm({ kind, page: target, onSaved: () => undefined }),
+    () =>
+      useEditorForm(
+        target === undefined
+          ? { kind, onSaved: () => undefined }
+          : {
+              kind,
+              page: target,
+              onSaved: () => undefined,
+              onDeleted: () => undefined,
+            },
+      ),
     { wrapper: withAppProviders(app) },
   ).result;
 };
