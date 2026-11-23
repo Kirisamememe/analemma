@@ -21,6 +21,14 @@ export type FakeApproval = {
   readonly state: string;
 };
 
+/** 止めたリクエスト。 */
+export type FakeHold = {
+  /** 止めたリクエストが届くと決まる Promise。 */
+  readonly reached: Promise<undefined>;
+  /** 止めたリクエストを進める。 */
+  readonly release: () => void;
+};
+
 /** HTTP の API を真似る、作り物の Dropbox。 */
 export type FakeDropbox = {
   /** Dropbox へのリクエストを受ける。 */
@@ -29,6 +37,12 @@ export type FakeDropbox = {
   readonly approve: (authorizeUrl: string) => FakeApproval;
   /** 利用者が Dropbox の設定からアプリの接続を切ったことにする。 */
   readonly unlink: () => void;
+  /** 次に path に届くリクエストを、status で断る。 */
+  readonly fail: (path: string, status: number) => void;
+  /** 次に path に届くリクエストを、release まで止める。 */
+  readonly hold: (path: string) => FakeHold;
+  /** 取り消していない refresh token の数。 */
+  readonly activeGrants: () => number;
   /** 届いたリクエストの path。 */
   readonly requests: readonly string[];
 };
@@ -45,6 +59,8 @@ export const createFakeDropbox = (): FakeDropbox => {
   const grants = new Map<string, string>(); // access token と、その refresh token
   const refreshTokens = new Set<string>();
   const requests: string[] = [];
+  const failures = new Map<string, number>();
+  const holds = new Map<string, () => Promise<undefined>>();
 
   const issueAccess = (refreshToken: string): string => {
     const accessToken = `access-${crypto.randomUUID()}`;
@@ -125,6 +141,16 @@ export const createFakeDropbox = (): FakeDropbox => {
       const { pathname } = new URL(request.url);
 
       requests.push(pathname);
+      await holds.get(pathname)?.();
+      holds.delete(pathname);
+
+      const failure = failures.get(pathname);
+
+      failures.delete(pathname);
+
+      if (failure !== undefined) {
+        return json({ error_summary: "internal" }, failure);
+      }
 
       return pathname === "/oauth2/token"
         ? token(request)
@@ -138,6 +164,27 @@ export const createFakeDropbox = (): FakeDropbox => {
 
       return { code, state: params.get("state") ?? "" };
     },
+    fail: (path, status) => {
+      failures.set(path, status);
+    },
+    hold: (path) => {
+      const reached = Promise.withResolvers<undefined>();
+      const released = Promise.withResolvers<undefined>();
+
+      holds.set(path, async () => {
+        reached.resolve(undefined);
+
+        return released.promise;
+      });
+
+      return {
+        reached: reached.promise,
+        release: () => {
+          released.resolve(undefined);
+        },
+      };
+    },
+    activeGrants: () => refreshTokens.size,
     unlink: () => {
       refreshTokens.clear();
     },

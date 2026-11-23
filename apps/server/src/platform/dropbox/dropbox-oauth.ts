@@ -137,7 +137,9 @@ export const createDropboxOAuth = (
         }),
       );
 
-      return response.ok || response.status === 401;
+      if (!response.ok && response.status !== 401) {
+        throw unexpected("token の取り消し", response);
+      }
     },
   };
 };

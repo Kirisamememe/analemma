@@ -9,6 +9,7 @@ Dropbox のアプリとして API を呼ぶ処理を置く。どの写真を取�
 - app secret は HTTP Basic で送り、URL にも本文にも書かない。途中のログに残さないため。
 - 失敗は、次の3つに分ける。token が使えない(API の 401)は `Unauthorized`、code か refresh token を Dropbox が断ったものは `Rejected`・`Revoked`、ほかは想定外の失敗として throw する。
   - code は、token の endpoint の 400 の `invalid_grant`(期限切れ・使った code・違う redirect URI)だけを `Rejected` にする。app secret の誤りのような設定の誤りは、500 とログで知らせる。
+  - 取り消し(`auth/token/revoke`)は、200 と、取り消し済みの 401 を成功にし、ほかは throw する。Dropbox で取り消せていないまま、取り消せたことにしないため。
   - refresh token は、429 を除く 4xx をすべて `Revoked` にする。利用者がアプリを切ったとき(`invalid_grant`)のほか、app secret を作り直したときも、再接続で戻せるようにするため。5xx と 429 は、待てば戻るので throw する。
 
 ## テスト

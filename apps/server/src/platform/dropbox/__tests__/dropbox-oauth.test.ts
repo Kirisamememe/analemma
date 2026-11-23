@@ -98,19 +98,14 @@ describe("createDropboxApi の OAuth", () => {
       _tag: "Refreshed",
       expiresInSeconds: 14_400,
     });
-    expect(await api.revoke(accessToken)).toBe(true);
+    await api.revoke(accessToken);
     expect(await api.refresh(refreshToken)).toEqual({ _tag: "Revoked" });
-    expect(await api.revoke(accessToken)).toBe(true);
+    await api.revoke(accessToken);
   });
 
-  test("Dropbox が取り消しを断ったら、false を返すこと", async () => {
-    const api = createDropboxApi(TEST_DROPBOX_APP, () =>
-      Promise.resolve(
-        Response.json({ error_summary: "internal" }, { status: 500 }),
-      ),
-    );
-
-    expect(await api.revoke("token")).toBe(false);
+  test("取り消し済みの token は成功とし、Dropbox が取り消しを断ったら失敗とすること", async () => {
+    await replying(401).revoke("token");
+    expect(replying(500).revoke("token")).rejects.toThrow("500");
   });
 
   test("refresh token の更新を 4xx で断られたら取り消し済みとし、5xx は失敗とすること", async () => {

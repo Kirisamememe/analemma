@@ -78,11 +78,8 @@ export type DropboxApi = {
     refreshToken: string,
     signal?: AbortSignal,
   ) => Promise<DropboxRefresh>;
-  /** access token と、同じ認可の refresh token を取り消せたかを返す。 */
-  readonly revoke: (
-    accessToken: string,
-    signal?: AbortSignal,
-  ) => Promise<boolean>;
+  /** access token と、同じ認可の refresh token を取り消す。 */
+  readonly revoke: (accessToken: string, signal?: AbortSignal) => Promise<void>;
   /** つないだアカウントを読む。 */
   readonly getAccount: (
     accessToken: string,
