@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+import { fieldDefinitions } from "../field-definition";
 import { kindDefinition } from "../kind-definition";
 import { toContentSchema } from "../to-content-schema";
 
@@ -10,7 +11,7 @@ const { fields } = kindDefinition.parse({
     { key: "headline", label: "見出し", type: "text" },
     { key: "bio", label: "本文", type: "longText", optional: true },
     { key: "age", label: "年", type: "number", optional: true },
-    { key: "open", label: "受付中", type: "boolean", optional: true },
+    { key: "open", label: "受付中", type: "boolean", default: true },
     { key: "born", label: "生まれた日", type: "date", optional: true },
     { key: "site", label: "サイト", type: "url", optional: true },
     {
@@ -65,7 +66,35 @@ describe("中身の検査", () => {
 
   test("必須の項目が無いと断り、任意の項目は省けること", () => {
     expect(issuesOf({})).toEqual(["headline"]);
-    expect(keep.parse({ headline: "a" })).toEqual({ headline: "a" });
+    expect(keep.parse({ headline: "a" })).toEqual({
+      headline: "a",
+      open: true,
+    });
+  });
+
+  test("値の無い真偽値の項目は、項目の既定値として読むこと", () => {
+    const flags = fieldDefinitions.parse([
+      { key: "flag", label: "表示", type: "boolean" },
+      {
+        key: "group",
+        label: "まとめ",
+        type: "group",
+        fields: [
+          { key: "hidden", label: "隠す", type: "boolean", default: true },
+        ],
+      },
+    ]);
+    const schema = toContentSchema({ fields: flags, unknownKeys: "strip" });
+
+    expect(schema.parse({ group: {} })).toEqual({
+      flag: false,
+      group: { hidden: true },
+    });
+    expect(schema.parse({ flag: true, group: { hidden: false } })).toEqual({
+      flag: true,
+      group: { hidden: false },
+    });
+    expect(schema.safeParse({ flag: null, group: {} }).success).toBe(false);
   });
 
   test.each([
@@ -138,6 +167,7 @@ describe("中身の検査", () => {
   test("定義に無いキーは、keep では入れ子の中でも残し、strip では取り除くこと", () => {
     const content = {
       headline: "a",
+      open: false,
       removed: "古い項目",
       profile: { role: "b", old: 1 },
       links: [{ url: "https://example.com", old: true }],
@@ -146,6 +176,7 @@ describe("中身の検査", () => {
     expect(keep.parse(content)).toEqual(content);
     expect(strip.parse(content)).toEqual({
       headline: "a",
+      open: false,
       profile: { role: "b" },
       links: [{ url: "https://example.com" }],
     });

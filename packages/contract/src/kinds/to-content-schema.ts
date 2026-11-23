@@ -33,7 +33,7 @@ const toValueSchema = (
     case "number":
       return numberValue;
     case "boolean":
-      return booleanValue;
+      return booleanValue.default(field.default);
     case "date":
       return dateValue;
     case "url":
@@ -56,7 +56,7 @@ export const toContentSchema = ({
     fields.map((field) => {
       const value = toValueSchema(field, unknownKeys);
 
-      return [field.key, field.optional ? value.optional() : value];
+      return [field.key, field.optional === true ? value.optional() : value];
     }),
   );
 

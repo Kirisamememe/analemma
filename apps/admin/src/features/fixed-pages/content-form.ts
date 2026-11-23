@@ -65,9 +65,7 @@ const readField = (
     case "number":
       return numberValue.safeParse(value).data ?? null;
     case "boolean":
-      return content === undefined && !field.optional
-        ? false
-        : (booleanValue.safeParse(value).data ?? null);
+      return booleanValue.safeParse(value).data ?? field.default;
     case "date":
       return dateValue.safeParse(value).data ?? null;
     case "select":

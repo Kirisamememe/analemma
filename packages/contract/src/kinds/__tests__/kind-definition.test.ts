@@ -35,3 +35,37 @@ describe("項目の入れ子", () => {
     ]);
   });
 });
+
+describe("真偽値の項目", () => {
+  test("既定値を省くと false にし、書けばその値にすること", () => {
+    expect(
+      parse([
+        { key: "flag", label: "表示", type: "boolean" },
+        { key: "hidden", label: "隠す", type: "boolean", default: true },
+      ]).data?.fields,
+    ).toEqual([
+      { key: "flag", label: "表示", type: "boolean", default: false },
+      { key: "hidden", label: "隠す", type: "boolean", default: true },
+    ]);
+  });
+
+  test.each([true, false])(
+    "optional を %p にすると、select を使うよう知らせて断ること",
+    (optional) => {
+      const fields = [
+        { key: "flag", label: "表示", type: "boolean", optional },
+      ];
+
+      expect(
+        kindDefinition.safeParse({ name: "about", label: "自己紹介", fields })
+          .error?.issues,
+      ).toMatchObject([
+        {
+          path: ["fields", 0, "optional"],
+          message:
+            "真偽値の項目には optional を指定できない。3つ目の状態が要るなら select を使う",
+        },
+      ]);
+    },
+  );
+});

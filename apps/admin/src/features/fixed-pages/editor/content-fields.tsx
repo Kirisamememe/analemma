@@ -71,7 +71,7 @@ export const ContentFields = ({
       );
     }
 
-    const required = !definition.optional;
+    const required = definition.optional !== true;
     const label = definition.label;
 
     return (

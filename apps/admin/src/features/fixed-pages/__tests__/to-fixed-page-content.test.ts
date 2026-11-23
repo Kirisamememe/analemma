@@ -27,7 +27,6 @@ describe("toFixedPageContent", () => {
     const fields = fieldDefinitions.parse([
       { ...title, optional: true },
       { key: "body", type: "longText", label: "本文", optional: true },
-      { ...flag, optional: true },
       { key: "count", type: "number", label: "件数", optional: true },
       { key: "day", type: "date", label: "日付", optional: true },
       { key: "link", type: "url", label: "URL", optional: true },
@@ -45,7 +44,6 @@ describe("toFixedPageContent", () => {
       title: "   ",
       body: "\n\t",
       count: 0,
-      flag: false,
       day: "2024-02-29",
       link: " https://example.com ",
       color: "red",
@@ -62,7 +60,6 @@ describe("toFixedPageContent", () => {
         title: "",
         body: "",
         count: null,
-        flag: null,
         day: null,
         link: "",
         color: null,
@@ -92,12 +89,12 @@ describe("toFixedPageContent", () => {
     ]);
   });
 
-  test("任意の group は必須の boolean の初期値だけなら省き、true や任意の boolean の false を選ぶと送る", () => {
+  test("任意の group は boolean が既定値のままなら省き、既定値と違う値を選ぶと送る", () => {
     const fields = fieldDefinitions.parse([
       {
         ...group,
         optional: true,
-        fields: [title, { ...flag, key: "pinned", optional: true }, flag],
+        fields: [title, { ...flag, key: "pinned", default: true }, flag],
       },
     ]);
     const form = createContentForm(fields);
@@ -119,16 +116,20 @@ describe("toFixedPageContent", () => {
           details: { ...details, values: { ...details.values, [key]: value } },
         },
       });
-    expect(select("flag", true)).toEqual({ details: { flag: true } });
+    expect(select("flag", true)).toEqual({
+      details: { flag: true, pinned: true },
+    });
     expect(select("pinned", false)).toEqual({
       details: { flag: false, pinned: false },
     });
   });
 
-  test("必須の group には、必須の boolean の初期値 false を入れて送る", () => {
-    const fields = fieldDefinitions.parse([{ ...group, fields: [flag] }]);
+  test("必須の group には、boolean の既定値を入れて送る", () => {
+    const fields = fieldDefinitions.parse([
+      { ...group, fields: [flag, { ...flag, key: "pinned", default: true }] },
+    ]);
     expect(toFixedPageContent(fields, createContentForm(fields))).toEqual({
-      details: { flag: false },
+      details: { flag: false, pinned: true },
     });
   });
 
@@ -137,20 +138,20 @@ describe("toFixedPageContent", () => {
       {
         ...group,
         optional: true,
-        fields: [group, repeat, { ...flag, optional: true }],
+        fields: [group, repeat, flag],
       },
     ]);
     const send = (content: FixedPageContent) =>
       toFixedPageContent(fields, createContentForm(fields, content));
     expect(send({ details: { details: {}, rows: [] } })).toEqual({});
-    expect(send({ details: { flag: false } })).toEqual({
-      details: { flag: false, details: {}, rows: [] },
+    expect(send({ details: { flag: true } })).toEqual({
+      details: { flag: true, details: {}, rows: [] },
     });
     expect(send({ details: { rows: [{}] } })).toEqual({
-      details: { details: {}, rows: [{}] },
+      details: { flag: false, details: {}, rows: [{}] },
     });
     expect(send({ details: { old: null } })).toEqual({
-      details: { old: null, details: {}, rows: [] },
+      details: { old: null, flag: false, details: {}, rows: [] },
     });
   });
 

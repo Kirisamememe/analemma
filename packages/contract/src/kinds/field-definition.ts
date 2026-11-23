@@ -50,7 +50,21 @@ const common = {
 const textField = z.object({ ...common, type: z.literal("text") });
 const longTextField = z.object({ ...common, type: z.literal("longText") });
 const numberField = z.object({ ...common, type: z.literal("number") });
-const booleanField = z.object({ ...common, type: z.literal("boolean") });
+const booleanField = z.object({
+  key: fieldKey,
+  label: displayLabel,
+  type: z.literal("boolean"),
+  default: z
+    .boolean()
+    .default(false)
+    .describe("新しいページと、値の無いページで使う値。"),
+  optional: z
+    .never({
+      error:
+        "真偽値の項目には optional を指定できない。3つ目の状態が要るなら select を使う",
+    })
+    .optional(),
+});
 const dateField = z.object({ ...common, type: z.literal("date") });
 const urlField = z.object({ ...common, type: z.literal("url") });
 

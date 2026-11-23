@@ -6,7 +6,7 @@ import { z } from "zod";
 import { contract } from "@analemma/contract";
 
 import { defineKind } from "../../kinds/define-kind";
-import { optional, text } from "../../kinds/fields";
+import { boolean, optional, text } from "../../kinds/fields";
 import {
   type AnalemmaClient,
   createAnalemmaClient,
@@ -18,6 +18,8 @@ const about = defineKind({
   fields: {
     headline: text({ label: "見出し" }),
     note: optional(text({ label: "メモ" })),
+    showContact: boolean({ label: "連絡先を出す", default: true }),
+    toc: boolean({ label: "目次を出す" }),
   },
 });
 
@@ -30,7 +32,7 @@ const PAGE = {
 };
 
 /** テスト用の CMS に置く、公開している固定ページの中身。 */
-type FakeContent = Record<string, string>;
+type FakeContent = Record<string, string | boolean>;
 
 const os = implement({ public: contract.public });
 
@@ -84,15 +86,33 @@ describe("公開している固定ページを引く", () => {
       removed: "古い項目",
     }).fixedPages.get(about, "about");
 
-    expect(page).toEqual({ ...PAGE, content: { headline: "こんにちは" } });
+    expect(page).toEqual({
+      ...PAGE,
+      content: { headline: "こんにちは", showContact: true, toc: false },
+    });
     const expected = z.object({
       headline: z.string(),
       note: z.string().optional(),
+      showContact: z.boolean(),
+      toc: z.boolean(),
     });
 
     expectTypeOf(page?.content).toEqualTypeOf<
       z.output<typeof expected> | undefined
     >();
+  });
+
+  test("値の無い真偽値の項目は、項目の既定値を入れて返すこと", async () => {
+    const page = await clientFor({
+      headline: "a",
+      toc: true,
+    }).fixedPages.get(about, "about");
+
+    expect(page?.content).toEqual({
+      headline: "a",
+      showContact: true,
+      toc: true,
+    });
   });
 
   test("無いページは undefined を返すこと", async () => {

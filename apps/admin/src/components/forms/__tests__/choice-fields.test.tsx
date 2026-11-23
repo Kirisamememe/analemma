@@ -11,12 +11,12 @@ afterEach(cleanup);
 
 type FormValues = {
   /** 一覧で先頭に表示するか。 */
-  pinned: boolean | null;
+  pinned: boolean;
   /** 公開サイトで使う季節。 */
   season: string | null;
 };
 
-const INITIAL_VALUES: FormValues = { pinned: null, season: "spring" };
+const INITIAL_VALUES: FormValues = { pinned: true, season: "spring" };
 
 const OPTIONS = [
   { value: "spring", label: "春" },
@@ -46,7 +46,7 @@ const Example = ({ onSubmit }: ExampleProps): ReactNode => {
         name="pinned"
         validators={{
           onBlur: ({ value }) =>
-            value === null ? "表示位置を確認してください。" : undefined,
+            value ? "表示位置を確認してください。" : undefined,
         }}
       >
         {(field) => <field.Checkbox label="先頭に表示する" />}
@@ -82,7 +82,6 @@ describe("TanStack Form の Checkbox と Select", () => {
     const select = screen.getByRole("button", { name: /季節/v });
     await user.tab();
     expect(document.activeElement).toBe(checkbox);
-    await user.keyboard(" ");
     await user.keyboard(" ");
     await user.click(select);
     await user.click(screen.getByRole("option", { name: "選択なし" }));
