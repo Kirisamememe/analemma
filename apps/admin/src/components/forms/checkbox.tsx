@@ -1,7 +1,11 @@
 import { useSelector } from "@tanstack/react-form";
 import type { ReactNode } from "react";
 
-import { useFieldContext, useFieldError } from "./form-context";
+import {
+  useFieldContext,
+  useFieldError,
+  useIsSubmitting,
+} from "./form-context";
 
 import { Checkbox, type CheckboxProps } from "@/ui/primitives/form-fields";
 
@@ -15,11 +19,13 @@ export const AppCheckbox = (props: AppCheckboxProps): ReactNode => {
   const field = useFieldContext<boolean | null>();
   const value = useSelector(field.store, (state) => state.value);
   const errorMessage = useFieldError();
+  const isSubmitting = useIsSubmitting();
 
   return (
     <Checkbox
       description={props.description}
       isDisabled={props.isDisabled}
+      isReadOnly={isSubmitting}
       isRequired={props.isRequired}
       label={props.label}
       errorMessage={errorMessage}

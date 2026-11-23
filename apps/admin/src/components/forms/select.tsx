@@ -26,7 +26,11 @@ export const AppSelect = (props: AppSelectProps): ReactNode => {
       errorMessage={errorMessage}
       name={field.name}
       onBlur={field.handleBlur}
-      onChange={field.handleChange}
+      onChange={(next) => {
+        if (!field.form.state.isSubmitting) {
+          field.handleChange(next);
+        }
+      }}
       validationBehavior="aria"
       value={value ?? null}
     />

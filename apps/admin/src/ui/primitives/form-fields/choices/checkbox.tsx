@@ -35,6 +35,7 @@ export const Checkbox = ({
   defaultSelected,
   isSelected,
   isDisabled,
+  isReadOnly,
   isRequired,
   onBlur,
   onChange,
@@ -46,6 +47,7 @@ export const Checkbox = ({
     defaultSelected={defaultSelected}
     isSelected={isSelected}
     isDisabled={isDisabled}
+    isReadOnly={isReadOnly}
     isRequired={isRequired}
     onBlur={onBlur}
     onChange={onChange}

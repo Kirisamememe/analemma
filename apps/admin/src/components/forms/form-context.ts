@@ -20,3 +20,10 @@ export const useFieldError = (): string | undefined => {
     toFieldErrorMessage(state.meta.errors),
   );
 };
+
+/** フォームを送っている途中か(送信の検証の始めから、`onSubmit` が終わるまで)。 */
+export const useIsSubmitting = (): boolean => {
+  const field = useFieldContext<unknown>();
+
+  return useSelector(field.form.store, (state) => state.isSubmitting);
+};

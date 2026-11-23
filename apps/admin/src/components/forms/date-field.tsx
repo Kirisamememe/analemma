@@ -1,7 +1,11 @@
 import { useSelector } from "@tanstack/react-form";
 import type { ReactNode } from "react";
 
-import { useFieldContext, useFieldError } from "./form-context";
+import {
+  useFieldContext,
+  useFieldError,
+  useIsSubmitting,
+} from "./form-context";
 
 import { DateField, type DateFieldProps } from "@/ui/primitives/form-fields";
 
@@ -15,12 +19,13 @@ export const AppDateField = (props: AppDateFieldProps): ReactNode => {
   const field = useFieldContext<string | null>();
   const value = useSelector(field.store, (state) => state.value);
   const errorMessage = useFieldError();
+  const isSubmitting = useIsSubmitting();
 
   return (
     <DateField
       description={props.description}
       isDisabled={props.isDisabled}
-      isReadOnly={props.isReadOnly}
+      isReadOnly={isSubmitting || props.isReadOnly === true}
       isRequired={props.isRequired}
       label={props.label}
       errorMessage={errorMessage}
