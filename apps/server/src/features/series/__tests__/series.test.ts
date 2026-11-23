@@ -1,13 +1,48 @@
 import { expect, test } from "bun:test";
 
+import { deliveryImage } from "@/db/schema/delivery-image";
+import { image } from "@/db/schema/image";
+import { openDatabase } from "@/platform/database";
+import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
 import {
   catchErrorCode,
   createTestClient,
   signInAsAdmin,
   TEST_NOW,
+  type TestClient,
 } from "@/test-client";
 
 const fields = { name: "海辺", slug: "sea", description: null };
+const missing = "019b0000-0000-7000-8000-000000000000";
+
+const addTestImages = async (server: TestClient) => {
+  await using connection = openDatabase({
+    target: toTestDatabaseTarget(server.databaseName),
+    logger: { write: () => undefined },
+  });
+
+  const dates = {
+    createdAt: TEST_NOW,
+    updatedAt: TEST_NOW,
+    publishedAt: TEST_NOW,
+  };
+
+  const rows = await connection.db
+    .insert(image)
+    .values([dates, dates, dates])
+    .returning({ id: image.id });
+
+  const ids = rows.map((row) => row.id);
+  const [first = ""] = ids;
+  await connection.db.insert(deliveryImage).values({
+    imageId: first,
+    width: 640,
+    height: 480,
+    fileKey: `${first}-640.avif`,
+  });
+
+  return ids;
+};
 
 test("シリーズを非公開で作り、新しく作った順に一覧に返すこと", async () => {
   await using server = await createTestClient();
@@ -73,7 +108,77 @@ test("公開し直しても公開した日時を保ち、非公開に戻すと�
     () => api.delete({ id }),
     () => api.publish({ id }),
     () => api.unpublish({ id }),
+    () => api.addImages({ id, imageIds: [] }),
+    () => api.removeImages({ id, imageIds: [] }),
+    () => api.reorder({ id, imageIds: [] }),
   ]) {
     expect(await catchErrorCode(operation())).toBe("NOT_FOUND");
   }
+});
+
+test("画像はシリーズごとに並び、公開状態を変えても残り、画像を消すとすべてのシリーズから外れること", async () => {
+  await using server = await createTestClient();
+  await signInAsAdmin(server);
+  const api = server.client.admin.series;
+  const { id } = await api.create(fields);
+  const other = await api.create({ ...fields, slug: "other" });
+  const [first = "", second = "", third = ""] = await addTestImages(server);
+  await api.addImages({ id, imageIds: [second, first] });
+  await api.addImages({ id, imageIds: [first.toUpperCase(), third, third] });
+  await api.addImages({ id: other.id, imageIds: [third, first] });
+
+  const ids = async (seriesId: string) =>
+    (await api.get({ id: seriesId })).images.map((row) => row.id);
+
+  expect(await ids(id)).toEqual([second, first, third]);
+  await api.reorder({ id, imageIds: [first.toUpperCase(), third, second] });
+  expect(await ids(id)).toEqual([first, third, second]);
+  expect(await ids(other.id)).toEqual([third, first]);
+  await server.client.admin.images.unpublish({ id: first });
+  const cover = await server.client.admin.images.get({ id: first });
+  expect(cover.deliveryImages).toEqual([
+    { width: 640, height: 480, url: `/media/${first}/640.avif` },
+  ]);
+  expect((await api.get({ id })).images[0]).toEqual(cover);
+  expect((await api.list()).series).toMatchObject([
+    { id: other.id, imageCount: 2, coverImage: { id: third } },
+    { id, imageCount: 3, coverImage: cover },
+  ]);
+  await server.client.admin.images.delete({ id: first });
+  expect(await ids(id)).toEqual([third, second]);
+  expect(await ids(other.id)).toEqual([third]);
+  await api.removeImages({ id, imageIds: [missing, third] });
+  expect(await ids(id)).toEqual([second]);
+  expect(await ids(other.id)).toEqual([third]);
+  await api.delete({ id: other.id });
+  expect((await server.client.admin.images.get({ id: third })).id).toBe(third);
+});
+
+test("無い画像を含む追加と、画像の集まりが食い違う並べ直しは、並びを変えずに断ること", async () => {
+  await using server = await createTestClient();
+  await signInAsAdmin(server);
+  const api = server.client.admin.series;
+  const { id } = await api.create(fields);
+  const [first = "", second = "", third = ""] = await addTestImages(server);
+  await api.reorder({ id, imageIds: [] });
+  await api.addImages({ id, imageIds: [first, second] });
+  expect(
+    await catchErrorCode(api.addImages({ id, imageIds: [third, missing] })),
+  ).toBe("NOT_FOUND");
+
+  for (const imageIds of [
+    [second],
+    [second, first, third],
+    [second, third],
+    [second, second],
+  ]) {
+    expect(await catchErrorCode(api.reorder({ id, imageIds }))).toBe(
+      "ORDER_MISMATCH",
+    );
+  }
+
+  expect((await api.get({ id })).images.map((row) => row.id)).toEqual([
+    first,
+    second,
+  ]);
 });

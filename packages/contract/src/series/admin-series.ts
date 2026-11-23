@@ -5,6 +5,7 @@ import { fixedPageSlug } from "../fixed-pages/fixed-page-values";
 import {
   adminImage,
   imageDescription,
+  imageId,
   imageTitle,
 } from "../images/image-values";
 
@@ -32,6 +33,7 @@ const summary = metadata.extend({
   coverImage: adminImage.nullable(),
 });
 
+const withImages = byId.extend({ imageIds: z.array(imageId) });
 const existing = adminAccess.errors({ NOT_FOUND: { status: 404 } });
 const slugTaken = { SLUG_TAKEN: { status: 409 } };
 
@@ -90,4 +92,29 @@ export const series = {
     })
     .input(byId)
     .output(metadata),
+  addImages: existing
+    .route({
+      method: "POST",
+      path: "/admin/series/add-images",
+      summary: "シリーズの末尾に画像を足す",
+    })
+    .input(withImages)
+    .output(z.void()),
+  removeImages: existing
+    .route({
+      method: "POST",
+      path: "/admin/series/remove-images",
+      summary: "シリーズから画像を外す",
+    })
+    .input(withImages)
+    .output(z.void()),
+  reorder: existing
+    .errors({ ORDER_MISMATCH: { status: 409 } })
+    .route({
+      method: "POST",
+      path: "/admin/series/reorder",
+      summary: "シリーズのすべての画像を渡した順に並べ直す",
+    })
+    .input(withImages)
+    .output(z.void()),
 };
