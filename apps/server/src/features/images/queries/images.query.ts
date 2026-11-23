@@ -1,4 +1,4 @@
-import { desc, eq, lt } from "drizzle-orm";
+import { asc, desc, eq, gt, lt, sql } from "drizzle-orm";
 
 import { image } from "@/db/schema/image";
 import type { DatabaseExecutor } from "@/platform/database";
@@ -39,3 +39,31 @@ export const listImages = async (
     .where(before === undefined ? undefined : lt(image.id, before))
     .orderBy(desc(image.id))
     .limit(limit);
+
+/** 一つ新しい画像と一つ古い画像の ID を引く。 */
+export const findNeighborIds = async (db: DatabaseExecutor, id: string) => {
+  const newer = db
+    .select({ id: image.id })
+    .from(image)
+    .where(gt(image.id, id))
+    .orderBy(asc(image.id))
+    .limit(1)
+    .as("newer");
+
+  const older = db
+    .select({ id: image.id })
+    .from(image)
+    .where(lt(image.id, id))
+    .orderBy(desc(image.id))
+    .limit(1)
+    .as("older");
+
+  const [neighbors] = await db
+    .select({ newerId: newer.id, olderId: older.id })
+    .from(image)
+    .leftJoin(newer, sql`true`)
+    .leftJoin(older, sql`true`)
+    .where(eq(image.id, id));
+
+  return neighbors;
+};

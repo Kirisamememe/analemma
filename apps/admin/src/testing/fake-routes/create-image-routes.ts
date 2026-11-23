@@ -23,6 +23,7 @@ type ImagePath =
   | "admin/images/delete"
   | "admin/images/get"
   | "admin/images/list"
+  | "admin/images/neighbors"
   | "admin/images/publish"
   | "admin/images/unpublish"
   | "admin/images/update"
@@ -158,6 +159,20 @@ export const createImageRoutes = (seeds: readonly FakeImageSeed[] = []) => {
         const image = findImage(id);
 
         return image === undefined ? { error: "NOT_FOUND" } : { output: image };
+      }),
+      "admin/images/neighbors": handle("admin/images/neighbors", ({ id }) => {
+        const index = images.findIndex(
+          (image) => image.id === id.toLowerCase(),
+        );
+
+        return index < 0
+          ? { error: "NOT_FOUND" }
+          : {
+              output: {
+                newer: images[index - 1]?.id ?? null,
+                older: images[index + 1]?.id ?? null,
+              },
+            };
       }),
       "admin/images/update": handle(
         "admin/images/update",

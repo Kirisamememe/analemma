@@ -158,6 +158,7 @@ const procedures = {
   "admin/images/delete": bindReply(images.delete),
   "admin/images/get": bindReply(images.get),
   "admin/images/list": bindReply(images.list),
+  "admin/images/neighbors": bindReply(images.neighbors),
   "admin/images/publish": bindReply(images.publish),
   "admin/images/unpublish": bindReply(images.unpublish),
   "admin/images/update": bindReply(images.update),
