@@ -8,3 +8,16 @@ const kinds = new URLSearchParams({
 });
 pages.sort();
 kinds.sort();
+export const params = new URLSearchParams({
+  key: pageKey,
+});
+params.sort();
+
+export const sorted = new URLSearchParams({
+  key: kindKey,
+});
+
+sorted.sort();
+export type QueryKey = {
+  readonly key: string;
+};

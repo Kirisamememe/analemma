@@ -50,7 +50,7 @@ describe("拡張子", () => {
 });
 
 describe("文の間の空行", () => {
-  test("複数行の const 宣言の前後に空行がなければ診断を出し、1行の宣言同士は続けて書けること", () => {
+  test("複数行の const と export const の前後に空行がない箇所だけに診断を出すこと", () => {
     const { diagnostics } = lintFixture("invalid/syntax/multiline-const.ts");
 
     expect(
@@ -60,7 +60,7 @@ describe("文の間の空行", () => {
         )
         .map(({ line }) => line)
         .toSorted((left, right) => left - right),
-    ).toEqual([3, 6, 9]);
+    ).toEqual([3, 6, 9, 11, 14]);
   });
 });
 
