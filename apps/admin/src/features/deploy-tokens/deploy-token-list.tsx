@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
+import { QueryContent } from "@/components/query-content";
 import {
   DEPLOY_TOKENS_QUERY_KEY,
   loadDeployTokens,
@@ -10,7 +11,7 @@ import {
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
-import { EmptyState, ErrorState } from "@/ui/patterns";
+import { EmptyState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 
 /** デプロイ用のトークンの一覧に渡す値。 */
@@ -19,36 +20,19 @@ type DeployTokenListProps = {
   onRevoke: (token: DeployTokenSummary) => void;
 };
 
-/** 発行したデプロイ用のトークンの一覧。 */
-export const DeployTokenList = ({
+type DeployTokenRowsProps = DeployTokenListProps & {
+  /** 発行したデプロイ用のトークン。 */
+  tokens: readonly DeployTokenSummary[];
+};
+
+const DeployTokenRows = ({
+  tokens,
   onRevoke,
-}: DeployTokenListProps): ReactNode => {
+}: DeployTokenRowsProps): ReactNode => {
   const t = useTranslate();
   const locale = useLocale();
-  const { api } = useAppContext();
 
-  const tokens = useApiQuery({
-    key: DEPLOY_TOKENS_QUERY_KEY,
-    load: () => loadDeployTokens(api),
-  });
-
-  if (tokens._tag === "Loading") {
-    return <Text tone="muted">{t("deployTokens.loading")}</Text>;
-  }
-
-  if (tokens._tag === "Failed") {
-    return (
-      <ErrorState
-        isRetrying={tokens.isRetrying}
-        layout="inline"
-        level={3}
-        onRetry={tokens.retry}
-        title={t("deployTokens.loadFailed")}
-      />
-    );
-  }
-
-  if (tokens.data.tokens.length === 0) {
+  if (tokens.length === 0) {
     return (
       <EmptyState
         description={t("deployTokens.emptyDescription")}
@@ -60,7 +44,7 @@ export const DeployTokenList = ({
 
   return (
     <Stack as="ul" gap={4}>
-      {tokens.data.tokens.map((token) => {
+      {tokens.map((token) => {
         const created = formatDateTime(locale, token.createdAt);
 
         return (
@@ -94,5 +78,29 @@ export const DeployTokenList = ({
         );
       })}
     </Stack>
+  );
+};
+
+/** 発行したデプロイ用のトークンの一覧。 */
+export const DeployTokenList = ({
+  onRevoke,
+}: DeployTokenListProps): ReactNode => {
+  const t = useTranslate();
+  const { api } = useAppContext();
+
+  const tokens = useApiQuery({
+    key: DEPLOY_TOKENS_QUERY_KEY,
+    load: () => loadDeployTokens(api),
+  });
+
+  return (
+    <QueryContent
+      failedTitle={t("deployTokens.loadFailed")}
+      level={3}
+      loading="list"
+      query={tokens}
+    >
+      {(data) => <DeployTokenRows onRevoke={onRevoke} tokens={data.tokens} />}
+    </QueryContent>
   );
 };

@@ -35,7 +35,7 @@ test("種類を読み込んでいる間と選べる種類が無いときの知�
       },
     },
   });
-  expect(await screen.findByText("読み込んでいます。")).toBeDefined();
+  expect(await screen.findByText("読み込んでいます")).toBeDefined();
   pending.resolve(undefined);
   expect(
     await screen.findByRole("heading", { name: "選べる種類がありません" }),
@@ -387,7 +387,7 @@ test("読み込む間に一覧へ戻るリンクへ移した focus を、編集�
     },
   });
 
-  await screen.findByText("読み込んでいます。");
+  await screen.findByText("読み込んでいます");
   const back = screen.getByRole("link", { name: "固定ページの一覧" });
 
   act(() => {
@@ -416,7 +416,7 @@ test("種類を選んだ後、読み込む間にほかへ移した focus は、�
   });
 
   await userEvent.click(await screen.findByRole("button", { name: "紹介" }));
-  await screen.findByText("読み込んでいます。");
+  await screen.findByText("読み込んでいます");
   const back = screen.getByRole("link", { name: "固定ページの一覧" });
 
   act(() => {

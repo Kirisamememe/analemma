@@ -96,6 +96,8 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "page-enter-animation": null,
   "navigation-progress-animation": null,
   "navigation-progress-indicator-animation": null,
+  "loading-state-animation": null,
+  "skeleton-animation": null,
 };
 
 describe("デザインシステムの class の merge", () => {

@@ -12,9 +12,12 @@ type QueryOptions<Data> = {
   readonly key: readonly unknown[];
   /** データを取得する関数。 */
   readonly load: () => Promise<Data>;
+  /** 取得してよいか(取得に要る値がまだ無い間は false)。 */
+  readonly enabled?: boolean;
 };
 
-type QueryResult<Data> =
+/** server のデータを読んだ結果。 */
+export type ApiQueryResult<Data> =
   | {
       /** どの結果か。 */
       readonly _tag: "Loading";
@@ -69,10 +72,12 @@ type ApiCache = {
 export const useApiQuery = <Data>({
   key,
   load,
-}: QueryOptions<Data>): QueryResult<Data> => {
+  enabled = true,
+}: QueryOptions<Data>): ApiQueryResult<Data> => {
   const query = useQuery({
     queryKey: key,
     queryFn: () => load(),
+    enabled,
   });
 
   if (query.isPending && query.errorUpdateCount === 0) {

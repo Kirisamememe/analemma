@@ -2,10 +2,10 @@ import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
 import { callApi } from "@/api/call-api";
 import { useApiQuery } from "@/api/server-state/server-state";
+import { QueryContent } from "@/components/query-content";
 import { DeleteFixedPage } from "@/features/fixed-pages/editor/delete-fixed-page";
 import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor";
 import {
@@ -17,12 +17,15 @@ import {
   loadKinds,
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
-import { EmptyState, ErrorState, PageHeader } from "@/ui/patterns";
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PageHeader,
+} from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
-
-type Page = ApiOutputs["admin"]["fixedPages"]["get"];
 
 type FrameProps = {
   /** 一覧へ戻るリンクの下に置く、見出しと中身。 */
@@ -69,18 +72,14 @@ const Titled = ({
   </Stack>
 );
 
-const Loading = (): ReactNode => {
-  const { t } = useTranslation();
-
-  return <Text tone="muted">{t("fixedPageEditor.loading")}</Text>;
-};
-
-const useKind = (name: string) => {
+const useKind = (name: string | undefined) => {
   const { api } = useAppContext();
 
   return useApiQuery({
     key: ["admin", "kinds", "get", name],
-    load: () => callApi(api.admin.kinds.get({ name }), ["NOT_FOUND"]),
+    load: () =>
+      callApi(api.admin.kinds.get({ name: name ?? "" }), ["NOT_FOUND"]),
+    enabled: name !== undefined,
   });
 };
 
@@ -99,50 +98,43 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
     load: () => loadKinds(api),
   });
 
-  if (query._tag === "Loading") return <Loading />;
-
-  if (query._tag === "Failed") {
-    return (
-      <ErrorState
-        isRetrying={query.isRetrying}
-        layout="inline"
-        level={2}
-        onRetry={query.retry}
-        title={t("fixedPageEditor.kindsLoadFailed")}
-      />
-    );
-  }
-
-  if (query.data.kinds.length === 0) {
-    return (
-      <EmptyState
-        description={t("fixedPageEditor.emptyKindsDescription")}
-        icon="file-text"
-        title={t("fixedPageEditor.emptyKinds")}
-      />
-    );
-  }
-
   return (
-    <Stack gap={3}>
-      <Heading level={2}>{t("fixedPageEditor.chooseKind")}</Heading>
-      <Cluster gap={2}>
-        {query.data.kinds.map((kind) => (
-          <Button
-            key={kind.name}
-            onPress={() => {
-              onPick();
-              void navigate({
-                to: "/fixed-pages/new",
-                search: { kind: kind.name },
-              });
-            }}
-          >
-            {kind.label}
-          </Button>
-        ))}
-      </Cluster>
-    </Stack>
+    <QueryContent
+      failedTitle={t("fixedPageEditor.kindsLoadFailed")}
+      level={2}
+      loading="list"
+      query={query}
+    >
+      {({ kinds }) =>
+        kinds.length === 0 ? (
+          <EmptyState
+            description={t("fixedPageEditor.emptyKindsDescription")}
+            icon="file-text"
+            title={t("fixedPageEditor.emptyKinds")}
+          />
+        ) : (
+          <Stack gap={3}>
+            <Heading level={2}>{t("fixedPageEditor.chooseKind")}</Heading>
+            <Cluster gap={2}>
+              {kinds.map((kind) => (
+                <Button
+                  key={kind.name}
+                  onPress={() => {
+                    onPick();
+                    void navigate({
+                      to: "/fixed-pages/new",
+                      search: { kind: kind.name },
+                    });
+                  }}
+                >
+                  {kind.label}
+                </Button>
+              ))}
+            </Cluster>
+          </Stack>
+        )
+      }
+    </QueryContent>
   );
 };
 
@@ -182,7 +174,7 @@ const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
 
   return (
     <Titled title={t("fixedPageEditor.new")}>
-      {kind._tag === "Loading" && <Loading />}
+      {kind._tag === "Loading" && <LoadingState layout="form" />}
       {kind._tag === "Failed" && (
         <ErrorState
           description={t("fixedPageEditor.kindLoadFailedDescription")}
@@ -229,68 +221,11 @@ export const NewFixedPage = (): ReactNode => {
   );
 };
 
-type PageEditorProps = {
-  /** 編集する固定ページ。 */
-  page: Page;
-};
-
-const PageEditor = ({ page }: PageEditorProps): ReactNode => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const kind = useKind(page.kind);
-
-  const onDeleted = (): void => {
-    void navigate({ to: "/fixed-pages", ignoreBlocker: true });
-  };
-
-  if (kind._tag === "Loaded" && kind.data._tag === "Succeeded") {
-    return (
-      <FixedPageEditor
-        key={page.id}
-        kind={kind.data.data}
-        onDeleted={onDeleted}
-        onSaved={() => undefined}
-        page={page}
-      />
-    );
-  }
-
-  return (
-    <Titled
-      actions={
-        kind._tag !== "Loading" && (
-          <DeleteFixedPage
-            isDisabled={kind._tag === "Failed" && kind.isRetrying} // 取り直して編集のフォームに替わると、削除の Dialog ごと消える
-            onDeleted={onDeleted}
-            page={page}
-          />
-        )
-      }
-      description={t("fixedPageEditor.kindOf", { kind: page.kind })}
-      title={t("fixedPageEditor.edit")}
-    >
-      {kind._tag === "Loading" && <Loading />}
-      {kind._tag === "Failed" && (
-        <ErrorState
-          description={t("fixedPageEditor.kindLoadFailedDescription")}
-          isRetrying={kind.isRetrying}
-          layout="screen"
-          level={2}
-          onRetry={kind.retry}
-          title={t("fixedPageEditor.kindLoadFailed")}
-        />
-      )}
-      {kind._tag === "Loaded" && (
-        <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
-      )}
-    </Titled>
-  );
-};
-
 /** 固定ページと種類の定義を読んで編集する画面。 */
 export const EditFixedPage = (): ReactNode => {
   const { api } = useAppContext();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { id } = useParams({ from: "/signed-in/fixed-pages/$id" });
 
   const query = useApiQuery({
@@ -298,14 +233,40 @@ export const EditFixedPage = (): ReactNode => {
     load: () => loadFixedPage(api, id),
   });
 
-  return (
-    <Frame>
-      {query._tag === "Loaded" && query.data._tag === "Succeeded" ? (
-        <PageEditor page={query.data.data} />
-      ) : (
+  const page =
+    query._tag === "Loaded" && query.data._tag === "Succeeded"
+      ? query.data.data
+      : undefined;
+
+  const kind = useKind(page?.kind); // 固定ページを読むまで、種類の定義は読まない
+
+  const onDeleted = (): void => {
+    void navigate({ to: "/fixed-pages", ignoreBlocker: true });
+  };
+
+  if (
+    page !== undefined &&
+    kind._tag === "Loaded" &&
+    kind.data._tag === "Succeeded"
+  ) {
+    return (
+      <Frame>
+        <FixedPageEditor
+          key={page.id}
+          kind={kind.data.data}
+          onDeleted={onDeleted}
+          onSaved={() => undefined}
+          page={page}
+        />
+      </Frame>
+    );
+  }
+
+  if (page === undefined || kind._tag === "Loading") {
+    return (
+      <Frame>
         <Titled title={t("fixedPageEditor.edit")}>
-          {query._tag === "Loading" && <Loading />}
-          {query._tag === "Failed" && (
+          {query._tag === "Failed" ? (
             <ErrorState
               isRetrying={query.isRetrying}
               layout="screen"
@@ -313,12 +274,42 @@ export const EditFixedPage = (): ReactNode => {
               onRetry={query.retry}
               title={t("fixedPageEditor.loadFailed")}
             />
-          )}
-          {query._tag === "Loaded" && (
+          ) : query._tag === "Loaded" && page === undefined ? (
             <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
+          ) : (
+            <LoadingState layout="form" />
           )}
         </Titled>
-      )}
+      </Frame>
+    );
+  }
+
+  return (
+    <Frame>
+      <Titled
+        actions={
+          <DeleteFixedPage
+            isDisabled={kind._tag === "Failed" && kind.isRetrying} // 取り直して編集のフォームに替わると、削除の Dialog ごと消える
+            onDeleted={onDeleted}
+            page={page}
+          />
+        }
+        description={t("fixedPageEditor.kindOf", { kind: page.kind })}
+        title={t("fixedPageEditor.edit")}
+      >
+        {kind._tag === "Failed" ? (
+          <ErrorState
+            description={t("fixedPageEditor.kindLoadFailedDescription")}
+            isRetrying={kind.isRetrying}
+            layout="screen"
+            level={2}
+            onRetry={kind.retry}
+            title={t("fixedPageEditor.kindLoadFailed")}
+          />
+        ) : (
+          <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
+        )}
+      </Titled>
     </Frame>
   );
 };

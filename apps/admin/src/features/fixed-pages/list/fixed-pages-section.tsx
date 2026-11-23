@@ -12,7 +12,7 @@ import {
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
-import { EmptyState, ErrorState } from "@/ui/patterns";
+import { EmptyState, ErrorState, LoadingState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { ReorderableList } from "@/ui/primitives/collections";
 import { Spinner } from "@/ui/primitives/graphics";
@@ -45,7 +45,7 @@ export const FixedPagesSection = ({
   });
 
   const kindsRetrying = kinds._tag === "Failed" && kinds.isRetrying;
-  const loading = <Text tone="muted">{t("fixedPages.loading")}</Text>;
+  const loading = <LoadingState layout="list" />;
 
   if (pages._tag === "Loading" || kinds._tag === "Loading") return loading;
 

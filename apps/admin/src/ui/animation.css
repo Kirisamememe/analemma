@@ -212,3 +212,46 @@
     translate: 250%;
   }
 }
+
+@utility loading-state-animation {
+  animation: loading-state-in var(--transition-duration-normal)
+    var(--ease-standard) var(--loading-state-delay) both;
+  --loading-state-delay: 150ms;
+}
+
+@keyframes loading-state-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@utility skeleton-animation {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--color-fg) 6%, transparent),
+      transparent
+    );
+    content: "";
+    translate: -100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      display: none;
+    }
+  }
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    translate: 100%;
+  }
+}
