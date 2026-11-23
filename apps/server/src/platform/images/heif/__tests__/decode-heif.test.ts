@@ -4,13 +4,13 @@ import { tmpdir } from "node:os";
 import { basename, dirname } from "node:path";
 import sharp from "sharp";
 
-import { decodeHeif } from "@/platform/images/decode-heif";
+import { decodeHeif } from "@/platform/images/heif/decode-heif";
 
 const PREFIX = "analemma-heif-";
 
 const heicFixture = async (): Promise<Uint8Array> => {
   const response = await fetch(
-    new URL("rotated-with-gps.heic", import.meta.url),
+    new URL("../../__tests__/rotated-with-gps.heic", import.meta.url),
   );
 
   return new Uint8Array(await response.arrayBuffer());
@@ -70,9 +70,7 @@ describe("ICC の無い AVIF を Display P3 に変換する", () => {
   ])(
     "$name の両端の色と透明度を保つこと",
     async ({ name, width, first, last }) => {
-      const input = await fetch(
-        new URL(`colors/${name}.avif`, import.meta.url),
-      );
+      const input = await fetch(new URL(`./${name}.avif`, import.meta.url));
 
       await using result = await decodeHeif(
         new Uint8Array(await input.arrayBuffer()),
