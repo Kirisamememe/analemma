@@ -8,7 +8,10 @@ export const ja = {
   "fixedPageEditor.new": "新しい固定ページ",
   "fixedPageEditor.edit": "固定ページを編集",
   "fixedPageEditor.chooseKind": "種類を選択",
-  "fixedPageEditor.addKindTitle": "固定ページの種類を追加する方法",
+  "fixedPageEditor.addKindTitle": "固定ページの種類を追加するには",
+  "fixedPageEditor.addKindSummary":
+    "公開サイトの定義ファイルに種類を追加し、デプロイ時に CMS へ送ります。",
+  "fixedPageEditor.addKindExample": "定義の書き方とコマンド例",
   "fixedPageEditor.defineKind":
     "公開サイトの定義ファイルで、@analemma/client の defineKind を使って種類を定義し、default export の配列に加えます。",
   "fixedPageEditor.deployKind":

@@ -22,6 +22,7 @@ import {
   kindQueryKey,
   loadKinds,
 } from "@/features/fixed-pages/queries/fixed-pages-query";
+import { KindGuide } from "@/features/fixed-pages/ui/kind-guide";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
 import {
   EmptyState,
@@ -171,21 +172,6 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
           )
         }
       </QueryContent>
-    </Stack>
-  );
-};
-
-const KindGuide = (): ReactNode => {
-  const { t } = useTranslation();
-
-  return (
-    <Stack as="section" gap={2}>
-      <Heading level={2}>{t("fixedPageEditor.addKindTitle")}</Heading>
-      <Text tone="muted">{t("fixedPageEditor.defineKind")}</Text>
-      <Text tone="muted">{t("fixedPageEditor.deployKind")}</Text>
-      <Text>
-        <code>analemma push-kinds ./src/lib/kinds.ts</code>
-      </Text>
     </Stack>
   );
 };

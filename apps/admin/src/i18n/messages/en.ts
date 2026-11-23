@@ -7,6 +7,9 @@ export const en = {
   "fixedPageEditor.edit": "Edit fixed page",
   "fixedPageEditor.chooseKind": "Choose a kind",
   "fixedPageEditor.addKindTitle": "How to add a fixed page kind",
+  "fixedPageEditor.addKindSummary":
+    "Add the kind to the public site’s definitions file and send it to the CMS during deployment.",
+  "fixedPageEditor.addKindExample": "Definition and example command",
   "fixedPageEditor.defineKind":
     "In the public site’s definitions file, use defineKind from @analemma/client to define the kind and add it to the file’s default export array.",
   "fixedPageEditor.deployKind":

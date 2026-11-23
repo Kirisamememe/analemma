@@ -41,8 +41,9 @@ test("種類を読み込んでいる間と選べる種類が無いときの知�
     await screen.findByRole("heading", { name: "選べる種類がありません" }),
   ).toBeDefined();
   expect(
-    screen.getByRole("heading", { name: "固定ページの種類を追加する方法" }),
+    screen.getByRole("heading", { name: "固定ページの種類を追加するには" }),
   ).toBeDefined();
+  await userEvent.click(screen.getByText("定義の書き方とコマンド例"));
   expect(
     screen.getByText("analemma push-kinds ./src/lib/kinds.ts"),
   ).toBeDefined();

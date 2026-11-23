@@ -9,6 +9,9 @@ export const zhHans = {
   "fixedPageEditor.edit": "编辑固定页面",
   "fixedPageEditor.chooseKind": "选择类型",
   "fixedPageEditor.addKindTitle": "如何添加固定页面类型",
+  "fixedPageEditor.addKindSummary":
+    "在公开站点的定义文件中添加类型，部署时将定义发送到 CMS。",
+  "fixedPageEditor.addKindExample": "定义方式和命令示例",
   "fixedPageEditor.defineKind":
     "在公开站点的定义文件中，用 @analemma/client 的 defineKind 定义新类型，再将它加入默认导出的数组。",
   "fixedPageEditor.deployKind":
