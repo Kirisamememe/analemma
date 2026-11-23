@@ -31,6 +31,10 @@ export const Checked: Story = { args: { defaultSelected: true } };
 
 export const Required: Story = { args: { isRequired: true } };
 
+export const ReadOnly: Story = {
+  args: { defaultSelected: true, isReadOnly: true },
+};
+
 export const Disabled: Story = {
   args: { defaultSelected: true, isDisabled: true },
 };
