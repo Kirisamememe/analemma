@@ -60,12 +60,20 @@ test.each([
   { file: "p3-red.png", format: "png", expected: [255, 0, 0] },
   { file: "srgb-red.png", format: "png", expected: [234, 51, 35] },
   { file: "srgb-red-16.png", format: "png", expected: [234, 51, 35] },
-  { file: "p3-red.avif", format: "avif", expected: [255, 0, 0, 128] },
-  { file: "srgb-red.avif", format: "avif", expected: [234, 51, 35] },
+  {
+    file: "../heif/__tests__/p3-red.avif",
+    format: "avif",
+    expected: [255, 0, 0, 128],
+  },
+  {
+    file: "../heif/__tests__/srgb-red.avif",
+    format: "avif",
+    expected: [234, 51, 35],
+  },
 ] as const)(
   "$file を縮めた配信用 AVIF が元の赤と透明度を保つこと",
   async ({ file, format, expected }) => {
-    const input = await fetch(new URL(`colors/${file}`, import.meta.url));
+    const input = await fetch(new URL(file, import.meta.url));
 
     const largest = await shrinkImage(
       new Uint8Array(await input.arrayBuffer()),

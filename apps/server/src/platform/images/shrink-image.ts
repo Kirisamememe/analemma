@@ -1,7 +1,7 @@
 import sharp from "sharp";
 
-import { decodeHeif } from "@/platform/images/decode-heif";
 import type { ImageFormat } from "@/platform/images/detect-image-format";
+import { decodeHeif } from "@/platform/images/heif/decode-heif";
 
 /** 色を変換する先の ICC profile。 */
 export type IccProfile = "p3" | "srgb";
