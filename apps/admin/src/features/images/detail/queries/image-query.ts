@@ -1,5 +1,8 @@
-import type { ApiClient } from "@/api/api-types";
+import type { ApiClient, ApiOutputs } from "@/api/api-types";
 import { callApi } from "@/api/call-api";
+
+/** 管理用 API が返す、1つの画像。 */
+export type AdminImage = ApiOutputs["admin"]["images"]["get"];
 
 /** 詳細の画面で開く画像の、query のキー。 */
 export const imageQueryKey = (id: string) =>

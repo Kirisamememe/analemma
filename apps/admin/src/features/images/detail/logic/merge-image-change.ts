@@ -1,11 +1,9 @@
-import type { ApiOutputs } from "@/api/api-types";
-
-type Image = ApiOutputs["admin"]["images"]["get"];
+import type { AdminImage } from "../queries/image-query";
 
 /** その操作が変えた欄と更新日時を、手元にある最新の画像に反映する。 */
 export const mergeImageChange =
-  (result: Image, kind: "text" | "publication") =>
-  (current: Image): Image => {
+  (result: AdminImage, kind: "text" | "publication") =>
+  (current: AdminImage): AdminImage => {
     const updatedAt =
       current.updatedAt > result.updatedAt
         ? current.updatedAt

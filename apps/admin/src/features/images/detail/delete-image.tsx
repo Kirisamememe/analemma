@@ -1,30 +1,11 @@
 import { type ReactNode, useId } from "react";
 
-import { useImageDialog } from "./hooks/use-image-dialog";
-import { deleteImage } from "./queries/image-actions";
-import {
-  IMAGE_NEIGHBORS_QUERY_KEY,
-  imageQueryKey,
-} from "./queries/image-query";
+import { useDeleteImage } from "./hooks/use-delete-image";
 
-import { useAppContext } from "@/api/app-context";
-import {
-  useApiCache,
-  useApiMutation,
-  useIsApiMutationPending,
-} from "@/api/server-state/server-state";
-import {
-  IMAGES_QUERY_KEY,
-  updateImagePage,
-} from "@/features/images/queries/images-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import {
-  Dialog,
-  useFailureToast,
-  useShowToast,
-} from "@/ui/primitives/overlays";
+import { Dialog } from "@/ui/primitives/overlays";
 
 /** 画像を削除するボタンに渡す値。 */
 type DeleteImageProps = {
@@ -46,51 +27,8 @@ export const DeleteImage = ({
   onDeleted,
 }: DeleteImageProps): ReactNode => {
   const t = useTranslate();
-  const showToast = useShowToast();
-  const failure = useFailureToast(id);
-  const { refresh, update, updatePages } = useApiCache();
-  const { api } = useAppContext();
-  const dialog = useImageDialog(id, isDisabled);
-
   const descriptionId = useId();
-  const deleteKey = ["admin", "images", "delete", id];
-  const isDeleting = useIsApiMutationPending(deleteKey);
-
-  const deleting = useApiMutation({
-    key: deleteKey,
-    scope: `image:${id}`,
-    send: (target: Pick<DeleteImageProps, "id" | "name">) =>
-      deleteImage(api, target.id),
-    onSuccess: async (result, target) => {
-      await updatePages(IMAGES_QUERY_KEY, updateImagePage(target.id));
-      void refresh(IMAGE_NEIGHBORS_QUERY_KEY, "active"); // ほかの画像の前後に、消した画像を出さない
-
-      if (result._tag === "Succeeded") {
-        showToast({
-          tone: "success",
-          message: t("imageDetail.deleted", { title: target.name }),
-        });
-
-        onDeleted(target.id);
-        void refresh(imageQueryKey(target.id), "active");
-      } else {
-        await update(imageQueryKey(target.id), () => result);
-        dialog.close();
-        failure.show(t("imageDetail.gone"));
-      }
-    },
-    onError: (target) => {
-      failure.show(t("imageDetail.deleteFailed"));
-      void refresh(imageQueryKey(target.id), "active");
-      void refresh(IMAGE_NEIGHBORS_QUERY_KEY, "active");
-      void refresh(IMAGES_QUERY_KEY, "active"); // 削除できてから応答だけが失敗したときも、一覧を合わせる
-    },
-  });
-
-  const close = (): void => {
-    failure.close();
-    dialog.close();
-  };
+  const deleting = useDeleteImage({ id, name, isDisabled, onDeleted });
 
   return (
     <>
@@ -98,20 +36,15 @@ export const DeleteImage = ({
         size="sm-to-md"
         aria-label={t("imageDetail.delete")}
         icon="trash-2"
-        isPending={isDeleting && !dialog.isOpen}
-        onPress={() => {
-          if (isDisabled || isDeleting) return;
-
-          deleting.reset(); // 開き直したら、前の送信の結果を消す
-          dialog.open();
-        }}
+        isPending={deleting.isDeleting && !deleting.isConfirming}
+        onPress={deleting.confirm}
       />
       <Dialog
         descriptionId={descriptionId}
-        isOpen={dialog.isOpen}
+        isOpen={deleting.isConfirming}
         isPending={deleting.isPending}
         onOpenChange={(open) => {
-          if (!open) close();
+          if (!open) deleting.cancel();
         }}
         title={t("imageDetail.deleteTitle", { title: name })}
       >
@@ -119,18 +52,13 @@ export const DeleteImage = ({
           <span id={descriptionId}>{t("imageDetail.deleteDescription")}</span>
         </Text>
         <Cluster gap={2} justify="end">
-          <Button isDisabled={deleting.isPending} onPress={close}>
+          <Button isDisabled={deleting.isPending} onPress={deleting.cancel}>
             {t("imageDetail.cancel")}
           </Button>
           <Button
-            isDisabled={deleting.data?._tag === "Failed"}
+            isDisabled={deleting.isGone}
             isPending={deleting.isPending}
-            onPress={() => {
-              if (dialog.isOpen) {
-                failure.close();
-                deleting.mutate({ id, name }); // 閉じ始めた後に遅れて届いた押下では送らない
-              }
-            }}
+            onPress={deleting.remove}
             tone="danger"
           >
             {t("imageDetail.confirmDelete")}
