@@ -5,6 +5,8 @@ import { KindRefreshNotice } from "../kind-refresh-notice";
 
 const ready = { retry: fn<() => void>(), isRetrying: false };
 
+const retrying = { ...ready, isRetrying: true };
+
 const meta = {
   title: "features/FixedPages/KindRefreshNotice",
   component: KindRefreshNotice,
@@ -17,6 +19,4 @@ type Story = StoryObj<typeof meta>;
 export const List: Story = {};
 export const Definition: Story = { args: { source: "definition" } };
 
-export const Retrying: Story = {
-  args: { refreshFailure: { ...ready, isRetrying: true } },
-};
+export const Retrying: Story = { args: { refreshFailure: retrying } };

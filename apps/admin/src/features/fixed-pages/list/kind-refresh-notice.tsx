@@ -36,27 +36,22 @@ const restoreAfterRetry = (notice: HTMLDivElement | null) => {
 
 /** 前に取得した種類を表示しながら、一覧の更新をやり直す知らせ。 */
 export const KindRefreshNotice = ({
-  refreshFailure,
+  refreshFailure: { isRetrying, retry },
   source,
 }: Record<"refreshFailure", QueryRetry> &
   Record<"source", "list" | "definition">): ReactNode => {
   const t = useTranslate();
+  const message =
+    source === "list"
+      ? "fixedPageEditor.kindsRefreshFailed"
+      : "fixedPageEditor.kindRefreshFailed";
 
   return (
     <div ref={restoreAfterRetry}>
       <Notice tone="warning">
         <Cluster align="center" gap={2} justify="between">
-          <Text>
-            {t(
-              source === "list"
-                ? "fixedPageEditor.kindsRefreshFailed"
-                : "fixedPageEditor.kindRefreshFailed",
-            )}
-          </Text>
-          <Button
-            isPending={refreshFailure.isRetrying}
-            onPress={refreshFailure.retry}
-          >
+          <Text>{t(message)}</Text>
+          <Button isPending={isRetrying} onPress={retry}>
             {t("fixedPageEditor.reloadKinds")}
           </Button>
         </Cluster>

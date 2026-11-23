@@ -36,6 +36,7 @@ const updatedKind = withFields([
   { key: "lead", type: "text", label: "リード文" },
 ]);
 
+const updatedList = { output: { kinds: [{ ...kind, label: "プロフィール" }] } };
 const offline = { error: "INTERNAL_SERVER_ERROR", defined: false } as const;
 
 const titleField = () =>
@@ -80,7 +81,7 @@ const openPicker = async () => {
 const save = () => pressFirst(/保存/v);
 
 const edit = async () => {
-  await userEvent.click(button("「紹介」を編集"));
+  await userEvent.click(await findButton("「紹介」を編集"));
   await findTitle();
 };
 
@@ -105,7 +106,7 @@ test("種類の一覧は15分以内なら取り直さず、期限後は元の選
     expect(calls.filter((path) => path === "admin/kinds/list")).toHaveLength(2);
   });
 
-  held.resolve({ output: { kinds: [{ ...kind, label: "プロフィール" }] } });
+  held.resolve(updatedList);
   await findButton("プロフィール");
 });
 
@@ -125,7 +126,6 @@ test("固定ページ内では一度開いた種類の定義だけを使い回�
   ).toEqual([]);
 
   await userEvent.click(nav.getByRole("link", { name: "固定ページ" }));
-  await listRow();
   await edit();
   expect(calls.filter((path) => path === "admin/kinds/list")).toHaveLength(2);
   expect(calls.filter((path) => path === "admin/kinds/get")).toHaveLength(2);
@@ -233,11 +233,9 @@ test("種類の一覧を更新できなかったときだけ、前の種類を�
   const choice = await openPicker();
   const retry = await findButton("再読み込み");
   expect(choice.hasAttribute("disabled")).toBe(false);
-  server.replyNext("admin/kinds/list", () => ({
-    output: { kinds: [{ ...kind, label: "更新後の種類" }] },
-  }));
+  server.replyNext("admin/kinds/list", () => updatedList);
   await userEvent.click(retry);
-  const updated = await findButton("更新後の種類");
+  const updated = await findButton("プロフィール");
   await waitFor(() => {
     expect(document.activeElement === updated).toBe(true);
   });
@@ -279,7 +277,6 @@ const makeKind = (...values: string[]) =>
       type: "select",
       key: "style",
       label: "表示",
-      optional: true,
       options: values.map((value) => ({ value, label: value })),
     },
   ]);
@@ -300,7 +297,7 @@ test("別のタブで保存した選択値を古い定義で表示できない�
   await findTitle();
   await backToList();
   const held = holdDefinition(server);
-  await userEvent.click(button("「紹介」を編集"));
+  await userEvent.click(await findButton("「紹介」を編集"));
   await waitFor(() => {
     expect(calls.filter((path) => path === "admin/kinds/get")).toHaveLength(2);
   });
