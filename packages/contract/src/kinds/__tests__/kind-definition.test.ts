@@ -19,7 +19,7 @@ const parse = (fields: FieldDefinitionInput[]) =>
   kindDefinition.safeParse({ name: "about", label: "自己紹介", fields });
 
 describe("項目の入れ子", () => {
-  test("直下の項目を1段と数え、グループと繰り返しを2段まで重ねた3段は受け付けること", () => {
+  test("種類の直下の項目を1段と数え、グループと繰り返しを2段まで重ねた3段は受け付けること", () => {
     expect(parse(nest("group", "repeat")).success).toBe(true);
     expect(parse(nest("repeat", "group")).success).toBe(true);
   });
@@ -30,7 +30,7 @@ describe("項目の入れ子", () => {
     ).toMatchObject([
       {
         path: ["fields"],
-        message: "項目の入れ子は、直下の項目を含めて 3 段まで",
+        message: "項目の入れ子は、種類の直下の項目を含めて 3 段まで",
       },
     ]);
   });
