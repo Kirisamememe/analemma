@@ -10,6 +10,7 @@
 - `src/context.ts`:context の型(起動時に組み立てる `AppContext` と、リクエストごとの `RequestContext`)。
 - `src/platform/`:Bun 専用の API、DB の接続、clock、logger。
 - `src/platform/images/`:写真から EXIF を読む ExifReader、写真を変換する sharp、HEIC を読む `heif-dec`、ICC の無い AVIF と cICP を持つ PNG の色を変換する FFmpeg を使う処理。どの tag を読むか、どの幅を作るかなどの決めごとは、呼ぶ feature の側に置く。
+- `src/platform/file-storage/`:配信用の画像のファイルを、名前で書き、読み、消す置き場所(`MEDIA_DIR` のフォルダ)。context の `storage` で渡す。
 - `src/platform/startup/`:server やコマンドが起動時に使うもの。環境変数の検証(`env.ts`)、2つのポートを待ち受ける順(`choose-first-listener.ts`)、`ADMIN_DIST_DIR` に指定した管理画面のビルドの読み込みと、CSP に使う script の hash(`load-admin-dist.ts`)。
 - `src/db/schema/`:全テーブルの Drizzle の定義。
 - `src/db/migrate.ts`:migration を適用するコマンド(`bun run db:migrate`)。server の起動とは別に流す。
@@ -18,7 +19,7 @@
 - `src/procedures.ts`:アクセス区分ごとの base(`publicProcedures`・`authProcedures`・`deployProcedures`・`adminProcedures`)。contract の `public`・`auth`・`deploy`・`admin` に対応する。
 - `src/router.ts`:全 feature の procedure を束ねる。
 - ビジネスイベントの型と dispatcher:まだ無い。`src/` の直下は10件で埋まっているので、置き場所は、最初のビジネスイベントを作るときに決める。
-- `src/test-client/`:API 越しのテストの部品。`create-test-client.ts` が2つのポートのアプリとそれにつないだ client を、テストだけの DB で作る(`await using` で受ける)。`client` は外部用のポート、`internal(token)` は内部用のポートの client。管理用 API のテストは、`sign-in-as-admin.ts` の `signInAsAdmin` で、テスト用の認証器のパスキーを登録してログインしてから呼ぶ。種類の要るテストは、`prepare-test-kinds.ts` で種類の定義を送ってから始める。
+- `src/test-client/`:API 越しのテストの部品。`create-test-client.ts` が2つのポートのアプリとそれにつないだ client を、テストだけの DB と置き場所(`storage`)で作る(`await using` で受ける)。`client` は外部用のポート、`internal(token)` は内部用のポートの client。管理用 API のテストは、`sign-in-as-admin.ts` の `signInAsAdmin` で、テスト用の認証器のパスキーを登録してログインしてから呼ぶ。種類の要るテストは、`prepare-test-kinds.ts` で種類の定義を送ってから始める。
 - `src/features/<名前>/`:feature ごとのフォルダ。複数の feature が使う概念(公開状態の判定、slug の履歴など)も feature として置く。`shared/`・`common/`・`utils/` を作らない。
 
 ## 書き方

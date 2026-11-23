@@ -79,11 +79,23 @@ const envSchema = z
     };
   });
 
+const serverEnvSchema = z
+  .object({
+    MEDIA_DIR: z
+      .string({ error: "設定されていない" })
+      .min(1, { error: "フォルダのパスを書く" }),
+  })
+  .and(envSchema)
+  .transform(({ MEDIA_DIR, ...env }) => ({ ...env, mediaDir: MEDIA_DIR }));
+
 /** 環境変数の名前と値。 */
 type EnvSource = Readonly<Record<string, string | undefined>>;
 
 /** server の起動時に検証した環境変数。 */
 export type Env = z.output<typeof envSchema>;
+
+/** server が起動時に検証した、置き場所のフォルダを含む環境変数。 */
+export type ServerEnv = z.output<typeof serverEnvSchema>;
 
 /** DB だけを使うコマンドが検証した環境変数。 */
 export type DatabaseEnv = z.output<typeof databaseEnvSchema>;
@@ -102,9 +114,13 @@ const parseEnv = <T>(schema: z.ZodType<T>, source: EnvSource): T => {
   throw new Error(`環境変数が正しくない。\n${problems.join("\n")}`);
 };
 
-/** server とコマンドの環境変数を読み、スキーマで検証する。 */
+/** server と登録用 URL のコマンドの環境変数を読み、スキーマで検証する。 */
 export const readEnv = (source: EnvSource = Bun.env): Env =>
   parseEnv(envSchema, source);
+
+/** server の環境変数を、配信用の画像の置き場所も含めて読み、スキーマで検証する。 */
+export const readServerEnv = (source: EnvSource = Bun.env): ServerEnv =>
+  parseEnv(serverEnvSchema, source);
 
 /** migration のような DB だけを使うコマンドの環境変数を読み、検証する。 */
 export const readDatabaseEnv = (source: EnvSource = Bun.env): DatabaseEnv =>

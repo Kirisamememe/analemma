@@ -7,12 +7,13 @@ import {
 } from "@/features/auth/challenge/create-challenge-store";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
+import { openFileStorage } from "@/platform/file-storage/open-file-storage";
 import { stdoutLogger } from "@/platform/logger";
 import { chooseFirstListener } from "@/platform/startup/choose-first-listener";
-import { readEnv } from "@/platform/startup/env";
+import { readServerEnv } from "@/platform/startup/env";
 import { loadAdminDist } from "@/platform/startup/load-admin-dist";
 
-const env = readEnv();
+const env = readServerEnv();
 
 const prepareAdminDist = async (directory: string) => {
   try {
@@ -29,6 +30,21 @@ const adminDist =
     ? undefined
     : await prepareAdminDist(env.adminDistDir);
 
+const prepareStorage = async (directory: string) => {
+  try {
+    return await openFileStorage(directory);
+  } catch (cause) {
+    throw new Error(
+      "MEDIA_DIR のフォルダを、配信用の画像の置き場所として開けなかった。",
+      {
+        cause,
+      },
+    );
+  }
+};
+
+const storage = await prepareStorage(env.mediaDir);
+
 await using resources = new AsyncDisposableStack();
 
 const database = resources.use(
@@ -40,6 +56,7 @@ const context: AppContext = {
   db: database.db,
   logger: stdoutLogger,
   relyingParty: env.relyingParty,
+  storage,
   challenges: createChallengeStore({
     capacity: CHALLENGE_CAPACITY,
     lifetimeMs: CHALLENGE_LIFETIME_MS,

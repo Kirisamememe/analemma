@@ -2,6 +2,9 @@ import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import type { Hono } from "hono";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import {
   createExternalApp,
@@ -16,6 +19,10 @@ import {
 } from "@/features/auth/challenge/create-challenge-store";
 import { issueEnrollment } from "@/features/auth/enrollment/issue-enrollment";
 import type { Clock } from "@/platform/clock";
+import {
+  type FileStorage,
+  openFileStorage,
+} from "@/platform/file-storage/open-file-storage";
 import type { LogEntry, Logger } from "@/platform/logger";
 import { createTestDatabase } from "@/platform/test-database/create-test-database";
 import { createCookieJar } from "@/test-client/create-cookie-jar";
@@ -49,6 +56,8 @@ export type TestClient = AsyncDisposable &
     readonly logs: readonly LogEntry[];
     /** アプリがつないでいる、テストの DB の名前。 */
     readonly databaseName: string;
+    /** アプリが使う、テストだけの配信用の画像の置き場所。 */
+    readonly storage: FileStorage;
     /** 同じアプリにつないだ、別のブラウザを開く。 */
     readonly openBrowser: (cookie?: string) => TestBrowser;
     /** コマンドと同じやり方で、1回きりの登録用 URL を出す。 */
@@ -82,12 +91,20 @@ export const createTestClient = async (
 
   const clock = options.clock ?? { now: () => TEST_NOW };
   const database = stack.use(await createTestDatabase({ logger }));
+  const mediaDirectory = await mkdtemp(join(tmpdir(), "analemma-media-"));
+
+  stack.defer(async () => {
+    await rm(mediaDirectory, { recursive: true, force: true });
+  });
+
+  const storage = await openFileStorage(mediaDirectory);
 
   const context = {
     clock,
     db: database.db,
     logger,
     relyingParty: { origin: TEST_ORIGIN, rpId: TEST_RP_ID },
+    storage,
     challenges: createChallengeStore({
       capacity: CHALLENGE_CAPACITY,
       lifetimeMs: CHALLENGE_LIFETIME_MS,
@@ -145,6 +162,7 @@ export const createTestClient = async (
     internal,
     logs,
     databaseName: database.name,
+    storage,
     openBrowser,
     issueEnrollmentUrl: async () =>
       (

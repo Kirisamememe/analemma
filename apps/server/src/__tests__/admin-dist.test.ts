@@ -9,6 +9,7 @@ import { createExternalApp, createInternalApp } from "@/app";
 import { createChallengeStore } from "@/features/auth/challenge/create-challenge-store";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
+import { openFileStorage } from "@/platform/file-storage/open-file-storage";
 import { stdoutLogger } from "@/platform/logger";
 import { readEnv } from "@/platform/startup/env";
 import { loadAdminDist } from "@/platform/startup/load-admin-dist";
@@ -19,6 +20,7 @@ const ENV = {
   DATABASE_URL: "postgres://test:test@127.0.0.1:1/test",
   AUTH_ORIGIN: ORIGIN,
   AUTH_RP_ID: "cms.example.com",
+  MEDIA_DIR: ".",
 };
 
 const BOOT = "\n  document.documentElement.lang = 'ja';\n";
@@ -28,15 +30,17 @@ const ASSET = "export default 1;";
 const env = readEnv(ENV);
 const database = openDatabase({ target: env.database, logger: stdoutLogger });
 
+const root = await mkdtemp(join(tmpdir(), "analemma-admin-dist-"));
+
 const context = {
   db: database.db,
   relyingParty: env.relyingParty,
   logger: stdoutLogger,
   clock: systemClock,
+  storage: await openFileStorage(root),
   challenges: createChallengeStore({ capacity: 1, lifetimeMs: 1000 }),
 };
 
-const root = await mkdtemp(join(tmpdir(), "analemma-admin-dist-"));
 const dir = join(root, "dist");
 let app: ReturnType<typeof createExternalApp>;
 
