@@ -1,4 +1,7 @@
-export { addTestPasskey, passkeyIdOf } from "@/test-client/passkeys/add-test-passkey";
+export {
+  addTestPasskey,
+  passkeyIdOf,
+} from "@/test-client/passkeys/add-test-passkey";
 export {
   type AuthenticationCredentialJson,
   answerAuthentication,

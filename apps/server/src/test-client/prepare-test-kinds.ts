@@ -1,7 +1,7 @@
 import type { KindDefinitionInput } from "@analemma/contract";
 
-import { answerReauthentication } from "@/test-client/passkeys/answer-authentication";
 import type { TestClient } from "@/test-client/create-test-client";
+import { answerReauthentication } from "@/test-client/passkeys/answer-authentication";
 import {
   type TestPasskey,
   signInAsAdmin,
