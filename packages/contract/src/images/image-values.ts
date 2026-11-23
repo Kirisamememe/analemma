@@ -32,6 +32,18 @@ const trimmedText = (max: number, { error, pattern }: TextRule) =>
 /** 画像の ID。 */
 export const imageId = z.uuid().describe("画像の ID。");
 
+/** 1回の送信で送れる、写真のファイルの大きさの上限(bytes)。 */
+export const PHOTO_MAX_BYTES = 64 * 1024 * 1024;
+
+/** 管理画面から送る、写真のファイル。 */
+export const photoFile = z
+  .file()
+  .min(1)
+  .max(PHOTO_MAX_BYTES)
+  .describe(
+    "写真のファイル(JPEG・PNG・WebP・AVIF・HEIC)。形式は中身で見分ける。",
+  );
+
 /** 画像のタイトル。 */
 export const imageTitle = trimmedText(200, SINGLE_LINE).describe(
   "画像のタイトル。",

@@ -7,6 +7,7 @@ import {
   imageDescription,
   imageId,
   imageTitle,
+  photoFile,
 } from "./image-values";
 
 const byId = z.object({ id: imageId });
@@ -43,6 +44,16 @@ export const images = {
       summary: "画像",
     })
     .input(byId)
+    .output(adminImage),
+  upload: adminAccess
+    .errors({ UNSUPPORTED_FORMAT: { status: 415 } })
+    .route({
+      method: "POST",
+      path: "/admin/images/upload",
+      summary:
+        "写真1枚から、撮影の情報と配信用の画像を持つ画像を作る(公開する)",
+    })
+    .input(z.object({ photo: photoFile }))
     .output(adminImage),
   neighbors: adminAccess
     .errors({ NOT_FOUND: { status: 404 } })

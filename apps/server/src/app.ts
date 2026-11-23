@@ -1,21 +1,30 @@
 import { ORPCError, onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { ResponseHeadersPlugin } from "@orpc/server/plugins";
-import { Hono } from "hono";
+import { Hono, type MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { csrf } from "hono/csrf";
 import { NONCE, secureHeaders } from "hono/secure-headers";
 import { tryDecodeURIComponent } from "hono/utils/url";
 
+import { PHOTO_MAX_BYTES } from "@analemma/contract";
+
 import type { AppContext } from "@/context";
+import { isSessionActive } from "@/features/auth/session/resume-session";
 import { DELIVERY_IMAGE_PREFIX } from "@/features/images/delivery/delivery-image-path";
 import { serveDeliveryImage } from "@/features/images/delivery/serve-delivery-image";
+import { readSessionCookie, toSessionCookie } from "@/platform/session-cookie";
 import type { AdminDist } from "@/platform/startup/load-admin-dist";
 import { router } from "@/router";
 
 const API_PREFIX = "/api";
 const API_BODY_LIMIT = 1024 * 1024;
 const API_METHODS = new Set(["GET", "POST"]);
+const PHOTO_UPLOAD_PATH = `${API_PREFIX}/admin/images/upload`;
+const PHOTO_BODY_LIMIT = PHOTO_MAX_BYTES + API_BODY_LIMIT; // 写真の外の部分は、ほかの API と同じ上限に収める
+
+const limitApiBody = bodyLimit({ maxSize: API_BODY_LIMIT });
+const limitPhotoBody = bodyLimit({ maxSize: PHOTO_BODY_LIMIT });
 
 const PERMISSIONS_POLICY =
   "publickey-credentials-create=(self), publickey-credentials-get=(self)";
@@ -34,12 +43,14 @@ type ApiMount = {
   readonly context: AppContext;
   /** このアプリで受ける procedure。 */
   readonly procedures: typeof externalRouter | typeof internalRouter;
+  /** リクエストの本文の大きさを制限する middleware。 */
+  readonly limitBody: MiddlewareHandler;
 };
 
 const isDefect = (error: unknown): boolean =>
   !(error instanceof ORPCError) || error.code === "INTERNAL_SERVER_ERROR";
 
-const mountApi = ({ app, context, procedures }: ApiMount): void => {
+const mountApi = ({ app, context, procedures, limitBody }: ApiMount): void => {
   const handler = new RPCHandler(procedures, {
     plugins: [new ResponseHeadersPlugin()],
     clientInterceptors: [
@@ -55,7 +66,7 @@ const mountApi = ({ app, context, procedures }: ApiMount): void => {
     ],
   });
 
-  app.use(`${API_PREFIX}/*`, bodyLimit({ maxSize: API_BODY_LIMIT }));
+  app.use(`${API_PREFIX}/*`, limitBody);
   app.all(`${API_PREFIX}/*`, async (c) => {
     if (!API_METHODS.has(c.req.method)) {
       return c.body(null, 405, { Allow: [...API_METHODS].join(", ") });
@@ -74,6 +85,29 @@ const mountApi = ({ app, context, procedures }: ApiMount): void => {
     return matched ? c.newResponse(response.body, response) : c.notFound();
   });
 };
+
+const hasSession = async (
+  context: AppContext,
+  headers: Headers,
+): Promise<boolean> => {
+  const token = readSessionCookie(
+    headers,
+    toSessionCookie(context.relyingParty.origin),
+  );
+
+  return (
+    token !== undefined &&
+    isSessionActive({ db: context.db, token, now: context.clock.now() })
+  );
+};
+
+const limitExternalBody =
+  (context: AppContext): MiddlewareHandler =>
+  async (c, next) =>
+    c.req.path === PHOTO_UPLOAD_PATH &&
+    (await hasSession(context, c.req.raw.headers))
+      ? limitPhotoBody(c, next)
+      : limitApiBody(c, next);
 
 const addNoStore = (app: Hono, paths: readonly string[]): void => {
   for (const path of paths) {
@@ -178,7 +212,12 @@ export const createExternalApp = (
   });
   addNoStore(app, [`${API_PREFIX}/admin/*`, `${API_PREFIX}/auth/*`]);
   app.use(`${API_PREFIX}/*`, csrf({ origin: context.relyingParty.origin }));
-  mountApi({ app, context, procedures: externalRouter });
+  mountApi({
+    app,
+    context,
+    procedures: externalRouter,
+    limitBody: limitExternalBody(context),
+  });
   mountDeliveryImages(app, context);
 
   if (dist !== undefined) {
@@ -193,7 +232,12 @@ export const createInternalApp = (context: AppContext): Hono => {
   const app = new Hono();
 
   addNoStore(app, [`${API_PREFIX}/deploy/*`]);
-  mountApi({ app, context, procedures: internalRouter });
+  mountApi({
+    app,
+    context,
+    procedures: internalRouter,
+    limitBody: limitApiBody,
+  });
 
   return app;
 };

@@ -45,7 +45,7 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 
 - **Hono を使う**:API の仕事(ルーティング、入力と出力の検証、型付きのエラー、認可の middleware)は oRPC が持つ。その外側の HTTP のルーティングは Hono が受け持ち、セキュリティのヘッダー、CSRF の確認、リクエストの本文の大きさの上限には Hono の middleware を使う。Hono は Web 標準で書かれていて Bun 以外でも動くので、「Web 標準で書く」方針に合う。Elysia は Bun 専用なので使わない。NestJS のような大きなフレームワークは、この規模には重い。
 - oRPC の handler は、Hono の `/api/*` のルートとしてつなぐ。oRPC のプロトコル(`RPCHandler`)だけを出す。公開サイトも、client(oRPC の client)で公開 API を呼ぶので、contract から作る OpenAPI の handler は、今は足さない。
-- 外部用のポートでは、静的ファイルを含むすべての応答に `secureHeaders` を掛ける。API には `csrf` と `bodyLimit`(1 MB)も掛ける。内部用のポートの middleware は `bodyLimit` だけとする。
+- 外部用のポートでは、静的ファイルを含むすべての応答に `secureHeaders` を掛ける。API には `csrf` と `bodyLimit`(1 MB)も掛ける。写真を送る procedure だけは、ログイン中なら上限を大きくする(`src/features/images/DECISIONS.md` の「直接アップロード」)。内部用のポートの middleware は `bodyLimit` だけとする。
 - `ADMIN_DIST_DIR` に管理画面のビルドの出力先を指定する。相対パスの起点は server プロセスの cwd。未設定なら、server は管理画面を配信しない(開発では Vite の開発のサーバーが配る)。設定したときは起動時にファイルを読み込み、フォルダや `index.html` が読めなければ、ポートを開く前に止まる。
 - 配信するのは、起動時に読んだ通常のファイルだけ。ドットで始まる名前とシンボリックリンクを除く。管理画面のビルドがメモリに収まるので、リクエストのパスでファイルシステムを開く必要がなく、HTML と CSP も同じビルドのものになる。ビルドを入れ替えたら server を再起動する。
 - `/api` と `/api/` 以下は oRPC に渡し、`/media/` 以下は配信用の画像の経路に渡す(次の項目)。それ以外は GET・HEAD で静的ファイルを返し、ほかのメソッドには 405 を返す。ファイルに当たらない画面の URL には SPA の入口の `index.html` を返す。`/assets/` 以下の欠落は 404 にし、JS や CSS のリクエストに HTML が返るのを防ぐ。

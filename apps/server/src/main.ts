@@ -74,6 +74,7 @@ const internalOptions = {
 const externalOptions = {
   fetch: createExternalApp(context, adminDist).fetch,
   port: env.port,
+  idleTimeout: 120, // 送られた写真の変換を待つ間に、接続を切らない(Bun の既定は10秒)
 };
 
 const { external, internal } =
