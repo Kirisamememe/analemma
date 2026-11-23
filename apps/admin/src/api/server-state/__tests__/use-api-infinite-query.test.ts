@@ -2,6 +2,7 @@ import { focusManager, QueryClient } from "@tanstack/react-query";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { useApiCache } from "@/api/server-state/server-state";
 import { useApiInfiniteQuery } from "@/api/server-state/use-api-infinite-query";
 import { withQueryClient } from "@/testing/hook-wrappers";
 
@@ -136,6 +137,56 @@ describe("useApiInfiniteQuery", () => {
     act(nextToLoad(result));
     await waitFor(() => {
       expect(items(result)).toEqual([2, 3, 5]);
+    });
+  });
+
+  test("ページの番号を見て、先頭のページだけを変えられる", async () => {
+    const { result } = renderHook(
+      () => ({
+        query: useApiInfiniteQuery({
+          key: KEY,
+          load: loadPage,
+          next: (page: Page) => page.next,
+        }),
+        cache: useApiCache(),
+      }),
+      { wrapper: withQueryClient(client()) },
+    );
+
+    await waitFor(() => {
+      expect(result.current.query._tag).toBe("Loaded");
+    });
+    act(() => {
+      if (
+        result.current.query._tag === "Loaded" &&
+        result.current.query.next._tag === "Available"
+      ) {
+        result.current.query.next.load();
+      }
+    });
+    await waitFor(() => {
+      expect(
+        result.current.query._tag === "Loaded"
+          ? result.current.query.pages.length
+          : 0,
+      ).toBe(2);
+    });
+
+    await act(async () => {
+      await result.current.cache.updatePages<Page>(KEY, (page, index) =>
+        index === 0 ? { ...page, items: [0, ...page.items] } : page,
+      );
+    });
+
+    await waitFor(() => {
+      expect(
+        result.current.query._tag === "Loaded"
+          ? result.current.query.pages.map((page) => page.items)
+          : [],
+      ).toEqual([
+        [0, 1, 2],
+        [3, 4],
+      ]);
     });
   });
 

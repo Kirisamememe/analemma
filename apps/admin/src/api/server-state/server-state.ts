@@ -72,6 +72,8 @@ type MutationResult<Input, Data> = {
   readonly data: Data | undefined;
 };
 
+type PageUpdate<Page> = (page: Page, index: number) => Page;
+
 type ApiCache = {
   /** 取得を中断してから、使う画面の無い取得も含めて取り直す関数。 */
   readonly refresh: (
@@ -88,7 +90,7 @@ type ApiCache = {
   /** 取得済みの一覧のページを、server の書き換えの結果に合わせる関数。 */
   readonly updatePages: <Page>(
     key: readonly unknown[],
-    update: (page: Page) => Page,
+    update: PageUpdate<Page>,
   ) => Promise<void>;
   /** 取得と送信のキャッシュを消す関数。 */
   readonly clear: () => void;
@@ -248,7 +250,7 @@ export const useApiCache = (): ApiCache => {
       client.setQueryData(key, data);
     },
     update,
-    updatePages: <Page>(key: readonly unknown[], apply: (page: Page) => Page) =>
+    updatePages: <Page>(key: readonly unknown[], apply: PageUpdate<Page>) =>
       update<InfiniteData<Page>>(key, (data) => ({
         ...data,
         pages: data.pages.map(apply),

@@ -24,3 +24,19 @@ export const updateImagePage =
 
     return { ...page, images };
   };
+
+/** 送った写真から作った画像を、一覧の最初のページに、新しく足した順を保って足す。 */
+export const prependImage =
+  (image: ImageSummary) =>
+  (page: ApiOutputs["admin"]["images"]["list"], index: number): typeof page => {
+    if (index !== 0 || page.images.some(({ id }) => id === image.id)) {
+      return page;
+    }
+
+    const at = page.images.findIndex(({ id }) => id < image.id);
+
+    return {
+      ...page,
+      images: page.images.toSpliced(at < 0 ? page.images.length : at, 0, image),
+    };
+  };
