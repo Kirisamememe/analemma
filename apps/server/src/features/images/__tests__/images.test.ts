@@ -193,14 +193,14 @@ describe("画像の取得", () => {
 });
 
 describe("配信用の画像", () => {
-  test("どの procedure も、配信用の画像の幅・高さ・URL を幅の昇順で返し、まだ無い画像には空の一覧を返すこと", async () => {
+  test("一覧・取得・書き換え・公開・非公開は、配信用の画像の幅・高さ・URL を幅の昇順で返し、一覧は配信用の画像をまだ作っていない画像に空の一覧を返すこと", async () => {
     await using server = await createTestClient();
 
     await signInAsAdmin(server);
 
     const [id = ""] = await insertImages(server, [
       { title: "夕立" },
-      { title: "まだ無い" },
+      { title: "まだ作っていない" },
     ]);
 
     await insertDeliveryImages(
@@ -231,7 +231,7 @@ describe("配信用の画像", () => {
         deliveryImages,
       })),
     ).toEqual([
-      { title: "まだ無い", deliveryImages: [] },
+      { title: "まだ作っていない", deliveryImages: [] },
       { title: "夕立", deliveryImages: expected },
     ]);
     expect((await images.get({ id })).deliveryImages).toEqual(expected);
