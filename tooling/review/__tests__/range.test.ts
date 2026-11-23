@@ -282,12 +282,10 @@ describe("直したコミットの範囲を確かめること", () => {
     expect(checkFixRange(cwd, { previous: head, head: fixed })).toBeUndefined();
   });
 
-  test("前の回からコミットが足されていなければ、読まないこと", () => {
+  test("前の回からコミットが足されていなくても、空の範囲として読めること", () => {
     const { cwd, head } = makeRepository("no-fixes");
 
-    expect(checkFixRange(cwd, { previous: head, head })).toContain(
-      "コミットが足されていない",
-    );
+    expect(checkFixRange(cwd, { previous: head, head })).toBeUndefined();
   });
 
   test("rebase して前の回のコミットが祖先に無ければ、--full を求めること", () => {

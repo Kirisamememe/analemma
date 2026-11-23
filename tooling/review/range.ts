@@ -143,12 +143,7 @@ type FixRange = {
 export const checkFixRange = (
   cwd: string,
   { head, previous }: FixRange,
-): string | undefined => {
-  if (previous === head) {
-    return `前の回にレビューしたコミット ${previous} から、コミットが足されていない。`;
-  }
-
-  return git(cwd, "merge-base", "--is-ancestor", previous, head).status === 0
+): string | undefined =>
+  git(cwd, "merge-base", "--is-ancestor", previous, head).status === 0
     ? undefined
     : `前の回にレビューしたコミット ${previous} が、今の head の祖先に無い(rebase したときなど)。直したコミットを決められないので、--full を付けて、ブランチの変更の全体をレビューしてください。`;
-};
