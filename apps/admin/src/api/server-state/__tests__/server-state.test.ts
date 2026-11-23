@@ -262,6 +262,41 @@ describe("useApiCache", () => {
     });
   });
 
+  test("使う画面が無い取得も取り直し、開き直したときに取り直した値を出す", async () => {
+    const client = new QueryClient();
+    let list = ["MacBook"];
+    const load = () => Promise.resolve(list);
+    const first = renderHook(() => useApiQuery({ key: KEY, load }), {
+      wrapper: withQueryClient(client),
+    });
+
+    await waitFor(() => {
+      expect(first.result.current).toEqual({
+        _tag: "Loaded",
+        data: ["MacBook"],
+      });
+    });
+    first.unmount();
+    list = ["iPhone"];
+
+    const { result } = renderHook(useApiCache, {
+      wrapper: withQueryClient(client),
+    });
+
+    await act(async () => {
+      await result.current.refresh(KEY);
+    });
+
+    const reopened = renderHook(() => useApiQuery({ key: KEY, load }), {
+      wrapper: withQueryClient(client),
+    });
+
+    expect(reopened.result.current).toEqual({
+      _tag: "Loaded",
+      data: ["iPhone"],
+    });
+  });
+
   test("送っている取得を中断し、取り直さずにデータを差し替える", async () => {
     const pending = Promise.withResolvers<string[]>();
     let fetches = 0;
