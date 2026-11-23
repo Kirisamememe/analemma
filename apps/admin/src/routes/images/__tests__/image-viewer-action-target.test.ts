@@ -45,6 +45,26 @@ describe("表示中の画像への操作", () => {
     },
   );
 
+  test("編集前の情報を待つ間に別の画像へ移れば、戻った後にその応答が届いても Dialog は開かない", async () => {
+    const { server, first, second, history } = open();
+    await screen.findByRole("heading", { name: "港" });
+    const response = Promise.withResolvers<FakeReply<"admin/images/get">>();
+    server.replyNext("admin/images/get", () => response.promise);
+    await userEvent.click(button("編集"));
+    act(() => {
+      history.push("/images/" + second.id);
+    });
+    await screen.findByRole("heading", { name: "朝の湖" });
+    act(() => {
+      history.push("/images/" + first.id);
+    });
+    await screen.findByRole("heading", { name: "港" });
+    await act(async () => {
+      response.resolve({ output: first });
+      await response.promise;
+    });
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
   test("写真を待つ間は変更を受け付けず、届いた後は同じ3つのボタンから新しい画像だけを変更する", async () => {
     const { server, first, second } = open();
     await screen.findByRole("heading", { name: "港" });

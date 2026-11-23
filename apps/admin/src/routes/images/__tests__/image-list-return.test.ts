@@ -38,7 +38,7 @@ test("写真から戻ると、続きを読み直さずに元の写真へ戻り�
     }),
   );
   await screen.findByRole("button", { name: "公開する" });
-  await user.click(screen.getByRole("link", { name: "画像の一覧" }));
+  await user.click(screen.getByRole("link", { name: "一覧へ" }));
 
   const selected = await screen.findByRole("link", {
     name: /写真 52.*非公開/v,
@@ -82,7 +82,7 @@ test("続きを読めなかった後に写真から戻っても、元の50枚を
   );
   await user.click(screen.getByRole("link", { name: /写真 50/v }));
   await screen.findByRole("heading", { name: "写真 50" });
-  await user.click(screen.getByRole("link", { name: "画像の一覧" }));
+  await user.click(screen.getByRole("link", { name: "一覧へ" }));
   await screen.findByRole("link", { name: /写真 50/v });
   disconnected = false;
   await user.click(await screen.findByRole("button", { name: "もう一度試す" }));
