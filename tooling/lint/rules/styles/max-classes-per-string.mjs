@@ -41,6 +41,8 @@ const VALUE_CONTAINERS = new Set([
 
 const carriesValue = (parent, child) =>
   VALUE_CONTAINERS.has(parent.type) ||
+  (parent.type === "SpreadElement" &&
+    parent.parent.type === "ArrayExpression") ||
   (parent.type === "Property" && parent.value === child) ||
   (parent.type === "ConditionalExpression" && parent.test !== child) ||
   (parent.type === "LogicalExpression" &&
