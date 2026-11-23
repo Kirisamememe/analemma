@@ -229,4 +229,16 @@ export const en = {
   "fixedPages.deleted": "“{{title}}” was deleted.",
   "fixedPages.deleteFailed":
     "Could not delete the fixed page. Please try again.",
+  "images.title": "Images",
+  "images.description": "Photos that double as works, newest first.",
+  "images.loading": "Loading images.",
+  "images.loadFailed": "Could not load images",
+  "images.moreFailed": "Could not load more images",
+  "images.emptyTitle": "No images yet",
+  "images.emptyDescription":
+    "Images you upload or import from Dropbox will be listed here.",
+  "images.untitled": "Untitled",
+  "images.unpublished": "Unpublished",
+  "images.noDeliveryImage": "No image to show yet",
+  "images.loadMore": "Load more",
 } as const satisfies Readonly<Record<string, string>>;
