@@ -32,17 +32,11 @@ type Story = StoryObj<typeof meta>;
 
 export const WithAllDetails: Story = {};
 
-export const Portrait: Story = {
-  args: { path: pathOf(1) },
-};
+const atPath = (path: string): Story => ({ args: { path } });
 
-export const Unpublished: Story = {
-  args: { path: pathOf(6) },
-};
-
-export const NoDeliveryImage: Story = {
-  args: { path: pathOf(7) },
-};
+export const Portrait = atPath(pathOf(1));
+export const Unpublished = atPath(pathOf(6));
+export const NoDeliveryImage = atPath(pathOf(7));
 
 const withReplies = (overrides: FakeRoutes): Story => ({
   args: {
@@ -67,6 +61,4 @@ export const NeighborsFailed = withReplies({
   "admin/images/neighbors": failed,
 });
 
-export const Gone: Story = {
-  args: { path: "/images/019b0000-0000-7000-8000-0000000000ff" },
-};
+export const Gone = atPath("/images/019b0000-0000-7000-8000-0000000000ff");

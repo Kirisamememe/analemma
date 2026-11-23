@@ -18,7 +18,10 @@ const more = () => screen.findByRole("button", { name: "さらに読み込む" }
 test("写真から戻ると、続きを読み直さずに元の写真へ戻り、別のタブへ出た後は最初から読む", async () => {
   const server = paged();
 
-  const { calls } = renderApp({ path: "/Images/", routes: server.routes });
+  const { calls, history } = renderApp({
+    path: "/Images/",
+    routes: server.routes,
+  });
 
   const lists = () =>
     calls.filter((path) => path === "admin/images/list").length;
@@ -39,6 +42,9 @@ test("写真から戻ると、続きを読み直さずに元の写真へ戻り�
   });
   expect(lists()).toBe(2);
 
+  act(() => {
+    history.replace("/Images/");
+  });
   await user.click(screen.getByRole("link", { name: "ホーム" }));
   await user.click(await screen.findByRole("link", { name: "画像" }));
   await more();
@@ -109,7 +115,9 @@ test("画像一覧を裏で更新できなくても、写真を残してその�
       }),
     ).toBeNull();
   });
-  expect(screen.getByRole("link", { name: /山の朝/v })).toBeDefined();
+  expect(document.activeElement).toBe(
+    screen.getByRole("link", { name: /山の朝/v }),
+  );
 }, 15_000);
 
 test("セッション確認中も保存済みの一覧を表示し、失効の応答が届いたら消す", async () => {

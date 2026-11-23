@@ -214,6 +214,10 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
       <ImageRows
         label={t("images.title")}
         listRef={(list) => {
+          if (query.refreshFailure === undefined) {
+            focusResult(0, list?.querySelector("a") ?? null);
+          }
+
           if (query.pages.at(-1)?.images.length === 0) {
             const last =
               list?.querySelector<HTMLAnchorElement>("li:last-child a");
@@ -241,7 +245,10 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
           isRetrying={query.refreshFailure.isRetrying}
           layout="inline"
           level={2}
-          onRetry={query.refreshFailure.retry}
+          onRetry={() => {
+            rememberFocus(0);
+            query.refreshFailure?.retry();
+          }}
           title={t("images.refreshFailed")}
         />
       )}

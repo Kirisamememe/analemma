@@ -17,17 +17,17 @@ const IMAGES: readonly FakeImageSeed[] = [
   { title: "雪の参道" },
 ];
 
-const setUp = (index: number, path?: string) => {
+const setUp = (path: string) => {
   const server = createImageRoutes(IMAGES);
-  const ids = server.images().map(({ id }) => id);
+  const { history } = renderApp({ path, routes: server.routes });
 
-  const app = renderApp({
-    path: path ?? `/images/${ids[index] ?? ""}`,
-    routes: server.routes,
-  });
-
-  return { server, ids, ...app };
+  return { history, ids: server.images().map(({ id }) => id) };
 };
+
+const expectLinkFocus = (name: string) =>
+  waitFor(() => {
+    expect(document.activeElement).toBe(screen.getByRole("link", { name }));
+  });
 
 const heading = async (name: string) =>
   screen.findByRole("heading", { level: 1, name });
@@ -48,7 +48,7 @@ describe("ImageViewerPage", () => {
   });
 
   test("一覧から写真を開き、キーボードで前後に移って同じ方向のリンクに戻れる", async () => {
-    const { history, ids } = setUp(0, "/images");
+    const { history, ids } = setUp("/images");
 
     await userEvent.click(
       await screen.findByRole("link", { name: /夕暮れの稜線/v }),
@@ -63,22 +63,12 @@ describe("ImageViewerPage", () => {
     });
     await user.keyboard("{Enter}");
     await heading("港の灯り");
-    await waitFor(() => {
-      expect(
-        document.activeElement ===
-          screen.getByRole("link", { name: "次の画像" }),
-      ).toBe(true);
-    });
+    await expectLinkFocus("次の画像");
     await user.keyboard("{Enter}");
     await heading("雪の参道");
     expect(history.location.pathname).toBe(`/images/${ids[2] ?? ""}`);
     expect(screen.queryByRole("link", { name: "次の画像" })).toBeNull();
-    await waitFor(() => {
-      expect(
-        document.activeElement ===
-          screen.getByRole("link", { name: "前の画像" }),
-      ).toBe(true);
-    });
+    await expectLinkFocus("前の画像");
   });
 
   test("前後の取得に失敗しても写真を表示し、取り直した後は次の写真へ進める", async () => {
@@ -109,7 +99,7 @@ describe("ImageViewerPage", () => {
   }, 15_000);
 
   test("無い画像を開くと、もう無いことを知らせる", async () => {
-    setUp(0, "/images/019b0000-0000-7000-8000-0000000000ff");
+    setUp("/images/019b0000-0000-7000-8000-0000000000ff");
 
     expect(await screen.findByText("この画像はもうありません。")).toBeDefined();
     expect(screen.getByRole("link", { name: "画像の一覧" })).toBeDefined();
