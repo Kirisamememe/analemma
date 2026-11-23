@@ -213,6 +213,19 @@ export const DeleteFailed: Story = {
   },
 };
 
+export const KindLoadFailed: Story = {
+  args: {
+    /** 固定ページを取得でき、種類の取得だけが失敗する server。 */
+    createRoutes: () => ({
+      ...signedIn,
+      "admin/kinds/get": () => ({
+        error: "INTERNAL_SERVER_ERROR",
+        defined: false,
+      }),
+    }),
+  },
+};
+
 export const DeletedElsewhere: Story = {
   args: {
     /** 削除するとページが無いと答える server(ほかで消えていたときの Dialog)。 */
