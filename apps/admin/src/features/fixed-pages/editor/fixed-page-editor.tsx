@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useMemo, useRef, useState } from "react";
 
 import { ContentFields } from "./content-fields";
 import { DeleteFixedPage } from "./delete-fixed-page";
@@ -8,6 +8,7 @@ import {
 } from "./hooks/use-editor-form";
 
 import type { LeaveConfirmation } from "@/api/use-leave-confirmation";
+import { KindRefreshNotice } from "@/features/fixed-pages/list/kind-refresh-notice";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
@@ -112,6 +113,12 @@ const Editor = ({
                   : "fixedPageEditor.edit",
               )}
             />
+            {props.refreshFailure !== undefined && (
+              <KindRefreshNotice
+                source="definition"
+                refreshFailure={props.refreshFailure}
+              />
+            )}
             {fieldsChanged && (
               <Notice tone="warning">
                 {t("fixedPageEditor.updatedFields")}
@@ -186,6 +193,32 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
   const fields = editedFields ?? deletingFields ?? props.kind.fields;
   const key = useMemo(() => JSON.stringify(fields), [fields]);
 
+  const activeName = useRef<string>(undefined);
+
+  const restoreFocus = useCallback((element: HTMLDivElement | null) => {
+    if (element === null) return;
+
+    if (activeName.current !== undefined) {
+      const target =
+        Array.from(element.querySelectorAll<HTMLElement>("[name]")).find(
+          (field) =>
+            field.getAttribute("name") === activeName.current &&
+            field.tabIndex >= 0,
+        ) ?? element.querySelector<HTMLElement>('[name="title"]');
+
+      target?.focus();
+      activeName.current = undefined;
+    }
+
+    return () => {
+      const active = document.activeElement;
+
+      if (active !== null && element.contains(active)) {
+        activeName.current = active.getAttribute("name") ?? "title";
+      }
+    };
+  }, []);
+
   const pageProps =
     props.page === undefined
       ? props
@@ -202,18 +235,19 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
         };
 
   return (
-    <Editor
-      key={key}
-      pageProps={{ ...pageProps, kind: { ...props.kind, fields } }}
-      fieldsChanged={
-        editedFields !== undefined && editedFields !== props.kind.fields
-      }
-      onDeleteOpen={(open) => {
-        setDeletingFields(open ? fields : undefined);
-      }}
-      onEditing={(editing) => {
-        setEditedFields(editing ? fields : undefined);
-      }}
-    />
+    <div key={key} ref={restoreFocus}>
+      <Editor
+        pageProps={{ ...pageProps, kind: { ...props.kind, fields } }}
+        fieldsChanged={
+          editedFields !== undefined && editedFields !== props.kind.fields
+        }
+        onDeleteOpen={(open) => {
+          setDeletingFields(open ? fields : undefined);
+        }}
+        onEditing={(editing) => {
+          setEditedFields(editing ? fields : undefined);
+        }}
+      />
+    </div>
   );
 };

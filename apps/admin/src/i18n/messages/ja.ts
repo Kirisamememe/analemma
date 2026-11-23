@@ -12,6 +12,7 @@ export const ja = {
   "fixedPageEditor.kindGone": "この種類はもうありません。",
   "fixedPageEditor.pageGone": "この固定ページはもうありません。",
   "fixedPageEditor.loadFailed": "固定ページを読み込めませんでした",
+  "fixedPageEditor.kindRefreshFailed": "種類の定義を更新できませんでした。",
   "fixedPageEditor.kindsRefreshFailed": "種類の一覧を更新できませんでした。",
   "fixedPageEditor.reloadKinds": "再読み込み",
   "fixedPageEditor.kindsLoadFailed": "種類を読み込めませんでした",
