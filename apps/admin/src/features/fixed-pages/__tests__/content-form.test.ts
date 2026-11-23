@@ -59,7 +59,7 @@ describe("createContentForm", () => {
     ).toEqual(emptyValues);
   });
 
-  test("object でない repeat の要素は、同じ位置に未入力と既定値のまま残す", () => {
+  test("object でない repeat の要素は同じ位置に残し、boolean には既定値を使う", () => {
     const rows = createContentForm(fields, {
       rows: [null, [], "旧形式", { flag: true }],
     }).values["rows"];
