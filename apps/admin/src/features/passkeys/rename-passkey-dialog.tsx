@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { checkPasskeyName } from "@/components/check-passkey-name";
+import { checkPasskeyName } from "@/components/logic/check-passkey-name";
 import { checkAfterSubmit, useAppForm } from "@/components/forms";
 import type { PasskeySummary } from "@/features/passkeys/passkey-list";
 import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";

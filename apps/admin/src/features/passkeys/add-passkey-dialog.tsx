@@ -5,7 +5,7 @@ import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { checkPasskeyName } from "@/components/logic/check-passkey-name";
 import { checkAfterSubmit, useAppForm } from "@/components/forms";
 import { addPasskey } from "@/features/passkeys/queries/add-passkey";
-import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/passkeys-query";
+import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";
 import { toAddFailure } from "@/features/passkeys/logic/to-passkey-notice";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";

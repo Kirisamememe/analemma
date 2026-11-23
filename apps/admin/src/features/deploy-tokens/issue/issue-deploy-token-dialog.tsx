@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { checkAfterSubmit, useAppForm } from "@/components/forms";
-import { checkDeployTokenName } from "@/features/deploy-tokens/issue/queries/issue-deploy-token";
+import { checkDeployTokenName } from "@/features/deploy-tokens/issue/logic/check-deploy-token-name";
 import { useCopyText } from "@/features/deploy-tokens/issue/hooks/use-copy-text";
 import {
   type IssuedToken,
