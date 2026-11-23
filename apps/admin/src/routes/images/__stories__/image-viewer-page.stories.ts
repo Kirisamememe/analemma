@@ -44,29 +44,28 @@ export const NoDeliveryImage: Story = {
   args: { path: pathOf(7) },
 };
 
-export const Loading: Story = {
+const withReplies = (overrides: FakeRoutes): Story => ({
   args: {
-    /** 画像を返さない server。 */
     createRoutes: () => ({
       ...createImageRoutes(SAMPLE_IMAGES).routes,
-      "admin/images/get": async () =>
-        Promise.withResolvers<FakeReply<"admin/images/get">>().promise,
+      ...overrides,
     }),
   },
-};
+});
 
-export const LoadFailed: Story = {
-  args: {
-    /** 画像を読めない server。 */
-    createRoutes: () => ({
-      ...createImageRoutes(SAMPLE_IMAGES).routes,
-      "admin/images/get": () => ({
-        error: "INTERNAL_SERVER_ERROR",
-        defined: false,
-      }),
-    }),
-  },
-};
+const failed = () =>
+  ({ error: "INTERNAL_SERVER_ERROR", defined: false }) as const;
+
+export const Loading = withReplies({
+  "admin/images/get": async () =>
+    Promise.withResolvers<FakeReply<"admin/images/get">>().promise,
+});
+
+export const LoadFailed = withReplies({ "admin/images/get": failed });
+
+export const NeighborsFailed = withReplies({
+  "admin/images/neighbors": failed,
+});
 
 export const Gone: Story = {
   args: { path: "/images/019b0000-0000-7000-8000-0000000000ff" },

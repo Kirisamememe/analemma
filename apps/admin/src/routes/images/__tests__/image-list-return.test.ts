@@ -2,15 +2,21 @@ import { act, cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
+import type { FakeReply } from "@/testing/create-fake-api";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
 
-test("写真から戻ると、続きを読み直さずに元の写真へ戻り、別のタブへ出た後は最初から読む", async () => {
-  const server = createImageRoutes(
+const paged = () =>
+  createImageRoutes(
     Array.from({ length: 52 }, (_, index) => ({ title: `写真 ${index + 1}` })),
   );
+
+const more = () => screen.findByRole("button", { name: "さらに読み込む" });
+
+test("写真から戻ると、続きを読み直さずに元の写真へ戻り、別のタブへ出た後は最初から読む", async () => {
+  const server = paged();
 
   const { calls } = renderApp({ path: "/Images/", routes: server.routes });
 
@@ -19,9 +25,7 @@ test("写真から戻ると、続きを読み直さずに元の写真へ戻り�
 
   const user = userEvent.setup();
 
-  await user.click(
-    await screen.findByRole("button", { name: "さらに読み込む" }),
-  );
+  await user.click(await more());
   await user.click(await screen.findByRole("link", { name: /写真 52/v }));
   await screen.findByRole("heading", { name: "写真 52" });
   await user.click(screen.getByRole("link", { name: "画像の一覧" }));
@@ -37,15 +41,13 @@ test("写真から戻ると、続きを読み直さずに元の写真へ戻り�
 
   await user.click(screen.getByRole("link", { name: "ホーム" }));
   await user.click(await screen.findByRole("link", { name: "画像" }));
-  await screen.findByRole("button", { name: "さらに読み込む" });
+  await more();
   expect(screen.queryByRole("link", { name: /写真 52/v })).toBeNull();
   expect(lists()).toBe(3);
 });
 
 test("続きを読めなかった後に写真から戻っても、元の50枚を見ながら続きを取り直せる", async () => {
-  const server = createImageRoutes(
-    Array.from({ length: 52 }, (_, i) => ({ title: `写真 ${i + 1}` })),
-  );
+  const server = paged();
 
   let disconnected = true;
   const user = userEvent.setup();
@@ -59,9 +61,7 @@ test("続きを読めなかった後に写真から戻っても、元の50枚を
           : server.routes["admin/images/list"](input),
     },
   });
-  await user.click(
-    await screen.findByRole("button", { name: "さらに読み込む" }),
-  );
+  await user.click(await more());
   await screen.findByRole(
     "heading",
     { name: "続きの画像を読み込めませんでした" },
@@ -111,3 +111,23 @@ test("画像一覧を裏で更新できなくても、写真を残してその�
   });
   expect(screen.getByRole("link", { name: /山の朝/v })).toBeDefined();
 }, 15_000);
+
+test("セッション確認中も保存済みの一覧を表示し、失効の応答が届いたら消す", async () => {
+  const server = createImageRoutes([{ title: "未公開の山", published: false }]);
+  const check = Promise.withResolvers<FakeReply<"admin/session/get">>();
+  const { queryClient } = renderApp({ path: "/images", routes: server.routes });
+
+  await userEvent.click(
+    await screen.findByRole("link", { name: /未公開の山/v }),
+  );
+  await screen.findByRole("heading", { name: "未公開の山" });
+  server.replyNext("admin/session/get", () => check.promise);
+  await userEvent.click(screen.getByRole("link", { name: "画像の一覧" }));
+  await screen.findByRole("link", { name: /未公開の山/v });
+  act(() => {
+    check.resolve({ error: "UNAUTHORIZED" });
+  });
+  await screen.findByRole("heading", { name: "Stilus にログイン" });
+  expect(screen.queryByRole("link", { name: /未公開の山/v })).toBeNull();
+  expect(queryClient.getQueryData(["admin", "images", "list"])).toBeUndefined();
+});

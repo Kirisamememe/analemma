@@ -47,31 +47,14 @@ describe("ImageViewerPage", () => {
     session.resolve({ output: { expiresAt: "2026-01-08T00:00:00.000Z" } });
   });
 
-  test("一覧の画像を押すと、その画像を見る画面を開く", async () => {
+  test("一覧から写真を開き、キーボードで前後に移って同じ方向のリンクに戻れる", async () => {
     const { history, ids } = setUp(0, "/images");
 
     await userEvent.click(
-      await screen.findByRole("link", { name: /港の灯り/v }),
+      await screen.findByRole("link", { name: /夕暮れの稜線/v }),
     );
-    await heading("港の灯り");
-    expect(history.location.pathname).toBe(`/images/${ids[1] ?? ""}`);
-  });
-
-  test("一覧の並びで前と次の画像へのリンクを置き、押すとその画像に移る", async () => {
-    const { history, ids } = setUp(1);
-
-    await heading("港の灯り");
-    await userEvent.click(
-      await screen.findByRole("link", { name: "次の画像" }),
-    );
-    await heading("雪の参道");
-    expect(history.location.pathname).toBe(`/images/${ids[2] ?? ""}`);
-    expect(screen.queryByRole("link", { name: "次の画像" })).toBeNull();
-    expect(screen.getByRole("link", { name: "前の画像" })).toBeDefined();
-  });
-
-  test("キーボードで次の写真を開くと同じ方向に続けて進め、最後は前の写真に戻れる", async () => {
-    setUp(0);
+    await heading("夕暮れの稜線");
+    expect(history.location.pathname).toBe(`/images/${ids[0] ?? ""}`);
     const user = userEvent.setup();
     const next = await screen.findByRole("link", { name: "次の画像" });
 
@@ -88,6 +71,8 @@ describe("ImageViewerPage", () => {
     });
     await user.keyboard("{Enter}");
     await heading("雪の参道");
+    expect(history.location.pathname).toBe(`/images/${ids[2] ?? ""}`);
+    expect(screen.queryByRole("link", { name: "次の画像" })).toBeNull();
     await waitFor(() => {
       expect(
         document.activeElement ===

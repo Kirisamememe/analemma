@@ -6,6 +6,7 @@ import { ViewerPhoto } from "./viewer-photo";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Text } from "@/ui/layout";
+import { LoadingState } from "@/ui/patterns";
 import { Icon } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
@@ -81,6 +82,21 @@ export const ViewerFrame = ({
       <div className={style.actions()}>{actions}</div>
     </header>
     {children}
+  </div>
+);
+
+/** 読み込み中の写真と情報欄の骨組み。 */
+export const ViewerLoading = (): ReactNode => (
+  <div className={style.body({ className: "loading-state-animation" })}>
+    <div className={style.stage()}>
+      <span
+        aria-hidden="true"
+        className="skeleton-animation aspect-photo w-full rounded-surface bg-surface-muted"
+      />
+    </div>
+    <div className={style.panel()}>
+      <LoadingState layout="list" />
+    </div>
   </div>
 );
 
