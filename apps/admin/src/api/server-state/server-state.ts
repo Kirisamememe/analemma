@@ -11,6 +11,8 @@ import {
 import { isUnauthorized } from "@/api/api-errors";
 
 type QueryOptions<Data> = {
+  /** 更新に失敗したときも、取得済みの内容を表示するか。 */
+  readonly keepDataOnRefreshError?: boolean;
   /** query のキー。 */
   readonly key: readonly unknown[];
   /** データを取得する関数。 */
@@ -48,7 +50,7 @@ type MutationOptions<Input, Data> = {
   /** `send` の Promise が resolve した後に呼ぶ関数。 */
   readonly onSuccess: (data: Data) => void | Promise<void>;
   /** 送信か送信後の処理が、セッション切れのほかの失敗で終わったときに呼ぶ関数。 */
-  readonly onError?: () => void;
+  readonly onError?: (input: Input) => void;
 };
 
 type MutationResult<Input, Data> = {
@@ -90,6 +92,7 @@ type ApiCache = {
 export const useApiQuery = <Data>({
   key,
   load,
+  keepDataOnRefreshError,
 }: QueryOptions<Data>): ApiQueryResult<Data> => {
   const query = useQuery({
     queryKey: key,
@@ -98,6 +101,14 @@ export const useApiQuery = <Data>({
 
   if (query.isPending && query.errorUpdateCount === 0) {
     return { _tag: "Loading" };
+  }
+
+  if (
+    keepDataOnRefreshError === true &&
+    query.isRefetchError &&
+    !isUnauthorized(query.error)
+  ) {
+    return { _tag: "Loaded", data: query.data };
   }
 
   if (query.isPending || query.isError) {
@@ -137,9 +148,9 @@ export const useApiMutation = <Data, Input = void>({
     ...(scope === undefined ? {} : { scope: { id: scope } }),
     mutationFn: (input: Input) => send(input),
     onSuccess: (result) => onSuccess(result),
-    onError: (error) => {
+    onError: (error, input) => {
       if (!isUnauthorized(error)) {
-        onError?.();
+        onError?.(input);
       }
     },
   });
@@ -165,18 +176,29 @@ export const useApiCache = (): ApiCache => {
   ): Promise<void> => {
     const match = { queryKey: key, exact: true };
 
-    if (client.getQueryState(key) === undefined) return;
+    const cache = client.getQueryCache();
+    const query = cache.find<Data>({ queryKey: key, exact: true });
 
-    await client.cancelQueries(match);
+    if (query === undefined) return;
 
-    if (client.getQueryData(key) === undefined) {
-      void client.invalidateQueries({ ...match, refetchType: "active" });
-      return;
+    if (
+      query.state.fetchStatus !== "idle" &&
+      query.state.fetchMeta?.fetchMore?.direction === "forward"
+    ) {
+      await Promise.allSettled([query.promise]);
+    } else {
+      await client.cancelQueries(match);
     }
 
-    client.setQueryData<Data>(key, (data) =>
-      data === undefined ? undefined : apply(data),
-    );
+    if (cache.get(query.queryHash) !== query) return;
+
+    if (query.state.data !== undefined) {
+      query.setState({ data: apply(query.state.data) });
+    }
+
+    if (query.state.data === undefined || query.state.isInvalidated) {
+      void client.invalidateQueries({ ...match, refetchType: "active" });
+    }
   };
 
   return {

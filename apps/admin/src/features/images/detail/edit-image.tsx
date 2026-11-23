@@ -251,6 +251,7 @@ const EditButton = ({ image }: EditImageProps): ReactNode => {
   const isSaving = useIsApiMutationPending(saveKey(image.id));
 
   const opening = useApiMutation({
+    scope: `image:${image.id}`,
     send: () => loadImage(api, image.id),
     onSuccess: async (result) => {
       if (result._tag === "Failed") {

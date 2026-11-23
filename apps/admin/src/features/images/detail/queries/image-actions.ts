@@ -1,26 +1,7 @@
 import { type ImageText, toUpdateInput } from "../logic/image-text";
 
-import type { ApiClient, ApiOutputs } from "@/api/api-types";
+import type { ApiClient } from "@/api/api-types";
 import { callApi } from "@/api/call-api";
-
-/** 公開状態を変えた結果。 */
-export type PublicationResult =
-  | {
-      /** どの結果か。 */
-      readonly _tag: "Published" | "Unpublished";
-      /** 変えた後の画像。 */
-      readonly image: ApiOutputs["admin"]["images"]["get"];
-    }
-  | {
-      /** どの結果か。 */
-      readonly _tag: "NotFound";
-    };
-
-/** 画像を削除した結果。 */
-export type DeleteImageResult = {
-  /** どの結果か。 */
-  readonly _tag: "Deleted" | "NotFound";
-};
 
 /** 書き換える画像と、フォームの値。 */
 export type ImageTextChange = {
@@ -57,7 +38,7 @@ export const saveImage = async (
 export const setPublication = async (
   api: ApiClient,
   { id, published }: PublicationChange,
-): Promise<PublicationResult> => {
+) => {
   const result = await callApi(
     published
       ? api.admin.images.publish({ id })
@@ -65,20 +46,19 @@ export const setPublication = async (
     ["NOT_FOUND"],
   );
 
-  if (result._tag === "Failed") return { _tag: "NotFound" };
+  if (result._tag === "Failed") return { _tag: "NotFound" } as const;
 
   return {
     _tag: result.data.published ? "Published" : "Unpublished",
     image: result.data,
-  };
+  } as const;
 };
 
 /** 画像を削除する。 */
-export const deleteImage = async (
-  api: ApiClient,
-  id: string,
-): Promise<DeleteImageResult> => {
+export const deleteImage = async (api: ApiClient, id: string) => {
   const result = await callApi(api.admin.images.delete({ id }), ["NOT_FOUND"]);
 
-  return { _tag: result._tag === "Succeeded" ? "Deleted" : "NotFound" };
+  return result._tag === "Succeeded"
+    ? ({ _tag: "Deleted" } as const)
+    : ({ _tag: "NotFound", missing: result } as const);
 };

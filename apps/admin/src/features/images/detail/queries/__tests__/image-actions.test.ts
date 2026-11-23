@@ -7,6 +7,15 @@ import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 
 const MISSING_ID = "019b0000-0000-7000-8000-0000000000ff";
 
+const setUp = () => {
+  const server = createImageRoutes([{ title: "夕暮れ", alt: "山並み" }]);
+  const [image] = server.images();
+
+  if (image === undefined) throw new Error("画像がありません");
+
+  return { server, id: image.id, api: createFakeApi(server.routes).api };
+};
+
 describe("saveImage", () => {
   test("無い画像は NotFound にする", async () => {
     const { api } = createFakeApi(createImageRoutes([]).routes);
@@ -44,6 +53,9 @@ describe("deleteImage", () => {
 
     expect(await deleteImage(api, id)).toEqual({ _tag: "Deleted" });
     expect(server.images()).toHaveLength(0);
-    expect(await deleteImage(api, id)).toEqual({ _tag: "NotFound" });
+    expect(await deleteImage(api, id)).toMatchObject({
+      _tag: "NotFound",
+      missing: { code: "NOT_FOUND" },
+    });
   });
 });

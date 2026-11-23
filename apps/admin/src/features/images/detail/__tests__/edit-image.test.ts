@@ -178,7 +178,7 @@ describe("EditImage", () => {
   );
 
   test("保存の応答を待つ間は入力を保護し、失敗したあとに同じ入力で保存し直せる", async () => {
-    const { server } = setup();
+    const { server, image, queryClient } = setup();
     const deferred = Promise.withResolvers<FakeReply<"admin/images/update">>();
     server.replyNext("admin/images/update", () => deferred.promise);
     const editor = await openEditor();
@@ -190,11 +190,25 @@ describe("EditImage", () => {
     });
     await userEvent.type(alt, "余分");
     expect(alt.value).toBe("夜景");
+    const offline = (): FakeReply<"admin/images/get"> => {
+      server.replyNext("admin/images/get", offline);
+      return { error: "INTERNAL_SERVER_ERROR", defined: false };
+    };
+    server.replyNext("admin/images/get", offline);
     deferred.resolve({ error: "INTERNAL_SERVER_ERROR", defined: false });
     await screen.findByText(/画像を保存できませんでした/v);
+    await waitFor(
+      () =>
+        expect(
+          queryClient.getQueryState(["admin", "images", "get", image.id])
+            ?.status,
+        ).toBe("error"),
+      { timeout: 8000 },
+    );
+    expect(alt.isConnected).toBe(true);
     expect(alt.value).toBe("夜景");
     await userEvent.click(editor.getByRole("button", { name: "保存" }));
     await screen.findByText("画像を更新しました。");
     expect(server.images()[0]?.alt).toBe("夜景");
-  });
+  }, 15_000);
 });

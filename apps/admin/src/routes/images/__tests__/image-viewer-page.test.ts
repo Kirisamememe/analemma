@@ -1,4 +1,4 @@
-import { act, cleanup, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -19,7 +19,10 @@ const IMAGES: readonly FakeImageSeed[] = [
 
 const setUp = (at: number | string) => {
   const server = createImageRoutes(IMAGES);
-  const path = typeof at === "string" ? at : `/images/${server.images()[at]?.id ?? ""}`;
+
+  const path =
+    typeof at === "string" ? at : `/images/${server.images()[at]?.id ?? ""}`;
+
   const { history, calls } = renderApp({ path, routes: server.routes });
 
   return { server, history, calls, ids: server.images().map(({ id }) => id) };
@@ -130,6 +133,7 @@ describe("ImageViewerPage", () => {
 
   test("読み込んだ最後の写真を削除すると、一覧に戻って削除を知らせ、続きを読める", async () => {
     const server = createImageRoutes(IMAGES);
+
     const { history } = renderApp({
       path: "/images",
       routes: {
@@ -138,6 +142,7 @@ describe("ImageViewerPage", () => {
           server.routes["admin/images/list"]({ ...input, limit: 1 }),
       },
     });
+
     await userEvent.click(
       await screen.findByRole("link", { name: /夕暮れの稜線/v }),
     );
@@ -167,7 +172,7 @@ describe("ImageViewerPage", () => {
   });
 
   test("ほかの画面で削除済みの画像を削除すると、削除の確認を閉じて一覧にも反映する", async () => {
-    const { server, ids } = setUp(0, "/images");
+    const { server, ids } = setUp("/images");
     const id = ids[0] ?? "";
     await userEvent.click(
       await screen.findByRole("link", { name: /夕暮れの稜線/v }),
