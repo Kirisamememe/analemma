@@ -6,7 +6,7 @@ import {
   fieldDefinitions,
 } from "./field-definition";
 
-const MAX_DEPTH = 5;
+const MAX_DEPTH = 3;
 const MAX_KINDS = 100;
 
 const measureDepth = (fields: readonly FieldDefinition[]): number =>
@@ -34,7 +34,7 @@ export const kindDefinition = z.object({
   label: displayLabel,
   fields: fieldDefinitions.refine(
     (fields) => measureDepth(fields) <= MAX_DEPTH,
-    { error: `項目の入れ子は ${String(MAX_DEPTH)} 段まで` },
+    { error: `項目の入れ子は、直下の項目を含めて ${String(MAX_DEPTH)} 段まで` },
   ),
 });
 

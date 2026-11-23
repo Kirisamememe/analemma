@@ -194,22 +194,17 @@ describe("toFixedPageContent", () => {
     expect(reordered[1]?.id).toBe(ids[0]);
   });
 
-  test("5段の種類の定義で、送った中身からフォームを作り直せる", () => {
+  test("上限の3段の種類の定義で、送った中身からフォームを作り直せる", () => {
     const { fields } = kindDefinition.parse({
       name: "article",
       label: "記事",
-      fields: [
-        {
-          ...repeat,
-          fields: [{ ...group, fields: [{ ...repeat, fields: [group] }] }],
-        },
-      ],
+      fields: [{ ...repeat, fields: [group] }],
     });
     const saved = {
       rows: [
         {
           old: { heading: true },
-          details: { rows: [{ details: { title: "本文", old: [1, false] } }] },
+          details: { title: "本文", old: [1, false] },
         },
       ],
     };
