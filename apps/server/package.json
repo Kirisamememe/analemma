@@ -6,6 +6,7 @@
     "@analemma/contract": "workspace:*",
     "@orpc/server": "1.16.4",
     "drizzle-orm": "1.0.0-rc.6",
+    "exifreader": "4.55.1",
     "hono": "4.13.19",
     "postgres": "4.1.1",
     "zod": "4.6.7"
@@ -13,7 +14,8 @@
   "devDependencies": {
     "@orpc/client": "1.16.4",
     "@orpc/contract": "1.16.4",
-    "drizzle-kit": "1.0.0-rc.6"
+    "drizzle-kit": "1.0.0-rc.6",
+    "sharp": "0.35.5"
   },
   "scripts": {
     "dev": "bun --watch src/main.ts",
