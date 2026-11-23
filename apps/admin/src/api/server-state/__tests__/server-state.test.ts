@@ -141,6 +141,48 @@ describe("useApiMutation", () => {
     });
   });
 
+  test("画面を開き直しても、同じ画像への次の送信は前の送信の完了を待つ", async () => {
+    const finish = Promise.withResolvers<undefined>();
+    const wrapper = withQueryClient(new QueryClient());
+    const sent: string[] = [];
+
+    const start = () =>
+      renderHook(
+        () =>
+          useApiMutation({
+            scope: "image:1",
+            send: async (title: string) => {
+              sent.push(title);
+
+              if (title === "朝の山") await finish.promise;
+            },
+            onSuccess: () => undefined,
+          }),
+        { wrapper },
+      );
+
+    const first = start();
+    act(() => {
+      first.result.current.mutate("朝の山");
+    });
+    await waitFor(() => {
+      expect(sent).toEqual(["朝の山"]);
+    });
+    first.unmount();
+    const second = start();
+    act(() => {
+      second.result.current.mutate("夕方の山");
+    });
+    await waitFor(() => {
+      expect(second.result.current.isPending).toBe(true);
+    });
+    expect(sent).toEqual(["朝の山"]);
+    finish.resolve(undefined);
+    await waitFor(() => {
+      expect(sent).toEqual(["朝の山", "夕方の山"]);
+    });
+  });
+
   test("引数なしで送れ、失敗したことを返す", async () => {
     const { result } = renderHook(
       () =>
@@ -229,6 +271,40 @@ describe("useApiCache", () => {
         data: ["MacBook", "iPhone"],
       });
     });
+  });
+
+  test("一覧の初回取得中に変更が届いても、取得をやり直して最新の一覧を出す", async () => {
+    const first = Promise.withResolvers<string[]>();
+    let reads = 0;
+
+    const { result } = renderHook(
+      () => ({
+        query: useApiQuery({
+          key: KEY,
+          load: () => {
+            reads += 1;
+            return reads === 1 ? first.promise : Promise.resolve(["夕方の山"]);
+          },
+        }),
+        cache: useApiCache(),
+      }),
+      { wrapper: withQueryClient(new QueryClient()) },
+    );
+
+    expect(result.current.query._tag).toBe("Loading");
+    await act(async () => {
+      await result.current.cache.update<string[]>(KEY, (names) =>
+        names.slice(1),
+      );
+      first.resolve(["朝の山"]);
+    });
+    await waitFor(() => {
+      expect(result.current.query).toEqual({
+        _tag: "Loaded",
+        data: ["夕方の山"],
+      });
+    });
+    expect(reads).toBe(2);
   });
 
   test("使う画面が無い取得も取り直し、開き直したときに取り直した値を出す", async () => {

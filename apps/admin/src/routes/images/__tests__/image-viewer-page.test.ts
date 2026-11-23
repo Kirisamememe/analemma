@@ -148,7 +148,7 @@ describe("ImageViewerPage", () => {
     expect(server.images()).toHaveLength(2);
   });
 
-  test("ほかの画面で削除済みの画像を削除すると、編集を閉じて一覧にも反映する", async () => {
+  test("ほかの画面で削除済みの画像を削除すると、削除の確認を閉じて一覧にも反映する", async () => {
     const { server, ids } = setUp(0, "/images");
     const id = ids[0] ?? "";
     await userEvent.click(

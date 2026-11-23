@@ -190,6 +190,7 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
 
   if (
     query.refreshFailure === undefined &&
+    query.next._tag === "None" &&
     !query.pages.some((page) => page.images.length > 0)
   ) {
     return (

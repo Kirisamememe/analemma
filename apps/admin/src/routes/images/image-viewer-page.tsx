@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate, useParams, useRouter } from "@tanstack/react-router";
 import { type KeyboardEvent, type ReactNode, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -39,6 +39,7 @@ export const ImageViewerPage = (): ReactNode => {
   const { api } = useAppContext();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const router = useRouter();
   const { id } = useParams({ from: "/images/$id" });
   const neighbors = useImageNeighbors(id);
 
@@ -116,8 +117,14 @@ export const ImageViewerPage = (): ReactNode => {
             <DeleteImage
               id={query.data.data.id}
               name={query.data.data.title ?? t("imageDetail.untitled")}
-              onDeleted={() => {
-                void navigate({ to: "/images" });
+              onDeleted={(deletedId) => {
+                if (
+                  router.state.location.pathname
+                    .toLowerCase()
+                    .replace(/\/+$/v, "") === `/images/${deletedId}`
+                ) {
+                  void navigate({ to: "/images" });
+                }
               }}
             />
           </>
