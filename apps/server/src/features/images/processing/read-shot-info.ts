@@ -47,14 +47,14 @@ const MINUTES_PER_HOUR = 60;
 const MAX_OFFSET_MINUTES = 18 * MINUTES_PER_HOUR; // DB の check の制約と同じ
 const ISO_LIMIT = 65_535; // ISOSpeedRatings に書ける上限
 
-const SENSITIVITY_TAGS: Readonly<Record<number, ShotTagName>> = {
-  1: "StandardOutputSensitivity",
-  2: "RecommendedExposureIndex",
-  3: "ISOSpeed",
-  4: "StandardOutputSensitivity",
-  5: "StandardOutputSensitivity",
-  6: "RecommendedExposureIndex",
-  7: "StandardOutputSensitivity",
+const SENSITIVITY_TAGS: Readonly<Record<number, readonly ShotTagName[]>> = {
+  1: ["StandardOutputSensitivity"],
+  2: ["RecommendedExposureIndex"],
+  3: ["ISOSpeed"],
+  4: ["StandardOutputSensitivity", "RecommendedExposureIndex"],
+  5: ["StandardOutputSensitivity", "ISOSpeed"],
+  6: ["RecommendedExposureIndex", "ISOSpeed"],
+  7: ["StandardOutputSensitivity", "RecommendedExposureIndex", "ISOSpeed"],
 }; // SensitivityType の値ごとの、感度を書く tag
 
 const first = (value: ExifValue | undefined) =>
@@ -142,11 +142,17 @@ const toIso = (
   if (iso !== undefined && iso < ISO_LIMIT) return iso;
 
   const type = first(tags.get("SensitivityType"));
-  const tag = typeof type === "number" ? SENSITIVITY_TAGS[type] : undefined;
 
-  if (tag === undefined) return iso;
+  const candidates =
+    typeof type === "number" ? SENSITIVITY_TAGS[type] : undefined;
 
-  return toPositiveInteger(tags.get(tag)) ?? iso;
+  for (const tag of candidates ?? []) {
+    const sensitivity = toPositiveInteger(tags.get(tag));
+
+    if (sensitivity !== undefined) return sensitivity;
+  }
+
+  return iso;
 };
 
 /** 読んだ Exif の tag を、撮影の情報にする。 */

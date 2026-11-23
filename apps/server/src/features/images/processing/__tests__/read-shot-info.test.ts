@@ -116,6 +116,10 @@ describe("ISO 感度", () => {
     { type: 2, tag: "RecommendedExposureIndex", iso: 102_400 },
     { type: 1, tag: "StandardOutputSensitivity", iso: 204_800 },
     { type: 3, tag: "ISOSpeed", iso: 409_600 },
+    { type: 4, tag: "RecommendedExposureIndex", iso: 102_400 },
+    { type: 5, tag: "ISOSpeed", iso: 204_800 },
+    { type: 6, tag: "ISOSpeed", iso: 102_400 },
+    { type: 7, tag: "ISOSpeed", iso: 409_600 },
   ] as const)(
     "ISOSpeedRatings が上限の 65535 なら、SensitivityType $type が指す $tag の感度を返すこと",
     ({ type, tag, iso }) => {
