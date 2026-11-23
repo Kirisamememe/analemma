@@ -10,6 +10,7 @@
 - `bun run check`(整形の確認・lint・型検査・テスト)が通るまで、作業を終えない。server のテストが読む場所(`apps/server/`・`packages/` と、直下の `compose.yaml` などの共有のファイル。`tooling/check/test-scope.ts`)に触れていない変更(一番近いフェーズのブランチか main から分かれた後の変更)では、server のテスト(DB を使うものを含む)を流さない。CI は全部流す。
 - Docker に届かない環境(Codex の既定の sandbox など)では、`bun run test` が `test:prepare` で止まり、テストは1件も流れない。テストを飛ばす抜け道を作らず、届かなかったことを報告して終える。
 - 自動で直せるものは `bun run format` と `bun run lint:fix` で直す。
+- レビューを流す外の CLI(Codex・Cursor)や Storybook のような重い処理は、ほかのセッションの分も含めて、マシン全体で動いている数を見てから始め、使い終えたらすぐに閉じる。
 - 依存は、使うワークスペースの package.json に書く。書いていない依存は import できない。
 - ワークスペースの `src/` に最初のファイルを置いたら、その package.json に `"typecheck": "tsc --noEmit -p ."` を足す。ファイルが無いうちに足すと tsc が落ちる。
 
@@ -69,9 +70,12 @@
 - 指摘が正しく、実害がほぼ無く、直すのに骨が折れるものだけを、「割り切ったこと」に書く。
 - 選んだ観点のうち、usage limit やモデルの都合で結果が出なかった観点と、選んだのに流さなかった観点は、LGTM 相当に数えない。「流さなかった観点」(選ばなかった観点)に書かず、ユーザーに聞く。
 - ある観点が LGTM になった後にコミットを足したら、PR の本文の観点の表に、足したコミット(何を直したか)と、その観点を流し直さなかった理由を書く。どのコミットをレビューしたかは、結果と同じフォルダの prompt に書いてある。
+- UI/UX とアクセシビリティの指摘は、直した結果を、管理画面を実際に操作して判定する。指摘の場面までの操作をたどり、操作の後に最初に見える画面、Tab で移る focus の先、管理者が次の操作を続けられるかを見る。
+- 管理画面の画面や操作を変える PR は、ユーザーが画面を見て承認してから merge する。承認を頼むときは、コミットの SHA・見てもらう画面・操作を示し、承認を受けたら、その3つを PR の本文に書く。承認の後にコミットを足したときと、作業を引き継いだときは、承認を受けた SHA からの差分のうち表示に影響するものを見て、表示が変わる画面だけを、承認を受けた SHA の画面と並べて、もう一度ユーザーに見てもらう。
 - GitHub の Copilot のレビューは、ユーザーが頼んだときだけ使う。
-- 選んだ観点のすべてで LGTM 相当になり、CI(`check`・`commit-messages`)が通ったら、エージェントが子のブランチをフェーズのブランチへ merge してよい。LGTM 相当は、選んだ観点のすべてで LGTM になるか、上限の回数で残った重要度が高と中の指摘を、退けるか、「割り切ったこと」に書くか、ユーザーの答えに従って片付けた状態を指す。merge する前に、PR の本文に「## エージェントが判断したこと」の節を書き(merge の方法も書く。形は `.github/pull_request_template.md`)、label `agent-merged` を付ける。
+- 選んだ観点のすべてで LGTM 相当になり、CI(`check`・`commit-messages`)が通ったら(画面や操作を変える PR は、ユーザーの承認も受けたら)、エージェントが子のブランチをフェーズのブランチへ merge してよい。LGTM 相当は、選んだ観点のすべてで LGTM になるか、上限の回数で残った重要度が高と中の指摘を、退けるか、「割り切ったこと」に書くか、ユーザーの答えに従って片付けた状態を指す。merge する前に、PR の本文に「## エージェントが判断したこと」の節を書き(merge の方法も書く。形は `.github/pull_request_template.md`)、label `agent-merged` を付ける。
 - merge の前に、子のブランチを base の先端にそろえる(ruleset が求める)。`git fetch` して `origin/phase/<番号>` に rebase し、`--force-with-lease` で push して、CI が通ってから merge する。GitHub の「Update branch」で merge commit を作らない。
+- merge した担当は、そのあとのフェーズのブランチへの push の CI(`check`)が通るまで見届け、落ちたら直す。
 - 子のブランチがすべて入ったら、フェーズのブランチを「つながりと一貫性」の観点で1〜2回レビューする(`git fetch` し、手元の `phase/<番号>` を origin に合わせてから、`bun run review -- --perspective coherence --base origin/main --head phase/<番号>`)。main への PR の「## エージェントが判断したこと」には、label `agent-merged` の PR ごとの判断を、PR へのリンク付きでまとめ、「つながりと一貫性」のレビューの結果を添える(形は同じ `.github/pull_request_template.md`)。main への merge は、ユーザーが判断する。
 
 ## 使わないもの
