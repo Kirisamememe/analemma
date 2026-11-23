@@ -20,8 +20,18 @@ export const createQueryClient = ({
     }
   };
 
+  const queryCache = new QueryCache({ onError });
+
+  queryCache.subscribe((event) => {
+    if (event.type !== "observerRemoved") return;
+
+    setTimeout(() => {
+      if (event.query.getObserversCount() === 0) queryCache.remove(event.query); // 取得の途中でも、使う画面の無いデータを持たない
+    }, 0);
+  });
+
   const queryClient: QueryClient = new QueryClient({
-    queryCache: new QueryCache({ onError }),
+    queryCache,
     mutationCache: new MutationCache({ onError }),
     defaultOptions: {
       queries: {
