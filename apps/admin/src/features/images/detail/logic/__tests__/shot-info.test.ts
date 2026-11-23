@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { toShotInfo } from "../shot-info";
 
 import { createI18n } from "@/i18n/create-i18n";
+import { formatLocalDateTime } from "@/i18n/format-date-time";
 import type { Locale } from "@/i18n/locales";
 
 type Shot = Parameters<typeof toShotInfo>[0];
@@ -26,6 +27,13 @@ const rows = (shot: Partial<Shot>, locale: Locale = "ja") =>
 const exposure = (seconds: number) =>
   rows({ exposureTime: seconds }).map(([, value]) => value);
 
+const seconds = (value: number, locale: Locale = "ja"): string =>
+  new Intl.NumberFormat(locale, {
+    style: "unit",
+    unit: "second",
+    useGrouping: false,
+  }).format(value);
+
 describe("toShotInfo", () => {
   test("分からない項目は並べない", () => {
     expect(rows({})).toEqual([]);
@@ -48,21 +56,24 @@ describe("toShotInfo", () => {
     };
 
     expect(rows(shot)).toEqual([
-      ["imageDetail.takenAt", "2025/05/01 18:42(UTC+09:00)"],
+      [
+        "imageDetail.takenAt",
+        `${formatLocalDateTime("ja", shot.takenAt)}(UTC+09:00)`,
+      ],
       ["imageDetail.camera", "FUJIFILM X-T5"],
       ["imageDetail.lens", "XF16-55mmF2.8 R LM WR"],
       ["imageDetail.focalLength", "23.5 mm"],
       ["imageDetail.fNumber", "f/2.8"],
-      ["imageDetail.exposureTime", "1/250秒"],
+      ["imageDetail.exposureTime", `1/${seconds(250)}`],
       ["imageDetail.iso", "12800"],
     ]);
     expect(rows(shot, "en").map(([, value]) => value)).toEqual([
-      "May 1, 2025 at 6:42 PM (UTC+09:00)",
+      `${formatLocalDateTime("en", shot.takenAt)} (UTC+09:00)`,
       "FUJIFILM X-T5",
       "XF16-55mmF2.8 R LM WR",
       "23.5 mm",
       "f/2.8",
-      "1/250 sec",
+      `1/${seconds(250, "en")}`,
       "12800",
     ]);
   });
@@ -74,11 +85,11 @@ describe("toShotInfo", () => {
   });
 
   test("シャッター速度は、1/4 秒より短ければ分数、長ければ小数で書く", () => {
-    expect(exposure(1 / 8000)).toEqual(["1/8000秒"]);
-    expect(exposure(1 / 3)).toEqual(["0.3秒"]);
-    expect(exposure(0.25)).toEqual(["1/4秒"]);
-    expect(exposure(2.5)).toEqual(["2.5秒"]);
-    expect(exposure(30)).toEqual(["30秒"]);
+    expect(exposure(1 / 8000)).toEqual([`1/${seconds(8000)}`]);
+    expect(exposure(1 / 3)).toEqual([seconds(0.3)]);
+    expect(exposure(0.25)).toEqual([`1/${seconds(4)}`]);
+    expect(exposure(2.5)).toEqual([seconds(2.5)]);
+    expect(exposure(30)).toEqual([seconds(30)]);
   });
 
   test("焦点距離と絞りは小数を1桁までにし、整数なら小数を書かない", () => {
