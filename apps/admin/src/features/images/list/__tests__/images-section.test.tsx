@@ -97,6 +97,9 @@ describe("ImagesSection", () => {
     broken = false;
     await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
     expect(await linkNames()).toHaveLength(4);
+    expect(document.activeElement).toBe(
+      screen.getByRole("link", { name: /夕暮れの稜線/v }),
+    );
   }, 15_000);
 
   test("続きを読むと下に足して、足した最初の画像に focus を移し、最後まで読むと操作を消す", async () => {
@@ -116,6 +119,28 @@ describe("ImagesSection", () => {
     });
     expect(screen.queryByRole("button", { name: "さらに読み込む" })).toBeNull();
     expect(imageHref).toHaveBeenCalledTimes(55);
+  });
+
+  test("続きを待つ間に表示済みの写真へ戻ったら、読み終えてもその写真に focus を残す", async () => {
+    const gate = Promise.withResolvers<undefined>();
+    const { routes } = createImageRoutes(many(55));
+
+    await renderSection({
+      ...routes,
+      "admin/images/list": async (input) => {
+        if (input.cursor !== undefined) await gate.promise;
+
+        return routes["admin/images/list"](input);
+      },
+    });
+    await userEvent.click(
+      await screen.findByRole("button", { name: "さらに読み込む" }),
+    );
+    const previous = screen.getByRole("link", { name: "写真 50" });
+    previous.focus();
+    gate.resolve(undefined);
+    await screen.findByRole("link", { name: "写真 51" });
+    expect(document.activeElement).toBe(previous);
   });
 
   test("続きを読めなければ50枚を残し、通信が戻れば残りを読んで最初の新しい写真に focus を移す", async () => {
@@ -142,6 +167,9 @@ describe("ImagesSection", () => {
       }),
     ).toBeDefined();
     expect(await linkNames()).toHaveLength(50);
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "もう一度試す" }),
+    );
     broken = false;
     await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
     await waitFor(async () => {

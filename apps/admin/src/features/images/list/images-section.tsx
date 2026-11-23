@@ -28,9 +28,11 @@ type MoreProps = {
   next: NextPage;
   /** 続きを読み始めたときに呼ぶ関数。 */
   onLoad: () => void;
+  /** 再試行のボタンに focus を引き継ぐ関数。 */
+  retryRef: (button: HTMLButtonElement | null) => void;
 };
 
-const More = ({ next, onLoad }: MoreProps): ReactNode => {
+const More = ({ next, onLoad, retryRef }: MoreProps): ReactNode => {
   const t = useTranslate();
 
   if (next._tag === "None") return null;
@@ -41,7 +43,11 @@ const More = ({ next, onLoad }: MoreProps): ReactNode => {
         isRetrying={next.isRetrying}
         layout="inline"
         level={2}
-        onRetry={next.retry}
+        onRetry={() => {
+          onLoad();
+          next.retry();
+        }}
+        retryRef={retryRef}
         title={t("images.moreFailed")}
       />
     );
@@ -64,7 +70,7 @@ const More = ({ next, onLoad }: MoreProps): ReactNode => {
 
 /** 画像の一覧に渡す値。 */
 type ImagesSectionProps = {
-  /** 画像を見る画面を返す関数。 */
+  /** 画像を見る画面への行き先を返す関数。 */
   imageHref: (id: string) => AppHref;
 };
 
@@ -114,18 +120,45 @@ const PageTiles = ({
 
 const ImagePage = memo(PageTiles);
 
+type PendingFocus = {
+  /** 取得後に focus を渡すページの番号。 */
+  page: number;
+  /** 取得を始めたときの focus。 */
+  from: Element | null;
+};
+
 /** 画像の一覧(新しく足した順)と、続きを読む操作。 */
 export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
   const t = useTranslate();
   const { api } = useAppContext();
-  const focusPage = useRef<number>(undefined);
 
-  const focusFirstLink = useCallback(
-    (pageIndex: number, link: HTMLAnchorElement | null): void => {
-      if (link === null || pageIndex !== focusPage.current) return;
+  const pendingFocus = useRef<PendingFocus>(undefined);
 
-      focusPage.current = undefined;
-      link.focus();
+  const rememberFocus = (page: number): void => {
+    pendingFocus.current = { page, from: document.activeElement };
+  };
+
+  const focusResult = useCallback(
+    (page: number, element: HTMLElement | null): void => {
+      const pending = pendingFocus.current;
+
+      if (
+        element === null ||
+        pending?.page !== page ||
+        element === pending.from
+      ) {
+        return;
+      }
+
+      pendingFocus.current = undefined;
+      const active = document.activeElement;
+
+      if (
+        active === pending.from ||
+        (active === document.body && pending.from?.isConnected === false)
+      ) {
+        element.focus();
+      }
     },
     [],
   );
@@ -146,7 +179,10 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
         isRetrying={query.isRetrying}
         layout="inline"
         level={2}
-        onRetry={query.retry}
+        onRetry={() => {
+          rememberFocus(0);
+          query.retry();
+        }}
         title={t("images.loadFailed")}
       />
     );
@@ -154,11 +190,19 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
 
   if (!query.pages.some((page) => page.images.length > 0)) {
     return (
-      <EmptyState
-        description={t("images.emptyDescription")}
-        icon="image"
-        title={t("images.emptyTitle")}
-      />
+      <section
+        aria-label={t("images.emptyTitle")}
+        ref={(element) => {
+          focusResult(0, element);
+        }}
+        tabIndex={-1}
+      >
+        <EmptyState
+          description={t("images.emptyDescription")}
+          icon="image"
+          title={t("images.emptyTitle")}
+        />
+      </section>
     );
   }
 
@@ -173,7 +217,7 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
               imageHref={imageHref}
               images={images}
               key={first.id}
-              onFirstLink={focusFirstLink}
+              onFirstLink={focusResult}
               pageIndex={pageIndex}
             />
           );
@@ -181,8 +225,11 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
       </ImageRows>
       <More
         next={query.next}
+        retryRef={(button) => {
+          focusResult(query.pages.length, button);
+        }}
         onLoad={() => {
-          focusPage.current = query.pages.length;
+          rememberFocus(query.pages.length);
         }}
       />
     </Stack>
