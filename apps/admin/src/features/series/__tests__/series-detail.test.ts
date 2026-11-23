@@ -2,14 +2,18 @@ import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
-import { createSeriesRoutes } from "@/testing/fake-routes/create-series-routes";
+import {
+  createSeriesRoutes,
+  SAMPLE_SERIES_ID,
+} from "@/testing/fake-routes/create-series-routes";
 import { renderApp } from "@/testing/render-app";
 afterEach(cleanup);
 
+const path = `/series/${SAMPLE_SERIES_ID}`;
 const button = (name: string) => screen.getByRole("button", { name });
 const dialog = () => within(screen.getByRole("dialog"));
 
-test("シリーズの名前・slug・説明を保存すると詳細に反映され、編集のボタンに focus が戻る", async () => {
+test("詳細の編集・公開切り替え・削除が一覧に反映され、削除後は追加の行に focus が移る", async () => {
   renderApp({ path: "/series", routes: createSeriesRoutes() });
   await userEvent.click(await screen.findByRole("link", { name: "旅の写真" }));
   await userEvent.click(
@@ -35,6 +39,43 @@ test("シリーズの名前・slug・説明を保存すると詳細に反映さ�
   });
   expect(screen.getByText("journey")).toBeDefined();
   expect(screen.getByText("冬の旅")).toBeDefined();
+  await userEvent.click(button("公開する"));
+  await screen.findByText("公開中");
+  await userEvent.click(button("非公開にする"));
+  await screen.findByRole("button", { name: "公開する" });
+  await userEvent.click(button("削除"));
+  await userEvent.click(dialog().getByRole("button", { name: "キャンセル" }));
+  expect(screen.getByRole("heading", { name: "旅日記" })).toBeDefined();
+  await waitFor(() => {
+    expect(button("削除").matches(":focus")).toBe(true);
+  });
+  await userEvent.click(button("削除"));
+  await userEvent.click(dialog().getByRole("button", { name: "削除" }));
+  await screen.findByText("シリーズはまだありません");
+  await waitFor(() => {
+    expect(button("新しいシリーズ").matches(":focus")).toBe(true);
+  });
+});
+
+test("削除に失敗して確認の Dialog を閉じると失敗の Toast も消える", async () => {
+  renderApp({
+    path,
+    routes: {
+      ...createSeriesRoutes(),
+      "admin/series/delete": () => ({
+        error: "INTERNAL_SERVER_ERROR",
+        defined: false,
+      }),
+    },
+  });
+  await userEvent.click(await screen.findByRole("button", { name: "削除" }));
+  await userEvent.click(dialog().getByRole("button", { name: "削除" }));
+  await screen.findByText(/シリーズの変更を保存できませんでした/v);
+  await userEvent.keyboard("{Escape}");
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(
+    screen.queryByText(/シリーズの変更を保存できませんでした/v),
+  ).toBeNull();
 });
 
 test("保存中に離れて同じシリーズを開き直しても、次の編集は保存済みの名前から始まる", async () => {

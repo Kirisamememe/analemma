@@ -1,4 +1,4 @@
-import { createRef, useState } from "react";
+import { createRef, useCallback, useState } from "react";
 
 import { useShowToast } from "@/ui/primitives/overlays/hooks/use-show-toast";
 
@@ -15,10 +15,10 @@ export const useFailureToast = (id?: string) => {
 
   const { closeShownRef } = owner;
 
-  const close = (): void => {
+  const close = useCallback((): void => {
     closeShownRef.current?.();
     closeShownRef.current = null;
-  };
+  }, [closeShownRef]);
 
   return {
     show: (message: string): void => {

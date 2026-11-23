@@ -9,6 +9,7 @@ import {
   checkSeriesField,
   seriesSaveFields,
 } from "../logic/series-form-values";
+import { seriesMutationScope } from "../logic/series-mutation-scope";
 import {
   saveSeries,
   seriesKey,
@@ -64,7 +65,7 @@ export const useSeriesForm = ({ series, onClose }: SeriesFormProps) => {
       ? {}
       : {
           key: seriesSaveKey(series.id),
-          scope: `series:${series.id}`,
+          scope: seriesMutationScope(series.id),
         }),
     send: (fields: SeriesFields) =>
       saveSeries(
