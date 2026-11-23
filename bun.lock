@@ -92,6 +92,7 @@
     },
     "packages/contract": {
       "name": "@analemma/contract",
+      "version": "0.0.0",
       "dependencies": {
         "@orpc/contract": "1.16.4",
         "zod": "4.6.7",
