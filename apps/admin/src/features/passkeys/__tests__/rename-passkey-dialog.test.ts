@@ -141,9 +141,9 @@ describe("RenamePasskeyDialog", () => {
     await screen.findByRole("button", { name: "名前を変更" });
     isListBroken = true;
     await renameTo("Mac mini");
-    await screen.findByText(
-      "パスキーを読み込めませんでした。",
-      {},
+    await screen.findByRole(
+      "heading",
+      { name: "パスキーを読み込めませんでした" },
       { timeout: 5000 },
     );
     await new Promise((resolve) => {

@@ -1,7 +1,9 @@
 import { act, cleanup, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { formatDateTime } from "@/i18n/format-date-time";
+import { wrapFakeRoute } from "@/testing/create-fake-api";
 import {
   PASSKEY_CREATED_AT,
   PASSKEY_LAST_USED_AT,
@@ -78,26 +80,35 @@ describe("PasskeyList", () => {
     ).toBe("削除");
   });
 
-  test("一覧を読み込めなければ、そのことを知らせる", async () => {
-    const server = createPasskeyRoutes([]);
+  test("一覧を読み込めなければ、そのことを知らせ、もう一度試すと一覧を出す", async () => {
+    const server = createPasskeyRoutes([{ name: "MacBook", backedUp: true }]);
+    const list = server.routes["admin/passkeys/list"];
+    let isListBroken = true;
 
     renderApp({
       path: "/security",
       routes: {
         ...server.routes,
-        "admin/passkeys/list": () => ({
-          error: "INTERNAL_SERVER_ERROR",
-          defined: false,
-        }),
+        "admin/passkeys/list": wrapFakeRoute(list, (input) =>
+          isListBroken
+            ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+            : list(input),
+        ),
       },
     });
 
+    const alert = await screen.findByRole("alert", {}, { timeout: 5000 });
+
     expect(
-      await screen.findByText(
-        "パスキーを読み込めませんでした。",
-        {},
-        { timeout: 5000 },
-      ),
+      within(alert).getByRole("heading", {
+        name: "パスキーを読み込めませんでした",
+      }),
     ).toBeDefined();
+
+    isListBroken = false;
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+
+    expect(await screen.findByText("MacBook")).toBeDefined();
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 });

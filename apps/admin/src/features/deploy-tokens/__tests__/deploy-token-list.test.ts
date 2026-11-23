@@ -1,8 +1,9 @@
 import { cleanup, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { formatDateTime } from "@/i18n/format-date-time";
-import type { FakeReply } from "@/testing/create-fake-api";
+import { type FakeReply, wrapFakeRoute } from "@/testing/create-fake-api";
 import { createDeployTokenRoutes } from "@/testing/fake-routes/create-deploy-token-routes";
 import { renderApp } from "@/testing/render-app";
 
@@ -94,22 +95,37 @@ describe("DeployTokenList", () => {
     ).toBeDefined();
   });
 
-  test("一覧を読み込めなければ、そのことを知らせる", async () => {
-    const server = createDeployTokenRoutes([]);
+  test("一覧を読み込めなければ、そのことを知らせ、もう一度試すと一覧を出す", async () => {
+    const server = createDeployTokenRoutes([
+      { name: "本番のデプロイ", lastUsedAt: null },
+    ]);
+    const list = server.routes["admin/deployTokens/list"];
+    let isListBroken = true;
 
     renderApp({
       path: "/deploy-tokens",
       routes: {
         ...server.routes,
-        "admin/deployTokens/list": () => ({
-          error: "INTERNAL_SERVER_ERROR",
-          defined: false,
-        }),
+        "admin/deployTokens/list": wrapFakeRoute(list, (input) =>
+          isListBroken
+            ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+            : list(input),
+        ),
       },
     });
 
+    const alert = await screen.findByRole("alert", {}, { timeout: 5000 });
+
     expect(
-      (await screen.findByRole("alert", {}, { timeout: 5000 })).textContent,
-    ).toBe("トークンを読み込めませんでした。");
+      within(alert).getByRole("heading", {
+        name: "トークンを読み込めませんでした",
+      }),
+    ).toBeDefined();
+
+    isListBroken = false;
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+
+    expect(await screen.findByText("本番のデプロイ")).toBeDefined();
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 });

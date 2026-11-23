@@ -75,6 +75,10 @@ export const ja = {
   "ui.closeNav": "ナビを閉じる",
   "ui.close": "閉じる",
   "ui.required": "必須",
+  "ui.errorState.description": "接続を確かめてから、もう一度試してください。",
+  "ui.errorState.failedAgain": "まだ読み込めません。",
+  "ui.errorState.retryLater": "時間をおいて試してください。",
+  "ui.errorState.retry": "もう一度試す",
   "login.title": "Stilus にログイン",
   "login.description": "この管理画面に登録したパスキーを使います。",
   "login.submit": "パスキーでログイン",
@@ -127,7 +131,7 @@ export const ja = {
   "passkeys.cancel": "キャンセル",
   "passkeys.save": "保存",
   "passkeys.loading": "パスキーを読み込んでいます。",
-  "passkeys.loadFailed": "パスキーを読み込めませんでした。",
+  "passkeys.loadFailed": "パスキーを読み込めませんでした",
   "passkeys.added": "パスキーを追加しました。",
   "passkeys.deleted":
     "パスキーを削除しました。ほかのブラウザからはログアウトしました。",
@@ -175,7 +179,7 @@ export const ja = {
   "deployTokens.dates": "発行 {{created}}・最終使用 {{lastUsed}}",
   "deployTokens.datesUnused": "発行 {{created}}・未使用",
   "deployTokens.loading": "トークンを読み込んでいます。",
-  "deployTokens.loadFailed": "トークンを読み込めませんでした。",
+  "deployTokens.loadFailed": "トークンを読み込めませんでした",
   "deployTokens.emptyTitle": "トークンはまだありません",
   "deployTokens.emptyDescription":
     "公開サイトのデプロイに使うトークンを発行してください。",

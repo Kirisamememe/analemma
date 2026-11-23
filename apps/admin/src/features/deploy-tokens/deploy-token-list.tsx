@@ -10,9 +10,8 @@ import {
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
-import { EmptyState } from "@/ui/patterns";
+import { EmptyState, ErrorState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
-import { Notice } from "@/ui/primitives/notice";
 
 /** デプロイ用のトークンの一覧に渡す値。 */
 type DeployTokenListProps = {
@@ -38,7 +37,15 @@ export const DeployTokenList = ({
   }
 
   if (tokens._tag === "Failed") {
-    return <Notice tone="danger">{t("deployTokens.loadFailed")}</Notice>;
+    return (
+      <ErrorState
+        isRetrying={tokens.isRetrying}
+        layout="inline"
+        level={3}
+        onRetry={tokens.retry}
+        title={t("deployTokens.loadFailed")}
+      />
+    );
   }
 
   if (tokens.data.tokens.length === 0) {
