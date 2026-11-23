@@ -44,6 +44,7 @@
 - 文字の役割は `Text`・`Heading` の `variant` で選ぶ。
 - 部品を足したら、同じフォルダの `__stories__` に story を足し、`src/__tests__/stories.test.tsx` の一覧にも足す。story は画面のコードと同じ決まりで、部品と props だけで組む(lint で止まる)。tone・variant・状態(無効・送信中・invalid など)ごとに story を分け、見比べられるようにする。
 - `ui/` の部品の class は、`theme.css` の役割と `animation.css` の animation の class だけで書く。止める class と理由は `src/ui/DECISIONS.md` の「検査」。止められたら、部品や役割を足すかを考え、`[…]` や抑制で逃げない。
+- `ui/` と `features/*/ui/` で、1つの文字列に書ける class は8個まで。超えるなら、`tv` の設定と `tv` の関数に渡す `className` は配列にし、意味のまとまり(並べ方・箱・色・状態など)ごとに分ける。JSX の `className` の文字列は `tv` に移す(lint で止まる)。
 
 ## 開発とテスト
 

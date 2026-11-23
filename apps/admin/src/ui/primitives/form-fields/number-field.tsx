@@ -17,6 +17,7 @@ import {
   FieldErrorMessage,
   FieldLabel,
 } from "@/ui/primitives/form-fields/field-parts";
+import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
 const FORMAT_OPTIONS: Intl.NumberFormatOptions = {
@@ -142,6 +143,14 @@ const NumberInput = ({ committed }: NumberInputProps): ReactNode => {
   );
 };
 
+const stepButton = tv({
+  base: [
+    "flex shrink-0 items-center justify-center",
+    "border-s px-2 outline-hidden transition-colors",
+    "is-hovered:state-hover is-focus-shown:focus-ring-inset is-disabled:text-fg-muted",
+  ],
+});
+
 /** 増減ボタンに渡す値。 */
 type StepButtonProps = {
   /** React Aria Components の slot。 */
@@ -149,10 +158,7 @@ type StepButtonProps = {
 };
 
 const StepButton = ({ slot }: StepButtonProps): ReactNode => (
-  <Button
-    className="flex shrink-0 items-center justify-center border-s px-2 outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring-inset is-disabled:text-fg-muted"
-    slot={slot}
-  >
+  <Button className={stepButton()} slot={slot}>
     <svg
       aria-hidden="true"
       className="size-icon"

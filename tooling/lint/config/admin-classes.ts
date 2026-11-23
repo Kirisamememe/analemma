@@ -245,6 +245,7 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
         LINE_STRONG_OUTSIDE_PRIMITIVES,
       ]),
       "project/styling-boundary": ["error", { area: "ui" }],
+      "project/max-classes-per-string": ["error", { max: 8 }],
     },
   },
   {

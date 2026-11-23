@@ -314,3 +314,36 @@ describe("検査の設定と theme.css", () => {
     ).toEqual([]);
   });
 });
+
+describe("1つの文字列の class の数", () => {
+  const rule = "project(max-classes-per-string)";
+
+  test("class が9個以上の文字列を、属性・関数の引数・変数の初期値と既定値で止めること", () => {
+    const expected: Expected[] = [
+      [4, "1つの文字列に class が 9 個あります"],
+      [7, "1つの文字列に class が 9 個あります"],
+      [15, "1つの文字列に class が 9 個あります"],
+      [22, "className の文字列に class が 9 個あります"],
+      [26, "1つの文字列に class が 9 個あります"],
+      [39, "1つの文字列に class が 9 個あります"],
+      [43, "1つの文字列に class が 9 個あります"],
+      [47, "1つの文字列に class が 9 個あります"],
+      [58, "1つの文字列に class が 9 個あります"],
+    ];
+
+    expect(
+      diagnosticsOf(
+        { file: "invalid/apps/admin/src/ui/primitives/long-classes.tsx", rule },
+        expected,
+      ),
+    ).toEqual(expected);
+  });
+
+  test("配列に分けた8個までの文字列と、class でない文字列には診断を出さないこと", () => {
+    expect(
+      ruleIdsOf(
+        lintFixture("valid/apps/admin/src/ui/primitives/split-classes.tsx"),
+      ),
+    ).toEqual([]);
+  });
+});

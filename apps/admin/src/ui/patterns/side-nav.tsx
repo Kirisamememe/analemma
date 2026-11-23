@@ -6,7 +6,25 @@ import {
   NavLink,
   type NavLinkProps,
 } from "@/ui/primitives/navigation";
+import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
+
+const sideNav = tv({
+  slots: {
+    sidebar: [
+      "sticky top-0 h-dvh w-sidebar shrink-0 flex-col overflow-y-auto",
+      "hidden md:flex",
+    ],
+    topBar: [
+      "sticky top-0 z-sticky h-nav-bar shrink-0 items-center gap-2",
+      "bg-surface-sunken px-3",
+      "after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:border-b",
+      "flex md:hidden",
+    ],
+  },
+});
+
+const { sidebar, topBar } = sideNav();
 
 /** ナビのリンクの行き先と文言。 */
 type SideNavItem = {
@@ -139,16 +157,13 @@ export const SideNav = ({
 
   return (
     <>
-      <aside className="sticky top-0 hidden h-dvh w-sidebar shrink-0 flex-col overflow-y-auto md:flex">
+      <aside className={sidebar()}>
         <div className="flex h-nav-bar shrink-0 items-center px-6">
           {heading}
         </div>
         <SideNavContent footer={footer} groups={groups} label={label} />
       </aside>
-      <header
-        data-top-bar=""
-        className="sticky top-0 z-sticky flex h-nav-bar shrink-0 items-center gap-2 bg-surface-sunken px-3 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:border-b md:hidden"
-      >
+      <header data-top-bar="" className={topBar()}>
         <NavDrawer
           heading={heading}
           isOpen={isOpen}

@@ -15,7 +15,15 @@ import {
   fieldRoot,
 } from "@/ui/primitives/form-fields/field-control";
 import { Icon } from "@/ui/primitives/graphics";
+import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
+
+const popover = tv({
+  base: [
+    "z-overlay w-(--trigger-width) overflow-y-auto overscroll-contain",
+    "rounded-control bg-surface text-fg shadow-overlay outline outline-fg/10",
+  ],
+});
 
 /** Select の選択肢。 */
 export type SelectOption = {
@@ -134,10 +142,7 @@ export const SelectControl = ({
           <Icon name="chevron-down" />
         </span>
       </Button>
-      <Popover
-        className="z-overlay w-(--trigger-width) overflow-y-auto overscroll-contain rounded-control bg-surface text-fg shadow-overlay outline outline-fg/10"
-        offset={4}
-      >
+      <Popover className={popover()} offset={4}>
         <ListBox
           className="flex flex-col gap-1 p-1 outline-hidden"
           items={choices}
@@ -146,8 +151,11 @@ export const SelectControl = ({
             <ListBoxItem
               className={typography({
                 role: "body",
-                className:
-                  "group flex items-start justify-between gap-2 rounded-xs px-2 py-1 text-fg outline-hidden is-hovered:state-hover is-focus-shown:focus-ring-inset is-pressed:state-pressed is-selected:bg-fg/10",
+                className: [
+                  "group flex items-start justify-between gap-2",
+                  "rounded-xs px-2 py-1 text-fg outline-hidden",
+                  "is-hovered:state-hover is-focus-shown:focus-ring-inset is-pressed:state-pressed is-selected:bg-fg/10",
+                ],
               })}
               id={optionValue}
               textValue={optionLabel}

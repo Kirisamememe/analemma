@@ -10,6 +10,7 @@ import noInlineParameterType from "./rules/modules/no-inline-parameter-type.mjs"
 import requireJsxInTsx from "./rules/modules/require-jsx-in-tsx.mjs";
 import noEffectOutsideAllowedHook from "./rules/react/no-effect-outside-allowed-hook.mjs";
 import noReactInLogic from "./rules/react/no-react-in-logic.mjs";
+import maxClassesPerString from "./rules/styles/max-classes-per-string.mjs";
 import stylingBoundary from "./rules/styles/styling-boundary.mjs";
 import noFocusedTest from "./rules/tests/no-focused-test.mjs";
 import noMarkupTest from "./rules/tests/no-markup-test.mjs";
@@ -22,6 +23,7 @@ const plugin = {
   },
   rules: {
     "file-length-limit": fileLengthLimit,
+    "max-classes-per-string": maxClassesPerString,
     "max-code-lines": fileLengthLimit,
     "max-exported-functions": maxExportedFunctions,
     "no-catch-outside-entry": noCatchOutsideEntry,
