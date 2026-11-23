@@ -19,9 +19,10 @@ afterEach(() => {
   setSystemTime();
 });
 
-const setup = () => {
+const setup = async () => {
   const server = createFixedPageRoutes({ kinds: [kind], pages: [page] });
   const app = renderApp({ path: "/fixed-pages", routes: server.routes });
+  await listRow();
 
   return { ...app, server };
 };
@@ -39,7 +40,8 @@ const titleField = () =>
   screen.getByRole<HTMLInputElement>("textbox", { name: "タイトル" });
 
 const findTitle = () => screen.findByRole("textbox", { name: "タイトル" });
-const kindChoice = () => screen.findByRole("button", { name: kind.label });
+const findButton = (name: string) => screen.findByRole("button", { name });
+const button = (name: string) => screen.getByRole("button", { name });
 
 const holdDefinition = (server: ReturnType<typeof createFixedPageRoutes>) => {
   const held = Promise.withResolvers<FakeReply<"admin/kinds/get">>();
@@ -60,13 +62,13 @@ const pressFirst = async (name: string | RegExp) => {
 
 const openPicker = async () => {
   await pressFirst("新しい固定ページ");
-  return kindChoice();
+  return findButton(kind.label);
 };
 
 const save = () => pressFirst(/保存/v);
 
 const edit = async () => {
-  await userEvent.click(screen.getByRole("button", { name: "「紹介」を編集" }));
+  await userEvent.click(button("「紹介」を編集"));
   await findTitle();
 };
 
@@ -76,8 +78,7 @@ const backToList = async () => {
 };
 
 test("種類の一覧は15分以内なら取り直さず、期限後は元の選択肢を出してから新しいラベルを反映する", async () => {
-  const { calls, server } = setup();
-  await listRow();
+  const { calls, server } = await setup();
   const now = Date.now();
   setSystemTime(now + 14 * 60_000);
   await openPicker();
@@ -93,18 +94,14 @@ test("種類の一覧は15分以内なら取り直さず、期限後は元の選
   });
 
   held.resolve({ output: { kinds: [{ ...kind, label: "プロフィール" }] } });
-  expect(
-    await screen.findByRole("button", { name: "プロフィール" }),
-  ).toBeDefined();
+  await findButton("プロフィール");
 });
 
 test("固定ページ内では一度開いた種類の定義だけを使い回し、ほかのタブを開くと種類の一覧と定義を捨てる", async () => {
-  const { calls, queryClient } = setup();
-  await listRow();
+  const { calls, queryClient } = await setup();
   await edit();
   await backToList();
-  const choice = await openPicker();
-  await userEvent.click(choice);
+  await userEvent.click(await openPicker());
   await findTitle();
   expect(calls.filter((path) => path === "admin/kinds/get")).toHaveLength(1);
 
@@ -123,8 +120,7 @@ test("固定ページ内では一度開いた種類の定義だけを使い回�
 });
 
 const reopenWithPendingDefinition = async () => {
-  const app = setup();
-  await listRow();
+  const app = await setup();
   await edit();
   await backToList();
   app.queryClient.setQueryDefaults(kindQueryKey(kind.name), { retry: false });
@@ -142,7 +138,7 @@ test("期限後の種類の更新が失敗しても成功しても、編集し�
   await userEvent.type(title, "の下書き");
 
   pending.resolve({ error: "INTERNAL_SERVER_ERROR", defined: false });
-  const retry = await screen.findByRole("button", { name: "再読み込み" });
+  const retry = await findButton("再読み込み");
   expect(titleField() === title).toBe(true);
   expect(title.value).toBe("紹介の下書き");
 
@@ -162,7 +158,7 @@ test("期限後に必須項目が増えたとき、未編集の作成フォー�
   server.replyNext("admin/kinds/get", () => ({ output: kind }));
   renderApp({ path: "/fixed-pages/new", routes: server.routes });
 
-  await userEvent.click(await kindChoice());
+  await userEvent.click(await findButton(kind.label));
   await findTitle();
   await userEvent.click(screen.getByRole("link", { name: "固定ページの一覧" }));
   await screen.findByRole("heading", { name: "固定ページ" });
@@ -188,13 +184,12 @@ test("期限後に必須項目が増えたとき、未編集の作成フォー�
 });
 
 test("見つからなかった種類を選び直すと、15分以内でも定義を取り直す", async () => {
-  const { server, calls } = setup();
-  await listRow();
+  const { server, calls } = await setup();
   server.replyNext("admin/kinds/get", () => ({ error: "NOT_FOUND" }));
   await userEvent.click(await openPicker());
   await screen.findByText("この種類はもうありません。");
-  await userEvent.click(screen.getByRole("button", { name: "種類を選び直す" }));
-  await userEvent.click(await kindChoice());
+  await userEvent.click(button("種類を選び直す"));
+  await userEvent.click(await findButton(kind.label));
   await findTitle();
   expect(calls.filter((path) => path === "admin/kinds/get")).toHaveLength(2);
 });
@@ -206,9 +201,7 @@ test("削除を送っている間に新しい項目が届いても確認を保�
     Promise.withResolvers<FakeReply<"admin/fixedPages/delete">>();
 
   server.replyNext("admin/fixedPages/delete", () => deletion.promise);
-  await userEvent.click(
-    screen.getByRole("button", { name: "固定ページを削除" }),
-  );
+  await userEvent.click(button("固定ページを削除"));
   const dialog = await screen.findByRole("dialog");
   await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
   pending.resolve({ output: { ...updatedKind, label: "更新後の種類" } });
@@ -220,8 +213,7 @@ test("削除を送っている間に新しい項目が届いても確認を保�
 });
 
 test("種類の一覧を更新できなかったときだけ、前の種類を選べるまま再読み込みできる", async () => {
-  const { queryClient, server } = setup();
-  await listRow();
+  const { queryClient, server } = await setup();
   expect(screen.queryByRole("button", { name: "再読み込み" })).toBeNull();
   queryClient.setQueryDefaults(KINDS_QUERY_KEY, { retry: false });
   server.replyNext("admin/kinds/list", () => ({
@@ -230,13 +222,13 @@ test("種類の一覧を更新できなかったときだけ、前の種類を�
   }));
   setSystemTime(Date.now() + 16 * 60_000);
   const choice = await openPicker();
-  const retry = await screen.findByRole("button", { name: "再読み込み" });
+  const retry = await findButton("再読み込み");
   expect(choice.hasAttribute("disabled")).toBe(false);
   server.replyNext("admin/kinds/list", () => ({
     output: { kinds: [{ ...kind, label: "更新後の種類" }] },
   }));
   await userEvent.click(retry);
-  const updated = await screen.findByRole("button", { name: "更新後の種類" });
+  const updated = await findButton("更新後の種類");
   await waitFor(() => {
     expect(document.activeElement === updated).toBe(true);
   });
@@ -245,8 +237,7 @@ test("種類の一覧を更新できなかったときだけ、前の種類を�
 
 test("保存後に新しい項目へ切り替わっても、直前に保存したタイトルと入力した項目を続けて保存できる", async () => {
   const { server, pending } = await reopenWithPendingDefinition();
-  const title = titleField();
-  await userEvent.type(title, "の下書き");
+  await userEvent.type(titleField(), "の下書き");
   pending.resolve({ output: updatedKind });
   await screen.findByText(/入力を手元に控えて/v);
   await save();
@@ -274,11 +265,7 @@ test("未編集のまま保存を送った後に新しい定義が届いても�
     calls.filter((path) => path === "admin/fixedPages/update"),
   ).toHaveLength(1);
   expect(screen.queryByRole("textbox", { name: "リード文" })).toBeNull();
-  const [saved] = server.pages();
-
-  if (saved === undefined) throw new Error("固定ページがありません");
-
-  sending.resolve({ output: saved });
+  sending.resolve({ output: page });
   await screen.findByRole("textbox", { name: "リード文" });
 });
 
@@ -309,7 +296,7 @@ test("別のタブで保存した選択値を古い定義で表示できない�
   await findTitle();
   await backToList();
   const held = holdDefinition(server);
-  await userEvent.click(screen.getByRole("button", { name: "「紹介」を編集" }));
+  await userEvent.click(button("「紹介」を編集"));
   await waitFor(() => {
     expect(calls.filter((path) => path === "admin/kinds/get")).toHaveLength(2);
   });

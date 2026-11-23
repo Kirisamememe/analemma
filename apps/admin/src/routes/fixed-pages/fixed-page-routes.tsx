@@ -2,16 +2,13 @@ import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { type ReactNode, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import {
-  type FieldDefinition,
-  type FixedPageContent,
-  toContentSchema,
-} from "@analemma/contract";
+import type { FixedPageContent } from "@analemma/contract";
 
 import { useAppContext } from "@/api/app-context";
 import { callApi } from "@/api/call-api";
 import { useApiQuery } from "@/api/server-state/server-state";
 import { QueryContent } from "@/components/query-content";
+import { storedContentCheck } from "@/features/fixed-pages/editor/create-editor-values";
 import { DeleteFixedPage } from "@/features/fixed-pages/editor/delete-fixed-page";
 import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor";
 import {
@@ -87,30 +84,6 @@ const Titled = ({
     {children}
   </Stack>
 );
-
-const storedContentCheck = (content?: FixedPageContent) => {
-  const checked = new WeakMap<readonly FieldDefinition[], boolean>();
-  return (fields: readonly FieldDefinition[]): boolean => {
-    if (content === undefined) return true;
-
-    const known = checked.get(fields);
-
-    if (known !== undefined) return known;
-
-    const result = toContentSchema({ fields, unknownKeys: "keep" }).safeParse(
-      content,
-      { reportInput: true },
-    );
-
-    const usable =
-      result.success ||
-      result.error.issues.every((issue) => issue.input === undefined);
-
-    checked.set(fields, usable);
-
-    return usable;
-  };
-};
 
 const useKind = (name: string | undefined, content?: FixedPageContent) => {
   const { api } = useAppContext();
