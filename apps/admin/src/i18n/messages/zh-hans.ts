@@ -2,6 +2,9 @@ import type { Translation } from "@/i18n/translation";
 
 /** 簡体字中国語の訳。 */
 export const zhHans = {
+  "imageViewer.info": "照片信息",
+  "imageViewer.loading": "正在加载照片。",
+  "imageViewer.loadFailed": "无法加载照片",
   "fixedPageEditor.new": "新建固定页面",
   "fixedPageEditor.edit": "编辑固定页面",
   "fixedPageEditor.chooseKind": "选择类型",

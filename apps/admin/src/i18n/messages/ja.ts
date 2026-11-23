@@ -2,6 +2,9 @@ import type { Translation } from "@/i18n/translation";
 
 /** 日本語の訳。 */
 export const ja = {
+  "imageViewer.info": "写真の情報",
+  "imageViewer.loading": "写真を読み込んでいます。",
+  "imageViewer.loadFailed": "写真を読み込めませんでした",
   "fixedPageEditor.new": "新しい固定ページ",
   "fixedPageEditor.edit": "固定ページを編集",
   "fixedPageEditor.chooseKind": "種類を選択",

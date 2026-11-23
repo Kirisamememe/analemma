@@ -232,6 +232,10 @@
   width: var(--size-sidebar);
 }
 
+@utility max-h-viewer-photo {
+  max-height: calc(100dvh - var(--size-nav-bar));
+}
+
 @utility h-nav-bar {
   height: var(--size-nav-bar);
 }
@@ -256,6 +260,10 @@
 @utility state-disabled {
   opacity: 0.5;
   pointer-events: none;
+}
+
+@utility loading-delay {
+  transition-delay: var(--transition-duration-normal);
 }
 
 @utility focus-ring {
@@ -299,6 +307,8 @@
     color-scheme: light;
   }
 }
+
+@custom-variant short-viewport (@media (max-height: 20rem));
 
 @custom-variant is-hovered (&[data-hovered]);
 @custom-variant is-focused (&[data-focused]);

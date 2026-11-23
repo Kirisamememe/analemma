@@ -44,6 +44,7 @@ const MERGE_CONFIG: TWMergeConfig = {
     },
     classGroups: {
       h: ["h-control", "h-control-sm", "h-nav-bar"],
+      "max-h": ["max-h-viewer-photo"],
       top: ["top-toast"],
       size: [
         "size-icon-xs",
@@ -58,6 +59,7 @@ const MERGE_CONFIG: TWMergeConfig = {
       z: [{ z: ["sticky", "overlay", "toast"] }],
       "grid-cols": [{ "grid-cols": ["thumbnails"] }],
       aspect: [{ aspect: ["photo"] }],
+      delay: ["loading-delay"],
       duration: [{ duration: ["fast", "normal"] }],
       translate: ["state-pressed"],
       "focus-ring": ["focus-ring", "focus-ring-inset", "focus-ring-current"],
