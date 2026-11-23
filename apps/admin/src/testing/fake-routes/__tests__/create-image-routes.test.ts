@@ -36,6 +36,24 @@ describe("createImageRoutes", () => {
     expect(nextCursor).toBeNull();
   });
 
+  test("配信用の画像は幅の小さい順に返す", async () => {
+    const server = createImageRoutes([
+      {
+        deliveryImages: [
+          { width: 2048, height: 1024, url: "/media/large.avif" },
+          { width: 640, height: 320, url: "/media/small.avif" },
+        ],
+      },
+    ]);
+
+    const { api } = createFakeApi(server.routes);
+    const { images } = await api.admin.images.list({});
+
+    expect(images[0]?.deliveryImages.map(({ width }) => width)).toEqual([
+      640, 2048,
+    ]);
+  });
+
   test("cursor の後ろの画像を、件数で区切って返す", async () => {
     const { api } = setUp(5);
     const first = await api.admin.images.list({ limit: 2 });

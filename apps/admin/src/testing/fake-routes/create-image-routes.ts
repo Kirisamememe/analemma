@@ -52,7 +52,6 @@ const EMPTY = {
   fNumber: null,
   exposureTime: null,
   iso: null,
-  deliveryImages: [],
 } satisfies Partial<FakeImage>;
 
 /** 画像の procedure を、状態ごと真似る作り物の server の応答を作る。 */
@@ -67,18 +66,25 @@ export const createImageRoutes = (seeds: readonly FakeImageSeed[] = []) => {
     return moment;
   };
 
-  const create = ({ published = true, ...seed }: FakeImageSeed): FakeImage => {
+  const create = ({
+    published = true,
+    deliveryImages = [],
+    ...seed
+  }: FakeImageSeed): FakeImage => {
     const moment = now();
 
     created += 1;
 
-    return Object.assign(structuredClone(EMPTY), seed, {
+    return {
+      ...EMPTY,
+      ...seed,
       id: `019b0000-0000-7000-8000-${String(created).padStart(12, "0")}`,
       published,
       publishedAt: published ? moment : null,
+      deliveryImages: deliveryImages.toSorted((a, b) => a.width - b.width),
       createdAt: moment,
       updatedAt: moment,
-    });
+    };
   };
 
   let created = 0;
