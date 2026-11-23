@@ -267,6 +267,11 @@ export const ja = {
   "imageDetail.alt": "alt",
   "imageDetail.altHint": "写真を見られない人に、写っているものを伝える文。",
   "imageDetail.edit": "編集",
+  "imageDetail.leavingWhileSaving": "画像を保存しています",
+  "imageDetail.savingWillContinue":
+    "画面を離れても保存は続きます。保存に失敗した場合、入力した内容は失われます。",
+  "imageDetail.waitForSave": "保存の結果を待つ",
+  "imageDetail.leaveDuringSave": "画面を離れる",
   "imageDetail.discardTitle": "保存していない変更があります",
   "imageDetail.discardDescription":
     "編集を終了すると、保存していない変更は失われます。",

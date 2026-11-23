@@ -2,6 +2,8 @@ import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { imageQueryKey } from "../queries/image-query";
+
 import type { FakeReply } from "@/testing/create-fake-api";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { renderApp } from "@/testing/render-app";
@@ -98,6 +100,36 @@ describe("EditImage", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(server.images()[0]?.description).toBeNull();
     expect(server.images()[1]?.description).toBeNull();
+  });
+
+  test("保存の応答を待つ間に別の写真に移っても、応答は送った写真のキャッシュだけに反映する", async () => {
+    const { history, image, next, queryClient, server } = setup();
+    const deferred = Promise.withResolvers<FakeReply<"admin/images/update">>();
+    server.replyNext("admin/images/update", () => deferred.promise);
+    const editor = await openEditor();
+    await userEvent.type(editor.getByRole("textbox", { name: "alt" }), "夜景");
+    await userEvent.click(editor.getByRole("button", { name: "保存" }));
+    act(() => {
+      history.push("/images/" + next.id);
+    });
+
+    const confirm = within(
+      await screen.findByRole("dialog", { name: "画像を保存しています" }),
+    );
+
+    await userEvent.click(
+      confirm.getByRole("button", { name: "画面を離れる" }),
+    );
+    await screen.findByRole("heading", { name: "雪山" });
+    deferred.resolve({ output: { ...image, alt: "夜景" } });
+    await waitFor(() => {
+      expect(queryClient.getQueryData(imageQueryKey(image.id))).toMatchObject({
+        data: { id: image.id, alt: "夜景" },
+      });
+    });
+    expect(queryClient.getQueryData(imageQueryKey(next.id))).toMatchObject({
+      data: { id: next.id, alt: null },
+    });
   });
 
   test("保存の応答を待つ間は入力を保護し、失敗したあとに同じ入力で保存し直せる", async () => {

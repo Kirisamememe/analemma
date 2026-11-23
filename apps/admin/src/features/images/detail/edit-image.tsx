@@ -99,7 +99,9 @@ const EditImageDialog = ({
   const changed = (): boolean =>
     hasUnsavedChanges({ saved: initial, current: form.state.values });
 
-  const leaving = useLeaveConfirmation(() => changed());
+  const leaving = useLeaveConfirmation(() => saving.isPending || changed());
+
+  const leavingWhileSaving = leaving._tag === "Asking" && saving.isPending;
 
   const requestClose = (): void => {
     if (changed()) setConfirmClose(true);
@@ -175,23 +177,43 @@ const EditImageDialog = ({
       </Dialog>
       <Dialog
         isOpen={confirmClose || leaving._tag === "Asking"}
-        title={t("imageDetail.discardTitle")}
+        title={t(
+          leavingWhileSaving
+            ? "imageDetail.leavingWhileSaving"
+            : "imageDetail.discardTitle",
+        )}
         onOpenChange={(open) => {
           if (!open) stay();
         }}
       >
-        <Text>{t("imageDetail.discardDescription")}</Text>
+        <Text>
+          {t(
+            leavingWhileSaving
+              ? "imageDetail.savingWillContinue"
+              : "imageDetail.discardDescription",
+          )}
+        </Text>
         <Cluster gap={2} justify="end">
-          <Button onPress={stay}>{t("imageDetail.continueEditing")}</Button>
+          <Button onPress={stay}>
+            {t(
+              leavingWhileSaving
+                ? "imageDetail.waitForSave"
+                : "imageDetail.continueEditing",
+            )}
+          </Button>
           <Button
-            tone="danger"
+            tone={leavingWhileSaving ? "secondary" : "danger"}
             onPress={() => {
               if (leaving._tag === "Asking") leaving.leave();
 
               close();
             }}
           >
-            {t("imageDetail.discard")}
+            {t(
+              leavingWhileSaving
+                ? "imageDetail.leaveDuringSave"
+                : "imageDetail.discard",
+            )}
           </Button>
         </Cluster>
       </Dialog>
