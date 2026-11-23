@@ -28,6 +28,7 @@ import * as routesFixedPageEditor from "@/routes/fixed-pages/__stories__/fixed-p
 import * as routesFixedPagesPage from "@/routes/fixed-pages/__stories__/fixed-pages-page.stories";
 import * as routesImageViewerPage from "@/routes/images/__stories__/image-viewer-page.stories";
 import * as routesImagesPage from "@/routes/images/__stories__/images-page.stories";
+import * as layoutActionList from "@/ui/layout/__stories__/action-list.stories";
 import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
 import * as layoutCenter from "@/ui/layout/__stories__/center.stories";
 import * as layoutCluster from "@/ui/layout/__stories__/cluster.stories";
@@ -108,6 +109,7 @@ const MODULES = {
   "ui/layout/__stories__/cluster.stories.tsx": layoutCluster,
   "ui/layout/__stories__/heading.stories.ts": layoutHeading,
   "ui/layout/__stories__/page-transition.stories.tsx": layoutPageTransition,
+  "ui/layout/__stories__/action-list.stories.tsx": layoutActionList,
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.ts": layoutText,
   "ui/patterns/__stories__/empty-state.stories.tsx": patternsEmptyState,

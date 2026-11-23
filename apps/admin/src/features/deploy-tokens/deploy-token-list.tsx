@@ -10,7 +10,7 @@ import {
 } from "@/features/deploy-tokens/queries/deploy-tokens-query";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
-import { Cluster, Stack, Text } from "@/ui/layout";
+import { ActionList, ActionListRow, Stack, Text } from "@/ui/layout";
 import { EmptyState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 
@@ -43,13 +43,13 @@ const DeployTokenRows = ({
   }
 
   return (
-    <Stack as="ul" gap={4}>
+    <ActionList>
       {tokens.map((token) => {
         const created = formatDateTime(locale, token.createdAt);
 
         return (
           <li key={token.id}>
-            <Cluster align="center" gap={4} justify="between">
+            <ActionListRow>
               <Stack gap={0.5}>
                 <Text as="span" variant="label">
                   {token.name}
@@ -73,11 +73,11 @@ const DeployTokenRows = ({
               >
                 {t("deployTokens.revoke")}
               </Button>
-            </Cluster>
+            </ActionListRow>
           </li>
         );
       })}
-    </Stack>
+    </ActionList>
   );
 };
 

@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { FixedPagesSection } from "@/features/fixed-pages/list/fixed-pages-section";
 import { Center, Stack } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
-import { Button } from "@/ui/primitives/button";
 
 /** 固定ページを一覧し、並べ直す画面。 */
 export const FixedPagesPage = (): ReactNode => {
@@ -20,11 +19,6 @@ export const FixedPagesPage = (): ReactNode => {
     <Center width="form">
       <Stack gap={8}>
         <PageHeader
-          actions={
-            <Button onPress={create} tone="primary">
-              {t("fixedPages.create")}
-            </Button>
-          }
           description={t("fixedPages.description")}
           title={t("fixedPages.title")}
         />

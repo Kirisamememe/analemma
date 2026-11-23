@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { Cluster, Stack } from "@/ui/layout";
-import { Button } from "@/ui/primitives/button";
+import { Button, ListCreateButton } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
 
 const meta = {
@@ -115,5 +115,23 @@ export const PendingWidth: Story = {
         <Button aria-label="削除する" icon="trash-2" isPending size="sm" />
       </Stack>
     </Cluster>
+  ),
+};
+
+export const CreateRow: Story = {
+  /** 枠のない一覧の先頭に置く操作。 */
+  render: () => (
+    <ListCreateButton onPress={fn<() => void>()}>
+      トークンを発行
+    </ListCreateButton>
+  ),
+};
+
+export const CreateCard: Story = {
+  /** カードの先頭に置く操作。 */
+  render: () => (
+    <ListCreateButton card onPress={fn<() => void>()}>
+      新しい固定ページ
+    </ListCreateButton>
   ),
 };

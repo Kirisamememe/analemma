@@ -9,7 +9,7 @@ import {
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
-import { Cluster, Stack, Text } from "@/ui/layout";
+import { ActionListRow, Cluster, Stack, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
 import { useShowToast } from "@/ui/primitives/overlays";
@@ -63,7 +63,7 @@ export const FixedPageRow = ({
   });
 
   return (
-    <Cluster align="center" gap={3} justify="between">
+    <ActionListRow card>
       <Stack gap={0.5}>
         <Cluster gap={2}>
           <Text as="span" variant="label">
@@ -112,6 +112,6 @@ export const FixedPageRow = ({
           {t(page.published ? "fixedPages.unpublish" : "fixedPages.publish")}
         </Button>
       </Cluster>
-    </Cluster>
+    </ActionListRow>
   );
 };

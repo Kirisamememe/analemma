@@ -16,7 +16,7 @@ import {
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { EmptyState, ErrorState, LoadingState } from "@/ui/patterns";
-import { Button } from "@/ui/primitives/button";
+import { ListCreateButton } from "@/ui/primitives/button";
 import { ReorderableList } from "@/ui/primitives/collections";
 import { Spinner } from "@/ui/primitives/graphics";
 
@@ -49,27 +49,12 @@ export const FixedPagesSection = ({
   });
 
   const kindsRetrying = kinds._tag === "Failed" && kinds.isRetrying;
-  const loading = <LoadingState layout="list" />;
 
-  if (pages._tag === "Loading" || kinds._tag === "Loading") return loading;
+  const rows =
+    pages._tag === "Loaded" ? reordering.arrange(pages.data.pages) : [];
 
-  if (pages._tag === "Failed") {
-    return (
-      <ErrorState
-        isRetrying={pages.isRetrying || kindsRetrying}
-        layout="inline"
-        level={2}
-        onRetry={() => {
-          pages.retry();
-
-          if (kinds._tag === "Failed") kinds.retry(); // 種類のラベルも読めていなければ、一緒に取り直す
-        }}
-        title={t("fixedPages.loadFailed")}
-      />
-    );
-  }
-
-  if (kindsRetrying) return loading; // 種類のラベルが届くまで、名前で出さない
+  const showRows =
+    pages._tag === "Loaded" && kinds._tag !== "Loading" && !kindsRetrying;
 
   const labels = new Map(
     kinds._tag === "Loaded"
@@ -77,51 +62,40 @@ export const FixedPagesSection = ({
       : [],
   );
 
-  const rows = reordering.arrange(pages.data.pages);
+  const content = (): ReactNode => {
+    if (pages._tag === "Loading" || kinds._tag === "Loading") {
+      return <LoadingState layout="list" />;
+    }
 
-  const notice =
-    kinds._tag === "Loaded" && kinds.refreshFailure !== undefined ? (
-      <KindRefreshNotice source="list" refreshFailure={kinds.refreshFailure} />
-    ) : null;
+    if (pages._tag === "Failed") {
+      return (
+        <ErrorState
+          isRetrying={pages.isRetrying || kindsRetrying}
+          layout="inline"
+          level={2}
+          onRetry={() => {
+            pages.retry();
 
-  if (rows.length === 0) {
-    return (
-      <Stack gap={3}>
-        {notice}
+            if (kinds._tag === "Failed") kinds.retry(); // 種類のラベルも読めていなければ、一緒に取り直す
+          }}
+          title={t("fixedPages.loadFailed")}
+        />
+      );
+    }
+
+    if (kindsRetrying) return <LoadingState layout="list" />;
+
+    if (rows.length === 0) {
+      return (
         <EmptyState
-          actions={
-            <Button onPress={onCreate} tone="primary">
-              {t("fixedPages.create")}
-            </Button>
-          }
           description={t("fixedPages.emptyDescription")}
           icon="file-text"
           title={t("fixedPages.emptyTitle")}
         />
-      </Stack>
-    );
-  }
+      );
+    }
 
-  return (
-    <Stack gap={3}>
-      {notice}
-      {rows.length > 1 && (
-        <Cluster align="center" gap={2} justify="between">
-          <Text tone="muted" variant="caption">
-            {t("fixedPages.reorderHint")}
-          </Text>
-          <output>
-            {reordering.isSaving && (
-              <Cluster align="center" gap={1.5}>
-                <Spinner />
-                <Text as="span" tone="muted" variant="caption">
-                  {t("fixedPages.savingOrder")}
-                </Text>
-              </Cluster>
-            )}
-          </output>
-        </Cluster>
-      )}
+    return (
       <ReorderableList
         isDisabled={reordering.isSaving}
         items={rows.map((page) => ({
@@ -138,6 +112,40 @@ export const FixedPagesSection = ({
         label={t("fixedPages.title")}
         onReorder={reordering.reorder}
       />
+    );
+  };
+
+  return (
+    <Stack gap={3}>
+      {showRows && rows.length > 1 && (
+        <Cluster align="center" gap={2} justify="between">
+          <Text tone="muted" variant="caption">
+            {t("fixedPages.reorderHint")}
+          </Text>
+          <output>
+            {reordering.isSaving && (
+              <Cluster align="center" gap={1.5}>
+                <Spinner />
+                <Text as="span" tone="muted" variant="caption">
+                  {t("fixedPages.savingOrder")}
+                </Text>
+              </Cluster>
+            )}
+          </output>
+        </Cluster>
+      )}
+      <Stack gap={2}>
+        <ListCreateButton card onPress={onCreate}>
+          {t("fixedPages.create")}
+        </ListCreateButton>
+        {kinds._tag === "Loaded" && kinds.refreshFailure !== undefined && (
+          <KindRefreshNotice
+            source="list"
+            refreshFailure={kinds.refreshFailure}
+          />
+        )}
+        {content()}
+      </Stack>
     </Stack>
   );
 };

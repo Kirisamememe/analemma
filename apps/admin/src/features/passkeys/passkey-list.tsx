@@ -10,7 +10,7 @@ import {
 } from "@/features/passkeys/queries/passkeys-query";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
-import { Cluster, Stack, Text } from "@/ui/layout";
+import { ActionList, ActionListRow, Cluster, Stack, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
 
@@ -48,10 +48,10 @@ export const PasskeyList = ({
       query={passkeys}
     >
       {({ passkeys: list }) => (
-        <Stack as="ul" gap={4}>
+        <ActionList>
           {list.map((passkey) => (
             <li key={passkey.id}>
-              <Cluster align="center" gap={4} justify="between">
+              <ActionListRow>
                 <Stack gap={0.5}>
                   <Cluster gap={2}>
                     <Text as="span" variant="label">
@@ -93,10 +93,10 @@ export const PasskeyList = ({
                     {t("passkeys.delete")}
                   </Button>
                 </Cluster>
-              </Cluster>
+              </ActionListRow>
             </li>
           ))}
-        </Stack>
+        </ActionList>
       )}
     </QueryContent>
   );

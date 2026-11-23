@@ -50,6 +50,10 @@ describe("FixedPagesSection", () => {
 
     const about = await findRow("About");
 
+    const grid = screen.getByRole("grid", { name: "固定ページ" });
+    expect(
+      within(grid).queryByRole("button", { name: "新しい固定ページ" }),
+    ).toBeNull();
     expect(rowNames()).toEqual(["About", "Colophon", "連絡先"]);
     expect(within(about).getByText("公開中")).toBeDefined();
     expect(within(about).getByText(/^about・基本のページ・.+ に更新$/v));
@@ -68,6 +72,12 @@ describe("FixedPagesSection", () => {
       }),
     ).toBeDefined();
     expect(screen.queryByRole("grid")).toBeNull();
+    await userEvent.click(
+      screen.getByRole("button", { name: "新しい固定ページ" }),
+    );
+    expect(
+      await screen.findByRole("button", { name: "基本のページ" }),
+    ).toBeDefined();
   });
 
   test("一覧も種類も読み込めなければ、知らせ、もう一度試すと、両方を取り直して一覧を出す", async () => {

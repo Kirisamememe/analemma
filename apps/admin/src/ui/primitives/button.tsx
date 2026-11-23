@@ -153,3 +153,40 @@ export const Button = ({
     </AriaButton>
   );
 };
+
+const createButton = tv({
+  base: [
+    "flex w-full items-center gap-2 px-3 text-start",
+    "rounded-control border border-dashed border-line-strong text-fg",
+    "outline-hidden transition is-focus-shown:focus-ring",
+    "is-hovered:bg-surface-muted is-pressed:bg-surface-sunken",
+  ],
+  variants: {
+    card: { true: "min-h-11 md:min-h-16", false: "min-h-11 md:min-h-10" },
+  },
+});
+
+type ListCreateButtonProps = {
+  /** 追加する操作の名前。 */
+  children: ReactNode;
+  /** 追加を始める関数。 */
+  onPress: () => void;
+  /** 広い画面でカードの高さに合わせるか。 */
+  card?: boolean;
+};
+
+/** 一覧の先頭に置く追加のボタン。 */
+export const ListCreateButton = ({
+  children,
+  onPress,
+  card = false,
+}: ListCreateButtonProps): ReactNode => (
+  <AriaButton
+    className={createButton({ card, className: typography({ role: "label" }) })}
+    onPress={onPress}
+    type="button"
+  >
+    <Icon name="plus" />
+    {children}
+  </AriaButton>
+);
