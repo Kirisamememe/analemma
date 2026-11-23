@@ -22,7 +22,7 @@ type LoadingStatusProps = {
   label?: string;
 };
 
-/** 読み込みが続いたときに、先に置いた通知欄の中身を更新する。 */
+/** 読み込み中であることを伝える通知欄。 */
 export const LoadingStatus = ({ label }: LoadingStatusProps): ReactNode => {
   const { t } = useTranslation();
   const ready = useLoadingAnnouncement();
