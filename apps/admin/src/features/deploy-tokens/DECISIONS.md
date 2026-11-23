@@ -9,6 +9,7 @@
 - token は、発行した Dialog の state にだけ置き、TanStack Query(query と送信の cache)に入れない。送信の結果に token を入れると、Dialog を閉じても、送信の cache が消えるまで(既定で5分)query client から読める。送信の結果は、どの結果か(`_tag`)だけにする。一覧は server が token を返さず、URL にも載せない。閉じた後に、画面・URL・query client のどこからも token を読めないことを、画面のテストで確かめる。
 - 発行できたら、同じ Dialog を、token を見せる中身に替える。Dialog を閉じると、token はもう出せない。発行したことは、その Dialog を閉じたときに Toast で知らせる。token を見せている間に Toast を出すと、Toast の出入りの View Transition が始まって新しい DOM を描くまでの間(普段は1フレームほど)は、押した操作が document の要素に当たり、React Aria Components が Dialog の外側の押下とみなして閉じる。「コピー」を押したつもりで token を失うので、見せている間は Toast を出さない。
 - token は、ラベルを付けた読み取り専用の textarea に等幅の字体で出し、focus したら全体を選ぶ(`ui/token-value.tsx`)。コピーできなかったときも、キーボードで欄に移って手でコピーできる。コピーのボタンは Clipboard API で書き、書けなければ(許可が無いなど)、手でコピーするよう知らせる。中身を替えたら、コピーのボタンに focus を移す。押したボタンが消え、focus の行き先が無くなるため。
+- 発行のロジック(再認証して発行し、token を Dialog の state にだけ持ち、閉じるときに発行を Toast で知らせる)は `issue/use-issue-deploy-token.tsx` に置き、発行の Dialog はマークアップと、それをロジックにつなぐコードだけにする。
 - 一覧は、発行できたときだけ取り直す。断られた発行は、一覧を変えない。
 
 ## 取り消し

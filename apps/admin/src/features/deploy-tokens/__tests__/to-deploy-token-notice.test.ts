@@ -8,9 +8,14 @@ import {
 
 describe("toIssueNotice", () => {
   test("キャンセルは誤りとして読み上げず、失敗は誤りとして知らせる", () => {
-    expect(toIssueNotice("Cancelled").tone).toBe("info");
-    expect(toIssueNotice("ReauthenticationFailed").tone).toBe("danger");
-    expect(toIssueNotice("Unexpected").tone).toBe("danger");
+    expect(toIssueNotice("Cancelled")?.tone).toBe("info");
+    expect(toIssueNotice("ReauthenticationFailed")?.tone).toBe("danger");
+    expect(toIssueNotice("Unexpected")?.tone).toBe("danger");
+  });
+
+  test("まだ送っていないときと、発行できたときは知らせない", () => {
+    expect(toIssueNotice(undefined)).toBeUndefined();
+    expect(toIssueNotice("Issued")).toBeUndefined();
   });
 });
 

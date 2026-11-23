@@ -2,7 +2,7 @@ import { type ReactNode, useState } from "react";
 
 import { DeployTokenList } from "@/features/deploy-tokens/deploy-token-list";
 import type { DeployTokenSummary } from "@/features/deploy-tokens/deploy-tokens-query";
-import { IssueDeployTokenDialog } from "@/features/deploy-tokens/issue-deploy-token-dialog";
+import { IssueDeployTokenDialog } from "@/features/deploy-tokens/issue/issue-deploy-token-dialog";
 import { RevokeDeployTokenDialog } from "@/features/deploy-tokens/revoke-deploy-token-dialog";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Heading, Stack } from "@/ui/layout";

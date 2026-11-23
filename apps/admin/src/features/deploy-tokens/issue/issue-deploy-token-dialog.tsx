@@ -1,20 +1,15 @@
 import { type ReactNode, useState } from "react";
 
-import { useAppContext } from "@/api/app-context";
-import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import {
   type CopyTextResult,
   copyText,
-} from "@/features/deploy-tokens/copy-text";
-import { DEPLOY_TOKENS_QUERY_KEY } from "@/features/deploy-tokens/deploy-tokens-query";
+} from "@/features/deploy-tokens/issue/copy-text";
+import { checkDeployTokenName } from "@/features/deploy-tokens/issue/issue-deploy-token";
 import {
-  checkDeployTokenName,
-  issueDeployToken,
-} from "@/features/deploy-tokens/issue-deploy-token";
-import {
-  toCopyNotice,
-  toIssueNotice,
-} from "@/features/deploy-tokens/to-deploy-token-notice";
+  type IssuedToken,
+  useIssueDeployToken,
+} from "@/features/deploy-tokens/issue/use-issue-deploy-token";
+import { toCopyNotice } from "@/features/deploy-tokens/to-deploy-token-notice";
 import { TokenValue } from "@/features/deploy-tokens/ui/token-value";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
@@ -22,15 +17,7 @@ import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
 import { TextField } from "@/ui/primitives/form-fields";
 import { Notice } from "@/ui/primitives/notice";
-import { Dialog, useShowToast } from "@/ui/primitives/overlays";
-
-/** 発行したトークン。 */
-type IssuedToken = {
-  /** 名前。 */
-  readonly name: string;
-  /** server が1回だけ返した token。 */
-  readonly token: string;
-};
+import { Dialog } from "@/ui/primitives/overlays";
 
 const focusOnMount = (button: HTMLButtonElement | null): void => {
   button?.focus();
@@ -100,47 +87,14 @@ export const IssueDeployTokenDialog = ({
   onClose,
 }: IssueDeployTokenDialogProps): ReactNode => {
   const t = useTranslate();
-  const showToast = useShowToast();
-  const { refresh } = useApiCache();
-  const { api, authenticator } = useAppContext();
-  const [issued, setIssued] = useState<IssuedToken>(); // token は query client に入れない
-  const issuing = useApiMutation({
-    send: async (name: string) => {
-      const result = await issueDeployToken({ api, authenticator }, name);
-
-      if (result._tag === "Issued") {
-        setIssued({ name: result.name, token: result.token });
-      }
-
-      return { _tag: result._tag };
-    },
-    onSuccess: async ({ _tag }) => {
-      if (_tag === "Issued") {
-        await refresh(DEPLOY_TOKENS_QUERY_KEY);
-      }
-    },
+  const { issued, isPending, notice, issue, close } = useIssueDeployToken({
+    onClose,
   });
-  const close = (): void => {
-    if (issued !== undefined) {
-      showToast({
-        tone: "success",
-        message: t("deployTokens.issued", { name: issued.name }),
-      });
-    }
-
-    onClose();
-  };
-
-  const outcome = issuing.isError ? "Unexpected" : issuing.data?._tag;
-  const notice =
-    outcome === undefined || outcome === "Issued"
-      ? undefined
-      : toIssueNotice(outcome);
 
   return (
     <Dialog
       isOpen={isOpen}
-      isPending={issuing.isPending}
+      isPending={isPending}
       onOpenChange={(open) => {
         if (!open) {
           close();
@@ -156,11 +110,11 @@ export const IssueDeployTokenDialog = ({
         <>
           <Text tone="muted">{t("deployTokens.issueDescription")}</Text>
           <Form
-            isPending={issuing.isPending}
+            isPending={isPending}
             onSubmit={(data) => {
               const name = data.get("name");
 
-              issuing.mutate(typeof name === "string" ? name : "");
+              issue(typeof name === "string" ? name : "");
             }}
           >
             <TextField
@@ -179,14 +133,10 @@ export const IssueDeployTokenDialog = ({
               <Notice tone={notice.tone}>{t(notice.message)}</Notice>
             )}
             <Cluster gap={2} justify="end">
-              <Button isDisabled={issuing.isPending} onPress={onClose}>
+              <Button isDisabled={isPending} onPress={onClose}>
                 {t("deployTokens.cancel")}
               </Button>
-              <Button
-                isPending={issuing.isPending}
-                tone="primary"
-                type="submit"
-              >
+              <Button isPending={isPending} tone="primary" type="submit">
                 {t("deployTokens.issue")}
               </Button>
             </Cluster>
