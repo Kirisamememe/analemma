@@ -62,6 +62,8 @@ type InfiniteQueryResult<Page> =
       readonly next: NextPage;
     };
 
+const pagesOf = <Page>(data: InfiniteData<Page>): Page[] => data.pages;
+
 /** cursor で続きを読む server のデータを読み、取得の状態を返す。 */
 export const useApiInfiniteQuery = <Page>({
   key,
@@ -71,12 +73,13 @@ export const useApiInfiniteQuery = <Page>({
   const query = useInfiniteQuery<
     Page,
     Error,
-    InfiniteData<Page, string | undefined>,
+    Page[],
     readonly unknown[],
     string | undefined
   >({
     queryKey: key,
     queryFn: ({ pageParam }) => load(pageParam),
+    select: pagesOf<Page>,
     initialPageParam: undefined,
     getNextPageParam: (page) => next(page),
   });
@@ -107,7 +110,7 @@ export const useApiInfiniteQuery = <Page>({
   if (query.isError && !failedNext) {
     return {
       _tag: "Loaded",
-      pages: query.data.pages,
+      pages: query.data,
       next: { _tag: "None" },
       refreshFailure: {
         isRetrying: query.fetchStatus !== "idle",
@@ -149,5 +152,5 @@ export const useApiInfiniteQuery = <Page>({
         };
   };
 
-  return { _tag: "Loaded", pages: query.data.pages, next: nextPage() };
+  return { _tag: "Loaded", pages: query.data, next: nextPage() };
 };

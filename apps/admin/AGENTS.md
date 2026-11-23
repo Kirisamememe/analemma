@@ -11,7 +11,7 @@
 - `src/app/router.ts`:route の木と、router と query client を組み立てる関数(`createApp`)。ログインした後の画面へ移るたびに、移るのを待たせずに、server でセッションを確かめる。
 - `src/api/`:server の API の client(contract の型付き)と、query client。features が使う、oRPC の失敗の仕分け(`call-api.ts`)・TanStack Router の context とログインの画面への移動(`app-context.ts`)・画面を離れる前の確かめ(`leave-confirmation.ts`)・TanStack Query の取得と送信とキャッシュ(`server-state/`)の包みも置く。取得したデータを画面間で保持する条件は `DECISIONS.md` の「server の API の呼び方」に従う。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
 - `src/routes/`:route ごとの画面。
-- `src/queries/`:複数の feature が使う、server の API を呼ぶ処理(再認証)。
+- `src/queries/`:複数の feature が使う、server の API を呼ぶ処理(再認証と画像一覧の読み込み)。
 - `src/components/`:複数の feature から使う、管理画面に固有の部品。`@/components/...` で import する。部品のコードは features を import しない(lint で止まる)。
 - `src/i18n/`:訳と言語(i18next と react-i18next)。訳は `messages/` に言語ごとに1ファイル。i18next の instance は `create-i18n.ts` で作る。features が使う、訳を引く hook と今の言語を読む hook と訳のキーの型は `use-translate.ts` が、言語を切り替える hook は `use-change-locale.ts` が包む。
 - `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値と、最初の描画の前に流す script(`boot.ts`)。言語の切り替えに html の `lang` と置き場所をそろえる関数(`sync-locale.ts`)。今の配色を読んで切り替える hook(`use-theme.ts`)と、html の `data-theme` に配色を当てる関数(`apply-theme.ts`。head の script と共有する)。

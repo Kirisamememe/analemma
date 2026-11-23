@@ -1,12 +1,12 @@
 import { cleanup, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { renderWithI18n } from "@/testing/render-with-i18n";
 import {
   ImageRows,
   ImageRowsPlaceholder,
   ImageTile,
-} from "@/features/images/ui/image-rows";
-import { renderWithI18n } from "@/testing/render-with-i18n";
+} from "@/ui/patterns/photos/image-rows";
 
 afterEach(cleanup);
 

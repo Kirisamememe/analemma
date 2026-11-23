@@ -1,5 +1,6 @@
 import type { ReactNode, Ref } from "react";
 
+import { LoadingState } from "../loading-state";
 import {
   type DeliveryImages,
   toSrcSet,
@@ -8,7 +9,6 @@ import {
 } from "./logic/delivery-image";
 
 import { Text } from "@/ui/layout";
-import { LoadingState } from "@/ui/patterns";
 import { Badge } from "@/ui/primitives/badge";
 import { Icon, Skeleton } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
@@ -70,7 +70,9 @@ export const ImageRows = ({
 /** 写真のタイルに渡す値。 */
 type ImageTileProps = {
   /** 開く画面。 */
-  href: AppHref;
+  href?: AppHref | undefined;
+  /** 写真を選ぶ入力欄。 */
+  choice?: ReactNode;
   /** 配信用の画像(幅の昇順)。 */
   images: DeliveryImages;
   /** タイトル(無ければ null)。 */
@@ -92,6 +94,7 @@ type ImageTileProps = {
 /** 写真と、タイトル・バッジ・日付を出し、押すと開くタイル。 */
 export const ImageTile = ({
   href,
+  choice,
   images,
   title,
   alt,
@@ -105,57 +108,66 @@ export const ImageTile = ({
   const [smallest] = images;
   const style = rows({ isUntitled: title === null });
 
+  const content = (
+    <span className={style.body()}>
+      <span className={style.frame()}>
+        {smallest === undefined ? (
+          <span className={style.missing()}>
+            <Icon name="image-off" size="lg" />
+            <Text as="span" variant="caption">
+              {missing}
+            </Text>
+            {title === null && alt && <span className="sr-only">{alt}</span>}
+          </span>
+        ) : (
+          <img
+            alt={title === null ? (alt ?? "") : ""}
+            className={style.photo()}
+            decoding="async"
+            height={smallest.height}
+            loading="lazy"
+            sizes={toTileSizes(aspect)}
+            src={smallest.url}
+            srcSet={toSrcSet(images)}
+            width={smallest.width}
+          />
+        )}
+        <span className={style.shade()} />
+      </span>
+      <span className={style.caption()}>
+        <span className={style.heading()}>
+          <span className={style.title()} title={title ?? undefined}>
+            <Text as="span" variant={title === null ? "body" : "label"}>
+              {title ?? untitled}
+            </Text>
+          </span>
+          {badge !== undefined && (
+            <span className={style.badge()}>
+              <Badge tone="neutral">{badge}</Badge>
+            </span>
+          )}
+        </span>
+        {date !== undefined && (
+          <Text as="span" tone="muted" variant="caption">
+            {date}
+          </Text>
+        )}
+      </span>
+    </span>
+  );
+
   return (
     <li className={style.item()} style={{ "--media-aspect": String(aspect) }}>
-      <Link href={href} ref={linkRef} variant="block">
-        <span className={style.body()}>
-          <span className={style.frame()}>
-            {smallest === undefined ? (
-              <span className={style.missing()}>
-                <Icon name="image-off" size="lg" />
-                <Text as="span" variant="caption">
-                  {missing}
-                </Text>
-                {title === null && alt && (
-                  <span className="sr-only">{alt}</span>
-                )}
-              </span>
-            ) : (
-              <img
-                alt={title === null ? (alt ?? "") : ""}
-                className={style.photo()}
-                decoding="async"
-                height={smallest.height}
-                loading="lazy"
-                sizes={toTileSizes(aspect)}
-                src={smallest.url}
-                srcSet={toSrcSet(images)}
-                width={smallest.width}
-              />
-            )}
-            <span className={style.shade()} />
-          </span>
-          <span className={style.caption()}>
-            <span className={style.heading()}>
-              <span className={style.title()} title={title ?? undefined}>
-                <Text as="span" variant={title === null ? "body" : "label"}>
-                  {title ?? untitled}
-                </Text>
-              </span>
-              {badge !== undefined && (
-                <span className={style.badge()}>
-                  <Badge tone="neutral">{badge}</Badge>
-                </span>
-              )}
-            </span>
-            {date !== undefined && (
-              <Text as="span" tone="muted" variant="caption">
-                {date}
-              </Text>
-            )}
-          </span>
-        </span>
-      </Link>
+      {href === undefined ? (
+        <label className="flex cursor-pointer flex-col gap-2 rounded-control has-focus-visible:focus-ring">
+          {content}
+          {choice}
+        </label>
+      ) : (
+        <Link href={href} ref={linkRef} variant="block">
+          {content}
+        </Link>
+      )}
     </li>
   );
 };

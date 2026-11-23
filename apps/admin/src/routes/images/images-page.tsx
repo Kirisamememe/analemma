@@ -1,9 +1,11 @@
 import { useRouteContext } from "@tanstack/react-router";
 import { type ReactNode, useCallback } from "react";
 
-import { ImagesSection } from "@/features/images/list/images-section";
+import { ImagesSection } from "@/components/images/images-section";
 import { PhotoUploads } from "@/features/images/upload/photo-uploads";
 import { Center, Stack } from "@/ui/layout";
+
+const imageHref = (id: string): `/images/${string}` => `/images/${id}`;
 
 /** 画像を、写真の縦横比を保って並べる画面。 */
 export const ImagesPage = (): ReactNode => {
@@ -50,7 +52,7 @@ export const ImagesPage = (): ReactNode => {
       <Stack gap={8}>
         <PhotoUploads imageHref={(id) => `/images/${id}`} />
         <div ref={restorePosition}>
-          <ImagesSection imageHref={(id) => `/images/${id}`} />
+          <ImagesSection imageHref={imageHref} />
         </div>
       </Stack>
     </Center>

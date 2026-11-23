@@ -3,6 +3,9 @@ import type { ApiClient, ApiOutputs } from "@/api/api-types";
 /** 画像の一覧の、query のキー。 */
 export const IMAGES_QUERY_KEY = ["admin", "images", "list"] as const;
 
+/** 画像を選ぶ Dialog の query のキー。 */
+export const IMAGE_PICKER_KEY = ["admin", "images", "picker"] as const;
+
 /** 一覧に出す、1つの画像。 */
 export type ImageSummary =
   ApiOutputs["admin"]["images"]["list"]["images"][number];

@@ -1,10 +1,12 @@
 import { type ReactNode, useRef, useState } from "react";
 
-import { type DeliveryImages, toSrcSet } from "./logic/delivery-image";
-
 import { useTranslate } from "@/i18n/use-translate";
 import { Text } from "@/ui/layout";
 import { ErrorState, LoadingStatus } from "@/ui/patterns";
+import {
+  type DeliveryImages,
+  toSrcSet,
+} from "@/ui/patterns/photos/logic/delivery-image";
 import { Spinner } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 
