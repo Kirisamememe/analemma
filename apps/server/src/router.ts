@@ -50,6 +50,15 @@ import {
 } from "@/features/images";
 import { getKind, listKinds, pushKinds } from "@/features/kinds";
 import {
+  getSeries,
+  listSeries,
+  createSeries,
+  updateSeries,
+  deleteSeries,
+  publishSeries,
+  unpublishSeries,
+} from "@/features/series";
+import {
   adminProcedures,
   authProcedures,
   deployProcedures,
@@ -91,6 +100,15 @@ export const router = implement(contract)
         register: addPasskey,
         rename: renamePasskey,
         delete: deletePasskey,
+      },
+      series: {
+        get: getSeries,
+        list: listSeries,
+        create: createSeries,
+        update: updateSeries,
+        delete: deleteSeries,
+        publish: publishSeries,
+        unpublish: unpublishSeries,
       },
       session: {
         get: getSession,

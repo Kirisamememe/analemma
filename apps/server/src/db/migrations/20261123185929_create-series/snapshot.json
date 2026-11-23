@@ -1,0 +1,419 @@
+{
+  "type": "diff",
+  "version": "10",
+  "dialect": "postgres",
+  "id": "762f6c6a-1e29-495d-bebd-0e2c46d802b7",
+  "prevIds": [
+    "98252a45-3643-421f-ab56-74c215d6adfe"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "series"
+      ],
+      "writes": [
+        "s|tbl|public.series",
+        "n|tbl|public.series",
+        "e|tbl|public.series",
+        "n|rel|public.series",
+        "n|type|public.series",
+        "n|rel|public.series_pkey",
+        "n|rel|public.series_slug_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "series_image"
+      ],
+      "writes": [
+        "s|tbl|public.series_image",
+        "n|tbl|public.series_image",
+        "e|tbl|public.series_image",
+        "n|rel|public.series_image",
+        "n|type|public.series_image",
+        "n|rel|public.series_image_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "series_image",
+        "series_image_position_idx"
+      ],
+      "writes": [
+        "s|idx|public.series_image_position_idx",
+        "n|idx|public.series_image_position_idx",
+        "e|idx|public.series_image_position_idx",
+        "n|rel|public.series_image_position_idx"
+      ],
+      "reads": [
+        "n|tbl|public.series_image",
+        "n|sch|public",
+        "n|col|public.series_image.series_id",
+        "n|col|public.series_image.position"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "series_image",
+        "series_image_image_idx"
+      ],
+      "writes": [
+        "s|idx|public.series_image_image_idx",
+        "n|idx|public.series_image_image_idx",
+        "e|idx|public.series_image_image_idx",
+        "n|rel|public.series_image_image_idx"
+      ],
+      "reads": [
+        "n|tbl|public.series_image",
+        "n|sch|public",
+        "n|col|public.series_image.image_id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "series_image"
+      ],
+      "writes": [
+        "s|fk|public.series_image.series_image_series_id_series_id_fkey",
+        "n|fk|public.series_image.series_image_series_id_series_id_fkey",
+        "e|fk|public.series_image.series_image_series_id_series_id_fkey",
+        "n|con|public.series_image.series_image_series_id_series_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.series_image",
+        "n|sch|public",
+        "n|tbl|public.series",
+        "n|sch|public",
+        "n|col|public.series_image.series_id",
+        "n|col|public.series.id",
+        "e|uniqueness|public.series.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "series_image"
+      ],
+      "writes": [
+        "s|fk|public.series_image.series_image_image_id_image_id_fkey",
+        "n|fk|public.series_image.series_image_image_id_image_id_fkey",
+        "e|fk|public.series_image.series_image_image_id_image_id_fkey",
+        "n|con|public.series_image.series_image_image_id_image_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.series_image",
+        "n|sch|public",
+        "n|tbl|public.image",
+        "n|sch|public",
+        "n|col|public.series_image.image_id",
+        "n|col|public.image.id",
+        "e|uniqueness|public.image.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "series",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "series_image",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series",
+        "name": "id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "uuidv7()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series",
+        "name": "name",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series",
+        "name": "slug",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series",
+        "name": "description",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series",
+        "name": "published_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series_image",
+        "name": "series_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series_image",
+        "name": "image_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series_image",
+        "name": "position",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series_image",
+        "name": "series_image_position_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "series_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          },
+          {
+            "value": "position",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series_image",
+        "name": "series_image_image_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "image_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series_image",
+        "name": "series_image_series_id_series_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "series_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "series",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series_image",
+        "name": "series_image_image_id_image_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "image_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "image",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series_image",
+        "name": "series_image_pkey",
+        "columns": [
+          "series_id",
+          "image_id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series",
+        "name": "series_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "series",
+        "name": "series_slug_key",
+        "nameExplicit": false,
+        "columns": [
+          "slug"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    }
+  ]
+}

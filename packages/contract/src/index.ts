@@ -14,6 +14,7 @@ import { images } from "./images/admin-images";
 import { kinds } from "./kinds/admin-kinds";
 import { deployKinds } from "./kinds/deploy-kinds";
 import { deployTokens } from "./kinds/deploy-tokens";
+import { series } from "./series/admin-series";
 
 export {
   type FixedPageContent,
@@ -57,7 +58,7 @@ export {
 
 /** Analemma の API 全体の contract。 */
 export const contract = {
-  admin: { deployTokens, fixedPages, images, kinds, passkeys, session },
+  admin: { deployTokens, fixedPages, images, kinds, passkeys, series, session },
   auth: { enrollment, login },
   deploy: { kinds: deployKinds },
   public: { fixedPages: publicFixedPages, health },
