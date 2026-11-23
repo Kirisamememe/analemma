@@ -56,7 +56,7 @@
   );
   --color-fg: light-dark(var(--palette-neutral-950), var(--palette-neutral-50));
   --color-fg-muted: light-dark(
-    var(--palette-neutral-500),
+    var(--palette-neutral-600),
     var(--palette-neutral-400)
   );
   --color-line: light-dark(

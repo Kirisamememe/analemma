@@ -37,7 +37,7 @@
 | 意味                       | `info`・`success`・`warning`・`danger` と、その塗りの上の文字の `on-info`・`on-success`・`on-warning`・`on-danger`                         |
 | light と dark で変わらない | `scrim`(写真や画面の上に重ねて暗くする色)・`on-media`(写真の上の文字)                                                                      |
 
-- `surface-muted` は、面の中に置く内容の下地(トークンの値の欄、中身の無い欄のアイコンの丸など)に使う。light で neutral-100、dark で neutral-800 にする(dark では `surface` より一段明るい、浮いた下地になる)。ナビの地やドラッグしている行のような、くぼみには `surface-sunken` を使う。中身の無い欄の丸のアイコンは `fg-muted` で描き、アイコンに要る 3:1 に届くことを、コントラストのテストで確かめる。`surface-sunken` は light で neutral-50 なので、白い面の上ではほとんど見えなかった(ユーザーが見つけた)。`fg` は前景(文字・アイコン)の色なので、薄めて面の塗りに使わない(ユーザーが決めた)。
+- `surface-muted` は、面の中に置く内容の下地(トークンの値の欄、中身の無い欄のアイコンの丸など)に使う。light で neutral-100、dark で neutral-800 にする(dark では `surface` より一段明るい、浮いた下地になる)。ナビの地やドラッグしている行のような、くぼみには `surface-sunken` を使う。この下地の上にも、ほかの面と同じく `fg` と `fg-muted` の文字を載せられる。`surface-sunken` は light で neutral-50 なので、白い面の上ではほとんど見えなかった(ユーザーが見つけた)。`fg` は前景(文字・アイコン)の色なので、薄めて面の塗りに使わない(ユーザーが決めた)。
 - 透明度付きの色の変数は作らない。薄い色は、部品の中で Tailwind の不透明度の修飾(`bg-danger/10` など)で作る。透明度付きの変数を足していくと、同じような色の変数が増える。
 - 面の色は不透明にする。`surface-sunken` は sticky の見出しにも使うので、下が透けない。
 - 意味の色の塗りの上の文字は、色ごとの `on-*`(`on-info` など)にする。今の値はどれも `canvas` と同じ(light では白、dark では黒)。dark の意味の色は明るく、白い文字では読めないため。色ごとに名前を分けておき、塗りによって文字の色を変えたくなったときに、部品を書き換えずに済むようにする(ユーザーが決めた)。
@@ -47,6 +47,7 @@
 - light の意味の色は、薄い面の上の文字でも 4.5:1(WCAG の AA)に届く段にする(red-700・green-800・amber-800・blue-700)。
 - コントラストは、theme.css を読むテスト(`apps/admin/__tests__/theme-contrast.test.ts`)で確かめる。塗りと、その上の文字の組(`on-*`)は、hover の重ねも含めて 4.5:1 に届く。意味の色は、面(`canvas`・`surface`・`surface-sunken`・`surface-muted`)と、その上の `/10` の薄い面の上の文字として、light でも dark でも 4.5:1 に届く。OKLCH を sRGB に直し、sRGB に入らない色は 0〜1 に clamp して計算する。計算は役割の色の定義を読むので、同じテストで、役割の色をほかの場所で上書きしないこと(forced-colors のシステムの色を除く)、`on-*` が、`on-` を除いた名前の塗りと組になること(写真の上の `on-media` を除く)、hover の重ねが文字の色を透明と混ぜたものであることも確かめる。上書きは forced-colors の中だけに許し、そこでは塗りを `Highlight` に、その上の文字を `HighlightText` に差し替えること、パレットの色も1か所だけで定義すること、hover の utility が1か所だけであることも確かめる(CSS のコメントは除いて読む)。どれかが崩れると、計算した色と実際の色が食い違う(Codex と Cursor のレビューで見つかった)。
 - dark の `surface-sunken` は、`surface` と別の段(neutral-950)にする。同じ色だと、dark のサイドバーで、今いる場所が見分けられない。
+- light の `fg-muted` は neutral-600 にする(ユーザーが決めた)。neutral-500 では、`surface-muted` の上の文字が約 4.35:1 で、4.5:1 に届かなかった。`fg` と `fg-muted` の文字が、どの面の上でも light と dark で 4.5:1 に届くことを、コントラストのテストで確かめる。
 - light の `focus` は neutral-500 にする。白に対して 3:1 に届く。
 - 線の色は2つ。区切りの線やカードの枠は `line`(light で neutral-300、dark で neutral-700)、入力を受ける部品(入力欄・Checkbox・Radio・Switch・Select など)の枠は `line-strong`(light で neutral-400、dark で neutral-600)で描く。どちらの値も、ユーザーが決めた。文字の色の `fg-muted` を枠に流用しない(役割を混ぜない。ユーザーが決めた)。
 - `line-strong` は、入力を受ける部品の専用にする(ユーザーが決めた)。入力を受ける部品は React Aria Components を包むので、どれも `primitives/` にある。`line-strong` の class を書けるのは `primitives/` だけで、patterns・layout・`features/*/ui/` では書けない(lint で止まる)。
