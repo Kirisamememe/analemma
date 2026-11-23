@@ -222,6 +222,25 @@ describe("ImageViewerPage", () => {
     expect(screen.getByRole("link", { name: "画像の一覧" })).toBe(back);
   });
 
+  test("履歴で移ったら、次の写真を待つ間も前の写真の削除の確認を閉じる", async () => {
+    const { server, history, ids } = setUp(0);
+    await userEvent.click(
+      await screen.findByRole("button", { name: "画像を削除" }),
+    );
+    await screen.findByRole("dialog");
+    server.replyNext(
+      "admin/images/get",
+      () => Promise.withResolvers<FakeReply<"admin/images/get">>().promise,
+    );
+    act(() => {
+      history.push("/images/" + ids[1]);
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog") === null).toBe(true);
+    });
+    expect(server.images()).toHaveLength(3);
+  });
+
   test("取得を待つ間に一覧へのリンクへ移した focus をそのまま保つ", async () => {
     const { server } = setUp(0);
     await heading("夕暮れの稜線");
