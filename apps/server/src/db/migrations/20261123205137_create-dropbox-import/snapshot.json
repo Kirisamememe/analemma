@@ -1,0 +1,177 @@
+{
+  "type": "diff",
+  "version": "10",
+  "dialect": "postgres",
+  "id": "41c3f281-9f9a-49cc-8010-2719d834e7da",
+  "prevIds": [
+    "a2d94a6f-2ef0-47e6-96e6-2ef53a3c59f9"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "dropbox_import"
+      ],
+      "writes": [
+        "s|tbl|public.dropbox_import",
+        "n|tbl|public.dropbox_import",
+        "e|tbl|public.dropbox_import",
+        "n|rel|public.dropbox_import",
+        "n|type|public.dropbox_import",
+        "n|rel|public.dropbox_import_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "dropbox_import"
+      ],
+      "writes": [
+        "s|fk|public.dropbox_import.dropbox_import_image_id_image_id_fkey",
+        "n|fk|public.dropbox_import.dropbox_import_image_id_image_id_fkey",
+        "e|fk|public.dropbox_import.dropbox_import_image_id_image_id_fkey",
+        "n|con|public.dropbox_import.dropbox_import_image_id_image_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.dropbox_import",
+        "n|sch|public",
+        "n|tbl|public.image",
+        "n|sch|public",
+        "n|col|public.dropbox_import.image_id",
+        "n|col|public.image.id",
+        "e|uniqueness|public.image.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "dropbox_import",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "dropbox_import",
+        "name": "content_hash",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "dropbox_import",
+        "name": "file_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "dropbox_import",
+        "name": "path",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "dropbox_import",
+        "name": "image_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "dropbox_import",
+        "name": "imported_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "dropbox_import",
+        "name": "dropbox_import_image_id_image_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "image_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "image",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "SET NULL",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "dropbox_import",
+        "name": "dropbox_import_pkey",
+        "columns": [
+          "content_hash"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    }
+  ]
+}
