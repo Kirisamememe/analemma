@@ -149,7 +149,6 @@ export const CreateFromFiles: Story = {
       <FileDropButton
         acceptedTypes={["image/jpeg", "image/heic"]}
         descriptionId="file-drop-hint"
-        dropLabel="写真を落とすか貼り付けて追加"
         onFiles={fn<(files: readonly File[]) => void>()}
       >
         写真を追加
