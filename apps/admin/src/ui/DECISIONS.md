@@ -49,6 +49,7 @@
 - light の `focus` は neutral-500 にする。白に対して 3:1 に届く。
 - 線の色は2つ。区切りの線やカードの枠は `line`(light で neutral-300、dark で neutral-700)、入力を受ける部品(入力欄・Checkbox・Radio・Switch・Select など)の枠は `line-strong`(light で neutral-400、dark で neutral-600)で描く。どちらの値も、ユーザーが決めた。文字の色の `fg-muted` を枠に流用しない(役割を混ぜない。ユーザーが決めた)。
 - `line-strong` は、入力を受ける部品の専用にする(ユーザーが決めた)。入力を受ける部品は React Aria Components を包むので、どれも `primitives/` にある。`line-strong` の class を書けるのは `primitives/` だけで、patterns・layout・`features/*/ui/` では書けない(lint で止まる)。
+- border の色は、base で `line` を既定にする。線を引くときは `border` だけを書き、`border-line` は書かない。ほかの色にするとき(`line-strong`・意味の色・`transparent` など)と、variant で変えた色を `line` に戻すときだけ、色の class を書く(ユーザーが決めた)。既定と同じ class が並ぶと、どこで色を変えているのかが読み取りにくい。
 
 ## light と dark
 

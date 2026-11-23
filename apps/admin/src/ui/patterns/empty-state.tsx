@@ -5,7 +5,7 @@ import { Icon, type IconName } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 
 const emptyState = tv({
-  base: "flex flex-col items-center gap-4 rounded-surface border border-dashed border-line px-6 py-12 text-center",
+  base: "flex flex-col items-center gap-4 rounded-surface border border-dashed px-6 py-12 text-center",
 });
 
 const mark = tv({

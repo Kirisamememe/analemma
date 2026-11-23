@@ -7,7 +7,7 @@ const badge = tv({
   base: "inline-flex items-center rounded-xs border px-1.5",
   variants: {
     tone: {
-      neutral: "border-line text-fg-muted",
+      neutral: "text-fg-muted",
       info: "border-info bg-info/10 text-info",
       success: "border-success bg-success/10 text-success",
       warning: "border-warning bg-warning/10 text-warning",
