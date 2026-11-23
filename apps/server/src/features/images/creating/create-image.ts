@@ -26,6 +26,8 @@ export const createImage = async (
     signal,
   );
 
+  signal?.throwIfAborted();
+
   if (delivery._tag === "UnsupportedFormat") return delivery;
 
   const shot = await readShotInfo(bytes);

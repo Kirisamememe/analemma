@@ -7,34 +7,54 @@ export type ConversionQueue = {
   ) => Promise<T>;
 };
 
-const whenAborted = (signal: AbortSignal): Promise<never> => {
-  const { promise, reject } = Promise.withResolvers<never>();
-
-  const abort = (): void => {
-    reject(new DOMException("写真の変換を待つのをやめた", "AbortError"));
-  };
-
-  if (signal.aborted) abort();
-  else signal.addEventListener("abort", abort, { once: true });
-
-  return promise;
-};
+const abortError = (): DOMException =>
+  new DOMException("写真の変換を待つのをやめた", "AbortError");
 
 /** 写真の変換を1つずつ順に流すキューを作る。 */
 export const createConversionQueue = (): ConversionQueue => {
-  let previous: Promise<unknown> = Promise.resolve();
+  const waiting: (() => void)[] = [];
+  let running = false;
+
+  const startNext = (): void => {
+    const start = waiting.shift();
+
+    running = start !== undefined;
+    start?.();
+  };
 
   return {
-    run: async (convert, signal) => {
-      const result = previous.then(async () =>
-        signal?.aborted === true ? whenAborted(signal) : convert(),
-      );
+    run: async <T>(
+      convert: () => Promise<T>,
+      signal?: AbortSignal,
+    ): Promise<T> => {
+      if (signal?.aborted === true) throw abortError();
 
-      previous = Promise.allSettled([result]);
+      const { promise, resolve, reject } = Promise.withResolvers<T>();
 
-      return signal === undefined
-        ? result
-        : Promise.race([result, whenAborted(signal)]);
+      const abort = (): void => {
+        const index = waiting.indexOf(start);
+
+        if (index < 0) return;
+
+        waiting.splice(index, 1);
+        reject(abortError());
+      };
+
+      const start = (): void => {
+        signal?.removeEventListener("abort", abort);
+
+        const converted = Promise.resolve().then(convert);
+
+        resolve(converted);
+        void Promise.allSettled([converted]).then(startNext);
+      };
+
+      signal?.addEventListener("abort", abort, { once: true });
+      waiting.push(start);
+
+      if (!running) startNext();
+
+      return promise;
     },
   };
 };

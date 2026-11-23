@@ -1,6 +1,7 @@
 import { ORPCError, onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { ResponseHeadersPlugin } from "@orpc/server/plugins";
+import { StandardRPCMatcher } from "@orpc/server/standard";
 import { Hono, type MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { csrf } from "hono/csrf";
@@ -22,6 +23,7 @@ const API_PREFIX = "/api";
 const API_BODY_LIMIT = 1024 * 1024;
 const API_METHODS = new Set(["GET", "POST"]);
 const FILE_CONTENT_TYPE = "multipart/form-data"; // oRPC がファイルを読む本文の形
+const PHOTO_UPLOAD_PROCEDURE = "admin/images/upload";
 const PHOTO_BODY_LIMIT = PHOTO_MAX_BYTES + API_BODY_LIMIT; // 写真の外の部分は、ほかの API と同じ上限に収める
 const MAX_PHOTO_UPLOADS = 2; // 変換している1枚と、次に変換する1枚
 const PHOTO_RETRY_AFTER_SECONDS = 10;
@@ -111,6 +113,21 @@ const hasSession = async (
   );
 };
 
+const procedureMatcher = new StandardRPCMatcher();
+
+procedureMatcher.init(externalRouter);
+
+const isPhotoUpload = async (request: Request): Promise<boolean> => {
+  const { pathname } = new URL(request.url);
+  const path = pathname.replace(API_PREFIX, "").replaceAll(/^\/|\/$/gv, "");
+  const match = await procedureMatcher.match(request.method, `/${path}`);
+
+  return (
+    match?.path.join("/") === PHOTO_UPLOAD_PROCEDURE &&
+    (request.headers.get("content-type") ?? "").startsWith(FILE_CONTENT_TYPE)
+  );
+};
+
 const limitExternalBody = (
   context: AppContext,
   listener: ExternalListener | undefined,
@@ -119,7 +136,7 @@ const limitExternalBody = (
 
   return async (c, next) => {
     if (
-      !(c.req.header("content-type") ?? "").startsWith(FILE_CONTENT_TYPE) ||
+      !(await isPhotoUpload(c.req.raw)) ||
       !(await hasSession(context, c.req.raw.headers))
     ) {
       return limitApiBody(c, next);

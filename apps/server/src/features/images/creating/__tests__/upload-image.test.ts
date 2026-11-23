@@ -41,15 +41,15 @@ type UploadBody = {
   readonly contentLength?: number;
   /** ログインしたブラウザの Cookie を付けるか。 */
   readonly cookie: boolean;
-  /** `/api/admin/images/` の後ろのパス。 */
+  /** `/api/admin/` の後ろのパス。 */
   readonly path?: string;
 };
 
 const uploadRequest = (
   server: TestClient,
-  { size, contentLength = size, cookie, path = "upload" }: UploadBody,
+  { size, contentLength = size, cookie, path = "images/upload" }: UploadBody,
 ): Request =>
-  new Request(`${TEST_ORIGIN}/api/admin/images/${path}`, {
+  new Request(`${TEST_ORIGIN}/api/admin/${path}`, {
     method: "POST",
     headers: {
       origin: TEST_ORIGIN,
@@ -234,7 +234,7 @@ describe("写真を送って画像を作る", () => {
     );
   });
 
-  test("ログイン中でも、3枚目を同時に送ると、パスの書き方によらず本文を読まずに 503 で断り、空いたら受けること", async () => {
+  test("ログイン中でも、3枚目を同時に送ると、末尾の / の有無によらず本文を読まずに 503 で断り、空いたら受けること", async () => {
     const held = holdFirstConversion();
     await using server = await createTestClient({
       conversions: held.conversions,
@@ -253,7 +253,7 @@ describe("写真を送って画像を作る", () => {
 
     expect(await upload()).toBe("SERVICE_UNAVAILABLE");
 
-    for (const path of ["upload", "upload/", "upload//", "UPLOAD"]) {
+    for (const path of ["images/upload", "images/upload/"]) {
       const request = uploadRequest(server, { size: 16, cookie: true, path });
       const response = await server.app.fetch(request);
 
@@ -349,6 +349,21 @@ describe("写真を送る本文の大きさ", () => {
     expect(
       await catchErrorCode(server.client.admin.images.upload({ photo: large })),
     ).toBe("UNSUPPORTED_FORMAT");
+  });
+
+  test("ログイン中でも、写真を送る procedure のほかには、ファイルを含む本文にも 1 MB の上限を掛けること", async () => {
+    await using server = await createTestClient();
+    await signInAsAdmin(server);
+
+    const response = await server.app.fetch(
+      uploadRequest(server, {
+        size: 2 * MEGABYTE,
+        cookie: true,
+        path: "fixedPages/update",
+      }),
+    );
+
+    expect(response.status).toBe(413);
   });
 
   test("ログイン中でも、写真の上限にほかの API の上限を足した大きさを超える本文は、読まずに 413 で断ること", async () => {
