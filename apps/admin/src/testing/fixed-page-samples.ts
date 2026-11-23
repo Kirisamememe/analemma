@@ -1,6 +1,7 @@
 import type { ApiOutputs } from "@/api/api-types";
 
 const date = "2026-01-02T00:00:00.000Z";
+
 /** 項目の無い種類の定義(kinds.get の出力)。 */
 export const kind = {
   name: "profile",
