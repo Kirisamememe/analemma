@@ -9,6 +9,7 @@ export const useViewerImage = (id: string) => {
 
   return useApiQuery({
     key: imageQueryKey(id),
+    keepDataOnRefreshError: true,
     load: () => loadImage(api, id),
   });
 };

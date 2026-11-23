@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { ImageViewer, ViewerFrame } from "@/features/images/ui/image-viewer";
-import { ViewerLoading } from "@/features/images/ui/viewer-loading";
 import { samplePhoto } from "@/testing/sample-photos";
 import { Text } from "@/ui/layout";
+import { LoadingState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Link } from "@/ui/primitives/navigation";
 
@@ -63,5 +63,5 @@ export const NoDeliveryImage: Story = {
 
 export const Loading: Story = {
   /** 写真の代わりに、読み込んでいることを出す骨組み。 */
-  render: () => <ViewerLoading />,
+  render: () => <LoadingState layout="media" />,
 };
