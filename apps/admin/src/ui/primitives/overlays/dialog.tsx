@@ -30,6 +30,9 @@ const dialog = tv({
     close: "absolute inset-e-2 top-2",
   },
   variants: {
+    gallery: {
+      true: { modal: "@container flex max-w-page flex-col", body: "min-h-0" },
+    },
     status: {
       pending: {
         modal: "relative w-80 max-w-full p-2",
@@ -50,6 +53,8 @@ const dialog = tv({
 type DialogProps = {
   /** 開いているか。 */
   isOpen: boolean;
+  /** 写真の一覧の下に表示する選択数と操作。 */
+  galleryFooter?: ReactNode;
   /** 開け閉めを知らせる関数。 */
   onOpenChange: (isOpen: boolean) => void;
   /** Dialog の名前。 */
@@ -69,6 +74,7 @@ type DialogProps = {
 /** 今の画面の上に重ねて開き、focus を閉じ込める Dialog。 */
 export const Dialog = ({
   isOpen,
+  galleryFooter,
   onOpenChange,
   title,
   descriptionId = "",
@@ -87,7 +93,7 @@ export const Dialog = ({
     emblem,
     indicator,
     close,
-  } = dialog({ status });
+  } = dialog({ status, gallery: galleryFooter !== undefined });
 
   const panel = useCallback(
     (element: HTMLElement | null) => {
@@ -170,7 +176,14 @@ export const Dialog = ({
               />
             </div>
           )}
-          {children}
+          {galleryFooter === undefined ? (
+            children
+          ) : (
+            <>
+              <div className="min-h-0 overflow-y-auto p-1">{children}</div>
+              {galleryFooter}
+            </>
+          )}
         </AriaDialog>
       </Modal>
     </ModalOverlay>
