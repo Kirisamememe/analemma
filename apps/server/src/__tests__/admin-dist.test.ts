@@ -41,6 +41,7 @@ const context = {
   storage: await openFileStorage(root),
   challenges: createChallengeStore({ capacity: 1, lifetimeMs: 1000 }),
   conversions: createConversionQueue(),
+  dropbox: undefined,
 };
 
 const dir = join(root, "dist");

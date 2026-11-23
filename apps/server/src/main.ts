@@ -5,6 +5,7 @@ import {
   CHALLENGE_LIFETIME_MS,
   createChallengeStore,
 } from "@/features/auth/challenge/create-challenge-store";
+import { createDropboxContext } from "@/features/dropbox/connection/create-dropbox-context";
 import { createConversionQueue } from "@/features/images/processing/conversion-queue";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
@@ -63,6 +64,14 @@ const context: AppContext = {
     lifetimeMs: CHALLENGE_LIFETIME_MS,
   }),
   conversions: createConversionQueue(),
+  dropbox:
+    env.dropbox === undefined
+      ? undefined
+      : await createDropboxContext({
+          ...env.dropbox,
+          origin: env.relyingParty.origin,
+          fetch,
+        }),
 };
 
 const internalOptions = {

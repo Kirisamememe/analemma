@@ -79,14 +79,46 @@ const envSchema = z
     };
   });
 
+const DROPBOX_TOKEN_KEY_BYTES = 32;
+
+const dropboxTokenKeySchema = z
+  .string()
+  .regex(/^[A-Za-z0-9+\/]{43}=$/v, {
+    error: "32 bytes の鍵を base64 で書く(openssl rand -base64 32)",
+  })
+  .transform((value) => Uint8Array.fromBase64(value))
+  .refine((key) => key.length === DROPBOX_TOKEN_KEY_BYTES, {
+    error: "32 bytes の鍵を base64 で書く(openssl rand -base64 32)",
+  });
+
 const serverEnvSchema = z
   .object({
     MEDIA_DIR: z
       .string({ error: "設定されていない" })
       .min(1, { error: "フォルダのパスを書く" }),
+    DROPBOX_APP_KEY: z
+      .string()
+      .regex(/^[a-z0-9]+$/v, { error: "Dropbox のアプリの app key を書く" })
+      .optional(),
+    DROPBOX_TOKEN_KEY: dropboxTokenKeySchema.optional(),
   })
+  .refine(
+    ({ DROPBOX_APP_KEY, DROPBOX_TOKEN_KEY }) =>
+      (DROPBOX_APP_KEY === undefined) === (DROPBOX_TOKEN_KEY === undefined),
+    {
+      error: "DROPBOX_APP_KEY と一緒に設定する",
+      path: ["DROPBOX_TOKEN_KEY"],
+    },
+  )
   .and(envSchema)
-  .transform(({ MEDIA_DIR, ...env }) => ({ ...env, mediaDir: MEDIA_DIR }));
+  .transform(({ MEDIA_DIR, DROPBOX_APP_KEY, DROPBOX_TOKEN_KEY, ...env }) => ({
+    ...env,
+    mediaDir: MEDIA_DIR,
+    dropbox:
+      DROPBOX_APP_KEY === undefined || DROPBOX_TOKEN_KEY === undefined
+        ? undefined
+        : { appKey: DROPBOX_APP_KEY, tokenKey: DROPBOX_TOKEN_KEY },
+  }));
 
 /** 環境変数の名前と値。 */
 type EnvSource = Readonly<Record<string, string | undefined>>;

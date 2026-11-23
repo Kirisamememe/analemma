@@ -7,6 +7,7 @@ import type { SourceFile } from "./source-file";
 export const TEST_ONLY_DIRECTORIES = [
   "apps/server/src/test-client/",
   "apps/server/src/platform/test-database/",
+  "apps/server/src/platform/dropbox/fake-dropbox/",
   "apps/server/src/features/auth/webauthn/fake-authenticator/",
   "apps/server/src/features/auth/webauthn/w3c-test-vectors/",
   "apps/admin/src/testing/",

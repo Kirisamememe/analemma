@@ -7,6 +7,7 @@ export {
 export { answerRegistration } from "@/test-client/answer-registration";
 export { SUCCEEDED, catchErrorCode } from "@/test-client/catch-error-code";
 export {
+  TEST_DROPBOX_APP_KEY,
   TEST_INTERNAL_URL,
   TEST_ORIGIN,
   type TestClient,

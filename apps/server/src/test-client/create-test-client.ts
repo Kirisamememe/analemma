@@ -19,11 +19,13 @@ import {
   createChallengeStore,
 } from "@/features/auth/challenge/create-challenge-store";
 import { issueEnrollment } from "@/features/auth/enrollment/issue-enrollment";
+import { createDropboxContext } from "@/features/dropbox/connection/create-dropbox-context";
 import {
   type ConversionQueue,
   createConversionQueue,
 } from "@/features/images/processing/conversion-queue";
 import type { Clock } from "@/platform/clock";
+import type { DropboxFetch } from "@/platform/dropbox/dropbox-client";
 import {
   type FileStorage,
   openFileStorage,
@@ -42,6 +44,8 @@ export type TestClientOptions = {
   readonly conversions?: ConversionQueue;
   /** 外部用のポートを待ち受ける実行環境が、アプリに渡す処理。 */
   readonly listener?: ExternalListener;
+  /** Dropbox の代わりに使う、作り物の Dropbox の fetch。 */
+  readonly dropbox?: DropboxFetch;
 };
 
 /** それぞれ自分の Cookie を持つ、テストのブラウザ。 */
@@ -82,6 +86,9 @@ export const TEST_ORIGIN = "https://analemma.test";
 /** テストの内部用のポートの URL。 */
 export const TEST_INTERNAL_URL = "http://127.0.0.1:8788";
 
+/** テストの Dropbox のアプリの app key。 */
+export const TEST_DROPBOX_APP_KEY = "testappkey";
+
 /** テストの RP ID。 */
 export const TEST_RP_ID = "analemma.test";
 
@@ -119,6 +126,15 @@ export const createTestClient = async (
       lifetimeMs: CHALLENGE_LIFETIME_MS,
     }),
     conversions: options.conversions ?? createConversionQueue(),
+    dropbox:
+      options.dropbox === undefined
+        ? undefined
+        : await createDropboxContext({
+            appKey: TEST_DROPBOX_APP_KEY,
+            tokenKey: crypto.getRandomValues(new Uint8Array(32)),
+            origin: TEST_ORIGIN,
+            fetch: options.dropbox,
+          }),
   };
 
   const app = createExternalApp(context, { listener: options.listener });

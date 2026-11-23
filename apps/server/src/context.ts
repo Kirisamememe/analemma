@@ -1,4 +1,5 @@
 import type { ChallengeStore } from "@/features/auth/challenge/create-challenge-store";
+import type { DropboxContext } from "@/features/dropbox/connection/create-dropbox-context";
 import type { ConversionQueue } from "@/features/images/processing/conversion-queue";
 import type { Clock } from "@/platform/clock";
 import type { Database } from "@/platform/database";
@@ -22,6 +23,8 @@ export type AppContext = {
   readonly challenges: ChallengeStore;
   /** 写真の変換を、プロセスの中で1つずつ順に流すキュー。 */
   readonly conversions: ConversionQueue;
+  /** Dropbox とつなぐための依存(server に Dropbox のアプリを設定したときだけ)。 */
+  readonly dropbox: DropboxContext | undefined;
 };
 
 /** 1つのリクエストを処理するあいだの依存。 */
