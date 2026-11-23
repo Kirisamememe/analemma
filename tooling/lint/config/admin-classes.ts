@@ -20,7 +20,7 @@ const SCALE = "xs|sm|base|lg|xl|2xl|3xl|4xl|5xl";
 const SPACING = ["0", "0\\.5", "1", "1\\.5", "2", "3", "4", "6", "8", "12"];
 const OPACITY = ["5", "10", "15", "20", "30", "40", "60", "80"];
 const SIDES = "(?:[xytrblse]|bs|be)?";
-const SPACING_UTILITIES = `gap(?:-[xy])?|p${SIDES}|m${SIDES}|scroll-p${SIDES}|scroll-m${SIDES}`;
+const SPACING_UTILITIES = `gap-[xy]|gap(?!-[xy]-)|p${SIDES}|m${SIDES}|scroll-p${SIDES}|scroll-m${SIDES}`; // gap-x-3 の x-3 を値と読まない
 const BORDER = "border(?:-[xytrblse]|-bs|-be)?";
 const MODIFIER = "(?:/[^/]+)?";
 
@@ -102,7 +102,7 @@ const colorRestriction = (color: string): Restriction => {
     longer.length === 0 ? "" : `(?!.*-(?:${longer.join("|")})${MODIFIER}$)`;
 
   return {
-    pattern: `${VARIANTS}(?!${usage}-${color}${MODIFIER}$)(?!rounded(?:-[a-z]{1,2})?-)${notLonger}[a-z\\-]+-${color}${MODIFIER}$`,
+    pattern: `${VARIANTS}(?!${usage}-${color}${MODIFIER}$)(?!rounded(?:-[a-z]{1,2})?-)(?!whitespace-)${notLonger}[a-z\\-]+-${color}${MODIFIER}$`,
     message:
       allowed.length === 0
         ? `${color} は class にせず、theme.css の utility の中でだけ使います。`
