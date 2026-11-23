@@ -36,6 +36,8 @@ const updatedKind = withFields([
   { key: "lead", type: "text", label: "リード文" },
 ]);
 
+const offline = { error: "INTERNAL_SERVER_ERROR", defined: false } as const;
+
 const titleField = () =>
   screen.getByRole<HTMLInputElement>("textbox", { name: "タイトル" });
 
@@ -43,21 +45,31 @@ const findTitle = () => screen.findByRole("textbox", { name: "タイトル" });
 const findButton = (name: string) => screen.findByRole("button", { name });
 const button = (name: string) => screen.getByRole("button", { name });
 
-const holdDefinition = (server: ReturnType<typeof createFixedPageRoutes>) => {
+type FixedPageServer = ReturnType<typeof createFixedPageRoutes>;
+
+const holdDefinition = (server: FixedPageServer) => {
   const held = Promise.withResolvers<FakeReply<"admin/kinds/get">>();
   server.replyNext("admin/kinds/get", () => held.promise);
 
   return held;
 };
 
+const expectSavedDraft = (
+  server: FixedPageServer,
+  content: Record<string, string>,
+) =>
+  waitFor(() => {
+    expect(server.pages()[0]).toMatchObject({ title: "紹介の下書き", content });
+  });
+
 const listRow = () => screen.findByRole("row", { name: page.title });
 
 const pressFirst = async (name: string | RegExp) => {
-  const [button] = screen.getAllByRole("button", { name });
+  const [first] = screen.getAllByRole("button", { name });
 
-  if (button === undefined) throw new Error("ボタンがありません");
+  if (first === undefined) throw new Error("ボタンがありません");
 
-  await userEvent.click(button);
+  await userEvent.click(first);
 };
 
 const openPicker = async () => {
@@ -137,7 +149,7 @@ test("期限後の種類の更新が失敗しても成功しても、編集し�
 
   await userEvent.type(title, "の下書き");
 
-  pending.resolve({ error: "INTERNAL_SERVER_ERROR", defined: false });
+  pending.resolve(offline);
   const retry = await findButton("再読み込み");
   expect(titleField() === title).toBe(true);
   expect(title.value).toBe("紹介の下書き");
@@ -216,10 +228,7 @@ test("種類の一覧を更新できなかったときだけ、前の種類を�
   const { queryClient, server } = await setup();
   expect(screen.queryByRole("button", { name: "再読み込み" })).toBeNull();
   queryClient.setQueryDefaults(KINDS_QUERY_KEY, { retry: false });
-  server.replyNext("admin/kinds/list", () => ({
-    error: "INTERNAL_SERVER_ERROR",
-    defined: false,
-  }));
+  server.replyNext("admin/kinds/list", () => offline);
   setSystemTime(Date.now() + 16 * 60_000);
   const choice = await openPicker();
   const retry = await findButton("再読み込み");
@@ -245,12 +254,7 @@ test("保存後に新しい項目へ切り替わっても、直前に保存し�
   expect(titleField().value).toBe("紹介の下書き");
   await userEvent.type(lead, "続けて入力");
   await save();
-  await waitFor(() => {
-    expect(server.pages()[0]).toMatchObject({
-      title: "紹介の下書き",
-      content: { lead: "続けて入力" },
-    });
-  });
+  await expectSavedDraft(server, { lead: "続けて入力" });
 });
 
 test("未編集のまま保存を送った後に新しい定義が届いても、保存中は重ねて送れない", async () => {
@@ -304,10 +308,5 @@ test("別のタブで保存した選択値を古い定義で表示できない�
   held.resolve({ output: makeKind("old", "new") });
   await userEvent.type(await findTitle(), "の下書き");
   await save();
-  await waitFor(() => {
-    expect(server.pages()[0]).toMatchObject({
-      title: "紹介の下書き",
-      content: { style: "new" },
-    });
-  });
+  await expectSavedDraft(server, { style: "new" });
 });
