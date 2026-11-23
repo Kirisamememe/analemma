@@ -50,6 +50,7 @@ test("要素の誤りをまとまりの説明にしてまとまりに focus を�
     name: "行 1",
     description: "入力してください。",
   });
+
   await waitFor(() => {
     expect(document.activeElement).toBe(row);
   });

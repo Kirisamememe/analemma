@@ -25,6 +25,7 @@ export const BoundForm = ({
   const form = useFormContext();
   const element = useRef<HTMLFormElement>(null);
   const isSubmitting = useSelector(form.store, (state) => state.isSubmitting);
+
   const submit = async (): Promise<void> => {
     await form.handleSubmit();
 

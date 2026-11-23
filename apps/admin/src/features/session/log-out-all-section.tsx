@@ -16,6 +16,7 @@ export const LogOutAllSection = (): ReactNode => {
   const { api } = useAppContext();
   const [isConfirming, setConfirming] = useState(false);
   const failure = useFailureToast();
+
   const logOutAll = useApiMutation({
     send: () => sendLogOutAll(api),
     onSuccess: () => {

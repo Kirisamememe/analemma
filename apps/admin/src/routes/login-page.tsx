@@ -18,6 +18,7 @@ export const LoginPage = (): ReactNode => {
   const { api, authenticator, gate } = useRouteContext({ from: "/login" });
   const { redirect } = useSearch({ from: "/login" });
   const failure = useFailureToast();
+
   const login = useMutation({
     mutationFn: async () =>
       gate.authenticate(async () => logIn({ api, authenticator })),

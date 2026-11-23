@@ -232,10 +232,12 @@ test("slug の重複は Toast と入力欄で知らせて入力欄に focus を�
   edit({ "admin/fixedPages/update": () => ({ error: "SLUG_TAKEN" }) });
   await save();
   const taken = "この slug は、ほかの固定ページが使っています。";
+
   const input = await screen.findByRole("textbox", {
     name: "slug",
     description: new RegExp(taken, "v"),
   });
+
   const toast = await within(
     screen.getByRole("region", { name: /通知/v }),
   ).findByRole("alert");

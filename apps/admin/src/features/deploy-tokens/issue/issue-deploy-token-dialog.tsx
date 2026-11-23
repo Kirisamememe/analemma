@@ -71,6 +71,7 @@ const IssueForm = ({
   onClose,
 }: IssueFormProps): ReactNode => {
   const t = useTranslate();
+
   const form = useAppForm({
     canSubmitWhenInvalid: true,
     defaultValues: { name: "" },
@@ -128,6 +129,7 @@ export const IssueDeployTokenDialog = ({
   onClose,
 }: IssueDeployTokenDialogProps): ReactNode => {
   const t = useTranslate();
+
   const { issued, isPending, issue, close } = useIssueDeployToken({
     onClose,
   });

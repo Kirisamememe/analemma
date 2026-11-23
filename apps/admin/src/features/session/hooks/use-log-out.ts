@@ -11,6 +11,7 @@ export const useLogOut = () => {
   const goToLogin = useGoToLogin();
   const { clear } = useApiCache();
   const { api } = useAppContext();
+
   const logOut = useApiMutation({
     send: () => sendLogOut(api),
     onSuccess: () => {

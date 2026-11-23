@@ -104,6 +104,7 @@ export const clearChangedErrors = (
   name: string,
 ): FieldErrors => {
   const entries = Object.entries(fields);
+
   const remaining = entries.filter(
     ([key]) => key !== name && !name.startsWith(key + "/"),
   );

@@ -36,6 +36,7 @@ export const RevokeDeployTokenDialog = ({
   const t = useTranslate();
   const showToast = useShowToast();
   const failure = useFailureToast();
+
   const close = (): void => {
     failure.close();
     onClose();

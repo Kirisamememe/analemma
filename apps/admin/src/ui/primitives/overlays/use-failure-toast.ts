@@ -6,6 +6,7 @@ import { useShowToast } from "@/ui/primitives/overlays/use-show-toast";
 export const useFailureToast = () => {
   const showToast = useShowToast();
   const closeShown = useRef<() => void>(undefined);
+
   const close = (): void => {
     closeShown.current?.();
     closeShown.current = undefined;

@@ -35,6 +35,7 @@ export const RenamePasskeyDialog = ({
   const t = useTranslate();
   const showToast = useShowToast();
   const failure = useFailureToast();
+
   const close = (): void => {
     failure.close();
     onClose();
@@ -59,6 +60,7 @@ export const RenamePasskeyDialog = ({
       failure.show(t("passkeys.failed"));
     },
   });
+
   const form = useAppForm({
     canSubmitWhenInvalid: true,
     defaultValues: { name: passkey.name },

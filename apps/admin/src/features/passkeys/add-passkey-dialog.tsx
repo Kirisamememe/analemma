@@ -32,6 +32,7 @@ export const AddPasskeyDialog = ({
   const t = useTranslate();
   const showToast = useShowToast();
   const failure = useFailureToast();
+
   const close = (): void => {
     failure.close();
     onClose();
@@ -60,6 +61,7 @@ export const AddPasskeyDialog = ({
       failure.show(t(toAddFailure("Unexpected")));
     },
   });
+
   const form = useAppForm({
     canSubmitWhenInvalid: true,
     defaultValues: { name: "" },

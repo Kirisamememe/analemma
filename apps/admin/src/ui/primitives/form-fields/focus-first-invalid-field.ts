@@ -10,6 +10,7 @@ const isFocusTarget = (element: Element): element is HTMLElement =>
 export const focusFirstInvalidField = (container: Element | null): void => {
   requestAnimationFrame(() => {
     const field = container?.querySelector("[data-invalid]"); // React Aria Components が誤りの欄の外枠に付ける
+
     const target =
       field instanceof HTMLElement && field.hasAttribute("tabindex")
         ? field

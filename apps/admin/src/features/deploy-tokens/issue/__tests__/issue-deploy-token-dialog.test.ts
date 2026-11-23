@@ -225,6 +225,7 @@ describe("IssueDeployTokenDialog", () => {
     const { app } = renderIssuing();
 
     const dialog = await openAndSubmit("   ");
+
     const name = within(dialog).getByRole("textbox", {
       name: "トークンの名前",
     });
@@ -249,9 +250,11 @@ describe("IssueDeployTokenDialog", () => {
     const dialog = await screen.findByRole("dialog", {
       name: "トークンを発行",
     });
+
     const name = within(dialog).getByRole("textbox", {
       name: "トークンの名前",
     });
+
     const problem = "1〜64文字で、改行などを使わずに付けてください。";
 
     await userEvent.click(name);

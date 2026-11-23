@@ -41,6 +41,7 @@ export const EnrollPage = (): ReactNode => {
 
   const { token } = opened;
   const failure = useFailureToast();
+
   const enrollment = useMutation({
     mutationFn: async (input: EnrollInput) =>
       gate.authenticate(async () => enroll({ api, authenticator }, input)),
@@ -65,6 +66,7 @@ export const EnrollPage = (): ReactNode => {
       failure.show(t("enroll.failed"));
     },
   });
+
   const result = enrollment.data?._tag;
   const outcome = enrollment.variables?.token === token ? result : undefined;
   const notice = outcome === undefined ? undefined : toEnrollNotice(outcome);

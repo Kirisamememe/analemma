@@ -43,6 +43,7 @@ describe("focusFirstInvalidField", () => {
     const { container } = renderWithI18n(
       <TextField label="タイトル" name="title" />,
     );
+
     const before = document.activeElement;
 
     await act(async () => {
