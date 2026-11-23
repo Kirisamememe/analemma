@@ -83,7 +83,7 @@ const group = tv({
       true: { marker: "border-danger text-danger", title: "text-danger" },
     },
     item: {
-      true: { title: "self-start py-1.5" },
+      true: { title: "grow self-start py-1.5" },
     },
   },
 });
