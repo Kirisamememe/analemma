@@ -36,22 +36,25 @@ export const CopyButton = ({
   return (
     <>
       <Button onPress={onPress} ref={ref ?? null} tone="primary">
-        {result === "Failed" ? (
-          <span className={face({ shown: true })}>
+        <span className="grid">
+          <span
+            aria-hidden={result !== undefined}
+            className={face({ shown: result === undefined })}
+          >
+            {t("deployTokens.copy")}
+          </span>
+          <span aria-hidden={!isCopied} className={face({ shown: isCopied })}>
+            <Icon name="check" />
+            {t("deployTokens.copiedLabel")}
+          </span>
+          <span
+            aria-hidden={result !== "Failed"}
+            className={face({ shown: result === "Failed" })}
+          >
             <Icon name="circle-alert" />
             {t("deployTokens.copyFailedLabel")}
           </span>
-        ) : (
-          <span className="grid">
-            <span aria-hidden={isCopied} className={face({ shown: !isCopied })}>
-              {t("deployTokens.copy")}
-            </span>
-            <span aria-hidden={!isCopied} className={face({ shown: isCopied })}>
-              <Icon name="check" />
-              {t("deployTokens.copiedLabel")}
-            </span>
-          </span>
-        )}
+        </span>
       </Button>
       <output className="sr-only">
         {result === undefined
