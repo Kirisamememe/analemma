@@ -79,6 +79,33 @@ const envSchema = z
     };
   });
 
+const dropboxCredential = z
+  .string()
+  .regex(/^[0-9A-Za-z]{1,64}$/v, {
+    error: "App Console の値を英数字のまま書く",
+  })
+  .optional();
+
+const dropboxEnvSchema = z
+  .object({
+    DROPBOX_APP_KEY: dropboxCredential,
+    DROPBOX_APP_SECRET: dropboxCredential,
+  })
+  .refine(
+    ({ DROPBOX_APP_KEY, DROPBOX_APP_SECRET }) =>
+      (DROPBOX_APP_KEY === undefined) === (DROPBOX_APP_SECRET === undefined),
+    {
+      error:
+        "DROPBOX_APP_KEY と DROPBOX_APP_SECRET は、両方を書くか、両方を省く",
+      path: ["DROPBOX_APP_SECRET"],
+    },
+  )
+  .transform(({ DROPBOX_APP_KEY, DROPBOX_APP_SECRET }) =>
+    DROPBOX_APP_KEY === undefined || DROPBOX_APP_SECRET === undefined
+      ? undefined
+      : { appKey: DROPBOX_APP_KEY, appSecret: DROPBOX_APP_SECRET },
+  );
+
 const serverEnvSchema = z
   .object({
     MEDIA_DIR: z
@@ -86,6 +113,7 @@ const serverEnvSchema = z
       .min(1, { error: "フォルダのパスを書く" }),
   })
   .and(envSchema)
+  .and(dropboxEnvSchema.transform((dropbox) => ({ dropbox })))
   .transform(({ MEDIA_DIR, ...env }) => ({ ...env, mediaDir: MEDIA_DIR }));
 
 /** 環境変数の名前と値。 */
