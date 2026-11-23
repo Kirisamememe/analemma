@@ -1,10 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import {
-  ImageViewer,
-  ViewerFrame,
-  ViewerMessage,
-} from "@/features/images/ui/image-viewer";
+import { ImageViewer, ViewerFrame } from "@/features/images/ui/image-viewer";
 import { samplePhoto } from "@/testing/sample-photos";
 import { Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
@@ -59,13 +55,11 @@ export const NoDeliveryImage: Story = {
   args: { images: [], next: undefined },
 };
 
-export const Message: Story = {
+export const Loading: Story = {
   /** 写真の代わりに、読み込んでいることを出す骨組み。 */
   render: () => (
     <ViewerFrame back={back}>
-      <ViewerMessage>
-        <Text tone="muted">画像を読み込んでいます。</Text>
-      </ViewerMessage>
+      <ViewerLoading />
     </ViewerFrame>
   ),
 };
