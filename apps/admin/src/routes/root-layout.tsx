@@ -1,11 +1,21 @@
-import { Outlet } from "@tanstack/react-router";
+import { Outlet, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { useIsLoadingFirstData } from "@/api/server-state/server-state";
+import { NavigationProgress } from "@/ui/primitives/navigation";
 import { UiProvider } from "@/ui/primitives/ui-provider";
 
-/** すべての画面に UI の Provider を渡す。 */
+const RouteProgress = (): ReactNode => {
+  const isRouting = useRouterState({ select: (state) => state.isLoading });
+  const isLoadingData = useIsLoadingFirstData();
+
+  return <NavigationProgress isActive={isRouting || isLoadingData} />;
+};
+
+/** すべての画面に UI の Provider を渡し、画面を移っている間は上端に帯を流す。 */
 export const RootLayout = (): ReactNode => (
   <UiProvider>
+    <RouteProgress />
     <Outlet />
   </UiProvider>
 );

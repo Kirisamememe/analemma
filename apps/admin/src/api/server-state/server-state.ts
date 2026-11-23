@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useIsFetching,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { isUnauthorized } from "@/api/api-errors";
 
@@ -90,6 +95,10 @@ export const useApiQuery = <Data>({
 
   return { _tag: "Loaded", data: query.data };
 };
+
+/** まだデータの無い取得を待っているか(取り直しのような、データのある取得は数えない)を返す。 */
+export const useIsLoadingFirstData = (): boolean =>
+  useIsFetching({ predicate: ({ state }) => state.data === undefined }) > 0;
 
 /** server に操作を送り、送信の状態と結果を返す。 */
 export const useApiMutation = <Data, Input = void>({

@@ -93,6 +93,9 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "dialog-panel-animation": null,
   "nav-drawer-panel-animation": null,
   "toast-animation": null,
+  "page-enter-animation": null,
+  "navigation-progress-animation": null,
+  "navigation-progress-indicator-animation": null,
 };
 
 describe("デザインシステムの class の merge", () => {

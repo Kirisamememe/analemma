@@ -22,6 +22,7 @@ import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
 import * as layoutCenter from "@/ui/layout/__stories__/center.stories";
 import * as layoutCluster from "@/ui/layout/__stories__/cluster.stories";
 import * as layoutHeading from "@/ui/layout/__stories__/heading.stories";
+import * as layoutPageTransition from "@/ui/layout/__stories__/page-transition.stories";
 import * as layoutStack from "@/ui/layout/__stories__/stack.stories";
 import * as layoutText from "@/ui/layout/__stories__/text.stories";
 import * as patternsEmptyState from "@/ui/patterns/__stories__/empty-state.stories";
@@ -47,6 +48,7 @@ import * as primitivesLink from "@/ui/primitives/navigation/__stories__/link.sto
 import * as primitivesNavDrawer from "@/ui/primitives/navigation/__stories__/nav-drawer.stories";
 import * as primitivesNavItem from "@/ui/primitives/navigation/__stories__/nav-item.stories";
 import * as primitivesNavSelect from "@/ui/primitives/navigation/__stories__/nav-select.stories";
+import * as primitivesNavigationProgress from "@/ui/primitives/navigation/__stories__/navigation-progress.stories";
 import * as primitivesDialog from "@/ui/primitives/overlays/__stories__/dialog.stories";
 import * as primitivesFocusScope from "@/ui/primitives/overlays/__stories__/focus-scope.stories";
 import * as primitivesToast from "@/ui/primitives/overlays/__stories__/toast.stories";
@@ -76,6 +78,7 @@ const MODULES = {
   "ui/layout/__stories__/center.stories.tsx": layoutCenter,
   "ui/layout/__stories__/cluster.stories.tsx": layoutCluster,
   "ui/layout/__stories__/heading.stories.ts": layoutHeading,
+  "ui/layout/__stories__/page-transition.stories.tsx": layoutPageTransition,
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.ts": layoutText,
   "ui/patterns/__stories__/empty-state.stories.tsx": patternsEmptyState,
@@ -112,6 +115,8 @@ const MODULES = {
     primitivesNavItem,
   "ui/primitives/navigation/__stories__/nav-select.stories.tsx":
     primitivesNavSelect,
+  "ui/primitives/navigation/__stories__/navigation-progress.stories.ts":
+    primitivesNavigationProgress,
   "ui/primitives/overlays/__stories__/dialog.stories.tsx": primitivesDialog,
   "ui/primitives/overlays/__stories__/focus-scope.stories.tsx":
     primitivesFocusScope,
