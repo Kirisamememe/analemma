@@ -31,6 +31,7 @@ import { ImageViewerPage } from "@/routes/images/image-viewer-page";
 import { ImagesPage } from "@/routes/images/images-page";
 import { RootLayout } from "@/routes/root-layout";
 import { SecurityPage } from "@/routes/security-page";
+import { SeriesDetailPage } from "@/routes/series/series-detail-page";
 import { SeriesPage } from "@/routes/series/series-page";
 import { SignedInLayout } from "@/routes/signed-in-layout";
 
@@ -162,6 +163,12 @@ const seriesRoute = createRoute({
   component: SeriesPage,
 });
 
+const seriesDetailRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/series/$id",
+  component: SeriesDetailPage,
+});
+
 const imagesRoute = createRoute({
   getParentRoute: () => signedInRoute,
   path: "/images",
@@ -195,6 +202,7 @@ const routeTree = rootRoute.addChildren([
     ]),
     imagesRoute,
     seriesRoute,
+    seriesDetailRoute,
     securityRoute,
     deployTokensRoute,
   ]),

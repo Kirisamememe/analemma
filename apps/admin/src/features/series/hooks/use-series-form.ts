@@ -1,14 +1,21 @@
 import { useCallback, useState } from "react";
 
-import { seriesFormExit } from "../logic/series-form-state";
+import {
+  mergeSavedSeries,
+  seriesFormExit,
+  seriesSaveFailure,
+} from "../logic/series-form-state";
 import {
   checkSeriesField,
   seriesSaveFields,
 } from "../logic/series-form-values";
 import {
   saveSeries,
+  seriesKey,
+  seriesSaveKey,
   SERIES_LIST_KEY,
   type SeriesFields,
+  type Series,
 } from "../queries/series-query";
 
 import { useAppContext } from "@/api/app-context";
@@ -18,17 +25,19 @@ import { checkAfterSubmit, useAppForm } from "@/components/forms";
 import { useTranslate } from "@/i18n/use-translate";
 import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
 
-/** シリーズを作成する Dialog の引数。 */
+/** シリーズを作成・編集する Dialog の引数。 */
 export type SeriesFormProps = {
   /** 入力の Dialog を閉じる。 */
   onClose: () => void;
+  /** 編集するシリーズ。 */
+  series?: Pick<Series, "id" | keyof SeriesFields>;
 };
 
 /** シリーズの入力欄と保存、画面を離れるときの確認をつなぐ。 */
-export const useSeriesForm = ({ onClose }: SeriesFormProps) => {
+export const useSeriesForm = ({ series, onClose }: SeriesFormProps) => {
   const t = useTranslate();
   const { api } = useAppContext();
-  const { refresh } = useApiCache();
+  const { refresh, update } = useApiCache();
   const failure = useFailureToast();
   const [refused, setRefused] = useState<string>();
 
@@ -51,13 +60,30 @@ export const useSeriesForm = ({ onClose }: SeriesFormProps) => {
   const toast = useShowToast();
 
   const saving = useApiMutation({
-    send: (fields: SeriesFields) => saveSeries(api, fields),
+    ...(series === undefined
+      ? {}
+      : {
+          key: seriesSaveKey(series.id),
+          scope: `series:${series.id}`,
+        }),
+    send: (fields: SeriesFields) =>
+      saveSeries(
+        api,
+        series === undefined ? fields : { ...fields, id: series.id },
+      ),
     onSuccess: async (result, fields) => {
       if (result._tag === "Failed") {
-        setRefused(fields.slug);
-        failure.show(t("series.saveFailed"));
+        const notice = seriesSaveFailure(result.code, fields.slug);
+        failure.show(t(notice.message));
+
+        if (notice.refusedSlug !== undefined) setRefused(notice.refusedSlug);
+        else if (series !== undefined) await refresh(seriesKey(series.id));
 
         return;
+      }
+
+      if (series !== undefined) {
+        await update(seriesKey(series.id), mergeSavedSeries(result.data));
       }
 
       leaving.leave();
@@ -72,7 +98,11 @@ export const useSeriesForm = ({ onClose }: SeriesFormProps) => {
 
   const form = useAppForm({
     canSubmitWhenInvalid: true,
-    defaultValues: { name: "", slug: "", description: "" },
+    defaultValues: {
+      name: series?.name ?? "",
+      slug: series?.slug ?? "",
+      description: series?.description ?? "",
+    },
     onSubmit: ({ value }) => {
       failure.close();
       saving.mutate(seriesSaveFields(value));

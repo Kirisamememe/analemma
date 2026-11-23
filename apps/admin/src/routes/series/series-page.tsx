@@ -12,6 +12,7 @@ import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
 import { ActionList, ActionListRow } from "@/ui/primitives/collections";
 import { Icon } from "@/ui/primitives/graphics";
+import { Link } from "@/ui/primitives/navigation";
 
 const CreateSeries = (): ReactNode => {
   const t = useTranslate();
@@ -65,7 +66,7 @@ const SeriesRows = (): ReactNode => {
                 <ActionListRow>
                   <Cluster gap={3}>
                     <ImageThumbnail alt={entry.alt} src={entry.src} />
-                    <Text>{entry.name}</Text>
+                    <Link href={`/series/${entry.id}`}>{entry.name}</Link>
                     <Badge tone={entry.published ? "success" : "neutral"}>
                       {t(
                         entry.published

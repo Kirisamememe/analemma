@@ -270,6 +270,9 @@ export const ja = {
   "series.saved": "シリーズを保存しました。",
   "series.saveFailed":
     "シリーズを保存できませんでした。もう一度試してください。",
+  "series.edit": "シリーズを編集",
+  "series.back": "シリーズの一覧",
+  "series.gone": "このシリーズはもうありません。",
   "images.title": "画像",
   "images.description": "写真作品を兼ねる画像。新しく足した順に並びます。",
   "images.loading": "画像を読み込んでいます。",
