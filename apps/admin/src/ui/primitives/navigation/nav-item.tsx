@@ -7,14 +7,14 @@ import {
 import { useTranslation } from "react-i18next";
 
 import { Icon, type IconName, Spinner } from "@/ui/primitives/graphics";
-import type { LinkProps } from "@/ui/primitives/navigation/link";
 import { navItem } from "@/ui/primitives/navigation/nav-item-style";
+import type { RoutePath } from "@/ui/primitives/ui-provider";
 import { typography } from "@/ui/typography";
 
 /** ナビのリンクに渡す値。 */
 export type NavLinkProps = {
   /** 管理画面の中の行き先。 */
-  href: LinkProps["href"];
+  href: RoutePath;
   /** リンクの文言。 */
   children: ReactNode;
   /** リンクに添えるアイコン。 */
