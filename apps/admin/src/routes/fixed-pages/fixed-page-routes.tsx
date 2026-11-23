@@ -11,8 +11,8 @@ import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor
 import {
   fixedPageQueryKey,
   loadFixedPage,
-} from "@/features/fixed-pages/editor/fixed-page-query";
-import { KINDS_QUERY_KEY } from "@/features/fixed-pages/list/fixed-pages-query";
+} from "@/features/fixed-pages/editor/queries/fixed-page-query";
+import { KINDS_QUERY_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
 import { EmptyState, PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";

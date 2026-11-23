@@ -1,10 +1,10 @@
-import { bindContentIssues } from "../bind-content-issues";
-import { toFixedPageContent } from "../to-fixed-page-content";
+import { bindContentIssues } from "../../logic/bind-content-issues";
+import { toFixedPageContent } from "../../logic/to-fixed-page-content";
 import {
   type EditorBase,
   type EditorValues,
   restoreContent,
-} from "./flat-content";
+} from "../logic/flat-content";
 
 import type { ApiClient, ApiInputs } from "@/api/api-types";
 import { callApi } from "@/api/call-api";

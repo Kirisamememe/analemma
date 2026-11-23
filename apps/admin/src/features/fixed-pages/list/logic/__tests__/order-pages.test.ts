@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { orderPages } from "@/features/fixed-pages/list/order-pages";
+import { orderPages } from "@/features/fixed-pages/list/logic/order-pages";
 
 const page = (id: string) => ({ id });
 

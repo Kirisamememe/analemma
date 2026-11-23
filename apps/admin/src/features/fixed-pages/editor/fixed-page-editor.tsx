@@ -2,7 +2,10 @@ import type { ReactNode } from "react";
 
 import { ContentFields } from "./content-fields";
 import { DeleteFixedPage } from "./delete-fixed-page";
-import { type FixedPageEditorProps, useEditorForm } from "./use-editor-form";
+import {
+  type FixedPageEditorProps,
+  useEditorForm,
+} from "./hooks/use-editor-form";
 
 import type { LeaveConfirmation } from "@/api/leave-confirmation";
 import { useTranslate } from "@/i18n/use-translate";

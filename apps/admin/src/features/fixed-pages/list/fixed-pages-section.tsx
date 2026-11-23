@@ -3,11 +3,11 @@ import type { ReactNode } from "react";
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
 import { FixedPageRow } from "@/features/fixed-pages/list/fixed-page-row";
+import { useReorderFixedPages } from "@/features/fixed-pages/list/hooks/use-reorder-fixed-pages";
 import {
   FIXED_PAGES_QUERY_KEY,
   KINDS_QUERY_KEY,
-} from "@/features/fixed-pages/list/fixed-pages-query";
-import { useReorderFixedPages } from "@/features/fixed-pages/list/use-reorder-fixed-pages";
+} from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { EmptyState } from "@/ui/patterns";

@@ -12,7 +12,7 @@ import {
   createContentForm,
   isFormGroup,
 } from "@/features/fixed-pages/content-form";
-import { toFixedPageContent } from "@/features/fixed-pages/to-fixed-page-content";
+import { toFixedPageContent } from "@/features/fixed-pages/logic/to-fixed-page-content";
 
 const title = { key: "title", type: "text", label: "見出し" };
 const flag = { key: "flag", type: "boolean", label: "表示" };

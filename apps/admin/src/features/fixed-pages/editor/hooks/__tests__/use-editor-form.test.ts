@@ -4,7 +4,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import {
   type FixedPageEditorProps,
   useEditorForm,
-} from "@/features/fixed-pages/editor/use-editor-form";
+} from "@/features/fixed-pages/editor/hooks/use-editor-form";
 import { createTestApp } from "@/testing/create-test-app";
 import { kind, page } from "@/testing/fixed-page-samples";
 import { withAppProviders } from "@/testing/hook-wrappers";

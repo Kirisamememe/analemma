@@ -7,9 +7,9 @@ import {
   toContentSchema,
 } from "@analemma/contract";
 
-import { bindContentIssues } from "@/features/fixed-pages/bind-content-issues";
 import { createContentForm } from "@/features/fixed-pages/content-form";
-import { toFixedPageContent } from "@/features/fixed-pages/to-fixed-page-content";
+import { bindContentIssues } from "@/features/fixed-pages/logic/bind-content-issues";
+import { toFixedPageContent } from "@/features/fixed-pages/logic/to-fixed-page-content";
 
 const title = { key: "title", type: "text", label: "見出し" };
 const group = { key: "details", type: "group", label: "詳細", fields: [title] };

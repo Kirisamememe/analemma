@@ -1,7 +1,7 @@
 import type { ContentIssue } from "@analemma/contract";
 
-import type { bindContentIssues } from "../bind-content-issues";
-import type { saveFixedPage } from "./save-fixed-page";
+import type { bindContentIssues } from "../../logic/bind-content-issues";
+import type { saveFixedPage } from "../queries/save-fixed-page";
 
 import type { MessageKey, useTranslate } from "@/i18n/use-translate";
 

@@ -6,17 +6,20 @@ import {
   clearChangedErrors,
   type EditorErrors,
   refusedSaveErrors,
-} from "./editor-errors";
-import { fixedPageQueryKey, type LoadedFixedPage } from "./fixed-page-query";
-import { createEditorValues, type EditorValues } from "./flat-content";
-import { hasUnsavedChanges, saveFixedPage } from "./save-fixed-page";
+} from "../logic/editor-errors";
+import { createEditorValues, type EditorValues } from "../logic/flat-content";
+import {
+  fixedPageQueryKey,
+  type LoadedFixedPage,
+} from "../queries/fixed-page-query";
+import { hasUnsavedChanges, saveFixedPage } from "../queries/save-fixed-page";
 
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
 import { useLeaveConfirmation } from "@/api/leave-confirmation";
 import { useApiMutation, useApiCache } from "@/api/server-state/server-state";
 import { useAppForm } from "@/components/forms";
-import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/list/fixed-pages-query";
+import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { useShowToast } from "@/ui/primitives/overlays";
 

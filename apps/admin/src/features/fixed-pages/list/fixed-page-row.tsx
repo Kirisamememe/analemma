@@ -2,11 +2,11 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { setPublication } from "@/features/fixed-pages/list/fixed-page-actions";
+import { setPublication } from "@/features/fixed-pages/list/queries/fixed-page-actions";
 import {
   FIXED_PAGES_QUERY_KEY,
   type FixedPageSummary,
-} from "@/features/fixed-pages/list/fixed-pages-query";
+} from "@/features/fixed-pages/queries/fixed-pages-query";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";

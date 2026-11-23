@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { useReorderFixedPages } from "@/features/fixed-pages/list/use-reorder-fixed-pages";
+import { useReorderFixedPages } from "@/features/fixed-pages/list/hooks/use-reorder-fixed-pages";
 import type { FakeReply } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
 import { createFixedPageRoutes } from "@/testing/fake-routes/create-fixed-page-routes";

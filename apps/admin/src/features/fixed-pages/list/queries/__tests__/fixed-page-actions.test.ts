@@ -4,7 +4,7 @@ import {
   deleteFixedPage,
   reorderFixedPages,
   setPublication,
-} from "@/features/fixed-pages/list/fixed-page-actions";
+} from "@/features/fixed-pages/list/queries/fixed-page-actions";
 import { createFakeApi } from "@/testing/create-fake-api";
 import { createFixedPageRoutes } from "@/testing/fake-routes/create-fixed-page-routes";
 

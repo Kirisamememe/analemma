@@ -5,7 +5,7 @@ import {
   type ContentFormValue,
   createContentForm,
   isFormGroup,
-} from "../content-form";
+} from "../../content-form";
 
 /** フォームで編集する項目の値と repeat の並び。 */
 export type FlatContent = {

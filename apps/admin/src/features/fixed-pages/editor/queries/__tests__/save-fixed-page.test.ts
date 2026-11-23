@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { fieldDefinitions } from "@analemma/contract";
 
-import { createEditorValues } from "../flat-content";
+import { createEditorValues } from "../../logic/flat-content";
 import { hasUnsavedChanges, saveFixedPage } from "../save-fixed-page";
 
 import { createFakeApi } from "@/testing/create-fake-api";

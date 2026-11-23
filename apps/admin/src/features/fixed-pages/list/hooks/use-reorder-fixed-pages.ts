@@ -2,12 +2,12 @@ import { useState } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { reorderFixedPages } from "@/features/fixed-pages/list/fixed-page-actions";
-import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/list/fixed-pages-query";
 import {
   type Identified,
   orderPages,
-} from "@/features/fixed-pages/list/order-pages";
+} from "@/features/fixed-pages/list/logic/order-pages";
+import { reorderFixedPages } from "@/features/fixed-pages/list/queries/fixed-page-actions";
+import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { useShowToast } from "@/ui/primitives/overlays";
 

@@ -7,8 +7,8 @@ import {
   createEditorValues,
   flattenContent,
   restoreContent,
-} from "@/features/fixed-pages/editor/flat-content";
-import { toFixedPageContent } from "@/features/fixed-pages/to-fixed-page-content";
+} from "@/features/fixed-pages/editor/logic/flat-content";
+import { toFixedPageContent } from "@/features/fixed-pages/logic/to-fixed-page-content";
 
 const name = { key: "name", label: "名前", type: "text" };
 
