@@ -137,7 +137,7 @@ test("セッション確認中も保存済みの一覧を表示し、失効の�
   );
   await screen.findByRole("heading", { name: "未公開の山" });
   server.replyNext("admin/session/get", () => check.promise);
-  await userEvent.click(screen.getByRole("link", { name: "画像の一覧" }));
+  await userEvent.click(screen.getByRole("link", { name: "一覧へ" }));
   await screen.findByRole("link", { name: /未公開の山/v });
   act(() => {
     check.resolve({ error: "UNAUTHORIZED" });
