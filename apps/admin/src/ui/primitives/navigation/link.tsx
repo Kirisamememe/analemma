@@ -10,13 +10,13 @@ const link = tv({
   variants: {
     variant: {
       inline: "text-fg underline underline-offset-2 is-hovered:decoration-2",
-      back: "inline-flex items-center text-fg-muted transition is-hovered:text-fg",
+      back: "inline-flex items-center gap-1 text-fg-muted transition is-hovered:text-fg",
     },
   },
 });
 
 const chevron = tv({
-  base: "-mr-0.5 -ml-1.5 flex",
+  base: "-ml-1.5 flex",
 });
 
 /** リンクに渡す値。 */
