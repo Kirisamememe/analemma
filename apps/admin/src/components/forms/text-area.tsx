@@ -1,7 +1,11 @@
 import { useSelector } from "@tanstack/react-form";
 import type { ReactNode } from "react";
 
-import { useFieldContext, useFieldError } from "./form-context";
+import {
+  useFieldContext,
+  useFieldError,
+  useIsSubmitting,
+} from "./form-context";
 
 import { TextArea, type TextAreaProps } from "@/ui/primitives/form-fields";
 
@@ -20,13 +24,14 @@ export const AppTextArea = (props: AppTextAreaProps): ReactNode => {
   const field = useFieldContext<string | undefined>();
   const value = useSelector(field.store, (state) => state.value);
   const errorMessage = useFieldError();
+  const isSubmitting = useIsSubmitting();
 
   return (
     <TextArea
       description={props.description}
       errorMessage={errorMessage}
       isDisabled={props.isDisabled}
-      isReadOnly={props.isReadOnly}
+      isReadOnly={isSubmitting || props.isReadOnly === true}
       isRequired={props.isRequired}
       label={props.label}
       maxLength={props.maxLength}

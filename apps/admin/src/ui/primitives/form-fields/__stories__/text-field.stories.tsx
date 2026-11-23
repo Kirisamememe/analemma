@@ -23,6 +23,10 @@ export const Filled: Story = { args: { defaultValue: "MacBook Air" } };
 
 export const Required: Story = { args: { isRequired: true } };
 
+export const ReadOnly: Story = {
+  args: { defaultValue: "MacBook Air", isReadOnly: true },
+};
+
 export const Invalid: Story = {
   args: { errorMessage: "この名前は使えません" },
 };

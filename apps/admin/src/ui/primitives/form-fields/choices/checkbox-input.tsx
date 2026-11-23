@@ -18,6 +18,8 @@ export type CheckboxInputProps = {
   isRequired?: boolean | undefined;
   /** 無効か。 */
   isDisabled?: boolean | undefined;
+  /** 読み取り専用か。 */
+  isReadOnly?: boolean | undefined;
   /** 誤りがあるか。 */
   isInvalid?: boolean | undefined;
   /** チェックの状態が変わったときに呼ぶ関数。 */
@@ -39,6 +41,7 @@ export const CheckboxRoot = ({
   name,
   isRequired = false,
   isDisabled = false,
+  isReadOnly = false,
   defaultSelected = false,
   isSelected,
   isInvalid,
@@ -60,6 +63,7 @@ export const CheckboxRoot = ({
       className={fieldRoot()}
       defaultSelected={defaultSelected}
       isDisabled={isDisabled}
+      isReadOnly={isReadOnly}
       isRequired={isRequired}
       onBlur={() => {
         onBlur?.();
@@ -123,6 +127,7 @@ export const CheckboxInput = ({
   defaultSelected,
   isSelected,
   isDisabled,
+  isReadOnly,
   isInvalid,
   isRequired,
   onBlur,
@@ -135,6 +140,7 @@ export const CheckboxInput = ({
     defaultSelected={defaultSelected}
     isSelected={isSelected}
     isDisabled={isDisabled}
+    isReadOnly={isReadOnly}
     isInvalid={isInvalid}
     isRequired={isRequired}
     onBlur={onBlur}

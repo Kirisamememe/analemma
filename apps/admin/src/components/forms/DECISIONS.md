@@ -42,6 +42,14 @@ return (
 
 blur で出る誤りと、送信時に受け取る誤りと、入力すると送信時の誤りが消えることを試せる story は、`__stories__/form.stories.tsx` に置く。
 
+## 送信の途中の入力
+
+`form.handleSubmit` を呼んでから、送信の検証と `onSubmit` が終わるまで(TanStack Form の `isSubmitting`)、`field.*` の部品は入力を受け付けない。送信の検証は、onChange・onBlur・onSubmit の validator を、その時点の値ですべて流し直す。止めないと、応答を待つ間に変えた入力が、検証した値と異なる値として `onSubmit` に渡る。`isSubmitting` は送信の検証の間も立つので、上の例の `Button` の `isPending` も、検証の応答を待つ間から送信中になる。
+
+止めるときは、部品ごとに読み取り専用(`isReadOnly`)を渡す。`isDisabled`・`fieldset` の `disabled`・`inert` は、focus を外すので使わない。React Aria Components の context で `Form` からまとめて渡す案もあるが、primitives は `isReadOnly` の既定値の `false` を渡し、その `false` が context の値より勝つ。まとめて渡すには primitives が既定値を渡さないように直す必要があり、部品ごとに渡すより差分が大きい。読み取り専用だけでは止まらない `field.Select` と `field.NumberField` は、送信の途中の変更を受け取らない。React Aria Components の Select は読み取り専用を持たず、NumberField は読み取り専用でも、全選択して貼り付けた値を確定する。読み取り専用の見た目は primitives のまま変えない(NumberField の増減のボタンは無効の色になる)。
+
+入力や blur で流れる非同期の validator(`onChangeAsync`・`onBlurAsync`)が答えるまでの間は、入力を止めない。止めると、打つたびに入力欄が止まり、続けて打てなくなる。送信のときに検証を流し直すので、送信の途中だけ止めれば、検証した値と `onSubmit` に渡る値はそろう。送信の途中に6種の部品が入力を受け付けないことを試せる story は `__stories__/submitting.stories.tsx` に置く。
+
 ## Checkbox、Select、DateField
 
 `CheckboxInput`・`SelectInput`・`DateInput` は、単独で使うときのアクセシブルな名前を呼び出し元から受け取る。ラベル付きの部品も同じ React Aria Components の root と入力の部品を組み合わせる。Checkbox のラベルはクリックして切り替えられるように CheckboxButton の中に置く。
@@ -56,5 +64,5 @@ blur で出る誤りと、送信時に受け取る誤りと、入力すると送
 
 ## 割り切ったこと
 
-- 応答が遅い非同期の validator を使う field では、検証の応答を待つ間に入力を変えると、検証した値と異なる値が `onSubmit` に渡る。今の使い方は即時に答える validator だけで、再現する画面が無い。そのような field を作るときに、検証中は入力を止めるかを決める。
+- **送信の検証で同期の validator が throw するとき**。TanStack Form 1.33.5 は、送信の検証で同期の validator が throw すると、`isSubmitting` を戻さない。フォームを作り直す(画面を開き直す)まで、入力欄は変更を受け付けない。上の例のようにボタンにも `isSubmitting` を渡していると、ボタンの表示も送信中のままになる。非同期の validator の reject は誤りとして受け取るので、入力を再開できる。今の validator は誤りを文言で返し(zod の `safeParse` など)、throw しない。直すには、`handleSubmit` を呼ぶ画面ごとに、送信の状態を戻す処理を足す必要がある。
 - **年 `0000` の日付**。contract が受け付ける年 `0000` は、日付の入力欄では扱わない(ユーザーが決めた)。React Aria Components が日付に使う `CalendarDate` で扱うには、別の入力表現を決める必要がある。

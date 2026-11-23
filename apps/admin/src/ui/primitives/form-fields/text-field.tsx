@@ -17,6 +17,8 @@ export type TextFieldProps = {
   validationBehavior?: "aria" | "native";
   /** 入力が要るか。 */
   isRequired?: boolean | undefined;
+  /** 読み取り専用か。 */
+  isReadOnly?: boolean | undefined;
   /** 文字の数の上限。 */
   maxLength?: number | undefined;
   /** ブラウザの自動入力の種類。 */
@@ -42,6 +44,7 @@ export const TextField = ({
   description,
   validationBehavior,
   isRequired = false,
+  isReadOnly = false,
   maxLength,
   autoComplete,
   defaultValue = "",
@@ -61,6 +64,7 @@ export const TextField = ({
     <AriaTextField
       className={fieldRoot()}
       defaultValue={defaultValue}
+      isReadOnly={isReadOnly}
       isRequired={isRequired}
       name={name}
       onBlur={() => {
