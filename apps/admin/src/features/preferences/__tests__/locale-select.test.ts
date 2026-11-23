@@ -76,7 +76,9 @@ describe("言語の選択", () => {
 
     await userEvent.click(sidebar.getByRole("button", { name: /Language/v }));
     const current = await screen.findByRole("option", { name: "English" });
-    act(() => current.focus());
+    act(() => {
+      current.focus();
+    });
     await userEvent.keyboard("{Enter}");
 
     expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("en");
