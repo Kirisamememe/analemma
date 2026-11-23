@@ -1,10 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import {
-  formatDateTime,
-  formatLocalDate,
-  formatLocalDateTime,
-} from "@/i18n/format-date-time";
+import { formatDateTime, formatLocalDateTime } from "@/i18n/format-date-time";
 import { LOCALES } from "@/i18n/locales";
 
 describe("formatDateTime", () => {
@@ -38,7 +34,18 @@ describe("formatLocalDateTime", () => {
     }
   });
 
-  test("日付だけにもでき、秒の小数を持つ日時も読む", () => {
-    expect(formatLocalDate("ja", "2025-05-01T00:00:00.25")).toBe("2025/05/01");
+  test("UTC より西で見ても、撮影地の日付を保ち、秒の小数を読める", () => {
+    const result = Bun.spawnSync({
+      cmd: [
+        process.execPath,
+        "--eval",
+        'import { formatLocalDate } from "../format-date-time.ts"; console.log(formatLocalDate("ja", "2025-05-01T00:00:00.25"));',
+      ],
+      cwd: import.meta.dir,
+      env: { TZ: "America/Los_Angeles" },
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout.toString().trim()).toBe("2025/05/01");
   });
 });

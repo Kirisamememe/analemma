@@ -40,20 +40,6 @@ const linkNames = async (): Promise<string[]> =>
     .getAllByRole("link")
     .map((link) => link.textContent);
 
-const failingAfterFirstPage = (
-  routes: ReturnType<typeof createImageRoutes>["routes"],
-): FakeRoutes => {
-  const list = routes["admin/images/list"];
-
-  return {
-    ...routes,
-    "admin/images/list": (input) =>
-      input.cursor === undefined
-        ? list(input)
-        : { error: "INTERNAL_SERVER_ERROR", defined: false },
-  };
-};
-
 const renderSection = async (
   routes: FakeRoutes,
   imageHref = (_id: string): "/fixed-pages" => "/fixed-pages",
@@ -132,10 +118,16 @@ describe("ImagesSection", () => {
     expect(imageHref).toHaveBeenCalledTimes(55);
   });
 
-  test("続きを読めなければ、読んだ画像を残したまま、続きを読めなかった欄を出す", async () => {
-    await renderSection(
-      failingAfterFirstPage(createImageRoutes(many(55)).routes),
-    );
+  test("続きを読めなければ50枚を残し、通信が戻れば残りを読んで最初の新しい写真に focus を移す", async () => {
+    const { routes } = createImageRoutes(many(55));
+    let broken = true;
+    await renderSection({
+      ...routes,
+      "admin/images/list": (input) =>
+        broken && input.cursor !== undefined
+          ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+          : routes["admin/images/list"](input),
+    });
 
     expect(await linkNames()).toHaveLength(50);
     await userEvent.click(
@@ -150,5 +142,11 @@ describe("ImagesSection", () => {
       }),
     ).toBeDefined();
     expect(await linkNames()).toHaveLength(50);
+    broken = false;
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+    await waitFor(async () => {
+      expect(await linkNames()).toHaveLength(55);
+    });
+    expect(document.activeElement?.textContent).toBe("写真 51");
   }, 15_000);
 });

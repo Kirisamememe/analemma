@@ -11,7 +11,7 @@ const formatLocal = (
   locale: Locale,
   options: Intl.DateTimeFormatOptions,
 ): Intl.DateTimeFormat =>
-  new Intl.DateTimeFormat(locale, { ...options, timeZone: "UTC" }); // UTC と見なして読み、UTC で書けば、時刻が動かない
+  new Intl.DateTimeFormat(locale, { ...options, timeZone: "UTC" });
 
 /** 時差を含まない ISO 8601 の日時(撮影した現地の日時)を、言語の書き方で、日付と時刻にする。 */
 export const formatLocalDateTime = (locale: Locale, local: string): string =>
