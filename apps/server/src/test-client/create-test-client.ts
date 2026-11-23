@@ -9,6 +9,7 @@ import { join } from "node:path";
 import {
   createExternalApp,
   createInternalApp,
+  type ExternalListener,
   type externalRouter,
   type internalRouter,
 } from "@/app";
@@ -18,7 +19,10 @@ import {
   createChallengeStore,
 } from "@/features/auth/challenge/create-challenge-store";
 import { issueEnrollment } from "@/features/auth/enrollment/issue-enrollment";
-import { createConversionQueue } from "@/features/images/processing/conversion-queue";
+import {
+  type ConversionQueue,
+  createConversionQueue,
+} from "@/features/images/processing/conversion-queue";
 import type { Clock } from "@/platform/clock";
 import {
   type FileStorage,
@@ -34,6 +38,10 @@ export type TestClientOptions = {
   readonly clock?: Clock;
   /** 最初のブラウザに持たせる Cookie ヘッダーの値。 */
   readonly cookie?: string;
+  /** 写真の変換を1つずつ流すキュー。 */
+  readonly conversions?: ConversionQueue;
+  /** 外部用のポートを待ち受ける実行環境が、アプリに渡す処理。 */
+  readonly listener?: ExternalListener;
 };
 
 /** それぞれ自分の Cookie を持つ、テストのブラウザ。 */
@@ -110,10 +118,10 @@ export const createTestClient = async (
       capacity: CHALLENGE_CAPACITY,
       lifetimeMs: CHALLENGE_LIFETIME_MS,
     }),
-    conversions: createConversionQueue(),
+    conversions: options.conversions ?? createConversionQueue(),
   };
 
-  const app = createExternalApp(context);
+  const app = createExternalApp(context, { listener: options.listener });
   const internalApp = createInternalApp(context);
 
   const openBrowser = (seed = ""): TestBrowser => {

@@ -101,6 +101,7 @@ contract を4つのアクセス区分に分け、server ではそれぞれの ba
 - `style-src` は同じ origin の CSS と、応答ごとの nonce を許す。React Aria は、press の操作の間と、スクロールを止めるときに、style 要素を head に足し、`<meta name="csp-nonce">` の値を nonce として付ける。server は、`index.html` を返すたびに Hono の `secureHeaders` の `NONCE` で nonce を作り、`<head>` の直後にその meta を差し込む。style 要素の本文の hash を書く方法では、React Aria を上げて本文が変わると、黙って style が効かなくなる。
 - 認可の middleware は、`adminProcedures` に付けるのに加えて、`router.ts` で管理用のルーター全体にも掛ける(oRPC は同じ middleware の重複を1つにまとめる)。管理用の procedure を `adminProcedures` 以外から作る抜け道ができても、認可が外れない。
 - 認可のテストは、server のルーターではなく contract の `admin` を列挙する。ルーターに遅延読み込みの枝が入っても、contract にある procedure は必ず検査される。
+- procedure の外(本文の上限を決める middleware や、配信用の画像の経路)の想定外の失敗は、Hono の `onError` で logger に書いて、本文の無い 500 を返す。Hono の既定は `console.error` に出すだけで、ほかのログと同じ形で追えない。本文の上限などの `HTTPException` は、そのまま返す。
 - 想定外の失敗のログは、procedure を呼ぶ段階(`clientInterceptors`)で取る。リクエストを読む段階で取ると、壊れた JSON のような利用者の誤りまで、server の障害として記録されてしまう。
 - ログには、Error の名前・メッセージ・スタックと、Error である cause だけを書く。Error でない cause には Cookie などの任意の値が入りうるので書かない。BigInt や循環する値があってもログが消えないようにする。
 

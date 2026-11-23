@@ -64,10 +64,9 @@ beforeAll(async () => {
   await writeFile(join(root, "outside"), "private");
   await symlink(root, join(dir, "assets/link"));
   await symlink(join(root, "outside"), join(dir, "assets/file-link"));
-  app = createExternalApp(
-    context,
-    await loadAdminDist(relative(process.cwd(), dir)),
-  );
+  app = createExternalApp(context, {
+    dist: await loadAdminDist(relative(process.cwd(), dir)),
+  });
 });
 
 afterAll(async () => {

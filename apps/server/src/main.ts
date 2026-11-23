@@ -71,10 +71,18 @@ const internalOptions = {
   hostname: env.internal.host,
 };
 
+const PHOTO_IDLE_TIMEOUT_SECONDS = 120; // 写真の変換を待つ間に、接続を切らない(Bun の既定は10秒)
+
 const externalOptions = {
-  fetch: createExternalApp(context, adminDist).fetch,
+  fetch: createExternalApp(context, {
+    dist: adminDist,
+    listener: {
+      keepAlive: (request) => {
+        external.timeout(request, PHOTO_IDLE_TIMEOUT_SECONDS);
+      },
+    },
+  }).fetch,
   port: env.port,
-  idleTimeout: 120, // 送られた写真の変換を待つ間に、接続を切らない(Bun の既定は10秒)
 };
 
 const { external, internal } =

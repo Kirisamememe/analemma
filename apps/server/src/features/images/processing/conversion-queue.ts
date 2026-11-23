@@ -1,6 +1,6 @@
 /** 写真の変換を、プロセスの中で1つずつ順に流すキュー。 */
 export type ConversionQueue = {
-  /** 前に渡した変換がすべて終わってから、渡した変換を始め、その結果を返す。 */
+  /** 変換をキューに並べ、その結果を返す。 */
   readonly run: <T>(convert: () => Promise<T>) => Promise<T>;
 };
 

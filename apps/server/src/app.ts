@@ -4,6 +4,7 @@ import { ResponseHeadersPlugin } from "@orpc/server/plugins";
 import { Hono, type MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { csrf } from "hono/csrf";
+import { HTTPException } from "hono/http-exception";
 import { NONCE, secureHeaders } from "hono/secure-headers";
 import { tryDecodeURIComponent } from "hono/utils/url";
 
@@ -22,12 +23,20 @@ const API_BODY_LIMIT = 1024 * 1024;
 const API_METHODS = new Set(["GET", "POST"]);
 const PHOTO_UPLOAD_PATH = `${API_PREFIX}/admin/images/upload`;
 const PHOTO_BODY_LIMIT = PHOTO_MAX_BYTES + API_BODY_LIMIT; // 写真の外の部分は、ほかの API と同じ上限に収める
+const MAX_PHOTO_UPLOADS = 2; // 変換している1枚と、次に変換する1枚
+const PHOTO_RETRY_AFTER_SECONDS = 10;
 
 const limitApiBody = bodyLimit({ maxSize: API_BODY_LIMIT });
 const limitPhotoBody = bodyLimit({ maxSize: PHOTO_BODY_LIMIT });
 
 const PERMISSIONS_POLICY =
   "publickey-credentials-create=(self), publickey-credentials-get=(self)";
+
+/** 外部用のポートを待ち受ける実行環境が、アプリに渡す処理。 */
+export type ExternalListener = {
+  /** 写真の変換を待つリクエストの接続を、何も送り受けしなくても長く保つ関数。 */
+  readonly keepAlive: (request: Request) => void;
+};
 
 /** 外部用のポートで受ける procedure。 */
 export const externalRouter = { admin: router.admin, auth: router.auth };
@@ -101,13 +110,52 @@ const hasSession = async (
   );
 };
 
-const limitExternalBody =
-  (context: AppContext): MiddlewareHandler =>
-  async (c, next) =>
-    c.req.path === PHOTO_UPLOAD_PATH &&
-    (await hasSession(context, c.req.raw.headers))
-      ? limitPhotoBody(c, next)
-      : limitApiBody(c, next);
+const limitExternalBody = (
+  context: AppContext,
+  listener: ExternalListener | undefined,
+): MiddlewareHandler => {
+  let photoUploads = 0; // 本文を受けているか、変換を待っている写真の数
+
+  return async (c, next) => {
+    if (
+      c.req.path !== PHOTO_UPLOAD_PATH ||
+      !(await hasSession(context, c.req.raw.headers))
+    ) {
+      return limitApiBody(c, next);
+    }
+
+    if (photoUploads >= MAX_PHOTO_UPLOADS) {
+      return c.body(null, 503, {
+        "Retry-After": String(PHOTO_RETRY_AFTER_SECONDS),
+      });
+    }
+
+    photoUploads += 1;
+    using slot = new DisposableStack();
+    slot.defer(() => {
+      photoUploads -= 1;
+    });
+    listener?.keepAlive(c.req.raw);
+
+    return await limitPhotoBody(c, next);
+  };
+};
+
+const logDefects = (app: Hono, context: AppContext): void => {
+  app.onError((error, c) => {
+    if (error instanceof HTTPException) {
+      return error.getResponse();
+    }
+
+    context.logger.write({
+      level: "error",
+      message: "HTTP の処理で想定外の失敗が起きた",
+      details: { error },
+    });
+
+    return c.body(null, 500);
+  });
+};
 
 const addNoStore = (app: Hono, paths: readonly string[]): void => {
   for (const path of paths) {
@@ -180,13 +228,22 @@ const mountAdminDist = (app: Hono, dist: AdminDist): void => {
   app.all("*", (c) => c.body(null, 405, { Allow: STATIC_METHODS }));
 };
 
+/** 外部用のポートのアプリに渡す、管理画面のビルドと実行環境の処理。 */
+export type ExternalAppOptions = {
+  /** 配信する管理画面のビルド。 */
+  readonly dist?: AdminDist | undefined;
+  /** 外部用のポートを待ち受ける実行環境が、アプリに渡す処理。 */
+  readonly listener?: ExternalListener | undefined;
+};
+
 /** 管理用 API・認証用 API・配信用の画像と管理画面を、外部用のポートで配信するアプリを作る。 */
 export const createExternalApp = (
   context: AppContext,
-  dist?: AdminDist,
+  { dist, listener }: ExternalAppOptions = {},
 ): Hono => {
   const app = new Hono();
 
+  logDefects(app, context);
   allowEmbeddingImages(app);
   app.use(
     secureHeaders({
@@ -216,7 +273,7 @@ export const createExternalApp = (
     app,
     context,
     procedures: externalRouter,
-    limitBody: limitExternalBody(context),
+    limitBody: limitExternalBody(context, listener),
   });
   mountDeliveryImages(app, context);
 
@@ -231,6 +288,7 @@ export const createExternalApp = (
 export const createInternalApp = (context: AppContext): Hono => {
   const app = new Hono();
 
+  logDefects(app, context);
   addNoStore(app, [`${API_PREFIX}/deploy/*`]);
   mountApi({
     app,

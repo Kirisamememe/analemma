@@ -2,10 +2,15 @@ import { describe, expect, test } from "bun:test";
 
 import { PHOTO_MAX_BYTES } from "@analemma/contract";
 
+import {
+  type ConversionQueue,
+  createConversionQueue,
+} from "@/features/images/processing/conversion-queue";
 import { detectImageFormat } from "@/platform/images/detect-image-format";
 import {
   catchErrorCode,
   createTestClient,
+  SUCCEEDED,
   signInAsAdmin,
   TEST_NOW,
   TEST_ORIGIN,
@@ -32,7 +37,7 @@ const MEGABYTE = 1024 * 1024;
 type UploadBody = {
   /** 本文の bytes の数。 */
   readonly size: number;
-  /** Content-Length に書く値(省くと本文の大きさ)。 */
+  /** Content-Length に書く値。 */
   readonly contentLength?: number;
   /** ログインしたブラウザの Cookie を付けるか。 */
   readonly cookie: boolean;
@@ -127,8 +132,23 @@ describe("写真を送って画像を作る", () => {
     expect((await server.client.admin.images.list({})).images).toEqual([]);
   });
 
-  test("同時に送った2枚の写真を、どちらも画像にすること", async () => {
-    await using server = await createTestClient();
+  test("同時に送った2枚の写真を、1枚ずつ変換して、どちらも画像にすること", async () => {
+    const queue = createConversionQueue();
+    const steps: string[] = [];
+
+    const conversions: ConversionQueue = {
+      run: async <T>(convert: () => Promise<T>): Promise<T> =>
+        queue.run(async () => {
+          const order = steps.filter((step) => step.endsWith("始めた")).length;
+          steps.push(`${String(order + 1)} を始めた`);
+          const result = await convert();
+          steps.push(`${String(order + 1)} を終えた`);
+
+          return result;
+        }),
+    };
+
+    await using server = await createTestClient({ conversions });
     await signInAsAdmin(server);
 
     const images = await Promise.all([
@@ -140,11 +160,57 @@ describe("写真を送って画像を作る", () => {
       }),
     ]);
 
+    expect(steps).toEqual([
+      "1 を始めた",
+      "1 を終えた",
+      "2 を始めた",
+      "2 を終えた",
+    ]);
+
     const listed = (await server.client.admin.images.list({})).images;
 
     expect(listed.map(({ id }) => id).toSorted()).toEqual(
       images.map(({ id }) => id).toSorted(),
     );
+  });
+
+  test("ログイン中でも、3枚目を同時に送ると、本文を読まずに 503 で断り、空いたら受けること", async () => {
+    await using server = await createTestClient();
+    await signInAsAdmin(server);
+
+    const upload = async () =>
+      catchErrorCode(
+        server.client.admin.images.upload({
+          photo: await photo("high-iso.jpg"),
+        }),
+      );
+
+    expect(
+      (await Promise.all([upload(), upload(), upload()])).toSorted(),
+    ).toEqual(["SERVICE_UNAVAILABLE", SUCCEEDED, SUCCEEDED].toSorted());
+    expect(await upload()).toBe(SUCCEEDED);
+  });
+
+  test("ログイン中に送った写真だけ、変換を待つ間の接続を長く保たせること", async () => {
+    const kept: string[] = [];
+
+    await using server = await createTestClient({
+      listener: {
+        keepAlive: (request) => {
+          kept.push(new URL(request.url).pathname);
+        },
+      },
+    });
+
+    await server.app.fetch(uploadRequest(server, { size: 16, cookie: false }));
+    expect(kept).toEqual([]);
+
+    await signInAsAdmin(server);
+    await server.client.admin.images.upload({
+      photo: await photo("high-iso.jpg"),
+    });
+
+    expect(kept).toEqual(["/api/admin/images/upload"]);
   });
 });
 
@@ -183,5 +249,31 @@ describe("写真を送る本文の大きさ", () => {
     );
 
     expect(response.status).toBe(413);
+  });
+
+  test("本文の上限を決めるためのセッションの確認に失敗したら、500 にしてログに書くこと", async () => {
+    let failing = false;
+
+    await using server = await createTestClient({
+      clock: {
+        now: () => {
+          if (failing) throw new Error("時刻を読めない");
+
+          return TEST_NOW;
+        },
+      },
+    });
+    await signInAsAdmin(server);
+    failing = true;
+
+    const response = await server.app.fetch(
+      uploadRequest(server, { size: 16, cookie: true }),
+    );
+
+    expect(response.status).toBe(500);
+    expect(server.logs.at(-1)).toMatchObject({
+      level: "error",
+      message: "HTTP の処理で想定外の失敗が起きた",
+    });
   });
 });
