@@ -32,26 +32,51 @@ test.each([
 
 describe("React の import", () => {
   test.each([
-    { label: "hook でも context でもない .ts", file: "plain-logic.ts" },
+    {
+      label: "hook でも context でもない .ts",
+      file: "plain-logic.ts",
+      count: 1,
+    },
     {
       label: "関数を2つ export する hook のファイル",
       file: "use-two-hooks.ts",
+      count: 1,
     },
     {
       label: "use で始まらない関数を export する hook のファイル",
       file: "use-misnamed.ts",
+      count: 1,
+    },
+    {
+      label: "use で始まらない名前で export する hook のファイル",
+      file: "use-renamed.ts",
+      count: 1,
+    },
+    {
+      label: "React の関数も再 export する hook のファイル",
+      file: "use-reexport.ts",
+      count: 2,
     },
     {
       label: "hook も export する context のファイル",
       file: "open-context.ts",
+      count: 1,
     },
-  ])("$label の、React の値の import に診断を出すこと", ({ file }) => {
-    const { diagnostics } = lintFixture(
-      `invalid/apps/admin/src/react-imports/${file}`,
-    );
+    {
+      label: "context を export しない context のファイル",
+      file: "formatter-context.ts",
+      count: 1,
+    },
+  ])(
+    "$label の、React の値の import と再 export に診断を出すこと",
+    ({ count, file }) => {
+      const { diagnostics } = lintFixture(
+        `invalid/apps/admin/src/react-imports/${file}`,
+      );
 
-    expect(
-      diagnostics.filter(({ code }) => code === "project(no-react-in-logic)"),
-    ).toHaveLength(1);
-  });
+      expect(
+        diagnostics.filter(({ code }) => code === "project(no-react-in-logic)"),
+      ).toHaveLength(count);
+    },
+  );
 });

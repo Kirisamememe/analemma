@@ -202,7 +202,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - `.tsx` では、generic な arrow function の型引数を JSX と読み分けるために、`<Value,>` のように `,` を足す必要がある。
 - `.ts` は、テストできるロジックだけにする。React の値を import できる `.ts` は、次の2つだけ(ユーザーが決めた。`project/no-react-in-logic` で止まる)。型だけの `import type` は、どの `.ts` でもよい。
   - hook のファイル:名前が `use-` で始まり、export する関数が、名前が `use` で始まる1つだけ。
-  - context のファイル:名前が `-context.ts` で終わり、`createContext` の結果と型だけを export する。context を読む hook は、hook のファイルに分ける(`use-show-toast.ts`)。
+  - context のファイル:名前が `-context.ts` で終わり、`createContext` の結果(1つ以上)と型だけを export する。context を読む hook は、hook のファイルに分ける(`use-show-toast.ts`)。
 - 前は `.ts` から React を一切 import させなかった。そのため、hook と context が `.tsx` に置かれ、JSX の無い `.tsx` を生んでいた。
 - hook のファイルにも、関数を export する `.ts` と同じく、隣のテストを求める(`project/require-sibling-test`)。hook は、名前で約束する振る舞い(`useShowToast` は Provider の外で呼ぶと throw する、`useLogOut` はログアウトを送ってログインの画面へ移る、など)を、`renderHook` で確かめる。テストのファイルの拡張子も JSX の有無で決まるので、`.test.ts` と `.test.tsx` のどちらでも数える。
 

@@ -1,10 +1,13 @@
 import { basename } from "node:path";
 
-import { collectExportedFunctions } from "../modules/exported-functions.mjs";
-
 const REACT_MODULE = /^react(?:-dom)?(?:\/|$)/v;
 const HOOK_FILE = /^use-.+\.ts$/v;
 const HOOK_NAME = /^use[A-Z]/v;
+const FUNCTIONS = new Set([
+  "ArrowFunctionExpression",
+  "FunctionDeclaration",
+  "FunctionExpression",
+]);
 const TYPE_DECLARATIONS = new Set([
   "TSInterfaceDeclaration",
   "TSTypeAliasDeclaration",
@@ -24,31 +27,67 @@ const isReactValueSource = (node) =>
   REACT_MODULE.test(node.source.value) &&
   !isTypeOnly(node);
 
-const isHookFile = (filename, program) => {
-  if (!HOOK_FILE.test(basename(filename))) {
+const nameOf = (node) => (node.type === "Identifier" ? node.name : node.value);
+
+const reactBindings = (program) => {
+  const createContexts = new Set();
+  const namespaces = new Set();
+
+  for (const statement of program.body) {
+    if (
+      statement.type !== "ImportDeclaration" ||
+      statement.source.value !== "react" ||
+      statement.importKind === "type"
+    ) {
+      continue;
+    }
+
+    for (const specifier of statement.specifiers) {
+      if (specifier.type !== "ImportSpecifier") {
+        namespaces.add(specifier.local.name);
+      } else if (
+        specifier.importKind !== "type" &&
+        nameOf(specifier.imported) === "createContext"
+      ) {
+        createContexts.add(specifier.local.name);
+      }
+    }
+  }
+
+  return { createContexts, namespaces };
+};
+
+const isCreateContext = (node, { createContexts, namespaces }) => {
+  if (node?.type !== "CallExpression") {
     return false;
   }
 
-  const functions = [...collectExportedFunctions(program)];
+  const { callee } = node;
+
+  if (callee.type === "Identifier") {
+    return createContexts.has(callee.name);
+  }
 
   return (
-    functions.length === 1 &&
-    functions[0].id?.type === "Identifier" &&
-    HOOK_NAME.test(functions[0].id.name)
+    callee.type === "MemberExpression" &&
+    !callee.computed &&
+    callee.object.type === "Identifier" &&
+    namespaces.has(callee.object.name) &&
+    callee.property.type === "Identifier" &&
+    callee.property.name === "createContext"
   );
 };
 
-const isCreateContext = (node) =>
-  node?.type === "CallExpression" &&
-  ((node.callee.type === "Identifier" &&
-    node.callee.name === "createContext") ||
-    (node.callee.type === "MemberExpression" &&
-      !node.callee.computed &&
-      node.callee.property.type === "Identifier" &&
-      node.callee.property.name === "createContext"));
+const kindOf = (node, bindings) => {
+  if (FUNCTIONS.has(node?.type)) {
+    return "function";
+  }
 
-const localInitializers = (program) => {
-  const initializers = new Map();
+  return isCreateContext(node, bindings) ? "context" : "value";
+};
+
+const localKinds = (program, bindings) => {
+  const kinds = new Map();
 
   for (const statement of program.body) {
     const declaration =
@@ -56,68 +95,106 @@ const localInitializers = (program) => {
         ? statement.declaration
         : statement;
 
+    if (declaration?.type === "FunctionDeclaration" && declaration.id) {
+      kinds.set(declaration.id.name, "function");
+    }
+
     if (declaration?.type !== "VariableDeclaration") {
       continue;
     }
 
     for (const declarator of declaration.declarations) {
       if (declarator.id.type === "Identifier") {
-        initializers.set(declarator.id.name, declarator.init);
+        kinds.set(declarator.id.name, kindOf(declarator.init, bindings));
       }
     }
   }
 
-  return initializers;
+  return kinds;
 };
 
-const exportsOnlyContexts = (statement, initializers) => {
-  if (statement.type === "ExportDefaultDeclaration") {
-    return isCreateContext(statement.declaration);
+const declaredExports = (declaration, kinds) => {
+  if (TYPE_DECLARATIONS.has(declaration.type)) {
+    return [];
   }
 
+  if (declaration.type === "VariableDeclaration") {
+    return declaration.declarations.map((declarator) => ({
+      name: declarator.id.type === "Identifier" ? declarator.id.name : "",
+      kind:
+        declarator.id.type === "Identifier"
+          ? (kinds.get(declarator.id.name) ?? "value")
+          : "value",
+    }));
+  }
+
+  return [
+    {
+      name: declaration.id?.name ?? "",
+      kind: declaration.type === "FunctionDeclaration" ? "function" : "value",
+    },
+  ];
+};
+
+const valueExports = (statement, { kinds, bindings }) => {
   if (statement.type === "ExportAllDeclaration") {
-    return statement.exportKind === "type";
+    return isTypeOnly(statement) ? [] : [{ name: "*", kind: "unknown" }];
   }
 
-  if (statement.type !== "ExportNamedDeclaration") {
-    return true;
+  if (statement.type === "ExportDefaultDeclaration") {
+    const { declaration } = statement;
+    const kind =
+      declaration.type === "Identifier"
+        ? (kinds.get(declaration.name) ?? "value")
+        : kindOf(declaration, bindings);
+
+    return [{ name: "default", kind }];
   }
 
-  if (statement.exportKind === "type" || statement.source) {
-    return statement.exportKind === "type";
+  if (statement.type !== "ExportNamedDeclaration" || isTypeOnly(statement)) {
+    return [];
   }
 
-  const { declaration } = statement;
-
-  if (declaration?.type === "VariableDeclaration") {
-    return declaration.declarations.every((declarator) =>
-      isCreateContext(declarator.init),
-    );
+  if (statement.declaration) {
+    return declaredExports(statement.declaration, kinds);
   }
 
-  if (declaration) {
-    return TYPE_DECLARATIONS.has(declaration.type);
-  }
+  return statement.specifiers
+    .filter((specifier) => specifier.exportKind !== "type")
+    .map((specifier) => ({
+      name: nameOf(specifier.exported),
+      kind: statement.source
+        ? "unknown"
+        : (kinds.get(nameOf(specifier.local)) ?? "value"),
+    }));
+};
 
-  return statement.specifiers.every(
-    (specifier) =>
-      specifier.exportKind === "type" ||
-      (specifier.local.type === "Identifier" &&
-        isCreateContext(initializers.get(specifier.local.name))),
+const exportsOf = (program) => {
+  const bindings = reactBindings(program);
+  const kinds = localKinds(program, bindings);
+
+  return program.body.flatMap((statement) =>
+    valueExports(statement, { kinds, bindings }),
   );
 };
 
-const isContextFile = (filename, program) => {
-  if (!filename.endsWith("-context.ts")) {
-    return false;
-  }
+const isHookFile = (filename, exported) => {
+  const functions = exported.filter(
+    ({ kind }) => kind === "function" || kind === "unknown",
+  );
 
-  const initializers = localInitializers(program);
-
-  return program.body.every((statement) =>
-    exportsOnlyContexts(statement, initializers),
+  return (
+    HOOK_FILE.test(basename(filename)) &&
+    functions.length === 1 &&
+    functions[0].kind === "function" &&
+    HOOK_NAME.test(functions[0].name)
   );
 };
+
+const isContextFile = (filename, exported) =>
+  filename.endsWith("-context.ts") &&
+  exported.length > 0 &&
+  exported.every(({ kind }) => kind === "context");
 
 const noReactInLogic = {
   meta: {
@@ -152,10 +229,15 @@ const noReactInLogic = {
       ExportNamedDeclaration: remember,
       ExportAllDeclaration: remember,
       "Program:exit"(program) {
+        if (imports.length === 0) {
+          return;
+        }
+
+        const exported = exportsOf(program);
+
         if (
-          imports.length === 0 ||
-          isHookFile(filename, program) ||
-          isContextFile(filename, program)
+          isHookFile(filename, exported) ||
+          isContextFile(filename, exported)
         ) {
           return;
         }
