@@ -177,7 +177,7 @@ DB の形の出どころは Drizzle のテーブル定義、API の形の出ど�
 
 - **フェーズのブランチ**:フェーズや大きなリリースごとに、main からフェーズのブランチ(`phase/<番号>`)を切り、子のブランチの PR をそこへ入れる。main が変わるのはフェーズの単位で、main へ merge するかはユーザーが判断する。子のブランチの merge をエージェントに任せても、main はユーザーが見てから変わる。子のブランチは、それぞれ独立にフェーズのブランチへ入るので、PR を積み重ねる(stack)のと違い、1つの PR を直しても、上に積んだ PR を rebase し直さずに済む。
 - **子の PR の大きさ**:追加500行を目安、800行を上限とする。変更が大きいと読み落としが増えやすく、小さく分けすぎると同じ目的の変更に何度もレビューが要る。実装とそのテストは一緒に読めるようにし、別々に確かめられる変更から分ける。フェーズ全体を main に入れる PR は、子の PR で読んだ変更をまとめるので対象から外す。
-- **フェーズのブランチの守り**:ruleset「phase」で、PR と CI(`check`・`commit-messages`)を必須にする。merge の方法は、リポジトリの設定と同じく、merge commit・squash・rebase のどれも許す。CI は、PR の branch が base の先端を含む中身で通っていることも求める(必須の検査の strict。main の ruleset も同じ。ユーザーが決めた)。理由は `tooling/DECISIONS.md` の「CI」。
+- **フェーズのブランチの守り**:ruleset「phase」で、PR と CI(`check`・`commit-messages`)を必須にする。merge の方法は、リポジトリの設定と同じく、merge commit・squash・rebase のどれも許す。ruleset は、PR の branch が base の先端を含む中身で、必須にする check(`check`・`commit-messages`)が通っていることも求める(ruleset の strict required status checks。main の ruleset も同じ。ユーザーが決めた)。理由は `tooling/DECISIONS.md` の「CI」。
 - **コミットの粒度**:コミットの粒度が消える merge(複数のコミットを持つ PR を squash で1つにする、フェーズを1つのコミットに潰す、など)はしない(ユーザーが決めた)。コミットを分けた区切りが、後から変更を追う手がかりになるため。
 - **当たり前のことを決まりにしない**:一般常識に従えば済むこと(merge の方法の選び方など)は、決まりとして書かない(ユーザーが決めた)。決まりの文書は毎回読まれるので、当たり前のことが増えると、本当に守らせたい決まりが埋もれる。ただし、重要度が高いことは、当たり前でも念を押すために書く(ユーザーが決めた)。エージェントは、当たり前のことでも守らないことがある(裏付けを取らずに指摘を退ける、判断に迷った指摘を報告しない、など)。言葉の観点のレビューで、文書にそうした書き込みが無いかも見る。
 - **stack**:PR を積み重ねるなら、2〜3件の軽い stack は手で管理してよく、それより大きな stack は GitHub の stacked PR(`gh stack`。公式の拡張 `github/gh-stack`)を使う(ユーザーが決めた)。`gh stack` は、stack の中を rebase で履歴を一直線に保ち(linear history。`--force-with-lease` で push)、下の PR が入ったら上の PR を自動で rebase する。stack の中に merge commit を作ると、一直線に保てなくなるので作らない。
