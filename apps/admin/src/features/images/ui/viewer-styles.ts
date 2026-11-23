@@ -9,6 +9,7 @@ const viewer = tv({
       "border-b bg-surface px-4",
     ],
     actions: "flex items-center gap-2",
+    content: "flex min-h-0 grow flex-col",
     body: "flex grow flex-col md:min-h-0 md:flex-row",
     stage: [
       "group relative flex items-center justify-center",

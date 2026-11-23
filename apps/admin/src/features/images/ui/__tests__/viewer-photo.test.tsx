@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { ViewerPhoto } from "../viewer-photo";
@@ -22,11 +22,13 @@ const photo = (id: string) => {
 };
 
 describe("ViewerPhoto", () => {
-  test("配信に失敗した写真は手動で取り直し、失敗を繰り返したときは知らせる", () => {
+  test("配信に失敗した写真は手動で取り直し、失敗を繰り返したときは知らせる", async () => {
     renderWithI18n(photo("a"), "ja");
-    expect(screen.getByRole("status").textContent).toContain(
-      "写真を読み込んでいます",
-    );
+    const status = screen.getByRole("status");
+    expect(status.textContent).toBe("");
+    await waitFor(() => {
+      expect(status.textContent).toContain("写真を読み込んでいます");
+    });
     fireEvent.error(screen.getByAltText("山並み"));
     expect(screen.getByRole("alert").textContent).toContain(
       "写真を読み込めませんでした",

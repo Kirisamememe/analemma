@@ -84,6 +84,7 @@ const useViewerNavigation = (back: BackProps["back"]) => {
     pending.current = { id, side: "next" };
     again();
   };
+
   return { neighbor, restore, retry };
 };
 
@@ -126,7 +127,9 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
                 layout="inline"
                 level={2}
                 isRetrying={failure.isRetrying}
-                onRetry={() => navigation.retry(id, failure.retry)}
+                onRetry={() => {
+                  navigation.retry(id, failure.retry);
+                }}
                 title={t("imageDetail.neighborsFailed")}
               />
             )
@@ -146,7 +149,9 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
             isRetrying={query.isRetrying}
             layout="screen"
             level={2}
-            onRetry={() => navigation.retry(id, query.retry)}
+            onRetry={() => {
+              navigation.retry(id, query.retry);
+            }}
             title={t("imageDetail.loadFailed")}
           />
         </ViewerMessage>

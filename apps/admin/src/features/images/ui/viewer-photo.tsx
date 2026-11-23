@@ -4,7 +4,7 @@ import { type DeliveryImages, toSrcSet } from "./logic/delivery-image";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Text } from "@/ui/layout";
-import { ErrorState } from "@/ui/patterns";
+import { ErrorState, LoadingStatus } from "@/ui/patterns";
 import { Spinner } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 
@@ -23,7 +23,7 @@ const photo = tv({
     notice: "absolute inset-0 flex items-center justify-center",
     loading: [
       "flex items-center gap-2 rounded-surface bg-surface px-4 py-2",
-      "transition-opacity loading-delay starting:opacity-0",
+      "transition-opacity loading-delay starting:opacity-0 forced-colors:hidden",
     ],
   },
   variants: { visible: { false: { image: "invisible" } } },
@@ -93,10 +93,11 @@ export const ViewerPhoto = ({
       />
       {status === "loading" && (
         <div className={style.notice()}>
-          <output className={style.loading()}>
+          <LoadingStatus label={t("imageViewer.loading")} />
+          <span aria-hidden="true" className={style.loading()}>
             <Spinner />
             <Text as="span">{t("imageViewer.loading")}</Text>
-          </output>
+          </span>
         </div>
       )}
       {(status === "failed" || status === "retrying") && (
