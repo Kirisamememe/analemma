@@ -80,6 +80,7 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "size-control": "size-full",
   "object-focal": "object-center",
   "w-sidebar": "w-full",
+  "loading-delay": "delay-0",
   "state-hover": null,
   "state-pressed": "translate-none",
   "state-disabled": null,

@@ -1,5 +1,8 @@
 /** 英語の訳で、ほかの言語のキーと引数の出どころ。 */
 export const en = {
+  "imageViewer.info": "Photo information",
+  "imageViewer.loading": "Loading photo…",
+  "imageViewer.loadFailed": "Could not load the photo",
   "fixedPageEditor.new": "New fixed page",
   "fixedPageEditor.edit": "Edit fixed page",
   "fixedPageEditor.chooseKind": "Choose a kind",

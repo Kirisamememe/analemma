@@ -12,7 +12,7 @@ const MIN_DISTANCE = 48; // これより短い動きは、タップや手ぶれ�
 const MAX_DURATION = 800; // これより長く触れたままの動きは、スワイプと見なさない
 const HORIZONTAL_RATIO = 1.5; // 横の動きが縦の何倍あれば、横のスワイプと見なすか
 
-/** 指の動きを、前の画像(右へのスワイプ)か次の画像(左へのスワイプ)に読む(どちらでもなければ undefined)。 */
+/** 指の動きから前後への移動方向を求める。 */
 export const toSwipe = ({
   dx,
   dy,

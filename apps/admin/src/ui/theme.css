@@ -258,6 +258,10 @@
   pointer-events: none;
 }
 
+@utility loading-delay {
+  transition-delay: var(--transition-duration-normal);
+}
+
 @utility focus-ring {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
@@ -299,6 +303,8 @@
     color-scheme: light;
   }
 }
+
+@custom-variant short-viewport (@media (max-height: 20rem));
 
 @custom-variant is-hovered (&[data-hovered]);
 @custom-variant is-focused (&[data-focused]);

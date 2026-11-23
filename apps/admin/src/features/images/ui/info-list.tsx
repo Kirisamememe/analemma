@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
+import { Text } from "@/ui/layout";
 import { tv } from "@/ui/tv";
-import { typography } from "@/ui/typography";
 
 const infoList = tv({
   slots: {
@@ -37,18 +37,23 @@ type InfoListProps = {
 /** 項目の名前と値を並べる一覧。 */
 export const InfoList = ({ items, layout }: InfoListProps): ReactNode => {
   const style = infoList({ layout });
-  const term = typography({ role: layout === "stacked" ? "caption" : "body" });
-
-  const value = typography({
-    role: layout === "stacked" ? "body-long" : "body",
-  });
-
   return (
     <dl className={style.list()}>
       {items.map(({ label, value: text }) => (
         <div className={style.item()} key={label}>
-          <dt className={style.term({ className: term })}>{label}</dt>
-          <dd className={style.value({ className: value })}>{text}</dd>
+          <dt className={style.term()}>
+            <Text as="span" variant={layout === "stacked" ? "caption" : "body"}>
+              {label}
+            </Text>
+          </dt>
+          <dd className={style.value()}>
+            <Text
+              as="span"
+              variant={layout === "stacked" ? "body-long" : "body"}
+            >
+              {text}
+            </Text>
+          </dd>
         </div>
       ))}
     </dl>

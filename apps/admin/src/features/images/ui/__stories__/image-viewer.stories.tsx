@@ -51,7 +51,11 @@ type Story = StoryObj<typeof meta>;
 export const Landscape: Story = {};
 
 export const Portrait: Story = {
-  args: { images: samplePhoto("morning-lake"), previous: undefined },
+  args: {
+    alt: "朝もやの中で山を映す湖",
+    images: samplePhoto("morning-lake"),
+    previous: undefined,
+  },
 };
 
 export const NoDeliveryImage: Story = {
