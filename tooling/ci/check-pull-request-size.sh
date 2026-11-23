@@ -21,7 +21,17 @@ if is_phase_pull_request; then
   exit 0
 fi
 
-added=$(git diff --numstat --find-renames "$base...$head" -- ':/' \
+counted_from=("$base...$head")
+main_in_head=$(git merge-base "$head" refs/remotes/origin/main 2>/dev/null || true)
+if [[ -n $main_in_head ]] && ! git merge-base --is-ancestor "$main_in_head" "$base"; then
+  merged=$(git merge-tree --write-tree "$base" "$main_in_head" || true)
+  if [[ -n $merged ]]; then
+    counted_from=("${merged%%$'\n'*}" "$head")
+    echo "main から取り込んだ分は数えません。"
+  fi
+fi
+
+added=$(git diff --numstat --find-renames "${counted_from[@]}" -- ':/' \
   ':(top,exclude)bun.lock' ':(top,exclude)apps/server/src/db/migrations' |
   awk '{ total += $1 } END { print total + 0 }')
 echo "追加 ${added} 行（目安500行・上限800行）"
