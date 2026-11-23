@@ -47,7 +47,7 @@ describe("LogOutButton", () => {
     expect(history.location.pathname).toBe("/login");
   });
 
-  test("ログアウトできなければ、引き出したナビの中に知らせる", async () => {
+  test("ログアウトできなければ、引き出したナビから押しても Toast で知らせ、画面に残る", async () => {
     const { history } = renderHome({
       error: "INTERNAL_SERVER_ERROR",
       defined: false,
@@ -56,9 +56,12 @@ describe("LogOutButton", () => {
     const drawer = within(await openDrawer());
     await userEvent.click(drawer.getByRole("button", { name: "ログアウト" }));
 
-    expect((await drawer.findByRole("alert")).textContent).toBe(
+    const toast = await screen.findByRole("alert");
+
+    expect(toast.textContent).toBe(
       "ログアウトできませんでした。もう一度試してください。",
     );
+    expect(drawer.queryByRole("alert")).toBeNull();
     expect(history.location.pathname).toBe("/");
   });
 
