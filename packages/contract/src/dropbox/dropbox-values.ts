@@ -54,3 +54,47 @@ export const dropboxPhoto = z.object({
     .nullable()
     .describe("同じ中身の写真を取り込んだ記録。まだなら null。"),
 });
+
+/** 取り込む写真1枚の状態。 */
+export const dropboxImportStatus = z
+  .enum([
+    "waiting",
+    "importing",
+    "added",
+    "already-added",
+    "not-found",
+    "too-large",
+    "unsupported",
+    "failed",
+  ])
+  .describe(
+    "waiting は順番を待っている、importing は読んで変換している、added は画像を作った、already-added は同じ中身の写真を取り込み済み、not-found は Dropbox に無い、too-large は大きすぎる、unsupported は形式に対応していない、failed は想定外の失敗。",
+  );
+
+/** 1回の取り込みの進み具合。 */
+export const dropboxImport = z.object({
+  startedAt: z.iso.datetime({ offset: true }).describe("始めた日時。"),
+  finishedAt: z.iso
+    .datetime({ offset: true })
+    .nullable()
+    .describe("すべての写真を終えた日時。まだなら null。"),
+  photos: z
+    .array(
+      z.object({
+        id: dropboxFileId,
+        path: z
+          .string()
+          .describe("App folder の中のパス。Dropbox に無ければ空の文字列。"),
+        status: dropboxImportStatus,
+        imageId: imageId
+          .nullable()
+          .describe(
+            "作った画像か、同じ中身で取り込み済みの画像の ID。無ければ null。",
+          ),
+      }),
+    )
+    .describe("選んだ順の写真。"),
+});
+
+/** 1回の取り込みの進み具合の値。 */
+export type DropboxImport = z.output<typeof dropboxImport>;
