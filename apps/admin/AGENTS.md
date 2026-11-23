@@ -6,11 +6,12 @@
 
 - React + TanStack Router + TanStack Query の SPA。SSR しない。Vite でビルドし、server の `ADMIN_DIST_DIR` に出力先を指定すると、外部用のポートで API と同じ origin から配信する。
 - `index.html`:Vite の入口。`vite.config.ts` の plugin が、`src/preferences/boot.ts` を1つの script にまとめて head に書き込む(言語と配色を、最初の描画の前に当てる)。
-- `src/main.tsx`:React を描き始める入口。i18next の instance・ブラウザの履歴・API の client・認証器を組み立てて渡す。
+- `src/app/main.tsx`:React を描き始める入口。i18next の instance・ブラウザの履歴・API の client・認証器を組み立てて渡す。
 - `src/app/app.tsx`:i18next の instance・server の状態(TanStack Query)・route をつないだ全体。
 - `src/app/router.ts`:route の木と、router と query client を組み立てる関数(`createApp`)。ログインした後の画面は、開く前に server でセッションを確かめる。
 - `src/api/`:server の API の client(contract の型付き)と、query client。features が使う、oRPC の失敗の仕分け(`call-api.ts`)・TanStack Router の context とログインの画面への移動(`app-context.ts`)・画面を離れる前の確かめ(`leave-confirmation.ts`)・TanStack Query の取得と送信とキャッシュ(`server-state/`)の包みも置く。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
 - `src/routes/`:route ごとの画面。
+- `src/queries/`:複数の feature が使う、server の API を呼ぶ処理(再認証)。
 - `src/components/`:複数の feature から使う、管理画面に固有の部品。`@/components/...` で import する。部品のコードは features を import しない(lint で止まる)。
 - `src/i18n/`:訳と言語(i18next と react-i18next)。訳は `messages/` に言語ごとに1ファイル。i18next の instance は `create-i18n.ts` で作る。features が使う、訳を引く hook と今の言語を読む hook と訳のキーの型は `use-translate.ts` が包む。
 - `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値と、最初の描画の前に流す script(`boot.ts`)。言語の切り替えに html の `lang` と置き場所をそろえる関数(`sync-locale.ts`)。
@@ -22,6 +23,7 @@
 
 ## 書き方
 
+- `features/`・`components/`・`ui/` では、hook を `hooks/`、純粋な関数を `logic/`、server の API を呼ぶ処理(読み込み・書き込み・query のキー)を feature の中の `queries/` に、使う部品の近くに置く。複数の feature が使う処理は `src/queries/` に置く。どれでもない `.ts`(ブラウザの API を使うもの)は、lint の設定の `effectfulModules` に足す(lint で止まる)。
 - ロジックはできる限り `.ts` に置き、同じフォルダの `__tests__` に `.test.ts` を置いてテストする。`.tsx` にはマークアップと、それをロジックにつなぐコードを置く。
 - `.tsx` は、JSX の要素か fragment を書くファイルだけにする。JSX を書かない hook・context・テスト・story は `.ts` にする(lint で止まる)。
 - `.ts` で React の値を import できるのは、hook のファイル(`use-*.ts`。export する関数は1つだけで、名前は `use` で始まる)と、context のファイル(`*-context.ts`。値として export するのは `createContext` の結果だけで、少なくとも1つは export する)だけ。lint はこの import の条件を検査し、`src/` の hook には隣のテストも求める。
@@ -33,7 +35,7 @@
 - 操作を送っている間は、そのボタンを無効にする。同じ操作を続けて送らせない。
 - パスキーでのログインの最中(options を取ってから、ログインの応答が届くまで)は、ほかの管理用 API を呼ばない。
 - 登録用 URL は `/enroll#{token}`。token は URL の `#` の後ろから読み、server に送るだけにする。登録したら、履歴から登録用 URL を消す(`replace`)。
-- パスキーの追加と削除は、再認証(`src/features/auth/reauthenticate.ts`)の資格情報と一緒に送る。取り消せない操作は、確認の Dialog を出してから送る。
+- パスキーの追加と削除は、再認証(`src/queries/reauthenticate.ts`)の資格情報と一緒に送る。取り消せない操作は、確認の Dialog を出してから送る。
 - 画面のテストは、`src/testing/render-app.tsx` で、作り物の server(`create-fake-api.ts`)と作り物の認証器につないだ管理画面の全体を描いて、利用者に見える結果で確かめる。`App` を通さずに部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で、i18next の instance の下で描く。
 - 画面に出す文言は、すべて `src/i18n/messages/` の訳から引く。features は `useTranslate` を使い、`src/routes/` は今は react-i18next の `useTranslation` を直接使う。キーは英語の訳(`en.ts`)に足し、同じキーをほかの言語にも足す。引数は `{{name}}` で書き、どの言語も英語と同じ引数を持つ(テストで止まる)。features で引数を取らないキーを値として持つ型は `MessageKey` にする。
 - 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/resources.ts` の `RESOURCES` と、`src/ui/primitives/ui-provider.tsx` の `ARIA_LOCALES`(React Aria Components に渡す地域を付けた言語)に足し、`messages/` にファイルを置く。

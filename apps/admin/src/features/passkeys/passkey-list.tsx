@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
-import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/passkeys-query";
+import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";

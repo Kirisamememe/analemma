@@ -5,7 +5,7 @@ import { useApiQuery } from "@/api/server-state/server-state";
 import {
   DEPLOY_TOKENS_QUERY_KEY,
   type DeployTokenSummary,
-} from "@/features/deploy-tokens/deploy-tokens-query";
+} from "@/features/deploy-tokens/queries/deploy-tokens-query";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";

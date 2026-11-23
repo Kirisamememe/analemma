@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { checkPasskeyName } from "./check-passkey-name";
+import { checkPasskeyName } from "./logic/check-passkey-name";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { TextField } from "@/ui/primitives/form-fields";

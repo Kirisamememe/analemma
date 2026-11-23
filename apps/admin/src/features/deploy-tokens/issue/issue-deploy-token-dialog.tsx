@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
-import { checkDeployTokenName } from "@/features/deploy-tokens/issue/issue-deploy-token";
-import { useCopyText } from "@/features/deploy-tokens/issue/use-copy-text";
+import { useCopyText } from "@/features/deploy-tokens/issue/hooks/use-copy-text";
 import {
   type IssuedToken,
   useIssueDeployToken,
-} from "@/features/deploy-tokens/issue/use-issue-deploy-token";
+} from "@/features/deploy-tokens/issue/hooks/use-issue-deploy-token";
+import { checkDeployTokenName } from "@/features/deploy-tokens/issue/queries/issue-deploy-token";
 import { CopyButton } from "@/features/deploy-tokens/ui/copy-button";
 import { TokenValue } from "@/features/deploy-tokens/ui/token-value";
 import { useTranslate } from "@/i18n/use-translate";

@@ -9,9 +9,9 @@ import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { PasskeyNameField } from "@/components/passkey-name-field";
-import { type EnrollInput, enroll } from "@/features/auth/enroll";
-import { readEnrollmentToken } from "@/features/auth/read-enrollment-token";
-import { toEnrollNotice } from "@/features/auth/to-auth-notice";
+import { readEnrollmentToken } from "@/features/auth/logic/read-enrollment-token";
+import { toEnrollNotice } from "@/features/auth/logic/to-auth-notice";
+import { type EnrollInput, enroll } from "@/features/auth/queries/enroll";
 import { AppShell, Center, Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
