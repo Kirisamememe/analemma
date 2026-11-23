@@ -70,6 +70,7 @@ export const zhHans = {
   "notFound.description": "{{path}} 处没有页面。",
   "notFound.backHome": "返回首页",
   "ui.pending": "正在处理",
+  "ui.loading": "正在加载",
   "ui.dateField.incomplete": "请输入年、月和日。",
   "ui.numberField.decrease": "减小{{label}}的值",
   "ui.numberField.increase": "增大{{label}}的值",

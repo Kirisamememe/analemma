@@ -22,6 +22,21 @@ describe("useAppContext", () => {
     expect(result.current.authenticator).toBe(authenticator);
     expect(result.current.gate).toBe(gate);
   });
+
+  test("server の状態を持つ query client は返さない", async () => {
+    const { router } = createTestApp({ path: "/enroll", routes: {} });
+    await router.load();
+
+    const { result } = renderHook(useAppContext, {
+      wrapper: withRouter(router),
+    });
+
+    expect(Object.keys(result.current).toSorted()).toEqual([
+      "api",
+      "authenticator",
+      "gate",
+    ]);
+  });
 });
 
 describe("useGoToLogin", () => {

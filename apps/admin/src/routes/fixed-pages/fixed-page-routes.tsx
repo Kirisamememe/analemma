@@ -13,7 +13,7 @@ import {
   loadFixedPage,
 } from "@/features/fixed-pages/editor/queries/fixed-page-query";
 import {
-  KINDS_QUERY_KEY,
+  fixedPageKindsQueryKey,
   loadKinds,
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
@@ -81,7 +81,6 @@ const useKind = (name: string) => {
   return useApiQuery({
     key: ["admin", "kinds", "get", name],
     load: () => callApi(api.admin.kinds.get({ name }), ["NOT_FOUND"]),
-    discardWhenUnused: true,
   });
 };
 
@@ -96,7 +95,7 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
   const navigate = useNavigate();
 
   const query = useApiQuery({
-    key: KINDS_QUERY_KEY,
+    key: fixedPageKindsQueryKey("create"),
     load: () => loadKinds(api),
   });
 
@@ -297,7 +296,6 @@ export const EditFixedPage = (): ReactNode => {
   const query = useApiQuery({
     key: fixedPageQueryKey(id),
     load: () => loadFixedPage(api, id),
-    discardWhenUnused: true,
   });
 
   return (

@@ -20,17 +20,28 @@ export const createQueryClient = ({
     }
   };
 
+  const queryCache = new QueryCache({ onError });
+
+  queryCache.subscribe((event) => {
+    if (event.type !== "observerRemoved") return;
+
+    setTimeout(() => {
+      if (event.query.getObserversCount() === 0) queryCache.remove(event.query); // 取得の途中でも、使う画面の無いデータを持たない
+    }, 0);
+  });
+
   const queryClient: QueryClient = new QueryClient({
-    queryCache: new QueryCache({ onError }),
+    queryCache,
     mutationCache: new MutationCache({ onError }),
     defaultOptions: {
       queries: {
+        gcTime: 0, // 使う画面が無くなったデータを、メモリに持たない
         refetchOnWindowFocus: false,
         networkMode: "always",
         retry: (failures, error) =>
           !isUnauthorized(error) && failures < MAX_RETRIES,
       },
-      mutations: { retry: false, networkMode: "always" },
+      mutations: { gcTime: 0, retry: false, networkMode: "always" },
     },
   });
 

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { PageTransition } from "./page-transition";
+
 import { tv } from "@/ui/tv";
 
 const shell = tv({
@@ -23,19 +25,27 @@ const shell = tv({
 type AppShellProps = {
   /** 画面のナビ。 */
   nav?: ReactNode;
+  /** 画面を見分ける値。 */
+  pageKey?: string | undefined;
   /** 画面の中身。 */
   children: ReactNode;
 };
 
-/** 画面の地と、ナビと本文の並べ方と、中身の上下の余白を持つ骨組み。 */
-export const AppShell = ({ nav, children }: AppShellProps): ReactNode => {
+/** 画面の地と、ナビと本文の並べ方と、中身の上下の余白と、中身が出る動きを持つ骨組み。 */
+export const AppShell = ({
+  nav,
+  pageKey,
+  children,
+}: AppShellProps): ReactNode => {
   const { screen, frame, main } = shell({ withNav: Boolean(nav) });
 
   return (
     <div className={screen()}>
       {nav}
       <div className={frame()}>
-        <main className={main()}>{children}</main>
+        <main className={main()}>
+          <PageTransition pageKey={pageKey}>{children}</PageTransition>
+        </main>
       </div>
     </div>
   );

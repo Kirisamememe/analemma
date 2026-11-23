@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useIsFetching,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { isUnauthorized } from "@/api/api-errors";
 
@@ -7,8 +12,6 @@ type QueryOptions<Data> = {
   readonly key: readonly unknown[];
   /** データを取得する関数。 */
   readonly load: () => Promise<Data>;
-  /** 使う画面が無くなったときに、取得したデータを捨てるか。 */
-  readonly discardWhenUnused?: boolean;
 };
 
 type QueryResult<Data> =
@@ -66,12 +69,10 @@ type ApiCache = {
 export const useApiQuery = <Data>({
   key,
   load,
-  discardWhenUnused = false,
 }: QueryOptions<Data>): QueryResult<Data> => {
   const query = useQuery({
     queryKey: key,
     queryFn: () => load(),
-    ...(discardWhenUnused ? { gcTime: 0 } : {}),
   });
 
   if (query.isPending && query.errorUpdateCount === 0) {
@@ -90,6 +91,13 @@ export const useApiQuery = <Data>({
 
   return { _tag: "Loaded", data: query.data };
 };
+
+/** 画面が使う取得のうち、まだデータの無いものを待っているかを返す。 */
+export const useIsLoadingFirstData = (): boolean =>
+  useIsFetching({
+    predicate: (query) =>
+      query.state.data === undefined && query.getObserversCount() > 0,
+  }) > 0;
 
 /** server に操作を送り、送信の状態と結果を返す。 */
 export const useApiMutation = <Data, Input = void>({

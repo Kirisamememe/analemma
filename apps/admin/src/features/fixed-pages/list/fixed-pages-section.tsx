@@ -6,7 +6,7 @@ import { FixedPageRow } from "@/features/fixed-pages/list/fixed-page-row";
 import { useReorderFixedPages } from "@/features/fixed-pages/list/hooks/use-reorder-fixed-pages";
 import {
   FIXED_PAGES_QUERY_KEY,
-  KINDS_QUERY_KEY,
+  fixedPageKindsQueryKey,
   loadFixedPages,
   loadKinds,
 } from "@/features/fixed-pages/queries/fixed-pages-query";
@@ -40,7 +40,7 @@ export const FixedPagesSection = ({
   });
 
   const kinds = useApiQuery({
-    key: KINDS_QUERY_KEY,
+    key: fixedPageKindsQueryKey("list"),
     load: () => loadKinds(api),
   });
 

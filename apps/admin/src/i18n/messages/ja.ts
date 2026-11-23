@@ -75,6 +75,7 @@ export const ja = {
   "notFound.description": "{{path}} にページはありません。",
   "notFound.backHome": "ホームに戻る",
   "ui.pending": "処理中",
+  "ui.loading": "読み込んでいます",
   "ui.dateField.incomplete": "年・月・日を入力してください。",
   "ui.numberField.decrease": "{{label}}の値を減らす",
   "ui.numberField.increase": "{{label}}の値を増やす",

@@ -73,6 +73,7 @@ export const en = {
   "notFound.description": "There is no page at {{path}}.",
   "notFound.backHome": "Back to home",
   "ui.pending": "Working",
+  "ui.loading": "Loading",
   "ui.dateField.incomplete": "Enter the year, month, and day.",
   "ui.numberField.decrease": "Decrease {{label}}",
   "ui.numberField.increase": "Increase {{label}}",

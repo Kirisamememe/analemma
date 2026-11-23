@@ -8,7 +8,7 @@
 - `index.html`:Vite の入口。`vite.config.ts` の plugin が、`src/preferences/boot.ts` を1つの script にまとめて head に書き込む(言語と配色を、最初の描画の前に当てる)。
 - `src/app/main.tsx`:React を描き始める入口。i18next の instance・ブラウザの履歴・API の client・認証器を組み立てて渡す。
 - `src/app/app.tsx`:i18next の instance・server の状態(TanStack Query)・route をつないだ全体。
-- `src/app/router.ts`:route の木と、router と query client を組み立てる関数(`createApp`)。ログインした後の画面は、開く前に server でセッションを確かめる。
+- `src/app/router.ts`:route の木と、router と query client を組み立てる関数(`createApp`)。ログインした後の画面へ移るたびに、移るのを待たせずに、server でセッションを確かめる。
 - `src/api/`:server の API の client(contract の型付き)と、query client。features が使う、oRPC の失敗の仕分け(`call-api.ts`)・TanStack Router の context とログインの画面への移動(`app-context.ts`)・画面を離れる前の確かめ(`leave-confirmation.ts`)・TanStack Query の取得と送信とキャッシュ(`server-state/`)の包みも置く。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
 - `src/routes/`:route ごとの画面。
 - `src/queries/`:複数の feature が使う、server の API を呼ぶ処理(再認証)。
@@ -22,6 +22,8 @@
 - `test-setup/`:管理画面のテストの前に読み込む、DOM の用意(happy-dom)。
 
 ## 書き方
+
+- route の `beforeLoad` や `loader` で通信の応答を待たない。データを使う画面で取得し、待つ間は読み込み中の表示を出す(`DECISIONS.md` の「画面の遷移と読み込み」)。
 
 - `features/`・`components/`・`ui/` では、hook を `hooks/`、純粋な関数を `logic/`、server の API を呼ぶ処理(読み込み・書き込み・query のキー)を feature の中の `queries/` に、使う部品の近くに置く。複数の feature が使う処理は `src/queries/` に置く。純粋な関数でも server の API を呼ぶ処理でもない `.ts`(ブラウザの API を呼ぶ、呼び出しのあいだ状態を持つ、渡された関数で外に書き込む、`crypto.randomUUID()` で値を作る、など)は、今の場所に置き、lint の設定の `effectfulModules` に足す(lint で止まる)。今はログインの gate・WebAuthn のブラウザでの処理・クリップボードへの書き込み・固定ページのフォームの最初の値を作る処理。
 - ロジックはできる限り `.ts` に置き、同じフォルダの `__tests__` に `.test.ts` を置いてテストする。`.tsx` にはマークアップと、それをロジックにつなぐコードを置く。
