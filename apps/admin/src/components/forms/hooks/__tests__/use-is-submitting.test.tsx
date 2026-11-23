@@ -14,7 +14,6 @@ import type { ReactNode } from "react";
 import { useAppForm } from "@/components/forms";
 import { renderWithI18n } from "@/testing/render-with-i18n";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
 
 type FormValues = {
   /** タイトル。 */
@@ -72,39 +71,36 @@ const Example = ({
   return (
     <form.Subscribe selector={(state) => state.isSubmitting}>
       {(isSubmitting) => (
-        <Form
-          isPending={isSubmitting}
-          onSubmit={() => {
-            void form.handleSubmit();
-          }}
-        >
-          <form.AppField
-            name="title"
-            validators={{
-              onChangeAsync: ({ value }) => validateTitleOnChange(value),
-            }}
-          >
-            {(field) => <field.TextField label="タイトル" />}
-          </form.AppField>
-          <form.AppField name="body">
-            {(field) => <field.TextArea label="本文" />}
-          </form.AppField>
-          <form.AppField name="order">
-            {(field) => <field.NumberField label="順番" />}
-          </form.AppField>
-          <form.AppField name="publishedOn">
-            {(field) => <field.DateField label="公開日" />}
-          </form.AppField>
-          <form.AppField name="pinned">
-            {(field) => <field.Checkbox label="先頭に表示する" />}
-          </form.AppField>
-          <form.AppField name="season">
-            {(field) => <field.Select label="季節" options={OPTIONS} />}
-          </form.AppField>
-          <Button isPending={isSubmitting} type="submit">
-            保存
-          </Button>
-        </Form>
+        <form.AppForm>
+          <form.Form>
+            <form.AppField
+              name="title"
+              validators={{
+                onChangeAsync: ({ value }) => validateTitleOnChange(value),
+              }}
+            >
+              {(field) => <field.TextField label="タイトル" />}
+            </form.AppField>
+            <form.AppField name="body">
+              {(field) => <field.TextArea label="本文" />}
+            </form.AppField>
+            <form.AppField name="order">
+              {(field) => <field.NumberField label="順番" />}
+            </form.AppField>
+            <form.AppField name="publishedOn">
+              {(field) => <field.DateField label="公開日" />}
+            </form.AppField>
+            <form.AppField name="pinned">
+              {(field) => <field.Checkbox label="先頭に表示する" />}
+            </form.AppField>
+            <form.AppField name="season">
+              {(field) => <field.Select label="季節" options={OPTIONS} />}
+            </form.AppField>
+            <Button isPending={isSubmitting} type="submit">
+              保存
+            </Button>
+          </form.Form>
+        </form.AppForm>
       )}
     </form.Subscribe>
   );

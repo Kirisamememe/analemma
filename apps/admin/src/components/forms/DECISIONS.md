@@ -6,12 +6,11 @@
 - `TextField` は `TextInput` にラベル・補足・誤りの知らせを結び付ける。関連付けには React Aria Components の slot を使う。単独の呼び出し元は `defaultValue` と `validate` を使える。外から状態を管理するときは `value`・`onChange`・`onBlur`・`errorMessage` を使う。
 - `@/components/forms` の `useAppForm` は TanStack Form の `createFormHook` で部品を登録する。feature は `form.AppField` の中で、field の値の型に合う部品を選ぶ。`field.TextField` は文字列の field の値・変更・blur と、validator が返した文字列の誤りの知らせを `TextField` に渡す。
 
-`Form` の送信には `form.handleSubmit` を渡し、`form.Subscribe` で送信中の状態を反映する。`field.TextField` は React Aria Components の `validationBehavior="aria"` を指定する。必須の状態を伝えながら、ブラウザが送信を先に止めるのを防ぎ、TanStack Form の validator が出す誤りの知らせを入力欄に結び付ける。blur で出た誤りを直した直後の Enter でも、現在の値を検証して送れるように `canSubmitWhenInvalid` を使う。
+フォームは `form.AppForm` の中に `form.Form` を置いて組む。`form.Form` は、送ったときに `form.handleSubmit` を呼び、送信の検証と `onSubmit` の間は Enter で送り直させない。`onSubmit` が応答を待たずに終わるときは、送っている間を `isPending` で渡す。`field.TextField` は React Aria Components の `validationBehavior="aria"` を指定する。必須の状態を伝えながら、ブラウザが送信を先に止めるのを防ぎ、TanStack Form の validator が出す誤りの知らせを入力欄に結び付ける。blur で出た誤りを直した直後の Enter でも、現在の値を検証して送れるように `canSubmitWhenInvalid` を使う。
 
 ```tsx
 import { useAppForm } from "@/components/forms";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
 
 const form = useAppForm({
   canSubmitWhenInvalid: true,
@@ -20,27 +19,38 @@ const form = useAppForm({
 });
 
 return (
-  <form.Subscribe selector={(state) => state.isSubmitting}>
-    {(isSubmitting) => (
-      <Form
-        isPending={isSubmitting}
-        onSubmit={() => {
-          void form.handleSubmit();
-        }}
-      >
-        <form.AppField name="title">
-          {(field) => <field.TextField label={titleLabel} />}
-        </form.AppField>
-        <Button isPending={isSubmitting} type="submit">
-          {saveLabel}
-        </Button>
-      </Form>
-    )}
-  </form.Subscribe>
+  <form.AppForm>
+    <form.Form>
+      <form.AppField name="title">
+        {(field) => <field.TextField isRequired label={titleLabel} />}
+      </form.AppField>
+      <form.Subscribe selector={(state) => state.isSubmitting}>
+        {(isSubmitting) => (
+          <Button isPending={isSubmitting} type="submit">
+            {saveLabel}
+          </Button>
+        )}
+      </form.Subscribe>
+    </form.Form>
+  </form.AppForm>
 );
 ```
 
 blur で出る誤りと、送信時に受け取る誤りと、入力すると送信時の誤りが消えることを試せる story は、`__stories__/form.stories.tsx` に置く。
+
+## 送信の検証で止めたときの focus
+
+送信の検証で止めたら、`form.Form` が、最初の誤りの欄を見える位置まで scroll し、その欄に focus を移す(ユーザーが決めた)。画面ごとに書かず、どのフォームにも効かせる。
+
+- 最初の欄は、画面の上にある欄(DOM の並び)にする。TanStack Form の field を登録した順は、並べ替えた repeat などで画面の並びと食い違う。
+- 誤りの欄を探して focus を移すのは、primitives の `focusFirstInvalidField`。誤りの欄の外枠に React Aria Components が付ける `data-invalid` を読むので、primitives に置く。欄の中の、Tab で届く要素(Select のボタン、日付の最初の欄など)に移し、Select の隠れた `select` や、数値の入力欄の増減のボタンには移さない。
+- TanStack Form の状態が変わってから、React が誤りを描き終えるのを待つため、次の描画の前(`requestAnimationFrame`)に探す。
+- scroll は、欄の外枠(ラベルから誤りの知らせまで)が見えるだけ動かす(`block: "nearest"`)。見えている欄では動かさない。focus を移すときの scroll は止める(`preventScroll`)。入力欄だけが見える位置で止まり、ラベルが画面の外に残るため。
+- 送ってから server が断った誤りは、送信の検証ではないので、この focus の対象にしない。どう知らせるかは `apps/admin/DECISIONS.md` の「知らせの出し分け」。
+
+## 送った後に始める検証
+
+Dialog の名前の入力(パスキーの追加と名前の変更、トークンの発行)は、`checkAfterSubmit` で、最初に送るまでは誤りを出さず、送った後は入力のたびに確かめる。focus が外れたとき(onBlur)に誤りを出すと、入力欄の下に知らせが増えて、その下のボタンが押下の途中で下へずれ、「キャンセル」を押しても押せないことがある。送ってから出すなら、押したボタンは動かない。TanStack Form の `revalidateLogic` でも同じことができるが、features は TanStack Form を直に import できない(`apps/admin/DECISIONS.md` の「features の依存」)ので、`@/components/forms` が validator を作る関数を持つ。
 
 ## 送信の途中の入力
 
@@ -64,5 +74,6 @@ blur で出る誤りと、送信時に受け取る誤りと、入力すると送
 
 ## 割り切ったこと
 
-- **送信の検証で同期の validator が throw するとき**。TanStack Form 1.33.5 は、送信の検証で同期の validator が throw すると、`isSubmitting` を戻さない。フォームを作り直す(画面を開き直す)まで、入力欄は変更を受け付けない。上の例のようにボタンにも `isSubmitting` を渡していると、ボタンの表示も送信中のままになる。非同期の validator の reject は誤りとして受け取るので、入力を再開できる。今の validator は誤りを文言で返し(zod の `safeParse` など)、throw しない。直すには、`handleSubmit` を呼ぶ画面ごとに、送信の状態を戻す処理を足す必要がある。
+- **送信の検証で同期の validator が throw するとき**。TanStack Form 1.33.5 は、送信の検証で同期の validator が throw すると、`isSubmitting` を戻さない。フォームを作り直す(画面を開き直す)まで、入力欄は変更を受け付けない。上の例のようにボタンにも `isSubmitting` を渡していると、ボタンの表示も送信中のままになる。非同期の validator の reject は誤りとして受け取るので、入力を再開できる。今の validator は誤りを文言で返し(zod の `safeParse` など)、throw しない。直すには、送信の状態を戻す処理を `form.Form` に足す必要がある。
+- **日付の欄へ移す focus のテスト**。送信の検証で止めたときに日付の欄へ focus を移すことは、happy-dom では、日付の欄(contenteditable)の selection の扱いで event の再帰が起き、テストのログが崩れるので、テストで確かめない。focus 自体は移るので、ほかの欄はテストで確かめ、日付の欄は Storybook で見る。
 - **年 `0000` の日付**。contract が受け付ける年 `0000` は、日付の入力欄では扱わない(ユーザーが決めた)。React Aria Components が日付に使う `CalendarDate` で扱うには、別の入力表現を決める必要がある。

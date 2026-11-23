@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 
 import { useAppForm } from "@/components/forms";
 import { renderWithI18n } from "@/testing/render-with-i18n";
-import { Form } from "@/ui/primitives/form";
 
 afterEach(cleanup);
 
@@ -37,31 +36,29 @@ const Example = ({ onSubmit }: ExampleProps): ReactNode => {
   });
 
   return (
-    <Form
-      onSubmit={() => {
-        void form.handleSubmit();
-      }}
-    >
-      <form.AppField
-        name="pinned"
-        validators={{
-          onBlur: ({ value }) =>
-            value ? "表示位置を確認してください。" : undefined,
-        }}
-      >
-        {(field) => <field.Checkbox label="先頭に表示する" />}
-      </form.AppField>
-      <form.AppField
-        name="season"
-        validators={{
-          onBlur: ({ value }) =>
-            value === "summer" ? "夏以外を選んでください。" : undefined,
-        }}
-      >
-        {(field) => <field.Select label="季節" options={OPTIONS} />}
-      </form.AppField>
-      <button type="submit">保存</button>
-    </Form>
+    <form.AppForm>
+      <form.Form>
+        <form.AppField
+          name="pinned"
+          validators={{
+            onBlur: ({ value }) =>
+              value ? "表示位置を確認してください。" : undefined,
+          }}
+        >
+          {(field) => <field.Checkbox label="先頭に表示する" />}
+        </form.AppField>
+        <form.AppField
+          name="season"
+          validators={{
+            onBlur: ({ value }) =>
+              value === "summer" ? "夏以外を選んでください。" : undefined,
+          }}
+        >
+          {(field) => <field.Select label="季節" options={OPTIONS} />}
+        </form.AppField>
+        <button type="submit">保存</button>
+      </form.Form>
+    </form.AppForm>
   );
 };
 
