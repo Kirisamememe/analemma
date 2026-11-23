@@ -41,6 +41,7 @@ export const KindRefreshNotice = ({
 }: Record<"refreshFailure", QueryRetry> &
   Record<"source", "list" | "definition">): ReactNode => {
   const t = useTranslate();
+
   const message =
     source === "list"
       ? "fixedPageEditor.kindsRefreshFailed"
