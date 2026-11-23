@@ -125,6 +125,7 @@ describe("公開している固定ページを引く", () => {
   test("slug の形に合わない名前は、公開 API を呼ばずに undefined を返すこと", async () => {
     const requests: string[] = [];
     const fake = serveFakeCms({ headline: "a" });
+
     const client = createAnalemmaClient({
       url: "http://127.0.0.1:8788",
       fetch: async (request) => {
