@@ -11,7 +11,7 @@ import { tv } from "@/ui/tv";
 const photo = tv({
   slots: {
     frame: [
-      "relative grid w-full place-items-center",
+      "relative grid w-full place-items-center overflow-clip",
       "md:size-full md:min-h-0 md:min-w-0 md:grid-cols-1 md:grid-rows-1",
     ],
     image: [
@@ -62,6 +62,7 @@ export const ViewerPhoto = ({
       <img
         alt={alt}
         className={style.image()}
+        data-photo-ready={status === "loaded" || undefined}
         height={largest.height}
         key={attempt}
         onError={() => {

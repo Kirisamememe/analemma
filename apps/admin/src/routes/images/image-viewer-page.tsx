@@ -1,5 +1,5 @@
 import { useNavigate, useParams, useRouter } from "@tanstack/react-router";
-import { type KeyboardEvent, type ReactNode, useRef } from "react";
+import { type KeyboardEvent, type ReactNode, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAppContext } from "@/api/app-context";
@@ -15,7 +15,7 @@ import {
 } from "@/features/images/detail/queries/image-query";
 import { ViewerFrame, ViewerMessage } from "@/features/images/ui/image-viewer";
 import { ViewerLoading } from "@/features/images/ui/viewer-loading";
-import { Text } from "@/ui/layout";
+import { PageTransition, Text } from "@/ui/layout";
 import { ErrorState } from "@/ui/patterns";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
@@ -46,6 +46,12 @@ export const ImageViewerPage = (): ReactNode => {
   });
 
   const pending = useRef<PhotoMove>(undefined);
+  const [visit, setVisit] = useState<{
+    id: string;
+    direction?: "next" | "previous";
+  }>({ id });
+  if (visit.id !== id)
+    setVisit({ id, direction: id < visit.id ? "next" : "previous" });
 
   const rememberFocus = (event: KeyboardEvent<HTMLElement>): void => {
     if (event.key !== "Enter" || !(event.target instanceof HTMLAnchorElement)) {
@@ -176,8 +182,14 @@ export const ImageViewerPage = (): ReactNode => {
     );
 
   return (
-    <main onKeyDownCapture={rememberFocus} ref={restoreFocus}>
-      {content}
-    </main>
+    <PageTransition>
+      <main
+        data-photo-direction={visit.direction}
+        onKeyDownCapture={rememberFocus}
+        ref={restoreFocus}
+      >
+        {content}
+      </main>
+    </PageTransition>
   );
 };
