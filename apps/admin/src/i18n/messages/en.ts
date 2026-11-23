@@ -76,7 +76,6 @@ export const en = {
   "login.title": "Sign in to Stilus",
   "login.description": "Use a passkey you registered for this admin panel.",
   "login.submit": "Sign in with a passkey",
-  "login.cancelled": "Sign-in was cancelled.",
   "login.expired": "It took too long. Please sign in again.",
   "login.unknownPasskey":
     "This passkey is not registered. It may have been deleted.",
@@ -90,7 +89,6 @@ export const en = {
   "enroll.submit": "Register the passkey",
   "enroll.missingToken":
     "This registration URL is incomplete. Issue a new one with the server command.",
-  "enroll.cancelled": "Registration was cancelled.",
   "enroll.invalid":
     "This registration URL can no longer be used. It may have expired or been used. Issue a new one with the server command.",
   "enroll.expired": "It took too long. Please register again.",

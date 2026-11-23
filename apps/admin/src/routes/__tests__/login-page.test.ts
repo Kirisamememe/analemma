@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -71,7 +71,7 @@ describe("LoginPage", () => {
     ]);
   });
 
-  test("登録されていないパスキーなら、そのことを知らせ、ログインの画面に留まる", async () => {
+  test("登録されていないパスキーなら、失敗の Toast で知らせ、ログインの画面に留まる", async () => {
     const { history } = renderApp({
       path: "/login",
       routes: createSignInRoutes({ error: "UNKNOWN_CREDENTIAL" }),
@@ -86,8 +86,8 @@ describe("LoginPage", () => {
     expect(history.location.pathname).toBe("/login");
   });
 
-  test("認証器でキャンセルしたら、割り込まずに知らせる", async () => {
-    renderApp({
+  test("認証器でキャンセルしたら、何も知らせず、ログインの画面に留まる", async () => {
+    const { history } = renderApp({
       path: "/login",
       routes: createSignInRoutes(EXPIRY),
       authenticator: cancelling,
@@ -95,10 +95,31 @@ describe("LoginPage", () => {
 
     await pressLogIn();
 
-    expect((await screen.findByRole("status")).textContent).toBe(
-      "ログインをキャンセルしました。",
-    );
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "パスキーでログイン" }),
+      ).toHaveProperty("disabled", false);
+    });
     expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.queryByRole("status")).toBeNull();
+    expect(history.location.pathname).toBe("/login");
+  });
+
+  test("ログインを断られた後に押し直すと、前の失敗の Toast を閉じる", async () => {
+    renderApp({
+      path: "/login",
+      routes: createSignInRoutes({ error: "UNKNOWN_CREDENTIAL" }),
+      authenticator: answering,
+    });
+
+    await pressLogIn();
+    const first = await screen.findByRole("alert");
+
+    await pressLogIn();
+    await waitFor(() => {
+      expect(first.isConnected).toBe(false);
+    });
+    expect(await screen.findAllByRole("alert")).toHaveLength(1);
   });
 
   test("ログインの応答を待つ間にほかの画面へ移ったら、その画面から動かさない", async () => {

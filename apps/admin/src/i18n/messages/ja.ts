@@ -78,7 +78,6 @@ export const ja = {
   "login.title": "Stilus にログイン",
   "login.description": "この管理画面に登録したパスキーを使います。",
   "login.submit": "パスキーでログイン",
-  "login.cancelled": "ログインをキャンセルしました。",
   "login.expired": "時間がかかりすぎました。もう一度ログインしてください。",
   "login.unknownPasskey":
     "このパスキーは登録されていません。削除されたパスキーかもしれません。",
@@ -92,7 +91,6 @@ export const ja = {
   "enroll.submit": "パスキーを登録",
   "enroll.missingToken":
     "登録用 URL が不完全です。サーバーのコマンドで発行し直してください。",
-  "enroll.cancelled": "登録をキャンセルしました。",
   "enroll.invalid":
     "この登録用 URL は使えません。期限切れか、使用済みの可能性があります。サーバーのコマンドで発行し直してください。",
   "enroll.expired": "時間がかかりすぎました。もう一度登録してください。",

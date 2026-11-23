@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -86,6 +86,23 @@ describe("EnrollPage", () => {
     expect((await screen.findByRole("alert")).textContent).toContain(
       "この登録用 URL は使えません。",
     );
+  });
+
+  test("server がパスキーを断ったら、失敗の Toast で知らせ、画面には残さない", async () => {
+    renderApp({
+      path: "/enroll#abc.def",
+      routes: createEnrollmentRoutes({ error: "INVALID_CREDENTIAL" }).routes,
+      authenticator: registering({ _tag: "Answered", credential: CREDENTIAL }),
+    });
+
+    await submitName("MacBook");
+
+    const toast = await within(
+      await screen.findByRole("region", { name: /通知/v }),
+    ).findByRole("alert");
+
+    expect(toast.textContent).toBe("パスキーを登録できませんでした。");
+    expect(screen.getAllByRole("alert")).toEqual([toast]);
   });
 
   test("登録済みの認証器なら、ログイン画面へのリンクを出す", async () => {

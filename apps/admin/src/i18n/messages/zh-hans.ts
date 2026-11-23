@@ -73,7 +73,6 @@ export const zhHans = {
   "login.title": "登录 Stilus",
   "login.description": "使用为此管理后台注册的通行密钥。",
   "login.submit": "使用通行密钥登录",
-  "login.cancelled": "已取消登录。",
   "login.expired": "耗时过长，请重新登录。",
   "login.unknownPasskey": "此通行密钥未注册，可能已被删除。",
   "login.rejected": "无法验证通行密钥。",
@@ -84,7 +83,6 @@ export const zhHans = {
   "enroll.nameDescription": "用于区分通行密钥的名称（例如设备名称）。",
   "enroll.submit": "注册通行密钥",
   "enroll.missingToken": "注册链接不完整，请用服务器命令重新生成。",
-  "enroll.cancelled": "已取消注册。",
   "enroll.invalid":
     "此注册链接已无法使用，可能已过期或已被使用。请用服务器命令重新生成。",
   "enroll.expired": "耗时过长，请重新注册。",
