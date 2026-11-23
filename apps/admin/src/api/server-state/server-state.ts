@@ -1,6 +1,7 @@
 import {
   skipToken,
   useIsFetching,
+  useIsMutating,
   useMutation,
   useQuery,
   useQueryClient,
@@ -37,6 +38,8 @@ export type ApiQueryResult<Data> =
     };
 
 type MutationOptions<Input, Data> = {
+  /** 同じ対象への送信をほかの画面と共有するキー。 */
+  readonly key?: readonly unknown[];
   /** 操作を送る関数。 */
   readonly send: (input: Input) => Promise<Data>;
   /** `send` の Promise が resolve した後に呼ぶ関数。 */
@@ -101,13 +104,19 @@ export const useIsLoadingFirstData = (): boolean =>
       query.state.data === undefined && query.getObserversCount() > 0,
   }) > 0;
 
+/** 同じキーで送った操作の応答を待っているか。 */
+export const useIsApiMutationPending = (key: readonly unknown[]): boolean =>
+  useIsMutating({ mutationKey: key, exact: true }) > 0;
+
 /** server に操作を送り、送信の状態と結果を返す。 */
 export const useApiMutation = <Data, Input = void>({
+  key,
   send,
   onSuccess,
   onError,
 }: MutationOptions<Input, Data>): MutationResult<Input, Data> => {
   const { mutate, reset, isPending, isError, data } = useMutation({
+    ...(key && { mutationKey: key }),
     mutationFn: (input: Input) => send(input),
     onSuccess: (result) => onSuccess(result),
     onError: (error) => {

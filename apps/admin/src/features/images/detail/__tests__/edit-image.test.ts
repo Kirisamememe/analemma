@@ -2,15 +2,13 @@ import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { imageQueryKey } from "../queries/image-query";
-
 import type { FakeReply } from "@/testing/create-fake-api";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
 
-const setup = () => {
+const setup = (saveDelay?: Promise<undefined>) => {
   const server = createImageRoutes([{ title: "港" }, { title: "雪山" }]);
   const [image, next] = server.images();
 
@@ -20,7 +18,15 @@ const setup = () => {
 
   const app = renderApp({
     path: "/images/" + image.id.toUpperCase(),
-    routes: server.routes,
+    routes: saveDelay
+      ? {
+          ...server.routes,
+          "admin/images/update": async (input) => {
+            await saveDelay;
+            return server.routes["admin/images/update"](input);
+          },
+        }
+      : server.routes,
   });
 
   return { server, image, next, ...app };
@@ -47,20 +53,24 @@ describe("EditImage", () => {
       id: image.id,
       title: "港",
       description: "別のタブで保存",
-      alt: null,
+      alt: "元のalt",
     });
     const editor = await openEditor();
 
     expect(
       editor.getByRole<HTMLTextAreaElement>("textbox", { name: "説明" }).value,
     ).toBe("別のタブで保存");
+    await userEvent.clear(editor.getByRole("textbox", { name: "alt" }));
     await userEvent.type(
       editor.getByRole("textbox", { name: "タイトル" }),
       "の灯り",
     );
     await userEvent.click(editor.getByRole("button", { name: "保存" }));
     await screen.findByRole("heading", { name: "港の灯り" });
-    expect(server.images()[0]?.description).toBe("別のタブで保存");
+    expect(server.images()[0]).toMatchObject({
+      description: "別のタブで保存",
+      alt: null,
+    });
   });
 
   test("未保存の変更を閉じる前に確かめ、編集を続けると入力を保つ", async () => {
@@ -102,35 +112,61 @@ describe("EditImage", () => {
     expect(server.images()[1]?.description).toBeNull();
   });
 
-  test("保存の応答を待つ間に別の写真に移っても、応答は送った写真のキャッシュだけに反映する", async () => {
-    const { history, image, next, queryClient, server } = setup();
-    const deferred = Promise.withResolvers<FakeReply<"admin/images/update">>();
-    server.replyNext("admin/images/update", () => deferred.promise);
-    const editor = await openEditor();
-    await userEvent.type(editor.getByRole("textbox", { name: "alt" }), "夜景");
-    await userEvent.click(editor.getByRole("button", { name: "保存" }));
-    act(() => {
-      history.push("/images/" + next.id);
-    });
-
-    const confirm = within(
-      await screen.findByRole("dialog", { name: "画像を保存しています" }),
-    );
-
-    await userEvent.click(
-      confirm.getByRole("button", { name: "画面を離れる" }),
-    );
-    await screen.findByRole("heading", { name: "雪山" });
-    deferred.resolve({ output: { ...image, alt: "夜景" } });
-    await waitFor(() => {
-      expect(queryClient.getQueryData(imageQueryKey(image.id))).toMatchObject({
-        data: { id: image.id, alt: "夜景" },
+  test.each([true, false])(
+    "保存中に移動を頼み、先に離れるか(%p)にかかわらず元の写真に保存する",
+    async (leaveFirst) => {
+      const deferred = Promise.withResolvers<undefined>();
+      const { history, image, next, server } = setup(deferred.promise);
+      const editor = await openEditor();
+      await userEvent.type(
+        editor.getByRole("textbox", { name: "説明" }),
+        "夜景",
+      );
+      await userEvent.click(editor.getByRole("button", { name: "保存" }));
+      act(() => {
+        history.push("/images/" + next.id);
       });
-    });
-    expect(queryClient.getQueryData(imageQueryKey(next.id))).toMatchObject({
-      data: { id: next.id, alt: null },
-    });
-  });
+
+      const confirm = await screen.findByRole("dialog", {
+        name: "画像を保存しています",
+        description: /保存に失敗した場合/v,
+      });
+
+      if (leaveFirst) {
+        await userEvent.click(
+          within(confirm).getByRole("button", { name: "画面を離れる" }),
+        );
+        await screen.findByRole("heading", { name: "雪山" });
+        expect(
+          screen
+            .getByRole("button", { name: "編集" })
+            .hasAttribute("aria-disabled"),
+        ).toBe(false);
+        act(() => {
+          history.push("/images/" + image.id);
+        });
+        await screen.findByRole("heading", { name: "港" });
+        await userEvent.click(screen.getByRole("button", { name: "編集" }));
+        expect(screen.queryByRole("dialog")).toBeNull();
+      }
+
+      deferred.resolve(undefined);
+      await screen.findByText("画像を更新しました。");
+
+      if (leaveFirst) {
+        expect(
+          (await openEditor()).getByRole<HTMLTextAreaElement>("textbox", {
+            name: "説明",
+          }).value,
+        ).toBe("夜景");
+      } else {
+        await screen.findByRole("heading", { name: "雪山" });
+        expect(history.location.pathname).toBe("/images/" + next.id);
+      }
+
+      expect(server.images()[1]?.description).toBeNull();
+    },
+  );
 
   test("保存の応答を待つ間は入力を保護し、失敗したあとに同じ入力で保存し直せる", async () => {
     const { server } = setup();

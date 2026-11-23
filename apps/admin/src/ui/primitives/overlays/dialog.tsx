@@ -35,6 +35,8 @@ type DialogProps = {
   onOpenChange: (isOpen: boolean) => void;
   /** Dialog の名前。 */
   title: string;
+  /** 説明の要素の ID。 */
+  descriptionId?: string;
   /** 送信中か(送信中は Escape と backdrop の押下で閉じない)。 */
   isPending?: boolean;
   /** backdrop の押下で閉じるか(閉じないときも、Escape では閉じる)。 */
@@ -48,6 +50,7 @@ export const Dialog = ({
   isOpen,
   onOpenChange,
   title,
+  descriptionId = "",
   isPending = false,
   isDismissable = true,
   children,
@@ -60,7 +63,11 @@ export const Dialog = ({
     onOpenChange={onOpenChange}
   >
     <Modal className={modal()}>
-      <AriaDialog className={body()} inert={!isOpen}>
+      <AriaDialog
+        aria-describedby={descriptionId}
+        className={body()}
+        inert={!isOpen}
+      >
         <Heading
           className={titleSlot({ className: typography({ role: "section" }) })}
           slot="title"

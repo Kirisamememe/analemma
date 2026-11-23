@@ -51,17 +51,11 @@ describe("isValidImageText", () => {
 
 describe("hasUnsavedChanges", () => {
   test("送る値が変わったときだけ、変更があるとする", () => {
-    expect(
-      hasUnsavedChanges({ saved: EMPTY, current: { ...EMPTY, alt: "  " } }),
-    ).toBe(false);
-    expect(
-      hasUnsavedChanges({
-        saved: { ...EMPTY, title: "夕暮れ" },
-        current: { ...EMPTY, title: "夕暮れ " },
-      }),
-    ).toBe(false);
-    expect(
-      hasUnsavedChanges({ saved: EMPTY, current: { ...EMPTY, alt: "山" } }),
-    ).toBe(true);
+    const titled = { ...EMPTY, title: "夕暮れ" };
+    expect(hasUnsavedChanges(EMPTY, { ...EMPTY, alt: "  " })).toBe(false);
+    expect(hasUnsavedChanges(titled, { ...titled, title: "夕暮れ " })).toBe(
+      false,
+    );
+    expect(hasUnsavedChanges(EMPTY, { ...EMPTY, alt: "山" })).toBe(true);
   });
 });
