@@ -6,11 +6,19 @@ import {
   ImageTile,
 } from "@/features/images/ui/image-rows";
 import { samplePhoto } from "@/testing/sample-photos";
+import { AppShell } from "@/ui/layout";
 
 const meta = {
   title: "features/images/ImageRows",
   component: ImageRows,
   args: { label: "画像", children: null },
+  decorators: [
+    (Story) => (
+      <AppShell>
+        <Story />
+      </AppShell>
+    ),
+  ],
   parameters: { layout: "padded", stage: null },
 } satisfies Meta<typeof ImageRows>;
 

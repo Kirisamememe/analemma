@@ -34,7 +34,7 @@ const tile = ({
       alt={alt}
       badge={badge}
       date={date}
-      href="/fixed-pages"
+      href="/fixed-pages/selected-photo"
       images={images}
       missing="表示用の画像がまだありません"
       title={title}
@@ -50,7 +50,10 @@ describe("ImageTile", () => {
     const list = screen.getByRole("list", { name: "画像" });
     const link = within(list).getByRole("link");
 
-    expect(link.textContent).toBe("夕暮れの稜線非公開2025/05/01");
+    expect(link.getAttribute("href")).toBe("/fixed-pages/selected-photo");
+    expect(within(link).getByText("夕暮れの稜線")).toBeDefined();
+    expect(within(link).getByText("非公開")).toBeDefined();
+    expect(within(link).getByText("2025/05/01")).toBeDefined();
     expect(screen.queryByText("表示用の画像がまだありません")).toBeNull();
   });
 

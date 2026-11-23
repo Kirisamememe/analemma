@@ -7,6 +7,7 @@ import {
   toTileSizes,
 } from "./logic/delivery-image";
 
+import { Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Icon } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
@@ -16,12 +17,12 @@ import { typography } from "@/ui/typography";
 
 const rows = tv({
   slots: {
-    list: ["flex flex-wrap gap-x-3 gap-y-6", "after:grow-999"], // 最後の行は伸ばさず、左に寄せる
+    list: ["flex flex-wrap gap-x-3 gap-y-6", "after:grow-999"],
     item: "flex min-w-0 grow-(--media-aspect) flex-col",
     body: "flex flex-col gap-2",
     frame: [
       "relative aspect-(--media-aspect) w-full overflow-hidden rounded-control bg-surface-muted",
-      "min-h-28 @md:max-h-66 @md:min-h-44", // 最低の高さで並べ、広い幅では伸びすぎる行を 1.5 倍で止める
+      "min-h-28 @md:max-h-66 @md:min-h-44",
     ],
     photo: "absolute inset-0 size-full object-cover object-focal",
     shade: [
@@ -32,18 +33,17 @@ const rows = tv({
       "absolute inset-0 flex flex-col items-center justify-center gap-1",
       "p-2 text-center text-fg-muted",
     ],
-    caption: "flex w-0 min-w-full flex-col", // 文字の長さで枠の幅を変えない
+    caption: "flex w-0 min-w-full flex-col",
     heading: "flex min-w-0 flex-wrap items-center gap-2",
     title: "w-8 max-w-fit min-w-0 grow truncate",
     badge: "flex shrink-0",
-    date: "text-fg-muted",
   },
   variants: {
     isUntitled: {
       true: { title: "text-fg-muted" },
     },
     isPlaceholder: {
-      true: { frame: "animate-pulse" },
+      true: { frame: "motion-safe:animate-pulse" },
     },
   },
 });
@@ -110,9 +110,9 @@ export const ImageTile = ({
             {smallest === undefined ? (
               <span className={style.missing()}>
                 <Icon name="image-off" size="lg" />
-                <span className={typography({ role: "caption" })}>
+                <Text as="span" variant="caption">
                   {missing}
-                </span>
+                </Text>
               </span>
             ) : (
               <img
@@ -135,6 +135,7 @@ export const ImageTile = ({
                     role: title === null ? "body" : "label",
                   }),
                 })}
+                title={title ?? undefined}
               >
                 {title ?? untitled}
               </span>
@@ -145,13 +146,9 @@ export const ImageTile = ({
               )}
             </span>
             {date !== undefined && (
-              <span
-                className={style.date({
-                  className: typography({ role: "caption" }),
-                })}
-              >
+              <Text as="span" tone="muted" variant="caption">
                 {date}
-              </span>
+              </Text>
             )}
           </span>
         </span>
