@@ -10,6 +10,8 @@ import { focusFirstInvalidField } from "@/ui/primitives/form-fields";
 type BoundFormProps = {
   /** `onSubmit` の後も続く、送っている操作があるか。 */
   isPending?: boolean | undefined;
+  /** server が断った入力ごとの、誤りの知らせ。 */
+  validationErrors?: Readonly<Record<string, string>> | undefined;
   /** 入力欄とボタン。 */
   children: ReactNode;
 };
@@ -17,6 +19,7 @@ type BoundFormProps = {
 /** TanStack Form で入力を確かめて送るフォーム。 */
 export const BoundForm = ({
   isPending = false,
+  validationErrors,
   children,
 }: BoundFormProps): ReactNode => {
   const form = useFormContext();
@@ -37,6 +40,7 @@ export const BoundForm = ({
         void submit();
       }}
       ref={element}
+      validationErrors={validationErrors}
     >
       {children}
     </Form>

@@ -21,6 +21,8 @@ export const en = {
   "fixedPageEditor.created": "Fixed page created.",
   "fixedPageEditor.saveFailed":
     "Could not save the fixed page. Please try again.",
+  "fixedPageEditor.invalidContent":
+    "Some values could not be saved. Fix the fields marked with errors.",
   "fixedPageEditor.changedKind":
     "The kind definition may have changed. Reload the page to check the fields.",
   "fixedPageEditor.issue.type": "Enter a value.",

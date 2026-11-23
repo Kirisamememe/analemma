@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { TextField as AriaTextField } from "react-aria-components";
 
 import { fieldRoot } from "./field-control";
@@ -23,6 +23,8 @@ export type TextFieldProps = {
   maxLength?: number | undefined;
   /** ブラウザの自動入力の種類。 */
   autoComplete?: string | undefined;
+  /** 入力欄の要素(focus を移すときに使う)。 */
+  inputRef?: Ref<HTMLInputElement> | undefined;
   /** 最初に入れておく値。 */
   defaultValue?: string;
   /** 呼び出し元で管理する入力値。 */
@@ -47,6 +49,7 @@ export const TextField = ({
   isReadOnly = false,
   maxLength,
   autoComplete,
+  inputRef,
   defaultValue = "",
   value,
   onChange,
@@ -78,7 +81,11 @@ export const TextField = ({
       {...fieldState}
     >
       <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
-      <TextInput autoComplete={autoComplete} maxLength={maxLength} />
+      <TextInput
+        autoComplete={autoComplete}
+        maxLength={maxLength}
+        ref={inputRef}
+      />
       {description !== undefined && (
         <FieldDescription>{description}</FieldDescription>
       )}

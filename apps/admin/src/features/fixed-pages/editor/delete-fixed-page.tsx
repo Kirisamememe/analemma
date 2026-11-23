@@ -10,8 +10,11 @@ import {
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Notice } from "@/ui/primitives/notice";
-import { Dialog, useShowToast } from "@/ui/primitives/overlays";
+import {
+  Dialog,
+  useFailureToast,
+  useShowToast,
+} from "@/ui/primitives/overlays";
 
 /** 固定ページを削除するボタンに渡す値。 */
 type DeleteFixedPageProps = {
@@ -28,6 +31,7 @@ export const DeleteFixedPage = ({
 }: DeleteFixedPageProps): ReactNode => {
   const t = useTranslate();
   const showToast = useShowToast();
+  const failure = useFailureToast();
   const { refresh } = useApiCache();
   const { api } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
@@ -45,14 +49,18 @@ export const DeleteFixedPage = ({
         });
 
         if (trigger.current !== null) onDeleted(); // 画面を閉じていたら、移った先の画面から動かさない
+      } else {
+        failure.show(t("fixedPageEditor.pageGone"));
       }
     },
     onError: () => {
+      failure.show(t("fixedPages.deleteFailed"));
       void refresh(FIXED_PAGES_QUERY_KEY); // 削除できてから応答だけが失敗したときも、一覧を合わせる
     },
   });
 
   const close = (): void => {
+    failure.close();
     setIsOpen(false);
   };
 
@@ -76,12 +84,6 @@ export const DeleteFixedPage = ({
         title={t("fixedPages.deleteTitle", { title: page.title })}
       >
         <Text>{t("fixedPages.deleteDescription")}</Text>
-        {deleting.isError && (
-          <Notice tone="danger">{t("fixedPages.deleteFailed")}</Notice>
-        )}
-        {deleting.data?._tag === "NotFound" && (
-          <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
-        )}
         <Cluster gap={2} justify="end">
           <Button isDisabled={deleting.isPending} onPress={close}>
             {t("fixedPages.cancel")}
@@ -91,6 +93,7 @@ export const DeleteFixedPage = ({
             isPending={deleting.isPending}
             onPress={() => {
               if (isOpen) {
+                failure.close();
                 deleting.mutate(); // 閉じ始めた後に遅れて届いた押下では送らない
               }
             }}

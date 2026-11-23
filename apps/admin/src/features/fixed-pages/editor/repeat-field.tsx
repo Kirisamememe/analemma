@@ -76,7 +76,6 @@ export const RepeatField = ({
               return (
                 <ContentGroup
                   key={id}
-                  name={"content." + item}
                   error={errors["content." + item]}
                   label={t("fixedPageEditor.item", label)}
                 >

@@ -1,5 +1,5 @@
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { ApiOutputs } from "@/api/api-types";
@@ -91,7 +91,12 @@ const useKind = (name: string) => {
   });
 };
 
-const KindPicker = (): ReactNode => {
+type KindPickerProps = {
+  /** 種類を選んだときに呼ぶ関数。 */
+  onPick: () => void;
+};
+
+const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
   const { api } = useAppContext();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -123,6 +128,7 @@ const KindPicker = (): ReactNode => {
           <Button
             key={kind.name}
             onPress={() => {
+              onPick();
               void navigate({
                 to: "/fixed-pages/new",
                 search: { kind: kind.name },
@@ -140,9 +146,11 @@ const KindPicker = (): ReactNode => {
 type NewPageEditorProps = {
   /** 選んだ種類の名前。 */
   name: string;
+  /** この画面で種類を選んだか。 */
+  picked: boolean;
 };
 
-const NewPageEditor = ({ name }: NewPageEditorProps): ReactNode => {
+const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const kind = useKind(name);
@@ -156,6 +164,7 @@ const NewPageEditor = ({ name }: NewPageEditorProps): ReactNode => {
       <FixedPageEditor
         key={name}
         kind={kind.data.data}
+        picked={picked}
         onSaved={(saved) => {
           void navigate({
             to: "/fixed-pages/$id",
@@ -186,6 +195,7 @@ const NewPageEditor = ({ name }: NewPageEditorProps): ReactNode => {
 export const NewFixedPage = (): ReactNode => {
   const { t } = useTranslation();
   const { kind } = useSearch({ from: "/signed-in/fixed-pages/new" });
+  const [picked, setPicked] = useState(false);
 
   return (
     <Frame>
@@ -194,10 +204,14 @@ export const NewFixedPage = (): ReactNode => {
           description={t("fixedPageEditor.newDescription")}
           title={t("fixedPageEditor.new")}
         >
-          <KindPicker />
+          <KindPicker
+            onPick={() => {
+              setPicked(true);
+            }}
+          />
         </Titled>
       ) : (
-        <NewPageEditor name={kind} />
+        <NewPageEditor name={kind} picked={picked} />
       )}
     </Frame>
   );

@@ -10,11 +10,12 @@ const isFocusTarget = (element: Element): element is HTMLElement =>
 export const focusFirstInvalidField = (container: Element | null): void => {
   requestAnimationFrame(() => {
     const field = container?.querySelector("[data-invalid]"); // React Aria Components が誤りの欄の外枠に付ける
-    const target = field
-      ? [field, ...field.querySelectorAll(FOCUSABLE)].find((element) =>
-          isFocusTarget(element),
-        )
-      : undefined;
+    const target =
+      field instanceof HTMLElement && field.hasAttribute("tabindex")
+        ? field
+        : [...(field?.querySelectorAll(FOCUSABLE) ?? [])].find((element) =>
+            isFocusTarget(element),
+          );
 
     field?.scrollIntoView({ block: "nearest" });
     target?.focus({ preventScroll: true });

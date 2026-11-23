@@ -31,7 +31,7 @@ const save = async (position: "top" | "bottom" = "top") => {
   await userEvent.click(button);
 };
 
-test("種類を選んで作成し、送信中の二重送信を防ぎ、履歴を置き換えて編集画面を開く", async () => {
+test("種類を選ぶと slug の欄に focus を移し、作成の送信中の二重送信を防ぎ、履歴を置き換えて編集画面を開く", async () => {
   const pending = Promise.withResolvers<undefined>();
   let sent: unknown;
 
@@ -50,10 +50,11 @@ test("種類を選んで作成し、送信中の二重送信を防ぎ、履歴�
   });
 
   await userEvent.click(await screen.findByRole("button", { name: "紹介" }));
-  await userEvent.type(
-    await screen.findByRole("textbox", { name: "slug" }),
-    "about",
-  );
+  const slug = await screen.findByRole("textbox", { name: "slug" });
+  await waitFor(() => {
+    expect(document.activeElement).toBe(slug);
+  });
+  await userEvent.type(slug, "about");
   await userEvent.type(
     screen.getByRole("textbox", { name: "タイトル" }),
     "紹介",
@@ -188,16 +189,15 @@ test("行を動かし、追加・削除して保存しても各段の定義に�
   expect(screen.queryByText("長すぎます。")).toBeNull();
 });
 
-test("更新時の NOT_FOUND は、Toast でなく画面に残る知らせで伝える", async () => {
+test("更新時の NOT_FOUND は、失敗の Toast で知らせる", async () => {
   edit({ "admin/fixedPages/update": () => ({ error: "NOT_FOUND" }) });
   await save();
 
-  const notice = await screen.findByText("この固定ページはもうありません。");
-  await waitFor(() => {
-    expect(document.activeElement?.contains(notice)).toBe(true);
-    expect(document.activeElement).not.toBe(document.body);
-  });
-  expect(screen.queryByRole("region", { name: /通知/v })).toBeNull();
+  const toast = await within(
+    await screen.findByRole("region", { name: /通知/v }),
+  ).findByRole("alert");
+
+  expect(toast.textContent).toBe("この固定ページはもうありません。");
 });
 
 test("保存の失敗を Toast で知らせ、送り直して成功したら失敗の知らせが消える", async () => {
@@ -228,25 +228,33 @@ test("保存の失敗を Toast で知らせ、送り直して成功したら失�
   });
 });
 
-test("slug の重複は入力欄で知らせ、変更すると消す", async () => {
+test("slug の重複は Toast と入力欄で知らせて入力欄に focus を移し、変更すると入力欄の知らせを消す", async () => {
   edit({ "admin/fixedPages/update": () => ({ error: "SLUG_TAKEN" }) });
   await save();
-
+  const taken = "この slug は、ほかの固定ページが使っています。";
   const input = await screen.findByRole("textbox", {
     name: "slug",
-    description: /この slug は、ほかの固定ページが使っています。/v,
+    description: new RegExp(taken, "v"),
   });
+  const toast = await within(
+    screen.getByRole("region", { name: /通知/v }),
+  ).findByRole("alert");
 
+  expect(toast.textContent).toBe(taken);
   await waitFor(() => {
     expect(document.activeElement).toBe(input);
   });
   await userEvent.type(input, "-2");
+  expect(input.getAttribute("aria-invalid")).toBeNull();
   expect(
-    screen.queryByText("この slug は、ほかの固定ページが使っています。"),
+    screen.queryByRole("textbox", {
+      name: "slug",
+      description: new RegExp(taken, "v"),
+    }),
   ).toBeNull();
 });
 
-test("slug は blur、空のタイトルは送信時に知らせ、種類が消えた場合は作成時に知らせる", async () => {
+test("slug は blur、空のタイトルは送信時に知らせてタイトルに focus を移し、種類が消えた場合は作成時に Toast で知らせる", async () => {
   const { calls } = renderApp({
     path: "/fixed-pages/new?kind=profile",
     routes: {
@@ -269,13 +277,20 @@ test("slug は blur、空のタイトルは送信時に知らせ、種類が消�
       "タイトルは1〜200文字で、改行を使わずに入力してください。",
     ),
   ).toBeDefined();
+  await waitFor(() => {
+    expect(document.activeElement).toBe(
+      screen.getByRole("textbox", { name: "タイトル" }),
+    );
+  });
   expect(calls).not.toContain("admin/fixedPages/create");
   await userEvent.type(
     screen.getByRole("textbox", { name: "タイトル" }),
     "紹介",
   );
   await save();
-  expect(await screen.findByText("この種類はもうありません。")).toBeDefined();
+  expect((await screen.findByRole("alert")).textContent).toBe(
+    "この種類はもうありません。",
+  );
 });
 
 test("値を変えたまま一覧へ移ろうとすると確かめ、編集を続けると値を残し、破棄すると移る", async () => {

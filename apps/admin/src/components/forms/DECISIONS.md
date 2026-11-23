@@ -6,7 +6,7 @@
 - `TextField` は `TextInput` にラベル・補足・誤りの知らせを結び付ける。関連付けには React Aria Components の slot を使う。単独の呼び出し元は `defaultValue` と `validate` を使える。外から状態を管理するときは `value`・`onChange`・`onBlur`・`errorMessage` を使う。
 - `@/components/forms` の `useAppForm` は TanStack Form の `createFormHook` で部品を登録する。feature は `form.AppField` の中で、field の値の型に合う部品を選ぶ。`field.TextField` は文字列の field の値・変更・blur と、validator が返した文字列の誤りの知らせを `TextField` に渡す。
 
-フォームは `form.AppForm` の中に `form.Form` を置いて組む。`form.Form` は、送ったときに `form.handleSubmit` を呼び、送信の検証と `onSubmit` の間は Enter で送り直させない。`onSubmit` が応答を待たずに終わるときは、送っている間を `isPending` で渡す。`field.TextField` は React Aria Components の `validationBehavior="aria"` を指定する。必須の状態を伝えながら、ブラウザが送信を先に止めるのを防ぎ、TanStack Form の validator が出す誤りの知らせを入力欄に結び付ける。blur で出た誤りを直した直後の Enter でも、現在の値を検証して送れるように `canSubmitWhenInvalid` を使う。
+フォームは `form.AppForm` の中に `form.Form` を置いて組む。`form.Form` は、送ったときに `form.handleSubmit` を呼び、送信の検証と `onSubmit` の間は Enter で送り直させない。`onSubmit` が応答を待たずに終わるときは、送っている間を `isPending` で渡す。server が断った入力は `validationErrors` で渡す。`field.TextField` は React Aria Components の `validationBehavior="aria"` を指定する。必須の状態を伝えながら、ブラウザが送信を先に止めるのを防ぎ、TanStack Form の validator が出す誤りの知らせを入力欄に結び付ける。blur で出た誤りを直した直後の Enter でも、現在の値を検証して送れるように `canSubmitWhenInvalid` を使う。
 
 ```tsx
 import { useAppForm } from "@/components/forms";
@@ -46,7 +46,7 @@ blur で出る誤りと、送信時に受け取る誤りと、入力すると送
 - 誤りの欄を探して focus を移すのは、primitives の `focusFirstInvalidField`。誤りの欄の外枠に React Aria Components が付ける `data-invalid` を読むので、primitives に置く。欄の中の、Tab で届く要素(Select のボタン、日付の最初の欄など)に移し、Select の隠れた `select` や、数値の入力欄の増減のボタンには移さない。
 - TanStack Form の状態が変わってから、React が誤りを描き終えるのを待つため、次の描画の前(`requestAnimationFrame`)に探す。
 - scroll は、欄の外枠(ラベルから誤りの知らせまで)が見えるだけ動かす(`block: "nearest"`)。見えている欄では動かさない。focus を移すときの scroll は止める(`preventScroll`)。入力欄だけが見える位置で止まり、ラベルが画面の外に残るため。
-- 送ってから server が断った誤りは、送信の検証ではないので、この focus の対象にしない。どう知らせるかは `apps/admin/DECISIONS.md` の「知らせの出し分け」。
+- 送ってから server が断った誤りは、送信の検証ではないので、`form.Form` は focus を移さない。`form.Form` の `validationErrors` で欄に出し、応答を受けた画面が `focusFirstInvalidField` を呼ぶ(固定ページの編集の画面)。どう知らせるかは `apps/admin/DECISIONS.md` の「知らせの出し分け」。
 
 ## 送った後に始める検証
 

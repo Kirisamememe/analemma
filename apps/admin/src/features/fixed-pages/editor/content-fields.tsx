@@ -48,12 +48,7 @@ export const ContentFields = ({
       );
 
       return (
-        <ContentGroup
-          key={path}
-          label={definition.label}
-          name={name}
-          error={errors[name]}
-        >
+        <ContentGroup key={path} label={definition.label} error={errors[name]}>
           {definition.type === "group" ? (
             nested(path)
           ) : (
@@ -75,49 +70,46 @@ export const ContentFields = ({
     const label = definition.label;
 
     return (
-      <div key={path} data-field={name}>
-        <form.AppField
-          name={name}
-          listeners={{
-            onChange: () => {
-              changed(name);
-            },
-          }}
-        >
-          {(field) => {
-            switch (definition.type) {
-              case "text":
-                return <field.TextField label={label} isRequired={required} />;
-              case "url":
-                return (
-                  <field.TextField
-                    description={t("fixedPageEditor.urlHint")}
-                    isRequired={required}
-                    label={label}
-                  />
-                );
-              case "longText":
-                return <field.TextArea label={label} isRequired={required} />;
-              case "number":
-                return (
-                  <field.NumberField label={label} isRequired={required} />
-                );
-              case "boolean":
-                return <field.Checkbox label={label} />;
-              case "date":
-                return <field.DateField label={label} isRequired={required} />;
-              case "select":
-                return (
-                  <field.Select
-                    label={label}
-                    isRequired={required}
-                    options={definition.options}
-                  />
-                );
-            }
-          }}
-        </form.AppField>
-      </div>
+      <form.AppField
+        key={path}
+        name={name}
+        listeners={{
+          onChange: () => {
+            changed(name);
+          },
+        }}
+      >
+        {(field) => {
+          switch (definition.type) {
+            case "text":
+              return <field.TextField label={label} isRequired={required} />;
+            case "url":
+              return (
+                <field.TextField
+                  description={t("fixedPageEditor.urlHint")}
+                  isRequired={required}
+                  label={label}
+                />
+              );
+            case "longText":
+              return <field.TextArea label={label} isRequired={required} />;
+            case "number":
+              return <field.NumberField label={label} isRequired={required} />;
+            case "boolean":
+              return <field.Checkbox label={label} />;
+            case "date":
+              return <field.DateField label={label} isRequired={required} />;
+            case "select":
+              return (
+                <field.Select
+                  label={label}
+                  isRequired={required}
+                  options={definition.options}
+                />
+              );
+          }
+        }}
+      </form.AppField>
     );
   });
 };

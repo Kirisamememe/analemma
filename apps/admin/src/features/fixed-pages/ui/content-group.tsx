@@ -5,8 +5,6 @@ import { Stack, Text } from "@/ui/layout";
 type ContentGroupProps = {
   /** まとまりの名前。 */
   label: string;
-  /** フォームでの場所。 */
-  name: string;
   /** まとまりに付いた誤りの知らせ。 */
   error: string | undefined;
   /** 中の項目と操作。 */
@@ -16,7 +14,6 @@ type ContentGroupProps = {
 /** group・repeat・要素のラベルを中の項目に結び付ける。 */
 export const ContentGroup = ({
   label,
-  name,
   error,
   children,
 }: ContentGroupProps): ReactNode => {
@@ -24,7 +21,7 @@ export const ContentGroup = ({
   return (
     <fieldset
       className="min-w-0 rounded-control border p-4"
-      data-field={name}
+      data-invalid={error === undefined ? undefined : true} // 送信の後の focus の行き先にする
       tabIndex={-1}
       aria-describedby={error === undefined ? undefined : id}
     >

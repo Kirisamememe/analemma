@@ -23,6 +23,8 @@ export const ja = {
   "fixedPageEditor.created": "固定ページを作成しました。",
   "fixedPageEditor.saveFailed":
     "固定ページを保存できませんでした。もう一度試してください。",
+  "fixedPageEditor.invalidContent":
+    "保存できない値があります。誤りの出た欄を直してください。",
   "fixedPageEditor.changedKind":
     "種類の定義が変わった可能性があります。読み込み直して項目を確認してください。",
   "fixedPageEditor.issue.type": "入力してください。",

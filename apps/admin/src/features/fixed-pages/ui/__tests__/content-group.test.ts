@@ -8,7 +8,7 @@ import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
-test("要素の誤りをまとまりの説明にし、修正すると消し、最後の要素を削除すると追加のボタンへ focus を移す", async () => {
+test("要素の誤りをまとまりの説明にしてまとまりに focus を移し、修正すると消し、最後の要素を削除すると追加のボタンへ focus を移す", async () => {
   const fields = fieldDefinitions.parse([
     {
       type: "repeat",
@@ -50,7 +50,9 @@ test("要素の誤りをまとまりの説明にし、修正すると消し、�
     name: "行 1",
     description: "入力してください。",
   });
-
+  await waitFor(() => {
+    expect(document.activeElement).toBe(row);
+  });
   await userEvent.type(
     within(row).getByRole("textbox", { name: "名前" }),
     "記入",
