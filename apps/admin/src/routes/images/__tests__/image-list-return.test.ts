@@ -1,4 +1,4 @@
-import { act, cleanup, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
@@ -31,10 +31,17 @@ test("写真から戻ると、続きを読み直さずに元の写真へ戻り�
   await user.click(await more());
   await user.click(await screen.findByRole("link", { name: /写真 52/v }));
   await screen.findByRole("heading", { name: "写真 52" });
+  await user.click(screen.getByRole("button", { name: "非公開にする" }));
+  await user.click(
+    within(await screen.findByRole("dialog")).getByRole("button", {
+      name: "非公開にする",
+    }),
+  );
+  await screen.findByRole("button", { name: "公開する" });
   await user.click(screen.getByRole("link", { name: "画像の一覧" }));
 
   const selected = await screen.findByRole("link", {
-    name: /写真 52/v,
+    name: /写真 52.*非公開/v,
   });
 
   await waitFor(() => {

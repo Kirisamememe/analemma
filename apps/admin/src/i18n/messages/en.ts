@@ -281,6 +281,7 @@ export const en = {
   "imageDetail.publish": "Publish",
   "imageDetail.unpublish": "Unpublish",
   "imageDetail.publishDone": "The image was published.",
+  "imageDetail.unpublishTitle": "Unpublish “{{title}}”?",
   "imageDetail.unpublishDone": "The image was unpublished.",
   "imageDetail.publicationFailed":
     "Could not change whether the image is published. Please try again.",

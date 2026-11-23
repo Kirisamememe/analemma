@@ -136,6 +136,7 @@ export const ImageViewerPage = (): ReactNode => {
             />
           )
         }
+        key={id}
         back={back}
         image={query.data.data}
         next={hrefOf(neighbors.next)}

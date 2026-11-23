@@ -10,3 +10,17 @@ export type ImageSummary =
 /** 画像の一覧の1ページを読む。 */
 export const loadImagesPage = (api: ApiClient, cursor: string | undefined) =>
   api.admin.images.list(cursor === undefined ? {} : { cursor });
+
+/** 読み込んだページの画像を更新し、削除済みなら一覧から外す。 */
+export const updateImagePage =
+  (id: string, update?: (image: ImageSummary) => ImageSummary) =>
+  (page: ApiOutputs["admin"]["images"]["list"]): typeof page => {
+    if (!page.images.some((image) => image.id === id)) return page;
+
+    const images =
+      update === undefined
+        ? page.images.filter((image) => image.id !== id)
+        : page.images.map((image) => (image.id === id ? update(image) : image));
+
+    return { ...page, images };
+  };

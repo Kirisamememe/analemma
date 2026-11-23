@@ -291,6 +291,7 @@ export const ja = {
   "imageDetail.publish": "公開する",
   "imageDetail.unpublish": "非公開にする",
   "imageDetail.publishDone": "画像を公開しました。",
+  "imageDetail.unpublishTitle": "「{{title}}」を非公開にしますか？",
   "imageDetail.unpublishDone": "画像を非公開にしました。",
   "imageDetail.publicationFailed":
     "画像の公開状態を変えられませんでした。もう一度試してください。",
