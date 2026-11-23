@@ -213,6 +213,23 @@ export const InvalidContent: Story = {
   },
 };
 
+export const InvalidRepeatItem: Story = {
+  args: {
+    /** 保存すると最初のアカウントに誤りを返す server。 */
+    createRoutes: () => ({
+      ...signedIn,
+      "admin/fixedPages/update": () => ({
+        error: "INVALID_CONTENT",
+        data: {
+          issues: [
+            { path: ["profile", "accounts", 0], code: "custom", message: "" },
+          ],
+        },
+      }),
+    }),
+  },
+};
+
 export const Saving: Story = {
   args: {
     /** 保存に答えない server(保存を押すと、送信中のまま残る)。 */

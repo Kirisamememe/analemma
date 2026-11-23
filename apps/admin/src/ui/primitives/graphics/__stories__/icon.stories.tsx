@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect } from "storybook/test";
 
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { Icon, type IconName } from "@/ui/primitives/graphics/icon";
@@ -72,8 +73,26 @@ export const Sizes: Story = {
   ),
 };
 
+const pixels = (length: string): number => Number(length.replace(/px$/v, ""));
+
 export const Bold: Story = {
   name: "Bold (1.5px)",
+  /** CSS を適用したときの各サイズの線幅を確かめる。 */
+  play: async ({ canvasElement }) => {
+    const icons = canvasElement.querySelectorAll("svg");
+    const rem = pixels(getComputedStyle(document.documentElement).fontSize);
+
+    await expect(icons).toHaveLength(SIZES.length * 2);
+    await Promise.all(
+      Array.from(icons, (svg) => {
+        const width = svg.getBoundingClientRect().width;
+        const stroke = pixels(getComputedStyle(svg).strokeWidth);
+        const drawn = (stroke * width) / svg.viewBox.baseVal.width;
+
+        return expect(drawn).toBeCloseTo((1.5 * rem) / 16);
+      }),
+    );
+  },
   /** 線幅が 1.5px の見本。 */
   render: () => (
     <Stack gap={3}>

@@ -30,7 +30,6 @@ const elbow = tv({
     target: {
       heading: "h-3.75",
       item: "h-5.25",
-      add: "h-4.25 w-7.75",
     },
   },
 });
@@ -62,8 +61,16 @@ export const Branch = ({
           className="absolute inset-y-0 -inset-s-4.75 border-s-2"
         />
       )}
-      {target !== undefined && target !== "heading" && (
+      {target === "item" && (
         <span aria-hidden="true" className={elbow({ target })} />
+      )}
+      {target === "add" && (
+        <span
+          aria-hidden="true"
+          className="absolute -inset-s-4.75 top-0 h-1/2 w-7.75"
+        >
+          <span className="absolute inset-x-0 top-0 -bottom-px rounded-es-control border-s-2 border-b-2" />
+        </span>
       )}
       {children}
     </div>
@@ -81,9 +88,6 @@ const group = tv({
   variants: {
     invalid: {
       true: { marker: "border-danger text-danger", title: "text-danger" },
-    },
-    item: {
-      true: { title: "self-start py-1.5" },
     },
   },
 });
@@ -123,13 +127,13 @@ export const ContentGroup = (props: ContentGroupProps): ReactNode => {
   const titleId = useId();
   const errorId = useId();
   const invalid = error !== undefined;
-  const style = group({ invalid, item: kind === "item" });
+  const style = group({ invalid });
 
   const title = (
     <span
       id={titleId}
       className={style.title({
-        className: typography({ role: kind === "item" ? "label" : "section" }),
+        className: typography({ role: "section" }),
       })}
     >
       {label}
@@ -148,15 +152,21 @@ export const ContentGroup = (props: ContentGroupProps): ReactNode => {
     <fieldset
       aria-describedby={invalid ? errorId : undefined}
       aria-labelledby={titleId}
-      className="min-w-0 outline-hidden"
+      className="min-w-0 outline-hidden focus-visible:*:first:focus-ring"
       data-invalid={invalid || undefined}
       tabIndex={invalid ? -1 : undefined}
     >
       {kind === "item" ? (
         <>
           <div className={bar()}>
-            {title}
-            <div className="ms-auto flex gap-1">{props.actions}</div>
+            <div className="self-start py-1.5" id={titleId}>
+              <Text variant="label" tone={invalid ? "danger" : "default"}>
+                {label}
+              </Text>
+            </div>
+            <div className="ms-auto flex max-w-full flex-wrap justify-end gap-1">
+              {props.actions}
+            </div>
           </div>
           <div className="flex flex-col gap-4 ps-3 pt-4">
             {message}

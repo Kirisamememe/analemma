@@ -9,11 +9,11 @@ import { typography } from "@/ui/typography";
 const button = tv({
   slots: {
     base: [
-      "inline-grid place-items-center",
+      "inline-grid min-h-min place-items-center",
       "border outline-hidden transition",
       "is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-pending:cursor-wait is-disabled:state-disabled",
     ],
-    face: "col-start-1 row-start-1 flex items-center gap-2",
+    face: "col-start-1 row-start-1 flex items-center gap-2 py-0.5",
     progress: "col-start-1 row-start-1",
   },
   variants: {
@@ -68,7 +68,7 @@ type ButtonProps = ButtonContent & {
   size?: "md" | "sm";
   /** `icon` で指定したアイコンの線の太さ。 */
   iconWeight?: "regular" | "bold";
-  /** 角の丸み(xs は、角の丸い面の内側に間を空けて置くとき)。 */
+  /** 角の丸み。 */
   rounded?: "control" | "xs";
   /** フォームを送るボタンか。 */
   type?: "button" | "submit";
