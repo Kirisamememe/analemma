@@ -239,7 +239,7 @@ test("一覧から種類を選んで作り、編集の画面から一覧に戻�
 
   await user.click(screen.getByRole("link", { name: "固定ページの一覧" }));
   await screen.findByRole("row", { name: "紹介" });
-  await user.click(screen.getByRole("button", { name: "編集" }));
+  await user.click(screen.getByRole("button", { name: "「紹介」を編集" }));
 
   expect(
     (await screen.findByRole<HTMLInputElement>("textbox", { name: "リード文" }))

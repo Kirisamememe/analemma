@@ -79,6 +79,7 @@ export const PasskeyList = ({
             </Stack>
             <Cluster gap={2}>
               <Button
+                aria-label={t("passkeys.renamePasskey", { name: passkey.name })}
                 onPress={() => {
                   onRename(passkey);
                 }}

@@ -110,12 +110,34 @@ describe("FixedPagesSection", () => {
     ).toBeDefined();
   });
 
+  test("編集と公開の切り替えのボタンは、見える文言をそのままに、タイトルでページを見分けられる", async () => {
+    setUp();
+
+    const about = within(await findRow("About"));
+    const colophon = within(await findRow("Colophon"));
+
+    expect(
+      about.getByRole("button", { name: "「About」を編集" }).textContent,
+    ).toBe("編集");
+    expect(
+      colophon.getByRole("button", { name: "「Colophon」を編集" }).textContent,
+    ).toBe("編集");
+    expect(
+      about.getByRole("button", { name: "「About」を非公開にする" })
+        .textContent,
+    ).toBe("非公開にする");
+    expect(
+      colophon.getByRole("button", { name: "「Colophon」を公開する" })
+        .textContent,
+    ).toBe("公開する");
+  });
+
   test("公開と非公開を切り替え、結果を Toast で知らせる", async () => {
     const { server } = setUp();
 
     await userEvent.click(
       within(await findRow("Colophon")).getByRole("button", {
-        name: "公開する",
+        name: "「Colophon」を公開する",
       }),
     );
 
@@ -124,9 +146,9 @@ describe("FixedPagesSection", () => {
     );
     expect(
       within(await findRow("Colophon")).getByRole("button", {
-        name: "非公開にする",
-      }),
-    ).toBeDefined();
+        name: "「Colophon」を非公開にする",
+      }).textContent,
+    ).toBe("非公開にする");
     expect(server.pages().map(({ published }) => published)).toEqual([
       true,
       true,
@@ -141,7 +163,7 @@ describe("FixedPagesSection", () => {
 
     server.routes["admin/fixedPages/delete"]({ id: page?.id ?? "" });
     await userEvent.click(
-      within(about).getByRole("button", { name: "非公開にする" }),
+      within(about).getByRole("button", { name: "「About」を非公開にする" }),
     );
 
     expect((await screen.findByRole("alert")).textContent).toBe(
@@ -159,7 +181,7 @@ describe("FixedPagesSection", () => {
     }));
     await userEvent.click(
       within(await findRow("About")).getByRole("button", {
-        name: "非公開にする",
+        name: "「About」を非公開にする",
       }),
     );
 
@@ -179,7 +201,7 @@ describe("FixedPagesSection", () => {
     });
     await userEvent.click(
       within(await findRow("About")).getByRole("button", {
-        name: "非公開にする",
+        name: "「About」を非公開にする",
       }),
     );
 
@@ -188,7 +210,7 @@ describe("FixedPagesSection", () => {
     );
     expect(
       await within(await findRow("About")).findByRole("button", {
-        name: "公開する",
+        name: "「About」を公開する",
       }),
     ).toBeDefined();
   });

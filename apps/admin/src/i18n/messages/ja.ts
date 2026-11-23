@@ -126,6 +126,7 @@ export const ja = {
   "passkeys.dates": "登録 {{created}}・最終使用 {{lastUsed}}",
   "passkeys.synced": "同期済み",
   "passkeys.rename": "名前を変更",
+  "passkeys.renamePasskey": "「{{name}}」の名前を変更",
   "passkeys.renameTitle": "パスキーの名前を変更",
   "passkeys.delete": "削除",
   "passkeys.deletePasskey": "「{{name}}」を削除",
@@ -216,6 +217,8 @@ export const ja = {
   "fixedPages.details": "{{slug}}・{{kind}}・{{updated}} に更新",
   "fixedPages.publish": "公開する",
   "fixedPages.unpublish": "非公開にする",
+  "fixedPages.publishPage": "「{{title}}」を公開する",
+  "fixedPages.unpublishPage": "「{{title}}」を非公開にする",
   "fixedPages.publishDone": "「{{title}}」を公開しました。",
   "fixedPages.unpublishDone": "「{{title}}」を非公開にしました。",
   "fixedPages.gone":
@@ -223,6 +226,7 @@ export const ja = {
   "fixedPages.publicationFailed":
     "「{{title}}」の公開状態を変えられませんでした。もう一度試してください。",
   "fixedPages.edit": "編集",
+  "fixedPages.editPage": "「{{title}}」を編集",
   "fixedPages.create": "新しい固定ページ",
   "fixedPages.delete": "削除",
   "fixedPages.deleteTitle": "「{{title}}」を削除しますか?",

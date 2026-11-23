@@ -58,7 +58,7 @@ describe("PasskeyList", () => {
     ).toBeDefined();
   });
 
-  test("削除のボタンは、見える文言を「削除」のまま、名前でパスキーを見分けられる", async () => {
+  test("名前の変更と削除のボタンは、見える文言をそのままに、名前でパスキーを見分けられる", async () => {
     const server = createPasskeyRoutes([
       { name: "MacBook", backedUp: true },
       { name: "iPhone", backedUp: true },
@@ -78,6 +78,14 @@ describe("PasskeyList", () => {
       within(iphone!).getByRole("button", { name: "「iPhone」を削除" })
         .textContent,
     ).toBe("削除");
+    expect(
+      within(macbook!).getByRole("button", { name: "「MacBook」の名前を変更" })
+        .textContent,
+    ).toBe("名前を変更");
+    expect(
+      within(iphone!).getByRole("button", { name: "「iPhone」の名前を変更" })
+        .textContent,
+    ).toBe("名前を変更");
   });
 
   test("一覧を読み込めなければ、そのことを知らせ、もう一度試すと一覧を出す", async () => {
