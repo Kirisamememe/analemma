@@ -25,7 +25,7 @@ const LOGIN_PATH = "/login"; // セッションが切れたときに移る先。
 
 type Change = (current: readonly PhotoUpload[]) => readonly PhotoUpload[];
 
-/** 送る写真の一覧と、写真を足す・送り直す・結果を閉じる操作(どの関数も描き直しで変わらない)。 */
+/** 送る写真の一覧と、写真を足す・送り直す・結果を閉じる操作。 */
 export const usePhotoUploads = () => {
   const { api } = useAppContext();
   const { refresh, updatePages } = useApiCache();
@@ -34,12 +34,15 @@ export const usePhotoUploads = () => {
   const active = useRef(true); // 画面を離れたら、次の写真を送らない
   const expired = useRef(false); // セッションが切れたら、ログインの画面へ移るのを止めない
 
-  const leaving = useLeaveConfirmation(
-    (destination) =>
-      destination !== LOGIN_PATH &&
-      !expired.current &&
-      hasUnsentPhotos(latest.current),
-  );
+  const leaving = useLeaveConfirmation((destination) => {
+    if (destination === LOGIN_PATH) {
+      active.current = false; // ログインの画面へ移るなら、確かめずに残りの写真を送らない
+
+      return false;
+    }
+
+    return !expired.current && hasUnsentPhotos(latest.current);
+  });
 
   const apply = useCallback((change: Change): void => {
     latest.current = change(latest.current);
@@ -59,18 +62,18 @@ export const usePhotoUploads = () => {
       return result;
     },
     onSuccess: async (result, upload) => {
-      if (result._tag === "Added") {
-        await (active.current
-          ? updatePages(IMAGES_QUERY_KEY, prependImage(result.image))
-          : refresh(IMAGES_QUERY_KEY));
-      }
-
       apply(
         result._tag === "Added"
           ? withAdded(upload.id, result.image.id)
           : withStatus(upload.id, "unsupported"),
       );
       sendNext();
+
+      if (result._tag !== "Added") return;
+
+      await (active.current && upload.retried !== true
+        ? updatePages(IMAGES_QUERY_KEY, prependImage(result.image))
+        : refresh(IMAGES_QUERY_KEY)); // 送り直した写真は、前の送信で登録されていることがある
     },
     onError: (upload) => {
       apply(withStatus(upload.id, "failed"));

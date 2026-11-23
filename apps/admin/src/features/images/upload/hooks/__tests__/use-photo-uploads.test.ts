@@ -70,9 +70,11 @@ const render = async (routes: FakeRoutes) => {
 
   await app.router.load();
 
-  return renderHook(() => usePhotoUploads(), {
+  const rendered = renderHook(() => usePhotoUploads(), {
     wrapper: withAppProviders(app),
   });
+
+  return { ...rendered, history: app.history };
 };
 
 const statuses = (
@@ -141,4 +143,45 @@ test("画面を離れた後は、次の写真を送らない", async () => {
     ]);
   });
   expect(held.server.images()).toHaveLength(1);
+});
+
+test("ログインの画面へ移るなら、確かめずに移り、次の写真を送らない", async () => {
+  const held = holdUploads();
+  const { result, history } = await render(held.routes);
+
+  act(() => {
+    result.current.add([photo("a.jpg"), photo("b.jpg")]);
+  });
+
+  history.push("/login");
+
+  await waitFor(() => {
+    expect(history.location.pathname).toBe("/login");
+  });
+  expect(result.current.leaving._tag).toBe("Idle");
+
+  await held.answer();
+
+  await waitFor(() => {
+    expect(statuses(result.current.uploads)).toEqual([
+      "a.jpg: added",
+      "b.jpg: waiting",
+    ]);
+  });
+});
+
+test("描き直しても、写真を足す・送り直す・閉じる関数は変わらない", async () => {
+  const held = holdUploads();
+  const { result, rerender } = await render(held.routes);
+  const { add, retry, clear, track } = result.current;
+
+  act(() => {
+    result.current.add([photo("a.jpg")]);
+  });
+  rerender();
+
+  expect(result.current.add).toBe(add);
+  expect(result.current.retry).toBe(retry);
+  expect(result.current.clear).toBe(clear);
+  expect(result.current.track).toBe(track);
 });
