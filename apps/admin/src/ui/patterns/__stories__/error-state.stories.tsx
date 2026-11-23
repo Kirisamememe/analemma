@@ -10,7 +10,7 @@ type FailingRetryProps = {
   /** 何を読み込めなかったかを伝える見出し。 */
   title: string;
   /** 見出しのレベル。 */
-  level: 2 | 3;
+  level: 1 | 2 | 3;
   /** 置く場所。 */
   layout: "inline" | "screen";
 };

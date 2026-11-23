@@ -1,3 +1,4 @@
+import { mediaLayout } from "@/ui/layout/media-layout";
 import { tv } from "@/ui/tv";
 
 const viewer = tv({
@@ -10,10 +11,10 @@ const viewer = tv({
     ],
     actions: "flex items-center gap-2",
     content: "flex min-h-0 grow flex-col",
-    body: "flex grow flex-col md:min-h-0 md:flex-row",
+    body: mediaLayout.body(),
     stage: [
-      "group relative flex items-center justify-center",
-      "md:min-h-0 md:min-w-0 md:grow md:p-6",
+      mediaLayout.stage(),
+      "group",
       "touch-pan-y touch-pinch-zoom", // 横の動きはスワイプに使い、縦の scroll と拡大は残す
     ],
     missing: [
@@ -32,13 +33,7 @@ const viewer = tv({
       "transition group-is-hovered:bg-scrim",
       "group-is-focus-shown:bg-scrim group-is-focus-shown:outline-2 group-is-focus-shown:-outline-offset-2 group-is-focus-shown:outline-current",
     ],
-    panel: [
-      "flex flex-col gap-6 border-t bg-surface p-6",
-      "md:w-88 md:shrink-0 md:overflow-y-auto md:border-t-0 md:border-l",
-      "focus-visible:focus-ring-inset",
-    ],
-    placeholder:
-      "skeleton-animation aspect-photo max-h-full w-full rounded-control bg-surface-muted",
+    panel: [mediaLayout.panel(), "focus-visible:focus-ring-inset"],
     message: "flex grow items-center justify-center p-6",
   },
   variants: {

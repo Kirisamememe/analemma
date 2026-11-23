@@ -1,5 +1,5 @@
 import { useNavigate, useParams, useRouter } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { ApiOutputs } from "@/api/api-types";
@@ -38,45 +38,23 @@ export const ImageViewerActions = (): ReactNode => {
   const isDisabled = current === undefined || current.id !== id;
 
   return (
-    <ImageActionButtons
-      key={shown.id}
-      image={shown}
-      isDisabled={isDisabled}
-      name={shown.title ?? t("imageDetail.untitled")}
-      onDeleted={(deletedId) => {
-        if (router.state.location.pathname.toLowerCase().replace(/\/+$/v, "") === `/images/${deletedId}`) {
-          void navigate({ to: "/images" });
-        }
-      }}
-    />
+    <Fragment key={shown.id}>
+      <EditImage image={shown} isDisabled={isDisabled} />
+      <PublicationButton image={shown} isDisabled={isDisabled} />
+      <DeleteImage
+        id={shown.id}
+        name={shown.title ?? t("imageDetail.untitled")}
+        isDisabled={isDisabled}
+        onDeleted={(deletedId) => {
+          if (
+            router.state.location.pathname
+              .toLowerCase()
+              .replace(/\/+$/v, "") === `/images/${deletedId}`
+          ) {
+            void navigate({ to: "/images" });
+          }
+        }}
+      />
+    </Fragment>
   );
 };
-
-type ImageActionButtonsProps = {
-  /** 操作する画像。 */
-  image: Image;
-  /** 操作を受け付けないか。 */
-  isDisabled: boolean;
-  /** 削除の確認で見せる名前。 */
-  name: string;
-  /** 画像を削除した後に呼ぶ関数。 */
-  onDeleted: (id: string) => void;
-};
-
-const ImageActionButtons = ({
-  image,
-  name,
-  isDisabled,
-  onDeleted,
-}: ImageActionButtonsProps): ReactNode => (
-  <>
-    <EditImage image={image} isDisabled={isDisabled} />
-    <PublicationButton image={image} isDisabled={isDisabled} />
-    <DeleteImage
-      id={image.id}
-      name={name}
-      isDisabled={isDisabled}
-      onDeleted={onDeleted}
-    />
-  </>
-);

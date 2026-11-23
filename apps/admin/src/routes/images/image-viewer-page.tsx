@@ -14,7 +14,7 @@ import {
 } from "@/features/images/ui/image-viewer";
 import { ViewerLoading } from "@/features/images/ui/viewer-loading";
 import { ViewerVisit } from "@/features/images/ui/viewer-visit";
-import { PageTransition, Text } from "@/ui/layout";
+import { Heading, PageTransition, Text } from "@/ui/layout";
 import { ErrorState } from "@/ui/patterns";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
@@ -45,6 +45,7 @@ const useViewerNavigation = (back: BackProps["back"]) => {
   const previous = useRef<HTMLAnchorElement>(null);
   const next = useRef<HTMLAnchorElement>(null);
   const pending = useRef<PendingFocus>(undefined);
+  const retryRef = useRef<HTMLButtonElement>(null);
   const links = { previous, next };
 
   const neighbor = (
@@ -71,21 +72,32 @@ const useViewerNavigation = (back: BackProps["back"]) => {
 
     if (move?.id !== id) return;
 
-    pending.current = undefined;
     const active = document.activeElement;
 
-    if (active !== null && active !== document.body) return;
+    if (active !== null && active !== document.body) {
+      if (active !== retryRef.current) pending.current = undefined;
+
+      return;
+    }
+
+    if (retryRef.current !== null) {
+      retryRef.current.focus();
+      return;
+    }
+
+    pending.current = undefined;
 
     const opposite = move.side === "previous" ? next : previous;
     (links[move.side].current ?? opposite.current ?? back.current)?.focus();
   };
 
   const retry = (id: string, again: () => void) => {
-    pending.current = { id, side: "next" };
+    if (pending.current?.id !== id) pending.current = { id, side: "next" };
+
     again();
   };
 
-  return { neighbor, restore, retry };
+  return { neighbor, restore, retry, retryRef };
 };
 
 const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
@@ -130,6 +142,7 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
               <ErrorState
                 layout="inline"
                 level={2}
+                retryRef={navigation.retryRef}
                 isRetrying={failure.isRetrying}
                 onRetry={() => {
                   navigation.retry(id, failure.retry);
@@ -150,9 +163,10 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
       {query._tag === "Failed" && (
         <ViewerMessage>
           <ErrorState
+            retryRef={navigation.retryRef}
             isRetrying={query.isRetrying}
             layout="screen"
-            level={2}
+            level={1}
             onRetry={() => {
               navigation.retry(id, query.retry);
             }}
@@ -162,7 +176,11 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
       )}
       {query._tag === "Loaded" && image === undefined && (
         <ViewerMessage>
-          <Notice tone="warning">{t("imageDetail.gone")}</Notice>
+          <Notice tone="warning">
+            <Heading level={1} variant="section">
+              {t("imageDetail.gone")}
+            </Heading>
+          </Notice>
         </ViewerMessage>
       )}
     </ViewerVisit>
