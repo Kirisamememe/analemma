@@ -8,8 +8,9 @@ import {
 } from "./logic/delivery-image";
 
 import { Text } from "@/ui/layout";
+import { LoadingState } from "@/ui/patterns";
 import { Badge } from "@/ui/primitives/badge";
-import { Icon } from "@/ui/primitives/graphics";
+import { Icon, Skeleton } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 import { tv } from "@/ui/tv";
@@ -40,9 +41,6 @@ const rows = tv({
   variants: {
     isUntitled: {
       true: { title: "text-fg-muted" },
-    },
-    isPlaceholder: {
-      true: { frame: "motion-safe:animate-pulse" },
     },
   },
 });
@@ -177,7 +175,7 @@ const PLACEHOLDERS = [
 
 /** 写真の骨組みに渡す値。 */
 type ImageRowsPlaceholderProps = {
-  /** 読み込んでいることを伝える文言(読み上げだけに使う)。 */
+  /** 読み込んでいることを伝える文言。 */
   label: string;
 };
 
@@ -185,11 +183,10 @@ type ImageRowsPlaceholderProps = {
 export const ImageRowsPlaceholder = ({
   label,
 }: ImageRowsPlaceholderProps): ReactNode => {
-  const style = rows({ isPlaceholder: true });
+  const style = rows();
 
   return (
-    <output>
-      <span className="sr-only">{label}</span>
+    <LoadingState layout="custom" label={label}>
       <ul aria-hidden="true" className={style.list()}>
         {PLACEHOLDERS.map(({ key, aspect }) => (
           <li
@@ -198,11 +195,13 @@ export const ImageRowsPlaceholder = ({
             style={{ "--media-aspect": String(aspect) }}
           >
             <span className={style.body()}>
-              <span className={style.frame()} />
+              <span className={style.frame()}>
+                <Skeleton shape="media" width="full" />
+              </span>
             </span>
           </li>
         ))}
       </ul>
-    </output>
+    </LoadingState>
   );
 };

@@ -96,12 +96,11 @@ describe("ImageTile", () => {
 });
 
 describe("ImageRowsPlaceholder", () => {
-  test("読み込んでいることを読み上げ、灰色の枠は読み上げない", () => {
+  test("読み込みが続くと知らせ、灰色の枠は読み上げない", async () => {
     renderWithI18n(<ImageRowsPlaceholder label="画像を読み込んでいます。" />);
 
-    expect(screen.getByRole("status").textContent).toBe(
-      "画像を読み込んでいます。",
-    );
+    expect(screen.getByRole("status").textContent).toBe("");
+    expect(await screen.findByText("画像を読み込んでいます。")).toBeDefined();
     expect(screen.queryByRole("list")).toBeNull();
   });
 });

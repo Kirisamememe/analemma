@@ -5,6 +5,7 @@ import { type ReactNode, useState } from "react";
 
 import { ImagesSection } from "../images-section";
 
+import type { FakeReply } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { SAMPLE_IMAGES } from "@/testing/sample-photos";
@@ -18,19 +19,32 @@ const List = (): ReactNode => {
   return ready ? <ImagesSection imageHref={() => "/"} /> : null;
 };
 
-const Example = ({ moreFailed }: Record<"moreFailed", boolean>): ReactNode => {
+type State = "more" | "empty" | "loading" | "loadFailed" | "moreFailed";
+
+const Example = ({ state }: Record<"state", State>): ReactNode => {
   const [app] = useState(() => {
-    const { routes } = createImageRoutes(MANY);
+    const { routes } = createImageRoutes(state === "empty" ? [] : MANY);
     const list = routes["admin/images/list"];
 
     const preview = createTestApp({
       path: "/",
       routes: {
         ...routes,
-        "admin/images/list": (input) =>
-          moreFailed && input.cursor !== undefined
-            ? { error: "INTERNAL_SERVER_ERROR", defined: false }
-            : list(input),
+        "admin/images/list": (input) => {
+          if (state === "loading") {
+            return Promise.withResolvers<FakeReply<"admin/images/list">>()
+              .promise;
+          }
+
+          if (
+            state === "loadFailed" ||
+            (state === "moreFailed" && input.cursor !== undefined)
+          ) {
+            return { error: "INTERNAL_SERVER_ERROR", defined: false };
+          }
+
+          return list(input);
+        },
       },
     });
 
@@ -53,8 +67,9 @@ const Example = ({ moreFailed }: Record<"moreFailed", boolean>): ReactNode => {
 const meta = {
   title: "features/images/ImagesSection",
   component: Example,
-  args: { moreFailed: false },
-  parameters: { layout: "padded", stage: null },
+  args: { state: "more" },
+  argTypes: { state: { control: false } },
+  parameters: { layout: "padded", contentLang: null, stage: null },
 } satisfies Meta<typeof Example>;
 
 export default meta;
@@ -62,4 +77,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const More: Story = {};
-export const MoreFailed: Story = { args: { moreFailed: true } };
+export const MoreFailed: Story = { args: { state: "moreFailed" } };
+export const Empty: Story = { args: { state: "empty" } };
+export const Loading: Story = { args: { state: "loading" } };
+export const LoadFailed: Story = { args: { state: "loadFailed" } };
