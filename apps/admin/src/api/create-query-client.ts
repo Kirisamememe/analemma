@@ -23,7 +23,9 @@ export const createQueryClient = ({
   const queryCache = new QueryCache({ onError });
 
   queryCache.subscribe((event) => {
-    if (event.type !== "observerRemoved") return;
+    if (event.type !== "observerRemoved" || event.query.options.gcTime !== 0) {
+      return;
+    }
 
     setTimeout(() => {
       if (event.query.getObserversCount() === 0) queryCache.remove(event.query); // 取得の途中でも、使う画面の無いデータを持たない
