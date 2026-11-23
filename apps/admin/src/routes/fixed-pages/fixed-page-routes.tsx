@@ -145,7 +145,6 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
         {({ kinds }) =>
           kinds.length === 0 ? (
             <EmptyState
-              description={t("fixedPageEditor.emptyKindsDescription")}
               icon="file-text"
               title={t("fixedPageEditor.emptyKinds")}
             />
@@ -172,6 +171,21 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
           )
         }
       </QueryContent>
+    </Stack>
+  );
+};
+
+const KindGuide = (): ReactNode => {
+  const { t } = useTranslation();
+
+  return (
+    <Stack as="section" gap={2}>
+      <Heading level={2}>{t("fixedPageEditor.addKindTitle")}</Heading>
+      <Text tone="muted">{t("fixedPageEditor.defineKind")}</Text>
+      <Text tone="muted">{t("fixedPageEditor.deployKind")}</Text>
+      <Text>
+        <code>analemma push-kinds ./src/lib/kinds.ts</code>
+      </Text>
     </Stack>
   );
 };
@@ -264,6 +278,7 @@ export const NewFixedPage = (): ReactNode => {
               setPicked(true);
             }}
           />
+          <KindGuide />
         </Titled>
       ) : (
         <NewPageEditor name={kind} picked={picked} />

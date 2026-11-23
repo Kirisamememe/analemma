@@ -40,6 +40,12 @@ test("種類を読み込んでいる間と選べる種類が無いときの知�
   expect(
     await screen.findByRole("heading", { name: "選べる種類がありません" }),
   ).toBeDefined();
+  expect(
+    screen.getByRole("heading", { name: "固定ページの種類を追加する方法" }),
+  ).toBeDefined();
+  expect(
+    screen.getByText("analemma push-kinds ./src/lib/kinds.ts"),
+  ).toBeDefined();
 });
 test("選んだ種類が無いときはフォームを出さずに知らせる", async () => {
   renderApp({

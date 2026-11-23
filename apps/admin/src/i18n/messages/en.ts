@@ -6,6 +6,11 @@ export const en = {
   "fixedPageEditor.new": "New fixed page",
   "fixedPageEditor.edit": "Edit fixed page",
   "fixedPageEditor.chooseKind": "Choose a kind",
+  "fixedPageEditor.addKindTitle": "How to add a fixed page kind",
+  "fixedPageEditor.defineKind":
+    "In the public site’s definitions file, use defineKind from @analemma/client to define the kind and add it to the file’s default export array.",
+  "fixedPageEditor.deployKind":
+    "During deployment, set ANALEMMA_URL to the internal CMS URL and ANALEMMA_DEPLOY_TOKEN to your deploy token. Run the command with the path to your definitions file, as in this example.",
   "fixedPageEditor.emptyKinds": "No kinds yet",
   "fixedPageEditor.kindGone": "This kind no longer exists.",
   "fixedPageEditor.pageGone": "This fixed page no longer exists.",
@@ -59,8 +64,6 @@ export const en = {
   "fixedPageEditor.newDescription":
     "Choose a kind, then enter the slug, title, and content.",
   "fixedPageEditor.kindOf": "Kind: {{kind}}",
-  "fixedPageEditor.emptyKindsDescription":
-    "Kinds appear here after the public site sends its kind definitions during deployment.",
   "fixedPageEditor.editReady": "The edit form is ready.",
   "fixedPageEditor.formReady": "The new page form is ready.",
   "fixedPageEditor.chooseAgain": "Choose another kind",

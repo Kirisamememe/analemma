@@ -8,6 +8,11 @@ export const ja = {
   "fixedPageEditor.new": "新しい固定ページ",
   "fixedPageEditor.edit": "固定ページを編集",
   "fixedPageEditor.chooseKind": "種類を選択",
+  "fixedPageEditor.addKindTitle": "固定ページの種類を追加する方法",
+  "fixedPageEditor.defineKind":
+    "公開サイトの定義ファイルで、@analemma/client の defineKind を使って種類を定義し、default export の配列に加えます。",
+  "fixedPageEditor.deployKind":
+    "公開サイトのデプロイ時に、ANALEMMA_URL に CMS の内部 URL、ANALEMMA_DEPLOY_TOKEN にデプロイ用のトークンを設定して、定義を送ります。次の例のパスは、定義ファイルに合わせてください。",
   "fixedPageEditor.emptyKinds": "選べる種類がありません",
   "fixedPageEditor.kindGone": "この種類はもうありません。",
   "fixedPageEditor.pageGone": "この固定ページはもうありません。",
@@ -61,8 +66,6 @@ export const ja = {
   "fixedPageEditor.newDescription":
     "種類を選び、slug・タイトル・中身を入力します。",
   "fixedPageEditor.kindOf": "種類:{{kind}}",
-  "fixedPageEditor.emptyKindsDescription":
-    "公開サイトのデプロイで種類の定義を送ると、ここに並びます。",
   "fixedPageEditor.editReady": "編集フォームを表示しました。",
   "fixedPageEditor.formReady": "作成フォームを表示しました。",
   "fixedPageEditor.chooseAgain": "種類を選び直す",
