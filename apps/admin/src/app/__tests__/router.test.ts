@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -49,6 +49,43 @@ describe("router", () => {
     expect(new URLSearchParams(history.location.search).get("redirect")).toBe(
       "/?tab=pages",
     );
+  });
+
+  test("セッションが切れていたら、移った画面をログインの画面に置き換え、「戻る」で前の画面に戻れる", async () => {
+    let signedIn = true;
+
+    const { history } = renderApp({
+      path: "/",
+      routes: {
+        "admin/session/get": () =>
+          signedIn
+            ? { output: { expiresAt: "2026-01-08T00:00:00.000Z" } }
+            : { error: "UNAUTHORIZED" },
+      },
+    });
+
+    await screen.findByRole("heading", { name: "ホーム" });
+    signedIn = false;
+    const [security] = screen.getAllByRole("link", { name: "セキュリティ" });
+
+    if (security === undefined) {
+      throw new Error("セキュリティのリンクがありません");
+    }
+
+    await userEvent.click(security);
+
+    expect(
+      await screen.findByRole("heading", { name: "Stilus にログイン" }),
+    ).toBeDefined();
+    expect(history.length).toBe(2);
+
+    history.back();
+
+    await waitFor(() => {
+      expect(new URLSearchParams(history.location.search).get("redirect")).toBe(
+        "/",
+      );
+    });
   });
 
   test("セッションの確認の応答を待たずに、画面を描く", async () => {

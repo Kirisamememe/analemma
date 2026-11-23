@@ -174,6 +174,7 @@ export const createApp = (dependencies: AppDependencies): AppParts => {
       void router.navigate({
         to: "/login",
         search: toLoginSearch({ redirect: router.state.location.href }),
+        replace: true, // 「戻る」で、セッションの切れた画面に戻らない
       });
     },
   });
