@@ -152,6 +152,7 @@ describe("ImageViewerPage", () => {
 
     const dialog = await screen.findByRole("dialog", {
       name: "「夕暮れの稜線」を削除しますか?",
+      description: /削除した画像は元に戻せません/v,
     });
 
     await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));

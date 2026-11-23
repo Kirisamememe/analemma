@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useId, useState } from "react";
 
 import { deleteImage } from "./queries/image-actions";
 import {
@@ -7,7 +7,11 @@ import {
 } from "./queries/image-query";
 
 import { useAppContext } from "@/api/app-context";
-import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
+import {
+  useApiCache,
+  useApiMutation,
+  useIsApiMutationPending,
+} from "@/api/server-state/server-state";
 import {
   IMAGES_QUERY_KEY,
   updateImagePage,
@@ -44,18 +48,20 @@ export const DeleteImage = ({
   const { api } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
 
+  const descriptionId = useId();
+  const deleteKey = ["admin", "images", "delete", id];
+  const isDeleting = useIsApiMutationPending(deleteKey);
+
   const deleting = useApiMutation({
+    key: deleteKey,
     scope: `image:${id}`,
-    send: async (target: Pick<DeleteImageProps, "id" | "name">) => ({
-      ...(await deleteImage(api, target.id)),
-      target,
-    }),
-    onSuccess: async (result) => {
-      const { target } = result;
+    send: (target: Pick<DeleteImageProps, "id" | "name">) =>
+      deleteImage(api, target.id),
+    onSuccess: async (result, target) => {
       await updatePages(IMAGES_QUERY_KEY, updateImagePage(target.id));
       void refresh(IMAGE_NEIGHBORS_QUERY_KEY, "active"); // ほかの画像の前後に、消した画像を出さない
 
-      if (result._tag === "Deleted") {
+      if (result._tag === "Succeeded") {
         showToast({
           tone: "success",
           message: t("imageDetail.deleted", { title: target.name }),
@@ -64,7 +70,7 @@ export const DeleteImage = ({
         onDeleted(target.id);
         void refresh(imageQueryKey(target.id), "active");
       } else {
-        await update(imageQueryKey(target.id), () => result.missing);
+        await update(imageQueryKey(target.id), () => result);
         setIsOpen(false);
         failure.show(t("imageDetail.gone"));
       }
@@ -87,12 +93,14 @@ export const DeleteImage = ({
       <Button
         aria-label={t("imageDetail.delete")}
         icon="trash-2"
+        isPending={isDeleting && !isOpen}
         onPress={() => {
           deleting.reset(); // 開き直したら、前の送信の結果を消す
           setIsOpen(true);
         }}
       />
       <Dialog
+        descriptionId={descriptionId}
         isOpen={isOpen}
         isPending={deleting.isPending}
         onOpenChange={(open) => {
@@ -100,13 +108,15 @@ export const DeleteImage = ({
         }}
         title={t("imageDetail.deleteTitle", { title: name })}
       >
-        <Text>{t("imageDetail.deleteDescription")}</Text>
+        <Text>
+          <span id={descriptionId}>{t("imageDetail.deleteDescription")}</span>
+        </Text>
         <Cluster gap={2} justify="end">
           <Button isDisabled={deleting.isPending} onPress={close}>
             {t("imageDetail.cancel")}
           </Button>
           <Button
-            isDisabled={deleting.data?._tag === "NotFound"}
+            isDisabled={deleting.data?._tag === "Failed"}
             isPending={deleting.isPending}
             onPress={() => {
               if (isOpen) {
