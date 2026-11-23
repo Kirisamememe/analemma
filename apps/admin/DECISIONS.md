@@ -136,7 +136,7 @@ effect でないと書けない処理は、次のとおり。
 | props や state から計算できる値    | 描くときに計算し、重ければ `useMemo`                    |
 | 操作がきっかけの処理               | event handler や mutation の `onSuccess`                |
 | 子の state を作り直す              | `key`                                                   |
-| データの読み込み                   | TanStack Query と Router の loader                      |
+| データの読み込み                   | 画面の中で TanStack Query を使う                        |
 | 初期化                             | `main.tsx` か module の一番外                           |
 | effect の中で最新の値を読む        | `useEffectEvent`                                        |
 | URL の履歴を画面の値に合わせる     | Router の `Navigate`(登録用 URL の画面)                 |

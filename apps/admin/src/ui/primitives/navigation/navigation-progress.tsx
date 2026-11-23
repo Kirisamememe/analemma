@@ -40,7 +40,7 @@ export const NavigationProgress = ({
       <div
         aria-hidden="true"
         className={track()}
-        data-active={isActive || undefined} // 消えるときは、少し待ってから薄くする
+        data-active={isActive || undefined}
       >
         <div className={indicator()} />
       </div>

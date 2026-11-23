@@ -23,6 +23,8 @@
 
 ## 書き方
 
+- route の `beforeLoad` や `loader` で通信の応答を待たない。データを使う画面で取得し、待つ間は読み込み中の表示を出す(`DECISIONS.md` の「画面の遷移と読み込み」)。
+
 - `features/`・`components/`・`ui/` では、hook を `hooks/`、純粋な関数を `logic/`、server の API を呼ぶ処理(読み込み・書き込み・query のキー)を feature の中の `queries/` に、使う部品の近くに置く。複数の feature が使う処理は `src/queries/` に置く。純粋な関数でも server の API を呼ぶ処理でもない `.ts`(ブラウザの API を呼ぶ、呼び出しのあいだ状態を持つ、渡された関数で外に書き込む、`crypto.randomUUID()` で値を作る、など)は、今の場所に置き、lint の設定の `effectfulModules` に足す(lint で止まる)。今はログインの gate・WebAuthn のブラウザでの処理・クリップボードへの書き込み・固定ページのフォームの最初の値を作る処理。
 - ロジックはできる限り `.ts` に置き、同じフォルダの `__tests__` に `.test.ts` を置いてテストする。`.tsx` にはマークアップと、それをロジックにつなぐコードを置く。
 - `.tsx` は、JSX の要素か fragment を書くファイルだけにする。JSX を書かない hook・context・テスト・story は `.ts` にする(lint で止まる)。
