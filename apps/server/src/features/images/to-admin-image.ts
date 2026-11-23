@@ -3,6 +3,7 @@ import type { ContractOutputs } from "@analemma/contract";
 import { toDeliveryImagePath } from "@/features/images/delivery/delivery-image-path";
 import type { DeliveryImageRow } from "@/features/images/queries/delivery-images.query";
 import {
+  type findNeighborIds,
   type ImageRow,
   isPublished,
 } from "@/features/images/queries/images.query";
@@ -51,4 +52,12 @@ export const toAdminImage = (
       height,
       url: toDeliveryImagePath(imageId, width),
     })),
+});
+
+/** DB で取得した前後の画像の ID を管理画面に返す形にする。 */
+export const toAdminImageNeighbors = (
+  row: NonNullable<Awaited<ReturnType<typeof findNeighborIds>>>,
+): ContractOutputs["admin"]["images"]["neighbors"] => ({
+  newer: row.newerId,
+  older: row.olderId,
 });

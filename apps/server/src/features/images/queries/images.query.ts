@@ -40,7 +40,7 @@ export const listImages = async (
     .orderBy(desc(image.id))
     .limit(limit);
 
-/** 対象の画像と同じ時点での、一つ新しい画像と一つ古い画像の ID を引く。 */
+/** 一つ新しい画像と一つ古い画像の ID を引く。 */
 export const findNeighborIds = async (db: DatabaseExecutor, id: string) => {
   const newer = db
     .select({ id: image.id })
@@ -59,7 +59,7 @@ export const findNeighborIds = async (db: DatabaseExecutor, id: string) => {
     .as("older");
 
   const [neighbors] = await db
-    .select({ newer: newer.id, older: older.id })
+    .select({ newerId: newer.id, olderId: older.id })
     .from(image)
     .leftJoin(newer, sql`true`)
     .leftJoin(older, sql`true`)

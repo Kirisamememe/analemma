@@ -1,9 +1,10 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 
 import type { ContractInputs, ContractOutputs } from "@analemma/contract";
 
 import { deliveryImage } from "@/db/schema/delivery-image";
 import { image } from "@/db/schema/image";
+import { findNeighborIds } from "@/features/images/queries/images.query";
 import { openDatabase } from "@/platform/database";
 import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
 import {
@@ -193,6 +194,16 @@ describe("画像の取得", () => {
 });
 
 describe("前後の画像", () => {
+  test("前後を読む間の削除で並びが食い違わないよう、1回の SQL で取得すること", async () => {
+    await using server = await createTestClient();
+    const [id = ""] = await insertImages(server, [{ title: "真ん中" }]);
+    await using connection = openTestDatabase(server);
+    const statement = spyOn(connection.client, "unsafe");
+
+    expect(await findNeighborIds(connection.db, id)).toBeDefined();
+    expect(statement).toHaveBeenCalledTimes(1);
+  });
+
   test("公開していない画像も含めて、新しく足した順で一つ新しい画像と一つ古い画像の ID を返し、端では null を返すこと", async () => {
     await using server = await createTestClient();
 
