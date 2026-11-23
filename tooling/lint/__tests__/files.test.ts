@@ -37,7 +37,7 @@ describe("拡張子", () => {
     expect(
       messagesOf("files/without-jsx.tsx", "project(require-jsx-in-tsx)"),
     ).toEqual([
-      "JSX を含まないファイルは `.ts` にします。`.tsx` には、JSX の要素か fragment を書くファイルだけを置きます。",
+      "JSX を含まないファイルは `.ts` にします。`.tsx` にするのは、JSX の要素か fragment を書くファイルだけです。",
     ]);
   });
 

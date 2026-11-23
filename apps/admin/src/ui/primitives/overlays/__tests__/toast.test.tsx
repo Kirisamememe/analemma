@@ -3,7 +3,6 @@ import {
   cleanup,
   fireEvent,
   type RenderResult,
-  renderHook,
   screen,
   within,
 } from "@testing-library/react";
@@ -13,7 +12,7 @@ import type { ReactNode } from "react";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
 import { ToastProvider } from "@/ui/primitives/overlays/toast";
-import { useShowToast } from "@/ui/primitives/overlays/toast-context";
+import { useShowToast } from "@/ui/primitives/overlays/use-show-toast";
 
 const ToastControls = (): ReactNode => {
   const showToast = useShowToast();
@@ -108,12 +107,6 @@ describe("Toast", () => {
 
     expect(screen.getByRole("alert").textContent).toBe(
       "保存できませんでした。",
-    );
-  });
-
-  test("ToastProvider の外で useShowToast を呼ぶと、ToastProvider の中で呼ぶように伝えて throw する", () => {
-    expect(() => renderHook(useShowToast)).toThrow(
-      "useShowToast は ToastProvider の中で呼んでください。",
     );
   });
 });

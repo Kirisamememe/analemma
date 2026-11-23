@@ -199,15 +199,18 @@ features のビジネスロジックを外のライブラリから独立させ�
 `.tsx` は、JSX の要素か fragment を書くファイルだけにする(ユーザーが決めた。`project/require-jsx-in-tsx` で止まる)。JSX を書かない hook・context・router の組み立て・テスト・story は `.ts` に置く。
 
 - 拡張子で、マークアップを持つファイルかどうかが分かる。JSX の無い `.tsx` は、hook や組み立ての関数を、部品のファイルのように見せる。
-- `.tsx` では、JSX と読み分けるために、型引数に `,` を足し(`<Value,>`)、`<Type>value` の型 assertion を書けない。
-- `.ts` から React を import させない決まりは外した。hook と context を `.tsx` に置かせ、JSX の無い `.tsx` を生むため。
-- 関数を export する `.ts` にテストを求める決まり(`project/require-sibling-test`)は、hook(`use` と大文字で始まる名前)を数えない。hook は、使うコンポーネントのテストで確かめる。テストのファイルの拡張子も JSX の有無で決まるので、`.test.ts` と `.test.tsx` のどちらでも数える。
+- `.tsx` では、generic な arrow function の型引数を JSX と読み分けるために、`<Value,>` のように `,` を足す必要がある。
+- `.ts` は、テストできるロジックだけにする。React の値を import できる `.ts` は、次の2つだけ(ユーザーが決めた。`project/no-react-in-logic` で止まる)。型だけの `import type` は、どの `.ts` でもよい。
+  - hook のファイル:名前が `use-` で始まり、export する関数が、名前が `use` で始まる1つだけ。
+  - context のファイル:名前が `-context.ts` で終わり、`createContext` の結果と型だけを export する。context を読む hook は、hook のファイルに分ける(`use-show-toast.ts`)。
+- 前は `.ts` から React を一切 import させなかった。そのため、hook と context が `.tsx` に置かれ、JSX の無い `.tsx` を生んでいた。
+- hook のファイルにも、関数を export する `.ts` と同じく、隣のテストを求める(`project/require-sibling-test`)。hook は、名前で約束する振る舞い(`useShowToast` は Provider の外で呼ぶと throw する、`useLogOut` はログアウトを送ってログインの画面へ移る、など)を、`renderHook` で確かめる。テストのファイルの拡張子も JSX の有無で決まるので、`.test.ts` と `.test.tsx` のどちらでも数える。
 
 ## テスト
 
 マークアップの作りをなぞるだけのテストは書かない。実装をなぞるテストは、実装を変えるたびに直すだけで、何も守らない。
 
-- ロジックはできる限りマークアップから分けて `.ts` に置き、テストを必ず書く。hook は、使うコンポーネントのテストで確かめる(「`.ts` と `.tsx`」)。
+- ロジックはできる限りマークアップから分けて `.ts` に置き、テストを必ず書く。hook にもテストを書く(「`.ts` と `.tsx`」)。
 - ロジックに切り出しにくい出し分けは、コンポーネントのテストで確かめる。要素は role・label・text など利用者に見えるもので探し、利用者に見える結果を確かめる。test id、DOM のたどり方、クラス名、スナップショットのように、マークアップの作りに依存する探し方と確かめ方は使わない。
 - 出し分けの無いコンポーネントには、テストを求めない。
 - 決まった文言を描画して確かめるだけのテストは lint を通ってしまうので、セルフレビューで見る。

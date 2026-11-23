@@ -18,8 +18,9 @@
   - `require-disable-reason`:lint の抑制に、ルールの名前と `--` の後の理由を求める。ルールの名前と説明の区切りは、Oxlint と同じ読み方にする(カンマと空白で区切り、`--` か前後に空白のある `-` から説明が始まる。`/` の無い名前はプラグイン名を除いた部分で照らし合わせる)。抑制できないルール(`file-length-limit`・`no-standalone-comment`・このルール自身)の抑制を止め、`max-code-lines` の抑制は1行目の `// oxlint-disable` の形だけを許す。
   - `no-focused-test`:`test.only`・`describe.skip`・`test.todo`・`test.if` などを禁止する。
   - `no-cross-workspace-import`:相対パスと server・管理画面の `@/` が自分のワークスペース(`apps/<名前>`・`packages/<名前>`)の外を指す import と re-export を止める。Bun の isolated linker が依存を制限するのはパッケージ名での import なので、ファイルを直接指すパスはこのルールで検査する。
-  - `require-sibling-test`:管理画面の `.ts` が、hook(`use` と大文字で始まる名前)でない関数を export するなら、同じフォルダの `__tests__` にテストを求める。表示を出し分ける `.tsx`(JSX を返す条件分岐がある)にも、`__tests__` にテストを求める。テストのファイルは、`.test.ts` と `.test.tsx` のどちらでも数える(テストの拡張子は、テストに JSX があるかで決まる)。hook は、使うコンポーネントのテストで確かめる(`apps/admin/DECISIONS.md` の「`.ts` と `.tsx`」)。テストのファイルは、中に `test(` か `it(` があるときだけ数える。lint を通すためだけの空のファイルやフォルダでは通らない。
+  - `require-sibling-test`:管理画面の `.ts` が関数(hook を含む)を export するなら、同じフォルダの `__tests__` にテストを求める。表示を出し分ける `.tsx`(JSX を返す条件分岐がある)にも、`__tests__` にテストを求める。テストのファイルは、`.test.ts` と `.test.tsx` のどちらでも数える(テストの拡張子は、テストに JSX があるかで決まる)。テストのファイルは、中に `test(` か `it(` があるときだけ数える。lint を通すためだけの空のファイルやフォルダでは通らない。
   - `require-jsx-in-tsx`:JSX の要素も fragment も含まない `.tsx` を止める。リポジトリの全体(テスト・story・`.storybook/`・fixture を含む)に掛ける。理由は `apps/admin/DECISIONS.md` の「`.ts` と `.tsx`」。
+  - `no-react-in-logic`:管理画面の `src/` の `.ts`(テストと story を含む)で、React(`react`・`react-dom` とそのサブパス)の値の import と re-export を、hook のファイルと context のファイルにだけ許す。どちらのファイルかは、ファイルの名前と、export するものの形で決める(`apps/admin/DECISIONS.md` の「`.ts` と `.tsx`」)。`no-restricted-imports` は、ファイルの名前や export の形を見られないので、自作のルールにした。`.storybook/` は `src/` の外で、Storybook の設定と枠を置く場所なので掛けない。
   - `test-location`:テストのファイルを `__tests__` の直下に置かせ、`__tests__` にはテストのファイルだけを置かせ、`__tests__` の中にフォルダを作らせない。テストがテストするコードと同じフォルダにあるかまでは見ない(API 越しのテストは、1つのファイルに対応しないため)。
   - `max-exported-functions`:コードの行数(空行とコメントだけの行を除く)が200行を超えるファイルは、export できる関数を2つまでにする(型は数えない)。200行以下なら、数は問わない(ユーザーが決めた。理由は直下の `DECISIONS.md` の「ファイルの長さ」)。境目の200行は、分割の見出しを使える行数と同じ値を、`tooling/lint/config/project-rules.ts` の1か所から渡す。数えるのは、arrow function・function 宣言・function 式だけで、呼び出しの結果(oRPC の procedure や、関数を返す関数の戻り値)は数えない。server の「1ファイルに、1つの procedure か1つの関数」のうち、この上限で抑えるのは関数の数だけで、procedure の数は抑えない。
   - `no-inline-parameter-type`:関数の引数に、インラインのオブジェクト型を書かせず、名前付きの型にさせる。
@@ -44,7 +45,7 @@
 - **使える API の制限**
   - `node:*` と Bun 専用のモジュールは、contract・client・管理画面で import できない。Node と Bun のグローバルも、server と tooling だけで有効にする。目的は、ブラウザ(や Node でないところ)でも動かすコードに、Node や Bun でしか動かない API を入れさせないこと。`node:fs/promises` のようなサブパスも止める(`node:*` だけではサブパスが pattern をすり抜けた。本番のコードでは、管理画面も contract と client の SDK も、Node の型を持たない tsconfig で tsc が止める)。
   - 管理画面のテスト(`src/**/__tests__/`)では、Node と Bun の import とグローバルを許す。テストは Bun で動くので、上の目的に当たらない(theme.css を読むテストなど)。
-  - 管理画面の `.ts` でも `react`・`react-dom` を import できる。拡張子は JSX の有無で決めるので(`require-jsx-in-tsx`)、JSX を書かない hook や context は `.ts` に置く。
+  - 管理画面の `.ts` で React の値を import できるのは、hook のファイルと context のファイルだけ(`no-react-in-logic`)。ほかの `.ts` はテストできるロジックだけにする。拡張子は JSX の有無で決めるので(`require-jsx-in-tsx`)、JSX を書かない hook や context も `.ts` に置く。
   - `console`(ログは context で渡す logger を使う)、`process.env`(環境変数は起動時に検証する1か所だけで読む)、引数のプロパティの書き換えを禁止する。
 - **足したルール**:`no-unnecessary-condition`(要らない `?.` や条件)、`no-abusive-eslint-disable`(ルールを指定しない抑制)、React の `only-export-components`・`no-danger`・`button-has-type`。
   - `typescript/return-await`(`in-try-catch`):`try`・`finally` の中と `await using` の後で、`await` を省いた `return` に診断を出す。省くと、返した処理が終わる前に後始末が走り、使っている最中の接続が閉じる。Postgres の用意で実際にこの誤りがあった。型は同じ `Promise` なので型検査では止まらない。ほかの場所の `return` には診断を出さない。テストでも外さない(テストで出るのも同じ誤り)。型付きのルールなので fixture では確かめられない。

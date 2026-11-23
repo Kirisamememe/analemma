@@ -6,7 +6,6 @@ import { isTestFile } from "./files.mjs";
 
 const LOGIC_FILE = /\.([cm]?ts)$/v;
 const TEST_CALL = /\b(?:test|it)(?:\.each)?\s*\(/v;
-const HOOK_NAME = /^use[A-Z]/v;
 
 const hasTests = (paths) =>
   paths.some(
@@ -25,9 +24,6 @@ const testFilesFor = (filename) =>
   );
 
 const testNames = (paths) => paths.map((path) => basename(path)).join(" か ");
-
-const isHook = (node) =>
-  node.id?.type === "Identifier" && HOOK_NAME.test(node.id.name);
 
 const isJsx = (node) => {
   if (node?.type === "ParenthesizedExpression") {
@@ -77,7 +73,7 @@ const requireSiblingTest = {
     type: "problem",
     docs: {
       description:
-        "hook でない関数を export する .ts と、表示を出し分けるコンポーネントに、同じフォルダの __tests__ のテストのファイルを求める。",
+        "ロジックの .ts と、表示を出し分けるコンポーネントに、同じフォルダの __tests__ のテストのファイルを求める。",
     },
     schema: [
       {
@@ -92,7 +88,7 @@ const requireSiblingTest = {
     ],
     messages: {
       missingLogicTest:
-        "このファイルは、hook でない関数を export しています。同じフォルダの __tests__ に {{test}} を置き、ロジックのテストを書きます。",
+        "このファイルは関数を export しています。同じフォルダの __tests__ に {{test}} を置き、ロジックのテストを書きます。",
       missingComponentTest:
         "このコンポーネントは表示を出し分けています。同じフォルダの __tests__ に {{test}} を置き、出し分けの結果を利用者に見えるもので確かめます。",
     },
@@ -113,9 +109,7 @@ const requireSiblingTest = {
       return {
         "Program:exit"(program) {
           if (
-            [...collectExportedFunctions(program)].some(
-              (node) => !isHook(node),
-            ) &&
+            collectExportedFunctions(program).size > 0 &&
             !hasTests(testFiles)
           ) {
             context.report({

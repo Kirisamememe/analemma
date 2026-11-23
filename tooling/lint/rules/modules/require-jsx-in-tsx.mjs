@@ -7,7 +7,7 @@ const requireJsxInTsx = {
     schema: [],
     messages: {
       missingJsx:
-        "JSX を含まないファイルは `.ts` にします。`.tsx` には、JSX の要素か fragment を書くファイルだけを置きます。",
+        "JSX を含まないファイルは `.ts` にします。`.tsx` にするのは、JSX の要素か fragment を書くファイルだけです。",
     },
   },
   /** .tsx のファイルに、JSX の要素か fragment があるかを調べる。 */

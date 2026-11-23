@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 
 import { lintFixture } from "../fixture-lint";
 
@@ -28,4 +28,30 @@ test.each([
       .map(({ line }) => line)
       .toSorted((left, right) => left - right),
   ).toEqual(lines);
+});
+
+describe("React の import", () => {
+  test.each([
+    { label: "hook でも context でもない .ts", file: "plain-logic.ts" },
+    {
+      label: "関数を2つ export する hook のファイル",
+      file: "use-two-hooks.ts",
+    },
+    {
+      label: "use で始まらない関数を export する hook のファイル",
+      file: "use-misnamed.ts",
+    },
+    {
+      label: "hook も export する context のファイル",
+      file: "open-context.ts",
+    },
+  ])("$label の、React の値の import に診断を出すこと", ({ file }) => {
+    const { diagnostics } = lintFixture(
+      `invalid/apps/admin/src/react-imports/${file}`,
+    );
+
+    expect(
+      diagnostics.filter(({ code }) => code === "project(no-react-in-logic)"),
+    ).toHaveLength(1);
+  });
 });

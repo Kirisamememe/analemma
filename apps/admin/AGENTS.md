@@ -24,10 +24,11 @@
 
 - ロジックはできる限り `.ts` に置き、同じフォルダの `__tests__` に `.test.ts` を置いてテストする。`.tsx` にはマークアップと、それをロジックにつなぐコードを置く。
 - `.tsx` は、JSX の要素か fragment を書くファイルだけにする。JSX を書かない hook・context・テスト・story は `.ts` にする(lint で止まる)。
+- `.ts` で React の値を import できるのは、hook のファイル(`use-*.ts`。`use` で始まる関数を1つだけ export する)と、context のファイル(`*-context.ts`。`createContext` の結果と型だけを export する)だけ。hook にも隣のテストを書く(どちらも lint で止まる)。
 - ロジックに切り出しにくい表示の出し分けは、同じフォルダの `__tests__` のコンポーネントのテストで確かめる。要素は role・label・text など利用者に見えるもので探し、利用者に見える結果を確かめる。マークアップの作りをなぞるテストは書かない。
 - React の effect は、ほかの手段で書けない処理だけを、目的が分かる名前の hook の直下で使う。hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` と、`DECISIONS.md` の「React の effect」の hook の表に足す。この決まりはテスト・story・`.storybook/` にも掛かる(lint で止まる)。
 - server との通信には contract の型を使い、応答の型を手で書かない。
-- features の製品のコードから import できるのは、`react`・`@analemma/contract`・管理画面の中のモジュールだけ。外のライブラリは `src/i18n/` と `src/api/` の部品を通して使う(lint で止まる)。`src/routes/` は今は対象外。
+- features の製品のコードから import できるのは、`react`(`.ts` では hook と context のファイルだけ)・`@analemma/contract`・管理画面の中のモジュールだけ。外のライブラリは `src/i18n/` と `src/api/` の部品を通して使う(lint で止まる)。`src/routes/` は今は対象外。
 - features で API の失敗を仕分けるときは `callApi` を使う。
 - 操作を送っている間は、そのボタンを無効にする。同じ操作を続けて送らせない。
 - パスキーでのログインの最中(options を取ってから、ログインの応答が届くまで)は、ほかの管理用 API を呼ばない。

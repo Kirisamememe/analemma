@@ -109,7 +109,10 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   },
   {
     files: ["**/apps/admin/src/**/*.ts"],
-    rules: { "project/require-sibling-test": "error" },
+    rules: {
+      "project/no-react-in-logic": "error",
+      "project/require-sibling-test": "error",
+    },
   },
   {
     files: ["**/apps/admin/src/**/*.tsx"],
