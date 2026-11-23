@@ -21,7 +21,7 @@ import { router } from "@/router";
 const API_PREFIX = "/api";
 const API_BODY_LIMIT = 1024 * 1024;
 const API_METHODS = new Set(["GET", "POST"]);
-const PHOTO_UPLOAD_PATH = `${API_PREFIX}/admin/images/upload`;
+const FILE_CONTENT_TYPE = "multipart/form-data"; // oRPC がファイルを読む本文の形
 const PHOTO_BODY_LIMIT = PHOTO_MAX_BYTES + API_BODY_LIMIT; // 写真の外の部分は、ほかの API と同じ上限に収める
 const MAX_PHOTO_UPLOADS = 2; // 変換している1枚と、次に変換する1枚
 const PHOTO_RETRY_AFTER_SECONDS = 10;
@@ -56,15 +56,16 @@ type ApiMount = {
   readonly limitBody: MiddlewareHandler;
 };
 
-const isDefect = (error: unknown): boolean =>
-  !(error instanceof ORPCError) || error.code === "INTERNAL_SERVER_ERROR";
+const isDefect = (error: unknown, signal: AbortSignal | undefined): boolean =>
+  signal?.aborted !== true &&
+  (!(error instanceof ORPCError) || error.code === "INTERNAL_SERVER_ERROR");
 
 const mountApi = ({ app, context, procedures, limitBody }: ApiMount): void => {
   const handler = new RPCHandler(procedures, {
     plugins: [new ResponseHeadersPlugin()],
     clientInterceptors: [
-      onError((error) => {
-        if (isDefect(error)) {
+      onError((error, { signal }) => {
+        if (isDefect(error, signal)) {
           context.logger.write({
             level: "error",
             message: "API の処理で想定外の失敗が起きた",
@@ -114,11 +115,11 @@ const limitExternalBody = (
   context: AppContext,
   listener: ExternalListener | undefined,
 ): MiddlewareHandler => {
-  let photoUploads = 0; // 本文を受けているか、変換を待っている写真の数
+  let photoUploads = 0;
 
   return async (c, next) => {
     if (
-      c.req.path !== PHOTO_UPLOAD_PATH ||
+      !(c.req.header("content-type") ?? "").startsWith(FILE_CONTENT_TYPE) ||
       !(await hasSession(context, c.req.raw.headers))
     ) {
       return limitApiBody(c, next);

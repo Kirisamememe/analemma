@@ -44,4 +44,38 @@ describe("写真の変換のキュー", () => {
       { status: "fulfilled", value: "次の写真" },
     ]);
   });
+
+  test("待つのをやめた変換は、順番を待たずに断り、順番が来ても流さないこと", async () => {
+    const queue = createConversionQueue();
+    const first = Promise.withResolvers<undefined>();
+    const controller = new AbortController();
+    const started: string[] = [];
+
+    const running = queue.run(async () => {
+      await first.promise;
+
+      return "1枚目";
+    });
+
+    const waiting = queue.run(() => {
+      started.push("2枚目");
+
+      return Promise.resolve("2枚目");
+    }, controller.signal);
+
+    const after = queue.run(() => Promise.resolve("3枚目"));
+
+    controller.abort();
+
+    const [settled] = await Promise.allSettled([waiting]);
+
+    expect(settled.status === "rejected" && settled.reason).toMatchObject({
+      name: "AbortError",
+    });
+
+    first.resolve(undefined);
+
+    expect(await Promise.all([running, after])).toEqual(["1枚目", "3枚目"]);
+    expect(started).toEqual([]);
+  });
 });

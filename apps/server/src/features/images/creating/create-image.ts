@@ -11,15 +11,19 @@ import { toAdminImage } from "@/features/images/to-admin-image";
 type ImageContext = Pick<
   AppContext,
   "clock" | "conversions" | "db" | "storage"
->;
+> & {
+  /** 写真を待つのをやめたことを知らせる signal。 */
+  readonly signal?: AbortSignal | undefined;
+};
 
 /** 写真1枚から撮影の情報を読み、配信用の画像を登録する。 */
 export const createImage = async (
-  { clock, conversions, db, storage }: ImageContext,
+  { clock, conversions, db, storage, signal }: ImageContext,
   bytes: Uint8Array,
 ) => {
-  const delivery = await conversions.run(async () =>
-    createDeliveryImages(bytes),
+  const delivery = await conversions.run(
+    async () => createDeliveryImages(bytes),
+    signal,
   );
 
   if (delivery._tag === "UnsupportedFormat") return delivery;

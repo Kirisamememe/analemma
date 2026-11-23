@@ -41,13 +41,15 @@ type UploadBody = {
   readonly contentLength?: number;
   /** ログインしたブラウザの Cookie を付けるか。 */
   readonly cookie: boolean;
+  /** `/api/admin/images/` の後ろのパス。 */
+  readonly path?: string;
 };
 
 const uploadRequest = (
   server: TestClient,
-  { size, contentLength = size, cookie }: UploadBody,
+  { size, contentLength = size, cookie, path = "upload" }: UploadBody,
 ): Request =>
-  new Request(`${TEST_ORIGIN}/api/admin/images/upload`, {
+  new Request(`${TEST_ORIGIN}/api/admin/images/${path}`, {
     method: "POST",
     headers: {
       origin: TEST_ORIGIN,
@@ -58,6 +60,64 @@ const uploadRequest = (
     },
     body: new Uint8Array(size),
   });
+
+/** 送った写真の数が届くのを待つ、テストの関数。 */
+type QueuedWaiter = {
+  /** 待つ数。 */
+  readonly count: number;
+  /** 届いたら呼ぶ関数。 */
+  readonly resolve: () => void;
+};
+
+const holdFirstConversion = () => {
+  const queue = createConversionQueue();
+  const gate = Promise.withResolvers<undefined>();
+  const waiters: QueuedWaiter[] = [];
+  let queued = 0;
+  let converted = 0;
+
+  const conversions: ConversionQueue = {
+    run: async <T>(
+      convert: () => Promise<T>,
+      signal?: AbortSignal,
+    ): Promise<T> => {
+      queued += 1;
+      const order = queued;
+
+      for (const waiter of waiters.filter(({ count }) => count <= queued)) {
+        waiter.resolve();
+      }
+
+      return queue.run(async () => {
+        if (order === 1) await gate.promise;
+
+        converted += 1;
+
+        return convert();
+      }, signal);
+    },
+  };
+
+  return {
+    conversions,
+    queued: async (count: number): Promise<void> => {
+      if (queued >= count) return;
+
+      const { promise, resolve } = Promise.withResolvers<undefined>();
+      waiters.push({
+        count,
+        resolve: () => {
+          resolve(undefined);
+        },
+      });
+      await promise;
+    },
+    release: () => {
+      gate.resolve(undefined);
+    },
+    converted: () => converted,
+  };
+};
 
 describe("写真を送って画像を作る", () => {
   test("JPEG から、撮影の情報と配信用の画像を持つ公開の画像を作り、一覧の先頭に出すこと", async () => {
@@ -174,8 +234,11 @@ describe("写真を送って画像を作る", () => {
     );
   });
 
-  test("ログイン中でも、3枚目を同時に送ると、本文を読まずに 503 で断り、空いたら受けること", async () => {
-    await using server = await createTestClient();
+  test("ログイン中でも、3枚目を同時に送ると、パスの書き方によらず本文を読まずに 503 で断り、空いたら受けること", async () => {
+    const held = holdFirstConversion();
+    await using server = await createTestClient({
+      conversions: held.conversions,
+    });
     await signInAsAdmin(server);
 
     const upload = async () =>
@@ -185,10 +248,62 @@ describe("写真を送って画像を作る", () => {
         }),
       );
 
-    expect(
-      (await Promise.all([upload(), upload(), upload()])).toSorted(),
-    ).toEqual(["SERVICE_UNAVAILABLE", SUCCEEDED, SUCCEEDED].toSorted());
+    const first = [upload(), upload()];
+    await held.queued(2);
+
+    expect(await upload()).toBe("SERVICE_UNAVAILABLE");
+
+    for (const path of ["upload", "upload/", "upload//", "UPLOAD"]) {
+      const request = uploadRequest(server, { size: 16, cookie: true, path });
+      const response = await server.app.fetch(request);
+
+      expect(response.status).toBe(503);
+      expect(response.headers.get("retry-after")).toBe("10");
+      expect(request.bodyUsed).toBe(false);
+    }
+
+    held.release();
+
+    expect(await Promise.all(first)).toEqual([SUCCEEDED, SUCCEEDED]);
     expect(await upload()).toBe(SUCCEEDED);
+  });
+
+  test("変換を待つ間に送るのをやめた写真は、画像にせず、枠を空けて、ログに失敗と書かないこと", async () => {
+    const held = holdFirstConversion();
+    await using server = await createTestClient({
+      conversions: held.conversions,
+    });
+    await signInAsAdmin(server);
+
+    const first = server.client.admin.images.upload({
+      photo: await photo("high-iso.jpg"),
+    });
+
+    const controller = new AbortController();
+
+    const abandoned = server.client.admin.images.upload(
+      { photo: await photo("wide-red.jpg") },
+      { signal: controller.signal },
+    );
+
+    await held.queued(2);
+    controller.abort();
+    await Promise.allSettled([abandoned]);
+
+    const next = server.client.admin.images.upload({
+      photo: await photo("rotated-with-gps.heic"),
+    });
+
+    held.release();
+
+    const images = await Promise.all([first, next]);
+    const listed = (await server.client.admin.images.list({})).images;
+
+    expect(listed.map(({ id }) => id).toSorted()).toEqual(
+      images.map(({ id }) => id).toSorted(),
+    );
+    expect(held.converted()).toBe(2);
+    expect(server.logs.filter(({ level }) => level === "error")).toEqual([]);
   });
 
   test("ログイン中に送った写真だけ、変換を待つ間の接続を長く保たせること", async () => {
