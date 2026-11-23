@@ -43,6 +43,15 @@ describe("Button", () => {
     expect(screen.getByRole("progressbar", { name: "Working" })).toBeDefined();
   });
 
+  test("送信中になっても、文言を残し、ボタンの名前を変えない", () => {
+    const { rerender } = renderWithI18n(<Button>保存</Button>);
+    const idle = screen.getByRole("button", { name: "保存" }).textContent;
+
+    rerender(<Button isPending>保存</Button>);
+
+    expect(screen.getByRole("button", { name: "保存" }).textContent).toBe(idle);
+  });
+
   test("送信中でなければ、待っていることを伝えない", () => {
     renderWithI18n(<Button>保存</Button>);
 

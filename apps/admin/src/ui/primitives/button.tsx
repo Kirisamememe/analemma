@@ -7,11 +7,15 @@ import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
 const button = tv({
-  base: [
-    "inline-flex items-center justify-center gap-2",
-    "rounded-control border outline-hidden transition",
-    "is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-pending:cursor-wait is-disabled:state-disabled",
-  ],
+  slots: {
+    base: [
+      "inline-grid place-items-center",
+      "rounded-control border outline-hidden transition",
+      "is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-pending:cursor-wait is-disabled:state-disabled",
+    ],
+    face: "col-start-1 row-start-1 flex items-center gap-2",
+    progress: "col-start-1 row-start-1",
+  },
   variants: {
     tone: {
       primary: "border-transparent bg-primary text-on-primary shadow-control",
@@ -26,6 +30,9 @@ const button = tv({
     },
     iconOnly: {
       true: "aspect-square px-0",
+    },
+    isPending: {
+      true: { face: "opacity-0" },
     },
   },
 });
@@ -82,15 +89,11 @@ export const Button = ({
 }: ButtonProps): ReactNode => {
   const { t } = useTranslation();
   const labelling = ariaLabel === undefined ? {} : { "aria-label": ariaLabel };
+  const style = button({ tone, size, iconOnly: icon !== undefined, isPending });
 
   return (
     <AriaButton
-      className={button({
-        tone,
-        size,
-        iconOnly: icon !== undefined,
-        className: typography({ role: "label" }),
-      })}
+      className={style.base({ className: typography({ role: "label" }) })}
       isDisabled={isDisabled}
       isPending={isPending}
       onPress={() => onPress?.()}
@@ -100,11 +103,17 @@ export const Button = ({
       {...labelling}
     >
       {isPending && (
-        <ProgressBar aria-label={t("ui.pending")} isIndeterminate>
+        <ProgressBar
+          aria-label={t("ui.pending")}
+          className={style.progress()}
+          isIndeterminate
+        >
           <Spinner />
         </ProgressBar>
       )}
-      {icon === undefined ? children : <Icon name={icon} />}
+      <span className={style.face()}>
+        {icon === undefined ? children : <Icon name={icon} />}
+      </span>
     </AriaButton>
   );
 };

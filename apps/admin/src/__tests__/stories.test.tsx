@@ -80,7 +80,7 @@ const MODULES = {
   "ui/patterns/__stories__/page-header.stories.tsx": patternsPageHeader,
   "ui/patterns/__stories__/side-nav.stories.tsx": patternsSideNav,
   "ui/primitives/__stories__/badge.stories.ts": primitivesBadge,
-  "ui/primitives/__stories__/button.stories.ts": primitivesButton,
+  "ui/primitives/__stories__/button.stories.tsx": primitivesButton,
   "ui/primitives/__stories__/form.stories.tsx": primitivesForm,
   "ui/primitives/__stories__/notice.stories.ts": primitivesNotice,
   "ui/primitives/collections/__stories__/reorderable-list.stories.tsx":
