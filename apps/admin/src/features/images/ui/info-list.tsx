@@ -18,9 +18,9 @@ const infoList = tv({
   },
 });
 
-/** 情報の1項目。 */
+/** 写真の情報の名前と値。 */
 export type InfoItem = {
-  /** 項目の名前。 */
+  /** 情報の名前。 */
   readonly label: string;
   /** 値。 */
   readonly value: string;
@@ -28,13 +28,13 @@ export type InfoItem = {
 
 /** 情報の一覧に渡す値。 */
 type InfoListProps = {
-  /** 並べる項目。 */
+  /** 並べる情報。 */
   items: readonly InfoItem[];
   /** 並べ方(名前の下に値を置くか、名前と値を横に並べるか)。 */
   layout: "stacked" | "columns";
 };
 
-/** 項目の名前と値を並べる一覧。 */
+/** 写真の情報の名前と値を並べる一覧。 */
 export const InfoList = ({ items, layout }: InfoListProps): ReactNode => {
   const style = infoList({ layout });
   return (
