@@ -130,31 +130,25 @@ export const useApiQuery = <Data>({
     return { _tag: "Loading" };
   }
 
-  if (keepInTab && query.isRefetchError && !isUnauthorized(query.error)) {
-    return {
-      _tag: "Loaded",
-      data: query.data,
-      refreshFailure: {
-        isRetrying: query.fetchStatus !== "idle",
-        retry: () => {
-          void query.refetch();
-        },
-      },
-    };
-  }
-
-  if (keepDataOnRefreshError === true && query.isRefetchError && !isUnauthorized(query.error)) {
-    return { _tag: "Loaded", data: query.data };
-  }
-
   if (query.isPending || query.isError) {
-    return {
-      _tag: "Failed",
-      isRetrying: query.fetchStatus !== "idle", // 次の試行を待って一時停止している間も、取り直している
+    const retry: QueryRetry = {
+      isRetrying: query.fetchStatus !== "idle",
       retry: () => {
         void query.refetch();
       },
     };
+
+    if (query.isRefetchError && !isUnauthorized(query.error)) {
+      if (keepInTab) {
+        return { _tag: "Loaded", data: query.data, refreshFailure: retry };
+      }
+
+      if (keepDataOnRefreshError === true) {
+        return { _tag: "Loaded", data: query.data };
+      }
+    }
+
+    return { _tag: "Failed", ...retry };
   }
 
   return { _tag: "Loaded", data: query.data };
@@ -191,15 +185,7 @@ export const useApiMutation = <Data, Input = void>({
     },
   });
 
-  return {
-    mutate: (input) => {
-      mutate(input);
-    },
-    reset,
-    isPending,
-    isError,
-    data,
-  };
+  return { mutate, reset, isPending, isError, data };
 };
 
 const loadingMore = (query: Pick<Query, "state">): boolean =>
