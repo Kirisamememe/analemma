@@ -162,6 +162,7 @@ const procedures = {
   "admin/images/publish": bindReply(images.publish),
   "admin/images/unpublish": bindReply(images.unpublish),
   "admin/images/update": bindReply(images.update),
+  "admin/images/upload": bindReply(images.upload),
   "admin/kinds/get": bindReply(kinds.get),
   "admin/kinds/list": bindReply(kinds.list),
   "admin/passkeys/delete": bindReply(passkeys.delete),
