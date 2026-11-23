@@ -77,6 +77,16 @@ describe("配色の選択", () => {
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("system");
   });
 
+  test("別のタブで配色を変えた後でも、今の配色を選び直すと次回の配色になる", async () => {
+    document.documentElement.dataset["theme"] = "light";
+    const sidebar = await renderSecurityPage();
+    localStorage.setItem(THEME_STORAGE_KEY, "dark");
+
+    await choose(sidebar, "ライト");
+
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("light");
+  });
+
   test("引き出したナビで選んだ配色を、広い画面のナビにも出す", async () => {
     const sidebar = await renderSecurityPage();
 
