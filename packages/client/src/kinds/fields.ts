@@ -133,7 +133,7 @@ export const repeat = <const Shape extends FieldShape>({
 
 /** 項目を、値を省ける項目にする。 */
 export const optional = <Schema extends z.ZodType>(
-  schema: z.output<Schema> extends boolean ? never : Schema,
+  schema: Extract<z.output<Schema>, boolean> extends never ? Schema : never,
 ): z.ZodOptional<Schema> => {
   const meta = readFieldMeta(schema);
 

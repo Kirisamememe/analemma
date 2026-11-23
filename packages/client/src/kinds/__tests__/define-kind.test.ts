@@ -220,6 +220,10 @@ describe("種類の定義", () => {
       Parameters<typeof optional<ReturnType<typeof boolean>>>[0]
     >().toBeNever();
 
+    type TextOrBoolean = ReturnType<typeof text> | ReturnType<typeof boolean>;
+
+    expectTypeOf<Parameters<typeof optional<TextOrBoolean>>[0]>().toBeNever();
+
     const schema: z.ZodType = boolean({ label: "受付中" });
 
     expect(() => optional(schema)).toThrow(
