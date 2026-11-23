@@ -102,7 +102,7 @@ const colorRestriction = (color: string): Restriction => {
     longer.length === 0 ? "" : `(?!.*-(?:${longer.join("|")})${MODIFIER}$)`;
 
   return {
-    pattern: `${VARIANTS}(?!${usage}-${color}${MODIFIER}$)(?!rounded(?:-[a-z]{1,2})?-)${notLonger}[a-z\\-]+-${color}${MODIFIER}$`,
+    pattern: `${VARIANTS}(?!${usage}-${color}${MODIFIER}$)(?!rounded(?:-[a-z]{1,2})?-)(?!whitespace-)${notLonger}[a-z\\-]+-${color}${MODIFIER}$`,
     message:
       allowed.length === 0
         ? `${color} は class にせず、theme.css の utility の中でだけ使います。`
