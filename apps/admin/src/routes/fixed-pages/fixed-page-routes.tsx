@@ -43,27 +43,27 @@ const Frame = ({ children }: FrameProps): ReactNode => {
   );
 };
 
-type ScreenProps = FrameProps & {
+type TitledProps = {
   /** 画面の名前。 */
   title: string;
   /** 画面の補足。 */
   description?: string | undefined;
   /** 見出しに置く操作。 */
   actions?: ReactNode;
+  /** 見出しの下に置く中身。 */
+  children: ReactNode;
 };
 
-const Screen = ({
+const Titled = ({
   title,
   description,
   actions,
   children,
-}: ScreenProps): ReactNode => (
-  <Frame>
-    <Stack gap={8}>
-      <PageHeader actions={actions} description={description} title={title} />
-      {children}
-    </Stack>
-  </Frame>
+}: TitledProps): ReactNode => (
+  <Stack gap={8}>
+    <PageHeader actions={actions} description={description} title={title} />
+    {children}
+  </Stack>
 );
 
 const Loading = (): ReactNode => {
@@ -148,25 +148,23 @@ const NewPageEditor = ({ name }: NewPageEditorProps): ReactNode => {
 
   if (kind._tag === "Loaded" && kind.data._tag === "Succeeded") {
     return (
-      <Frame>
-        <FixedPageEditor
-          key={name}
-          kind={kind.data.data}
-          onSaved={(saved) => {
-            void navigate({
-              to: "/fixed-pages/$id",
-              params: { id: saved.id },
-              replace: true,
-              ignoreBlocker: true,
-            });
-          }}
-        />
-      </Frame>
+      <FixedPageEditor
+        key={name}
+        kind={kind.data.data}
+        onSaved={(saved) => {
+          void navigate({
+            to: "/fixed-pages/$id",
+            params: { id: saved.id },
+            replace: true,
+            ignoreBlocker: true,
+          });
+        }}
+      />
     );
   }
 
   return (
-    <Screen title={t("fixedPageEditor.new")}>
+    <Titled title={t("fixedPageEditor.new")}>
       {kind._tag === "Loading" && <Loading />}
       {kind._tag === "Failed" && <LoadFailed />}
       {kind._tag === "Loaded" && (
@@ -175,7 +173,7 @@ const NewPageEditor = ({ name }: NewPageEditorProps): ReactNode => {
           <Button onPress={choose}>{t("fixedPageEditor.chooseAgain")}</Button>
         </Stack>
       )}
-    </Screen>
+    </Titled>
   );
 };
 
@@ -184,15 +182,19 @@ export const NewFixedPage = (): ReactNode => {
   const { t } = useTranslation();
   const { kind } = useSearch({ from: "/signed-in/fixed-pages/new" });
 
-  return kind === undefined ? (
-    <Screen
-      description={t("fixedPageEditor.newDescription")}
-      title={t("fixedPageEditor.new")}
-    >
-      <KindPicker />
-    </Screen>
-  ) : (
-    <NewPageEditor name={kind} />
+  return (
+    <Frame>
+      {kind === undefined ? (
+        <Titled
+          description={t("fixedPageEditor.newDescription")}
+          title={t("fixedPageEditor.new")}
+        >
+          <KindPicker />
+        </Titled>
+      ) : (
+        <NewPageEditor name={kind} />
+      )}
+    </Frame>
   );
 };
 
@@ -211,20 +213,18 @@ const PageEditor = ({ page }: PageEditorProps): ReactNode => {
 
   if (kind._tag === "Loaded" && kind.data._tag === "Succeeded") {
     return (
-      <Frame>
-        <FixedPageEditor
-          key={page.id}
-          kind={kind.data.data}
-          onDeleted={onDeleted}
-          onSaved={() => undefined}
-          page={page}
-        />
-      </Frame>
+      <FixedPageEditor
+        key={page.id}
+        kind={kind.data.data}
+        onDeleted={onDeleted}
+        onSaved={() => undefined}
+        page={page}
+      />
     );
   }
 
   return (
-    <Screen
+    <Titled
       actions={
         kind._tag !== "Loading" && (
           <DeleteFixedPage onDeleted={onDeleted} page={page} />
@@ -238,7 +238,7 @@ const PageEditor = ({ page }: PageEditorProps): ReactNode => {
       {kind._tag === "Loaded" && (
         <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
       )}
-    </Screen>
+    </Titled>
   );
 };
 
@@ -253,17 +253,19 @@ export const EditFixedPage = (): ReactNode => {
     discardWhenUnused: true,
   });
 
-  if (query._tag === "Loaded" && query.data._tag === "Succeeded") {
-    return <PageEditor page={query.data.data} />;
-  }
-
   return (
-    <Screen title={t("fixedPageEditor.edit")}>
-      {query._tag === "Loading" && <Loading />}
-      {query._tag === "Failed" && <LoadFailed />}
-      {query._tag === "Loaded" && (
-        <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
+    <Frame>
+      {query._tag === "Loaded" && query.data._tag === "Succeeded" ? (
+        <PageEditor page={query.data.data} />
+      ) : (
+        <Titled title={t("fixedPageEditor.edit")}>
+          {query._tag === "Loading" && <Loading />}
+          {query._tag === "Failed" && <LoadFailed />}
+          {query._tag === "Loaded" && (
+            <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
+          )}
+        </Titled>
       )}
-    </Screen>
+    </Frame>
   );
 };

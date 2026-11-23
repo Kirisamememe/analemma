@@ -1,4 +1,4 @@
-import { cleanup, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
@@ -281,4 +281,32 @@ test("保存の応答を待つ間に画面を離れたら、届いた応答を�
     (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
       .value,
   ).toBe("Other tab");
+});
+
+test("読み込む間に一覧へ戻るリンクへ移した focus を、編集のフォームを出した後も残す", async () => {
+  const loading = Promise.withResolvers<undefined>();
+
+  renderApp({
+    path: "/fixed-pages/" + page.id,
+    routes: {
+      ...session,
+      "admin/fixedPages/get": () => ({ output: page }),
+      "admin/kinds/get": async () => {
+        await loading.promise;
+
+        return { output: kind };
+      },
+    },
+  });
+
+  await screen.findByText("読み込んでいます。");
+  const back = screen.getByRole("link", { name: "固定ページの一覧" });
+
+  act(() => {
+    back.focus();
+  });
+  loading.resolve(undefined);
+  await screen.findByRole("textbox", { name: "タイトル" });
+
+  expect(document.activeElement).toBe(back);
 });
