@@ -153,10 +153,10 @@ effect を使う hook の表は、次のとおり。
 
 ## 開発のときの API
 
-開発では、Vite の開発のサーバー(`http://localhost:5173`)が、`/api/` で始まるパスを server の外部用のポート(`http://localhost:8787`)へ流す。
+開発では、Vite の開発のサーバー(`http://localhost:5173`)が、`/api/` と `/media/`(配信用の画像)で始まるパスを server の外部用のポート(`http://localhost:8787`)へ流す。
 
 - ブラウザから見ると、管理画面と API は同じ origin になる。server は、`admin` と `auth` の procedure で、次を確かめる(`apps/server/DECISIONS.md` の「入口の守り」)。GET 以外では、Origin が `AUTH_ORIGIN` と完全に一致すること。GET も含め、`Sec-Fetch-Site` が `same-origin` であること(無いリクエストも断る)。Vite は Origin・`Sec-Fetch-Site`・Host をそのまま流し、server の `Set-Cookie` もそのまま返すので、server の `.env.example` の `AUTH_ORIGIN`(`http://localhost:5173`)のままで通る。`changeOrigin` は使わない。この振る舞いは、作り物の server を立てたテスト(`__tests__/vite-config.test.ts`)で確かめる。
-- 流すのは `/api/` で始まるパスだけにする(`^/api/`)。Vite は文字列のキーを前方一致で比べるので、`/api` と書くと `/api-guide` のような画面のパスまで server へ流れる。
+- 流すのは `/api/` と `/media/` で始まるパスだけにする(`^/(?:api|media)/`)。Vite は文字列のキーを前方一致で比べるので、`/api` と書くと `/api-guide` のような画面のパスまで server へ流れる。
 - 開発のサーバーの origin が `AUTH_ORIGIN` と食い違うと、すべてのログインが 403 になるので、`vite.config.ts` の origin と server の `.env.example` の `AUTH_ORIGIN` が同じことを、テストで確かめる。ポートが空いていなければ、別のポートに移らずに止まる(`strictPort`)。
 - `127.0.0.1` で開くと、origin が `AUTH_ORIGIN` と食い違い、RP ID(`localhost`)ともずれるので、`localhost` で開く。
 - 本番のビルドを確かめる `vite preview` も、開発のサーバーと同じ origin(`http://localhost:5173`)とプロキシにする。preview は既定では別のポート(4173)で開くのに、開発のプロキシをそのまま引き継ぐ。origin が `AUTH_ORIGIN` と食い違うと POST は断られる一方、Cookie はポートを区別しないので、開発でログインした Cookie で GET は通ってしまう(Codex のレビューで見つかった)。2つは同時には動かせない。

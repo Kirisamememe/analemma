@@ -6,11 +6,11 @@ import { build, defineConfig, type Plugin } from "vite";
 /** 開発のときに管理画面を配る origin で、server の `AUTH_ORIGIN` と同じ値。 */
 export const DEV_ORIGIN = "http://localhost:5173";
 
-/** 開発のときに `/api` を流す先で、server の外部用のポート。 */
-export const DEV_API_TARGET = "http://localhost:8787";
+/** 開発のときに `/api` と `/media` を流す先で、server の外部用のポート。 */
+export const DEV_SERVER_TARGET = "http://localhost:8787";
 
 /** 開発のときに server へ流すパスの形。 */
-export const DEV_API_PATH = "^/api/";
+export const DEV_PROXY_PATH = "^/(?:api|media)/";
 
 /** 出力の JS と CSS が対応するブラウザ。 */
 export const BROWSER_TARGET = "esnext";
@@ -24,7 +24,7 @@ const devServer = {
   host: "localhost",
   port: Number(new URL(DEV_ORIGIN).port),
   strictPort: true,
-  proxy: { [DEV_API_PATH]: { target: DEV_API_TARGET } },
+  proxy: { [DEV_PROXY_PATH]: { target: DEV_SERVER_TARGET } },
 };
 
 const BOOT_ENTRY = fileURLToPath(

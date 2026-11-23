@@ -16,7 +16,7 @@
 
 - フォルダの名前とパッケージ名は役割の名前にする。Analemma・Stilus は愛称で、README・ログ・画面の表示に使う。
 - 公開サイト(Amayadori)は別のリポジトリで、`@analemma/client` だけを使う。
-- 本番は server のプロセス1つで、外部用のポートから `/api` と管理画面の静的ファイルを同じ origin で配信する(`ADMIN_DIST_DIR` に管理画面のビルドを指定する)。公開 API は、サーバーの外から届かない内部用のポートで、公開サイトのサーバーにだけ返す。本番の置き場所は、まだ決めていない。手元で本番の形を試す手順は、下の「本番の形で試す」にある。
+- 本番は server のプロセス1つで、外部用のポートから `/api`・配信用の画像(`/media/`)・管理画面の静的ファイルを同じ origin で配信する(`ADMIN_DIST_DIR` に管理画面のビルドを指定する)。公開 API は、サーバーの外から届かない内部用のポートで、公開サイトのサーバーにだけ返す。本番の置き場所は、まだ決めていない。手元で本番の形を試す手順は、下の「本番の形で試す」にある。
 
 決めたことの理由は、関係するコードに一番近いフォルダの `DECISIONS.md` にある(リポジトリ全体は [DECISIONS.md](DECISIONS.md))。エージェント向けの指示は `AGENTS.md`。
 
@@ -86,7 +86,7 @@ bun --cwd=apps/server run passkey:enroll
 | `bun run passkey:enroll`       | 管理者のパスキーを登録するための、1回きりで10分だけ使える登録用 URL を出す  |
 | `bun run test:prepare`         | `bun run test` が `bun test` の前に流すもの                                 |
 
-管理画面(Stilus)は、Vite の開発のサーバーで動かす。`/api` は server へ流すので、server も起動しておく。ブラウザでは `http://localhost:5173` を開く(`127.0.0.1` ではパスキーが使えない)。
+管理画面(Stilus)は、Vite の開発のサーバーで動かす。`/api` と `/media`(配信用の画像)は server へ流すので、server も起動しておく。ブラウザでは `http://localhost:5173` を開く(`127.0.0.1` ではパスキーが使えない)。
 
 ```bash
 bun --cwd=apps/admin run dev

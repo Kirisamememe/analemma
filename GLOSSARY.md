@@ -37,7 +37,7 @@
 | procedure            | contract に定義し、server で実装する、API の1つの操作。                                                                                                                                                        |
 | contract             | `packages/contract` にある、procedure ごとの入力・出力・エラー・パスの定義。「契約」と訳さない。                                                                                                               |
 | base                 | アクセス区分ごとに認可を決めてある、procedure を作るときの出発点(`publicProcedures`・`authProcedures`・`deployProcedures`・`adminProcedures`)。                                                                |
-| 外部用のポート       | CMS が待ち受ける2つのポートのうち、リバースプロキシを通って、ブラウザからのリクエストを受けるもの(`PORT`)。管理用 API と認証用 API を受け、`ADMIN_DIST_DIR` を設定したときは管理画面の静的ファイルも配信する。 |
+| 外部用のポート       | CMS が待ち受ける2つのポートのうち、リバースプロキシを通って、ブラウザからのリクエストを受けるもの(`PORT`)。管理用 API と認証用 API を受けて、配信用の画像を返す。`ADMIN_DIST_DIR` があるときは管理画面も配る。 |
 | 内部用のポート       | CMS が待ち受ける2つのポートのうち、サーバーの外から届かないもの(`INTERNAL_PORT`)。公開 API とデプロイ用 API を受ける。                                                                                         |
 | 公開 API             | 公開しているコンテンツを返す API(contract の `public`)。内部用のポートで受け、公開サイト(Amayadori)のサーバーから呼ぶ。資格情報を求めない。                                                                    |
 | デプロイ用 API       | 公開サイトのデプロイのときに、client の CLI が種類のデプロイ用 API(contract の `deploy`)。内部用のポートで受け、デプロイ用のトークンを求める。                                                                 |

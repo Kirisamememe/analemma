@@ -168,6 +168,8 @@ describe("管理画面の静的ファイル", () => {
     "/api/",
     "/api/missing",
     "/assets/missing.js",
+    "/media",
+    "/media/missing.avif",
     "/%2ehidden",
     "/assets/%2e%2e%2foutside",
     "/assets/link/outside",

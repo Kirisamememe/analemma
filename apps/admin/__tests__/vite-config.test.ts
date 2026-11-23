@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { Script, createContext } from "node:vm";
 import { build, createServer } from "vite";
 
-import { DEV_API_PATH, DEV_ORIGIN } from "../vite.config";
+import { DEV_ORIGIN, DEV_PROXY_PATH } from "../vite.config";
 
 const ADMIN_ROOT = fileURLToPath(new URL("../", import.meta.url));
 
@@ -180,7 +180,7 @@ type Received = {
 };
 
 describe("開発のときのプロキシ", () => {
-  test("/api/ で始まるパスを server へ流し、Origin・Sec-Fetch-Site・Set-Cookie をそのまま渡す", async () => {
+  test("/api/ と /media/ で始まるパスを server へ流し、Origin・Sec-Fetch-Site・Set-Cookie をそのまま渡す", async () => {
     using upstream = Bun.serve({
       port: 0,
       fetch: (request) =>
@@ -206,7 +206,7 @@ describe("開発のときのプロキシ", () => {
       server: {
         port: 0,
         strictPort: false,
-        proxy: { [DEV_API_PATH]: { target: upstream.url.origin } },
+        proxy: { [DEV_PROXY_PATH]: { target: upstream.url.origin } },
       },
     });
 
@@ -220,7 +220,12 @@ describe("開発のときのプロキシ", () => {
         headers: { Origin: DEV_ORIGIN, "Sec-Fetch-Site": "same-origin" },
       });
 
+      const media = await fetch(new URL("/media/abc/640.avif", base), {
+        headers: { "Sec-Fetch-Site": "same-origin" },
+      });
+
       const page = await fetch(new URL("/api-guide", base));
+      const mediaPage = await fetch(new URL("/media-kit", base));
 
       expect(await api.json()).toEqual({
         path: "/api/auth/login/options",
@@ -230,7 +235,13 @@ describe("開発のときのプロキシ", () => {
       expect(api.headers.get("set-cookie")).toBe(
         "analemma_session=token; HttpOnly; SameSite=Strict; Path=/",
       );
+      expect(await media.json()).toEqual({
+        path: "/media/abc/640.avif",
+        origin: null,
+        site: "same-origin",
+      });
       expect(page.headers.get("content-type")).toStartWith("text/html");
+      expect(mediaPage.headers.get("content-type")).toStartWith("text/html");
     } finally {
       await server.close();
     }
