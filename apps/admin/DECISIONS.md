@@ -35,6 +35,16 @@ Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・�
 
 複数の feature から使う、管理画面に固有の部品は `src/components/` に置き、`@/components/...` から import する。パスキーの名前の入力欄のように、管理画面の訳と contract の検査を持つ部品を、ラベルや検査を呼び出し元から受け取る `src/ui/` の部品と分ける。`components/` は features を import しない。利用する feature 同士が、部品を通じて依存し合わずに済む。
 
+## hook・純粋な関数・server の API を呼ぶ処理の置き場所
+
+`features/`・`components/`・`ui/` では、ファイルを役割ごとのフォルダに分ける(ユーザーが決めた。`project/admin-module-location` で止まる)。部品と、それと一緒に変わる処理を同じ場所からたどれ、フォルダの名前で、React なしでテストできるものと server を呼ぶものが分かる。
+
+- hook は、使う部品に近い `hooks/` に置く。
+- 純粋な関数(値の検証・変換・知らせの選び分けなど)は、使う部品に近い `logic/` に置く。
+- server の API を呼ぶ処理(読み込み・書き込み・query のキー)は、feature の中の、使う部品に近い `queries/` に置く。feature の中の複数の部品が使うときだけ、どの部品からも近い `queries/` に上げる。複数の feature が使う再認証(パスキーとデプロイ用のトークンが使う)だけは、`src/queries/` に置く。
+- 純粋な関数でも server の API を呼ぶ処理でもない `.ts`(ログインの gate・WebAuthn のブラウザでの処理・クリップボードへの書き込み・固定ページの repeat の要素に ID を振ってフォームの最初の値を作る処理)は、今の場所に置き、lint の設定の `effectfulModules` に足す。どれも、呼び出しのあいだ状態を持つ・ブラウザの API を呼ぶ・渡された関数で外に書き込む・`crypto.randomUUID()` で ID を作るのどれかで、同じ入力に同じ値を返すとは限らない。`logic/` に入れると、純粋な関数だけを置く約束が崩れる。
+- `src/queries/` を足すと `src/` の中身が10件を超えるので、React を描き始める入口(`main.tsx`)を `src/app/` に移した。`App` と `createApp` と同じく、組み立てに関わるコードを `src/app/` にまとめる(「フォルダを指定する import」)。
+
 ## route はコードで定義する
 
 TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen.ts` を生成する plugin)は使わず、`src/app/router.ts` で `createRoute` を組む。
@@ -150,7 +160,7 @@ effect を使う hook の表は、次のとおり。
 features のビジネスロジックを外のライブラリから独立させるため、features の外部依存を減らす(ユーザーが決めた)。ライブラリを差し替えるときに調べて直す場所を限るために、外のライブラリへの依存を `src/i18n/` と `src/api/` に集める。差し替えへの備えは、抽象化の層を増やすのではなく、依存の場所を限ることで担保する。
 
 - features に渡すのは、今使う操作と値に絞る。ライブラリの型を返したり、名前を変えて出し直したりすると、呼び出し側もライブラリの型や振る舞いに依存するため。
-- query のキーと、再認証などの操作の中身は features が持つ。パスキーなど、feature 専用の hook を `src/api/` に置くと、feature のロジックを呼ぶために `src/api/` が features を import し、依存の向きが逆になる。
+- query のキーと、server の API を呼ぶ操作の中身は features が持つ。複数の feature が使うもの(再認証)だけは `src/queries/` に置く(「hook・純粋な関数・server の API を呼ぶ処理の置き場所」)。パスキーなど、feature 専用の hook を `src/api/` に置くと、feature のロジックを呼ぶために `src/api/` が features を import し、依存の向きが逆になる。`src/queries/reauthenticate.ts` は、認証器の型だけを `@/features/auth/webauthn` から `import type` する。型だけなので、実行時には features に依存しない。
 - ナビには、今いる画面へのリンクかを返す関数を渡す。`SignedInLayout` が既存の route の組み立てと一緒に `useMatchRoute` を使うので、ナビのリンクは同じ照合を使える。
 - `callApi` は呼び出し側が扱う code だけを `Failed` で返し、ほかの失敗は元の error を throw する。セッション切れを表す `UNAUTHORIZED` を query client に届け、ログインの画面への移動を query client に任せるため。
 - `useApiMutation` は、送信か送信後の処理が想定外の失敗で終わったら `onError` を呼ぶ。Dialog の外の操作(固定ページの公開の切り替えなど)の失敗を、Toast で知らせるため。セッション切れ(`UNAUTHORIZED`)では呼ばない。query client がログインの画面に移すので、閉じるまで残る失敗の Toast を、ログインの画面に持ち越さない。
@@ -164,7 +174,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - route を、ログインの前の画面(`/login`・`/enroll`)と、ログインした後の画面(`signed-in` の下)に分ける。ログインした後の画面は、開く前に `admin.session.get` でセッションを確かめ、無ければログインの画面に、元のパスを `redirect` に持たせて移る。移るたびに確かめるのは、管理者が1人で数が少なく、切れたことにすぐ気づけるため。
 - ログインした後は、まだログインの画面にいるときだけ、`redirect` のパスに戻る(応答を待つ間に履歴でほかの画面へ移っていたら、そこから動かさない)。ログインの画面にいるかは、パスを比べずに、router が今の route として選んだかで確かめる。router は大文字と小文字を区別せず、末尾の `/` も受け付けるので、パスを比べると `/LOGIN` や `/login/` で食い違った(Copilot のレビューで見つかった)。登録用 URL の画面も同じ。管理画面の中の、ログインした後の画面のパス(`/` で始まり、`//`・`/\` で始まらず、ログインと登録用 URL の画面でないもの。大文字と小文字は区別しない。router が区別せずに照らし合わせるので)だけを受け付け、ほかは捨てる(外のサイトに移させない)。
 - セッションが無いという応答(401)が、ログインの前の画面(`/login`・`/enroll`)を開いているときに届いたら(前の画面から遅れて届いた 401)、状態を消すだけで、ログインの画面には移らない。登録用 URL の画面から移ると、`redirect` に URL の `#` の後ろの token まで入り、URL の search params として server に届いてしまう(Codex のレビューで見つかった)。
-- ログインと登録の流れ(`src/features/auth/log-in.ts`・`enroll.ts`)は、server の API と認証器を受け取る関数にし、作り物で単体テストする。server の失敗のうち、利用者に伝えるもの(期限切れ・登録されていないパスキーなど)は `_tag` の結果にし、origin の食い違いのような設定の誤りは throw する(画面には「ログインできませんでした」と出る)。
+- ログインと登録の流れ(`src/features/auth/queries/log-in.ts`・`enroll.ts`)は、server の API と認証器を受け取る関数にし、作り物で単体テストする。server の失敗のうち、利用者に伝えるもの(期限切れ・登録されていないパスキーなど)は `_tag` の結果にし、origin の食い違いのような設定の誤りは throw する(画面には「ログインできませんでした」と出る)。
 - 認証器(`src/features/auth/webauthn/create-authenticator.ts`)は、server の options(base64url の JSON)を、そのままブラウザに渡し、ブラウザが返した資格情報の `toJSON()` の値を、contract の zod(`authenticationCredential`・`registrationCredential`)で読んで server に送る。JSON とブラウザの形のあいだの変換は、ブラウザの `PublicKeyCredential.parseRequestOptionsFromJSON()`・`parseCreationOptionsFromJSON()`・`toJSON()` に任せ、自前の base64url の変換を持たない。`toJSON()` の戻り値の型(ログインと登録の共用体で、`userHandle` は省略できる)は contract より広いので、contract の zod で、必須の項目と値の制約を実行時に確かめ、server に送る形にそろえる(`rawId` などの余分な項目は落とす)。形が合わなければ、zod の誤りを `cause` に付けて想定外の失敗として throw する。ブラウザの API を呼ぶつなぎ(`create-browser-web-authn.ts`)は、`navigator.credentials` の `get`・`create` と、JSON をパースする関数を受け取る関数にし、作り物でテストする。`main.tsx` は、`navigator.credentials` の結果を `PublicKeyCredential` に狭めて渡すつなぎと、`PublicKeyCredential` の parse の関数(`parseRequestOptionsFromJSON` など)を渡すだけにする。キャンセル(`NotAllowedError`・`AbortError`、`AbortSignal.timeout()` で止めたときの `TimeoutError`)と、登録済みの認証器(`InvalidStateError`)は、想定内の結果として返す。
 - **登録用 URL の形**:`{AUTH_ORIGIN}/enroll#{token}` に決めた(server のコマンドが出す形のまま)。
 - 登録用 URL の画面は、開いたらすぐに token をメモリに移し、URL と履歴から `#` の後ろを消す(`<Navigate replace to="/enroll" />`)。登録の最中に履歴を移ってから成功の `replace` が走ると、移った先の履歴を書き換えてしまうので、成功したときは、登録の画面にいるときだけホームに移る。開き直すと token は無いので、コマンドで出し直す。開いたまま新しい登録用 URL を開いたときは(`#` の後ろだけが変わるので、ブラウザは読み込み直さない)、新しい token に替え、前の登録の知らせを消す。期限切れの URL の後に出し直した URL を同じタブに貼ると、こうなる。
@@ -176,7 +186,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 ## パスキーとセッションの管理
 
 - 画面は `/security`(セキュリティ)。パスキーの一覧と、追加・名前の変更・削除の操作と、すべてのセッションからのログアウトを置く。
-- 追加と削除では、操作の前に再認証をする(`src/features/auth/reauthenticate.ts`)。追加では、再認証の後に新しいパスキーを作り、2つの資格情報を一緒に送る。再認証の資格情報は、server が1回で使い切るので、1つの再認証で1回だけ操作できる。名前の変更と、すべてのセッションからのログアウトには求めない(server の決まり)。
+- 追加と削除では、操作の前に再認証をする(`src/queries/reauthenticate.ts`)。追加では、再認証の後に新しいパスキーを作り、2つの資格情報を一緒に送る。再認証の資格情報は、server が1回で使い切るので、1つの再認証で1回だけ操作できる。名前の変更と、すべてのセッションからのログアウトには求めない(server の決まり)。
 - 削除と、すべてのセッションからのログアウトは、取り消せないので、確認の Dialog を出してから送る。追加と名前の変更でも、入力のために Dialog を使う。
 - パスキーの追加・名前の変更・削除が成功したら、Dialog を閉じて `success` の Toast を出す。成功を判定した Dialog が、訳した文を Toast に渡すので、パスキーの欄(`PasskeysSection`)に知らせの state や props は要らない。次の Dialog を開いても、表示中の Toast は残る。
 - 失敗(再認証できない・最後のパスキー・もう無いパスキーなど)は、Dialog を開いたまま、その中に `Notice` で知らせる。前の失敗は、開くときに消す。閉じるときに消すと、閉じる animation の間に知らせが消え、Dialog が縮んで跳ぶ。
@@ -205,7 +215,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - `.tsx` では、generic な arrow function の型引数を JSX と読み分けるために、`<Value,>` のように `,` を足す必要がある。
 - ロジックを React なしでテストできるように、React の値を import できる `.ts` を次の2つに限る(ユーザーが決めた。`project/no-react-in-logic` で止まる)。型だけの `import type` は、どの `.ts` でもよい。
   - hook のファイル:名前が `use-` で始まり、export する関数が、名前が `use` で始まる1つだけ。
-  - context のファイル:名前が `-context.ts` で終わり、`createContext` の結果(1つ以上)と型だけを export する。context を読む hook は、hook のファイルに分ける(`use-show-toast.ts`)。
+  - context のファイル:名前が `-context.ts` で終わり、`createContext` の結果(1つ以上)と型だけを export する。context を読む hook は、hook のファイルに分ける(`hooks/use-show-toast.ts`)。
 - 前は `.ts` から React を一切 import させなかった。そのため、hook と context が `.tsx` に置かれ、JSX の無い `.tsx` を生んでいた。
 - `src/` の hook のファイルにも、関数を export する `.ts` と同じく、隣のテストを求める(`project/require-sibling-test`)。`.storybook/` の `useHtmlPreferences` は、全部の story を描くテスト(`src/__tests__/stories.test.tsx`)で確かめる(`tooling/DECISIONS.md` の `require-sibling-test`)。hook が呼び出し側に約束する振る舞い(`useShowToast` は Provider の外で呼ぶと throw する、`useLogOut` はログアウトを送ってログインの画面へ移る、など)を、`renderHook` で確かめる。テストのファイルの拡張子も JSX の有無で決まるので、`.test.ts` と `.test.tsx` のどちらでも数える。
 

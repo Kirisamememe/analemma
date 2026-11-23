@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { type DateInputProps, DateRoot, DateSegments } from "./date-input";
-import { useDateDraft } from "./use-date-draft";
+import { useDateDraft } from "./hooks/use-date-draft";
 
 import {
   FieldDescription,

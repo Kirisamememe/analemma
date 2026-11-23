@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import type { useLogOut } from "@/features/session/use-log-out";
+import type { useLogOut } from "@/features/session/hooks/use-log-out";
 import { useTranslate } from "@/i18n/use-translate";
 import { NavButton } from "@/ui/primitives/navigation";
 

@@ -1,0 +1,44 @@
+import { callApi } from "@/api/call-api";
+import {
+  type ReauthenticateDependencies,
+  reauthenticate,
+} from "@/queries/reauthenticate";
+
+/** デプロイ用のトークンを発行した結果。 */
+export type IssueDeployTokenResult =
+  | {
+      /** どの結果か。 */
+      readonly _tag: "Issued";
+      /** 発行したトークンの名前(server が前後の空白を除いたもの)。 */
+      readonly name: string;
+      /** server が発行したときの1回だけ返す token。 */
+      readonly token: string;
+    }
+  | {
+      /** どの結果か。 */
+      readonly _tag: "Cancelled" | "ReauthenticationFailed";
+    };
+
+/** 再認証をしてから、デプロイ用のトークンを発行する。 */
+export const issueDeployToken = async (
+  dependencies: ReauthenticateDependencies,
+  name: string,
+): Promise<IssueDeployTokenResult> => {
+  const confirmation = await reauthenticate(dependencies);
+
+  if (confirmation._tag === "Cancelled") {
+    return { _tag: "Cancelled" };
+  }
+
+  const result = await callApi(
+    dependencies.api.admin.deployTokens.issue({
+      name,
+      assertion: confirmation.assertion,
+    }),
+    ["REAUTHENTICATION_FAILED"],
+  );
+
+  return result._tag === "Succeeded"
+    ? { _tag: "Issued", name: result.data.name, token: result.data.token }
+    : { _tag: "ReauthenticationFailed" };
+};

@@ -5,7 +5,7 @@ import type { FieldDefinition } from "@analemma/contract";
 import { createContentForm } from "../content-form";
 import { ContentGroup } from "../ui/content-group";
 import type { ContentFieldsProps } from "./content-fields";
-import { flattenContent } from "./flat-content";
+import { flattenContent } from "./logic/flat-content";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack } from "@/ui/layout";

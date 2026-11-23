@@ -108,6 +108,25 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     ),
   },
   {
+    files: ["**/apps/admin/src/{features,components,ui}/**/*.{ts,tsx}"],
+    excludeFiles: ["**/__tests__/**", "**/__stories__/**"],
+    rules: {
+      "project/admin-module-location": [
+        "error",
+        {
+          effectfulModules: [
+            "features/auth/create-auth-gate.ts",
+            "features/auth/webauthn/create-authenticator.ts",
+            "features/auth/webauthn/create-browser-web-authn.ts",
+            "features/deploy-tokens/issue/copy-text.ts",
+            "features/fixed-pages/content-form.ts",
+            "features/fixed-pages/editor/create-editor-values.ts",
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["**/apps/admin/src/**/*.ts"],
     rules: {
       "project/no-react-in-logic": "error",

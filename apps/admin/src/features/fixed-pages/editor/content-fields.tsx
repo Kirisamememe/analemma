@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import type { FieldDefinition } from "@analemma/contract";
 
 import { ContentGroup } from "../ui/content-group";
+import type { EditorForm } from "./hooks/use-editor-form";
 import { RepeatField } from "./repeat-field";
-import type { EditorForm } from "./use-editor-form";
 
 import { useTranslate } from "@/i18n/use-translate";
 

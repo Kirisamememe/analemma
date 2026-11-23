@@ -3,8 +3,8 @@ import { useRouteContext, useRouter, useSearch } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { logIn } from "@/features/auth/log-in";
-import { toLogInNotice } from "@/features/auth/to-auth-notice";
+import { toLogInNotice } from "@/features/auth/logic/to-auth-notice";
+import { logIn } from "@/features/auth/queries/log-in";
 import { AppShell, Center, Stack } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";

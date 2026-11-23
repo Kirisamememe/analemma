@@ -11,8 +11,11 @@ import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor
 import {
   fixedPageQueryKey,
   loadFixedPage,
-} from "@/features/fixed-pages/editor/fixed-page-query";
-import { KINDS_QUERY_KEY } from "@/features/fixed-pages/list/fixed-pages-query";
+} from "@/features/fixed-pages/editor/queries/fixed-page-query";
+import {
+  KINDS_QUERY_KEY,
+  loadKinds,
+} from "@/features/fixed-pages/queries/fixed-pages-query";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
 import { EmptyState, PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
@@ -95,7 +98,7 @@ const KindPicker = (): ReactNode => {
 
   const query = useApiQuery({
     key: KINDS_QUERY_KEY,
-    load: () => api.admin.kinds.list(),
+    load: () => loadKinds(api),
   });
 
   if (query._tag === "Loading") return <Loading />;

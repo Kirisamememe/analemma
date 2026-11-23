@@ -3,11 +3,13 @@ import type { ReactNode } from "react";
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
 import { FixedPageRow } from "@/features/fixed-pages/list/fixed-page-row";
+import { useReorderFixedPages } from "@/features/fixed-pages/list/hooks/use-reorder-fixed-pages";
 import {
   FIXED_PAGES_QUERY_KEY,
   KINDS_QUERY_KEY,
-} from "@/features/fixed-pages/list/fixed-pages-query";
-import { useReorderFixedPages } from "@/features/fixed-pages/list/use-reorder-fixed-pages";
+  loadFixedPages,
+  loadKinds,
+} from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { EmptyState } from "@/ui/patterns";
@@ -35,12 +37,12 @@ export const FixedPagesSection = ({
 
   const pages = useApiQuery({
     key: FIXED_PAGES_QUERY_KEY,
-    load: () => api.admin.fixedPages.list(),
+    load: () => loadFixedPages(api),
   });
 
   const kinds = useApiQuery({
     key: KINDS_QUERY_KEY,
-    load: () => api.admin.kinds.list(),
+    load: () => loadKinds(api),
   });
 
   if (pages._tag === "Loading" || kinds._tag === "Loading") {

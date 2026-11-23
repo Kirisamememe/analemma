@@ -7,7 +7,7 @@ import {
   useDragAndDrop,
 } from "react-aria-components";
 
-import { moveIds } from "@/ui/primitives/collections/move-ids";
+import { moveIds } from "@/ui/primitives/collections/logic/move-ids";
 import { Icon } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 

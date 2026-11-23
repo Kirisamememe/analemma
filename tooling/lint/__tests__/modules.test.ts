@@ -118,3 +118,63 @@ describe("import の形", () => {
     },
   );
 });
+
+describe("管理画面のモジュールの置き場所", () => {
+  test.each([
+    {
+      label: "hooks の外で export した hook",
+      file: "components/use-current.ts",
+      message: "hook は",
+    },
+    {
+      label: "hooks の外で、分割代入で export した hook",
+      file: "components/form-context.ts",
+      message: "hook は",
+    },
+    {
+      label: "hooks の外で分割代入し、別の文で export した hook",
+      file: "components/form-hook.ts",
+      message: "hook は",
+    },
+    {
+      label: "queries の外で、client から分割代入で取り出したアクセス区分",
+      file: "features/pages/hooks/use-load-pages.ts",
+      message: "server の API",
+    },
+    {
+      label: "queries の外で、型を付けた引数から呼ぶ server の API",
+      file: "features/pages/load-pages.ts",
+      message: "server の API",
+    },
+    {
+      label: "queries の外で、ApiClient 型の引数から直接取り出したアクセス区分",
+      file: "features/pages/load-admin-pages.ts",
+      message: "server の API",
+    },
+    {
+      label:
+        "queries の外で、分割代入で名前を変えた client から呼ぶ server の API",
+      file: "features/pages/load-pages-from.ts",
+      message: "server の API",
+    },
+    {
+      label: "queries の外で、入れ子の分割代入で取り出したアクセス区分",
+      file: "features/pages/hooks/use-load-page-list.ts",
+      message: "server の API",
+    },
+    {
+      label: "logic の外で export した純粋な関数",
+      file: "ui/primitives/trim-value.ts",
+      message: "関数を export する",
+    },
+  ])("$label に診断を出すこと", ({ file, message }) => {
+    const { diagnostics } = lintFixture(`invalid/apps/admin/src/${file}`);
+
+    expect(
+      diagnostics.some(
+        ({ code, message: text }) =>
+          code === "project(admin-module-location)" && text.startsWith(message),
+      ),
+    ).toBe(true);
+  });
+});
