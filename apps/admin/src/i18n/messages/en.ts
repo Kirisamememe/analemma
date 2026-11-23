@@ -257,6 +257,11 @@ export const en = {
   "imageDetail.altHint":
     "Text that tells people who can’t see the photo what it shows.",
   "imageDetail.edit": "Edit",
+  "imageDetail.discardTitle": "You have unsaved changes",
+  "imageDetail.discardDescription":
+    "If you close the editor, your unsaved changes will be lost.",
+  "imageDetail.continueEditing": "Keep editing",
+  "imageDetail.discard": "Discard changes",
   "imageDetail.editTitle": "Edit title and description",
   "imageDetail.save": "Save",
   "imageDetail.cancel": "Cancel",

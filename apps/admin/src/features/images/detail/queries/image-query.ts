@@ -3,7 +3,7 @@ import { callApi } from "@/api/call-api";
 
 /** 詳細の画面で開く画像の、query のキー。 */
 export const imageQueryKey = (id: string) =>
-  ["admin", "images", "get", id] as const;
+  ["admin", "images", "get", id.toLowerCase()] as const;
 
 /** 詳細の画面で開く画像を読む。 */
 export const loadImage = (api: ApiClient, id: string) =>

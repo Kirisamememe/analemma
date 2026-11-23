@@ -62,3 +62,10 @@ export const NeighborsFailed = withReplies({
 });
 
 export const Gone = atPath("/images/019b0000-0000-7000-8000-0000000000ff");
+
+export const Saving = withReplies({
+  "admin/images/update": async () =>
+    Promise.withResolvers<FakeReply<"admin/images/update">>().promise,
+});
+
+export const SaveFailed = withReplies({ "admin/images/update": failed });

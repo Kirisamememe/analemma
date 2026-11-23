@@ -22,7 +22,7 @@ const toNullable = (value: string): string | null => {
   return text === "" ? null : text;
 };
 
-/** 画像のタイトル・説明・alt から、フォームの最初の値を作る(無ければ空の欄)。 */
+/** 画像のタイトル・説明・alt から、フォームの初期値を作る。 */
 export const toImageText = ({
   title,
   description,
@@ -33,7 +33,7 @@ export const toImageText = ({
   alt: alt ?? "",
 });
 
-/** フォームの値から、書き換えで送る値を作る(前後の空白を落とし、空の欄は null)。 */
+/** フォームの値から、書き換えで送る値を作る。 */
 export const toUpdateInput = (
   values: ImageText,
 ): Omit<ApiInputs["admin"]["images"]["update"], "id"> => ({
