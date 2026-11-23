@@ -85,7 +85,7 @@ export const runExternalReview = ({
 
   writeFileSync(
     log,
-    command.output === "stdout"
+    command.output === "stdout" && executed.status === 0
       ? executed.stderr
       : `${executed.stdout}\n${executed.stderr}`,
   );

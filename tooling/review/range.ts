@@ -40,7 +40,11 @@ const resolveRevision = (cwd: string, revision: string): string | undefined =>
     revision,
   );
 
-const resolveCommit = (cwd: string, revision: string): string | undefined => {
+/** git がコミットに解決できる指定を、コミットの SHA にする。 */
+export const resolveCommit = (
+  cwd: string,
+  revision: string,
+): string | undefined => {
   if (!revision.startsWith(":/")) {
     return resolveRevision(cwd, `${revision}^{commit}`);
   }

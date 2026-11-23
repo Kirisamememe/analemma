@@ -3,6 +3,7 @@ import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { findMainCheckout } from "../../structure/private-name-list";
+import { resolveCommit } from "../range";
 import {
   type DecisionArguments,
   type DecisionRecord,
@@ -24,15 +25,6 @@ const readGit = (...args: string[]): string | undefined => {
 const report = (message: string): void => {
   process.stderr.write(`${message}\n`);
 };
-
-const resolveCommit = (revision: string): string | undefined =>
-  readGit(
-    "rev-parse",
-    "--verify",
-    "--quiet",
-    "--end-of-options",
-    `${revision}^{commit}`,
-  );
 
 const decide = (request: DecisionArguments): number => {
   const branch = request.branch ?? readGit("branch", "--show-current");
@@ -71,7 +63,9 @@ const decide = (request: DecisionArguments): number => {
   }
 
   const commit =
-    request.commit === undefined ? undefined : resolveCommit(request.commit);
+    request.commit === undefined
+      ? undefined
+      : resolveCommit(repoRoot, request.commit);
 
   if (request.commit !== undefined && commit === undefined) {
     report(`${request.commit} を、コミットに解決できなかった。`);
