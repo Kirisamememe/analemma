@@ -22,13 +22,15 @@ export type ImageNeighbors = {
 const NONE: ImageNeighbors = { previous: undefined, next: undefined };
 
 /** 一覧で前後に並ぶ画像の ID を返す。 */
-export const useImageNeighbors = (id: string): ImageNeighbors => {
+export const useImageNeighbors = (id: string): ImageNeighbors | undefined => {
   const { api } = useAppContext();
 
   const query = useApiQuery({
     key: imageNeighborsQueryKey(id),
     load: () => loadImageNeighbors(api, id),
   });
+
+  if (query._tag === "Loading") return undefined;
 
   if (query._tag === "Failed") return { ...NONE, failure: query };
 

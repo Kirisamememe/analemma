@@ -27,6 +27,8 @@ import {
 
 /** 画像を削除するボタンに渡す値。 */
 type DeleteImageProps = {
+  /** 別の画像を取得していて操作できないか。 */
+  isDisabled?: boolean;
   /** 削除する画像の ID。 */
   id: string;
   /** 確かめるときに見せる名前(タイトルか、無題の画像)。 */
@@ -37,6 +39,7 @@ type DeleteImageProps = {
 
 /** 押すと名前を見せて確かめ、画像を削除するボタン。 */
 export const DeleteImage = ({
+  isDisabled = false,
   id,
   name,
   onDeleted,
@@ -94,6 +97,7 @@ export const DeleteImage = ({
         aria-label={t("imageDetail.delete")}
         icon="trash-2"
         isPending={isDeleting && !isOpen}
+        isDisabled={isDisabled}
         onPress={() => {
           deleting.reset(); // 開き直したら、前の送信の結果を消す
           setIsOpen(true);

@@ -68,14 +68,14 @@ export type Neighbor = {
   readonly href: AppHref;
   /** リンクのアクセシブルな名前。 */
   readonly label: string;
+  /** キーボードで移った後に focus を戻すリンク。 */
+  readonly attach?: ((element: HTMLAnchorElement | null) => void) | undefined;
+  /** キーボードでこのリンクを開くときに呼ぶ関数。 */
+  readonly onKeyboardNavigate?: (() => void) | undefined;
 };
 
 /** 写真を見る画面に渡す値。 */
 type ImageViewerProps = {
-  /** 帯の左に置く、一覧へ戻るリンク。 */
-  back: ReactNode;
-  /** 帯の右に置く操作。 */
-  actions: ReactNode;
   /** 配信用の画像(幅の昇順)。 */
   images: DeliveryImages;
   /** 写真の alt。 */
@@ -105,16 +105,29 @@ type SideLinkProps = {
 };
 
 const SideLink = ({
-  neighbor,
+  neighbor: { href, label, attach, onKeyboardNavigate },
   icon,
   place,
   controlsVisible,
 }: SideLinkProps): ReactNode => (
-  <span className={style.side({ controlsVisible, className: style[place]() })}>
-    <Link href={neighbor.href} variant="block">
+  <span
+    className={style.side({ controlsVisible, className: style[place]() })}
+    onClickCapture={(event) => {
+      if (
+        event.detail === 0 &&
+        !event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.shiftKey
+      ) {
+        onKeyboardNavigate?.();
+      }
+    }}
+  >
+    <Link href={href} variant="block" ref={attach}>
       <span className={style.control()}>
         <Icon name={icon} size="lg" />
-        <span className="sr-only">{neighbor.label}</span>
+        <span className="sr-only">{label}</span>
       </span>
     </Link>
   </span>
@@ -122,8 +135,6 @@ const SideLink = ({
 
 /** 写真と、その情報を表示する画面。 */
 export const ImageViewer = ({
-  back,
-  actions,
   images,
   alt,
   missing,
@@ -138,54 +149,52 @@ export const ImageViewer = ({
   const largest = images.at(-1);
 
   return (
-    <ViewerFrame actions={actions} back={back}>
-      <div className={style.body()}>
-        <div
-          className={style.stage()}
-          onPointerDown={handlers.onPointerDown}
-          onPointerUp={handlers.onPointerUp}
-          onPointerCancel={handlers.onPointerCancel}
-        >
-          {smallest === undefined || largest === undefined ? (
-            <div className={style.missing()}>
-              <Icon name="image-off" size="xl" />
-              <Text as="span">{missing}</Text>
-            </div>
-          ) : (
-            <ViewerPhoto
-              alt={alt}
-              images={images}
-              key={smallest.url}
-              largest={largest}
-              smallest={smallest}
-            />
-          )}
-          {previous !== undefined && (
-            <SideLink
-              controlsVisible={controlsVisible}
-              icon="chevron-left"
-              neighbor={previous}
-              place="previous"
-            />
-          )}
-          {next !== undefined && (
-            <SideLink
-              controlsVisible={controlsVisible}
-              icon="chevron-right"
-              neighbor={next}
-              place="next"
-            />
-          )}
-        </div>
-        <aside
-          aria-label={t("imageViewer.info")}
-          className={style.panel()}
-          // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- WebKit ではスクロールする情報欄に Tab で移れない
-          tabIndex={0}
-        >
-          {children}
-        </aside>
+    <div className={style.body()}>
+      <div
+        className={style.stage()}
+        onPointerDown={handlers.onPointerDown}
+        onPointerUp={handlers.onPointerUp}
+        onPointerCancel={handlers.onPointerCancel}
+      >
+        {smallest === undefined || largest === undefined ? (
+          <div className={style.missing()}>
+            <Icon name="image-off" size="xl" />
+            <Text as="span">{missing}</Text>
+          </div>
+        ) : (
+          <ViewerPhoto
+            alt={alt}
+            images={images}
+            key={smallest.url}
+            largest={largest}
+            smallest={smallest}
+          />
+        )}
+        {previous !== undefined && (
+          <SideLink
+            controlsVisible={controlsVisible}
+            icon="chevron-left"
+            neighbor={previous}
+            place="previous"
+          />
+        )}
+        {next !== undefined && (
+          <SideLink
+            controlsVisible={controlsVisible}
+            icon="chevron-right"
+            neighbor={next}
+            place="next"
+          />
+        )}
       </div>
-    </ViewerFrame>
+      <aside
+        aria-label={t("imageViewer.info")}
+        className={style.panel()}
+        // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- WebKit ではスクロールする情報欄に Tab で移れない
+        tabIndex={0}
+      >
+        {children}
+      </aside>
+    </div>
   );
 };

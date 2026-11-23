@@ -32,6 +32,36 @@ type Story = StoryObj<typeof meta>;
 
 export const WithAllDetails: Story = {};
 
+export const DelayedNavigation: Story = {
+  args: {
+    /** 次の写真と前後の行き先を時間を分けて返す server。 */
+    createRoutes: () => {
+      const { routes } = createImageRoutes(SAMPLE_IMAGES);
+      return {
+        ...routes,
+        "admin/images/get": async (input) => {
+          if (input.id !== IDS[0]) {
+            await new Promise((resolve) => {
+              setTimeout(resolve, 500);
+            });
+          }
+
+          return routes["admin/images/get"](input);
+        },
+        "admin/images/neighbors": async (input) => {
+          if (input.id !== IDS[0]) {
+            await new Promise((resolve) => {
+              setTimeout(resolve, 850);
+            });
+          }
+
+          return routes["admin/images/neighbors"](input);
+        },
+      };
+    },
+  },
+};
+
 const atPath = (path: string): Story => ({ args: { path } });
 
 export const Portrait = atPath(pathOf(1));

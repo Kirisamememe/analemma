@@ -22,6 +22,8 @@ import {
 
 /** 公開と非公開を切り替えるボタンに渡す値。 */
 type PublicationButtonProps = {
+  /** 別の画像を取得していて操作できないか。 */
+  isDisabled?: boolean;
   /** 切り替える画像。 */
   image: ApiOutputs["admin"]["images"]["get"];
 };
@@ -29,6 +31,7 @@ type PublicationButtonProps = {
 /** 押すと画像を公開するか、非公開にするボタン。 */
 export const PublicationButton = ({
   image,
+  isDisabled = false,
 }: PublicationButtonProps): ReactNode => {
   const t = useTranslate();
   const [confirming, setConfirming] = useState(false);
@@ -88,6 +91,7 @@ export const PublicationButton = ({
   return (
     <>
       <Button
+        isDisabled={isDisabled}
         isPending={publication.isPending && !confirming}
         onPress={() => {
           if (image.published) setConfirming(true);
