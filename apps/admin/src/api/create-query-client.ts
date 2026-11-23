@@ -25,12 +25,13 @@ export const createQueryClient = ({
     mutationCache: new MutationCache({ onError }),
     defaultOptions: {
       queries: {
+        gcTime: 0, // 使う画面が無くなったデータを、メモリに持たない
         refetchOnWindowFocus: false,
         networkMode: "always",
         retry: (failures, error) =>
           !isUnauthorized(error) && failures < MAX_RETRIES,
       },
-      mutations: { retry: false, networkMode: "always" },
+      mutations: { gcTime: 0, retry: false, networkMode: "always" },
     },
   });
 

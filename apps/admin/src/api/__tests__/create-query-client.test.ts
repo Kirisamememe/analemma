@@ -75,6 +75,35 @@ describe("createQueryClient", () => {
     expect(counter.count()).toBe(0);
   });
 
+  test("使う画面の無い取得は、終えたらすぐに捨てる", async () => {
+    const queryClient = createQueryClient(countCalls());
+    const key = ["admin", "passkeys", "list"];
+
+    await queryClient.query({
+      queryKey: key,
+      queryFn: () => Promise.resolve(["MacBook"]),
+    });
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0);
+    });
+
+    expect(queryClient.getQueryData(key)).toBeUndefined();
+  });
+
+  test("使う画面の無い送信の結果は、終えたらすぐに捨てる", async () => {
+    const queryClient = createQueryClient(countCalls());
+
+    await queryClient
+      .getMutationCache()
+      .build(queryClient, { mutationFn: () => Promise.resolve("token") })
+      .execute(undefined);
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0);
+    });
+
+    expect(queryClient.getMutationCache().getAll()).toEqual([]);
+  });
+
   test("画面に focus が戻っても、取り直さない", () => {
     const queryClient = createQueryClient(countCalls());
 

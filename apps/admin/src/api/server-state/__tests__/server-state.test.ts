@@ -14,37 +14,6 @@ afterEach(cleanup);
 
 const KEY = ["admin", "passkeys", "list"] as const;
 
-/** 取得を描いて終わるまで待ち、取り除いた後に、最初に返した結果を返す。 */
-const openAndClose = async (
-  client: QueryClient,
-  discardWhenUnused: boolean,
-) => {
-  const hook = renderHook(
-    () =>
-      useApiQuery({
-        key: KEY,
-        load: () => Promise.resolve(["MacBook"]),
-        discardWhenUnused,
-      }),
-    { wrapper: withQueryClient(client) },
-  );
-
-  const first = hook.result.current;
-
-  await waitFor(() => {
-    expect(hook.result.current).toEqual({
-      _tag: "Loaded",
-      data: ["MacBook"],
-    });
-  });
-  hook.unmount();
-  await new Promise<void>((resolve) => {
-    setTimeout(resolve, 0);
-  });
-
-  return first;
-};
-
 describe("useApiQuery", () => {
   test("読み込み中の後、取得したデータを返す", async () => {
     const response = Promise.withResolvers<string[]>();
@@ -82,20 +51,6 @@ describe("useApiQuery", () => {
         isRetrying: false,
       });
     });
-  });
-
-  test("使う画面が無くなったら捨てる指定では、開き直したときに古いデータを返さない", async () => {
-    const keeping = new QueryClient();
-    const discarding = new QueryClient();
-
-    await openAndClose(keeping, false);
-    expect(await openAndClose(keeping, false)).toEqual({
-      _tag: "Loaded",
-      data: ["MacBook"],
-    });
-
-    await openAndClose(discarding, true);
-    expect(await openAndClose(discarding, true)).toEqual({ _tag: "Loading" });
   });
 
   test("再取得が失敗したら、前のデータの代わりに失敗を返す", async () => {

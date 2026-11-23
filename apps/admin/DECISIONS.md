@@ -167,8 +167,8 @@ effect を使う hook の表は、次のとおり。
 - server の API は、contract の型を付けた oRPC の client(`src/api/create-api-client.ts`)で、同じ origin の `/api` に、oRPC のプロトコルで呼ぶ。応答の型を手で書かない。
 - server の状態は TanStack Query で持つ。query client(`src/api/create-query-client.ts`)は、取得と送信のどちらかがセッションの無いこと(`UNAUTHORIZED`)を返したら、持っている状態を消して、ログインの画面に、今のパスを持たせて移す。セッションの無い失敗は、やり直さない。
 - 画面に focus が戻っても、取り直さない(`refetchOnWindowFocus: false`)。パスキーの操作は OS の画面を開くので、ログインの最中に focus が出入りし、取り直すと、ログインの最中にほかの管理用 API を呼ぶことになる(「server の認証に合わせること」)。
-- 取得したデータは、使う画面が無くなっても、TanStack Query の既定どおり5分は持ち、画面を開き直したときにまず描く。固定ページの編集のように、開いたときの値からフォームを作る画面では、`useApiQuery` の `discardWhenUnused` で、使う画面が無くなったらすぐに捨てる。持っていた古い値からフォームを作ると、ほかのタブで書き換えた中身を、保存で古い値に戻してしまう。送った操作の応答に新しい値があるときは、`useApiCache` の `replace` で、送っている取得を中断してから差し替える。
-- `useApiCache` の `refresh` は、使う画面の無い取得も取り直す(`refetchType: "all"`)。TanStack Query の既定では、使う画面の無い取得は stale にするだけで、画面を開いたときに古い値をまず描いてから取り直す。編集の画面で固定ページを削除してから一覧に戻ると、削除したページが一瞬出た。取り直しが届くまで、送った操作は送信中のままになる。
+- server のデータ(取得と送信の結果)は、使う画面が無くなったらすぐに捨て、画面をまたいでメモリに持たない(query client の既定の `gcTime` を 0 にする。ユーザーが決めた)。server のデータは画面ごとの状態で、全体で持ち回る状態ではない。前は TanStack Query の既定どおり5分持ち、画面を開き直したときにまず描いていたので、ほかの端末ですべてのセッションからログアウトした後も、開き直した一覧が、セッションの確認が届くまで前のデータで出た。発行したデプロイ用のトークンの値のような送信の結果も、Dialog を閉じた後に5分残っていた。画面を開くたびに読み直すので、ほかのタブで書き換えた中身を、古い値から作ったフォームで上書きすることも無い。送った操作の応答に新しい値があるときは、`useApiCache` の `replace` で、送っている取得を中断してから差し替える。
+- `useApiCache` の `refresh` は、使う画面の無い取得も取り直す(`refetchType: "all"`)。使う画面の無い取得は捨てるので、取り直すのは、終わっていない取得と、送った操作の後に同じ画面が描き続ける取得になる。取り直しが届くまで、送った操作は送信中のままになる。
 - 送信の失敗は、やり直さない。登録やログインを2回送ると、使い切った challenge で失敗する。
 - 送信と取得は、オフラインでも保留せずに送り、失敗をその場で返す(`networkMode: "always"`)。TanStack Query の既定では、オフラインのときの送信を保留し、つながったときに確かめずに送る(すべてのセッションからのログアウトなどが、利用者の知らないうちに送られる。Codex のレビューで見つかった)。取得も保留すると、送信の後に一覧を取り直す処理が待ったままになり、送信が終わらない(Copilot のレビューで見つかった)。
 
@@ -182,7 +182,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - `callApi` は呼び出し側が扱う code だけを `Failed` で返し、ほかの失敗は元の error を throw する。セッション切れを表す `UNAUTHORIZED` を query client に届け、ログインの画面への移動を query client に任せるため。
 - `useApiMutation` は、送信か送信後の処理が想定外の失敗で終わったら `onError` を呼ぶ。操作の失敗を、Dialog の中で送ったものも外で送ったものも、Toast で知らせるため。セッション切れ(`UNAUTHORIZED`)では呼ばない。query client がログインの画面に移すので、閉じるまで残る失敗の Toast を、ログインの画面に持ち越さない。
 - `useApiMutation` は `send` の Promise が resolve したら `onSuccess` を呼ぶ。もう無いパスキーを操作したときの `NotFound` など、操作が断られた結果も `onSuccess` に渡り、その処理が完了すると `data` に入る。`send` や `onSuccess` が error で終わると `isError` が立つ。同じ操作を続けて送らせないよう、`onSuccess` の処理が終わるまで `isPending` を保つ。
-- 取得に失敗したら、`useApiQuery` の `Failed` が返す `retry` で取り直す。TanStack Query は、データの無い取得を取り直すと pending に戻すが、前に失敗していたら(`errorUpdateCount`)、取り直している間も `Failed` を返し、`isRetrying` を立てる。`isRetrying` は、取得が終わるまで(`fetchStatus` が `idle` に戻るまで)立てる。TanStack Query は、画面が隠れている間の次の試行を一時停止し(`paused`)、その間は `isFetching` が false になるので、`isFetching` で見ると一時停止を失敗と取り違える。Loading に戻すと、読み込めなかった欄が「読み込んでいます」に替わり、押したボタンと送信中の表示が消える。画面を開き直したとき、キャッシュに取得の失敗が残っていれば、読み込めなかった欄を出したまま取り直す。`discardWhenUnused` で画面を離れたときにキャッシュを捨てた取得は、読み込み中から始まる。
+- 取得に失敗したら、`useApiQuery` の `Failed` が返す `retry` で取り直す。TanStack Query は、データの無い取得を取り直すと pending に戻すが、前に失敗していたら(`errorUpdateCount`)、取り直している間も `Failed` を返し、`isRetrying` を立てる。`isRetrying` は、取得が終わるまで(`fetchStatus` が `idle` に戻るまで)立てる。TanStack Query は、画面が隠れている間の次の試行を一時停止し(`paused`)、その間は `isFetching` が false になるので、`isFetching` で見ると一時停止を失敗と取り違える。Loading に戻すと、読み込めなかった欄が「読み込んでいます」に替わり、押したボタンと送信中の表示が消える。画面を開き直したときは、前の取得の結果を捨ててあるので、成功でも失敗でも、読み込み中から始まる。
 - 再取得に失敗したときは `useApiQuery` が `Failed` を返す。前のデータを表示すると、再取得できたように見えるため。
 - 画面を離れる前の確かめは、TanStack Router の `useBlocker` を `useLeaveConfirmation`(`src/api/leave-confirmation.ts`)で包む。features は確かめが要るかを返す関数を渡し、確かめの状態(`Idle`・`Asking`)と、離れる・残る操作だけを受け取る。管理画面の中の移動は管理画面の Dialog で確かめ、タブを閉じる・読み込み直すときはブラウザに確かめさせる。確かめが要るかは移るときに関数を呼んで決め、state に持たないので、入力のたびに state を更新せず、effect も要らない。
 - 今回の適用範囲は `src/features/`。route ごとの画面を置く `src/routes/` は今は外のライブラリを直接 import する。
