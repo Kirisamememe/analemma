@@ -35,6 +35,16 @@ Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・�
 
 複数の feature から使う、管理画面に固有の部品は `src/components/` に置き、`@/components/...` から import する。パスキーの名前の入力欄のように、管理画面の訳と contract の検査を持つ部品を、ラベルや検査を呼び出し元から受け取る `src/ui/` の部品と分ける。`components/` は features を import しない。利用する feature 同士が、部品を通じて依存し合わずに済む。
 
+## hook・純粋な関数・server の API を呼ぶ処理の置き場所
+
+`features/`・`components/`・`ui/` では、ファイルを役割ごとのフォルダに分ける(ユーザーが決めた。`project/admin-module-location` で止まる)。部品と、それと一緒に変わる処理を同じ場所からたどれ、フォルダの名前で、React なしでテストできるものと server を呼ぶものが分かる。
+
+- hook は、使う部品に近い `hooks/` に置く。
+- 純粋な関数(値の検証・変換・知らせの選び分けなど)は、使う部品に近い `logic/` に置く。
+- server の API を呼ぶ処理(読み込み・書き込み・query のキー)は、feature の中の、使う部品に近い `queries/` に置く。feature の中の複数の部品が使うときだけ、どの部品からも近い `queries/` に上げる。複数の feature が使う再認証(パスキーとデプロイ用のトークンが使う)だけは、`src/queries/` に置く。
+- どれでもない `.ts`(ログインの gate・WebAuthn のブラウザでの処理・クリップボードへの書き込み)は、今の場所に置き、lint の設定の `effectfulModules` に足す。ブラウザの API や module の状態を使うので、`logic/` に入れると、純粋な関数だけを置く約束が崩れる。
+- `src/queries/` を足すと `src/` の中身が10件を超えるので、React を描き始める入口(`main.tsx`)を `src/app/` に移した。`App` と `createApp` と同じく、組み立てに関わるコードを `src/app/` にまとめる(「フォルダを指定する import」)。
+
 ## route はコードで定義する
 
 TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen.ts` を生成する plugin)は使わず、`src/app/router.ts` で `createRoute` を組む。

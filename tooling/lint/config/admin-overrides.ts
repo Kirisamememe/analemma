@@ -108,6 +108,27 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     ),
   },
   {
+    files: ["**/apps/admin/src/{features,components,ui}/**/*.{ts,tsx}"],
+    excludeFiles: [
+      "**/__tests__/**",
+      "**/__stories__/**",
+      "**/apps/admin/src/features/fixed-pages/**", // TODO: 固定ページの画面の PR が入ったら移して外す
+    ],
+    rules: {
+      "project/admin-module-location": [
+        "error",
+        {
+          effectfulModules: [
+            "features/auth/create-auth-gate.ts",
+            "features/auth/webauthn/create-authenticator.ts",
+            "features/auth/webauthn/create-browser-web-authn.ts",
+            "features/deploy-tokens/issue/copy-text.ts",
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["**/apps/admin/src/**/*.ts"],
     rules: {
       "project/no-react-in-logic": "error",

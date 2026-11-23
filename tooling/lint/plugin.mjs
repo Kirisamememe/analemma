@@ -2,6 +2,7 @@ import noStandaloneComment from "./rules/comments/no-standalone-comment.mjs";
 import requireDisableReason from "./rules/comments/require-disable-reason.mjs";
 import tsdocRoleOnly from "./rules/comments/tsdoc-role-only.mjs";
 import noCatchOutsideEntry from "./rules/errors/no-catch-outside-entry.mjs";
+import adminModuleLocation from "./rules/modules/admin-module-location.mjs";
 import fileLengthLimit from "./rules/modules/file-length-limit.mjs";
 import maxExportedFunctions from "./rules/modules/max-exported-functions.mjs";
 import noCrossWorkspaceImport from "./rules/modules/no-cross-workspace-import.mjs";
@@ -22,6 +23,7 @@ const plugin = {
     name: "project",
   },
   rules: {
+    "admin-module-location": adminModuleLocation,
     "file-length-limit": fileLengthLimit,
     "max-classes-per-string": maxClassesPerString,
     "max-code-lines": fileLengthLimit,
