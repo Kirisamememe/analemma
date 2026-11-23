@@ -94,7 +94,7 @@ type EnvSource = Readonly<Record<string, string | undefined>>;
 /** 登録用 URL のコマンドが起動時に検証した環境変数。 */
 export type Env = z.output<typeof envSchema>;
 
-/** server が起動時に検証した、置き場所のフォルダを含む環境変数。 */
+/** server が起動時に検証した、配信用の画像のフォルダを含む環境変数。 */
 export type ServerEnv = z.output<typeof serverEnvSchema>;
 
 /** DB だけを使うコマンドが検証した環境変数。 */

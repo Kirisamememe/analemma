@@ -131,7 +131,7 @@ bun --cwd=apps/admin run dev
    docker run -d --name analemma-trial-postgres -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:55442:5432 --tmpfs /var/lib/postgresql -v ~/analemma-trial/create-app-role.sql:/docker-entrypoint-initdb.d/create-app-role.sql:ro postgres:18.7-trixie
    ```
 
-3. server の環境変数を `~/analemma-trial/analemma.env` に書く。`ADMIN_DIST_DIR` は、このリポジトリの `apps/admin/dist` の絶対パスにする。`MEDIA_DIR`(配信用の画像の置き場所)は、ホームの絶対パスにする。パスキーは `127.0.0.1` では使えないので、`AUTH_ORIGIN` は `localhost` にする。
+3. server の環境変数を `~/analemma-trial/analemma.env` に書く。`ADMIN_DIST_DIR` は、このリポジトリの `apps/admin/dist` の絶対パスにする。`MEDIA_DIR`(配信用の画像のフォルダ)は、`~/analemma-trial/media` の絶対パスにする。パスキーは `127.0.0.1` では使えないので、`AUTH_ORIGIN` は `localhost` にする。
 
    ```bash
    mkdir -p ~/analemma-trial/media
