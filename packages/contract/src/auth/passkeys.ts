@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { adminAccess, reauthenticatedAccess } from "./access-errors";
+import { adminAccess, reauthenticatedAccess } from "../access-errors";
 import {
   credentialId,
   passkeyName,

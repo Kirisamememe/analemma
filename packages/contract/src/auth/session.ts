@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { adminAccess } from "./access-errors";
+import { adminAccess } from "../access-errors";
 import { authenticationOptions } from "./webauthn";
 
 /** セッションが切れる日時。 */

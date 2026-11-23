@@ -1,4 +1,4 @@
-import { authAccess } from "./access-errors";
+import { authAccess } from "../access-errors";
 import { sessionExpiry } from "./session";
 import { authenticationCredential, authenticationOptions } from "./webauthn";
 

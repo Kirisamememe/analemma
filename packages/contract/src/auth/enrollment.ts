@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { authAccess } from "./access-errors";
+import { authAccess } from "../access-errors";
 import { sessionExpiry } from "./session";
 import {
   passkeyName,

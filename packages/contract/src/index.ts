@@ -3,16 +3,16 @@ import type {
   InferContractRouterOutputs,
 } from "@orpc/contract";
 
-import { enrollment } from "./enrollment";
+import { enrollment } from "./auth/enrollment";
+import { login } from "./auth/login";
+import { passkeys } from "./auth/passkeys";
+import { session } from "./auth/session";
 import { fixedPages } from "./fixed-pages/admin-fixed-pages";
 import { publicFixedPages } from "./fixed-pages/public-fixed-pages";
 import { health } from "./health";
 import { kinds } from "./kinds/admin-kinds";
 import { deployKinds } from "./kinds/deploy-kinds";
 import { deployTokens } from "./kinds/deploy-tokens";
-import { login } from "./login";
-import { passkeys } from "./passkeys";
-import { session } from "./session";
 
 export {
   type FixedPageContent,
@@ -51,7 +51,7 @@ export {
   authenticationCredential,
   passkeyName,
   registrationCredential,
-} from "./webauthn";
+} from "./auth/webauthn";
 
 /** Analemma の API 全体の contract。 */
 export const contract = {
