@@ -9,6 +9,7 @@ import preview from "../../.storybook/preview";
 import * as componentsPasskeyNameField from "@/components/__stories__/passkey-name-field.stories";
 import * as componentsFormFields from "@/components/forms/__stories__/form-fields.stories";
 import * as componentsForm from "@/components/forms/__stories__/form.stories";
+import * as featuresDeployTokensCopyButton from "@/features/deploy-tokens/ui/__stories__/copy-button.stories";
 import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
 import * as routesEnrollPage from "@/routes/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/__stories__/login-page.stories";
@@ -54,6 +55,8 @@ const MODULES = {
   "components/forms/__stories__/form-fields.stories.tsx": componentsFormFields,
   "components/__stories__/passkey-name-field.stories.tsx":
     componentsPasskeyNameField,
+  "features/deploy-tokens/ui/__stories__/copy-button.stories.tsx":
+    featuresDeployTokensCopyButton,
   "features/deploy-tokens/ui/__stories__/token-value.stories.tsx":
     featuresDeployTokensTokenValue,
   "routes/__stories__/enroll-page.stories.tsx": routesEnrollPage,

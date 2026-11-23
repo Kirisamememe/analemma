@@ -189,7 +189,7 @@ describe("IssueDeployTokenDialog", () => {
     expect(app.calls).not.toContain("admin/session/reauthenticationOptions");
   });
 
-  test("コピーを押すと、token をクリップボードに書き、知らせる", async () => {
+  test("コピーを押すと、token をクリップボードに書いてボタンの文言で知らせ、しばらくしたら文言を戻す", async () => {
     const write = spyOn(navigator.clipboard, "writeText").mockResolvedValue(
       undefined,
     );
@@ -201,14 +201,25 @@ describe("IssueDeployTokenDialog", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "コピー" }));
 
-    expect(
-      await screen.findByText("トークンをクリップボードにコピーしました。"),
-    ).toBeDefined();
+    const copied = await screen.findByRole("button", {
+      name: "コピーしました",
+    });
+
+    expect(document.activeElement).toBe(copied);
     expect(write).toHaveBeenCalledWith(token);
+    expect(screen.queryByRole("alert")).toBeNull();
+    await waitFor(
+      () => {
+        expect(document.activeElement).toBe(
+          screen.getByRole("button", { name: "コピー" }),
+        );
+      },
+      { timeout: 3000 },
+    );
     write.mockRestore();
   });
 
-  test("クリップボードに書けなければ、手でコピーするよう知らせる", async () => {
+  test("クリップボードに書けなければ、ボタンの文言で知らせ、押し直すまで残す", async () => {
     const write = spyOn(navigator.clipboard, "writeText").mockRejectedValue(
       new DOMException("denied", "NotAllowedError"),
     );
@@ -219,9 +230,21 @@ describe("IssueDeployTokenDialog", () => {
     await userEvent.click(screen.getByRole("button", { name: "コピー" }));
 
     expect(
-      await screen.findByText(
-        "コピーできませんでした。トークンを選んで、手でコピーしてください。",
-      ),
+      await screen.findByRole("button", { name: "コピーできませんでした" }),
+    ).toBeDefined();
+    await new Promise((resolve) => {
+      setTimeout(resolve, 2100);
+    });
+    expect(
+      screen.getByRole("button", { name: "コピーできませんでした" }),
+    ).toBeDefined();
+
+    write.mockResolvedValue(undefined);
+    await userEvent.click(
+      screen.getByRole("button", { name: "コピーできませんでした" }),
+    );
+    expect(
+      await screen.findByRole("button", { name: "コピーしました" }),
     ).toBeDefined();
     write.mockRestore();
   });

@@ -158,6 +158,8 @@ export const ja = {
     "トークンの値を表示するのは今だけです。閉じる前にコピーしてください。",
   "deployTokens.value": "「{{name}}」のトークン",
   "deployTokens.copy": "コピー",
+  "deployTokens.copiedLabel": "コピーしました",
+  "deployTokens.copyFailedLabel": "コピーできませんでした",
   "deployTokens.copied": "トークンをクリップボードにコピーしました。",
   "deployTokens.copyFailed":
     "コピーできませんでした。トークンを選んで、手でコピーしてください。",

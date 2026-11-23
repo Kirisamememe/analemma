@@ -151,6 +151,8 @@ export const en = {
     "This is the only time the token is shown. Copy it before you close this dialog.",
   "deployTokens.value": "Token for “{{name}}”",
   "deployTokens.copy": "Copy",
+  "deployTokens.copiedLabel": "Copied",
+  "deployTokens.copyFailedLabel": "Could not copy",
   "deployTokens.copied": "The token was copied to the clipboard.",
   "deployTokens.copyFailed":
     "Could not copy. Select the token and copy it yourself.",

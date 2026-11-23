@@ -1,15 +1,12 @@
-import { type ReactNode, useState } from "react";
+import type { ReactNode } from "react";
 
-import {
-  type CopyTextResult,
-  copyText,
-} from "@/features/deploy-tokens/issue/copy-text";
 import { checkDeployTokenName } from "@/features/deploy-tokens/issue/issue-deploy-token";
+import { useCopyText } from "@/features/deploy-tokens/issue/use-copy-text";
 import {
   type IssuedToken,
   useIssueDeployToken,
 } from "@/features/deploy-tokens/issue/use-issue-deploy-token";
-import { toCopyNotice } from "@/features/deploy-tokens/to-deploy-token-notice";
+import { CopyButton } from "@/features/deploy-tokens/ui/copy-button";
 import { TokenValue } from "@/features/deploy-tokens/ui/token-value";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
@@ -36,16 +33,7 @@ const IssuedTokenContent = ({
   onClose,
 }: IssuedTokenContentProps): ReactNode => {
   const t = useTranslate();
-  const [copied, setCopied] = useState<CopyTextResult["_tag"]>();
-  const notice = copied === undefined ? undefined : toCopyNotice(copied);
-  const copy = async (): Promise<void> => {
-    const { _tag } = await copyText(
-      (text) => navigator.clipboard.writeText(text),
-      issued.token,
-    );
-
-    setCopied(_tag);
-  };
+  const { result, copy } = useCopyText(issued.token);
 
   return (
     <>
@@ -54,20 +42,15 @@ const IssuedTokenContent = ({
         label={t("deployTokens.value", { name: issued.name })}
         value={issued.token}
       />
-      {notice !== undefined && (
-        <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-      )}
       <Cluster gap={2} justify="end">
         <Button onPress={onClose}>{t("deployTokens.close")}</Button>
-        <Button
+        <CopyButton
           onPress={() => {
             void copy();
           }}
           ref={focusOnMount}
-          tone="primary"
-        >
-          {t("deployTokens.copy")}
-        </Button>
+          result={result}
+        />
       </Cluster>
     </>
   );
