@@ -11,6 +11,9 @@ const memberName = (node) => {
   return node.computed ? node.property.value : node.property.name;
 };
 
+const hasClientType = (node, clientTypes) =>
+  clientTypes.has(node.typeAnnotation?.typeAnnotation?.typeName?.name);
+
 const isClient = (node, clients) =>
   clients.has(node.name) || memberName(node) === "api";
 
@@ -27,10 +30,11 @@ const destructuresClient = (pattern, clients) => {
   return parent.type === "Property" && parent.key?.name === "api";
 };
 
-const takesApiGroup = (node, clients) =>
+const takesApiGroup = (node, { clients, clientTypes }) =>
   node.parent.type === "ObjectPattern" &&
   API_GROUPS.has(node.key?.name) &&
-  destructuresClient(node.parent, clients);
+  (hasClientType(node.parent, clientTypes) ||
+    destructuresClient(node.parent, clients));
 
 const destructuredHookNames = (program) =>
   new Set(
@@ -88,6 +92,7 @@ const adminModuleLocation = {
     const directory = basename(dirname(path));
     const inQueries = directory === "queries";
     const inFeature = path.startsWith("features/");
+
     const checkLogic =
       path.endsWith(".ts") &&
       !inQueries &&
@@ -115,9 +120,7 @@ const adminModuleLocation = {
         }
       },
       Identifier(node) {
-        const annotation = node.typeAnnotation?.typeAnnotation;
-
-        if (clientTypes.has(annotation?.typeName?.name)) clients.add(node.name);
+        if (hasClientType(node, clientTypes)) clients.add(node.name);
       },
       Property(node) {
         if (
@@ -128,7 +131,11 @@ const adminModuleLocation = {
           clients.add(node.value.name);
         }
 
-        if (inFeature && !inQueries && takesApiGroup(node, clients)) {
+        if (
+          inFeature &&
+          !inQueries &&
+          takesApiGroup(node, { clients, clientTypes })
+        ) {
           usesApi = true;
           context.report({ node, messageId: "query" });
         }

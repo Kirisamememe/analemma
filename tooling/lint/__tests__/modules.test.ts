@@ -147,6 +147,11 @@ describe("管理画面のモジュールの置き場所", () => {
       message: "server の API",
     },
     {
+      label: "queries の外で、ApiClient 型の引数から直接取り出したアクセス区分",
+      file: "features/pages/load-admin-pages.ts",
+      message: "server の API",
+    },
+    {
       label:
         "queries の外で、分割代入で名前を変えた client から呼ぶ server の API",
       file: "features/pages/load-pages-from.ts",
