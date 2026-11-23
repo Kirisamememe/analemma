@@ -5,6 +5,7 @@ import {
   CHALLENGE_LIFETIME_MS,
   createChallengeStore,
 } from "@/features/auth/challenge/create-challenge-store";
+import { createConversionQueue } from "@/features/images/processing/conversion-queue";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
 import { openFileStorage } from "@/platform/file-storage/open-file-storage";
@@ -61,6 +62,7 @@ const context: AppContext = {
     capacity: CHALLENGE_CAPACITY,
     lifetimeMs: CHALLENGE_LIFETIME_MS,
   }),
+  conversions: createConversionQueue(),
 };
 
 const internalOptions = {

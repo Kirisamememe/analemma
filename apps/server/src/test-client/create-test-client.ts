@@ -18,6 +18,7 @@ import {
   createChallengeStore,
 } from "@/features/auth/challenge/create-challenge-store";
 import { issueEnrollment } from "@/features/auth/enrollment/issue-enrollment";
+import { createConversionQueue } from "@/features/images/processing/conversion-queue";
 import type { Clock } from "@/platform/clock";
 import {
   type FileStorage,
@@ -109,6 +110,7 @@ export const createTestClient = async (
       capacity: CHALLENGE_CAPACITY,
       lifetimeMs: CHALLENGE_LIFETIME_MS,
     }),
+    conversions: createConversionQueue(),
   };
 
   const app = createExternalApp(context);

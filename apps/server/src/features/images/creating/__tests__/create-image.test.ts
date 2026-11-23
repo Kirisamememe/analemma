@@ -1,6 +1,7 @@
 import { describe, expect, spyOn, test } from "bun:test";
 
 import { createImage } from "@/features/images/creating/create-image";
+import { createConversionQueue } from "@/features/images/processing/conversion-queue";
 import { openDatabase } from "@/platform/database";
 import { detectImageFormat } from "@/platform/images/detect-image-format";
 import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
@@ -27,6 +28,7 @@ const connectionTo = (server: TestClient) =>
   });
 
 const clock = { now: () => TEST_NOW };
+const conversions = createConversionQueue();
 
 describe("写真から画像を作る", () => {
   test("初めから公開された写真を管理用 API で取得でき、幅ごとの AVIF が配信されること", async () => {
@@ -35,7 +37,7 @@ describe("写真から画像を作る", () => {
     await signInAsAdmin(server);
 
     const result = await createImage(
-      { db: connection.db, clock, storage: server.storage },
+      { db: connection.db, clock, conversions, storage: server.storage },
       await fixture("wide-red.jpg"),
     );
 
@@ -71,7 +73,7 @@ describe("写真から画像を作る", () => {
     await using connection = connectionTo(server);
 
     const result = await createImage(
-      { db: connection.db, clock, storage: server.storage },
+      { db: connection.db, clock, conversions, storage: server.storage },
       await fixture("high-iso.jpg"),
     );
 
@@ -88,7 +90,7 @@ describe("写真から画像を作る", () => {
     await using connection = connectionTo(server);
 
     const result = await createImage(
-      { db: connection.db, clock, storage: server.storage },
+      { db: connection.db, clock, conversions, storage: server.storage },
       new TextEncoder().encode("写真ではありません"),
     );
 
@@ -115,7 +117,7 @@ describe("写真から画像を作る", () => {
 
     const [failure] = await Promise.allSettled([
       createImage(
-        { db: connection.db, clock, storage },
+        { db: connection.db, clock, conversions, storage },
         await fixture("wide-red.jpg"),
       ),
     ]);
@@ -163,7 +165,10 @@ describe("写真から画像を作る", () => {
     };
 
     const [result] = await Promise.allSettled([
-      createImage({ clock, db, storage }, await fixture("high-iso.jpg")),
+      createImage(
+        { clock, conversions, db, storage },
+        await fixture("high-iso.jpg"),
+      ),
     ]);
 
     expect(result.status).toBe("rejected");
