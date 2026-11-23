@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useRef } from "react";
 
 import { usePhotoGestures } from "./hooks/use-photo-gestures";
 import type { DeliveryImages } from "./logic/delivery-image";
@@ -11,46 +11,12 @@ import { LoadingStatus } from "@/ui/patterns";
 import { Icon, Spinner } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
-/** 写真を見る画面の骨組みに渡す値。 */
-type ViewerFrameProps = {
-  /** 帯の左に置く、一覧へ戻るリンク。 */
-  back: ReactNode;
-  /** 帯の右に置く操作。 */
-  actions?: ReactNode;
-  /** 帯の下の中身。 */
-  children: ReactNode;
-};
-
-/** 写真を見る画面の、暗い地と上の帯。 */
-export const ViewerFrame = ({
-  back,
-  actions,
-  children,
-}: ViewerFrameProps): ReactNode => (
-  <div className={style.root()}>
-    <header data-top-bar="viewer" className={style.bar()}>
-      {back}
-      <div className={style.actions()}>{actions}</div>
-    </header>
-    <main className={style.content()}>{children}</main>
-  </div>
-);
-
-/** 写真を見る画面の真ん中に置く知らせに渡す値。 */
-type ViewerMessageProps = {
-  /** 知らせ(読み込み中・読み込めなかった欄など)。 */
-  children: ReactNode;
-};
-
-/** 写真の代わりに、画面の真ん中に知らせを置く。 */
-export const ViewerMessage = ({ children }: ViewerMessageProps): ReactNode => (
-  <div className={style.message()}>{children}</div>
-);
-
 /** 前後の画像へ移るリンク。 */
 export type Neighbor = {
   /** 移る先。 */
   readonly href: AppHref;
+  /** 次の写真を待っていて、この向きの移動を受け付けないか。 */
+  readonly disabled?: boolean;
   /** リンクのアクセシブルな名前。 */
   readonly label: string;
   /** キーボードで移った後に focus を戻すリンク。 */
@@ -110,7 +76,7 @@ type SideLinkProps = {
 };
 
 const SideLink = ({
-  neighbor: { href, label, attach, onKeyboardNavigate },
+  neighbor: { href, label, attach, onKeyboardNavigate, disabled },
   icon,
   place,
   controlsVisible,
@@ -118,6 +84,13 @@ const SideLink = ({
   <span
     className={style.side({ controlsVisible, className: style[place]() })}
     onClickCapture={(event) => {
+      if (disabled === true) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        return;
+      }
+
       if (
         event.detail === 0 &&
         !event.altKey &&
@@ -129,7 +102,7 @@ const SideLink = ({
       }
     }}
   >
-    <Link href={href} variant="block" ref={attach}>
+    <Link href={href} variant="block" ref={attach} aria-disabled={disabled}>
       <span className={style.control()}>
         <Icon name={icon} size="lg" />
         <span className="sr-only">{label}</span>
@@ -168,6 +141,7 @@ export const ImageViewer = ({
 }: ImageViewerProps): ReactNode => {
   const t = useTranslate();
   const { controlsVisible, handlers } = usePhotoGestures(onSwipe);
+  const panelPhoto = useRef<string>(undefined);
   const smallest = images[0];
   const largest = images.at(-1);
   const pendingSmallest = pending?.images[0];
@@ -229,6 +203,12 @@ export const ImageViewer = ({
       </div>
       <aside
         aria-label={t("imageViewer.info")}
+        ref={(panel) => {
+          if (panel !== null && panelPhoto.current !== photoId) {
+            panelPhoto.current = photoId;
+            panel.scrollTo({ top: 0, behavior: "instant" });
+          }
+        }}
         className={style.panel()}
         // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- WebKit ではスクロールする情報欄に Tab で移れない
         tabIndex={0}

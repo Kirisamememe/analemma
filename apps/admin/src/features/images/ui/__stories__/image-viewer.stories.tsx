@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { ImageViewer, ViewerFrame } from "@/features/images/ui/image-viewer";
+import { ImageViewer } from "@/features/images/ui/image-viewer";
+import { ViewerFrame } from "@/features/images/ui/viewer-frame";
 import { samplePhoto } from "@/testing/sample-photos";
 import { Text } from "@/ui/layout";
 import { LoadingState } from "@/ui/patterns";
