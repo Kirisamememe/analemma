@@ -66,7 +66,7 @@ type ButtonProps = ButtonContent & {
   tone?: "primary" | "secondary" | "quiet" | "danger";
   /** 高さ。 */
   size?: "md" | "sm";
-  /** アイコンの線の太さ。 */
+  /** `icon` で指定したアイコンの線の太さ。 */
   iconWeight?: "regular" | "bold";
   /** 角の丸み(xs は、角の丸い面の内側に間を空けて置くとき)。 */
   rounded?: "control" | "xs";

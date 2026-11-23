@@ -82,12 +82,15 @@ const group = tv({
     invalid: {
       true: { marker: "border-danger text-danger", title: "text-danger" },
     },
+    item: {
+      true: { title: "self-start py-1.5" },
+    },
   },
 });
 
 const bar = tv({
   base: [
-    "flex h-10 items-center gap-2 ps-3 pe-1",
+    "flex min-h-10 items-start gap-2 py-1 ps-3 pe-1",
     "rounded-control bg-surface-muted",
   ],
 });
@@ -120,7 +123,7 @@ export const ContentGroup = (props: ContentGroupProps): ReactNode => {
   const titleId = useId();
   const errorId = useId();
   const invalid = error !== undefined;
-  const style = group({ invalid });
+  const style = group({ invalid, item: kind === "item" });
 
   const title = (
     <span

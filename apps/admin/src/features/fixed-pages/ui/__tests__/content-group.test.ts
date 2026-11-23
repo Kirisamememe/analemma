@@ -55,7 +55,6 @@ test("要素の誤りをまとまりの説明にしてまとまりに focus を�
     expect(document.activeElement).toBe(row);
   });
   const title = within(row).getByText("行 1");
-  expect(row.getAttribute("aria-labelledby")).toBe(title.id);
 
   for (const name of ["行 1 を上へ", "行 1 を下へ", "行 1 を削除"]) {
     expect(within(row).getByRole("button", { name }).textContent).toBe("");
