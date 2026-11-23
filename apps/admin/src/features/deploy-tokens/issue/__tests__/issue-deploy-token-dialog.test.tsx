@@ -53,6 +53,11 @@ const isShown = (token: string): boolean =>
       (field) => field instanceof HTMLTextAreaElement && field.value === token,
     );
 
+const wait = (ms: number): Promise<void> =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
 describe("IssueDeployTokenDialog", () => {
   test("再認証をしてから発行して token を見せ、閉じたら Toast で知らせ、一覧に足す", async () => {
     const { server, app } = renderIssuing();
@@ -189,7 +194,7 @@ describe("IssueDeployTokenDialog", () => {
     expect(app.calls).not.toContain("admin/session/reauthenticationOptions");
   });
 
-  test("コピーを押すと、token をクリップボードに書いてボタンの文言で知らせ、しばらくしたら文言を戻す", async () => {
+  test("コピーを押すと、token をクリップボードに書いてボタンの文言で知らせ、最後に押してから2秒で文言を戻す", async () => {
     const write = spyOn(navigator.clipboard, "writeText").mockResolvedValue(
       undefined,
     );
@@ -208,13 +213,18 @@ describe("IssueDeployTokenDialog", () => {
     expect(document.activeElement).toBe(copied);
     expect(write).toHaveBeenCalledWith(token);
     expect(screen.queryByRole("alert")).toBeNull();
+
+    await wait(1000);
+    await userEvent.click(copied); // 1回目の2秒の timer が、押し直した結果を消さない
+    await wait(1300);
+    expect(screen.getByRole("button", { name: "コピーしました" })).toBe(copied);
     await waitFor(
       () => {
         expect(document.activeElement).toBe(
           screen.getByRole("button", { name: "コピー" }),
         );
       },
-      { timeout: 3000 },
+      { timeout: 2000 },
     );
     write.mockRestore();
   });
@@ -232,9 +242,7 @@ describe("IssueDeployTokenDialog", () => {
     expect(
       await screen.findByRole("button", { name: "コピーできませんでした" }),
     ).toBeDefined();
-    await new Promise((resolve) => {
-      setTimeout(resolve, 2100);
-    });
+    await wait(2100);
     expect(
       screen.getByRole("button", { name: "コピーできませんでした" }),
     ).toBeDefined();
