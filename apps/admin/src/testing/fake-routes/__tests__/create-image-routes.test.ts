@@ -82,6 +82,22 @@ describe("createImageRoutes", () => {
     expect(last.nextCursor).toBeNull();
   });
 
+  test("前後は、新しく足した順で一つ新しい画像と一つ古い画像を返す", async () => {
+    const { api, server } = setUp();
+    const [first, second, third] = server.images();
+
+    if (!first || !second || !third) throw new Error("画像が3枚必要です");
+
+    expect(await api.admin.images.neighbors({ id: second.id })).toEqual({
+      newer: first.id,
+      older: third.id,
+    });
+    expect(await api.admin.images.neighbors({ id: first.id })).toEqual({
+      newer: null,
+      older: second.id,
+    });
+  });
+
   test("書き換えは変わったときだけ updatedAt を進める", async () => {
     const { api, server } = setUp();
     const [image] = server.images();
@@ -133,6 +149,7 @@ describe("createImageRoutes", () => {
     expect(server.images()).toHaveLength(2);
 
     const [got] = await safe(api.admin.images.get({ id: MISSING_ID }));
+    const [around] = await safe(api.admin.images.neighbors({ id: MISSING_ID }));
 
     const [published] = await safe(
       api.admin.images.publish({ id: MISSING_ID }),
@@ -140,7 +157,8 @@ describe("createImageRoutes", () => {
 
     const [deleted] = await safe(api.admin.images.delete({ id: image.id }));
 
-    expect([got, published, deleted]).toMatchObject([
+    expect([got, around, published, deleted]).toMatchObject([
+      { code: "NOT_FOUND" },
       { code: "NOT_FOUND" },
       { code: "NOT_FOUND" },
       { code: "NOT_FOUND" },

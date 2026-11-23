@@ -1,4 +1,4 @@
-import { desc, eq, lt } from "drizzle-orm";
+import { asc, desc, eq, gt, lt } from "drizzle-orm";
 
 import { image } from "@/db/schema/image";
 import type { DatabaseExecutor } from "@/platform/database";
@@ -39,3 +39,33 @@ export const listImages = async (
     .where(before === undefined ? undefined : lt(image.id, before))
     .orderBy(desc(image.id))
     .limit(limit);
+
+/** 新しく足した順に並べたときの、前後の画像の ID。 */
+export type NeighborIds = {
+  /** 一つ新しく足した画像の ID。 */
+  readonly newer: string | undefined;
+  /** 一つ古く足した画像の ID。 */
+  readonly older: string | undefined;
+};
+
+/** 画像の ID の、一つ新しい画像と一つ古い画像の ID を引く。 */
+export const findNeighborIds = async (
+  db: DatabaseExecutor,
+  id: string,
+): Promise<NeighborIds> => {
+  const [newer] = await db
+    .select({ id: image.id })
+    .from(image)
+    .where(gt(image.id, id))
+    .orderBy(asc(image.id))
+    .limit(1);
+
+  const [older] = await db
+    .select({ id: image.id })
+    .from(image)
+    .where(lt(image.id, id))
+    .orderBy(desc(image.id))
+    .limit(1);
+
+  return { newer: newer?.id, older: older?.id };
+};

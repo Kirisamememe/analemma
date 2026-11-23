@@ -44,6 +44,24 @@ export const images = {
     })
     .input(byId)
     .output(adminImage),
+  neighbors: adminAccess
+    .errors({ NOT_FOUND: { status: 404 } })
+    .route({
+      method: "GET",
+      path: "/admin/images/{id}/neighbors",
+      summary: "一覧の並び(新しく足した順)で、画像の前後の画像の ID",
+    })
+    .input(byId)
+    .output(
+      z.object({
+        newer: imageId
+          .nullable()
+          .describe("一つ新しく足した画像の ID。無ければ null。"),
+        older: imageId
+          .nullable()
+          .describe("一つ古く足した画像の ID。無ければ null。"),
+      }),
+    ),
   update: adminAccess
     .errors({ NOT_FOUND: { status: 404 } })
     .route({

@@ -42,6 +42,7 @@ import { getHealth } from "@/features/health/get-health";
 import {
   deleteImage,
   getImage,
+  getImageNeighbors,
   listImages,
   publishImage,
   unpublishImage,
@@ -77,6 +78,7 @@ export const router = implement(contract)
       images: {
         list: listImages,
         get: getImage,
+        neighbors: getImageNeighbors,
         update: updateImage,
         publish: publishImage,
         unpublish: unpublishImage,

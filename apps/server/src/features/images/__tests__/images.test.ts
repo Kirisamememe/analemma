@@ -192,6 +192,38 @@ describe("画像の取得", () => {
   });
 });
 
+describe("前後の画像", () => {
+  test("公開していない画像も含めて、新しく足した順で一つ新しい画像と一つ古い画像の ID を返し、端では null を返すこと", async () => {
+    await using server = await createTestClient();
+
+    await signInAsAdmin(server);
+
+    const [oldest = "", middle = "", newest = ""] = await insertImages(server, [
+      { title: "1" },
+      { title: "2", publishedAt: null },
+      { title: "3" },
+    ]);
+
+    const { neighbors } = server.client.admin.images;
+
+    expect(await neighbors({ id: middle })).toEqual({
+      newer: newest,
+      older: oldest,
+    });
+    expect(await neighbors({ id: newest })).toEqual({
+      newer: null,
+      older: middle,
+    });
+    expect(await neighbors({ id: oldest })).toEqual({
+      newer: middle,
+      older: null,
+    });
+    expect(await catchErrorCode(neighbors({ id: MISSING_ID }))).toBe(
+      "NOT_FOUND",
+    );
+  });
+});
+
 describe("配信用の画像", () => {
   test("一覧・取得・書き換え・公開・非公開は、配信用の画像の幅・高さ・URL を幅の昇順で返し、一覧は配信用の画像をまだ作っていない画像に空の一覧を返すこと", async () => {
     await using server = await createTestClient();
