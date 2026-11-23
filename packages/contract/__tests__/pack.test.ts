@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { z } from "zod";
@@ -68,6 +68,8 @@ const exportTargets = (
     typeof target === "string" ? [target] : Object.values(target),
   );
 
+const TYPESCRIPT_CONDITIONS = new Set(["types", "import", "default"]);
+
 const sources = [...new Bun.Glob("src/**/*.ts").scanSync(packageRoot)].filter(
   (path) => !path.includes("/__tests__/"),
 );
@@ -105,5 +107,22 @@ describe("contract を固めたもの", () => {
         .map((target) => target.replace(/^\.\//v, ""))
         .filter((path) => !packed.files.includes(path)),
     ).toEqual([]);
+  });
+
+  test("利用者の TypeScript が読む型が、dist の .d.ts であること", () => {
+    const root = packed.manifest.exports["."];
+
+    const target =
+      typeof root === "string"
+        ? root
+        : Object.entries(root ?? {}).find(([condition]) =>
+            TYPESCRIPT_CONDITIONS.has(condition),
+          )?.[1];
+
+    expect(target).toBe("./dist/index.d.ts");
+  });
+
+  test("固めた後に、dist を残さないこと", () => {
+    expect(existsSync(join(packageRoot, "dist"))).toBe(false);
   });
 });
