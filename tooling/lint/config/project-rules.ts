@@ -52,6 +52,8 @@ export const PROJECT_RULES = {
   "stylistic/lines-between-class-members": ["error", "always"],
   "stylistic/padding-line-between-statements": [
     "error",
+    { blankLine: "always", prev: "*", next: "multiline-const" },
+    { blankLine: "always", prev: "multiline-const", next: "*" },
     {
       blankLine: "always",
       prev: "*",
