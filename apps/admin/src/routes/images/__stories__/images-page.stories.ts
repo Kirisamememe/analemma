@@ -74,7 +74,7 @@ export const LoadFailed: Story = {
 
 export const MoreFailed: Story = {
   args: {
-    /** 最初のページだけを返し、続きを読めない server(「さらに読み込む」を押すと失敗する)。 */
+    /** 最初のページだけを返し、続きを読めない server。 */
     createRoutes: () => {
       const { routes } = createImageRoutes(MANY);
       const list = routes["admin/images/list"];
