@@ -7,7 +7,7 @@ import { NavigationProgress } from "@/ui/primitives/navigation/navigation-progre
 afterEach(cleanup);
 
 describe("NavigationProgress", () => {
-  test("画面を移っている間だけ、読み込んでいることを伝える", () => {
+  test("読み込んでいる間だけ、読み込み中の progressbar を出す", () => {
     const { rerender } = renderWithI18n(<NavigationProgress isActive />, "ja");
 
     expect(

@@ -17,11 +17,11 @@ const progress = tv({
 
 /** 遷移の進み具合の帯に渡す値。 */
 type NavigationProgressProps = {
-  /** 画面を移っているか、移った先の画面がデータを待っているか。 */
+  /** 読み込んでいるか。 */
   isActive: boolean;
 };
 
-/** 画面を移っている間、画面の上端に流す帯。 */
+/** 読み込んでいる間、画面の上端に流す帯。 */
 export const NavigationProgress = ({
   isActive,
 }: NavigationProgressProps): ReactNode => {

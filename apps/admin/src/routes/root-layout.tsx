@@ -12,7 +12,7 @@ const RouteProgress = (): ReactNode => {
   return <NavigationProgress isActive={isRouting || isLoadingData} />;
 };
 
-/** すべての画面に UI の Provider を渡し、画面を移っている間は上端に帯を流す。 */
+/** すべての画面に UI の Provider を渡し、読み込みの間は上端に帯を流す。 */
 export const RootLayout = (): ReactNode => (
   <UiProvider>
     <RouteProgress />

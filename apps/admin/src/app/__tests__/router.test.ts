@@ -51,7 +51,7 @@ describe("router", () => {
     );
   });
 
-  test("セッションが切れていたら、移った画面をログインの画面に置き換え、「戻る」で前の画面に戻れる", async () => {
+  test("セッション切れで移った画面の履歴をログインの画面に置き換え、「戻る」では前のパスをログインの画面に引き継ぐ", async () => {
     let signedIn = true;
 
     const { history } = renderApp({
