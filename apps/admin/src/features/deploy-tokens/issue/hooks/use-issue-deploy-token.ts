@@ -2,9 +2,9 @@ import { useState } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { DEPLOY_TOKENS_QUERY_KEY } from "@/features/deploy-tokens/queries/deploy-tokens-query";
 import { issueDeployToken } from "@/features/deploy-tokens/issue/queries/issue-deploy-token";
 import { toIssueFailure } from "@/features/deploy-tokens/logic/to-deploy-token-notice";
+import { DEPLOY_TOKENS_QUERY_KEY } from "@/features/deploy-tokens/queries/deploy-tokens-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
 

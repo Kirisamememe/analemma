@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 
 import { createI18n } from "@/i18n/create-i18n";
 import { withI18n } from "@/testing/render-with-i18n";
-import { ToastProvider } from "@/ui/primitives/overlays/toast";
 import { useFailureToast } from "@/ui/primitives/overlays/hooks/use-failure-toast";
+import { ToastProvider } from "@/ui/primitives/overlays/toast";
 
 type WrapperProps = {
   /** 描く部品。 */

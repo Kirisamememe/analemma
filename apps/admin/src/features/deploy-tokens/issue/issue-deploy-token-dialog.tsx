@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 
 import { checkAfterSubmit, useAppForm } from "@/components/forms";
-import { checkDeployTokenName } from "@/features/deploy-tokens/issue/logic/check-deploy-token-name";
 import { useCopyText } from "@/features/deploy-tokens/issue/hooks/use-copy-text";
 import {
   type IssuedToken,
   useIssueDeployToken,
 } from "@/features/deploy-tokens/issue/hooks/use-issue-deploy-token";
+import { checkDeployTokenName } from "@/features/deploy-tokens/issue/logic/check-deploy-token-name";
 import { CopyButton } from "@/features/deploy-tokens/ui/copy-button";
 import { TokenValue } from "@/features/deploy-tokens/ui/token-value";
 import { useTranslate } from "@/i18n/use-translate";

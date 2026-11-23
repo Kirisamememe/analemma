@@ -2,10 +2,10 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { deletePasskey } from "@/features/passkeys/queries/delete-passkey";
-import type { PasskeySummary } from "@/features/passkeys/passkey-list";
-import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";
 import { toDeleteFailure } from "@/features/passkeys/logic/to-passkey-notice";
+import type { PasskeySummary } from "@/features/passkeys/passkey-list";
+import { deletePasskey } from "@/features/passkeys/queries/delete-passkey";
+import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";

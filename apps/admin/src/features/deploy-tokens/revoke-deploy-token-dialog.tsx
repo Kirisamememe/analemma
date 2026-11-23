@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
+import { toRevokeFailure } from "@/features/deploy-tokens/logic/to-deploy-token-notice";
 import {
   DEPLOY_TOKENS_QUERY_KEY,
   type DeployTokenSummary,
 } from "@/features/deploy-tokens/queries/deploy-tokens-query";
 import { revokeDeployToken } from "@/features/deploy-tokens/queries/revoke-deploy-token";
-import { toRevokeFailure } from "@/features/deploy-tokens/logic/to-deploy-token-notice";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
