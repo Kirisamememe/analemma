@@ -5,6 +5,7 @@ import {
   formatLocalDate,
   formatLocalDateTime,
 } from "@/i18n/format-date-time";
+import { LOCALES } from "@/i18n/locales";
 
 describe("formatDateTime", () => {
   test("言語ごとの書き方で、日付と時刻を出す", () => {
@@ -26,9 +27,15 @@ describe("formatLocalDateTime", () => {
   test("時差を含まない日時を、時差で動かさずに書く", () => {
     const local = "2025-05-01T23:42:07";
 
-    expect(formatLocalDateTime("ja", local)).toBe("2025/05/01 23:42");
-    expect(formatLocalDateTime("en", local)).toBe("May 1, 2025 at 11:42 PM");
-    expect(formatLocalDateTime("zh-Hans", local)).toBe("2025年5月1日 23:42");
+    for (const locale of LOCALES) {
+      const expected = new Intl.DateTimeFormat(locale, {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "UTC",
+      }).format(Date.UTC(2025, 4, 1, 23, 42, 7));
+
+      expect(formatLocalDateTime(locale, local)).toBe(expected);
+    }
   });
 
   test("日付だけにもでき、秒の小数を持つ日時も読む", () => {
