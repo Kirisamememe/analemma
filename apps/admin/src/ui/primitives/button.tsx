@@ -31,6 +31,7 @@ const button = tv({
         "relative h-control-sm px-3 whitespace-nowrap md:h-control md:px-4",
         "max-md:after:absolute max-md:after:inset-x-0 max-md:after:-inset-y-2",
       ],
+      lg: "h-11 px-4",
     },
     iconOnly: {
       true: "aspect-square px-0",
@@ -42,6 +43,7 @@ const button = tv({
     rounded: {
       control: "rounded-control",
       xs: "rounded-xs",
+      full: "rounded-full",
     },
     isPending: {
       true: { face: "opacity-0" },
@@ -79,12 +81,12 @@ type ButtonContent =
 type ButtonProps = ButtonContent & {
   /** 見た目の用途。 */
   tone?: "primary" | "secondary" | "quiet" | "danger";
-  /** 画面幅に応じたボタンの高さ。 */
-  size?: "md" | "sm" | "sm-to-md";
+  /** 高さ(`sm-to-md` は画面の幅で変わる)。 */
+  size?: "lg" | "md" | "sm" | "sm-to-md";
   /** `icon` で指定したアイコンの線の太さ。 */
   iconWeight?: "regular" | "bold";
   /** 角の丸み。 */
-  rounded?: "control" | "xs";
+  rounded?: "control" | "xs" | "full";
   /** フォームを送るボタンか。 */
   type?: "button" | "submit";
   /** 送信中か(押せなくし、待っていることを示す)。 */

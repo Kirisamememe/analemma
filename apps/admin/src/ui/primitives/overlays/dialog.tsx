@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useCallback } from "react";
 import {
   Dialog as AriaDialog,
   Heading,
@@ -8,7 +8,7 @@ import {
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Button } from "@/ui/primitives/button";
-import { Icon, Spinner } from "@/ui/primitives/graphics";
+import { Icon } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
@@ -26,18 +26,20 @@ const dialog = tv({
     body: "flex flex-col gap-4 outline-hidden",
     title: "wrap-anywhere text-fg",
     emblem: "grid size-12 place-items-center rounded-full",
-    close: "absolute inset-e-2 top-2",
+    indicator: "*:stroke-2",
+    close: "absolute inset-e-1 top-1",
   },
   variants: {
     status: {
       pending: {
-        modal: "w-80 max-w-full p-2",
-        body: "relative items-center gap-3 px-4 py-6 text-center",
+        modal: "relative w-80 max-w-full p-2",
+        body: "items-center gap-3 px-4 py-6 text-center",
         emblem: "bg-surface-muted text-fg-muted",
+        indicator: "motion-safe:animate-spin",
       },
       success: {
-        modal: "w-80 max-w-full p-2",
-        body: "relative items-center gap-3 px-4 py-6 text-center",
+        modal: "relative w-80 max-w-full p-2",
+        body: "items-center gap-3 px-4 py-6 text-center",
         emblem: "bg-success/10 text-success",
       },
     },
@@ -83,8 +85,41 @@ export const Dialog = ({
     body,
     title: titleSlot,
     emblem,
+    indicator,
     close,
   } = dialog({ status });
+
+  const panel = useCallback(
+    (element: HTMLElement | null) => {
+      if (!isOpen || status === undefined || element === null) return;
+
+      if (status === "success") {
+        element.querySelector("button")?.focus({ preventScroll: true });
+        return;
+      }
+
+      const keepFocus = (): void => {
+        element.focus({ preventScroll: true });
+      };
+
+      const keepTab = (event: KeyboardEvent): void => {
+        if (event.key === "Tab") {
+          event.preventDefault();
+          keepFocus();
+        }
+      };
+
+      keepFocus();
+      document.addEventListener("click", keepFocus);
+      document.addEventListener("keydown", keepTab, true);
+
+      return () => {
+        document.removeEventListener("click", keepFocus);
+        document.removeEventListener("keydown", keepTab, true);
+      };
+    },
+    [isOpen, status],
+  );
 
   const locked = isPending || status === "pending";
 
@@ -101,14 +136,17 @@ export const Dialog = ({
           aria-describedby={descriptionId}
           className={body()}
           inert={!isOpen}
+          ref={panel}
         >
           {status !== undefined && (
             <span className={emblem()}>
-              {status === "pending" ? (
-                <Spinner />
-              ) : (
-                <Icon name="check" size="xl" />
-              )}
+              <span className={indicator()}>
+                <Icon
+                  name={status === "pending" ? "loader-circle" : "check"}
+                  size="xl"
+                  weight="bold"
+                />
+              </span>
             </span>
           )}
           <Heading
@@ -129,6 +167,8 @@ export const Dialog = ({
                 onPress={() => {
                   onOpenChange(false);
                 }}
+                rounded="full"
+                size="lg"
                 tone="quiet"
               />
             </div>

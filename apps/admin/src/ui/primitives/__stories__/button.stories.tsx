@@ -29,6 +29,17 @@ export const IconOnly: Story = {
   args: { children: undefined, icon: "trash-2", "aria-label": "削除する" },
 };
 
+export const Round: Story = {
+  args: {
+    children: undefined,
+    icon: "x",
+    "aria-label": "閉じる",
+    rounded: "full",
+    size: "lg",
+    tone: "quiet",
+  },
+};
+
 export const IconOnlySmall: Story = {
   args: {
     children: undefined,
