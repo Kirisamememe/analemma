@@ -83,4 +83,12 @@ describe("Button", () => {
     ).toBeDefined();
     expect(screen.queryByRole("button", { name: "上へ" })).toBeNull();
   });
+
+  test("アイコンだけのボタンは、文言を出さず、アクセシブルな名前で探せる", () => {
+    renderWithI18n(<Button aria-label="固定ページを削除" icon="trash-2" />);
+
+    expect(
+      screen.getByRole("button", { name: "固定ページを削除" }).textContent,
+    ).toBe("");
+  });
 });

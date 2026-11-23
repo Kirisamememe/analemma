@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   Check,
   ChevronDown,
   CircleAlert,
@@ -10,11 +11,13 @@ import {
   LogOut,
   Menu,
   ShieldCheck,
+  Trash2,
   X,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
 const ICONS = {
+  "arrow-left": ArrowLeft,
   check: Check,
   "chevron-down": ChevronDown,
   "circle-alert": CircleAlert,
@@ -26,6 +29,7 @@ const ICONS = {
   "shield-check": ShieldCheck,
   "log-out": LogOut,
   menu: Menu,
+  "trash-2": Trash2,
   x: X,
 };
 
