@@ -16,6 +16,7 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 - **共通の概念も feature にする**:公開状態の判定や slug の履歴のように、複数のコンテンツの型が使う概念も `features/` に置く。`shared/`・`common/` のような置き場を作ると、何でも入る場所になる。
 - **ファイル**:1ファイルに、1つの procedure を置く。関係する小さな関数(同じテーブルの query、同じ概念の小さな純粋関数)は、コードの行数が200行以下なら、1つのファイルにまとめてよい(ユーザーの依頼で、エージェントが決めた)。関数ごとにファイルを分けると、小さなファイルで feature のフォルダの10件がすぐに埋まる。200行は、export できる関数の数を問わない境目(`tooling/DECISIONS.md` の `max-exported-functions`)と同じ。名前は、procedure と1つの関数だけのファイルは動詞から始まる kebab-case(`get-post.ts`、`decide-publish.ts`、`to-post-detail.ts`)、まとめたファイルはテーブルか概念の名前(`session.query.ts`、`secret-token.ts`)にする。
 - **DB に触れるファイルは用途ごとの `queries/` に置く**:同じ用途の procedure や判断に近い場所に置き、DB を操作するファイルを見つけやすくする(ユーザーが決めた)。feature の外で Drizzle と DB のドライバを値として import できるのは、`*.query.ts`・`src/db/`・`src/platform/`(DB の接続を作る場所)だけにする。`src/main.ts` は Bun の API は使えるが、DB には触れない。DB を差し替えるときに直す場所が、名前で分かる。
+- **server とコマンドの起動**:環境変数の検証・待ち受ける順・管理画面のビルドの読み込みを `src/platform/startup/` にまとめる。環境変数の検証は、migration と登録用 URL のコマンドも起動時に使う。DB の接続・clock・logger はリクエストの処理でも使うので、platform の直下に置く。
 - **Bun 専用の API は `src/platform/` と `src/main.ts` だけ**:それ以外は Web 標準で書き、実行環境を替えても直す場所を限る。
 - **feature の外部依存**:procedure と mapper は `@analemma/contract` から入出力の型を取る。contract の定義から推論した型を使うと、API の形が変わったときに型検査でわかる。HTTP のライブラリは、リクエストを受けるコードと `src/platform/` に集める。Drizzle は feature の用途ごとの `queries/` にある `*.query.ts` で直接使う。テーブル定義からの型推論を保ったまま DB の読み書きを1つのファイルで読めるようにするため。
 - **テーブルに書き込めるのは、持ち主の feature だけ**:読むのはどこからでもよい。トップページの集約のような、読むだけの feature が他のテーブルを join できるようにする。

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 
-import { readDatabaseEnv } from "@/platform/env";
+import { readDatabaseEnv } from "@/platform/startup/env";
 import { COMPOSE_PROJECT } from "@/platform/test-database/start-test-postgres";
 import { TEST_POSTGRES } from "@/platform/test-database/to-test-database-target";
 

@@ -5,12 +5,12 @@ import {
   CHALLENGE_LIFETIME_MS,
   createChallengeStore,
 } from "@/features/auth/challenge/create-challenge-store";
-import { chooseFirstListener } from "@/platform/choose-first-listener";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
-import { readEnv } from "@/platform/env";
-import { loadAdminDist } from "@/platform/load-admin-dist";
 import { stdoutLogger } from "@/platform/logger";
+import { chooseFirstListener } from "@/platform/startup/choose-first-listener";
+import { readEnv } from "@/platform/startup/env";
+import { loadAdminDist } from "@/platform/startup/load-admin-dist";
 
 const env = readEnv();
 

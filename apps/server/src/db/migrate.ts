@@ -1,6 +1,6 @@
 import { migrateDatabase } from "@/db/migrate-database";
-import { readDatabaseEnv } from "@/platform/env";
 import { stdoutLogger } from "@/platform/logger";
+import { readDatabaseEnv } from "@/platform/startup/env";
 
 const env = readDatabaseEnv();
 
