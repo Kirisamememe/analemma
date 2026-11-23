@@ -22,25 +22,28 @@ type QueryOptions<Data> = {
   readonly tabStaleTime?: number | ((data: Data | undefined) => number);
 };
 
+/** 失敗した取得をやり直す操作と状態。 */
+export type QueryRetry = {
+  /** 取得をやり直す関数。 */
+  readonly retry: () => void;
+  /** 取得をやり直しているか。 */
+  readonly isRetrying: boolean;
+};
+
 /** server のデータを読んだ結果。 */
 export type ApiQueryResult<Data> =
   | {
       /** どの結果か。 */
       readonly _tag: "Loading";
     }
-  | {
-      /** どの結果か。 */
-      readonly _tag: "Failed";
-      /** 取り直しているか。 */
-      readonly isRetrying: boolean;
-      /** 取り直す関数。 */
-      readonly retry: () => void;
-    }
+  | (Record<"_tag", "Failed"> & QueryRetry)
   | {
       /** どの結果か。 */
       readonly _tag: "Loaded";
       /** 取得したデータ。 */
       readonly data: Data;
+      /** 前のデータを表示したまま、失敗した更新をやり直す操作。 */
+      readonly refreshFailure?: QueryRetry;
     };
 
 type MutationOptions<Input, Data> = {
@@ -128,7 +131,16 @@ export const useApiQuery = <Data>({
   }
 
   if (keepInTab && query.isRefetchError && !isUnauthorized(query.error)) {
-    return { _tag: "Loaded", data: query.data };
+    return {
+      _tag: "Loaded",
+      data: query.data,
+      refreshFailure: {
+        isRetrying: query.fetchStatus !== "idle",
+        retry: () => {
+          void query.refetch();
+        },
+      },
+    };
   }
 
   if (keepDataOnRefreshError === true && query.isRefetchError && !isUnauthorized(query.error)) {

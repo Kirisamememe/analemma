@@ -22,6 +22,8 @@ type DeleteFixedPageProps = {
   page: Pick<FixedPageSummary, "id" | "title">;
   /** 削除できたときに呼ぶ関数。 */
   onDeleted: () => void;
+  /** 確認を開いたときと閉じたときに呼ぶ関数。 */
+  onOpenChange?: (open: boolean) => void;
   /** 削除のボタンを押せないか。 */
   isDisabled?: boolean;
 };
@@ -30,6 +32,7 @@ type DeleteFixedPageProps = {
 export const DeleteFixedPage = ({
   page,
   onDeleted,
+  onOpenChange,
   isDisabled = false,
 }: DeleteFixedPageProps): ReactNode => {
   const t = useTranslate();
@@ -65,6 +68,7 @@ export const DeleteFixedPage = ({
   const close = (): void => {
     failure.close();
     setIsOpen(false);
+    onOpenChange?.(false);
   };
 
   return (
@@ -77,6 +81,7 @@ export const DeleteFixedPage = ({
         onPress={() => {
           deleting.reset(); // 開き直したら、前の送信の結果を消す
           setIsOpen(true);
+          onOpenChange?.(true);
         }}
       />
       <Dialog

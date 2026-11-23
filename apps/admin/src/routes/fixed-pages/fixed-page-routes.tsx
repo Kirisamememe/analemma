@@ -12,6 +12,7 @@ import {
   fixedPageQueryKey,
   loadFixedPage,
 } from "@/features/fixed-pages/editor/queries/fixed-page-query";
+import { KindsRefreshNotice } from "@/features/fixed-pages/list/kinds-refresh-notice";
 import {
   KIND_STALE_TIME,
   KINDS_QUERY_KEY,
@@ -111,42 +112,47 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
   });
 
   return (
-    <QueryContent
-      failedTitle={t("fixedPageEditor.kindsLoadFailed")}
-      level={2}
-      loading="list"
-      query={query}
-    >
-      {({ kinds }) =>
-        kinds.length === 0 ? (
-          <EmptyState
-            description={t("fixedPageEditor.emptyKindsDescription")}
-            icon="file-text"
-            title={t("fixedPageEditor.emptyKinds")}
-          />
-        ) : (
-          <Stack gap={3}>
-            <Heading level={2}>{t("fixedPageEditor.chooseKind")}</Heading>
-            <Cluster gap={2}>
-              {kinds.map((kind) => (
-                <Button
-                  key={kind.name}
-                  onPress={() => {
-                    onPick();
-                    void navigate({
-                      to: "/fixed-pages/new",
-                      search: { kind: kind.name },
-                    });
-                  }}
-                >
-                  {kind.label}
-                </Button>
-              ))}
-            </Cluster>
-          </Stack>
-        )
-      }
-    </QueryContent>
+    <Stack gap={3}>
+      {query._tag === "Loaded" && query.refreshFailure !== undefined && (
+        <KindsRefreshNotice refreshFailure={query.refreshFailure} />
+      )}
+      <QueryContent
+        failedTitle={t("fixedPageEditor.kindsLoadFailed")}
+        level={2}
+        loading="list"
+        query={query}
+      >
+        {({ kinds }) =>
+          kinds.length === 0 ? (
+            <EmptyState
+              description={t("fixedPageEditor.emptyKindsDescription")}
+              icon="file-text"
+              title={t("fixedPageEditor.emptyKinds")}
+            />
+          ) : (
+            <Stack gap={3}>
+              <Heading level={2}>{t("fixedPageEditor.chooseKind")}</Heading>
+              <Cluster gap={2}>
+                {kinds.map((kind) => (
+                  <Button
+                    key={kind.name}
+                    onPress={() => {
+                      onPick();
+                      void navigate({
+                        to: "/fixed-pages/new",
+                        search: { kind: kind.name },
+                      });
+                    }}
+                  >
+                    {kind.label}
+                  </Button>
+                ))}
+              </Cluster>
+            </Stack>
+          )
+        }
+      </QueryContent>
+    </Stack>
   );
 };
 

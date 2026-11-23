@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { KindsRefreshNotice } from "./kinds-refresh-notice";
+
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
 import { FixedPageRow } from "@/features/fixed-pages/list/fixed-page-row";
@@ -77,23 +79,32 @@ export const FixedPagesSection = ({
 
   const rows = reordering.arrange(pages.data.pages);
 
+  const notice =
+    kinds._tag === "Loaded" && kinds.refreshFailure !== undefined ? (
+      <KindsRefreshNotice refreshFailure={kinds.refreshFailure} />
+    ) : null;
+
   if (rows.length === 0) {
     return (
-      <EmptyState
-        actions={
-          <Button onPress={onCreate} tone="primary">
-            {t("fixedPages.create")}
-          </Button>
-        }
-        description={t("fixedPages.emptyDescription")}
-        icon="file-text"
-        title={t("fixedPages.emptyTitle")}
-      />
+      <Stack gap={3}>
+        {notice}
+        <EmptyState
+          actions={
+            <Button onPress={onCreate} tone="primary">
+              {t("fixedPages.create")}
+            </Button>
+          }
+          description={t("fixedPages.emptyDescription")}
+          icon="file-text"
+          title={t("fixedPages.emptyTitle")}
+        />
+      </Stack>
     );
   }
 
   return (
     <Stack gap={3}>
+      {notice}
       {rows.length > 1 && (
         <Cluster align="center" gap={2} justify="between">
           <Text tone="muted" variant="caption">

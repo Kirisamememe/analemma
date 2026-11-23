@@ -12,6 +12,8 @@ export const zhHans = {
   "fixedPageEditor.kindGone": "此类型已不存在。",
   "fixedPageEditor.pageGone": "此固定页面已不存在。",
   "fixedPageEditor.loadFailed": "无法加载固定页面",
+  "fixedPageEditor.kindsRefreshFailed": "未能更新类型列表。",
+  "fixedPageEditor.reloadKinds": "重新加载",
   "fixedPageEditor.kindsLoadFailed": "无法加载类型",
   "fixedPageEditor.kindLoadFailed": "无法加载类型定义",
   "fixedPageEditor.kindLoadFailedDescription":
