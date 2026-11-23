@@ -65,6 +65,21 @@ describe("useFailureToast", () => {
     ).toBeDefined();
   });
 
+  test("対象の id が替わっても、描き直しを増やさない", () => {
+    let renders = 0;
+
+    const { rerender } = renderHook(
+      (id: string) => {
+        renders += 1;
+        return useFailureToast(id);
+      },
+      { initialProps: "A", wrapper: withToast },
+    );
+
+    rerender("B");
+    expect(renders).toBe(2);
+  });
+
   test("閉じる関数で、出した失敗の Toast を閉じる", () => {
     const { result } = renderHook(useFailureToast, { wrapper: withToast });
 
