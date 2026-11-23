@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { adminAccess, reauthenticatedAccess } from "../access-errors";
-import { reauthenticationAssertion } from "../webauthn";
+import { reauthenticationAssertion } from "../auth/webauthn";
 
 /** デプロイ用のトークンに付ける名前。 */
 export const deployTokenName = z

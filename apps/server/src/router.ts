@@ -39,6 +39,7 @@ import {
   unpublishFixedPage,
 } from "@/features/fixed-pages";
 import { getHealth } from "@/features/health/get-health";
+import { getImage, listImages } from "@/features/images";
 import { getKind, listKinds, pushKinds } from "@/features/kinds";
 import {
   adminProcedures,
@@ -66,6 +67,7 @@ export const router = implement(contract)
         reorder: reorderFixedPages,
         delete: deleteFixedPage,
       },
+      images: { list: listImages, get: getImage },
       kinds: { list: listKinds, get: getKind },
       passkeys: {
         list: listPasskeys,

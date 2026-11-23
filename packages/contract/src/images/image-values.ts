@@ -1,0 +1,84 @@
+import { z } from "zod";
+
+/** 文字列に使える文字の決まりと、合わないときの文言。 */
+type TextRule = {
+  /** 使える文字だけからなる文字列に合う正規表現。 */
+  readonly pattern: RegExp;
+  /** 合わないときの文言。 */
+  readonly error: string;
+};
+
+const SINGLE_LINE: TextRule = {
+  pattern: /^\P{Cc}*$/v,
+  error: "改行と制御文字は使えない",
+};
+
+const MULTI_LINE: TextRule = {
+  pattern: /^[\P{Cc}\t\n\r]*$/v,
+  error: "改行とタブを除く制御文字は使えない",
+};
+
+const isWellFormed = (value: string): boolean => value.isWellFormed();
+
+const trimmedText = (max: number, { error, pattern }: TextRule) =>
+  z
+    .string()
+    .trim()
+    .min(1)
+    .max(max)
+    .regex(pattern, { error })
+    .refine(isWellFormed, { error: "対になっていないサロゲートは使えない" });
+
+/** 画像の ID。 */
+export const imageId = z.uuid().describe("画像の ID。");
+
+/** 画像のタイトル。 */
+export const imageTitle = trimmedText(200, SINGLE_LINE).describe(
+  "画像のタイトル。",
+);
+
+/** 画像の説明。 */
+export const imageDescription = trimmedText(10_000, MULTI_LINE).describe(
+  "画像の説明。",
+);
+
+/** 画像の alt。 */
+export const imageAlt = trimmedText(1000, SINGLE_LINE).describe("画像の alt。");
+
+/** 管理画面に返す画像。 */
+export const adminImage = z.object({
+  id: imageId,
+  title: imageTitle.nullable().describe("タイトル。無ければ null。"),
+  description: imageDescription.nullable().describe("説明。無ければ null。"),
+  alt: imageAlt.nullable().describe("alt。無ければ null。"),
+  takenAt: z.iso
+    .datetime({ local: true })
+    .nullable()
+    .describe("撮影した現地の日時(時差を含まない)。分からなければ null。"),
+  takenAtOffset: z
+    .string()
+    .regex(/^[+\-]\d{2}:\d{2}$/v)
+    .nullable()
+    .describe("撮影した場所の、UTC からの時差(+09:00)。分からなければ null。"),
+  camera: z.string().nullable().describe("カメラ。分からなければ null。"),
+  lens: z.string().nullable().describe("レンズ。分からなければ null。"),
+  focalLength: z
+    .number()
+    .nullable()
+    .describe("焦点距離(mm)。分からなければ null。"),
+  fNumber: z.number().nullable().describe("絞り(F 値)。分からなければ null。"),
+  exposureTime: z
+    .number()
+    .nullable()
+    .describe("シャッター速度(秒)。分からなければ null。"),
+  iso: z.int().nullable().describe("ISO 感度。分からなければ null。"),
+  published: z.boolean().describe("公開しているか。"),
+  publishedAt: z.iso
+    .datetime({ offset: true })
+    .nullable()
+    .describe("公開した日時。公開していなければ null。"),
+  createdAt: z.iso.datetime({ offset: true }).describe("作った日時。"),
+  updatedAt: z.iso
+    .datetime({ offset: true })
+    .describe("タイトル・説明・alt を最後に変えた日時。"),
+});
