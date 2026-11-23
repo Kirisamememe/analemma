@@ -1,4 +1,4 @@
-import { toAdminImage } from "@/features/images/to-admin-image";
+import { toAdminImage } from "@/features/images/to-image";
 import { readSeriesRows } from "@/features/series/reading/queries/series.query";
 import { toAdminSeries } from "@/features/series/to-admin-series";
 import { adminProcedures } from "@/procedures";

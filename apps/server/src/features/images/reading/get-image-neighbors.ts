@@ -1,5 +1,5 @@
 import { findNeighborIds } from "@/features/images/queries/images.query";
-import { toAdminImageNeighbors } from "@/features/images/to-admin-image";
+import { toAdminImageNeighbors } from "@/features/images/to-image";
 import { adminProcedures } from "@/procedures";
 
 /** 前後の画像の ID を返す procedure。 */

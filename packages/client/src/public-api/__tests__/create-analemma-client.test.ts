@@ -34,7 +34,7 @@ const PAGE = {
 /** テスト用の CMS に置く、公開している固定ページの中身。 */
 type FakeContent = Record<string, string | boolean>;
 
-const os = implement({ public: contract.public });
+const os = implement({ public: { fixedPages: contract.public.fixedPages } });
 
 const serveFakeCms = (
   content: FakeContent,
@@ -42,7 +42,6 @@ const serveFakeCms = (
   const handler = new RPCHandler(
     os.router({
       public: {
-        health: { get: os.public.health.get.handler(() => ({ status: "ok" })) },
         fixedPages: {
           list: os.public.fixedPages.list.handler(({ input }) => ({
             pages: input.kind === "colophon" ? [] : [PAGE],

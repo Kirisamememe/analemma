@@ -41,6 +41,7 @@ import {
 import { getHealth } from "@/features/health/get-health";
 import {
   deleteImage,
+  getPublishedImage,
   getImage,
   getImageNeighbors,
   listImages,
@@ -51,6 +52,8 @@ import {
 } from "@/features/images";
 import { getKind, listKinds, pushKinds } from "@/features/kinds";
 import {
+  getPublishedSeries,
+  listPublishedSeries,
   getSeries,
   listSeries,
   createSeries,
@@ -136,5 +139,7 @@ export const router = implement(contract)
         get: getPublishedFixedPage,
       },
       health: { get: getHealth },
+      images: { get: getPublishedImage },
+      series: { get: getPublishedSeries, list: listPublishedSeries },
     },
   });

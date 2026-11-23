@@ -1,4 +1,4 @@
-import { createORPCClient, isDefinedError, safe } from "@orpc/client";
+import { createORPCClient, ORPCError, safe } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type {
   ContractRouterClient,
@@ -7,13 +7,20 @@ import type {
 } from "@orpc/contract";
 import { z } from "zod";
 
-import { type contract, fixedPageSlug } from "@analemma/contract";
+import { type contract, fixedPageSlug, imageId } from "@analemma/contract";
 
 import type { AnyKind, KindContent } from "../kinds/define-kind";
 
 type PublicRouter = Pick<typeof contract, "public">;
-type FixedPageOutputs =
-  InferContractRouterOutputs<PublicRouter>["public"]["fixedPages"];
+type PublicOutputs = InferContractRouterOutputs<PublicRouter>["public"];
+type FixedPageOutputs = PublicOutputs["fixedPages"];
+
+/** 公開している画像。 */
+export type PublishedImage = PublicOutputs["images"]["get"];
+/** 公開しているシリーズと、その画像。 */
+export type PublishedSeries = PublicOutputs["series"]["get"];
+/** 公開しているシリーズの一覧の1件。 */
+export type SeriesSummary = PublicOutputs["series"]["list"]["series"][number];
 
 /** 公開している固定ページの一覧の1件。 */
 export type FixedPageSummary = FixedPageOutputs["list"]["pages"][number];
@@ -41,6 +48,18 @@ export type AnalemmaClientOptions = {
 
 /** 公開 API を呼ぶ client。 */
 export type AnalemmaClient = {
+  /** 公開している画像を読む関数。 */
+  readonly images: {
+    /** ID で画像を引く。 */
+    readonly get: (id: string) => Promise<PublishedImage | undefined>;
+  };
+  /** 公開しているシリーズを読む関数。 */
+  readonly series: {
+    /** slug でシリーズを引く。 */
+    readonly get: (slug: string) => Promise<PublishedSeries | undefined>;
+    /** シリーズを新しく作った順に並べる。 */
+    readonly list: () => Promise<SeriesSummary[]>;
+  };
   /** 公開している固定ページを読む関数。 */
   readonly fixedPages: {
     /** 種類と slug で固定ページを引く。 */
@@ -51,6 +70,24 @@ export type AnalemmaClient = {
     /** 公開している固定ページを、並び順に並べる。 */
     readonly list: (filter?: FixedPageFilter) => Promise<FixedPageSummary[]>;
   };
+};
+
+const getOrUndefined = async <T>(
+  request: Promise<T>,
+): Promise<T | undefined> => {
+  const { data, error } = await safe(request);
+
+  if (error === null) return data;
+
+  if (
+    error instanceof ORPCError &&
+    error.defined &&
+    error.code === "NOT_FOUND"
+  ) {
+    return undefined;
+  }
+
+  throw error;
 };
 
 /** 公開サイトのサーバーから、CMS の公開 API を呼ぶ client を作る。 */
@@ -67,6 +104,19 @@ export const createAnalemmaClient = ({
   );
 
   return {
+    images: {
+      get: async (id) =>
+        imageId.safeParse(id).success
+          ? getOrUndefined(client.public.images.get({ id }))
+          : undefined,
+    },
+    series: {
+      get: async (slug) =>
+        fixedPageSlug.safeParse(slug).success
+          ? getOrUndefined(client.public.series.get({ slug }))
+          : undefined,
+      list: async () => (await client.public.series.list()).series,
+    },
     fixedPages: {
       get: async <K extends AnyKind>(
         kind: K,
@@ -76,17 +126,11 @@ export const createAnalemmaClient = ({
           return undefined;
         }
 
-        const { data, error } = await safe(
+        const data = await getOrUndefined(
           client.public.fixedPages.get({ kind: kind.name, slug }),
         );
 
-        if (error !== null) {
-          if (isDefinedError(error)) {
-            return undefined;
-          }
-
-          throw error;
-        }
+        if (data === undefined) return undefined;
 
         return {
           ...data,

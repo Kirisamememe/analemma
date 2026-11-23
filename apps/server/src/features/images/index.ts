@@ -6,3 +6,4 @@ export { getImageNeighbors } from "@/features/images/reading/get-image-neighbors
 export { listImages } from "@/features/images/reading/list-images";
 export { publishImage } from "@/features/images/publishing/publish-image";
 export { unpublishImage } from "@/features/images/publishing/unpublish-image";
+export { getPublishedImage } from "./published/get-published-image";

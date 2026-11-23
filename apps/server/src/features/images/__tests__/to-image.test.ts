@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import type { ImageRow } from "@/features/images/queries/images.query";
-import { toAdminImage } from "@/features/images/to-admin-image";
+import { toAdminImage, toPublishedImage } from "@/features/images/to-image";
 
 const CREATED_AT = new Date("2026-01-01T00:00:00.000Z");
 
@@ -86,4 +86,27 @@ describe("toAdminImage", () => {
       { width: 1707, height: 2560, url: `/media/${imageId}/1707.avif` },
     ]);
   });
+});
+
+test("配信用の画像が無い公開画像も返し、幅が複数あれば絶対 URL を幅の昇順で返すこと", () => {
+  const image = row({ publishedAt: CREATED_AT });
+  const origin = "https://cms.example.test:8443";
+  expect(
+    toPublishedImage([{ image, deliveryImage: null }], origin)?.deliveryImages,
+  ).toEqual([]);
+
+  const deliveries = [1280, 640].map((width) => ({
+    image,
+    deliveryImage: {
+      imageId: image.id,
+      fileKey: "photo.avif",
+      width,
+      height: width / 2,
+    },
+  }));
+
+  expect(toPublishedImage(deliveries, origin)?.deliveryImages).toEqual([
+    { width: 640, height: 320, url: `${origin}/media/${image.id}/640.avif` },
+    { width: 1280, height: 640, url: `${origin}/media/${image.id}/1280.avif` },
+  ]);
 });

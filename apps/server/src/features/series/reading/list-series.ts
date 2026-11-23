@@ -1,5 +1,5 @@
 import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
-import { toAdminImage } from "@/features/images/to-admin-image";
+import { toAdminImage } from "@/features/images/to-image";
 import { listSeriesRows } from "@/features/series/reading/queries/series.query";
 import { toAdminSeries } from "@/features/series/to-admin-series";
 import { adminProcedures } from "@/procedures";

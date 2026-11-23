@@ -6,7 +6,7 @@ import {
 } from "@/features/images/creating/queries/image-registration.query";
 import { createDeliveryImages } from "@/features/images/processing/create-delivery-images";
 import { readShotInfo } from "@/features/images/processing/read-shot-info";
-import { toAdminImage } from "@/features/images/to-admin-image";
+import { toAdminImage } from "@/features/images/to-image";
 
 type ImageContext = Pick<
   AppContext,
