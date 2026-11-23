@@ -79,9 +79,9 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 
 `src/main.tsx` の最初の import で `src/app/zod-config.ts` を読み込み、`z.config({ jitless: true })` にする(エージェントが決めた)。
 
-- Zod 4 は、object の schema を作るときに `new Function` を使えるかを試し、使えれば、検査のコードを作って速くする。server が外部用のポートで管理画面を配るときの CSP は `unsafe-eval` を許さない(`apps/server/DECISIONS.md`)ので、試しは失敗する。Zod は失敗を捕まえて、コードを作らずに検査するので、検査の結果は変わらないが、ブラウザは CSP の違反として console に出す。`jitless` にすると、Zod は試さない。管理画面が検査するのは、フォームの値やパスキーの応答のような小さな値なので、コードを作らなくても遅さは分からない。
-- 試しは schema を作るときに走るので、contract の schema を作る前に設定を当てる。ES module は、import を書いた順に評価するので、`main.tsx` の最初の import にする。整形(oxfmt)の import の並べ替えは、副作用だけの import を動かさない(確かめた)。
-- 設定を当てると、その後に作った schema の検査で `new Function` を使わないことを、テスト(`src/app/__tests__/zod-config.test.ts`)で確かめる。管理画面は、設定のために zod を直接の依存に持つ。
+- Zod 4 は、object のスキーマを作るときに `new Function` を使えるかを試し、使えれば、検査のコードを作って速くする。server が外部用のポートで管理画面を配るときの CSP は `unsafe-eval` を許さない(`apps/server/DECISIONS.md`)ので、試しは失敗する。Zod は失敗を捕まえて、コードを作らずに検査するので、検査の結果は変わらないが、ブラウザは CSP の違反として console に出す。`jitless` にすると、Zod は試さない。管理画面が検査するのは、フォームの値やパスキーの応答のような小さな値なので、コードを作らなくても遅さは分からない。
+- 試しはスキーマを作るときに走るので、contract のスキーマを作る前に設定を当てる。ES module は、import を書いた順に評価するので、`main.tsx` の最初の import にする。整形(oxfmt)の import の並べ替えは、副作用だけの import を動かさない(確かめた)。
+- 設定を当てると、その後に作ったスキーマの検査で `new Function` を使わないことを、テスト(`src/app/__tests__/zod-config.test.ts`)で確かめる。管理画面は、設定のために zod を直接の依存に持つ。
 
 ## i18n
 

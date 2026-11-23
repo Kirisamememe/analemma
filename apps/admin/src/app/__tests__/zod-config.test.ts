@@ -8,7 +8,7 @@ describe("管理画面の Zod の設定", () => {
     mock.restore();
   });
 
-  test("schema で検査するときに、new Function で検査のコードを作らないこと", () => {
+  test("スキーマで検査するときに、new Function で検査のコードを作らないこと", () => {
     const createFunction = spyOn(globalThis, "Function");
     const schema = z.object({ name: z.string(), count: z.number() });
 
