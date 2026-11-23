@@ -56,12 +56,62 @@ export type DropboxAccount = {
   readonly email: string;
 };
 
+/** App folder にあるファイル。 */
+export type DropboxFile = {
+  /** ファイルの ID(id: で始まる)。 */
+  readonly id: string;
+  /** App folder の中のパス(Dropbox に見える大文字と小文字)。 */
+  readonly path: string;
+  /** 大きさ(bytes)。 */
+  readonly size: number;
+  /** Dropbox でファイルが最後に変わった日時。 */
+  readonly modifiedAt: Date;
+  /** Dropbox の content_hash。 */
+  readonly contentHash: string;
+};
+
+/** ファイルを読んだ結果。 */
+export type DropboxDownload =
+  | {
+      /** どの結果か。 */
+      readonly _tag: "Downloaded";
+      /** 読んだときのファイル。 */
+      readonly file: DropboxFile;
+      /** ファイルの中身。 */
+      readonly bytes: Uint8Array;
+    }
+  | {
+      /** ファイルが無い。 */
+      readonly _tag: "NotFound";
+    }
+  | {
+      /** 上限より大きい(本文は読まない)。 */
+      readonly _tag: "TooLarge";
+    }
+  | DropboxUnauthorized;
+
 /** 認可の画面から戻った code と、認可の画面に渡した redirect URI。 */
 export type DropboxCode = {
   /** 戻った code。 */
   readonly code: string;
   /** 認可の画面に渡した redirect URI。 */
   readonly redirectUri: string;
+};
+
+/** ID で読むファイルと、大きさの上限。 */
+export type DropboxFileRequest = {
+  /** ファイルの ID。 */
+  readonly fileId: string;
+  /** 読む大きさの上限(bytes)。 */
+  readonly maxBytes: number;
+};
+
+/** App folder のファイルの一覧。 */
+export type DropboxListing = {
+  /** どの結果か。 */
+  readonly _tag: "Listed";
+  /** ダウンロードできるファイル。 */
+  readonly files: readonly DropboxFile[];
 };
 
 /** 1つのアプリとして Dropbox の API を呼ぶ client。 */
@@ -85,4 +135,14 @@ export type DropboxApi = {
     accessToken: string,
     signal?: AbortSignal,
   ) => Promise<DropboxAccount | DropboxUnauthorized>;
+  /** App folder の下のファイルを、下のフォルダまですべて読む。 */
+  readonly listFiles: (
+    accessToken: string,
+    signal?: AbortSignal,
+  ) => Promise<DropboxListing | DropboxUnauthorized>;
+  /** ファイルを ID で、上限の大きさまで読む。 */
+  readonly download: (
+    accessToken: string,
+    request: DropboxFileRequest,
+  ) => Promise<DropboxDownload>;
 };
