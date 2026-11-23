@@ -20,6 +20,7 @@ import { typography } from "@/ui/typography";
 
 const FORMAT_OPTIONS: Intl.NumberFormatOptions = {
   maximumSignificantDigits: 17,
+  useGrouping: false,
 };
 
 /** 数値の入力欄に渡す値。 */
