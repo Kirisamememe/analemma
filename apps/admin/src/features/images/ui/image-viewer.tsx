@@ -131,7 +131,7 @@ const Progress = ({ label }: ProgressProps): ReactNode => {
   );
 };
 
-/** 暗い地に写真を大きく出し、横に情報の欄を置く、写真を見る画面。 */
+/** 写真を大きく表示し、写真の情報を添える画面。 */
 export const ImageViewer = ({
   photoId,
   pending,
