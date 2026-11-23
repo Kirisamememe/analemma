@@ -278,6 +278,19 @@ export const en = {
     "Enter a description of up to 10,000 characters.",
   "imageDetail.invalidAlt":
     "Enter alt text of up to 1,000 characters, without line breaks.",
+  "imageDetail.publish": "Publish",
+  "imageDetail.unpublish": "Unpublish",
+  "imageDetail.publishDone": "The image was published.",
+  "imageDetail.unpublishDone": "The image was unpublished.",
+  "imageDetail.publicationFailed":
+    "Could not change whether the image is published. Please try again.",
+  "imageDetail.delete": "Delete image",
+  "imageDetail.deleteTitle": "Delete “{{title}}”?",
+  "imageDetail.deleteDescription":
+    "A deleted image cannot be restored. It will also disappear from the public site.",
+  "imageDetail.confirmDelete": "Delete",
+  "imageDetail.deleted": "“{{title}}” was deleted.",
+  "imageDetail.deleteFailed": "Could not delete the image. Please try again.",
   "imageDetail.previous": "Previous image",
   "imageDetail.next": "Next image",
   "imageDetail.shotHeading": "Shot details",
