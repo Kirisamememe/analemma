@@ -257,6 +257,7 @@ export const EditImage = ({
   const { refresh } = useApiCache();
   const failure = useFailureToast(image.id);
   const [editing, setEditing] = useState<Image>();
+  const [openingId, setOpeningId] = useState<string>();
   const request = useRef<EditRequest>(undefined);
   const id = image.id;
   const isSaving = useIsApiMutationPending(saveKey(id));
@@ -272,6 +273,10 @@ export const EditImage = ({
 
   if (editing !== undefined && (isDisabled || editing.id !== id)) {
     setEditing(undefined);
+  }
+
+  if (openingId !== undefined && (isDisabled || openingId !== id)) {
+    setOpeningId(undefined);
   }
 
   const opening = useApiMutation({
@@ -302,8 +307,7 @@ export const EditImage = ({
       <Button
         size="sm-to-md"
         isPending={
-          isSaving ||
-          (opening.isPending && !isDisabled && request.current !== undefined)
+          isSaving || (opening.isPending && !isDisabled && openingId === id)
         }
         ref={attach}
         onPress={() => {
@@ -311,6 +315,7 @@ export const EditImage = ({
 
           failure.close();
           const target = { id };
+          setOpeningId(id);
           request.current = target;
           opening.mutate(target);
         }}
