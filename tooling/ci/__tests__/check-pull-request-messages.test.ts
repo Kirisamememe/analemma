@@ -256,7 +256,185 @@ describe("PR のタイトル", () => {
   });
 });
 
+/** 一時リポジトリに作る、ファイルを置いたコミット。 */
+type Snapshot = {
+  /** 一時リポジトリの直下。 */
+  readonly root: string;
+  /** 親のコミットの SHA。 */
+  readonly parents: readonly string[];
+  /** 置くファイルの名前と行数。 */
+  readonly files: Readonly<Record<string, number>>;
+  /** コミットの日時(Unix 時間の秒)。 */
+  readonly committedAt?: number;
+};
+
+const commitFiles = ({
+  committedAt = Math.floor(Date.now() / 1000),
+  files,
+  parents,
+  root,
+}: Snapshot): string => {
+  git(root, "read-tree", "--empty");
+
+  for (const [name, lines] of Object.entries(files)) {
+    writeFileSync(join(root, name), "追加\n".repeat(lines));
+    git(root, "add", name);
+  }
+
+  const signature = `test <test@example.invalid> ${committedAt} +0000`;
+
+  const commit = [
+    `tree ${git(root, "write-tree")}`,
+    ...parents.map((parent) => `parent ${parent}`),
+    `author ${signature}`,
+    `committer ${signature}`,
+    "",
+    "docs: 説明を足す",
+    "",
+  ].join("\n");
+
+  return spawnSync("git", ["hash-object", "-w", "-t", "commit", "--stdin"], {
+    cwd: root,
+    input: commit,
+    encoding: "utf8",
+  }).stdout.trim();
+};
+
+/** main が hotfix で先に進んだ一時リポジトリ。 */
+type PhaseWithHotfix = {
+  /** 一時リポジトリの直下。 */
+  readonly root: string;
+  /** フェーズのブランチの先端の SHA。 */
+  readonly base: string;
+  /** main の先端の SHA。 */
+  readonly hotfix: string;
+};
+
+const makePhaseWithHotfix = (name: string): PhaseWithHotfix => {
+  const { root, base: branchPoint } = makePullRequest(name, {
+    base: [],
+    pullRequest: [],
+  });
+
+  const base = commitFiles({
+    root,
+    parents: [branchPoint],
+    files: { "phase.txt": 3 },
+    committedAt: 1_000_000_000,
+  });
+
+  const hotfix = commitFiles({
+    root,
+    parents: [branchPoint],
+    files: { "hotfix.txt": 900 },
+    committedAt: 1_000_000_001,
+  });
+
+  git(root, "update-ref", "refs/remotes/origin/main", hotfix);
+
+  return { root, base, hotfix };
+};
+
 describe("PR 作成前の追加行数", () => {
+  test("main を取り込む PR では、main から取り込んだ分を数えないこと", async () => {
+    const { root, base, hotfix } = makePhaseWithHotfix("size-main-sync");
+
+    const head = commitFiles({
+      root,
+      parents: [base, hotfix],
+      files: { "phase.txt": 3, "hotfix.txt": 900, "resolution.txt": 10 },
+    });
+
+    const result = await checkPullRequest({
+      pullRequest: { root, base, commits: [head] },
+      title: "chore: main を取り込む",
+    });
+
+    expect(result.stdout).toContain("main から取り込んだ分は数えません。");
+    expect(result.stdout).toContain("追加 10 行");
+    expect(result.status).toBe(0);
+  });
+
+  test("main を取り込んだ後にフェーズのブランチが進んでも、取り込みに足した分だけを数えること", async () => {
+    const { root, base, hotfix } = makePhaseWithHotfix("size-main-sync-behind");
+
+    const head = commitFiles({
+      root,
+      parents: [base, hotfix],
+      files: { "phase.txt": 3, "hotfix.txt": 900, "resolution.txt": 10 },
+    });
+
+    const advanced = commitFiles({
+      root,
+      parents: [base],
+      files: { "phase.txt": 1 },
+    });
+
+    const result = await checkPullRequest({
+      pullRequest: { root, base: advanced, commits: [head] },
+      title: "chore: main を取り込む",
+    });
+
+    expect(result.stdout).toContain("追加 10 行");
+    expect(result.status).toBe(0);
+  });
+
+  test("先に main を取り込んだ PR が入った後も、後の取り込みに足した分だけを数えること", async () => {
+    const { root, base, hotfix } = makePhaseWithHotfix("size-main-sync-twice");
+
+    const firstSync = commitFiles({
+      root,
+      parents: [base, hotfix],
+      files: { "phase.txt": 3, "hotfix.txt": 900 },
+    });
+
+    const nextHotfix = commitFiles({
+      root,
+      parents: [hotfix],
+      files: { "hotfix.txt": 900, "next-hotfix.txt": 5 },
+    });
+
+    git(root, "update-ref", "refs/remotes/origin/main", nextHotfix);
+
+    const head = commitFiles({
+      root,
+      parents: [base, nextHotfix],
+      files: {
+        "phase.txt": 3,
+        "hotfix.txt": 900,
+        "next-hotfix.txt": 5,
+        "resolution.txt": 10,
+      },
+    });
+
+    const result = await checkPullRequest({
+      pullRequest: { root, base: firstSync, commits: [head] },
+      title: "chore: main を取り込む",
+    });
+
+    expect(result.stdout).toContain("追加 10 行");
+    expect(result.status).toBe(0);
+  });
+
+  test("main が先に進んでいても、子の PR は自分で足した分だけを数えること", async () => {
+    const { root, base } = makePhaseWithHotfix("size-main-ahead");
+
+    const head = commitFiles({
+      root,
+      parents: [base],
+      files: { "phase.txt": 3, "child.txt": 10 },
+    });
+
+    const result = await checkPullRequest({
+      pullRequest: { root, base, commits: [head] },
+      title: "docs: 説明を足す",
+    });
+
+    expect(result.stdout).not.toContain("main から取り込んだ分");
+    expect(result.stdout).toContain("追加 10 行");
+    expect(result.status).toBe(0);
+  });
+
   test.each([
     { lines: 500, status: 0, notice: false },
     { lines: 501, status: 0, notice: true },
