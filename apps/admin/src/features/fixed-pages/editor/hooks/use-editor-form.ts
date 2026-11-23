@@ -18,8 +18,12 @@ import { saveFixedPage } from "../queries/save-fixed-page";
 
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
-import { useApiMutation, useApiCache } from "@/api/server-state/server-state";
 import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
+import {
+  type QueryRetry,
+  useApiMutation,
+  useApiCache,
+} from "@/api/server-state/server-state";
 import { useAppForm } from "@/components/forms";
 import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
@@ -31,6 +35,8 @@ type Page = ApiOutputs["admin"]["fixedPages"]["get"];
 export type FixedPageEditorProps = {
   /** 種類の定義。 */
   kind: ApiOutputs["admin"]["kinds"]["get"];
+  /** 取得済みの定義の更新をやり直す操作。 */
+  refreshFailure?: QueryRetry | undefined;
   /** 保存できたときに呼ぶ関数。 */
   onSaved: (page: Page) => void;
   /** 種類を選んで開いたか(focus の行き先が無ければ slug に移す)。 */
@@ -165,11 +171,7 @@ export const useEditorForm = (
   const leaving = useLeaveConfirmation(hasChanges);
 
   const reportEditing = (): void => {
-    onEditing?.(
-      sending.current ||
-        (saved.current === initial && !form.state.isDefaultValue) ||
-        hasChanges(),
-    );
+    onEditing?.(sending.current || hasChanges());
   };
 
   const finishSaving = (): void => {

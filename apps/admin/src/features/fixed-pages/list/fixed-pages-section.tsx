@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { KindsRefreshNotice } from "./kinds-refresh-notice";
+import { KindRefreshNotice } from "./kind-refresh-notice";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
@@ -81,7 +81,7 @@ export const FixedPagesSection = ({
 
   const notice =
     kinds._tag === "Loaded" && kinds.refreshFailure !== undefined ? (
-      <KindsRefreshNotice refreshFailure={kinds.refreshFailure} />
+      <KindRefreshNotice source="list" refreshFailure={kinds.refreshFailure} />
     ) : null;
 
   if (rows.length === 0) {

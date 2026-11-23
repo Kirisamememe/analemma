@@ -1,6 +1,12 @@
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+
+import {
+  type FieldDefinition,
+  type FixedPageContent,
+  toContentSchema,
+} from "@analemma/contract";
 
 import { useAppContext } from "@/api/app-context";
 import { callApi } from "@/api/call-api";
@@ -12,7 +18,7 @@ import {
   fixedPageQueryKey,
   loadFixedPage,
 } from "@/features/fixed-pages/editor/queries/fixed-page-query";
-import { KindsRefreshNotice } from "@/features/fixed-pages/list/kinds-refresh-notice";
+import { KindRefreshNotice } from "@/features/fixed-pages/list/kind-refresh-notice";
 import {
   KIND_STALE_TIME,
   KINDS_QUERY_KEY,
@@ -82,16 +88,54 @@ const Titled = ({
   </Stack>
 );
 
-const useKind = (name: string | undefined) => {
+const storedContentCheck = (content?: FixedPageContent) => {
+  const checked = new WeakMap<readonly FieldDefinition[], boolean>();
+  return (fields: readonly FieldDefinition[]): boolean => {
+    if (content === undefined) return true;
+
+    const known = checked.get(fields);
+
+    if (known !== undefined) return known;
+
+    const result = toContentSchema({ fields, unknownKeys: "keep" }).safeParse(
+      content,
+      { reportInput: true },
+    );
+
+    const usable =
+      result.success ||
+      result.error.issues.every((issue) => issue.input === undefined);
+
+    checked.set(fields, usable);
+
+    return usable;
+  };
+};
+
+const useKind = (name: string | undefined, content?: FixedPageContent) => {
   const { api } = useAppContext();
+  const fits = useMemo(() => storedContentCheck(content), [content]);
 
   return useApiQuery({
     key: kindQueryKey(name),
-    tabStaleTime: (kind) => (kind?._tag === "Succeeded" ? KIND_STALE_TIME : 0),
+    tabStaleTime: (kind) =>
+      kind?._tag === "Succeeded" && fits(kind.data.fields)
+        ? KIND_STALE_TIME
+        : 0,
     load:
       name === undefined
         ? undefined
-        : () => callApi(api.admin.kinds.get({ name }), ["NOT_FOUND"]),
+        : async () => {
+            const result = await callApi(api.admin.kinds.get({ name }), [
+              "NOT_FOUND",
+            ]);
+
+            if (result._tag === "Succeeded" && !fits(result.data.fields)) {
+              throw new Error("種類の定義で保存済みの中身を編集できません");
+            }
+
+            return result;
+          },
   });
 };
 
@@ -114,7 +158,10 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
   return (
     <Stack gap={3}>
       {query._tag === "Loaded" && query.refreshFailure !== undefined && (
-        <KindsRefreshNotice refreshFailure={query.refreshFailure} />
+        <KindRefreshNotice
+          source="list"
+          refreshFailure={query.refreshFailure}
+        />
       )}
       <QueryContent
         failedTitle={t("fixedPageEditor.kindsLoadFailed")}
@@ -208,6 +255,9 @@ const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
         <FixedPageEditor
           key={name}
           kind={definition}
+          refreshFailure={
+            kind._tag === "Loaded" ? kind.refreshFailure : undefined
+          }
           picked={picked}
           onSaved={(saved) => {
             void navigate({
@@ -266,7 +316,7 @@ export const EditFixedPage = (): ReactNode => {
       ? query.data.data
       : undefined;
 
-  const kind = useKind(page?.kind);
+  const kind = useKind(page?.kind, page?.content);
 
   const onDeleted = (): void => {
     void navigate({ to: "/fixed-pages", ignoreBlocker: true });
@@ -282,6 +332,7 @@ export const EditFixedPage = (): ReactNode => {
         <FixedPageEditor
           key={page.id}
           kind={kind.data.data}
+          refreshFailure={kind.refreshFailure}
           onDeleted={onDeleted}
           onSaved={() => undefined}
           page={page}
