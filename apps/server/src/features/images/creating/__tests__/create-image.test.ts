@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 
 import { createImage } from "@/features/images/creating/create-image";
 import { openDatabase } from "@/platform/database";
@@ -129,5 +129,53 @@ describe("写真から画像を作る", () => {
     expect(
       await Promise.all(keys.map((key) => server.storage.read(key))),
     ).toEqual([undefined, undefined]);
+  });
+  test.each([
+    {
+      aborted: true,
+      name: "DB の登録が取り消されたときは配信用のファイルを消すこと",
+    },
+    {
+      aborted: false,
+      name: "DB の登録が確定していれば、応答を失っても配信用のファイルが残ること",
+    },
+  ])("$name", async ({ aborted }) => {
+    await using server = await createTestClient();
+    await using connection = connectionTo(server);
+    const db = connection.db;
+    const transaction = db.transaction.bind(db);
+    spyOn(db, "transaction").mockImplementation(async (register, options) => {
+      await transaction(async (tx) => {
+        await register(tx);
+
+        if (aborted) tx.rollback();
+      }, options);
+      throw new Error("確定の応答を受け取れません");
+    });
+    const written: string[] = [];
+
+    const storage = {
+      ...server.storage,
+      write: async (fileKey: string, bytes: Uint8Array) => {
+        written.push(fileKey);
+        await server.storage.write(fileKey, bytes);
+      },
+    };
+
+    const [result] = await Promise.allSettled([
+      createImage({ clock, db, storage }, await fixture("high-iso.jpg")),
+    ]);
+
+    expect(result.status).toBe("rejected");
+    expect(written).toHaveLength(1);
+    const [key] = written;
+
+    if (key === undefined) throw new Error("配信用の画像がありません");
+
+    expect((await server.storage.read(key)) !== undefined).toBe(!aborted);
+    await signInAsAdmin(server);
+    expect((await server.client.admin.images.list({})).images).toHaveLength(
+      aborted ? 0 : 1,
+    );
   });
 });
