@@ -236,6 +236,9 @@ export const createApp = (dependencies: AppDependencies): AppParts => {
 
   queryClient.setQueryDefaults(IMAGES_QUERY_KEY, {
     staleTime: Infinity,
+    refetchOnMount: (query) =>
+      query.state.status !== "error" ||
+      query.state.fetchMeta?.fetchMore?.direction !== "forward",
     gcTime: Infinity,
   });
   router.subscribe("onBeforeNavigate", ({ fromLocation, toLocation }) => {

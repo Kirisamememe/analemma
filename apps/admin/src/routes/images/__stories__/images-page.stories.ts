@@ -36,7 +36,7 @@ export const SeveralImages: Story = {};
 
 export const ManyImages: Story = {
   args: {
-    /** 画像が96枚ある server(最初の50枚の後に「さらに読み込む」が出る)。 */
+    /** 画像が96枚ある server。 */
     createRoutes: () => createImageRoutes(MANY).routes,
   },
 };
