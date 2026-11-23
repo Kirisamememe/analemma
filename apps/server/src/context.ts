@@ -1,6 +1,7 @@
 import type { ChallengeStore } from "@/features/auth/challenge/create-challenge-store";
 import type { Clock } from "@/platform/clock";
 import type { Database } from "@/platform/database";
+import type { FileStorage } from "@/platform/file-storage/open-file-storage";
 import type { Logger } from "@/platform/logger";
 import type { RelyingParty } from "@/platform/parse-relying-party";
 
@@ -14,6 +15,8 @@ export type AppContext = {
   readonly logger: Logger;
   /** 管理画面の origin と RP ID。 */
   readonly relyingParty: RelyingParty;
+  /** 配信用の画像のファイルの置き場所。 */
+  readonly storage: FileStorage;
   /** 出した challenge を1回きりで覚えておく表。 */
   readonly challenges: ChallengeStore;
 };

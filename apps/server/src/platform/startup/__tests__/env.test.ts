@@ -2,7 +2,11 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { readDatabaseEnv, readEnv } from "@/platform/startup/env";
+import {
+  readDatabaseEnv,
+  readEnv,
+  readServerEnv,
+} from "@/platform/startup/env";
 
 const AUTH = {
   AUTH_ORIGIN: "https://cms.example.com",
@@ -11,9 +15,12 @@ const AUTH = {
 
 const DATABASE_URL = "postgres://a:b@db/analemma";
 
-const readError = (source: Record<string, string>): string => {
+const readError = (
+  source: Record<string, string>,
+  read: (source: Record<string, string>) => unknown = readEnv,
+): string => {
   try {
-    readEnv(source);
+    read(source);
 
     return "";
   } catch (error: unknown) {
@@ -268,7 +275,7 @@ test(".env.example を写せば、server の環境変数として読めること
       ]),
   );
 
-  expect(readEnv(values).relyingParty).toEqual({
+  expect(readServerEnv(values).relyingParty).toEqual({
     origin: "http://localhost:5173",
     rpId: "localhost",
   });
@@ -278,6 +285,29 @@ describe("ADMIN_DIST_DIR", () => {
   test("空文字は設定の誤りとして、起動時に断ること", () => {
     expect(readError({ ...AUTH, DATABASE_URL, ADMIN_DIST_DIR: "" })).toContain(
       "ADMIN_DIST_DIR",
+    );
+  });
+});
+
+describe("MEDIA_DIR", () => {
+  test("server は、ほかの変数と一緒に、配信用の画像の置き場所のフォルダを読むこと", () => {
+    expect(
+      readServerEnv({ ...AUTH, DATABASE_URL, MEDIA_DIR: "../media" }),
+    ).toMatchObject({ mediaDir: "../media", port: 8787 });
+  });
+
+  test("server は、無いときと空文字のときに断り、登録用 URL のコマンドは無くても読めること", () => {
+    expect(readError({ ...AUTH, DATABASE_URL }, readServerEnv)).toContain(
+      "MEDIA_DIR: 設定されていない",
+    );
+    expect(
+      readError({ ...AUTH, DATABASE_URL, MEDIA_DIR: "" }, readServerEnv),
+    ).toContain("MEDIA_DIR: フォルダのパスを書く");
+    expect(
+      readError({ DATABASE_URL, MEDIA_DIR: "media" }, readServerEnv),
+    ).toContain("AUTH_ORIGIN: 設定されていない");
+    expect(readEnv({ ...AUTH, DATABASE_URL }).relyingParty.rpId).toBe(
+      "example.com",
     );
   });
 });

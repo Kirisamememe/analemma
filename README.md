@@ -59,6 +59,12 @@ docker compose up -d --wait postgres
 cp apps/server/.env.example apps/server/.env
 ```
 
+配信用の画像は、`MEDIA_DIR` のフォルダに置く。server は、フォルダが無いと起動しない。
+
+```bash
+mkdir -p apps/server/media
+```
+
 ```bash
 bun --cwd=apps/server run db:migrate
 ```
@@ -112,7 +118,7 @@ bun --cwd=apps/admin run dev
    シェルに同じ名前の環境変数があると、`--env-file` のファイルより優先され、別の DB に migration を流しうる。次のコマンドが何も出さないことを確かめる(出たら `unset` する)。
 
    ```bash
-   env | grep -E '^(DATABASE_URL|AUTH_ORIGIN|AUTH_RP_ID|PORT|INTERNAL_PORT|INTERNAL_HOST|ADMIN_DIST_DIR|ANALEMMA_INTERNAL_URL|ANALEMMA_URL|HOST)='
+   env | grep -E '^(DATABASE_URL|AUTH_ORIGIN|AUTH_RP_ID|PORT|INTERNAL_PORT|INTERNAL_HOST|ADMIN_DIST_DIR|MEDIA_DIR|ANALEMMA_INTERNAL_URL|ANALEMMA_URL|HOST)='
    ```
 
 2. PostgreSQL を起動する。migration は superuser でないロールで適用するので、DB の持ち主のロールを最初に作る。
@@ -125,7 +131,11 @@ bun --cwd=apps/admin run dev
    docker run -d --name analemma-trial-postgres -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:55442:5432 --tmpfs /var/lib/postgresql -v ~/analemma-trial/create-app-role.sql:/docker-entrypoint-initdb.d/create-app-role.sql:ro postgres:18.7-trixie
    ```
 
-3. server の環境変数を `~/analemma-trial/analemma.env` に書く。`ADMIN_DIST_DIR` は、このリポジトリの `apps/admin/dist` の絶対パスにする。パスキーは `127.0.0.1` では使えないので、`AUTH_ORIGIN` は `localhost` にする。
+3. server の環境変数を `~/analemma-trial/analemma.env` に書く。`ADMIN_DIST_DIR` は、このリポジトリの `apps/admin/dist` の絶対パスにする。`MEDIA_DIR`(配信用の画像のフォルダ)は、`~/analemma-trial/media` の絶対パスにする。パスキーは `127.0.0.1` では使えないので、`AUTH_ORIGIN` は `localhost` にする。
+
+   ```bash
+   mkdir -p ~/analemma-trial/media
+   ```
 
    ```text
    DATABASE_URL=postgres://analemma:analemma-trial@127.0.0.1:55442/analemma
@@ -134,6 +144,7 @@ bun --cwd=apps/admin run dev
    PORT=18787
    INTERNAL_PORT=18788
    ADMIN_DIST_DIR=/path/to/analemma/apps/admin/dist
+   MEDIA_DIR=/path/to/home/analemma-trial/media
    ```
 
 4. 管理画面をビルドし、migration を適用して、server を起動する(起動したままにする)。

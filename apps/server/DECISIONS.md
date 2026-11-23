@@ -52,6 +52,15 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 - `index.html` は、ビルドを入れ替えると新しいファイルを指し、応答ごとに nonce も変わるので `no-store` とする。Vite がファイル名に hash を含める `/assets/` は `public, max-age=31536000, immutable`、同じ名前のまま差し替わる favicon などは毎回確かめるよう `no-cache` とする。
 - バージョンは安定版で始める(Hono 4、oRPC 1)。Hono 5 と oRPC 2 は、まだ RC と beta。
 
+## 配信用の画像の置き場所
+
+- 配信用の画像のファイルは、環境変数 `MEDIA_DIR` のフォルダに置く(ユーザーと決めた。本番の環境と一緒に見直す)。相対パスの起点は server プロセスの cwd。server は起動時にフォルダを開き、無いかフォルダでなければ、ポートを開く前に止まる。名前を書き誤ったフォルダに、黙ってファイルを書き始めないため。
+- `MEDIA_DIR` は、server だけが `readServerEnv` で読む。登録用 URL のコマンドは `readEnv` で読み、`MEDIA_DIR` を求めない。
+- ファイルを書き、読み、消す処理は `src/platform/file-storage/` に置く。画像の feature(直接アップロードと配信)と、Dropbox からの取り込み(別の feature にする)が使い、実行環境を替えたときに直す場所だから。feature の lint に、ファイルシステムを使う例外は作らない。
+- ファイルは、置き場所の中の名前(`a/b.avif` の形。小文字・数字・`-`・`_` の部分を `/` でつなぎ、拡張子を付ける)で指す。ほかの形の名前は、読む・書く・消すのどれでも、ファイルに触れずに throw する。`..` や絶対パスで、置き場所の外のファイルに届かないようにするため。名前は server が作るので、合わない名前は想定外の失敗にする。
+- 書くときは、一時ファイルを経ずに、その名前のファイルに直接書く。書く途中で止まると、途中までのファイルが残る。配信用の画像を作る経路は、ファイルを書いてから DB の行を入れるので、途中までのファイルを指す行はできない。
+- テストは、`createTestClient` ごとに一時的なフォルダを作り、抜けると消す。
+
 ## 2つのポート
 
 CMS のプロセスが、外部用のポート(`PORT`、既定は 8787)と内部用のポート(`INTERNAL_PORT`、既定は 8788)の2つで待ち受ける(ユーザーと決めた)。
@@ -103,7 +112,7 @@ contract を4つのアクセス区分に分け、server ではそれぞれの ba
 ## DB の接続
 
 - postgres.js の接続を開いて Drizzle で包むのは `src/platform/database.ts` だけにする。`main.ts` が起動時に1つ開き、context の `db` で渡す。
-- 接続先は環境変数 `DATABASE_URL` で受け、起動時に zod で検証する。migration のコマンドは `readDatabaseEnv` で `DATABASE_URL` だけを読み、server と登録用 URL のコマンドは `readEnv` で `AUTH_ORIGIN`・`AUTH_RP_ID` も読む。migration を流す場所に、認証の設定を置かなくて済む。既定値は持たない。本番で設定し忘れたときに、手元の DB を探しに行かないようにする。開発では `apps/server/.env` に書く(`.env.example` を写す)。
+- 接続先は環境変数 `DATABASE_URL` で受け、起動時に zod で検証する。migration のコマンドは `readDatabaseEnv` で `DATABASE_URL` だけを読み、登録用 URL のコマンドは `readEnv` で `AUTH_ORIGIN`・`AUTH_RP_ID` も読み、server は `readServerEnv` でさらに `MEDIA_DIR` も読む。migration を流す場所に、認証の設定を置かなくて済む。既定値は持たない。本番で設定し忘れたときに、手元の DB を探しに行かないようにする。開発では `apps/server/.env` に書く(`.env.example` を写す)。
 - `DATABASE_URL` は、起動時に1回だけ URL として読み、ホスト・ポート・DB の名前・ロール・パスワードに分ける。分けた値を、postgres.js に option で1つずつ渡す。URL のまま渡すと、postgres.js は `?host=`・`?port=` を URL の本体より優先し、省かれた部分を `PGHOST`・`PGPORT`・`PGPASSWORD` などの環境変数で埋める。検証した接続先と、実際につなぐ先が食い違いうる(`?host=` で別の DB に migration が適用されるのを実測した)。
   - ホスト・DB の名前・ロール・パスワードは必ず書かせる。ポートを省いたら 5432 にし、`PGPORT` は見ない。ポートの `0` は拒む(postgres.js は `0` を「指定なし」と見なし、`PGPORT` を使う)。
   - `PG` で始まる環境変数があっても、渡した接続先だけが postgres.js に届くことをテストで確かめる。

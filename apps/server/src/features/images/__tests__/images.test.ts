@@ -405,4 +405,41 @@ describe("画像の削除", () => {
 
     expect((await images.get({ id })).deliveryImages).toEqual([]);
   });
+
+  test("画像を消すと、その画像の配信用の画像のファイルだけを置き場所から消すこと", async () => {
+    await using server = await createTestClient();
+
+    await signInAsAdmin(server);
+
+    const ids = await insertImages(server, [
+      { title: "残す" },
+      { title: "消す" },
+    ]);
+
+    const values = ids.flatMap((imageId) =>
+      [640, 1280].map((width) => ({
+        imageId,
+        width,
+        height: width,
+        fileKey: `${imageId}-${width}.avif`,
+      })),
+    );
+
+    await insertDeliveryImages(server, values);
+    await Promise.all(
+      values.map(async ({ fileKey }) =>
+        server.storage.write(fileKey, new Uint8Array([1])),
+      ),
+    );
+    await server.client.admin.images.delete({ id: ids[1] ?? "" });
+
+    expect(
+      await Promise.all(
+        values.map(
+          async ({ fileKey }) =>
+            (await server.storage.read(fileKey)) !== undefined,
+        ),
+      ),
+    ).toEqual([true, true, false, false]);
+  });
 });

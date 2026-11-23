@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { z } from "zod";
@@ -58,6 +59,7 @@ test("2つのポートで待ち受け、SIGTERM を受けると、受け付け�
       DATABASE_URL: toTestDatabaseUrl(database.name),
       AUTH_ORIGIN: "https://analemma.test",
       AUTH_RP_ID: "analemma.test",
+      MEDIA_DIR: tmpdir(),
     },
   });
 
@@ -116,4 +118,23 @@ test("2つのポートで待ち受け、SIGTERM を受けると、受け付け�
   expect(statuses).toEqual([200, 404]);
   expect(await closed).toBe(0);
   expect(lines.join("\n")).toContain("Analemma を止める");
+});
+
+test("MEDIA_DIR のフォルダが無いと、ポートを開く前に、変数の名前を添えて止まること", () => {
+  const result = spawnSync(process.execPath, ["--no-env-file", MAIN], {
+    env: {
+      PORT: "0",
+      INTERNAL_PORT: "0",
+      DATABASE_URL: "postgres://test:test@127.0.0.1:1/test",
+      AUTH_ORIGIN: "https://analemma.test",
+      AUTH_RP_ID: "analemma.test",
+      MEDIA_DIR: join(tmpdir(), "analemma-missing-media"),
+    },
+    encoding: "utf8",
+    timeout: STOP_DEADLINE_MS,
+  });
+
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain("MEDIA_DIR");
+  expect(result.stdout).not.toContain("Analemma を起動した");
 });
