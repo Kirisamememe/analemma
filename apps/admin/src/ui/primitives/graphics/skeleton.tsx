@@ -9,6 +9,7 @@ const skeleton = tv({
   },
   variants: {
     shape: {
+      media: { box: "absolute inset-0", bar: "size-full" },
       text: { box: "h-5", bar: "h-3 rounded-xs" },
       caption: { box: "h-4.5", bar: "h-2.5 rounded-xs" },
       control: { box: "h-control", bar: "h-full rounded-control" },
@@ -26,8 +27,8 @@ const skeleton = tv({
 
 /** 骨組みの1つに渡す値。 */
 type SkeletonProps = {
-  /** なぞる中身(文字の1行か、入力欄やボタンの高さ)。 */
-  shape: "text" | "caption" | "control" | "control-sm";
+  /** なぞる中身(文字の1行、入力欄、ボタン、画像)。 */
+  shape: "text" | "caption" | "control" | "control-sm" | "media";
   /** 幅。 */
   width: "xs" | "sm" | "md" | "lg" | "full";
 };

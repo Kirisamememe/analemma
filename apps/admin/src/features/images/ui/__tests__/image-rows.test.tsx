@@ -75,6 +75,15 @@ describe("ImageTile", () => {
     );
   });
 
+  test("配信用の画像が無い無題の写真を、保存済みの alt で見分けられる", () => {
+    renderWithI18n(tile({ images: [], title: null, alt: "霧の湖" }));
+    expect(
+      screen.getByRole("link", {
+        name: /表示用の画像がまだありません 霧の湖 無題/v,
+      }),
+    ).toBeDefined();
+  });
+
   test("配信用の画像が無ければ、写真の代わりに知らせを出す", () => {
     renderWithI18n(tile({ images: [] }));
 
@@ -87,12 +96,11 @@ describe("ImageTile", () => {
 });
 
 describe("ImageRowsPlaceholder", () => {
-  test("読み込んでいることを読み上げ、灰色の枠は読み上げない", () => {
+  test("読み込みが続くと知らせ、灰色の枠は読み上げない", async () => {
     renderWithI18n(<ImageRowsPlaceholder label="画像を読み込んでいます。" />);
 
-    expect(screen.getByRole("status").textContent).toBe(
-      "画像を読み込んでいます。",
-    );
+    expect(screen.getByRole("status").textContent).toBe("");
+    expect(await screen.findByText("画像を読み込んでいます。")).toBeDefined();
     expect(screen.queryByRole("list")).toBeNull();
   });
 });

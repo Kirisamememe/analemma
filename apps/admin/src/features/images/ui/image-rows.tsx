@@ -8,8 +8,9 @@ import {
 } from "./logic/delivery-image";
 
 import { Text } from "@/ui/layout";
+import { LoadingState } from "@/ui/patterns";
 import { Badge } from "@/ui/primitives/badge";
-import { Icon } from "@/ui/primitives/graphics";
+import { Icon, Skeleton } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 import { tv } from "@/ui/tv";
@@ -35,14 +36,11 @@ const rows = tv({
     caption: "flex w-0 min-w-full flex-col",
     heading: "flex min-w-0 flex-wrap items-center gap-2",
     title: "w-8 max-w-fit min-w-0 grow truncate",
-    badge: "flex shrink-0",
+    badge: "flex max-w-full min-w-0 wrap-anywhere",
   },
   variants: {
     isUntitled: {
       true: { title: "text-fg-muted" },
-    },
-    isPlaceholder: {
-      true: { frame: "motion-safe:animate-pulse" },
     },
   },
 });
@@ -51,14 +49,20 @@ const rows = tv({
 type ImageRowsProps = {
   /** 一覧のアクセシブルな名前。 */
   label: string;
+  /** 一覧の要素。 */
+  listRef?: Ref<HTMLUListElement>;
   /** 並べるタイル(`ImageTile`)。 */
   children: ReactNode;
 };
 
 /** 写真の縦横比を保ったまま、高さをそろえて行の幅いっぱいに並べる一覧。 */
-export const ImageRows = ({ label, children }: ImageRowsProps): ReactNode => (
+export const ImageRows = ({
+  label,
+  listRef,
+  children,
+}: ImageRowsProps): ReactNode => (
   // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- WebKit はマーカーのない ul を group として読み上げる
-  <ul aria-label={label} className={rows().list()} role="list">
+  <ul aria-label={label} className={rows().list()} ref={listRef} role="list">
     {children}
   </ul>
 );
@@ -112,6 +116,9 @@ export const ImageTile = ({
                 <Text as="span" variant="caption">
                   {missing}
                 </Text>
+                {title === null && alt && (
+                  <span className="sr-only">{alt}</span>
+                )}
               </span>
             ) : (
               <img
@@ -168,7 +175,7 @@ const PLACEHOLDERS = [
 
 /** 写真の骨組みに渡す値。 */
 type ImageRowsPlaceholderProps = {
-  /** 読み込んでいることを伝える文言(読み上げだけに使う)。 */
+  /** 読み込んでいることを伝える文言。 */
   label: string;
 };
 
@@ -176,11 +183,10 @@ type ImageRowsPlaceholderProps = {
 export const ImageRowsPlaceholder = ({
   label,
 }: ImageRowsPlaceholderProps): ReactNode => {
-  const style = rows({ isPlaceholder: true });
+  const style = rows();
 
   return (
-    <output>
-      <span className="sr-only">{label}</span>
+    <LoadingState layout="custom" label={label}>
       <ul aria-hidden="true" className={style.list()}>
         {PLACEHOLDERS.map(({ key, aspect }) => (
           <li
@@ -189,11 +195,13 @@ export const ImageRowsPlaceholder = ({
             style={{ "--media-aspect": String(aspect) }}
           >
             <span className={style.body()}>
-              <span className={style.frame()} />
+              <span className={style.frame()}>
+                <Skeleton shape="media" width="full" />
+              </span>
             </span>
           </li>
         ))}
       </ul>
-    </output>
+    </LoadingState>
   );
 };

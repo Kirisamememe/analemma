@@ -35,20 +35,38 @@ export const LoadingStatus = ({ label }: LoadingStatusProps): ReactNode => {
 };
 
 /** 読み込み中の欄に渡す値。 */
-type LoadingStateProps = {
-  /** 読み込む中身の形。 */
-  layout: "list" | "form";
-};
+type LoadingStateProps =
+  | {
+      /** 読み込む中身の形。 */
+      layout: "list" | "form";
+    }
+  | {
+      /** 画面の形に合わせた骨組み。 */
+      layout: "custom";
+      /** 読み込んでいる内容を伝える文言。 */
+      label: string;
+      /** 読み込み中に表示する骨組み。 */
+      children: ReactNode;
+    };
 
 /** 中身の形をなぞる骨組みで、読み込んでいることを伝える欄。 */
-export const LoadingState = ({ layout }: LoadingStateProps): ReactNode => {
+export const LoadingState = (props: LoadingStateProps): ReactNode => {
   const { base, row, lines, field } = loading();
+
+  if (props.layout === "custom") {
+    return (
+      <div className={base()}>
+        <LoadingStatus label={props.label} />
+        {props.children}
+      </div>
+    );
+  }
 
   return (
     <div className={base()}>
       <LoadingStatus />
       {ROWS.map((index) =>
-        layout === "list" ? (
+        props.layout === "list" ? (
           <span className={row()} key={index}>
             <span className={lines()}>
               <Skeleton shape="text" width="md" />

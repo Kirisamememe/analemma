@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Heading, Stack, Text } from "@/ui/layout";
@@ -42,6 +42,8 @@ type ErrorStateProps = {
   isRetrying: boolean;
   /** 取り直す関数。 */
   onRetry: () => void;
+  /** 再試行のボタンに focus を移すための ref。 */
+  retryRef?: Ref<HTMLButtonElement> | undefined;
 };
 
 /** 読み込めなかったことと次にすることを伝え、取り直せる欄。 */
@@ -52,6 +54,7 @@ export const ErrorState = ({
   layout,
   isRetrying,
   onRetry,
+  retryRef,
 }: ErrorStateProps): ReactNode => {
   const { t } = useTranslation();
   const failedRetries = useFailedRetries(isRetrying);
@@ -74,7 +77,7 @@ export const ErrorState = ({
           </Stack>
         )}
       </div>
-      <Button isPending={isRetrying} onPress={onRetry}>
+      <Button isPending={isRetrying} onPress={onRetry} ref={retryRef ?? null}>
         {t("ui.errorState.retry")}
       </Button>
     </div>

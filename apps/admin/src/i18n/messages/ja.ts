@@ -240,4 +240,16 @@ export const ja = {
   "fixedPages.deleted": "「{{title}}」を削除しました。",
   "fixedPages.deleteFailed":
     "固定ページを削除できませんでした。もう一度試してください。",
+  "images.title": "画像",
+  "images.description": "写真作品を兼ねる画像。新しく足した順に並びます。",
+  "images.loading": "画像を読み込んでいます。",
+  "images.loadFailed": "画像を読み込めませんでした",
+  "images.moreFailed": "続きの画像を読み込めませんでした",
+  "images.emptyTitle": "画像はまだありません",
+  "images.emptyDescription":
+    "アップロードした画像や Dropbox から取り込んだ画像が、ここに並びます。",
+  "images.untitled": "無題",
+  "images.unpublished": "非公開",
+  "images.noDeliveryImage": "表示用の画像がまだありません",
+  "images.loadMore": "さらに読み込む",
 } satisfies Translation;
