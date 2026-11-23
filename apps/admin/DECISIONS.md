@@ -42,7 +42,7 @@ Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・�
 - hook は、使う部品に近い `hooks/` に置く。
 - 純粋な関数(値の検証・変換・知らせの選び分けなど)は、使う部品に近い `logic/` に置く。
 - server の API を呼ぶ処理(読み込み・書き込み・query のキー)は、feature の中の、使う部品に近い `queries/` に置く。feature の中の複数の部品が使うときだけ、どの部品からも近い `queries/` に上げる。複数の feature が使う再認証(パスキーとデプロイ用のトークンが使う)だけは、`src/queries/` に置く。
-- どれでもない `.ts`(ログインの gate・WebAuthn のブラウザでの処理・クリップボードへの書き込み・固定ページの repeat の要素に ID を振ってフォームの最初の値を作る処理)は、今の場所に置き、lint の設定の `effectfulModules` に足す。ブラウザの API や module の状態を使うので、`logic/` に入れると、純粋な関数だけを置く約束が崩れる。
+- 純粋な関数でも server の API を呼ぶ処理でもない `.ts`(ログインの gate・WebAuthn のブラウザでの処理・クリップボードへの書き込み・固定ページの repeat の要素に ID を振ってフォームの最初の値を作る処理)は、今の場所に置き、lint の設定の `effectfulModules` に足す。どれも、呼び出しのあいだ状態を持つ・ブラウザの API を呼ぶ・渡された関数で外に書き込む・`crypto.randomUUID()` で ID を作るのどれかで、同じ入力に同じ値を返すとは限らない。`logic/` に入れると、純粋な関数だけを置く約束が崩れる。
 - `src/queries/` を足すと `src/` の中身が10件を超えるので、React を描き始める入口(`main.tsx`)を `src/app/` に移した。`App` と `createApp` と同じく、組み立てに関わるコードを `src/app/` にまとめる(「フォルダを指定する import」)。
 
 ## route はコードで定義する

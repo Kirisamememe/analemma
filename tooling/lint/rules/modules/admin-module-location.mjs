@@ -17,11 +17,20 @@ const isClient = (node, clients) =>
 const readsApiGroup = (node, clients) =>
   API_GROUPS.has(memberName(node)) && isClient(node.object, clients);
 
+const destructuresClient = (pattern, clients) => {
+  const { parent } = pattern;
+
+  if (parent.type === "VariableDeclarator") {
+    return parent.init !== null && isClient(parent.init, clients);
+  }
+
+  return parent.type === "Property" && parent.key?.name === "api";
+};
+
 const takesApiGroup = (node, clients) =>
-  node.id.type === "ObjectPattern" &&
-  node.init !== null &&
-  isClient(node.init, clients) &&
-  node.id.properties.some(({ key }) => API_GROUPS.has(key?.name));
+  node.parent.type === "ObjectPattern" &&
+  API_GROUPS.has(node.key?.name) &&
+  destructuresClient(node.parent, clients);
 
 const destructuredHookNames = (program) =>
   new Set(
@@ -67,7 +76,7 @@ const adminModuleLocation = {
     ],
     messages: {
       query:
-        "server の API を呼ぶ処理は、使う部品に一番近い `queries/` に置きます。",
+        "server の API を呼ぶ処理は、使う部品に近い `queries/` に置きます(feature の中の複数の部品が使うなら、どの部品からも近い `queries/`)。",
       hook: "hook は、使う部品に近い `hooks/` に置きます。",
       logic:
         "関数を export する `.ts` は、`logic/`(純粋な関数)か `queries/`(server の API を呼ぶ処理)に置きます。ブラウザの API を使うなどで、そのどちらでもないファイルは、lint の設定の `effectfulModules` に足します。",
@@ -118,15 +127,14 @@ const adminModuleLocation = {
         ) {
           clients.add(node.value.name);
         }
-      },
-      MemberExpression(node) {
-        if (inFeature && !inQueries && readsApiGroup(node, clients)) {
+
+        if (inFeature && !inQueries && takesApiGroup(node, clients)) {
           usesApi = true;
           context.report({ node, messageId: "query" });
         }
       },
-      VariableDeclarator(node) {
-        if (inFeature && !inQueries && takesApiGroup(node, clients)) {
+      MemberExpression(node) {
+        if (inFeature && !inQueries && readsApiGroup(node, clients)) {
           usesApi = true;
           context.report({ node, messageId: "query" });
         }

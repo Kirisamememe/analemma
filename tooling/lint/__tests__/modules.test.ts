@@ -153,6 +153,11 @@ describe("管理画面のモジュールの置き場所", () => {
       message: "server の API",
     },
     {
+      label: "queries の外で、入れ子の分割代入で取り出したアクセス区分",
+      file: "features/pages/hooks/use-load-page-list.ts",
+      message: "server の API",
+    },
+    {
       label: "logic の外で export した純粋な関数",
       file: "ui/primitives/trim-value.ts",
       message: "関数を export する",
