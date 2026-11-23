@@ -44,6 +44,11 @@ export type FixedPageEditorProps = {
 const SCHEMAS = { slug: fixedPageSlug, title: fixedPageTitle };
 
 const focusError = (root: HTMLElement | null, names: readonly string[]) => {
+  if (names.length === 0) {
+    root?.querySelector<HTMLElement>("[data-form-error]")?.focus();
+    return;
+  }
+
   const targets = root?.querySelectorAll<HTMLElement>("[data-field]");
   const target = Array.from(targets ?? []).find((element) =>
     names.includes(element.dataset["field"] ?? ""),
@@ -155,7 +160,7 @@ export const useEditorForm = ({
     const current = form.state.values;
 
     return (
-      Boolean(root.current?.querySelector("[data-incomplete-date]")) ||
+      Boolean(root.current?.querySelector("[data-uncommitted-input]")) ||
       hasUnsavedChanges(base, { saved: saved.current, current }) ||
       (saving.isPending &&
         hasUnsavedChanges(base, { saved: submitted.current, current }))

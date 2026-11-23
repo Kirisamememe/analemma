@@ -184,9 +184,11 @@ test("更新時の NOT_FOUND は、Toast でなく画面に残る知らせで伝
   edit({ "admin/fixedPages/update": () => ({ error: "NOT_FOUND" }) });
   await save();
 
-  expect(
-    await screen.findByText("この固定ページはもうありません。"),
-  ).toBeDefined();
+  const notice = await screen.findByText("この固定ページはもうありません。");
+  await waitFor(() => {
+    expect(document.activeElement?.contains(notice)).toBe(true);
+    expect(document.activeElement).not.toBe(document.body);
+  });
   expect(screen.queryByRole("region", { name: /通知/v })).toBeNull();
 });
 

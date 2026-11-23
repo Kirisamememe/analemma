@@ -1,9 +1,10 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useContext } from "react";
 import {
   Button,
   Group,
   Input,
   NumberField as AriaNumberField,
+  NumberFieldStateContext,
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
@@ -105,12 +106,7 @@ export const NumberField = ({
             "flex h-control items-stretch overflow-hidden focus-within:focus-ring",
         })}
       >
-        <Input
-          className={typography({
-            role: "body",
-            className: "min-w-0 flex-1 px-3 tabular-nums outline-hidden",
-          })}
-        />
+        <NumberInput committed={value} />
         <StepButton slot="decrement" />
         <StepButton slot="increment" />
       </Group>
@@ -119,6 +115,30 @@ export const NumberField = ({
       )}
       <FieldErrorMessage>{errorMessage}</FieldErrorMessage>
     </AriaNumberField>
+  );
+};
+
+type NumberInputProps = {
+  /** フォームが持つ確定済みの数値。 */
+  committed: number | undefined;
+};
+
+const NumberInput = ({ committed }: NumberInputProps): ReactNode => {
+  const state = useContext(NumberFieldStateContext);
+  const uncommitted =
+    committed !== undefined &&
+    state !== null &&
+    (!Object.is(committed, state.numberValue) ||
+      (Number.isNaN(committed) && state.inputValue !== ""));
+
+  return (
+    <Input
+      data-uncommitted-input={uncommitted || undefined}
+      className={typography({
+        role: "body",
+        className: "min-w-0 flex-1 px-3 tabular-nums outline-hidden",
+      })}
+    />
   );
 };
 

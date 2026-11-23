@@ -156,3 +156,32 @@ test.each(["入力中", "別の欄に移った後"])(
     }
   },
 );
+
+test("数値を入力した欄から focus を移さずに離れるときも確かめる", async () => {
+  const { history } = renderApp({
+    path: "/fixed-pages/" + page.id,
+    routes: {
+      "admin/session/get": () => ({ output: { expiresAt: page.createdAt } }),
+      "admin/kinds/get": () => ({
+        output: {
+          ...kind,
+          fields: fieldDefinitions.parse([
+            { type: "number", key: "count", label: "件数" },
+          ]),
+        },
+      }),
+      "admin/fixedPages/get": () => ({
+        output: { ...page, content: { count: 7 } },
+      }),
+    },
+  });
+  const input = await screen.findByRole<HTMLInputElement>("textbox", {
+    name: "件数",
+  });
+  await userEvent.type(input, "{End}2");
+  expect(input.value).toBe("72");
+  history.push("/");
+  expect(
+    await screen.findByRole("dialog", { name: "保存していない変更があります" }),
+  ).toBeDefined();
+});

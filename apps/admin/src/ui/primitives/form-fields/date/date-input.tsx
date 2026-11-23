@@ -128,7 +128,7 @@ export const DateSegments = ({ onBlur }: DateSegmentsProps): ReactNode => {
 
   return (
     <div
-      data-incomplete-date={incomplete || undefined}
+      data-uncommitted-input={incomplete || undefined}
       onBlur={blurWithin}
       onFocus={focusWithin}
     >

@@ -128,7 +128,9 @@ export const FixedPageEditor = (props: FixedPageEditorProps): ReactNode => {
               changed={changed}
             />
             {errors.notice !== undefined && (
-              <Notice tone="danger">{errors.notice}</Notice>
+              <div data-form-error tabIndex={-1}>
+                <Notice tone="danger">{errors.notice}</Notice>
+              </div>
             )}
             <Cluster justify="end">{save}</Cluster>
           </Stack>
