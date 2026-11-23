@@ -8,6 +8,8 @@ import { NONCE, secureHeaders } from "hono/secure-headers";
 import { tryDecodeURIComponent } from "hono/utils/url";
 
 import type { AppContext } from "@/context";
+import { DELIVERY_IMAGE_PREFIX } from "@/features/images/delivery/delivery-image-path";
+import { serveDeliveryImage } from "@/features/images/delivery/serve-delivery-image";
 import type { AdminDist } from "@/platform/startup/load-admin-dist";
 import { router } from "@/router";
 
@@ -82,6 +84,24 @@ const addNoStore = (app: Hono, paths: readonly string[]): void => {
   }
 };
 
+const STATIC_METHODS = "GET, HEAD";
+
+const allowEmbeddingImages = (app: Hono): void => {
+  app.use(`${DELIVERY_IMAGE_PREFIX}/*`, async (c, next) => {
+    await next();
+    c.header("Cross-Origin-Resource-Policy", "cross-origin");
+  });
+};
+
+const mountDeliveryImages = (app: Hono, context: AppContext): void => {
+  app.get(`${DELIVERY_IMAGE_PREFIX}/*`, async (c) =>
+    serveDeliveryImage(context, c.req.raw),
+  );
+  app.all(`${DELIVERY_IMAGE_PREFIX}/*`, (c) =>
+    c.body(null, 405, { Allow: STATIC_METHODS }),
+  );
+};
+
 const HEAD_TAG = "<head>";
 
 const withNonce = (html: string, nonce: string | undefined): string =>
@@ -123,16 +143,17 @@ const mountAdminDist = (app: Hono, dist: AdminDist): void => {
         : "no-cache",
     });
   });
-  app.all("*", (c) => c.body(null, 405, { Allow: "GET, HEAD" }));
+  app.all("*", (c) => c.body(null, 405, { Allow: STATIC_METHODS }));
 };
 
-/** 管理用 API・認証用 API と管理画面を外部用のポートで配信するアプリを作る。 */
+/** 管理用 API・認証用 API・配信用の画像と管理画面を、外部用のポートで配信するアプリを作る。 */
 export const createExternalApp = (
   context: AppContext,
   dist?: AdminDist,
 ): Hono => {
   const app = new Hono();
 
+  allowEmbeddingImages(app);
   app.use(
     secureHeaders({
       contentSecurityPolicy: {
@@ -158,6 +179,7 @@ export const createExternalApp = (
   addNoStore(app, [`${API_PREFIX}/admin/*`, `${API_PREFIX}/auth/*`]);
   app.use(`${API_PREFIX}/*`, csrf({ origin: context.relyingParty.origin }));
   mountApi({ app, context, procedures: externalRouter });
+  mountDeliveryImages(app, context);
 
   if (dist !== undefined) {
     mountAdminDist(app, dist);

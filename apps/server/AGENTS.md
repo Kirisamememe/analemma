@@ -6,7 +6,7 @@
 
 - `src/main.ts`:起動。環境変数の検証と依存の組み立て。SIGINT・SIGTERM で受け付けを止め、DB の接続を閉じて終わる。
 - `src/enroll.ts`:パスキーの登録用 URL を出すコマンド(`bun run passkey:enroll`)。最初の登録と、パスキーを全部失ったときの復旧に使う。
-- `src/app.ts`:HTTP の層。外部用のポート(管理用 API・認証用 API・管理画面)と内部用のポート(公開 API・デプロイ用 API)の、2つの Hono のアプリを作り、それぞれの middleware に、oRPC の handler を `/api` でつなぐ。
+- `src/app.ts`:HTTP の層。外部用のポート(管理用 API・認証用 API・配信用の画像・管理画面)と内部用のポート(公開 API・デプロイ用 API)の、2つの Hono のアプリを作り、それぞれの middleware に、oRPC の handler を `/api` でつなぐ。配信用の画像は、外部用のポートの `/media/` で返す。
 - `src/context.ts`:context の型(起動時に組み立てる `AppContext` と、リクエストごとの `RequestContext`)。
 - `src/platform/`:Bun 専用の API、DB の接続、clock、logger。
 - `src/platform/images/`:写真から EXIF を読む ExifReader、写真を変換する sharp、HEIC を読む `heif-dec`、ICC の無い AVIF と cICP を持つ PNG の色を変換する FFmpeg を使う処理。どの tag を読むか、どの幅を作るかなどの決めごとは、呼ぶ feature の側に置く。

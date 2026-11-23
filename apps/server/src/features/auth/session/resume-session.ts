@@ -4,6 +4,7 @@ import {
 } from "@/features/auth/secret-token/secret-token";
 import { decideSession } from "@/features/auth/session/decide-session";
 import {
+  type SessionRow,
   deleteExpiredSession,
   findSession,
   refreshSession,
@@ -48,24 +49,33 @@ export type SessionResume = {
 
 const INVALID: InvalidSession = { _tag: "Invalid" };
 
+const findTokenSession = async (
+  db: DatabaseExecutor,
+  token: string,
+): Promise<SessionRow | undefined> => {
+  const parts = await readSecretToken(token);
+
+  if (parts._tag === "Malformed") {
+    return undefined;
+  }
+
+  const row = await findSession(db, parts.id);
+
+  return row !== undefined &&
+    equalSecretHashes(row.secretHash, parts.secretHash)
+    ? row
+    : undefined;
+};
+
 /** Cookie の token でセッションを続け、要るなら期限を延ばす。 */
 export const resumeSession = async ({
   db,
   now,
   token,
 }: SessionResume): Promise<ResumedSession | InvalidSession> => {
-  const parts = await readSecretToken(token);
+  const row = await findTokenSession(db, token);
 
-  if (parts._tag === "Malformed") {
-    return INVALID;
-  }
-
-  const row = await findSession(db, parts.id);
-
-  if (
-    row === undefined ||
-    !equalSecretHashes(row.secretHash, parts.secretHash)
-  ) {
+  if (row === undefined) {
     return INVALID;
   }
 
@@ -90,4 +100,15 @@ export const resumeSession = async ({
     },
     refreshed: decision.refresh,
   };
+};
+
+/** 期限を延ばさずに、Cookie の token のセッションが続いているかを確かめる。 */
+export const isSessionActive = async ({
+  db,
+  now,
+  token,
+}: SessionResume): Promise<boolean> => {
+  const row = await findTokenSession(db, token);
+
+  return row !== undefined && decideSession(row, now)._tag === "Active";
 };
