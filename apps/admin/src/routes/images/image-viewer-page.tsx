@@ -42,7 +42,12 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const currentNeighbors = useImageNeighbors(id);
-  const canMove = state?.shown?.id === id && currentNeighbors !== undefined;
+
+  const canMove =
+    state?.shown?.id === id &&
+    state.query._tag === "Loaded" &&
+    currentNeighbors !== undefined;
+
   const navigation = useViewerNavigation(back, !canMove);
 
   const [lastLinks, setLastLinks] =
@@ -69,6 +74,20 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
   const ready =
     query._tag !== "Loading" &&
     (shown === undefined || canMove || query._tag === "Failed");
+
+  const waiting = () => {
+    if (query._tag === "Failed") return undefined;
+
+    if (shown?.id !== id) return t("imageViewer.loading");
+
+    if (query._tag === "Loading") return t("imageDetail.loadingInfo");
+
+    if (currentNeighbors === undefined) {
+      return t("imageDetail.loadingNeighbors");
+    }
+
+    return undefined;
+  };
 
   const error =
     query._tag === "Failed" ? (
@@ -109,7 +128,7 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
           image={shown}
           error={error}
           pending={pending}
-          waiting={shown.id !== id || currentNeighbors === undefined}
+          waiting={waiting()}
           direction={shown.id === id ? direction : undefined}
           onSettled={settle}
           next={navigation.neighbor("next", neighbors?.next)}

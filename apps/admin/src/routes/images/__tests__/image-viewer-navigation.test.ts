@@ -36,7 +36,7 @@ describe("写真を送るときの表示", () => {
     const panel = await screen.findByRole("complementary");
     const old = screen.getByRole("img", { name: first.alt ?? "" });
     fireEvent.load(old);
-    const title = within(panel).getByRole("heading", { level: 1 });
+    const title = within(panel).getByRole("heading", { level: 1 }).textContent;
     const forward = await screen.findByRole("link", { name: "次の画像" });
     forward.focus();
     await userEvent.keyboard("{Enter}");
@@ -45,9 +45,9 @@ describe("写真を送るときの表示", () => {
       second.alt ?? second.title ?? "無題の画像",
     );
 
-    expect(old.isConnected).toBe(true);
+    expect(screen.getByRole("img", { name: first.alt ?? "" })).toBeDefined();
     expect(within(panel).getByRole("heading", { level: 1 }).textContent).toBe(
-      title.textContent,
+      title,
     );
     expect(screen.getByRole("link", { name: "次の画像" })).toBe(forward);
     expect(forward.getAttribute("aria-disabled")).toBe("true");
@@ -90,6 +90,16 @@ describe("写真を送るときの表示", () => {
         queryClient.getQueryState(imageQueryKey(first.id))?.fetchStatus,
       ).toBe("fetching");
     });
+    expect(
+      screen.getByText("写真の情報を読み込んでいます。", {
+        selector: "span:not(.sr-only)",
+      }),
+    ).toBeDefined();
+    expect(
+      screen
+        .getByRole("link", { name: "次の画像" })
+        .getAttribute("aria-disabled"),
+    ).toBe("true");
     await userEvent.click(screen.getByRole("button", { name: "非公開にする" }));
     expect(screen.queryByRole("dialog") === null).toBe(true);
     response.resolve({ output: first });
@@ -123,11 +133,14 @@ describe("写真を送るときの表示", () => {
       "error",
     );
     expect(
-      within(dialog).getByRole<HTMLInputElement>("textbox", {
-        name: "タイトル",
-      }).value,
+      within(screen.getByRole("dialog")).getByRole<HTMLInputElement>(
+        "textbox",
+        {
+          name: "タイトル",
+        },
+      ).value,
     ).toBe("入力の途中");
-    expect(dialog.isConnected).toBe(true);
+
     act(() => {
       history.push("/images/" + second.id);
     });

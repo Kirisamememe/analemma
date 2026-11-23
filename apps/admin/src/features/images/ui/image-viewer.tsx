@@ -10,10 +10,12 @@ import { Text } from "@/ui/layout";
 import { LoadingStatus } from "@/ui/patterns";
 import { Icon, Spinner } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
+import type { AppHref } from "@/ui/primitives/ui-provider";
+
 /** 前後の画像へ移るリンク。 */
 export type Neighbor = {
   /** 移る先。 */
-  readonly id: string;
+  readonly href: AppHref;
   /** 次の写真を待っていて、この向きの移動を受け付けないか。 */
   readonly disabled?: boolean;
   /** リンクのアクセシブルな名前。 */
@@ -40,8 +42,8 @@ type ImageViewerProps = {
   photoId?: string;
   /** 読み込みを待っている写真。 */
   pending?: PendingPhoto | undefined;
-  /** 写真の切り替えを待っているか。 */
-  waiting?: boolean | undefined;
+  /** 写真や情報の取得を待つ間の案内。 */
+  waiting?: string | undefined;
   /** 写真を送った向き。 */
   direction?: "previous" | "next" | undefined;
   /** 画像を切り替えられるときに呼ぶ関数。 */
@@ -77,7 +79,7 @@ type SideLinkProps = {
 };
 
 const SideLink = ({
-  neighbor: { id, label, attach, onKeyboardNavigate, disabled },
+  neighbor: { href, label, attach, onKeyboardNavigate, disabled },
   onMove,
   icon,
   place,
@@ -99,7 +101,7 @@ const SideLink = ({
     }}
   >
     <Link
-      href={`/images/${id}`}
+      href={href}
       variant="block"
       ref={attach}
       navigation={{ disabled: disabled ?? false, open: onMove }}
@@ -112,14 +114,18 @@ const SideLink = ({
   </span>
 );
 
-const Progress = (): ReactNode => {
-  const t = useTranslate();
+type ProgressProps = {
+  /** 読み込み中の案内。 */
+  label: string;
+};
+
+const Progress = ({ label }: ProgressProps): ReactNode => {
   return (
     <>
-      <LoadingStatus label={t("imageViewer.loading")} />
+      <LoadingStatus label={label} />
       <div aria-hidden="true" className={style.progress()}>
         <Spinner />
-        <Text as="span">{t("imageViewer.loading")}</Text>
+        <Text as="span">{label}</Text>
       </div>
     </>
   );
@@ -141,7 +147,12 @@ export const ImageViewer = ({
   children,
 }: ImageViewerProps): ReactNode => {
   const t = useTranslate();
-  const { controlsVisible, handlers } = usePhotoGestures(onSwipe);
+
+  const { controlsVisible, handlers } = usePhotoGestures(onSwipe, {
+    photoId,
+    disabled: waiting !== undefined,
+  });
+
   const panelPhoto = useRef<string>(undefined);
   const smallest = images[0];
   const largest = images.at(-1);
@@ -184,7 +195,7 @@ export const ImageViewer = ({
               onSettled={() => onSettled?.(pending.id)}
             />
           )}
-        {waiting === true && <Progress />}
+        {waiting !== undefined && <Progress label={waiting} />}
         {previous !== undefined && (
           <SideLink
             controlsVisible={controlsVisible}

@@ -32,6 +32,24 @@ describe("usePhotoGestures", () => {
     expect(result.current.controlsVisible).toBe(false);
   });
 
+  test("待っている間に始めたスワイプと写真をまたいだスワイプは次の写真に送らない", () => {
+    const onSwipe = mock((_: "next" | "previous"): void => undefined);
+
+    const { result, rerender } = renderHook(
+      ({ id, disabled }) =>
+        usePhotoGestures(onSwipe, { photoId: id, disabled }),
+      { initialProps: { id: "a", disabled: true } },
+    );
+
+    result.current.handlers.onPointerDown(touch);
+    rerender({ id: "b", disabled: false });
+    result.current.handlers.onPointerUp({ ...touch, clientX: 20 });
+    result.current.handlers.onPointerDown(touch);
+    rerender({ id: "c", disabled: false });
+    result.current.handlers.onPointerUp({ ...touch, clientX: 20 });
+    expect(onSwipe).not.toHaveBeenCalled();
+  });
+
   test("タッチの左右スワイプだけを通知し、2本の指・縦スクロール・マウスの動きは通す", () => {
     const onSwipe = mock((_: "next" | "previous"): void => undefined);
     const { result } = renderHook(() => usePhotoGestures(onSwipe));
