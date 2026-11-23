@@ -14,6 +14,7 @@ import {
   toLoginSearch,
 } from "@/features/auth/logic/login-search";
 import type { Authenticator } from "@/features/auth/webauthn";
+import { IMAGES_QUERY_KEY } from "@/features/images/queries/images-query";
 import { EnrollPage } from "@/routes/auth/enroll-page";
 import { LoginPage } from "@/routes/auth/login-page";
 import { DeployTokensPage } from "@/routes/deploy-tokens/deploy-tokens-page";
@@ -45,6 +46,16 @@ export type AppContext = {
 type RouterContext = AppContext & {
   /** server の状態を持つ query client。 */
   readonly queryClient: QueryClient;
+  /** 画像一覧で開いた写真と、開く前のスクロール位置。 */
+  readonly imageListPosition: {
+    /** 一覧に戻ったときの表示位置。 */
+    current?: {
+      /** 開いた写真へのリンク。 */
+      href: string;
+      /** 開く前の縦方向のスクロール位置。 */
+      top: number;
+    };
+  };
 };
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
@@ -179,7 +190,8 @@ export type AppDependencies = AppContext & {
 const createAppRouter = ({
   history,
   ...context
-}: AppDependencies & Pick<RouterContext, "queryClient">) =>
+}: AppDependencies &
+  Pick<RouterContext, "queryClient" | "imageListPosition">) =>
   createRouter({ routeTree, history, context });
 
 /** 管理画面の router。 */
@@ -192,6 +204,9 @@ export type AppParts = {
   /** server の状態を持つ query client。 */
   readonly queryClient: QueryClient;
 };
+
+const inImages = (pathname: string): boolean =>
+  pathname === "/images" || pathname.startsWith("/images/");
 
 /** router と、セッションが切れたらログインの画面に移す query client を組み立てる。 */
 export const createApp = (dependencies: AppDependencies): AppParts => {
@@ -211,7 +226,39 @@ export const createApp = (dependencies: AppDependencies): AppParts => {
     },
   });
 
-  const router = createAppRouter({ ...dependencies, queryClient });
+  const imageListPosition: RouterContext["imageListPosition"] = {};
+
+  const router = createAppRouter({
+    ...dependencies,
+    queryClient,
+    imageListPosition,
+  });
+
+  queryClient.setQueryDefaults(IMAGES_QUERY_KEY, {
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+  router.subscribe("onBeforeNavigate", ({ fromLocation, toLocation }) => {
+    if (
+      fromLocation?.pathname === "/images" &&
+      toLocation.pathname.startsWith("/images/")
+    ) {
+      imageListPosition.current = {
+        href: toLocation.pathname,
+        top: window.scrollY,
+      };
+    }
+  });
+  router.subscribe("onResolved", ({ fromLocation, toLocation }) => {
+    if (
+      fromLocation !== undefined &&
+      inImages(fromLocation.pathname) &&
+      !inImages(toLocation.pathname)
+    ) {
+      delete imageListPosition.current;
+      queryClient.removeQueries({ queryKey: IMAGES_QUERY_KEY, exact: true });
+    }
+  });
 
   return { router, queryClient };
 };
