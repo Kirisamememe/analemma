@@ -128,8 +128,19 @@ describe("ImageViewerPage", () => {
     expect(server.images()[0]?.published).toBe(false);
   });
 
-  test("削除を確かめて削除すると、一覧に戻って知らせる", async () => {
-    const { server, history } = setUp(0);
+  test("読み込んだ最後の写真を削除すると、一覧に戻って削除を知らせ、続きを読める", async () => {
+    const server = createImageRoutes(IMAGES);
+    const { history } = renderApp({
+      path: "/images",
+      routes: {
+        ...server.routes,
+        "admin/images/list": (input) =>
+          server.routes["admin/images/list"]({ ...input, limit: 1 }),
+      },
+    });
+    await userEvent.click(
+      await screen.findByRole("link", { name: /夕暮れの稜線/v }),
+    );
 
     await heading("夕暮れの稜線");
     await userEvent.click(screen.getByRole("button", { name: "画像を削除" }));
@@ -146,6 +157,13 @@ describe("ImageViewerPage", () => {
       expect(history.location.pathname).toBe("/images");
     });
     expect(server.images()).toHaveLength(2);
+    expect(
+      screen.queryByRole("heading", { name: "画像はまだありません" }),
+    ).toBeNull();
+    await userEvent.click(
+      await screen.findByRole("button", { name: "さらに読み込む" }),
+    );
+    await screen.findByRole("link", { name: /港の灯り/v });
   });
 
   test("ほかの画面で削除済みの画像を削除すると、削除の確認を閉じて一覧にも反映する", async () => {
