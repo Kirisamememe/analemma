@@ -237,6 +237,11 @@ export const zhHans = {
   "imageDetail.alt": "替代文本",
   "imageDetail.altHint": "向看不到照片的人说明照片内容的文字。",
   "imageDetail.edit": "编辑",
+  "imageDetail.leavingWhileSaving": "正在保存图片",
+  "imageDetail.savingWillContinue":
+    "离开后仍会继续保存。如果保存失败，输入的内容将会丢失。",
+  "imageDetail.waitForSave": "等待保存结果",
+  "imageDetail.leaveDuringSave": "离开此页",
   "imageDetail.discardTitle": "有尚未保存的更改",
   "imageDetail.discardDescription": "退出编辑后，尚未保存的更改将会丢失。",
   "imageDetail.continueEditing": "继续编辑",
