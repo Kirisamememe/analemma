@@ -372,7 +372,7 @@ describe("公開と非公開", () => {
 });
 
 describe("画像の削除", () => {
-  test("配信用の画像がある画像も消せ、消した画像は一覧からも取得からも無くなり、cursor の画像を消しても続きを読めること", async () => {
+  test("配信用の画像がある画像も消せ、消した画像は配信用の画像ごと一覧からも取得からも無くなり、cursor の画像を消しても続きを読めること", async () => {
     await using server = await createTestClient();
 
     await signInAsAdmin(server);
@@ -400,5 +400,9 @@ describe("画像の削除", () => {
     expect(titlesOf(await images.list({}))).toEqual(["2", "1"]);
     expect(await catchErrorCode(images.get({ id }))).toBe("NOT_FOUND");
     expect(await catchErrorCode(images.delete({ id }))).toBe("NOT_FOUND");
+
+    await insertImages(server, [{ id, title: "3" }]);
+
+    expect((await images.get({ id })).deliveryImages).toEqual([]);
   });
 });
