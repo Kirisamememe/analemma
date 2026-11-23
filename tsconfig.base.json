@@ -4,6 +4,7 @@
     "module": "Preserve",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
+    "customConditions": ["@analemma/source"],
     "lib": ["ESNext"],
     "types": [],
     "noEmit": true,

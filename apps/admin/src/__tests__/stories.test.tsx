@@ -46,6 +46,7 @@ import * as primitivesSpinner from "@/ui/primitives/graphics/__stories__/spinner
 import * as primitivesLink from "@/ui/primitives/navigation/__stories__/link.stories";
 import * as primitivesNavDrawer from "@/ui/primitives/navigation/__stories__/nav-drawer.stories";
 import * as primitivesNavItem from "@/ui/primitives/navigation/__stories__/nav-item.stories";
+import * as primitivesNavSelect from "@/ui/primitives/navigation/__stories__/nav-select.stories";
 import * as primitivesDialog from "@/ui/primitives/overlays/__stories__/dialog.stories";
 import * as primitivesFocusScope from "@/ui/primitives/overlays/__stories__/focus-scope.stories";
 import * as primitivesToast from "@/ui/primitives/overlays/__stories__/toast.stories";
@@ -109,6 +110,8 @@ const MODULES = {
     primitivesNavDrawer,
   "ui/primitives/navigation/__stories__/nav-item.stories.tsx":
     primitivesNavItem,
+  "ui/primitives/navigation/__stories__/nav-select.stories.tsx":
+    primitivesNavSelect,
   "ui/primitives/overlays/__stories__/dialog.stories.tsx": primitivesDialog,
   "ui/primitives/overlays/__stories__/focus-scope.stories.tsx":
     primitivesFocusScope,

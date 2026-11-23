@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AppShell, Center, Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns/page-header";
 import { SideNav } from "@/ui/patterns/side-nav";
-import { NavButton } from "@/ui/primitives/navigation";
+import { NavButton, NavSelect } from "@/ui/primitives/navigation";
 
 const meta = {
   title: "patterns/SideNav",
@@ -30,7 +30,33 @@ const meta = {
         ],
       },
     ],
-    footer: <NavButton icon="log-out">ログアウト</NavButton>,
+    footer: (
+      <>
+        <NavSelect
+          icon="languages"
+          label="言語"
+          onChange={() => {}}
+          options={[
+            { value: "en", label: "English", lang: "en" },
+            { value: "ja", label: "日本語", lang: "ja" },
+            { value: "zh-Hans", label: "简体中文", lang: "zh-Hans" },
+          ]}
+          value="ja"
+        />
+        <NavSelect
+          icon="monitor"
+          label="配色"
+          onChange={() => {}}
+          options={[
+            { value: "system", label: "自動", icon: "monitor" },
+            { value: "light", label: "ライト", icon: "sun" },
+            { value: "dark", label: "ダーク", icon: "moon" },
+          ]}
+          value="system"
+        />
+        <NavButton icon="log-out">ログアウト</NavButton>
+      </>
+    ),
   },
   parameters: { layout: "fullscreen", stage: null },
   decorators: [

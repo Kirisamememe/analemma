@@ -1,3 +1,4 @@
+import { applyTheme } from "@/preferences/apply-theme";
 import { resolvePreferences } from "@/preferences/resolve-preferences";
 import {
   LOCALE_STORAGE_KEY,
@@ -13,7 +14,4 @@ const { locale, theme } = resolvePreferences(
 );
 
 document.documentElement.lang = locale;
-
-if (theme !== "system") {
-  document.documentElement.dataset["theme"] = theme;
-}
+applyTheme(theme);
