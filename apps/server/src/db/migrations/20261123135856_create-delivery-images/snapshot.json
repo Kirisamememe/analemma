@@ -1,0 +1,187 @@
+{
+  "type": "diff",
+  "version": "10",
+  "dialect": "postgres",
+  "id": "98252a45-3643-421f-ab56-74c215d6adfe",
+  "prevIds": [
+    "4eb60e00-66a4-46ca-a47a-5b043155b2d1"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "delivery_image"
+      ],
+      "writes": [
+        "s|tbl|public.delivery_image",
+        "n|tbl|public.delivery_image",
+        "e|tbl|public.delivery_image",
+        "n|rel|public.delivery_image",
+        "n|type|public.delivery_image",
+        "n|rel|public.delivery_image_pkey",
+        "n|rel|public.delivery_image_file_key_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "delivery_image"
+      ],
+      "writes": [
+        "s|fk|public.delivery_image.delivery_image_image_id_image_id_fkey",
+        "n|fk|public.delivery_image.delivery_image_image_id_image_id_fkey",
+        "e|fk|public.delivery_image.delivery_image_image_id_image_id_fkey",
+        "n|con|public.delivery_image.delivery_image_image_id_image_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.delivery_image",
+        "n|sch|public",
+        "n|tbl|public.image",
+        "n|sch|public",
+        "n|col|public.delivery_image.image_id",
+        "n|col|public.image.id",
+        "e|uniqueness|public.image.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "delivery_image",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "delivery_image",
+        "name": "image_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "delivery_image",
+        "name": "width",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "delivery_image",
+        "name": "height",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "delivery_image",
+        "name": "file_key",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "delivery_image",
+        "name": "delivery_image_image_id_image_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "image_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "image",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "delivery_image",
+        "name": "delivery_image_pkey",
+        "columns": [
+          "image_id",
+          "width"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "delivery_image",
+        "name": "delivery_image_file_key_key",
+        "nameExplicit": false,
+        "columns": [
+          "file_key"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "delivery_image",
+        "name": "delivery_image_size_check",
+        "value": "\"width\" > 0 and \"height\" > 0",
+        "entityType": "checks"
+      }
+    }
+  ]
+}

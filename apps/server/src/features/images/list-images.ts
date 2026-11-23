@@ -1,3 +1,4 @@
+import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
 import { listImages as listImageRows } from "@/features/images/queries/images.query";
 import { toAdminImage } from "@/features/images/to-admin-image";
 import { adminProcedures } from "@/procedures";
@@ -13,8 +14,18 @@ export const listImages = adminProcedures.images.list.handler(
     const page = rows.slice(0, input.limit);
     const last = page.at(-1);
 
+    const deliveryImages = Map.groupBy(
+      await listDeliveryImages(
+        context.db,
+        page.map(({ id }) => id),
+      ),
+      ({ imageId }) => imageId,
+    );
+
     return {
-      images: page.map((row) => toAdminImage(row)),
+      images: page.map((row) =>
+        toAdminImage(row, deliveryImages.get(row.id) ?? []),
+      ),
       nextCursor:
         rows.length > input.limit && last !== undefined ? last.id : null,
     };

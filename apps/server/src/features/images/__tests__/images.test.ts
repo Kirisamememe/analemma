@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import type { ContractInputs, ContractOutputs } from "@analemma/contract";
 
+import { deliveryImage } from "@/db/schema/delivery-image";
 import { image } from "@/db/schema/image";
 import { openDatabase } from "@/platform/database";
 import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
@@ -17,23 +18,21 @@ import {
 /** テストのために DB に直接入れる、画像の行の値。 */
 type ImageValues = Partial<typeof image.$inferInsert>;
 
-/** 画像の一覧の1ページ。 */
-type ImagePage = ContractOutputs["admin"]["images"]["list"];
+/** テストのために DB に直接入れる、配信用の画像の行の値。 */
+type DeliveryImageValues = typeof deliveryImage.$inferInsert;
 
-/** 画像の書き換えで送る値。 */
-type ImageUpdate = ContractInputs["admin"]["images"]["update"];
-
-const MISSING_ID = "019b0000-0000-7000-8000-000000000000";
+const openTestDatabase = (server: TestClient) =>
+  openDatabase({
+    target: toTestDatabaseTarget(server.databaseName),
+    logger: { write: () => undefined },
+    max: 1,
+  });
 
 const insertImages = async (
   server: TestClient,
   values: readonly ImageValues[],
 ): Promise<string[]> => {
-  await using connection = openDatabase({
-    target: toTestDatabaseTarget(server.databaseName),
-    logger: { write: () => undefined },
-    max: 1,
-  });
+  await using connection = openTestDatabase(server);
 
   const rows = await connection.db
     .insert(image)
@@ -49,6 +48,23 @@ const insertImages = async (
 
   return rows.map(({ id }) => id);
 };
+
+const insertDeliveryImages = async (
+  server: TestClient,
+  values: readonly DeliveryImageValues[],
+): Promise<void> => {
+  await using connection = openTestDatabase(server);
+
+  await connection.db.insert(deliveryImage).values([...values]);
+};
+
+/** 画像の一覧の1ページ。 */
+type ImagePage = ContractOutputs["admin"]["images"]["list"];
+
+/** 画像の書き換えで送る値。 */
+type ImageUpdate = ContractInputs["admin"]["images"]["update"];
+
+const MISSING_ID = "019b0000-0000-7000-8000-000000000000";
 
 const titlesOf = (page: ImagePage): (string | null)[] =>
   page.images.map(({ title }) => title);
@@ -167,11 +183,70 @@ describe("画像の取得", () => {
       publishedAt: TEST_NOW.toISOString(),
       createdAt: TEST_NOW.toISOString(),
       updatedAt: TEST_NOW.toISOString(),
+      deliveryImages: [],
     });
     expect((await server.client.admin.images.list({})).images).toEqual([found]);
     expect(
       await catchErrorCode(server.client.admin.images.get({ id: MISSING_ID })),
     ).toBe("NOT_FOUND");
+  });
+});
+
+describe("配信用の画像", () => {
+  test("一覧・取得・書き換え・公開・非公開は、配信用の画像の幅・高さ・URL を幅の昇順で返し、一覧は配信用の画像をまだ作っていない画像に空の一覧を返すこと", async () => {
+    await using server = await createTestClient();
+
+    await signInAsAdmin(server);
+
+    const [id = ""] = await insertImages(server, [
+      { title: "夕立" },
+      { title: "まだ作っていない" },
+    ]);
+
+    await insertDeliveryImages(
+      server,
+      [
+        [1280, 853],
+        [2560, 1707],
+        [640, 427],
+      ].map(([width = 0, height = 0]) => ({
+        imageId: id,
+        width,
+        height,
+        fileKey: `${id}-${width}.avif`,
+      })),
+    );
+
+    const expected = [
+      { width: 640, height: 427, url: `/media/${id}/640.avif` },
+      { width: 1280, height: 853, url: `/media/${id}/1280.avif` },
+      { width: 2560, height: 1707, url: `/media/${id}/2560.avif` },
+    ];
+
+    const images = server.client.admin.images;
+
+    expect(
+      (await images.list({})).images.map(({ deliveryImages, title }) => ({
+        title,
+        deliveryImages,
+      })),
+    ).toEqual([
+      { title: "まだ作っていない", deliveryImages: [] },
+      { title: "夕立", deliveryImages: expected },
+    ]);
+    expect((await images.get({ id })).deliveryImages).toEqual(expected);
+    expect(
+      (
+        await images.update({
+          id,
+          title: "夕立のあと",
+          description: null,
+          alt: null,
+        })
+      ).deliveryImages,
+    ).toEqual(expected);
+    expect((await images.unpublish({ id })).deliveryImages).toEqual(expected);
+    expect((await images.publish({ id })).deliveryImages).toEqual(expected);
   });
 });
 
@@ -297,7 +372,7 @@ describe("公開と非公開", () => {
 });
 
 describe("画像の削除", () => {
-  test("消した画像は一覧からも取得からも無くなり、cursor の画像を消しても続きを読めること", async () => {
+  test("配信用の画像がある画像も消せ、消した画像は配信用の画像ごと一覧からも取得からも無くなり、cursor の画像を消しても続きを読めること", async () => {
     await using server = await createTestClient();
 
     await signInAsAdmin(server);
@@ -306,6 +381,10 @@ describe("画像の削除", () => {
       { title: "1" },
       { title: "2" },
       { title: "3" },
+    ]);
+
+    await insertDeliveryImages(server, [
+      { imageId: id, width: 640, height: 427, fileKey: `${id}-640.avif` },
     ]);
 
     const images = server.client.admin.images;
@@ -321,5 +400,9 @@ describe("画像の削除", () => {
     expect(titlesOf(await images.list({}))).toEqual(["2", "1"]);
     expect(await catchErrorCode(images.get({ id }))).toBe("NOT_FOUND");
     expect(await catchErrorCode(images.delete({ id }))).toBe("NOT_FOUND");
+
+    await insertImages(server, [{ id, title: "3" }]);
+
+    expect((await images.get({ id })).deliveryImages).toEqual([]);
   });
 });

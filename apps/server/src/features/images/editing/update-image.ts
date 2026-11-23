@@ -1,10 +1,13 @@
 import { updateImageText } from "@/features/images/editing/queries/update-image.query";
+import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
 import { toAdminImage } from "@/features/images/to-admin-image";
 import { adminProcedures } from "@/procedures";
 
 /** 画像のタイトル・説明・alt を書き換える procedure。 */
 export const updateImage = adminProcedures.images.update.handler(
   async ({ context, errors, input }) => {
+    const deliveryImages = await listDeliveryImages(context.db, [input.id]);
+
     const row = await updateImageText(context.db, {
       id: input.id,
       title: input.title,
@@ -23,6 +26,6 @@ export const updateImage = adminProcedures.images.update.handler(
       details: { imageId: row.id },
     });
 
-    return toAdminImage(row);
+    return toAdminImage(row, deliveryImages);
   },
 );

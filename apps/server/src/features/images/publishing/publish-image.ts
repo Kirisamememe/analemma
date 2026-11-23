@@ -1,10 +1,13 @@
 import { setPublished } from "@/features/images/publishing/queries/set-published.query";
+import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
 import { toAdminImage } from "@/features/images/to-admin-image";
 import { adminProcedures } from "@/procedures";
 
 /** 画像を公開する procedure。 */
 export const publishImage = adminProcedures.images.publish.handler(
   async ({ context, errors, input }) => {
+    const deliveryImages = await listDeliveryImages(context.db, [input.id]);
+
     const row = await setPublished(context.db, {
       id: input.id,
       published: true,
@@ -21,6 +24,6 @@ export const publishImage = adminProcedures.images.publish.handler(
       details: { imageId: row.id },
     });
 
-    return toAdminImage(row);
+    return toAdminImage(row, deliveryImages);
   },
 );

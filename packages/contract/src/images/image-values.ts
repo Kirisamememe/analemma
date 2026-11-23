@@ -45,6 +45,16 @@ export const imageDescription = trimmedText(10_000, MULTI_LINE).describe(
 /** 画像の alt。 */
 export const imageAlt = trimmedText(1000, SINGLE_LINE).describe("画像の alt。");
 
+/** 画像を幅の段ごとに変換した、配信用の画像。 */
+export const deliveryImage = z.object({
+  width: z.int().positive().describe("幅(px)。"),
+  height: z.int().positive().describe("高さ(px)。"),
+  url: z
+    .string()
+    .startsWith("/")
+    .describe("配信する URL。管理画面と同じ origin の、/ で始まる path。"),
+});
+
 /** 管理画面に返す画像。 */
 export const adminImage = z.object({
   id: imageId,
@@ -81,4 +91,7 @@ export const adminImage = z.object({
   updatedAt: z.iso
     .datetime({ offset: true })
     .describe("タイトル・説明・alt を最後に変えた日時。"),
+  deliveryImages: z
+    .array(deliveryImage)
+    .describe("配信用の画像。幅の昇順。まだ作っていなければ空。"),
 });

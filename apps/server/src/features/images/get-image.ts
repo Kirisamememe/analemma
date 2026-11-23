@@ -1,3 +1,4 @@
+import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
 import { findImage } from "@/features/images/queries/images.query";
 import { toAdminImage } from "@/features/images/to-admin-image";
 import { adminProcedures } from "@/procedures";
@@ -11,6 +12,6 @@ export const getImage = adminProcedures.images.get.handler(
       throw errors.NOT_FOUND();
     }
 
-    return toAdminImage(row);
+    return toAdminImage(row, await listDeliveryImages(context.db, [row.id]));
   },
 );
