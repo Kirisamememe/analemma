@@ -14,6 +14,7 @@ const forcedColors = FORCED_COLORS.exec(source)?.groups?.["block"] ?? "";
 const normal = source.replace(FORCED_COLORS, "");
 
 const AA = 4.5;
+const NON_TEXT = 3;
 const SCHEMES = ["light", "dark"] as const;
 const SURFACES = [
   "canvas",
@@ -225,6 +226,20 @@ describe("theme.css の色のコントラスト(WCAG の AA)", () => {
           over({ color: foreground, alpha: TINT }, background),
         ),
       ).toBeGreaterThanOrEqual(AA);
+    },
+  );
+
+  test.each(SCHEMES)(
+    "%s の surface-muted の上で、fg の文字は 4.5:1 に、fg-muted のアイコンは 3:1 に届く",
+    (scheme) => {
+      const background = colorOf("surface-muted", scheme);
+
+      expect(
+        contrast(colorOf("fg", scheme), background),
+      ).toBeGreaterThanOrEqual(AA);
+      expect(
+        contrast(colorOf("fg-muted", scheme), background),
+      ).toBeGreaterThanOrEqual(NON_TEXT);
     },
   );
 });
