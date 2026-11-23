@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { saveImage } from "../image-actions";
+import { deleteImage, saveImage, setPublication } from "../image-actions";
 
 import { createFakeApi } from "@/testing/create-fake-api";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
@@ -17,5 +17,33 @@ describe("saveImage", () => {
     });
 
     expect(result).toEqual({ _tag: "NotFound" });
+  });
+});
+
+describe("setPublication", () => {
+  test("非公開にしてから公開し、無い画像は NotFound にする", async () => {
+    const { api, id } = setUp();
+
+    expect(await setPublication(api, { id, published: false })).toMatchObject({
+      _tag: "Unpublished",
+      image: { published: false },
+    });
+    expect(await setPublication(api, { id, published: true })).toMatchObject({
+      _tag: "Published",
+      image: { published: true },
+    });
+    expect(
+      await setPublication(api, { id: MISSING_ID, published: true }),
+    ).toEqual({ _tag: "NotFound" });
+  });
+});
+
+describe("deleteImage", () => {
+  test("消して、もう無ければ NotFound にする", async () => {
+    const { api, id, server } = setUp();
+
+    expect(await deleteImage(api, id)).toEqual({ _tag: "Deleted" });
+    expect(server.images()).toHaveLength(0);
+    expect(await deleteImage(api, id)).toEqual({ _tag: "NotFound" });
   });
 });

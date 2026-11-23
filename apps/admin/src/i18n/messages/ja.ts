@@ -288,6 +288,20 @@ export const ja = {
   "imageDetail.invalidDescription": "説明は1万文字までで入力してください。",
   "imageDetail.invalidAlt":
     "alt は1000文字までで、改行を使わずに入力してください。",
+  "imageDetail.publish": "公開する",
+  "imageDetail.unpublish": "非公開にする",
+  "imageDetail.publishDone": "画像を公開しました。",
+  "imageDetail.unpublishDone": "画像を非公開にしました。",
+  "imageDetail.publicationFailed":
+    "画像の公開状態を変えられませんでした。もう一度試してください。",
+  "imageDetail.delete": "画像を削除",
+  "imageDetail.deleteTitle": "「{{title}}」を削除しますか?",
+  "imageDetail.deleteDescription":
+    "削除した画像は元に戻せません。公開サイトからも見えなくなります。",
+  "imageDetail.confirmDelete": "削除",
+  "imageDetail.deleted": "「{{title}}」を削除しました。",
+  "imageDetail.deleteFailed":
+    "画像を削除できませんでした。もう一度試してください。",
   "imageDetail.previous": "前の画像",
   "imageDetail.next": "次の画像",
   "imageDetail.shotHeading": "撮影の情報",

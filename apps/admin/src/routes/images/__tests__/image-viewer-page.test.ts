@@ -17,11 +17,12 @@ const IMAGES: readonly FakeImageSeed[] = [
   { title: "雪の参道" },
 ];
 
-const setUp = (path: string) => {
+const setUp = (at: number | string) => {
   const server = createImageRoutes(IMAGES);
+  const path = typeof at === "string" ? at : `/images/${server.images()[at]?.id ?? ""}`;
   const { history } = renderApp({ path, routes: server.routes });
 
-  return { history, ids: server.images().map(({ id }) => id) };
+  return { server, history, ids: server.images().map(({ id }) => id) };
 };
 
 const expectLinkFocus = (name: string) =>
@@ -97,6 +98,39 @@ describe("ImageViewerPage", () => {
     );
     await heading("港の灯り");
   }, 15_000);
+
+  test("非公開にすると、公開状態と操作を替えて知らせる", async () => {
+    const { server } = setUp(0);
+
+    await heading("夕暮れの稜線");
+    await userEvent.click(screen.getByRole("button", { name: "非公開にする" }));
+    expect(await screen.findByText("画像を非公開にしました。")).toBeDefined();
+    expect(
+      within(screen.getByRole("complementary")).getByText("非公開"),
+    ).toBeDefined();
+    expect(screen.getByRole("button", { name: "公開する" })).toBeDefined();
+    expect(server.images()[0]?.published).toBe(false);
+  });
+
+  test("削除を確かめて削除すると、一覧に戻って知らせる", async () => {
+    const { server, history } = setUp(0);
+
+    await heading("夕暮れの稜線");
+    await userEvent.click(screen.getByRole("button", { name: "画像を削除" }));
+
+    const dialog = await screen.findByRole("dialog", {
+      name: "「夕暮れの稜線」を削除しますか?",
+    });
+
+    await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
+    expect(
+      await screen.findByText("「夕暮れの稜線」を削除しました。"),
+    ).toBeDefined();
+    await waitFor(() => {
+      expect(history.location.pathname).toBe("/images");
+    });
+    expect(server.images()).toHaveLength(2);
+  });
 
   test("無い画像を開くと、もう無いことを知らせる", async () => {
     setUp("/images/019b0000-0000-7000-8000-0000000000ff");

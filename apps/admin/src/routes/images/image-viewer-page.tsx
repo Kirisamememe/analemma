@@ -4,9 +4,11 @@ import { useTranslation } from "react-i18next";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
+import { DeleteImage } from "@/features/images/detail/delete-image";
 import { EditImage } from "@/features/images/detail/edit-image";
 import { useImageNeighbors } from "@/features/images/detail/hooks/use-image-neighbors";
 import { ImageDetail } from "@/features/images/detail/image-detail";
+import { PublicationButton } from "@/features/images/detail/publication-button";
 import {
   imageQueryKey,
   loadImage,
@@ -107,7 +109,19 @@ export const ImageViewerPage = (): ReactNode => {
   const content =
     query._tag === "Loaded" && query.data._tag === "Succeeded" ? (
       <ImageDetail
-        actions={<EditImage image={query.data.data} />}
+        actions={
+          <>
+            <EditImage image={query.data.data} />
+            <PublicationButton image={query.data.data} />
+            <DeleteImage
+              id={query.data.data.id}
+              name={query.data.data.title ?? t("imageDetail.untitled")}
+              onDeleted={() => {
+                void navigate({ to: "/images" });
+              }}
+            />
+          </>
+        }
         navigationError={
           neighbors.failure && (
             <ErrorState
