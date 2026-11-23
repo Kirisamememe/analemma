@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { type KeyboardEvent, type ReactNode, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAppContext } from "@/api/app-context";
@@ -17,6 +17,13 @@ import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 
+type PhotoMove = {
+  /** 移動先の写真の ID。 */
+  id: string;
+  /** 一覧の次の画像へ進んだか。 */
+  forward: boolean;
+};
+
 const hrefOf = (id: string | undefined): AppHref | undefined =>
   id === undefined ? undefined : `/images/${id}`;
 
@@ -33,6 +40,56 @@ export const ImageViewerPage = (): ReactNode => {
     load: () => loadImage(api, id),
   });
 
+  const pending = useRef<PhotoMove>(undefined);
+
+  const rememberFocus = (event: KeyboardEvent<HTMLElement>): void => {
+    if (event.key !== "Enter" || !(event.target instanceof HTMLAnchorElement)) {
+      return;
+    }
+
+    const selected = event.target.pathname;
+
+    if (!selected.startsWith("/images/")) return;
+
+    const target = selected.slice("/images/".length);
+
+    pending.current = { id: target, forward: target < id };
+  };
+
+  const restoreFocus = (element: HTMLElement | null): void => {
+    const move = pending.current;
+
+    if (element === null || move?.id !== id || query._tag === "Loading") return;
+
+    if (document.activeElement !== document.body) {
+      pending.current = undefined;
+      return;
+    }
+
+    const facing = move.forward ? neighbors.next : neighbors.previous;
+    const other = move.forward ? neighbors.previous : neighbors.next;
+    const destination = facing ?? other;
+
+    if (
+      destination === undefined &&
+      query._tag === "Loaded" &&
+      query.data._tag === "Succeeded"
+    ) {
+      return;
+    }
+
+    const href = hrefOf(destination) ?? "/images";
+
+    const link = Array.from(element.querySelectorAll("a")).find(
+      (candidate) => candidate.pathname === href,
+    );
+
+    if (link !== undefined) {
+      pending.current = undefined;
+      link.focus();
+    }
+  };
+
   const back = (
     <Text variant="caption">
       <Link href="/images" variant="back">
@@ -41,8 +98,8 @@ export const ImageViewerPage = (): ReactNode => {
     </Text>
   );
 
-  if (query._tag === "Loaded" && query.data._tag === "Succeeded") {
-    return (
+  const content =
+    query._tag === "Loaded" && query.data._tag === "Succeeded" ? (
       <ImageDetail
         back={back}
         image={query.data.data}
@@ -52,28 +109,31 @@ export const ImageViewerPage = (): ReactNode => {
         }}
         previous={hrefOf(neighbors.previous)}
       />
+    ) : (
+      <ViewerFrame back={back}>
+        <ViewerMessage>
+          {query._tag === "Loading" && (
+            <Text tone="muted">{t("imageDetail.loading")}</Text>
+          )}
+          {query._tag === "Failed" && (
+            <ErrorState
+              isRetrying={query.isRetrying}
+              layout="screen"
+              level={2}
+              onRetry={query.retry}
+              title={t("imageDetail.loadFailed")}
+            />
+          )}
+          {query._tag === "Loaded" && (
+            <Notice tone="warning">{t("imageDetail.gone")}</Notice>
+          )}
+        </ViewerMessage>
+      </ViewerFrame>
     );
-  }
 
   return (
-    <ViewerFrame back={back}>
-      <ViewerMessage>
-        {query._tag === "Loading" && (
-          <Text tone="muted">{t("imageDetail.loading")}</Text>
-        )}
-        {query._tag === "Failed" && (
-          <ErrorState
-            isRetrying={query.isRetrying}
-            layout="screen"
-            level={2}
-            onRetry={query.retry}
-            title={t("imageDetail.loadFailed")}
-          />
-        )}
-        {query._tag === "Loaded" && (
-          <Notice tone="warning">{t("imageDetail.gone")}</Notice>
-        )}
-      </ViewerMessage>
-    </ViewerFrame>
+    <main onKeyDownCapture={rememberFocus} ref={restoreFocus}>
+      {content}
+    </main>
   );
 };

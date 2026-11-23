@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { act, cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -68,6 +68,32 @@ describe("ImageViewerPage", () => {
     expect(history.location.pathname).toBe(`/images/${ids[2] ?? ""}`);
     expect(screen.queryByRole("link", { name: "次の画像" })).toBeNull();
     expect(screen.getByRole("link", { name: "前の画像" })).toBeDefined();
+  });
+
+  test("キーボードで次の写真を開くと同じ方向に続けて進め、最後は前の写真に戻れる", async () => {
+    setUp(0);
+    const user = userEvent.setup();
+    const next = await screen.findByRole("link", { name: "次の画像" });
+
+    act(() => {
+      next.focus();
+    });
+    await user.keyboard("{Enter}");
+    await heading("港の灯り");
+    await waitFor(() => {
+      expect(
+        document.activeElement ===
+          screen.getByRole("link", { name: "次の画像" }),
+      ).toBe(true);
+    });
+    await user.keyboard("{Enter}");
+    await heading("雪の参道");
+    await waitFor(() => {
+      expect(
+        document.activeElement ===
+          screen.getByRole("link", { name: "前の画像" }),
+      ).toBe(true);
+    });
   });
 
   test("無い画像を開くと、もう無いことを知らせる", async () => {
