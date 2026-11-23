@@ -139,7 +139,7 @@ export const optional = <Schema extends z.ZodType>(
 
   if (meta.type === "boolean") {
     throw new Error(
-      "真偽値の項目は省けない。3つ目の状態が要るなら select を使う",
+      "真偽値の項目には optional を指定できない。3つ目の状態が要るなら select を使う",
     );
   }
 

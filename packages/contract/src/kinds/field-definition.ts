@@ -60,7 +60,8 @@ const booleanField = z.object({
     .describe("新しいページと、値の無いページで使う値。"),
   optional: z
     .never({
-      error: "真偽値の項目は省けない。3つ目の状態が要るなら select を使う",
+      error:
+        "真偽値の項目には optional を指定できない。3つ目の状態が要るなら select を使う",
     })
     .optional(),
 });

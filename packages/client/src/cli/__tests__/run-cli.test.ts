@@ -274,7 +274,7 @@ describe("種類の定義を送る CLI", () => {
     expect(result.received).toEqual([]);
     expect(result.stderr.join("\n").split("\n")).toEqual([
       "種類の定義を読めない。",
-      "0.fields.0.optional: 真偽値の項目は省けない。3つ目の状態が要るなら select を使う",
+      "0.fields.0.optional: 真偽値の項目には optional を指定できない。3つ目の状態が要るなら select を使う",
     ]);
   });
 });

@@ -63,7 +63,7 @@ describe("真偽値の項目", () => {
         {
           path: ["fields", 0, "optional"],
           message:
-            "真偽値の項目は省けない。3つ目の状態が要るなら select を使う",
+            "真偽値の項目には optional を指定できない。3つ目の状態が要るなら select を使う",
         },
       ]);
     },
