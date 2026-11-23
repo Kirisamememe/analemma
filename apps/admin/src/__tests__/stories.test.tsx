@@ -19,12 +19,14 @@ import * as featuresImagesSection from "@/features/images/list/__stories__/image
 import * as featuresImagesImageRows from "@/features/images/ui/__stories__/image-rows.stories";
 import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/image-viewer.stories";
 import * as featuresImagesInfoList from "@/features/images/ui/__stories__/info-list.stories";
+import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
 import * as routesEnrollPage from "@/routes/auth/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/auth/__stories__/login-page.stories";
-import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
 import * as routesDeployTokensPage from "@/routes/deploy-tokens/__stories__/deploy-tokens-page.stories";
 import * as routesFixedPageEditor from "@/routes/fixed-pages/__stories__/fixed-page-editor.stories";
 import * as routesFixedPagesPage from "@/routes/fixed-pages/__stories__/fixed-pages-page.stories";
+import * as routesImageViewerPage from "@/routes/images/__stories__/image-viewer-page.stories";
+import * as routesImagesPage from "@/routes/images/__stories__/images-page.stories";
 import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
 import * as layoutCenter from "@/ui/layout/__stories__/center.stories";
 import * as layoutCluster from "@/ui/layout/__stories__/cluster.stories";
@@ -95,6 +97,9 @@ const MODULES = {
     routesFixedPageEditor,
   "routes/fixed-pages/__stories__/fixed-pages-page.stories.ts":
     routesFixedPagesPage,
+  "routes/images/__stories__/image-viewer-page.stories.ts":
+    routesImageViewerPage,
+  "routes/images/__stories__/images-page.stories.ts": routesImagesPage,
   "ui/layout/__stories__/app-shell.stories.tsx": layoutAppShell,
   "ui/layout/__stories__/center.stories.tsx": layoutCenter,
   "ui/layout/__stories__/cluster.stories.tsx": layoutCluster,

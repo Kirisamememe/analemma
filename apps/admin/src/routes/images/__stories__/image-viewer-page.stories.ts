@@ -1,0 +1,73 @@
+import type { Meta, StoryObj } from "@storybook/react-vite";
+
+import { AppPreview } from "@/testing/app-preview";
+import type { FakeReply, FakeRoutes } from "@/testing/create-fake-api";
+import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
+import { SAMPLE_IMAGES } from "@/testing/sample-photos";
+
+const IDS = createImageRoutes(SAMPLE_IMAGES)
+  .images()
+  .map(({ id }) => id); // 作り物の server は、作るたびに同じ ID を振る
+
+const pathOf = (index: number): string => `/images/${IDS[index] ?? ""}`;
+
+const meta = {
+  title: "screens/ImageViewer",
+  component: AppPreview,
+  args: {
+    path: pathOf(0),
+    /** 画像が12枚ある server。 */
+    createRoutes: (): FakeRoutes => createImageRoutes(SAMPLE_IMAGES).routes,
+  },
+  argTypes: {
+    path: { control: false },
+    createRoutes: { control: false },
+  },
+  parameters: { layout: "fullscreen", contentLang: null, stage: null },
+} satisfies Meta<typeof AppPreview>;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const WithAllDetails: Story = {};
+
+export const Portrait: Story = {
+  args: { path: pathOf(1) },
+};
+
+export const Unpublished: Story = {
+  args: { path: pathOf(6) },
+};
+
+export const NoDeliveryImage: Story = {
+  args: { path: pathOf(7) },
+};
+
+export const Loading: Story = {
+  args: {
+    /** 画像を返さない server。 */
+    createRoutes: () => ({
+      ...createImageRoutes(SAMPLE_IMAGES).routes,
+      "admin/images/get": async () =>
+        Promise.withResolvers<FakeReply<"admin/images/get">>().promise,
+    }),
+  },
+};
+
+export const LoadFailed: Story = {
+  args: {
+    /** 画像を読めない server。 */
+    createRoutes: () => ({
+      ...createImageRoutes(SAMPLE_IMAGES).routes,
+      "admin/images/get": () => ({
+        error: "INTERNAL_SERVER_ERROR",
+        defined: false,
+      }),
+    }),
+  },
+};
+
+export const Gone: Story = {
+  args: { path: "/images/019b0000-0000-7000-8000-0000000000ff" },
+};

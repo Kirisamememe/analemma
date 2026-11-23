@@ -23,6 +23,8 @@ import {
 } from "@/routes/fixed-pages/fixed-page-routes";
 import { FixedPagesPage } from "@/routes/fixed-pages/fixed-pages-page";
 import { HomePage } from "@/routes/home-page";
+import { ImageViewerPage } from "@/routes/images/image-viewer-page";
+import { ImagesPage } from "@/routes/images/images-page";
 import { NotFoundPage } from "@/routes/not-found-page";
 import { RootLayout } from "@/routes/root-layout";
 import { SecurityPage } from "@/routes/security-page";
@@ -63,20 +65,30 @@ const enrollRoute = createRoute({
   component: EnrollPage,
 });
 
+/** セッションを確かめる route が受け取る値。 */
+type SessionCheck = {
+  /** route の context。 */
+  readonly context: RouterContext;
+};
+
+const checkSession = ({
+  context: { api, queryClient },
+}: SessionCheck): void => {
+  void queryClient
+    .query({
+      queryKey: ["admin", "session", crypto.randomUUID()],
+      queryFn: () => api.admin.session.get(),
+      retry: false,
+    })
+    .catch(() => undefined); // 401 は query client がログインの画面へ移す
+};
+
 const signedInRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "signed-in",
   component: SignedInLayout,
   errorComponent: SessionErrorPage,
-  beforeLoad: ({ context: { api, queryClient } }) => {
-    void queryClient
-      .query({
-        queryKey: ["admin", "session", crypto.randomUUID()],
-        queryFn: () => api.admin.session.get(),
-        retry: false,
-      })
-      .catch(() => undefined); // 401 は query client がログインの画面へ移す
-  },
+  beforeLoad: checkSession,
 });
 
 const homeRoute = createRoute({
@@ -123,6 +135,20 @@ const editFixedPageRoute = createRoute({
   component: EditFixedPage,
 });
 
+const imagesRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/images",
+  component: ImagesPage,
+});
+
+const imageViewerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/images/$id",
+  component: ImageViewerPage,
+  errorComponent: SessionErrorPage,
+  beforeLoad: checkSession, // 写真を大きく見せるため、ナビの骨組みの外に置く
+});
+
 const deployTokensRoute = createRoute({
   getParentRoute: () => signedInRoute,
   path: "/deploy-tokens",
@@ -132,11 +158,13 @@ const deployTokensRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   loginRoute,
   enrollRoute,
+  imageViewerRoute,
   signedInRoute.addChildren([
     homeRoute,
     fixedPagesRoute,
     newFixedPageRoute,
     editFixedPageRoute,
+    imagesRoute,
     securityRoute,
     deployTokensRoute,
   ]),

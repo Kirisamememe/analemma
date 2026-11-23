@@ -26,6 +26,7 @@ const GROUPS: readonly NavigationGroup[] = [
     heading: "navigation.content",
     items: [
       { href: "/fixed-pages", label: "fixedPages.title", icon: "file-text" },
+      { href: "/images", label: "images.title", icon: "image" },
     ],
   },
   {
