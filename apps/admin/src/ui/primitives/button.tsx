@@ -1,5 +1,12 @@
 import type { ReactNode, Ref } from "react";
-import { Button as AriaButton, ProgressBar } from "react-aria-components";
+import {
+  Button as AriaButton,
+  type DropItem,
+  DropZone,
+  type FileDropItem,
+  FileTrigger,
+  ProgressBar,
+} from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
 import { Icon, type IconName, Spinner } from "@/ui/primitives/graphics";
@@ -163,5 +170,85 @@ export const Button = ({
         )}
       </span>
     </AriaButton>
+  );
+};
+
+const fileDrop = tv({
+  base: [
+    "block rounded-control transition",
+    "is-focus-shown:focus-ring is-drop-target:bg-surface-sunken is-drop-target:state-hover",
+  ],
+});
+
+type FileDropButtonProps = {
+  /** ボタンの文言。 */
+  children: ReactNode;
+  /** 選べるファイルの種類(MIME type か、`.` で始まる拡張子)。 */
+  acceptedTypes: readonly string[];
+  /** ファイルを落とす場所の、アクセシブルな名前(貼り付けでも渡せる)。 */
+  dropLabel: string;
+  /** 選んだか、落としたファイルを受け取る関数。 */
+  onFiles: (files: readonly File[]) => void;
+  /** ボタンを説明する要素の ID。 */
+  descriptionId: string;
+  /** ボタンの要素(focus を移すときに使う)。 */
+  ref?: Ref<HTMLButtonElement>;
+};
+
+const isFile = (item: DropItem): item is FileDropItem => item.kind === "file";
+
+const readFiles = async (
+  items: readonly DropItem[],
+): Promise<readonly File[]> =>
+  Promise.all(
+    items.filter((item) => isFile(item)).map(async (item) => item.getFile()),
+  );
+
+/** 押すとファイルを選ばせ、ファイルを落としても渡せる、一覧の先頭の追加ボタン。 */
+export const FileDropButton = ({
+  children,
+  acceptedTypes,
+  dropLabel,
+  onFiles,
+  descriptionId,
+  ref,
+}: FileDropButtonProps): ReactNode => {
+  const style = button({ tone: "dashed", size: "card", iconOnly: false });
+
+  const passFiles = async (items: readonly DropItem[]): Promise<void> => {
+    const files = await readFiles(items);
+
+    if (files.length > 0) onFiles(files);
+  };
+
+  return (
+    <DropZone
+      aria-describedby={descriptionId}
+      aria-label={dropLabel}
+      className={fileDrop()}
+      getDropOperation={() => "copy"}
+      onDrop={({ items }) => {
+        void passFiles(items);
+      }}
+    >
+      <FileTrigger
+        acceptedFileTypes={[...acceptedTypes]}
+        allowsMultiple
+        onSelect={(list) => {
+          if (list !== null && list.length > 0) onFiles(Array.from(list));
+        }}
+      >
+        <AriaButton
+          aria-describedby={descriptionId}
+          className={style.base({ className: typography({ role: "label" }) })}
+          ref={ref}
+        >
+          <span className={style.face()}>
+            <Icon name="plus" />
+            {children}
+          </span>
+        </AriaButton>
+      </FileTrigger>
+    </DropZone>
   );
 };
