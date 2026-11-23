@@ -12,6 +12,7 @@ type AppTextFieldProps = Pick<
   | "autoComplete"
   | "inputRef"
   | "description"
+  | "isReadOnly"
   | "isRequired"
   | "label"
   | "maxLength"
@@ -22,6 +23,7 @@ export const AppTextField = ({
   autoComplete,
   inputRef,
   description,
+  isReadOnly,
   isRequired,
   label,
   maxLength,
@@ -37,7 +39,7 @@ export const AppTextField = ({
       description={description}
       errorMessage={errorMessage}
       inputRef={inputRef}
-      isReadOnly={isSubmitting}
+      isReadOnly={isSubmitting || isReadOnly === true}
       isRequired={isRequired}
       label={label}
       maxLength={maxLength}
