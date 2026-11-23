@@ -17,11 +17,10 @@ const dialog = (name: string) => screen.findByRole("dialog", { name });
 
 const edit = (update: NonNullable<FakeRoutes["admin/fixedPages/update"]>) => {
   const server = createFixedPageRoutes({ kinds: [kind], pages: [page] });
-  server.replyNext("admin/fixedPages/update", update);
-
   const path = "/fixed-pages/" + String(server.pages()[0]?.id);
+  const routes = { ...server.routes, "admin/fixedPages/update": update };
 
-  return renderApp({ path, routes: server.routes });
+  return renderApp({ path, routes });
 };
 
 test("編集を送ったら背景の操作を止め、成功の表示に切り替わった後に閉じて編集を続けられる", async () => {
