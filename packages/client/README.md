@@ -56,7 +56,7 @@ const cms = createAnalemmaClient({ url: "http://127.0.0.1:8788" });
 const page = await cms.fixedPages.get(about, "about");
 ```
 
-公開していないページと、無いページは、どちらも `undefined` になる。
+公開していないページと、無いページは、どちらも `undefined` になる。slug の形(英小文字と数字の kebab-case、100文字まで)に合わない名前も、公開 API を呼ばずに `undefined` を返すので、URL の一部をそのまま渡し、`undefined` なら 404 にすればよい。
 
 ## 種類の定義を送る
 
