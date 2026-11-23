@@ -1,4 +1,4 @@
-import { type ReactNode, useId, useState } from "react";
+import { type ReactNode, useCallback, useId, useRef, useState } from "react";
 
 import {
   hasUnsavedChanges,
@@ -245,27 +245,55 @@ type EditImageProps = {
   image: Image;
 };
 
-const EditButton = ({
+type EditRequest = Pick<Image, "id">;
+
+/** 押すとタイトル・説明・alt を編集する Dialog を開く。 */
+export const EditImage = ({
   image,
   isDisabled = false,
 }: EditImageProps): ReactNode => {
   const t = useTranslate();
   const { api } = useAppContext();
   const { refresh } = useApiCache();
-  const failure = useFailureToast();
-  const isSaving = useIsApiMutationPending(saveKey(image.id));
+  const failure = useFailureToast(image.id);
+  const [editing, setEditing] = useState<Image>();
+  const request = useRef<EditRequest>(undefined);
+  const id = image.id;
+  const isSaving = useIsApiMutationPending(saveKey(id));
 
-  const opening = useApiMutation({
-    scope: `image:${image.id}`,
-    send: () => loadImage(api, image.id),
-    onSuccess: async (result) => {
-      if (result._tag === "Failed") {
-        failure.show(t("imageDetail.gone"));
-        await refresh(imageQueryKey(image.id));
+  const attach = useCallback(
+    (button: HTMLButtonElement | null) => {
+      if (button === null || isDisabled || request.current?.id !== id) {
+        request.current = undefined;
       }
     },
-    onError: () => {
-      failure.show(t("imageDetail.loadFailed"));
+    [id, isDisabled],
+  );
+
+  if (editing !== undefined && (isDisabled || editing.id !== id)) {
+    setEditing(undefined);
+  }
+
+  const opening = useApiMutation({
+    key: ["admin", "images", "edit", id],
+    scope: `image:${id}`,
+    send: (target: EditRequest) => loadImage(api, target.id),
+    onSuccess: async (result, target) => {
+      if (request.current !== target) return;
+
+      request.current = undefined;
+
+      if (result._tag === "Succeeded") setEditing(result.data);
+      else {
+        failure.show(t("imageDetail.gone"));
+        await refresh(imageQueryKey(target.id));
+      }
+    },
+    onError: (target) => {
+      if (request.current === target) {
+        request.current = undefined;
+        failure.show(t("imageDetail.loadFailed"));
+      }
     },
   });
 
@@ -273,27 +301,31 @@ const EditButton = ({
     <>
       <Button
         size="sm-to-md"
-        isDisabled={isDisabled}
-        isPending={opening.isPending || isSaving}
+        isPending={isSaving || (opening.isPending && !isDisabled && request.current !== undefined)}
+        ref={attach}
         onPress={() => {
+          if (isDisabled) return;
+
           failure.close();
-          opening.mutate();
+          const target = { id };
+          request.current = target;
+          opening.mutate(target);
         }}
       >
         <Icon name="pencil" />
         {t("imageDetail.edit")}
       </Button>
-      {opening.data?._tag === "Succeeded" && (
-        <EditImageDialog image={opening.data.data} onClose={opening.reset} />
+      {editing !== undefined && (
+        <EditImageDialog
+          key={editing.id}
+          image={editing}
+          onClose={() => {
+            setEditing((current) =>
+              current === editing ? undefined : current,
+            );
+          }}
+        />
       )}
     </>
   );
 };
-
-/** 押すとタイトル・説明・alt を編集する Dialog を開くボタン。 */
-export const EditImage = ({
-  image,
-  isDisabled = false,
-}: EditImageProps): ReactNode => (
-  <EditButton image={image} key={image.id} isDisabled={isDisabled} />
-);

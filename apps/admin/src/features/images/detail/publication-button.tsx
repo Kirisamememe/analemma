@@ -1,6 +1,7 @@
-import { type ReactNode, useState } from "react";
+import type { ReactNode } from "react";
 
 import { mergeImageChange } from "./logic/merge-image-change";
+import { useImageDialog } from "./hooks/use-image-dialog";
 import { setPublication } from "./queries/image-actions";
 import { imageQueryKey, type LoadedImage } from "./queries/image-query";
 
@@ -34,18 +35,19 @@ export const PublicationButton = ({
   isDisabled = false,
 }: PublicationButtonProps): ReactNode => {
   const t = useTranslate();
-  const [confirming, setConfirming] = useState(false);
+  const dialog = useImageDialog(image.id, isDisabled);
   const failure = useFailureToast();
   const showToast = useShowToast();
   const { refresh, update, updatePages } = useApiCache();
   const { api } = useAppContext();
 
   const publication = useApiMutation({
+    key: ["admin", "images", "publication", image.id],
     scope: `image:${image.id}`,
     send: (published: boolean) =>
       setPublication(api, { id: image.id, published }),
-    onSuccess: async (result) => {
-      setConfirming(false);
+    onSuccess: async (result, published) => {
+      if (!published) dialog.close();
 
       if (result._tag === "Failed") {
         failure.show(t("imageDetail.gone"));
@@ -85,17 +87,18 @@ export const PublicationButton = ({
 
   const close = (): void => {
     failure.close();
-    setConfirming(false);
+    dialog.close();
   };
 
   return (
     <>
       <Button
         size="sm-to-md"
-        isDisabled={isDisabled}
         isPending={publication.isPending && !confirming}
         onPress={() => {
-          if (image.published) setConfirming(true);
+          if (isDisabled) return;
+
+          if (image.published) dialog.open();
           else send(true);
         }}
         tone={image.published ? "secondary" : "primary"}
@@ -103,7 +106,7 @@ export const PublicationButton = ({
         {t(image.published ? "imageDetail.unpublish" : "imageDetail.publish")}
       </Button>
       <Dialog
-        isOpen={confirming}
+        isOpen={dialog.isOpen}
         isPending={publication.isPending}
         onOpenChange={(open) => {
           if (!open) close();
@@ -119,7 +122,7 @@ export const PublicationButton = ({
           <Button
             isPending={publication.isPending}
             onPress={() => {
-              if (confirming) send(false);
+              if (dialog.isOpen) send(false);
             }}
             tone="primary"
           >

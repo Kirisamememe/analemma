@@ -190,14 +190,10 @@ describe("ImageViewerPage", () => {
     next.focus();
     await userEvent.keyboard("{Enter}");
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: "編集" }).hasAttribute("disabled"),
-      ).toBe(true);
+      expect(screen.getByRole("group").hasAttribute("disabled")).toBe(true);
     });
     expect(screen.getByRole("link", { name: "一覧へ" })).toBe(back);
-    expect(
-      screen.getByRole("button", { name: "編集" }).hasAttribute("disabled"),
-    ).toBe(true);
+    expect(screen.getByRole("group").hasAttribute("disabled")).toBe(true);
     const [first, second, last] = server.images();
 
     if (first === undefined || second === undefined || last === undefined) {
@@ -251,9 +247,7 @@ describe("ImageViewerPage", () => {
     next.focus();
     await userEvent.keyboard("{Enter}");
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: "編集" }).hasAttribute("disabled"),
-      ).toBe(true);
+      expect(screen.getByRole("group").hasAttribute("disabled")).toBe(true);
     });
     back.focus();
     const second = server.images()[1];

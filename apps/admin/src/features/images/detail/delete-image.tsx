@@ -1,5 +1,6 @@
-import { type ReactNode, useId, useState } from "react";
+import { type ReactNode, useId } from "react";
 
+import { useImageDialog } from "./hooks/use-image-dialog";
 import { deleteImage } from "./queries/image-actions";
 import {
   IMAGE_NEIGHBORS_QUERY_KEY,
@@ -49,7 +50,7 @@ export const DeleteImage = ({
   const failure = useFailureToast();
   const { refresh, update, updatePages } = useApiCache();
   const { api } = useAppContext();
-  const [isOpen, setIsOpen] = useState(false);
+  const dialog = useImageDialog(id, isDisabled);
 
   const descriptionId = useId();
   const deleteKey = ["admin", "images", "delete", id];
@@ -74,7 +75,7 @@ export const DeleteImage = ({
         void refresh(imageQueryKey(target.id), "active");
       } else {
         await update(imageQueryKey(target.id), () => result);
-        setIsOpen(false);
+        dialog.close();
         failure.show(t("imageDetail.gone"));
       }
     },
@@ -88,7 +89,7 @@ export const DeleteImage = ({
 
   const close = (): void => {
     failure.close();
-    setIsOpen(false);
+    dialog.close();
   };
 
   return (
@@ -97,16 +98,17 @@ export const DeleteImage = ({
         size="sm-to-md"
         aria-label={t("imageDetail.delete")}
         icon="trash-2"
-        isPending={isDeleting && !isOpen}
-        isDisabled={isDisabled}
+        isPending={isDeleting && !dialog.isOpen}
         onPress={() => {
+          if (isDisabled || isDeleting) return;
+
           deleting.reset(); // 開き直したら、前の送信の結果を消す
-          setIsOpen(true);
+          dialog.open();
         }}
       />
       <Dialog
         descriptionId={descriptionId}
-        isOpen={isOpen}
+        isOpen={dialog.isOpen}
         isPending={deleting.isPending}
         onOpenChange={(open) => {
           if (!open) close();
@@ -124,7 +126,7 @@ export const DeleteImage = ({
             isDisabled={deleting.data?._tag === "Failed"}
             isPending={deleting.isPending}
             onPress={() => {
-              if (isOpen) {
+              if (dialog.isOpen) {
                 failure.close();
                 deleting.mutate({ id, name }); // 閉じ始めた後に遅れて届いた押下では送らない
               }
