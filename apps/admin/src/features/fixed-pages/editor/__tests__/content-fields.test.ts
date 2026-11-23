@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, spyOn, test } from "bun:test";
 
@@ -81,7 +81,9 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
   try {
     await user.click(screen.getByRole("spinbutton", { name: /日.*日付/v }));
     await user.keyboard("{ArrowUp}");
-    await user.click(screen.getByRole("button", { name: /色/v }));
+    await user.click(
+      within(screen.getByRole("main")).getByRole("button", { name: /色/v }),
+    );
     await user.click(screen.getByRole("option", { name: "赤" }));
     const [save] = await screen.findAllByRole("button", { name: "保存" });
 

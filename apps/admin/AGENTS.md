@@ -13,8 +13,8 @@
 - `src/routes/`:route ごとの画面。
 - `src/queries/`:複数の feature が使う、server の API を呼ぶ処理(再認証)。
 - `src/components/`:複数の feature から使う、管理画面に固有の部品。`@/components/...` で import する。部品のコードは features を import しない(lint で止まる)。
-- `src/i18n/`:訳と言語(i18next と react-i18next)。訳は `messages/` に言語ごとに1ファイル。i18next の instance は `create-i18n.ts` で作る。features が使う、訳を引く hook と今の言語を読む hook と訳のキーの型は `use-translate.ts` が包む。
-- `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値と、最初の描画の前に流す script(`boot.ts`)。言語の切り替えに html の `lang` と置き場所をそろえる関数(`sync-locale.ts`)。
+- `src/i18n/`:訳と言語(i18next と react-i18next)。訳は `messages/` に言語ごとに1ファイル。i18next の instance は `create-i18n.ts` で作る。features が使う、訳を引く hook と今の言語を読む hook と訳のキーの型は `use-translate.ts` が、言語を切り替える hook は `use-change-locale.ts` が包む。
+- `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値と、最初の描画の前に流す script(`boot.ts`)。言語の切り替えに html の `lang` と置き場所をそろえる関数(`sync-locale.ts`)。今の配色を読んで切り替える hook(`use-theme.ts`)と、html の `data-theme` に配色を当てる関数(`apply-theme.ts`。head の script と共有する)。
 - `src/features/<名前>/`:画面をまたぐ、ひとまとまりの事柄(ログインと登録の判断、WebAuthn の変換など)。1つの画面だけの部品は `features/<名前>/ui/`。
 - `.storybook/`:Storybook の設定(`main.ts`・`preview.tsx`)と、story を管理画面と同じ言語・配色・router の中で描く枠(`story-frame.tsx`)と、html の `lang` と `data-theme` を当てる hook(`use-html-preferences.ts`)。
 - `src/testing/`:テストの部品(contract で型を付けた作り物の server と、管理画面の全体を描く関数と、部品を i18next の instance の下で描く関数)。テストと story だけが import できる(`tooling/structure/` のテストが止める)。
