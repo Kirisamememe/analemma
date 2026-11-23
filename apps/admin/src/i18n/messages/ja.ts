@@ -262,8 +262,22 @@ export const ja = {
   "imageDetail.published": "公開中",
   "imageDetail.unpublished": "非公開",
   "imageDetail.added": "{{date}} に追加",
+  "imageDetail.title": "タイトル",
   "imageDetail.description": "説明",
   "imageDetail.alt": "alt",
+  "imageDetail.altHint": "写真を見られない人に、写っているものを伝える文。",
+  "imageDetail.edit": "編集",
+  "imageDetail.editTitle": "タイトルと説明を編集",
+  "imageDetail.save": "保存",
+  "imageDetail.cancel": "キャンセル",
+  "imageDetail.saved": "画像を更新しました。",
+  "imageDetail.saveFailed":
+    "画像を保存できませんでした。もう一度試してください。",
+  "imageDetail.invalidTitle":
+    "タイトルは200文字までで、改行を使わずに入力してください。",
+  "imageDetail.invalidDescription": "説明は1万文字までで入力してください。",
+  "imageDetail.invalidAlt":
+    "alt は1000文字までで、改行を使わずに入力してください。",
   "imageDetail.previous": "前の画像",
   "imageDetail.next": "次の画像",
   "imageDetail.shotHeading": "撮影の情報",

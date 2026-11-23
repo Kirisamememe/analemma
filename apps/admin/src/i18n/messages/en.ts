@@ -251,8 +251,23 @@ export const en = {
   "imageDetail.published": "Published",
   "imageDetail.unpublished": "Unpublished",
   "imageDetail.added": "Added {{date}}",
+  "imageDetail.title": "Title",
   "imageDetail.description": "Description",
   "imageDetail.alt": "Alt text",
+  "imageDetail.altHint":
+    "Text that tells people who can’t see the photo what it shows.",
+  "imageDetail.edit": "Edit",
+  "imageDetail.editTitle": "Edit title and description",
+  "imageDetail.save": "Save",
+  "imageDetail.cancel": "Cancel",
+  "imageDetail.saved": "The image was updated.",
+  "imageDetail.saveFailed": "Could not save the image. Please try again.",
+  "imageDetail.invalidTitle":
+    "Enter a title of up to 200 characters, without line breaks.",
+  "imageDetail.invalidDescription":
+    "Enter a description of up to 10,000 characters.",
+  "imageDetail.invalidAlt":
+    "Enter alt text of up to 1,000 characters, without line breaks.",
   "imageDetail.previous": "Previous image",
   "imageDetail.next": "Next image",
   "imageDetail.shotHeading": "Shot details",
