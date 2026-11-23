@@ -17,9 +17,14 @@ const back = (
 const meta = {
   title: "features/images/ImageViewer",
   component: ImageViewer,
+  decorators: [
+    (Story) => (
+      <ViewerFrame back={back} actions={<Button>非公開にする</Button>}>
+        <Story />
+      </ViewerFrame>
+    ),
+  ],
   args: {
-    back,
-    actions: <Button>非公開にする</Button>,
     images: samplePhoto("dusk-ridge"),
     alt: "夕日の残る空の下に、山並みが二重に重なる",
     missing: "表示用の画像がまだありません",
@@ -57,9 +62,5 @@ export const NoDeliveryImage: Story = {
 
 export const Loading: Story = {
   /** 写真の代わりに、読み込んでいることを出す骨組み。 */
-  render: () => (
-    <ViewerFrame back={back}>
-      <ViewerLoading />
-    </ViewerFrame>
-  ),
+  render: () => <ViewerLoading />,
 };

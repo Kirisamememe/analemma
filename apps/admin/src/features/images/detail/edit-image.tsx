@@ -239,11 +239,16 @@ const EditImageDialog = ({
 
 /** 編集する画像に渡す値。 */
 type EditImageProps = {
+  /** 別の画像を取得していて操作できないか。 */
+  isDisabled?: boolean;
   /** 編集する画像。 */
   image: Image;
 };
 
-const EditButton = ({ image }: EditImageProps): ReactNode => {
+const EditButton = ({
+  image,
+  isDisabled = false,
+}: EditImageProps): ReactNode => {
   const t = useTranslate();
   const { api } = useAppContext();
   const { refresh } = useApiCache();
@@ -267,6 +272,7 @@ const EditButton = ({ image }: EditImageProps): ReactNode => {
   return (
     <>
       <Button
+        isDisabled={isDisabled}
         isPending={opening.isPending || isSaving}
         onPress={() => {
           failure.close();
@@ -284,6 +290,9 @@ const EditButton = ({ image }: EditImageProps): ReactNode => {
 };
 
 /** 押すとタイトル・説明・alt を編集する Dialog を開くボタン。 */
-export const EditImage = ({ image }: EditImageProps): ReactNode => (
-  <EditButton image={image} key={image.id} />
+export const EditImage = ({
+  image,
+  isDisabled = false,
+}: EditImageProps): ReactNode => (
+  <EditButton image={image} key={image.id} isDisabled={isDisabled} />
 );

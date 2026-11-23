@@ -102,6 +102,77 @@ describe("ImageViewerPage", () => {
     await heading("港の灯り");
   }, 15_000);
 
+  test("画像と前後の行き先を待ってから同じ向きに focus を戻し、端では逆側のリンクに移す", async () => {
+    const { server } = setUp(0);
+    await heading("夕暮れの稜線");
+    const back = screen.getByRole("link", { name: "画像の一覧" });
+    const next = await screen.findByRole("link", { name: "次の画像" });
+    const get = Promise.withResolvers<FakeReply<"admin/images/get">>();
+
+    const neighbors =
+      Promise.withResolvers<FakeReply<"admin/images/neighbors">>();
+
+    server.replyNext("admin/images/get", () => get.promise);
+    server.replyNext("admin/images/neighbors", () => neighbors.promise);
+    next.focus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "編集" }).hasAttribute("disabled"),
+      ).toBe(true);
+    });
+    expect(screen.getByRole("link", { name: "画像の一覧" })).toBe(back);
+    expect(
+      screen.getByRole("button", { name: "編集" }).hasAttribute("disabled"),
+    ).toBe(true);
+    const [first, second, last] = server.images();
+
+    if (first === undefined || second === undefined || last === undefined) {
+      throw new Error("画像が3枚必要です");
+    }
+
+    get.resolve({ output: second });
+    await heading("港の灯り");
+    neighbors.resolve({ output: { newer: first.id, older: last.id } });
+    await waitFor(() => {
+      expect(document.activeElement).toBe(
+        screen.getByRole("link", { name: "次の画像" }),
+      );
+    });
+    await userEvent.keyboard("{Enter}");
+    await heading("雪の参道");
+    await waitFor(() => {
+      expect(document.activeElement).toBe(
+        screen.getByRole("link", { name: "前の画像" }),
+      );
+    });
+    expect(screen.getByRole("link", { name: "画像の一覧" })).toBe(back);
+  });
+
+  test("取得を待つ間に一覧へのリンクへ移した focus をそのまま保つ", async () => {
+    const { server } = setUp(0);
+    await heading("夕暮れの稜線");
+    const back = screen.getByRole("link", { name: "画像の一覧" });
+    const next = await screen.findByRole("link", { name: "次の画像" });
+    const get = Promise.withResolvers<FakeReply<"admin/images/get">>();
+    server.replyNext("admin/images/get", () => get.promise);
+    next.focus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "編集" }).hasAttribute("disabled"),
+      ).toBe(true);
+    });
+    back.focus();
+    const second = server.images()[1];
+
+    if (second === undefined) throw new Error("画像が2枚必要です");
+
+    get.resolve({ output: second });
+    await heading("港の灯り");
+    expect(document.activeElement).toBe(back);
+  });
+
   test("非公開の確認を取り消すと公開を保ち、確定したときだけ非公開にする", async () => {
     const { server, calls } = setUp(0);
 

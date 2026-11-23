@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { ImageDetail } from "../image-detail";
 
+import { ViewerFrame } from "@/features/images/ui/image-viewer";
 import {
   createImageRoutes,
   type FakeImageSeed,
@@ -20,12 +21,20 @@ const photo = (seed: FakeImageSeed) => {
 const meta = {
   title: "features/images/ImageDetail",
   component: ImageDetail,
-  args: {
-    back: (
-      <Link href="/" variant="back">
-        画像の一覧
-      </Link>
+  decorators: [
+    (Story) => (
+      <ViewerFrame
+        back={
+          <Link href="/" variant="back">
+            画像の一覧
+          </Link>
+        }
+      >
+        <Story />
+      </ViewerFrame>
     ),
+  ],
+  args: {
     image: photo({
       title: "夕暮れの稜線",
       alt: "山並みに残る夕日",
@@ -33,7 +42,7 @@ const meta = {
       iso: 200,
       deliveryImages: samplePhoto("dusk-ridge"),
     }),
-    next: "/",
+    next: { href: "/", label: "次の画像" },
     previous: undefined,
     onMove: () => undefined,
   },

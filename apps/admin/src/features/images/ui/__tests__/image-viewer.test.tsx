@@ -17,9 +17,7 @@ type ViewerOptions = Partial<
 
 const viewer = ({ images = IMAGES, next }: ViewerOptions) => (
   <ImageViewer
-    actions={null}
     alt="山並み"
-    back={null}
     images={images}
     missing="表示用の画像がまだありません"
     next={next}

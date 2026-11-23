@@ -60,9 +60,9 @@ describe("useImageNeighbors", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.failure).toBeDefined();
+      expect(result.current?.failure).toBeDefined();
     });
-    result.current.failure?.retry();
+    result.current?.failure?.retry();
     await waitFor(() => {
       expect(result.current).toEqual({ previous: undefined, next });
     });

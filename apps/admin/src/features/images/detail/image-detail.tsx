@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { toShotInfo } from "./logic/shot-info";
 
 import type { ApiOutputs } from "@/api/api-types";
-import { ImageViewer } from "@/features/images/ui/image-viewer";
+import { ImageViewer, type Neighbor } from "@/features/images/ui/image-viewer";
 import { InfoList } from "@/features/images/ui/info-list";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
@@ -15,28 +15,22 @@ type Image = ApiOutputs["admin"]["images"]["get"];
 
 /** 写真を見る画面に渡す値。 */
 type ImageDetailProps = {
-  /** 帯に置く操作。 */
-  actions?: ReactNode;
   /** 前後の写真の取得に失敗したときの案内。 */
   navigationError?: ReactNode;
   /** 見る画像。 */
   image: Image;
-  /** 帯の左に置く、一覧へ戻るリンク。 */
-  back: ReactNode;
-  /** 前の画像への行き先。 */
-  previous: AppHref | undefined;
-  /** 次の画像への行き先。 */
-  next: AppHref | undefined;
+  /** 前の画像を見る画面(無ければ undefined)。 */
+  previous: Neighbor | undefined;
+  /** 次の画像を見る画面(無ければ undefined)。 */
+  next: Neighbor | undefined;
   /** 前後の画像を見る画面に移る関数(スワイプで移るとき)。 */
   onMove: (href: AppHref) => void;
 };
 
-/** 1枚の画像を大きく出し、情報と、編集の操作を置く。 */
+/** 1枚の画像を大きく出し、情報と、編集・公開と非公開・削除の操作を置く。 */
 export const ImageDetail = ({
-  actions,
   navigationError,
   image,
-  back,
   previous,
   next,
   onMove,
@@ -53,26 +47,16 @@ export const ImageDetail = ({
 
   return (
     <ImageViewer
-      actions={actions}
       alt={image.alt ?? name}
-      back={back}
       images={image.deliveryImages}
       missing={t("images.noDeliveryImage")}
-      next={
-        next === undefined
-          ? undefined
-          : { href: next, label: t("imageDetail.next") }
-      }
+      next={next}
       onSwipe={(direction) => {
         const target = direction === "previous" ? previous : next;
 
-        if (target !== undefined) onMove(target);
+        if (target !== undefined) onMove(target.href);
       }}
-      previous={
-        previous === undefined
-          ? undefined
-          : { href: previous, label: t("imageDetail.previous") }
-      }
+      previous={previous}
     >
       <Stack gap={2}>
         <Heading level={1}>{name}</Heading>

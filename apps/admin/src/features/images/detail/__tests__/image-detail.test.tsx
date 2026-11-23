@@ -20,7 +20,6 @@ const open = (seed: FakeImageSeed) => {
 
   renderWithI18n(
     <ImageDetail
-      back={null}
       image={{ ...image, updatedAt: "2031-12-31T23:59:00.000Z" }}
       next={undefined}
       onMove={() => undefined}
