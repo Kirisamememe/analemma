@@ -7,6 +7,7 @@ import { join, relative } from "node:path";
 
 import { createExternalApp, createInternalApp } from "@/app";
 import { createChallengeStore } from "@/features/auth/challenge/create-challenge-store";
+import { createDropboxContext } from "@/features/dropbox/dropbox-context";
 import { createConversionQueue } from "@/features/images/processing/conversion-queue";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
@@ -41,6 +42,7 @@ const context = {
   storage: await openFileStorage(root),
   challenges: createChallengeStore({ capacity: 1, lifetimeMs: 1000 }),
   conversions: createConversionQueue(),
+  dropbox: createDropboxContext(undefined),
 };
 
 const dir = join(root, "dist");

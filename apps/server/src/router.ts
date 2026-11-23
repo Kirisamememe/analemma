@@ -27,6 +27,12 @@ import {
   revokeDeployToken,
 } from "@/features/deploy-tokens";
 import {
+  authorizeDropbox,
+  connectDropbox,
+  disconnectDropbox,
+  getDropboxConnection,
+} from "@/features/dropbox";
+import {
   createFixedPage,
   deleteFixedPage,
   updateFixedPage,
@@ -80,6 +86,12 @@ export const router = implement(contract)
         list: listDeployTokens,
         issue: issueDeployToken,
         revoke: revokeDeployToken,
+      },
+      dropbox: {
+        get: getDropboxConnection,
+        authorize: authorizeDropbox,
+        connect: connectDropbox,
+        disconnect: disconnectDropbox,
       },
       fixedPages: {
         list: listFixedPages,

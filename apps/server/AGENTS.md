@@ -20,7 +20,7 @@
 - `src/procedures.ts`:アクセス区分ごとの base(`publicProcedures`・`authProcedures`・`deployProcedures`・`adminProcedures`)。contract の `public`・`auth`・`deploy`・`admin` に対応する。
 - `src/router.ts`:全 feature の procedure を束ねる。
 - ビジネスイベントの型と dispatcher:まだ無い。`src/` の直下は10件で埋まっているので、置き場所は、最初のビジネスイベントを作るときに決める。
-- `src/test-client/`:API 越しのテストの部品。`create-test-client.ts` が2つのポートのアプリとそれにつないだ client を、テストだけの DB と置き場所(`storage`)で作る(`await using` で受ける)。`client` は外部用のポート、`internal(token)` は内部用のポートの client。管理用 API のテストは、`passkeys/sign-in-as-admin.ts` の `signInAsAdmin` で、テスト用の認証器のパスキーを登録してログインしてから呼ぶ。種類の要るテストは、`prepare-test-kinds.ts` で種類の定義を送ってから始める。
+- `src/test-client/`:API 越しのテストの部品。`create-test-client.ts` が2つのポートのアプリとそれにつないだ client を、テストだけの DB と置き場所(`storage`)で作る(`await using` で受ける)。`client` は外部用のポート、`internal(token)` は内部用のポートの client。管理用 API のテストは、`passkeys/sign-in-as-admin.ts` の `signInAsAdmin` で、テスト用の認証器のパスキーを登録してログインしてから呼ぶ。種類の要るテストは、`prepare-test-kinds.ts` で種類の定義を送ってから始める。Dropbox は、HTTP の API を真似る作り物(`create-fake-dropbox.ts`。`server.dropbox`)につなぎ、`connect-test-dropbox.ts` の `connectTestDropbox` で認可を済ませる。
 - `src/features/<名前>/`:feature ごとのフォルダ。複数の feature が使う概念(公開状態の判定、slug の履歴など)も feature として置く。`shared/`・`common/`・`utils/` を作らない。
 
 ## 書き方

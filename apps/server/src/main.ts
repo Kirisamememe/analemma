@@ -5,9 +5,11 @@ import {
   CHALLENGE_LIFETIME_MS,
   createChallengeStore,
 } from "@/features/auth/challenge/create-challenge-store";
+import { createDropboxContext } from "@/features/dropbox/dropbox-context";
 import { createConversionQueue } from "@/features/images/processing/conversion-queue";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
+import { createDropboxApi } from "@/platform/dropbox/create-dropbox-api";
 import { openFileStorage } from "@/platform/file-storage/open-file-storage";
 import { stdoutLogger } from "@/platform/logger";
 import { chooseFirstListener } from "@/platform/startup/choose-first-listener";
@@ -63,6 +65,9 @@ const context: AppContext = {
     lifetimeMs: CHALLENGE_LIFETIME_MS,
   }),
   conversions: createConversionQueue(),
+  dropbox: createDropboxContext(
+    env.dropbox === undefined ? undefined : createDropboxApi(env.dropbox),
+  ),
 };
 
 const internalOptions = {

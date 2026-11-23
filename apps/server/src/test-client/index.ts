@@ -9,6 +9,12 @@ export {
 } from "@/test-client/passkeys/answer-authentication";
 export { answerRegistration } from "@/test-client/passkeys/answer-registration";
 export { SUCCEEDED, catchErrorCode } from "@/test-client/catch-error-code";
+export { connectTestDropbox } from "@/test-client/connect-test-dropbox";
+export {
+  type FakeDropbox,
+  TEST_DROPBOX_ACCOUNT,
+  TEST_DROPBOX_APP,
+} from "@/test-client/create-fake-dropbox";
 export {
   TEST_INTERNAL_URL,
   TEST_ORIGIN,
