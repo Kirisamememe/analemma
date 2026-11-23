@@ -279,13 +279,25 @@ describe("直したコミットの範囲を確かめること", () => {
     git(cwd, "switch", "--quiet", "claude/pages");
     const fixed = commit(cwd, "fix.md");
 
-    expect(checkFixRange(cwd, { previous: head, head: fixed })).toBeUndefined();
+    expect(
+      checkFixRange(cwd, { previous: { head, hasVerdict: true }, head: fixed }),
+    ).toBeUndefined();
   });
 
   test("前の回からコミットが足されていなくても、空の範囲として読めること", () => {
     const { cwd, head } = makeRepository("no-fixes");
 
-    expect(checkFixRange(cwd, { previous: head, head })).toBeUndefined();
+    expect(
+      checkFixRange(cwd, { previous: { head, hasVerdict: true }, head }),
+    ).toBeUndefined();
+  });
+
+  test("同じコミットで前の回の判定を読めなければ、--full を求めること", () => {
+    const { cwd, head } = makeRepository("unreadable-verdict");
+
+    expect(
+      checkFixRange(cwd, { previous: { head, hasVerdict: false }, head }),
+    ).toContain("--full");
   });
 
   test("rebase して前の回のコミットが祖先に無ければ、--full を求めること", () => {
@@ -297,8 +309,11 @@ describe("直したコミットの範囲を確かめること", () => {
     git(cwd, "rebase", "--quiet", "main");
     const rebased = git(cwd, "rev-parse", "HEAD");
 
-    expect(checkFixRange(cwd, { previous: head, head: rebased })).toContain(
-      "--full",
-    );
+    expect(
+      checkFixRange(cwd, {
+        previous: { head, hasVerdict: true },
+        head: rebased,
+      }),
+    ).toContain("--full");
   });
 });

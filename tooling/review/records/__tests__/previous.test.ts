@@ -72,6 +72,7 @@ describe("前の回を探すこと", () => {
     ).toEqual({
       round: 1,
       head: "b",
+      hasVerdict: true,
       result: join(folder, "logic-1.md"),
       decisions: join(folder, "logic-1.decisions.jsonl"),
     });
@@ -86,6 +87,20 @@ describe("前の回を探すこと", () => {
     expect(
       findPreviousRound({ results: folder, perspective, round: 2 }),
     ).toMatchObject({ head: "a", decisions: undefined });
+  });
+
+  test("判定を読めなかった回も、全体をレビューし直すために結果を残すこと", () => {
+    const folder = resultsFolder("unreadable-verdict");
+
+    writeTrial(folder, { trial: 1, head: "a", reason: "unreadable-verdict" });
+    writeFileSync(join(folder, "logic-1.md"), "レビューを完了できなかった。");
+
+    expect(
+      findPreviousRound({ results: folder, perspective, round: 2 }),
+    ).toMatchObject({
+      hasVerdict: false,
+      result: join(folder, "logic-1.md"),
+    });
   });
 
   test("結果を出した試行の記録か、結果のファイルが無ければ、見つからないとすること", () => {

@@ -9,6 +9,8 @@ export type PreviousRound = {
   readonly round: number;
   /** 前の回がレビューしたコミットの SHA。 */
   readonly head: string;
+  /** 前の回の判定を読めたか。 */
+  readonly hasVerdict: boolean;
   /** 前の回の結果のファイル。 */
   readonly result: string;
   /** 前の回の採否の記録のファイル。 */
@@ -26,11 +28,9 @@ type PreviousRoundQuery = {
 };
 
 /** 結果を出した試行の番号と、レビューしたコミット。 */
-type CompletedTrial = {
+type CompletedTrial = Pick<PreviousRound, "head" | "hasVerdict"> & {
   /** 試行の番号。 */
   readonly trial: number;
-  /** レビューしたコミットの SHA。 */
-  readonly head: string;
 };
 
 const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
@@ -49,9 +49,10 @@ const readCompletedTrial = (text: string): CompletedTrial | undefined => {
 
   return typeof trial === "number" &&
     typeof head === "string" &&
-    typeof reason === "string" &&
-    reason !== "failed"
-    ? { trial, head }
+    (reason === "lgtm" ||
+      reason === "changes-requested" ||
+      reason === "unreadable-verdict")
+    ? { trial, head, hasVerdict: reason !== "unreadable-verdict" }
     : undefined;
 };
 
@@ -81,6 +82,7 @@ export const findPreviousRound = ({
     : {
         round: previous,
         head: completed.head,
+        hasVerdict: completed.hasVerdict,
         result,
         decisions: existsSync(decisions) ? decisions : undefined,
       };

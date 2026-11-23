@@ -242,7 +242,7 @@ const review = (request: ReviewArguments): number => {
       previous === undefined
         ? "前の回の試行の記録か結果が無いので、直したコミットを決められない。--full を付けて、ブランチの変更の全体をレビューしてください。"
         : checkFixRange(repoRoot, {
-            previous: previous.head,
+            previous,
             head: pinned.head,
           });
 

@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 
 import type { ReviewArguments } from "./arguments";
+import type { PreviousRound } from "./records/previous";
 
 /** 固定したレビュー対象のコミットの SHA、レビューするブランチの名前、結果のフォルダに使うブランチの名前。 */
 type PinnedHead = {
@@ -133,8 +134,8 @@ export const pinRange = (
 
 /** 直したコミットの範囲。 */
 type FixRange = {
-  /** 前の回がレビューしたコミットの SHA。 */
-  readonly previous: string;
+  /** 前の回のコミットと判定。 */
+  readonly previous: Pick<PreviousRound, "head" | "hasVerdict">;
   /** 今の回にレビューするコミットの SHA。 */
   readonly head: string;
 };
@@ -143,7 +144,13 @@ type FixRange = {
 export const checkFixRange = (
   cwd: string,
   { head, previous }: FixRange,
-): string | undefined =>
-  git(cwd, "merge-base", "--is-ancestor", previous, head).status === 0
+): string | undefined => {
+  if (!previous.hasVerdict) {
+    return "前の回の判定を読めなかったので、--full を付けて、ブランチの変更の全体をレビューしてください。";
+  }
+
+  return git(cwd, "merge-base", "--is-ancestor", previous.head, head).status ===
+    0
     ? undefined
-    : `前の回にレビューしたコミット ${previous} が、今の head の祖先に無い(rebase したときなど)。直したコミットを決められないので、--full を付けて、ブランチの変更の全体をレビューしてください。`;
+    : `前の回にレビューしたコミット ${previous.head} が、今の head の祖先に無い(rebase したときなど)。直したコミットを決められないので、--full を付けて、ブランチの変更の全体をレビューしてください。`;
+};
