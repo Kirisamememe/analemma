@@ -10,6 +10,7 @@ import { session } from "./auth/session";
 import { fixedPages } from "./fixed-pages/admin-fixed-pages";
 import { publicFixedPages } from "./fixed-pages/public-fixed-pages";
 import { health } from "./health";
+import { images } from "./images/admin-images";
 import { kinds } from "./kinds/admin-kinds";
 import { deployKinds } from "./kinds/deploy-kinds";
 import { deployTokens } from "./kinds/deploy-tokens";
@@ -55,7 +56,7 @@ export {
 
 /** Analemma の API 全体の contract。 */
 export const contract = {
-  admin: { deployTokens, fixedPages, kinds, passkeys, session },
+  admin: { deployTokens, fixedPages, images, kinds, passkeys, session },
   auth: { enrollment, login },
   deploy: { kinds: deployKinds },
   public: { fixedPages: publicFixedPages, health },
