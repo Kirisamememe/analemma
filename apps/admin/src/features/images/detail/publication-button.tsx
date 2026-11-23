@@ -20,11 +20,6 @@ import {
   useShowToast,
 } from "@/ui/primitives/overlays";
 
-const DONE = {
-  Published: "imageDetail.publishDone",
-  Unpublished: "imageDetail.unpublishDone",
-} as const;
-
 /** 公開と非公開を切り替えるボタンに渡す値。 */
 type PublicationButtonProps = {
   /** 切り替える画像。 */
@@ -49,26 +44,28 @@ export const PublicationButton = ({
     onSuccess: async (result) => {
       setConfirming(false);
 
-      if (result._tag === "NotFound") {
+      if (result._tag === "Failed") {
         failure.show(t("imageDetail.gone"));
         await Promise.all([
-          refresh(imageQueryKey(image.id)),
+          update(imageQueryKey(image.id), () => result),
           updatePages(IMAGES_QUERY_KEY, updateImagePage(image.id)),
         ]);
       } else {
-        const apply = mergeImageChange(result.image, "publication");
+        const apply = mergeImageChange(result.data, "publication");
         await Promise.all([
-          update<LoadedImage>(imageQueryKey(result.image.id), (current) =>
+          update<LoadedImage>(imageQueryKey(result.data.id), (current) =>
             current._tag === "Succeeded"
               ? { ...current, data: apply(current.data) }
               : current,
           ),
-          updatePages(
-            IMAGES_QUERY_KEY,
-            updateImagePage(result.image.id, apply),
-          ),
+          updatePages(IMAGES_QUERY_KEY, updateImagePage(result.data.id, apply)),
         ]);
-        showToast({ tone: "success", message: t(DONE[result._tag]) });
+
+        const message = result.data.published
+          ? "imageDetail.publishDone"
+          : "imageDetail.unpublishDone";
+
+        showToast({ tone: "success", message: t(message) });
       }
     },
     onError: () => {
@@ -81,6 +78,11 @@ export const PublicationButton = ({
   const send = (published: boolean): void => {
     failure.close();
     publication.mutate(published);
+  };
+
+  const close = (): void => {
+    failure.close();
+    setConfirming(false);
   };
 
   return (
@@ -99,22 +101,14 @@ export const PublicationButton = ({
         isOpen={confirming}
         isPending={publication.isPending}
         onOpenChange={(open) => {
-          if (!open) failure.close();
-
-          setConfirming(open);
+          if (!open) close();
         }}
         title={t("imageDetail.unpublishTitle", {
           title: image.title ?? t("imageDetail.untitled"),
         })}
       >
         <Cluster gap={2} justify="end">
-          <Button
-            isDisabled={publication.isPending}
-            onPress={() => {
-              failure.close();
-              setConfirming(false);
-            }}
-          >
+          <Button isDisabled={publication.isPending} onPress={close}>
             {t("imageDetail.cancel")}
           </Button>
           <Button

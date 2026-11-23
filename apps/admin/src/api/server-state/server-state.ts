@@ -1,6 +1,7 @@
 import {
   skipToken,
   type InfiniteData,
+  type Query,
   useIsFetching,
   useIsMutating,
   useMutation,
@@ -48,7 +49,7 @@ type MutationOptions<Input, Data> = {
   /** 操作を送る関数。 */
   readonly send: (input: Input) => Promise<Data>;
   /** `send` の Promise が resolve した後に呼ぶ関数。 */
-  readonly onSuccess: (data: Data) => void | Promise<void>;
+  readonly onSuccess: (data: Data, input: Input) => void | Promise<void>;
   /** 送信か送信後の処理が、セッション切れのほかの失敗で終わったときに呼ぶ関数。 */
   readonly onError?: (input: Input) => void;
 };
@@ -147,7 +148,7 @@ export const useApiMutation = <Data, Input = void>({
     ...(key && { mutationKey: key }),
     ...(scope === undefined ? {} : { scope: { id: scope } }),
     mutationFn: (input: Input) => send(input),
-    onSuccess: (result) => onSuccess(result),
+    onSuccess,
     onError: (error, input) => {
       if (!isUnauthorized(error)) {
         onError?.(input);
@@ -166,6 +167,10 @@ export const useApiMutation = <Data, Input = void>({
   };
 };
 
+const loadingMore = (query: Pick<Query, "state">): boolean =>
+  query.state.fetchStatus !== "idle" &&
+  query.state.fetchMeta?.fetchMore?.direction === "forward";
+
 /** server のデータを取り直し、状態を消すための関数を返す。 */
 export const useApiCache = (): ApiCache => {
   const client = useQueryClient();
@@ -181,10 +186,7 @@ export const useApiCache = (): ApiCache => {
 
     if (query === undefined) return;
 
-    if (
-      query.state.fetchStatus !== "idle" &&
-      query.state.fetchMeta?.fetchMore?.direction === "forward"
-    ) {
+    if (loadingMore(query)) {
       await Promise.allSettled([query.promise]);
     } else {
       await client.cancelQueries(match);
@@ -203,8 +205,22 @@ export const useApiCache = (): ApiCache => {
 
   return {
     refresh: async (key, refetchType = "all") => {
-      await client.cancelQueries({ queryKey: key });
-      await client.invalidateQueries({ queryKey: key, refetchType });
+      const matches = client.getQueryCache().findAll({ queryKey: key });
+      await Promise.all(
+        matches.map(async (query) => {
+          if (loadingMore(query)) await Promise.allSettled([query.promise]);
+          else {
+            await client.cancelQueries({
+              queryKey: query.queryKey,
+              exact: true,
+            });
+          }
+        }),
+      );
+      await client.invalidateQueries(
+        { queryKey: key, refetchType },
+        { cancelRefetch: false },
+      );
     },
     replace: async (key, data) => {
       await client.cancelQueries({ queryKey: key });

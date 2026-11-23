@@ -30,32 +30,31 @@ describe("saveImage", () => {
 });
 
 describe("setPublication", () => {
-  test("非公開にしてから公開し、無い画像は NotFound にする", async () => {
+  test("非公開にしてから公開し、無い画像は NOT_FOUND を返す", async () => {
     const { api, id } = setUp();
 
     expect(await setPublication(api, { id, published: false })).toMatchObject({
-      _tag: "Unpublished",
-      image: { published: false },
+      _tag: "Succeeded",
+      data: { published: false },
     });
     expect(await setPublication(api, { id, published: true })).toMatchObject({
-      _tag: "Published",
-      image: { published: true },
+      _tag: "Succeeded",
+      data: { published: true },
     });
     expect(
       await setPublication(api, { id: MISSING_ID, published: true }),
-    ).toEqual({ _tag: "NotFound" });
+    ).toMatchObject({ code: "NOT_FOUND" });
   });
 });
 
 describe("deleteImage", () => {
-  test("消して、もう無ければ NotFound にする", async () => {
+  test("消して、もう無ければ NOT_FOUND を返す", async () => {
     const { api, id, server } = setUp();
 
-    expect(await deleteImage(api, id)).toEqual({ _tag: "Deleted" });
+    expect(await deleteImage(api, id)).toMatchObject({ _tag: "Succeeded" });
     expect(server.images()).toHaveLength(0);
     expect(await deleteImage(api, id)).toMatchObject({
-      _tag: "NotFound",
-      missing: { code: "NOT_FOUND" },
+      code: "NOT_FOUND",
     });
   });
 });
