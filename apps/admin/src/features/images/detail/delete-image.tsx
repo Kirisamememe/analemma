@@ -1,4 +1,4 @@
-import { type ReactNode, useRef, useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { deleteImage } from "./queries/image-actions";
 import {
@@ -28,7 +28,7 @@ type DeleteImageProps = {
   /** 確かめるときに見せる名前(タイトルか、無題の画像)。 */
   name: string;
   /** 削除できたときに呼ぶ関数。 */
-  onDeleted: () => void;
+  onDeleted: (id: string) => void;
 };
 
 /** 押すと名前を見せて確かめ、画像を削除するボタン。 */
@@ -43,9 +43,9 @@ export const DeleteImage = ({
   const { refresh, updatePages } = useApiCache();
   const { api } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
-  const trigger = useRef<HTMLButtonElement>(null); // 画面を閉じると null になる
 
   const deleting = useApiMutation({
+    scope: `image:${id}`,
     send: async (target: Pick<DeleteImageProps, "id" | "name">) => ({
       ...(await deleteImage(api, target.id)),
       target,
@@ -60,7 +60,8 @@ export const DeleteImage = ({
           message: t("imageDetail.deleted", { title: target.name }),
         });
 
-        if (trigger.current !== null) onDeleted(); // 画面を閉じていたら、移った先の画面から動かさない
+        onDeleted(target.id);
+        void refresh(imageQueryKey(target.id), "active");
       } else {
         setIsOpen(false);
         failure.show(t("imageDetail.gone"));
@@ -83,7 +84,6 @@ export const DeleteImage = ({
       <Button
         aria-label={t("imageDetail.delete")}
         icon="trash-2"
-        ref={trigger}
         onPress={() => {
           deleting.reset(); // 開き直したら、前の送信の結果を消す
           setIsOpen(true);

@@ -76,9 +76,12 @@ const EditImageDialog = ({
 
   const saving = useApiMutation({
     key: saveKey(image.id),
-    send: (values: ReturnType<typeof toImageText>) =>
-      saveImage(api, { id: image.id, values }),
-    onSuccess: async (result) => {
+    scope: `image:${image.id}`,
+    send: async (values: ReturnType<typeof toImageText>) => ({
+      id: image.id,
+      result: await saveImage(api, { id: image.id, values }),
+    }),
+    onSuccess: async ({ result, id }) => {
       if (result._tag === "Saved") {
         const apply = mergeImageChange(result.image, "text");
         await Promise.all([
@@ -107,6 +110,8 @@ const EditImageDialog = ({
     },
     onError: () => {
       failure.show(t("imageDetail.saveFailed"));
+      void refresh(imageQueryKey(image.id), "active");
+      void refresh(IMAGES_QUERY_KEY, "active");
     },
   });
 

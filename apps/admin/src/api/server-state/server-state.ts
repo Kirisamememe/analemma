@@ -41,6 +41,8 @@ export type ApiQueryResult<Data> =
 type MutationOptions<Input, Data> = {
   /** 同じ対象への送信をほかの画面と共有するキー。 */
   readonly key?: readonly unknown[];
+  /** 同じ対象の送信を順に実行する識別子。 */
+  readonly scope?: string;
   /** 操作を送る関数。 */
   readonly send: (input: Input) => Promise<Data>;
   /** `send` の Promise が resolve した後に呼ぶ関数。 */
@@ -125,12 +127,14 @@ export const useIsApiMutationPending = (key: readonly unknown[]): boolean =>
 /** server に操作を送り、送信の状態と結果を返す。 */
 export const useApiMutation = <Data, Input = void>({
   key,
+  scope,
   send,
   onSuccess,
   onError,
 }: MutationOptions<Input, Data>): MutationResult<Input, Data> => {
   const { mutate, reset, isPending, isError, data } = useMutation({
     ...(key && { mutationKey: key }),
+    ...(scope === undefined ? {} : { scope: { id: scope } }),
     mutationFn: (input: Input) => send(input),
     onSuccess: (result) => onSuccess(result),
     onError: (error) => {
@@ -155,6 +159,26 @@ export const useApiMutation = <Data, Input = void>({
 export const useApiCache = (): ApiCache => {
   const client = useQueryClient();
 
+  const update = async <Data>(
+    key: readonly unknown[],
+    apply: (data: Data) => Data,
+  ): Promise<void> => {
+    const match = { queryKey: key, exact: true };
+
+    if (client.getQueryState(key) === undefined) return;
+
+    await client.cancelQueries(match);
+
+    if (client.getQueryData(key) === undefined) {
+      void client.invalidateQueries({ ...match, refetchType: "active" });
+      return;
+    }
+
+    client.setQueryData<Data>(key, (data) =>
+      data === undefined ? undefined : apply(data),
+    );
+  };
+
   return {
     refresh: async (key, refetchType = "all") => {
       await client.cancelQueries({ queryKey: key });
@@ -164,26 +188,12 @@ export const useApiCache = (): ApiCache => {
       await client.cancelQueries({ queryKey: key });
       client.setQueryData(key, data);
     },
-    update: async <Data>(
-      key: readonly unknown[],
-      apply: (data: Data) => Data,
-    ) => {
-      await client.cancelQueries({ queryKey: key, exact: true });
-      client.setQueryData<Data>(key, (data) =>
-        data === undefined ? undefined : apply(data),
-      );
-    },
-    updatePages: async <Page>(
-      key: readonly unknown[],
-      update: (page: Page) => Page,
-    ) => {
-      await client.cancelQueries({ queryKey: key, exact: true });
-      client.setQueryData<InfiniteData<Page>>(key, (data) =>
-        data === undefined
-          ? undefined
-          : { ...data, pages: data.pages.map(update) },
-      );
-    },
+    update,
+    updatePages: <Page>(key: readonly unknown[], apply: (page: Page) => Page) =>
+      update<InfiniteData<Page>>(key, (data) => ({
+        ...data,
+        pages: data.pages.map(apply),
+      })),
     clear: () => {
       client.clear();
     },

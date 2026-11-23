@@ -43,6 +43,7 @@ export const PublicationButton = ({
   const { api } = useAppContext();
 
   const publication = useApiMutation({
+    scope: `image:${image.id}`,
     send: (published: boolean) =>
       setPublication(api, { id: image.id, published }),
     onSuccess: async (result) => {
