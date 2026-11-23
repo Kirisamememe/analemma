@@ -74,6 +74,7 @@ export const useEditorForm = ({
     createEditorValues(kind.fields, page),
   );
   const saved = useRef(initial); // 開いたときの値か、最後に保存できた値
+  const submitted = useRef(initial);
   const [errors, setErrors] = useState<EditorErrors>({ fields: {} });
 
   const saving = useApiMutation({
@@ -132,6 +133,7 @@ export const useEditorForm = ({
     canSubmitWhenInvalid: true,
     onSubmit: ({ value }) => {
       setErrors({ fields: {} });
+      submitted.current = value;
       saving.mutate(value);
     },
     onSubmitInvalid: ({ formApi }) => {
@@ -143,12 +145,15 @@ export const useEditorForm = ({
       });
     },
   });
-  const leaving = useLeaveConfirmation(() =>
-    hasUnsavedChanges(base, {
-      saved: saved.current,
-      current: form.state.values,
-    }),
-  );
+  const leaving = useLeaveConfirmation(() => {
+    const current = form.state.values;
+
+    return (
+      hasUnsavedChanges(base, { saved: saved.current, current }) ||
+      (saving.isPending &&
+        hasUnsavedChanges(base, { saved: submitted.current, current }))
+    );
+  });
   const check =
     (key: "slug" | "title") =>
     ({ value }: Record<"value", string>) =>

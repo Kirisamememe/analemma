@@ -59,6 +59,33 @@ test("編集する固定ページが無いときは種類を取得しない", as
   ).toBeDefined();
   expect(calls).not.toContain("admin/kinds/get");
 });
+test("種類の読み込みに失敗しても、取得した固定ページを確認して削除できる", async () => {
+  const server = createFixedPageRoutes({ kinds: [kind], pages: [page] });
+  const [target] = server.pages();
+
+  if (target === undefined) throw new Error("固定ページがありません");
+
+  renderApp({
+    path: "/fixed-pages/" + target.id,
+    routes: {
+      ...server.routes,
+      "admin/kinds/get": () => ({
+        error: "INTERNAL_SERVER_ERROR",
+        defined: false,
+      }),
+    },
+  });
+  await screen.findByText("読み込めませんでした。", {}, { timeout: 5000 });
+  await userEvent.click(
+    screen.getByRole("button", { name: "固定ページを削除" }),
+  );
+  const dialog = await screen.findByRole("dialog", {
+    name: "「紹介」を削除しますか?",
+  });
+  await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
+  await screen.findByRole("heading", { name: "固定ページはまだありません" });
+  expect(server.pages()).toHaveLength(0);
+}, 10000);
 test("編集する固定ページを読み込めないときは失敗を知らせる", async () => {
   renderApp({
     path: "/fixed-pages/019affff-0000-7000-8000-000000000001",

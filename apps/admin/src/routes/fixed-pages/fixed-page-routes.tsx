@@ -6,6 +6,7 @@ import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
 import { callApi } from "@/api/call-api";
 import { useApiQuery } from "@/api/server-state/server-state";
+import { DeleteFixedPage } from "@/features/fixed-pages/editor/delete-fixed-page";
 import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor";
 import {
   fixedPageQueryKey,
@@ -47,12 +48,19 @@ type ScreenProps = FrameProps & {
   title: string;
   /** 画面の補足。 */
   description?: string | undefined;
+  /** 見出しに置く操作。 */
+  actions?: ReactNode;
 };
 
-const Screen = ({ title, description, children }: ScreenProps): ReactNode => (
+const Screen = ({
+  title,
+  description,
+  actions,
+  children,
+}: ScreenProps): ReactNode => (
   <Frame>
     <Stack gap={8}>
-      <PageHeader description={description} title={title} />
+      <PageHeader actions={actions} description={description} title={title} />
       {children}
     </Stack>
   </Frame>
@@ -197,6 +205,9 @@ const PageEditor = ({ page }: PageEditorProps): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const kind = useKind(page.kind);
+  const onDeleted = (): void => {
+    void navigate({ to: "/fixed-pages", ignoreBlocker: true });
+  };
 
   if (kind._tag === "Loaded" && kind.data._tag === "Succeeded") {
     return (
@@ -204,9 +215,7 @@ const PageEditor = ({ page }: PageEditorProps): ReactNode => {
         <FixedPageEditor
           key={page.id}
           kind={kind.data.data}
-          onDeleted={() => {
-            void navigate({ to: "/fixed-pages", ignoreBlocker: true });
-          }}
+          onDeleted={onDeleted}
           onSaved={() => undefined}
           page={page}
         />
@@ -216,6 +225,11 @@ const PageEditor = ({ page }: PageEditorProps): ReactNode => {
 
   return (
     <Screen
+      actions={
+        kind._tag !== "Loading" && (
+          <DeleteFixedPage onDeleted={onDeleted} page={page} />
+        )
+      }
       description={t("fixedPageEditor.kindOf", { kind: page.kind })}
       title={t("fixedPageEditor.edit")}
     >

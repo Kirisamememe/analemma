@@ -318,3 +318,30 @@ test("値を変えていないときと、変えた値を保存した後は、�
   expect(await screen.findByRole("heading", { name: "ホーム" })).toBeDefined();
   expect(screen.queryByRole("dialog")).toBeNull();
 });
+
+test("保存の応答を待つ間に元のタイトルに戻しても、離れる前に確かめる", async () => {
+  const pending = Promise.withResolvers<undefined>();
+  const { history } = edit({
+    "admin/fixedPages/update": async (input) => {
+      await pending.promise;
+      return { output: { ...page, ...input } };
+    },
+  });
+  const title = await screen.findByRole("textbox", { name: "タイトル" });
+  await userEvent.type(title, "X");
+  await save();
+  await screen.findAllByRole("progressbar");
+  await userEvent.type(title, "{End}{Backspace}");
+  expect(screen.getByDisplayValue(page.title)).toBe(title);
+
+  history.push("/");
+  const dialog = await screen.findByRole("dialog", {
+    name: "保存していない変更があります",
+  });
+  await userEvent.click(
+    within(dialog).getByRole("button", { name: "編集を続ける" }),
+  );
+  pending.resolve(undefined);
+  await screen.findByText("固定ページを更新しました。");
+  expect(screen.getByDisplayValue(page.title)).toBe(title);
+});
