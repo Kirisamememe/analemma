@@ -1,42 +1,46 @@
-import type { FieldDefinition, FixedPageContent } from "@analemma/contract";
-
 /** 中身に保存した画像の ID と、その値がある場所。 */
 type ContentImage = {
   /** 小文字にそろえた画像の ID。 */
   readonly id: string;
   /** 画像の項目を持つオブジェクト。 */
-  readonly parent: FixedPageContent;
+  readonly parent: Record<string, unknown>;
   /** 画像の項目のキー。 */
   readonly key: string;
 };
 
-/** 定義に従って、グループと繰り返しの中も含めて画像の項目を探す。 */
-export const findContentImages = (
-  fields: readonly FieldDefinition[],
-  content: FixedPageContent[string] | undefined,
-): ContentImage[] => {
-  if (
-    content === null ||
-    typeof content !== "object" ||
-    Array.isArray(content)
-  ) {
-    return [];
-  }
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
 
-  return fields.flatMap((field): ContentImage[] => {
-    const { key } = field;
+/** 保存済みの項目の型とキーをたどり、中身から画像の項目を探す。 */
+export const findContentImages = (
+  fields: unknown,
+  content: unknown,
+): ContentImage[] => {
+  if (!isRecord(content)) return [];
+
+  if (!Array.isArray(fields)) throw new TypeError("項目の定義が配列ではない");
+
+  return fields.flatMap((field: unknown): ContentImage[] => {
+    if (!isRecord(field)) throw new Error("項目の定義がオブジェクトではない");
+
+    const { key, type, fields: nested } = field;
+
+    if (typeof key !== "string" || typeof type !== "string") {
+      throw new TypeError("項目のキーと型が必要");
+    }
+
+    if (!Object.hasOwn(content, key)) return [];
+
     const value = content[key];
 
-    if (field.type === "image" && typeof value === "string") {
+    if (type === "image" && typeof value === "string") {
       return [{ id: value.toLowerCase(), parent: content, key }];
     }
 
-    if (field.type === "group") {
-      return findContentImages(field.fields, value);
-    }
+    if (type === "group") return findContentImages(nested, value);
 
-    if (field.type === "repeat" && Array.isArray(value)) {
-      return value.flatMap((item) => findContentImages(field.fields, item));
+    if (type === "repeat" && Array.isArray(value)) {
+      return value.flatMap((item: unknown) => findContentImages(nested, item));
     }
 
     return [];
