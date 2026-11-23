@@ -15,6 +15,7 @@ type PendingFocus = {
 /** キーボードで開いた写真で、同じ向きのリンクへ focus を戻す。 */
 export const useViewerNavigation = (
   back: RefObject<HTMLAnchorElement | null>,
+  disabled: boolean,
 ) => {
   const { t } = useTranslation();
   const previous = useRef<HTMLAnchorElement>(null);
@@ -30,7 +31,8 @@ export const useViewerNavigation = (
     id === undefined
       ? undefined
       : {
-          href: `/images/${id}`,
+          id,
+          disabled,
           label: t(
             side === "next" ? "imageDetail.next" : "imageDetail.previous",
           ),

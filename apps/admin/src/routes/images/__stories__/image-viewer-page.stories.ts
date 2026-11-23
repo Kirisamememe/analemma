@@ -32,6 +32,33 @@ type Story = StoryObj<typeof meta>;
 
 export const WithAllDetails: Story = {};
 
+const waitForPhoto = (id: string, milliseconds: number) =>
+  id === IDS[0]
+    ? undefined
+    : new Promise<void>((resolve) => {
+        setTimeout(resolve, milliseconds);
+      });
+
+export const DelayedNavigation: Story = {
+  args: {
+    /** 次の写真と前後の行き先を時間を分けて返す server。 */
+    createRoutes: () => {
+      const { routes } = createImageRoutes(SAMPLE_IMAGES);
+      return {
+        ...routes,
+        "admin/images/get": async (input) => {
+          await waitForPhoto(input.id, 500);
+          return routes["admin/images/get"](input);
+        },
+        "admin/images/neighbors": async (input) => {
+          await waitForPhoto(input.id, 850);
+          return routes["admin/images/neighbors"](input);
+        },
+      };
+    },
+  },
+};
+
 const atPath = (path: string): Story => ({ args: { path } });
 
 export const Portrait = atPath(pathOf(1));
