@@ -47,7 +47,7 @@ const More = ({ next, onLoad, retryRef }: MoreProps): ReactNode => {
           onLoad();
           next.retry();
         }}
-        retryRef={retryRef}
+        retryRef={next.isRetrying ? undefined : retryRef}
         title={t("images.moreFailed")}
       />
     );

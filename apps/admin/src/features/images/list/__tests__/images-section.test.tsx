@@ -102,6 +102,33 @@ describe("ImagesSection", () => {
     );
   }, 15_000);
 
+  test("最初の再試行で画像が無ければ、空の一覧の案内に focus を移す", async () => {
+    let broken = true;
+    const { routes } = createImageRoutes([]);
+    await renderSection({
+      ...routes,
+      "admin/images/list": (input) =>
+        broken
+          ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+          : routes["admin/images/list"](input),
+    });
+
+    const retry = await screen.findByRole(
+      "button",
+      { name: "もう一度試す" },
+      { timeout: 8000 },
+    );
+
+    broken = false;
+    await userEvent.click(retry);
+
+    const empty = await screen.findByRole("region", {
+      name: "画像はまだありません",
+    });
+
+    expect(document.activeElement).toBe(empty);
+  }, 15_000);
+
   test("続きを読むと下に足して、足した最初の画像に focus を移し、最後まで読むと操作を消す", async () => {
     const imageHref = mock((_id: string): "/fixed-pages" => "/fixed-pages");
 

@@ -77,7 +77,7 @@ export const ErrorState = ({
           </Stack>
         )}
       </div>
-      <Button isPending={isRetrying} onPress={onRetry} ref={retryRef}>
+      <Button isPending={isRetrying} onPress={onRetry} ref={retryRef ?? null}>
         {t("ui.errorState.retry")}
       </Button>
     </div>
