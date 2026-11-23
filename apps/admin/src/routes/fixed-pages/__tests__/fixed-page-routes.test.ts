@@ -247,7 +247,11 @@ test("一覧から種類を選んで作り、編集の画面から一覧に戻�
   );
   await clickSave(user);
 
-  expect(await screen.findByText("固定ページを作成しました。")).toBeDefined();
+  const saved = await screen.findByRole("dialog", {
+    name: "固定ページを作成しました。",
+  });
+
+  await user.click(within(saved).getByRole("button", { name: "閉じる" }));
   const [created] = server.pages();
   expect(created?.content).toEqual({ lead: "こんにちは" });
   await screen.findByRole("heading", { name: "固定ページを編集" });

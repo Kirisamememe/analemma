@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 
 import { fixedPageSlug, fixedPageTitle } from "@analemma/contract";
 
@@ -15,6 +15,7 @@ import {
   type LoadedFixedPage,
 } from "../queries/fixed-page-query";
 import { saveFixedPage } from "../queries/save-fixed-page";
+import { SaveStatusContext } from "./save-status-context";
 
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
@@ -28,7 +29,7 @@ import { useAppForm } from "@/components/forms";
 import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { focusFirstInvalidField } from "@/ui/primitives/form-fields";
-import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
+import { useFailureToast } from "@/ui/primitives/overlays";
 
 type Page = ApiOutputs["admin"]["fixedPages"]["get"];
 /** 固定ページのフォームに渡す値。 */
@@ -64,7 +65,12 @@ export const useEditorForm = (
 ) => {
   const t = useTranslate();
   const { api } = useAppContext();
-  const toast = useShowToast();
+  const setSaveStatus = useContext(SaveStatusContext);
+
+  if (!setSaveStatus) {
+    throw new Error("固定ページの保存状態を扱う Provider がありません。");
+  }
+
   const { refresh, replace } = useApiCache();
   const root = useRef<HTMLDivElement>(null);
 
@@ -107,14 +113,7 @@ export const useEditorForm = (
         saved.current = values;
 
         if (isOpen) {
-          toast({
-            tone: "success",
-            message: t(
-              page === undefined
-                ? "fixedPageEditor.created"
-                : "fixedPageEditor.saved",
-            ),
-          });
+          setSaveStatus(page === undefined ? "created" : "saved");
           onSaved(result.data);
         }
 
@@ -131,6 +130,8 @@ export const useEditorForm = (
         return;
       }
 
+      if (root.current !== null) setSaveStatus(undefined);
+
       const refused = refusedSaveErrors(result, t);
 
       focusOnRender.current = refused.fields;
@@ -139,6 +140,8 @@ export const useEditorForm = (
       finishSaving();
     },
     onError: () => {
+      if (root.current !== null) setSaveStatus(undefined);
+
       failure.show(t("fixedPageEditor.saveFailed"));
       finishSaving();
     },
@@ -149,6 +152,7 @@ export const useEditorForm = (
     canSubmitWhenInvalid: true,
     onSubmit: ({ value }) => {
       failure.close();
+      setSaveStatus("pending");
       setErrors({});
       submitted.current = value;
       sending.current = true;

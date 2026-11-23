@@ -38,6 +38,7 @@ export const ja = {
     "タイトルは1〜200文字で、改行を使わずに入力してください。",
   "fixedPageEditor.slugTaken": "この slug は、ほかの固定ページが使っています。",
   "fixedPageEditor.save": "保存",
+  "fixedPageEditor.saving": "固定ページを保存しています",
   "fixedPageEditor.saved": "固定ページを更新しました。",
   "fixedPageEditor.created": "固定ページを作成しました。",
   "fixedPageEditor.saveFailed":

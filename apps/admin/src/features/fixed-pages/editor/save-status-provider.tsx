@@ -1,0 +1,49 @@
+import { type ReactNode, useState } from "react";
+
+import {
+  SaveStatusContext,
+  type SaveStatus,
+} from "./hooks/save-status-context";
+
+import { useTranslate } from "@/i18n/use-translate";
+import { Dialog } from "@/ui/primitives/overlays";
+
+type SaveStatusProviderProps = {
+  /** 固定ページの作成・編集画面にいるか。 */
+  active: boolean;
+  /** 保存中に操作を止める管理画面。 */
+  children: ReactNode;
+};
+
+/** 固定ページを作成して編集画面に移っても、保存の Dialog を表示し続ける。 */
+export const SaveStatusProvider = ({
+  active,
+  children,
+}: SaveStatusProviderProps): ReactNode => {
+  const [status, setStatus] = useState<SaveStatus>();
+  const t = useTranslate();
+
+  if (!active && status !== undefined) setStatus(undefined);
+
+  return (
+    <SaveStatusContext value={setStatus}>
+      <div inert={status !== undefined}>{children}</div>
+      {status !== undefined && (
+        <Dialog
+          isOpen
+          title={t(
+            status === "pending"
+              ? "fixedPageEditor.saving"
+              : status === "saved"
+                ? "fixedPageEditor.saved"
+                : "fixedPageEditor.created",
+          )}
+          status={status === "pending" ? "pending" : "success"}
+          onOpenChange={(open) => {
+            if (!open && status !== "pending") setStatus(undefined);
+          }}
+        />
+      )}
+    </SaveStatusContext>
+  );
+};

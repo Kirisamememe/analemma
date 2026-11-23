@@ -3,6 +3,7 @@ import { RouterContextProvider } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import type { AppParts, AppRouter } from "@/app";
+import { SaveStatusProvider } from "@/features/fixed-pages/editor/save-status-provider";
 import { createI18n } from "@/i18n/create-i18n";
 import { withI18n } from "@/testing/render-with-i18n";
 import { ToastProvider } from "@/ui/primitives/overlays";
@@ -38,7 +39,9 @@ export const withAppProviders = ({ queryClient, router }: AppParts) => {
     <I18n>
       <QueryClientProvider client={queryClient}>
         <RouterContextProvider router={router}>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <SaveStatusProvider active>{children}</SaveStatusProvider>
+          </ToastProvider>
         </RouterContextProvider>
       </QueryClientProvider>
     </I18n>

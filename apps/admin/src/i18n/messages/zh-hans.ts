@@ -37,6 +37,7 @@ export const zhHans = {
   "fixedPageEditor.invalidTitle": "请输入 1 至 200 个字符的标题，不要换行。",
   "fixedPageEditor.slugTaken": "其他固定页面已在使用此 slug。",
   "fixedPageEditor.save": "保存",
+  "fixedPageEditor.saving": "正在保存固定页面",
   "fixedPageEditor.saved": "固定页面已更新。",
   "fixedPageEditor.created": "固定页面已创建。",
   "fixedPageEditor.saveFailed": "无法保存固定页面，请重试。",

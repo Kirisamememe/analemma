@@ -36,6 +36,7 @@ export const en = {
     "Enter a title of 1–200 characters without line breaks.",
   "fixedPageEditor.slugTaken": "Another fixed page already uses this slug.",
   "fixedPageEditor.save": "Save",
+  "fixedPageEditor.saving": "Saving fixed page",
   "fixedPageEditor.saved": "Fixed page updated.",
   "fixedPageEditor.created": "Fixed page created.",
   "fixedPageEditor.saveFailed":

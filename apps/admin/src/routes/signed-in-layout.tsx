@@ -1,6 +1,7 @@
 import { Outlet, useMatchRoute, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { SaveStatusProvider } from "@/features/fixed-pages/editor/save-status-provider";
 import { AppNavigation } from "@/features/navigation/app-navigation";
 import { AppShell } from "@/ui/layout";
 
@@ -13,17 +14,19 @@ export const SignedInLayout = (): ReactNode => {
   });
 
   return (
-    <AppShell
-      nav={
-        <AppNavigation
-          isCurrent={(href) =>
-            matchRoute({ to: href, fuzzy: href !== "/" }) !== false
-          }
-        />
-      }
-      pageKey={pathname}
-    >
-      <Outlet />
-    </AppShell>
+    <SaveStatusProvider active={pathname?.startsWith("/fixed-pages/") === true}>
+      <AppShell
+        nav={
+          <AppNavigation
+            isCurrent={(href) =>
+              matchRoute({ to: href, fuzzy: href !== "/" }) !== false
+            }
+          />
+        }
+        pageKey={pathname}
+      >
+        <Outlet />
+      </AppShell>
+    </SaveStatusProvider>
   );
 };
