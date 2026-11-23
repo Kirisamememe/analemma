@@ -183,7 +183,7 @@
   --size-icon-lg: 1.25rem;
   --size-icon-xl: 1.5rem;
   --size-sidebar: 15rem;
-  --nav-bar-height: 3.5;
+  --size-nav-bar: --spacing(14);
 }
 
 @utility h-control {
@@ -233,7 +233,7 @@
 }
 
 @utility h-nav-bar {
-  height: calc(var(--nav-bar-height) * 1rem);
+  height: var(--size-nav-bar);
 }
 
 @utility top-toast {
@@ -341,8 +341,8 @@
 
   :root:has([data-top-bar]) {
     @variant max-md {
-      --viewport-top-inset: calc(var(--nav-bar-height) * 1rem);
-      scroll-padding-top: calc((var(--nav-bar-height) + 0.25) * 1em);
+      --viewport-top-inset: var(--size-nav-bar);
+      scroll-padding-top: calc(var(--viewport-top-inset) + --spacing(1));
     }
   }
 
