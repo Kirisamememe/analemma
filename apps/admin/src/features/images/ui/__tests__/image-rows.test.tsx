@@ -16,10 +16,14 @@ const IMAGES = [
 ];
 
 type TileOptions = Partial<
-  Pick<Parameters<typeof ImageTile>[0], "badge" | "date" | "images" | "title">
+  Pick<
+    Parameters<typeof ImageTile>[0],
+    "alt" | "badge" | "date" | "images" | "title"
+  >
 >;
 
 const tile = ({
+  alt = null,
   badge,
   date,
   images = IMAGES,
@@ -27,6 +31,7 @@ const tile = ({
 }: TileOptions) => (
   <ImageRows label="画像">
     <ImageTile
+      alt={alt}
       badge={badge}
       date={date}
       href="/fixed-pages"
@@ -53,6 +58,18 @@ describe("ImageTile", () => {
     renderWithI18n(tile({ title: null }));
 
     expect(screen.getByRole("link").textContent).toBe("無題");
+  });
+
+  test("無題の画像に alt があれば、写真の内容でもリンクを見分けられる", () => {
+    renderWithI18n(tile({ title: null, alt: "朝もやの湖" }));
+
+    const link = screen.getByRole("link", { name: "朝もやの湖 無題" });
+    const photo = within(link).getByRole("img", { name: "朝もやの湖" });
+
+    expect(photo.getAttribute("src")).toBe("/media/a/640.avif");
+    expect(photo.getAttribute("srcset")).toBe(
+      "/media/a/640.avif 640w, /media/a/1280.avif 1280w",
+    );
   });
 
   test("配信用の画像が無ければ、写真の代わりに知らせを出す", () => {

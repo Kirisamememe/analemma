@@ -29,7 +29,10 @@ export const samplePhoto = (name: SamplePhotoName): DeliveryImages => {
 
   return [...STEPS.filter((step) => step < width), width].map((step) => ({
     width: step,
-    height: Math.round((step * down) / across),
+    height:
+      step === width
+        ? Math.round(down * scale)
+        : Math.round((step * down) / across),
     url,
   }));
 };

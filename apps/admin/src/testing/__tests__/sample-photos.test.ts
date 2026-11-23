@@ -12,8 +12,11 @@ describe("samplePhoto", () => {
       [1920, 1280],
       [2560, 1707],
     ]);
-    expect(samplePhoto("snow-path").map(({ width }) => width)).toEqual([
-      640, 853,
+    expect(
+      samplePhoto("snow-path").map(({ width, height }) => [width, height]),
+    ).toEqual([
+      [640, 1920],
+      [853, 2560],
     ]);
   });
 });

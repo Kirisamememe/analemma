@@ -31,6 +31,7 @@ export const Tiles: Story = {
           untitled="無題"
         />
         <ImageTile
+          alt="朝もやの中で山を映す湖"
           href="/"
           images={samplePhoto("morning-lake")}
           missing="表示用の画像がまだありません"
@@ -68,4 +69,19 @@ export const Tiles: Story = {
 export const Placeholder: Story = {
   /** 読み込む間の、写真の形の灰色の枠。 */
   render: () => <ImageRowsPlaceholder label="画像を読み込んでいます。" />,
+};
+
+export const UnpublishedPortrait: Story = {
+  args: {
+    children: (
+      <ImageTile
+        badge="非公開"
+        href="/"
+        images={samplePhoto("snow-path")}
+        missing="表示用の画像がまだありません"
+        title="雪の参道"
+        untitled="無題"
+      />
+    ),
+  },
 };

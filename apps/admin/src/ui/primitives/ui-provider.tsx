@@ -18,7 +18,7 @@ type WithParams<Path extends string> =
       : Path;
 
 /** 管理画面の route のパス(`$id` などは値を入れる前の形)。 */
-export type RoutePath = NonNullable<ToOptions["to"]>;
+export type RoutePath = Extract<ToOptions["to"], `/${string}`>;
 
 /** 管理画面の中の行き先(route のパスか、その `$id` などに値を入れたもの)。 */
 export type AppHref = WithParams<RoutePath>;

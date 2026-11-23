@@ -33,8 +33,8 @@ const rows = tv({
       "p-2 text-center text-fg-muted",
     ],
     caption: "flex w-0 min-w-full flex-col", // 文字の長さで枠の幅を変えない
-    heading: "flex min-w-0 items-center gap-2",
-    title: "min-w-0 truncate",
+    heading: "flex min-w-0 flex-wrap items-center gap-2",
+    title: "w-8 max-w-fit min-w-0 grow truncate",
     badge: "flex shrink-0",
     date: "text-fg-muted",
   },
@@ -58,7 +58,8 @@ type ImageRowsProps = {
 
 /** 写真の縦横比を保ったまま、高さをそろえて行の幅いっぱいに並べる一覧。 */
 export const ImageRows = ({ label, children }: ImageRowsProps): ReactNode => (
-  <ul aria-label={label} className={rows().list()}>
+  // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- WebKit はマーカーのない ul を group として読み上げる
+  <ul aria-label={label} className={rows().list()} role="list">
     {children}
   </ul>
 );
@@ -71,6 +72,8 @@ type ImageTileProps = {
   images: DeliveryImages;
   /** タイトル(無ければ null)。 */
   title: string | null;
+  /** 写真の alt。 */
+  alt?: string | null;
   /** タイトルが無いときに出す文言。 */
   untitled: string;
   /** 配信用の画像が無いときに出す文言。 */
@@ -88,6 +91,7 @@ export const ImageTile = ({
   href,
   images,
   title,
+  alt,
   untitled,
   missing,
   badge,
@@ -112,7 +116,7 @@ export const ImageTile = ({
               </span>
             ) : (
               <img
-                alt=""
+                alt={title === null ? (alt ?? "") : ""}
                 className={style.photo()}
                 decoding="async"
                 loading="lazy"
