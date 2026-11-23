@@ -45,6 +45,7 @@ const MERGE_CONFIG: TWMergeConfig = {
     classGroups: {
       h: ["h-control", "h-control-sm", "h-nav-bar"],
       "max-h": ["max-h-viewer-photo"],
+      "min-h": ["min-h-nav-bar"],
       top: ["top-toast"],
       size: [
         "size-icon-xs",
