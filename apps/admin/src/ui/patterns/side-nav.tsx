@@ -58,7 +58,7 @@ type SideNavProps = {
   isDrawerPending?: boolean;
   /** ナビのリンクのまとまり。 */
   groups: readonly SideNavGroup[];
-  /** 下の段に置く操作。 */
+  /** 下の段に、縦に並べる操作。 */
   footer: ReactNode;
 };
 
@@ -129,7 +129,7 @@ const SideNavContent = ({
         />
       ))}
     </nav>
-    <div className="mt-auto p-3">{footer}</div>
+    <div className="mt-auto flex flex-col gap-0.5 p-3">{footer}</div>
   </>
 );
 
