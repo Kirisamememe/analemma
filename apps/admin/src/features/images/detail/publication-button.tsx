@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import { mergeImageChange } from "./logic/merge-image-change";
 import { useImageDialog } from "./hooks/use-image-dialog";
+import { mergeImageChange } from "./logic/merge-image-change";
 import { setPublication } from "./queries/image-actions";
 import { imageQueryKey, type LoadedImage } from "./queries/image-query";
 
@@ -36,7 +36,7 @@ export const PublicationButton = ({
 }: PublicationButtonProps): ReactNode => {
   const t = useTranslate();
   const dialog = useImageDialog(image.id, isDisabled);
-  const failure = useFailureToast();
+  const failure = useFailureToast(image.id);
   const showToast = useShowToast();
   const { refresh, update, updatePages } = useApiCache();
   const { api } = useAppContext();
@@ -94,7 +94,7 @@ export const PublicationButton = ({
     <>
       <Button
         size="sm-to-md"
-        isPending={publication.isPending && !confirming}
+        isPending={publication.isPending && !dialog.isOpen}
         onPress={() => {
           if (isDisabled) return;
 

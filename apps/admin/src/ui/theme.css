@@ -356,7 +356,7 @@
 
   :root:has([data-top-bar]) {
     @variant max-md {
-      --viewport-top-inset: var(--size-nav-bar);
+      --viewport-top-inset: var(--viewer-bar-height, var(--size-nav-bar));
       scroll-padding-top: calc(var(--viewport-top-inset) + --spacing(1));
     }
   }

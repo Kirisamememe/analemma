@@ -38,6 +38,33 @@ describe("useFailureToast", () => {
     ).toEqual(["もう一度送れませんでした。"]);
   });
 
+  test("前の画像の失敗が遅れても、今の画像の失敗を残す", () => {
+    const { result, rerender } = renderHook(
+      (id: string) => useFailureToast(id),
+      {
+        initialProps: "A",
+        wrapper: withToast,
+      },
+    );
+
+    const first = result.current;
+    rerender("B");
+    act(() => {
+      result.current.show("港の画像を非公開にできませんでした。");
+      first.show("山の画像はもうありません。");
+    });
+    expect(
+      screen.getByText("港の画像を非公開にできませんでした。"),
+    ).toBeDefined();
+    expect(screen.getByText("山の画像はもうありません。")).toBeDefined();
+    act(() => {
+      first.close();
+    });
+    expect(
+      screen.getByText("港の画像を非公開にできませんでした。"),
+    ).toBeDefined();
+  });
+
   test("閉じる関数で、出した失敗の Toast を閉じる", () => {
     const { result } = renderHook(useFailureToast, { wrapper: withToast });
 

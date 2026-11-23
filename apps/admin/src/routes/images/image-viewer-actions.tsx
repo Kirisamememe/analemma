@@ -48,6 +48,7 @@ const ImageActionButtonsContent = ({
 }: ImageActionButtonsProps): ReactNode => {
   const navigate = useNavigate();
   const router = useRouter();
+
   return (
     <ViewerActions disabled={isDisabled}>
       <EditImage image={image} isDisabled={isDisabled} />
@@ -57,7 +58,11 @@ const ImageActionButtonsContent = ({
         name={name}
         isDisabled={isDisabled}
         onDeleted={(deletedId) => {
-          if (router.state.location.pathname.toLowerCase().replace(/\/+$/v, "") === `/images/${deletedId}`) {
+          if (
+            router.state.location.pathname
+              .toLowerCase()
+              .replace(/\/+$/v, "") === `/images/${deletedId}`
+          ) {
             void navigate({ to: "/images" });
           }
         }}

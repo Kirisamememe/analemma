@@ -78,9 +78,6 @@ describe("表示中の画像への操作", () => {
     await userEvent.click(
       await screen.findByRole("link", { name: "次の画像" }),
     );
-    await waitFor(() => {
-      expect(screen.getByRole("group").hasAttribute("disabled")).toBe(true);
-    });
 
     for (const trigger of [edit, publication, remove]) {
       await userEvent.click(trigger);

@@ -301,7 +301,10 @@ export const EditImage = ({
     <>
       <Button
         size="sm-to-md"
-        isPending={isSaving || (opening.isPending && !isDisabled && request.current !== undefined)}
+        isPending={
+          isSaving ||
+          (opening.isPending && !isDisabled && request.current !== undefined)
+        }
         ref={attach}
         onPress={() => {
           if (isDisabled) return;
