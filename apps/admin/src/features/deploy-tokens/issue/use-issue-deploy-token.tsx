@@ -16,7 +16,7 @@ export type IssuedToken = {
   readonly token: string;
 };
 
-/** 発行の Dialog を閉じる関数を受け取る。 */
+/** デプロイ用のトークンを発行する hook に渡す値。 */
 type IssueDeployTokenOptions = {
   /** Dialog を閉じる関数。 */
   readonly onClose: () => void;

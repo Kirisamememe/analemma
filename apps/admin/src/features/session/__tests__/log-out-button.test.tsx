@@ -47,7 +47,7 @@ describe("LogOutButton", () => {
     expect(history.location.pathname).toBe("/login");
   });
 
-  test("ログアウトできなければ、引き出したナビから押しても Toast で知らせ、画面に残る", async () => {
+  test("ログアウトできなければ、引き出したナビから押しても Toast で知らせ、ログインの画面に移らない", async () => {
     const { history } = renderHome({
       error: "INTERNAL_SERVER_ERROR",
       defined: false,
