@@ -47,6 +47,7 @@ import {
   publishImage,
   unpublishImage,
   updateImage,
+  uploadImage,
 } from "@/features/images";
 import { getKind, listKinds, pushKinds } from "@/features/kinds";
 import {
@@ -90,6 +91,7 @@ export const router = implement(contract)
       images: {
         list: listImages,
         get: getImage,
+        upload: uploadImage,
         neighbors: getImageNeighbors,
         update: updateImage,
         publish: publishImage,

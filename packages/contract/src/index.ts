@@ -31,7 +31,12 @@ export {
   textValue,
   urlValue,
 } from "./kinds/content-values";
-export { imageAlt, imageDescription, imageTitle } from "./images/image-values";
+export {
+  PHOTO_MAX_BYTES,
+  imageAlt,
+  imageDescription,
+  imageTitle,
+} from "./images/image-values";
 export { deployTokenName } from "./kinds/deploy-tokens";
 export {
   type FieldDefinition,

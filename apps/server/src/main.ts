@@ -5,6 +5,7 @@ import {
   CHALLENGE_LIFETIME_MS,
   createChallengeStore,
 } from "@/features/auth/challenge/create-challenge-store";
+import { createConversionQueue } from "@/features/images/processing/conversion-queue";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
 import { openFileStorage } from "@/platform/file-storage/open-file-storage";
@@ -61,6 +62,7 @@ const context: AppContext = {
     capacity: CHALLENGE_CAPACITY,
     lifetimeMs: CHALLENGE_LIFETIME_MS,
   }),
+  conversions: createConversionQueue(),
 };
 
 const internalOptions = {
@@ -69,8 +71,17 @@ const internalOptions = {
   hostname: env.internal.host,
 };
 
+const PHOTO_IDLE_TIMEOUT_SECONDS = 120; // 写真の変換を待つ間に、接続を切らない(Bun の既定は10秒)
+
 const externalOptions = {
-  fetch: createExternalApp(context, adminDist).fetch,
+  fetch: createExternalApp(context, {
+    dist: adminDist,
+    listener: {
+      keepAlive: (request) => {
+        external.timeout(request, PHOTO_IDLE_TIMEOUT_SECONDS);
+      },
+    },
+  }).fetch,
   port: env.port,
 };
 

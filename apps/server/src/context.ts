@@ -1,4 +1,5 @@
 import type { ChallengeStore } from "@/features/auth/challenge/create-challenge-store";
+import type { ConversionQueue } from "@/features/images/processing/conversion-queue";
 import type { Clock } from "@/platform/clock";
 import type { Database } from "@/platform/database";
 import type { FileStorage } from "@/platform/file-storage/open-file-storage";
@@ -19,6 +20,8 @@ export type AppContext = {
   readonly storage: FileStorage;
   /** 出した challenge を1回きりで覚えておく表。 */
   readonly challenges: ChallengeStore;
+  /** 写真の変換を、プロセスの中で1つずつ順に流すキュー。 */
+  readonly conversions: ConversionQueue;
 };
 
 /** 1つのリクエストを処理するあいだの依存。 */

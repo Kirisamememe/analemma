@@ -1,8 +1,8 @@
 import { describe, expect, spyOn, test } from "bun:test";
 
 import { createImage } from "@/features/images/creating/create-image";
+import { createConversionQueue } from "@/features/images/processing/conversion-queue";
 import { openDatabase } from "@/platform/database";
-import { detectImageFormat } from "@/platform/images/detect-image-format";
 import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
 import {
   createTestClient,
@@ -27,76 +27,9 @@ const connectionTo = (server: TestClient) =>
   });
 
 const clock = { now: () => TEST_NOW };
+const conversions = createConversionQueue();
 
-describe("写真から画像を作る", () => {
-  test("初めから公開された写真を管理用 API で取得でき、幅ごとの AVIF が配信されること", async () => {
-    await using server = await createTestClient();
-    await using connection = connectionTo(server);
-    await signInAsAdmin(server);
-
-    const result = await createImage(
-      { db: connection.db, clock, storage: server.storage },
-      await fixture("wide-red.jpg"),
-    );
-
-    if (result._tag !== "Created") throw new Error(result._tag);
-
-    const image = await server.client.admin.images.get({ id: result.image.id });
-    expect(image).toEqual(result.image);
-    expect(image).toMatchObject({
-      title: null,
-      description: null,
-      alt: null,
-      published: true,
-      publishedAt: TEST_NOW.toISOString(),
-    });
-    expect(image.deliveryImages.map(({ width }) => width)).toEqual([
-      640, 1280, 1920, 2560,
-    ]);
-
-    const formats = await Promise.all(
-      image.deliveryImages.map(async ({ url }) => {
-        const response = await server.app.request(url);
-        expect(response.status).toBe(200);
-
-        return detectImageFormat(new Uint8Array(await response.arrayBuffer()));
-      }),
-    );
-
-    expect(formats).toEqual(["avif", "avif", "avif", "avif"]);
-  });
-
-  test("EXIF から取得した ISO 感度を画像に記録すること", async () => {
-    await using server = await createTestClient();
-    await using connection = connectionTo(server);
-
-    const result = await createImage(
-      { db: connection.db, clock, storage: server.storage },
-      await fixture("high-iso.jpg"),
-    );
-
-    if (result._tag !== "Created") throw new Error(result._tag);
-
-    await signInAsAdmin(server);
-    expect(
-      await server.client.admin.images.get({ id: result.image.id }),
-    ).toMatchObject({ iso: 102_400 });
-  });
-
-  test("対応しない形式を渡すと画像を登録しないこと", async () => {
-    await using server = await createTestClient();
-    await using connection = connectionTo(server);
-
-    const result = await createImage(
-      { db: connection.db, clock, storage: server.storage },
-      new TextEncoder().encode("写真ではありません"),
-    );
-
-    expect(result).toEqual({ _tag: "UnsupportedFormat" });
-    await signInAsAdmin(server);
-    expect((await server.client.admin.images.list({})).images).toEqual([]);
-  });
-
+describe("写真から画像を作るときの後始末", () => {
   test("途中までファイルを書いた後に失敗しても、画像の行と書きかけのファイルが残らないこと", async () => {
     await using server = await createTestClient();
     await using connection = connectionTo(server);
@@ -115,7 +48,7 @@ describe("写真から画像を作る", () => {
 
     const [failure] = await Promise.allSettled([
       createImage(
-        { db: connection.db, clock, storage },
+        { db: connection.db, clock, conversions, storage },
         await fixture("wide-red.jpg"),
       ),
     ]);
@@ -163,7 +96,10 @@ describe("写真から画像を作る", () => {
     };
 
     const [result] = await Promise.allSettled([
-      createImage({ clock, db, storage }, await fixture("high-iso.jpg")),
+      createImage(
+        { clock, conversions, db, storage },
+        await fixture("high-iso.jpg"),
+      ),
     ]);
 
     expect(result.status).toBe("rejected");

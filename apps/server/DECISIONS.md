@@ -45,7 +45,7 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 
 - **Hono を使う**:API の仕事(ルーティング、入力と出力の検証、型付きのエラー、認可の middleware)は oRPC が持つ。その外側の HTTP のルーティングは Hono が受け持ち、セキュリティのヘッダー、CSRF の確認、リクエストの本文の大きさの上限には Hono の middleware を使う。Hono は Web 標準で書かれていて Bun 以外でも動くので、「Web 標準で書く」方針に合う。Elysia は Bun 専用なので使わない。NestJS のような大きなフレームワークは、この規模には重い。
 - oRPC の handler は、Hono の `/api/*` のルートとしてつなぐ。oRPC のプロトコル(`RPCHandler`)だけを出す。公開サイトも、client(oRPC の client)で公開 API を呼ぶので、contract から作る OpenAPI の handler は、今は足さない。
-- 外部用のポートでは、静的ファイルを含むすべての応答に `secureHeaders` を掛ける。API には `csrf` と `bodyLimit`(1 MB)も掛ける。内部用のポートの middleware は `bodyLimit` だけとする。
+- 外部用のポートでは、静的ファイルを含むすべての応答に `secureHeaders` を掛ける。API には `csrf` と `bodyLimit`(1 MB)も掛ける。写真を送る procedure へのファイルを含む本文だけは、ログイン中なら上限を大きくする(`src/features/images/DECISIONS.md` の「直接アップロード」)。内部用のポートの middleware は `bodyLimit` だけとする。
 - `ADMIN_DIST_DIR` に管理画面のビルドの出力先を指定する。相対パスの起点は server プロセスの cwd。未設定なら、server は管理画面を配信しない(開発では Vite の開発のサーバーが配る)。設定したときは起動時にファイルを読み込み、フォルダや `index.html` が読めなければ、ポートを開く前に止まる。
 - 配信するのは、起動時に読んだ通常のファイルだけ。ドットで始まる名前とシンボリックリンクを除く。管理画面のビルドがメモリに収まるので、リクエストのパスでファイルシステムを開く必要がなく、HTML と CSP も同じビルドのものになる。ビルドを入れ替えたら server を再起動する。
 - `/api` と `/api/` 以下は oRPC に渡し、`/media/` 以下は配信用の画像の経路に渡す(次の項目)。それ以外は GET・HEAD で静的ファイルを返し、ほかのメソッドには 405 を返す。ファイルに当たらない画面の URL には SPA の入口の `index.html` を返す。`/assets/` 以下の欠落は 404 にし、JS や CSS のリクエストに HTML が返るのを防ぐ。
@@ -101,7 +101,8 @@ contract を4つのアクセス区分に分け、server ではそれぞれの ba
 - `style-src` は同じ origin の CSS と、応答ごとの nonce を許す。React Aria は、press の操作の間と、スクロールを止めるときに、style 要素を head に足し、`<meta name="csp-nonce">` の値を nonce として付ける。server は、`index.html` を返すたびに Hono の `secureHeaders` の `NONCE` で nonce を作り、`<head>` の直後にその meta を差し込む。style 要素の本文の hash を書く方法では、React Aria を上げて本文が変わると、黙って style が効かなくなる。
 - 認可の middleware は、`adminProcedures` に付けるのに加えて、`router.ts` で管理用のルーター全体にも掛ける(oRPC は同じ middleware の重複を1つにまとめる)。管理用の procedure を `adminProcedures` 以外から作る抜け道ができても、認可が外れない。
 - 認可のテストは、server のルーターではなく contract の `admin` を列挙する。ルーターに遅延読み込みの枝が入っても、contract にある procedure は必ず検査される。
-- 想定外の失敗のログは、procedure を呼ぶ段階(`clientInterceptors`)で取る。リクエストを読む段階で取ると、壊れた JSON のような利用者の誤りまで、server の障害として記録されてしまう。
+- procedure の外(本文の上限を決める middleware や、配信用の画像の経路)の想定外の失敗は、Hono の `onError` で logger に書いて、本文の無い 500 を返す。Hono の既定は `console.error` に出すだけで、ほかのログと同じ形で追えない。本文の上限などの `HTTPException` は、そのまま返す。
+- 想定外の失敗のログは、procedure を呼ぶ段階(`clientInterceptors`)で取る。リクエストを読む段階で取ると、壊れた JSON のような利用者の誤りまで、server の障害として記録されてしまう。リクエストの signal が中断された(利用者が待つのをやめた)後の失敗も、同じ理由で書かない。
 - ログには、Error の名前・メッセージ・スタックと、Error である cause だけを書く。Error でない cause には Cookie などの任意の値が入りうるので書かない。BigInt や循環する値があってもログが消えないようにする。
 
 ## セッション

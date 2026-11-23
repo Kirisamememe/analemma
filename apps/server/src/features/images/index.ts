@@ -1,3 +1,4 @@
+export { uploadImage } from "@/features/images/creating/upload-image";
 export { deleteImage } from "@/features/images/editing/delete-image";
 export { updateImage } from "@/features/images/editing/update-image";
 export { getImage } from "@/features/images/reading/get-image";

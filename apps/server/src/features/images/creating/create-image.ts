@@ -8,14 +8,25 @@ import { createDeliveryImages } from "@/features/images/processing/create-delive
 import { readShotInfo } from "@/features/images/processing/read-shot-info";
 import { toAdminImage } from "@/features/images/to-admin-image";
 
-type ImageContext = Pick<AppContext, "clock" | "db" | "storage">;
+type ImageContext = Pick<
+  AppContext,
+  "clock" | "conversions" | "db" | "storage"
+> & {
+  /** 写真を待つのをやめたことを知らせる signal。 */
+  readonly signal?: AbortSignal | undefined;
+};
 
 /** 写真1枚から撮影の情報を読み、配信用の画像を登録する。 */
 export const createImage = async (
-  { clock, db, storage }: ImageContext,
+  { clock, conversions, db, storage, signal }: ImageContext,
   bytes: Uint8Array,
 ) => {
-  const delivery = await createDeliveryImages(bytes);
+  const delivery = await conversions.run(
+    async () => createDeliveryImages(bytes),
+    signal,
+  );
+
+  signal?.throwIfAborted();
 
   if (delivery._tag === "UnsupportedFormat") return delivery;
 
