@@ -9,17 +9,13 @@ import { withAppProviders } from "@/testing/hook-wrappers";
 afterEach(cleanup);
 
 const setUp = async () => {
-  const server = createImageRoutes([
-    { title: "1" },
-    { title: "2" },
-    { title: "3" },
-  ]);
+  const server = createImageRoutes(["1", "2", "3"].map((title) => ({ title })));
 
   const app = createTestApp({ path: "/images", routes: server.routes });
 
   await app.router.load();
 
-  return { app, ids: server.images().map(({ id }) => id) };
+  return { app, server, ids: server.images().map(({ id }) => id) };
 };
 
 describe("useImageNeighbors", () => {
@@ -39,19 +35,35 @@ describe("useImageNeighbors", () => {
     await waitFor(() => {
       expect(result.current).toEqual({ previous: undefined, next: second });
     });
+    rerender({ id: "019b0000-0000-7000-8000-0000000000ff" });
+    await waitFor(() => {
+      expect(result.current).toEqual({ previous: undefined, next: undefined });
+    });
   });
 
-  test("無い画像では、前も次も無いことを返す", async () => {
-    const { app } = await setUp();
+  test("前後の取得に失敗しても、その画像の前後を取り直せる", async () => {
+    const {
+      app,
+      server,
+      ids: [id = "", next],
+    } = await setUp();
 
-    const { result } = renderHook(
-      () => useImageNeighbors("019b0000-0000-7000-8000-0000000000ff"),
-      { wrapper: withAppProviders(app) },
-    );
+    app.queryClient.setDefaultOptions({ queries: { retry: false } });
+    server.replyNext("admin/images/neighbors", () => ({
+      error: "INTERNAL_SERVER_ERROR",
+      defined: false,
+    }));
+
+    const { result } = renderHook(() => useImageNeighbors(id), {
+      wrapper: withAppProviders(app),
+    });
 
     await waitFor(() => {
-      expect(app.calls).toContain("admin/images/neighbors");
+      expect(result.current.failure).toBeDefined();
     });
-    expect(result.current).toEqual({ previous: undefined, next: undefined });
+    result.current.failure?.retry();
+    await waitFor(() => {
+      expect(result.current).toEqual({ previous: undefined, next });
+    });
   });
 });

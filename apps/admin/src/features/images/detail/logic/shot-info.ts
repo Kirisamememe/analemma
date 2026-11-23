@@ -31,7 +31,7 @@ export type ShotInfoRow = {
   readonly value: string;
 };
 
-const FRACTION_LIMIT = 0.25001; // これより短いシャッター速度は 1/n 秒で書く
+const FRACTION_LIMIT = 1 / 4;
 
 const numberFormat = (locale: Locale, options: Intl.NumberFormatOptions) =>
   new Intl.NumberFormat(locale, { maximumFractionDigits: 1, ...options });
@@ -43,7 +43,7 @@ const formatExposure = (locale: Locale, seconds: number): string => {
     unitDisplay: "short",
   });
 
-  if (seconds <= 0 || seconds >= FRACTION_LIMIT) return format.format(seconds);
+  if (seconds <= 0 || seconds > FRACTION_LIMIT) return format.format(seconds);
 
   const fraction = `1/${String(Math.round(1 / seconds))}`;
 

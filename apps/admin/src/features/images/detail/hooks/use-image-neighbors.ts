@@ -8,6 +8,11 @@ import { useApiQuery } from "@/api/server-state/server-state";
 
 /** 一覧の並び(新しく足した順)で、前と次の画像の ID。 */
 export type ImageNeighbors = {
+  /** 前後の取得に失敗したときの状態と再試行。 */
+  readonly failure?: Extract<
+    ReturnType<typeof useApiQuery>,
+    Record<"_tag", "Failed">
+  >;
   /** 前(一つ新しい)の画像の ID。 */
   readonly previous: string | undefined;
   /** 次(一つ古い)の画像の ID。 */
@@ -24,6 +29,8 @@ export const useImageNeighbors = (id: string): ImageNeighbors => {
     key: imageNeighborsQueryKey(id),
     load: () => loadImageNeighbors(api, id),
   });
+
+  if (query._tag === "Failed") return { ...NONE, failure: query };
 
   if (query._tag !== "Loaded" || query.data._tag !== "Succeeded") return NONE;
 

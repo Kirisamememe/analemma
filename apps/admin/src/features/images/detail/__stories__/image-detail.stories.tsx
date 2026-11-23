@@ -37,7 +37,7 @@ const meta = {
     previous: undefined,
     onMove: () => undefined,
   },
-  parameters: { layout: "fullscreen", stage: null },
+  parameters: { layout: "fullscreen", contentLang: null, stage: null },
 } satisfies Meta<typeof ImageDetail>;
 
 export default meta;
