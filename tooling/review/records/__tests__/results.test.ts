@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { PERSPECTIVES, type Perspective } from "../perspectives";
+import { PERSPECTIVES, type Perspective } from "../../perspectives";
 import { decideNextRound, readVerdict } from "../results";
 
 const perspectiveOf = (id: string): Perspective => {

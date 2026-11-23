@@ -8,7 +8,8 @@ import {
   type ReviewPaths,
 } from "./commands";
 import type { CodexReviewer, CursorReviewer } from "./perspectives";
-import { readVerdict } from "./results";
+import { readVerdict } from "./records/results";
+import type { TrialEnd } from "./records/trials";
 
 const MAX_BUFFER = 256 * 1024 * 1024;
 
@@ -65,20 +66,21 @@ const report = (message: string): void => {
   process.stderr.write(`${message}\n`);
 };
 
-/** 外の CLI でレビューを流し、結果を書いて、終了コードを返す。 */
+/** 外の CLI でレビューを流し、結果を書いて、試行が終わった理由を返す。 */
 export const runExternalReview = ({
   log,
   paths,
   prompt,
   reviewer,
-}: ExternalReview): number => {
+}: ExternalReview): Pick<TrialEnd, "reason" | "exitStatus"> => {
   const command = buildReviewCommand({ reviewer, paths });
   const executed = execute({ ...command, input: prompt });
 
   if (executed.error !== undefined) {
+    writeFileSync(log, executed.error.message);
     report(`${command.command} を流せなかった:${executed.error.message}`);
 
-    return 1;
+    return { reason: "failed", exitStatus: null };
   }
 
   writeFileSync(
@@ -100,7 +102,7 @@ export const runExternalReview = ({
     rmSync(paths.result, { force: true });
     report(`レビューが失敗した。出力は ${log} にある。`);
 
-    return 1;
+    return { reason: "failed", exitStatus: executed.status };
   }
 
   const verdict = readVerdict(text);
@@ -112,7 +114,7 @@ export const runExternalReview = ({
       "結果の最後の行が VERDICT: LGTM でも VERDICT: CHANGES_REQUESTED でもない。結果を読んで判断してください。",
     );
 
-    return 1;
+    return { reason: "unreadable-verdict", exitStatus: executed.status };
   }
 
   process.stdout.write(
@@ -121,5 +123,5 @@ export const runExternalReview = ({
       : "判定:直してほしいことがある\n",
   );
 
-  return 0;
+  return { reason: verdict, exitStatus: executed.status };
 };
