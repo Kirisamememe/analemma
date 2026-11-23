@@ -1,7 +1,4 @@
-import { deployTokenName } from "@analemma/contract";
-
 import { callApi } from "@/api/call-api";
-import type { MessageKey } from "@/i18n/use-translate";
 import {
   type ReauthenticateDependencies,
   reauthenticate,
@@ -21,12 +18,6 @@ export type IssueDeployTokenResult =
       /** どの結果か。 */
       readonly _tag: "Cancelled" | "ReauthenticationFailed";
     };
-
-/** 名前を contract と同じ決まりで確かめ、合わなければ知らせの訳のキーを返す。 */
-export const checkDeployTokenName = (value: string): MessageKey | undefined =>
-  deployTokenName.safeParse(value).success
-    ? undefined
-    : "deployTokens.invalidName";
 
 /** 再認証をしてから、デプロイ用のトークンを発行する。 */
 export const issueDeployToken = async (

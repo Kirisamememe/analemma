@@ -1,10 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import {
-  checkDeployTokenName,
-  issueDeployToken,
-} from "@/features/deploy-tokens/issue/queries/issue-deploy-token";
-import type { MessageKey } from "@/i18n/use-translate";
+import { issueDeployToken } from "@/features/deploy-tokens/issue/queries/issue-deploy-token";
 import { createFakeApi, type FakeReply } from "@/testing/create-fake-api";
 import {
   FAKE_ASSERTION,
@@ -98,18 +94,5 @@ describe("issueDeployToken", () => {
         "本番のデプロイ",
       ),
     ).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
-  });
-});
-
-describe("checkDeployTokenName", () => {
-  test.each<[string, MessageKey | undefined]>([
-    ["本番のデプロイ", undefined],
-    ["a".repeat(64), undefined],
-    ["", "deployTokens.invalidName"],
-    ["   ", "deployTokens.invalidName"],
-    ["a".repeat(65), "deployTokens.invalidName"],
-    ["本番\nのデプロイ", "deployTokens.invalidName"],
-  ])("%p は %p", (name, expected) => {
-    expect(checkDeployTokenName(name)).toBe(expected);
   });
 });

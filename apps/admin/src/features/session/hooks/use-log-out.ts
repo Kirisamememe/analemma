@@ -2,6 +2,7 @@ import { useRef } from "react";
 
 import { useAppContext, useGoToLogin } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
+import { sendLogOut } from "@/features/session/queries/log-out";
 import { useTranslate } from "@/i18n/use-translate";
 import { useShowToast } from "@/ui/primitives/overlays";
 
@@ -15,7 +16,7 @@ export const useLogOut = () => {
   const closeFailure = useRef<() => void>(undefined); // 前の失敗の Toast を閉じる関数
 
   const logOut = useApiMutation({
-    send: () => api.admin.session.logOut(),
+    send: () => sendLogOut(api),
     onSuccess: () => {
       clear();
       goToLogin();

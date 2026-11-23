@@ -2,8 +2,10 @@ import { createBrowserHistory } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import { App } from "./app";
+import { createApp } from "./router";
+
 import { createApiClient } from "@/api/create-api-client";
-import { App, createApp } from "@/app";
 import {
   createAuthGate,
   gateAdminRequests,
@@ -13,9 +15,9 @@ import {
   createBrowserWebAuthn,
 } from "@/features/auth/webauthn";
 import { createI18n } from "@/i18n/create-i18n";
+import "@/ui/app.css";
 import { toLocale } from "@/i18n/locales";
 import { syncLocale } from "@/preferences/sync-locale";
-import "@/ui/app.css";
 
 const container = document.querySelector("#root");
 

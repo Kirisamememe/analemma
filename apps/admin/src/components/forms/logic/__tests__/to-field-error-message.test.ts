@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { toFieldErrorMessage } from "@/components/forms/hooks/use-field-context";
+import { toFieldErrorMessage } from "@/components/forms/logic/to-field-error-message";
 
 describe("フォームの誤りの知らせ", () => {
   test("文字列をつなぎ、文字列以外の値は表示に入れないこと", () => {

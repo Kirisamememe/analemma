@@ -1,4 +1,4 @@
-import type { ApiOutputs } from "@/api/api-types";
+import type { ApiClient, ApiOutputs } from "@/api/api-types";
 
 /** 一覧に出す、1つのデプロイ用のトークン。 */
 export type DeployTokenSummary =
@@ -10,3 +10,7 @@ export const DEPLOY_TOKENS_QUERY_KEY = [
   "deployTokens",
   "list",
 ] as const;
+
+/** 発行したデプロイ用のトークンの一覧を読む。 */
+export const loadDeployTokens = (api: ApiClient) =>
+  api.admin.deployTokens.list();

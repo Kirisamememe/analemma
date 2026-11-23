@@ -2,6 +2,7 @@ import { type ReactNode, useState } from "react";
 
 import { useAppContext, useGoToLogin } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
+import { sendLogOutAll } from "@/features/session/queries/log-out";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Heading, Stack, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
@@ -17,7 +18,7 @@ export const LogOutAllSection = (): ReactNode => {
   const [isConfirming, setConfirming] = useState(false);
 
   const logOutAll = useApiMutation({
-    send: () => api.admin.session.logOutAll(),
+    send: () => sendLogOutAll(api),
     onSuccess: () => {
       clear();
       goToLogin();

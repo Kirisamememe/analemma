@@ -4,6 +4,7 @@ import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
 import {
   DEPLOY_TOKENS_QUERY_KEY,
+  loadDeployTokens,
   type DeployTokenSummary,
 } from "@/features/deploy-tokens/queries/deploy-tokens-query";
 import { formatDateTime } from "@/i18n/format-date-time";
@@ -29,7 +30,7 @@ export const DeployTokenList = ({
 
   const tokens = useApiQuery({
     key: DEPLOY_TOKENS_QUERY_KEY,
-    load: () => api.admin.deployTokens.list(),
+    load: () => loadDeployTokens(api),
   });
 
   if (tokens._tag === "Loading") {

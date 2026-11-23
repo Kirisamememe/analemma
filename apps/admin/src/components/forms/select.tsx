@@ -1,7 +1,8 @@
 import { useSelector } from "@tanstack/react-form";
 import type { ReactNode } from "react";
 
-import { useFieldContext, useFieldError } from "./hooks/use-field-context";
+import { useFieldContext } from "./hooks/use-field-context";
+import { useFieldError } from "./hooks/use-field-error";
 
 import { Select, type SelectProps } from "@/ui/primitives/form-fields";
 
