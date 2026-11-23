@@ -1,0 +1,78 @@
+import { cleanup, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, test } from "bun:test";
+
+import {
+  ImageRows,
+  ImageRowsPlaceholder,
+  ImageTile,
+} from "@/features/images/ui/image-rows";
+import { renderWithI18n } from "@/testing/render-with-i18n";
+
+afterEach(cleanup);
+
+const IMAGES = [
+  { width: 640, height: 427, url: "/media/a/640.avif" },
+  { width: 1280, height: 853, url: "/media/a/1280.avif" },
+];
+
+type TileOptions = Partial<
+  Pick<Parameters<typeof ImageTile>[0], "badge" | "date" | "images" | "title">
+>;
+
+const tile = ({
+  badge,
+  date,
+  images = IMAGES,
+  title = "夕暮れの稜線",
+}: TileOptions) => (
+  <ImageRows label="画像">
+    <ImageTile
+      badge={badge}
+      date={date}
+      href="/fixed-pages"
+      images={images}
+      missing="表示用の画像がまだありません"
+      title={title}
+      untitled="無題"
+    />
+  </ImageRows>
+);
+
+describe("ImageTile", () => {
+  test("タイトル・バッジ・日付を、開くリンクの中に出す", () => {
+    renderWithI18n(tile({ badge: "非公開", date: "2025/05/01" }));
+
+    const list = screen.getByRole("list", { name: "画像" });
+    const link = within(list).getByRole("link");
+
+    expect(link.textContent).toBe("夕暮れの稜線非公開2025/05/01");
+    expect(screen.queryByText("表示用の画像がまだありません")).toBeNull();
+  });
+
+  test("タイトルが無ければ無題と出し、バッジと日付は渡したときだけ出す", () => {
+    renderWithI18n(tile({ title: null }));
+
+    expect(screen.getByRole("link").textContent).toBe("無題");
+  });
+
+  test("配信用の画像が無ければ、写真の代わりに知らせを出す", () => {
+    renderWithI18n(tile({ images: [] }));
+
+    expect(
+      within(screen.getByRole("link")).getByText(
+        "表示用の画像がまだありません",
+      ),
+    ).toBeDefined();
+  });
+});
+
+describe("ImageRowsPlaceholder", () => {
+  test("読み込んでいることを読み上げ、灰色の枠は読み上げない", () => {
+    renderWithI18n(<ImageRowsPlaceholder label="画像を読み込んでいます。" />);
+
+    expect(screen.getByRole("status").textContent).toBe(
+      "画像を読み込んでいます。",
+    );
+    expect(screen.queryByRole("list")).toBeNull();
+  });
+});
