@@ -14,10 +14,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const WithIcon: Story = {
-  args: {
-    href: "/fixed-pages",
-    icon: "arrow-left",
-    children: "固定ページの一覧",
-  },
+export const Back: Story = {
+  args: { href: "/fixed-pages", variant: "back", children: "固定ページの一覧" },
 };

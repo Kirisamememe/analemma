@@ -4,9 +4,9 @@ import { Cluster, Stack, Text } from "@/ui/layout";
 import { Icon, type IconName } from "@/ui/primitives/graphics/icon";
 
 const NAMES: readonly IconName[] = [
-  "arrow-left",
   "check",
   "chevron-down",
+  "chevron-left",
   "circle-alert",
   "circle-check",
   "file-text",

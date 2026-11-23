@@ -32,7 +32,7 @@ const Frame = ({ children }: FrameProps): ReactNode => {
     <Center width="form">
       <Stack gap={3}>
         <Text variant="caption">
-          <Link href="/fixed-pages" icon="arrow-left">
+          <Link href="/fixed-pages" variant="back">
             {t("fixedPageEditor.backToList")}
           </Link>
         </Text>

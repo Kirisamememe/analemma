@@ -1,7 +1,7 @@
 import {
-  ArrowLeft,
   Check,
   ChevronDown,
+  ChevronLeft,
   CircleAlert,
   CircleCheck,
   FileText,
@@ -17,9 +17,9 @@ import {
 import type { ReactNode } from "react";
 
 const ICONS = {
-  "arrow-left": ArrowLeft,
   check: Check,
   "chevron-down": ChevronDown,
+  "chevron-left": ChevronLeft,
   "circle-alert": CircleAlert,
   "circle-check": CircleCheck,
   "file-text": FileText,

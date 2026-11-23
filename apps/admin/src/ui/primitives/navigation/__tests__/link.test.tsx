@@ -7,9 +7,9 @@ import { Link } from "@/ui/primitives/navigation/link";
 afterEach(cleanup);
 
 describe("Link", () => {
-  test("アイコンを添えても、リンクの名前は文言だけにする", () => {
+  test("戻るリンクの chevron は、リンクの名前にも文言にも入れない", () => {
     renderWithI18n(
-      <Link href="/fixed-pages" icon="arrow-left">
+      <Link href="/fixed-pages" variant="back">
         固定ページの一覧
       </Link>,
     );
