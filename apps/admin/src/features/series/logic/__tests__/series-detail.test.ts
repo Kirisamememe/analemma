@@ -1,6 +1,10 @@
 import { expect, test } from "bun:test";
 
-import { seriesChangeResult, seriesDetailReducer } from "../series-detail";
+import {
+  seriesChangeResult,
+  seriesDetailReducer,
+  seriesPendingOrder,
+} from "../series-detail";
 
 test("公開・非公開・削除はシリーズ名を付けた完了の知らせを選び、削除だけが一覧へ戻る", () => {
   for (const [action, message] of [
@@ -20,18 +24,29 @@ test("公開・非公開・削除はシリーズ名を付けた完了の知ら�
   }
 });
 
-test("遅れて届いた前の応答では、今の削除の確認を閉じない", () => {
-  const first = { action: "publish" } as const;
-  const second = { action: "delete" } as const;
-  const open = seriesDetailReducer({}, { type: "dialog", dialog: "delete" });
-  const pending = seriesDetailReducer(open, { type: "sent", change: second });
-  expect(seriesDetailReducer(pending, { type: "changed", change: first })).toBe(
-    pending,
-  );
+test("送った並びを表示し、後の並べ直しが始まったら前の応答では並びを戻さない", () => {
+  const first = { action: "reorder", imageIds: ["b", "a", "c"] } as const;
+  const second = { action: "reorder", imageIds: ["c", "a", "b"] } as const;
+  const initial = seriesDetailReducer({}, { type: "sent", change: first });
+
+  const current = seriesDetailReducer(initial, {
+    type: "sent",
+    change: second,
+  });
+
+  const late = seriesDetailReducer(current, {
+    type: "changed",
+    change: first,
+  });
+
+  expect(seriesPendingOrder(late.pending)).toEqual(second.imageIds);
+  expect(seriesChangeResult(second, "ORDER_MISMATCH")).toMatchObject({
+    kind: "failed",
+    message: "series.orderMismatch",
+  });
   expect(
-    seriesDetailReducer(pending, { type: "failed", change: second }).dialog,
-  ).toBe("delete");
-  expect(
-    seriesDetailReducer(pending, { type: "changed", change: second }).dialog,
+    seriesPendingOrder(
+      seriesDetailReducer(late, { type: "failed", change: second }).pending,
+    ),
   ).toBeUndefined();
 });

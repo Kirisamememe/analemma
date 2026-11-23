@@ -3,6 +3,7 @@ import { type ReactNode, useId } from "react";
 import { useSeriesDetail } from "./hooks/use-series-detail";
 import type { Series } from "./queries/series-query";
 import { SeriesForm } from "./series-form";
+import { SeriesImages } from "./series-images";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
@@ -18,7 +19,7 @@ type SeriesDetailProps = {
   onDeleted: () => void;
 };
 
-/** シリーズの情報の編集・公開の切り替え・削除。 */
+/** シリーズの公開状態と情報、画像の並べ直し。 */
 export const SeriesDetail = ({
   series,
   onDeleted,
@@ -83,6 +84,7 @@ export const SeriesDetail = ({
           {t("fixedPages.delete")}
         </Button>
       </Cluster>
+      <SeriesImages images={series.images} detail={detail} />
       {dialog === "edit" && (
         <SeriesForm series={series} onClose={closeDialog} />
       )}
