@@ -206,7 +206,7 @@ const noReactInLogic = {
     schema: [],
     messages: {
       reactInLogic:
-        "React の値を import できる `.ts` は、hook のファイル(名前が `use-` で始まり、export する関数が `use` で始まる1つだけ)と、context のファイル(名前が `-context.ts` で終わり、`createContext` の結果と型だけを export する)です。ほかの `.ts` はテストできるロジックだけにし、型は `import type` で読みます。",
+        "React の値を import できる `.ts` は、hook のファイル(名前が `use-` で始まり、export する関数は1つだけで、名前は `use` で始まる)と、context のファイル(名前が `-context.ts` で終わり、値として export するのは `createContext` の結果だけで、少なくとも1つは export する)です。ほかの `.ts` で React の型を使うときは `import type` で読みます。",
     },
   },
   /** .ts のファイルの、React の値の import を調べる。 */

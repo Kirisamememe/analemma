@@ -38,37 +38,41 @@ describe("React の import", () => {
       count: 1,
     },
     {
-      label: "関数を2つ export する hook のファイル",
+      label: "名前が use- で始まり、関数を2つ export するファイル",
       file: "use-two-hooks.ts",
       count: 1,
     },
     {
-      label: "use で始まらない関数を export する hook のファイル",
+      label:
+        "名前が use- で始まり、use で始まらない関数をそのまま export するファイル",
       file: "use-misnamed.ts",
       count: 1,
     },
     {
-      label: "use で始まらない名前で export する hook のファイル",
+      label:
+        "名前が use- で始まり、use で始まる関数を use で始まらない別名で export するファイル",
       file: "use-renamed.ts",
       count: 1,
     },
     {
-      label: "React の関数も再 export する hook のファイル",
+      label:
+        "名前が use- で始まり、自前の hook を export し、React の関数も re-export するファイル",
       file: "use-reexport.ts",
       count: 2,
     },
     {
-      label: "hook も export する context のファイル",
+      label:
+        "名前が -context.ts で終わり、context と hook を export するファイル",
       file: "open-context.ts",
       count: 1,
     },
     {
-      label: "context を export しない context のファイル",
+      label: "名前が -context.ts で終わり、型だけを export するファイル",
       file: "formatter-context.ts",
       count: 1,
     },
   ])(
-    "$label の、React の値の import と再 export に診断を出すこと",
+    "$label の、React の値の import と re-export に診断を出すこと",
     ({ count, file }) => {
       const { diagnostics } = lintFixture(
         `invalid/apps/admin/src/react-imports/${file}`,
