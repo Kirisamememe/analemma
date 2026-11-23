@@ -13,7 +13,7 @@ import {
   TEST_ORIGIN,
   type TestBrowser,
 } from "@/test-client/create-test-client";
-import type { TestPasskey } from "@/test-client/sign-in-as-admin";
+import type { TestPasskey } from "@/test-client/passkeys/sign-in-as-admin";
 
 /** ログインの資格情報の入力。 */
 export type AuthenticationCredentialJson = InferContractRouterInputs<

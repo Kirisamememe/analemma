@@ -1,10 +1,10 @@
-export { addTestPasskey, passkeyIdOf } from "@/test-client/add-test-passkey";
+export { addTestPasskey, passkeyIdOf } from "@/test-client/passkeys/add-test-passkey";
 export {
   type AuthenticationCredentialJson,
   answerAuthentication,
   answerReauthentication,
-} from "@/test-client/answer-authentication";
-export { answerRegistration } from "@/test-client/answer-registration";
+} from "@/test-client/passkeys/answer-authentication";
+export { answerRegistration } from "@/test-client/passkeys/answer-registration";
 export { SUCCEEDED, catchErrorCode } from "@/test-client/catch-error-code";
 export {
   TEST_INTERNAL_URL,
@@ -24,4 +24,4 @@ export {
   logInWithPasskey,
   signInAsAdmin,
   type TestPasskey,
-} from "@/test-client/sign-in-as-admin";
+} from "@/test-client/passkeys/sign-in-as-admin";
