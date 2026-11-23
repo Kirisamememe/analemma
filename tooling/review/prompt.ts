@@ -18,7 +18,7 @@ export type PromptPaths = {
   readonly commits: string;
 };
 
-/** 直したコミットの差分とメッセージのファイルの場所。 */
+/** 前の回の後に足したコミットの差分とメッセージのファイルの場所。 */
 export type FixPaths = {
   /** 差分のファイル。 */
   readonly diff: string;
@@ -36,7 +36,7 @@ export type Rereview = {
   readonly result: string;
   /** 前の回の採否の記録のファイル。 */
   readonly decisions: string | undefined;
-  /** 直したコミットのファイル。 */
+  /** 前の回の後に足したコミットのファイル。 */
   readonly fixes: FixPaths | undefined;
   /** 2回目からのレビューの prompt。 */
   readonly rules: string;
@@ -95,8 +95,8 @@ const rereviewSection = (
     ...(fixes === undefined
       ? []
       : [
-          `- 直したコミットの差分:${code(fixes.diff)}(${code(`git diff ${previousHead} ${headCommit}`)})`,
-          `- 直したコミットのメッセージ:${code(fixes.commits)}`,
+          `- 前の回の後に足したコミットの差分:${code(fixes.diff)}(${code(`git diff ${previousHead} ${headCommit}`)})`,
+          `- 前の回の後に足したコミットのメッセージ:${code(fixes.commits)}`,
         ]),
     "",
     rules.trim(),

@@ -34,7 +34,7 @@ describe("bun run review の引数を読むこと", () => {
     ).toMatchObject({ _tag: "Parsed", head: undefined });
   });
 
-  test("--full を付けたときだけ、ブランチの変更の全体をレビューすること", () => {
+  test("--full を値なしで指定したときだけ full を true と読むこと", () => {
     const base = ["--perspective", "logic", "--base", "phase/1"];
 
     expect(parseReviewArguments([...base, "--full"])).toMatchObject({

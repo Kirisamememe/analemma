@@ -30,7 +30,7 @@ const PROMPTS = join(import.meta.dirname, "prompts");
 const MAX_BUFFER = 256 * 1024 * 1024;
 
 const USAGE =
-  "使い方:bun run review -- --perspective <観点> --base <比べる元のブランチ> [--head <レビューするブランチの名前かコミット>]";
+  "使い方:bun run review -- --perspective <観点> --base <比べる元のブランチ> [--head <レビューするブランチの名前かコミット>] [--full]";
 
 const RUNNER_NAMES = { codex: "Codex", cursor: "Cursor" } as const;
 

@@ -132,7 +132,7 @@ describe("2回目からの prompt を組み立てること", () => {
     rules: "## 前の回の指摘\n\n- 前の回の約束。\n",
   };
 
-  test("前の回の結果・採否・直したコミットの場所と、前の回にレビューしたコミットを書くこと", () => {
+  test("前の回の結果・採否・前の回の後に足したコミットの場所と、前の回にレビューしたコミットを書くこと", () => {
     const prompt = buildPrompt({ ...MATERIAL, rereview: REREVIEW });
 
     expect(prompt).toContain(
@@ -143,15 +143,15 @@ describe("2回目からの prompt を組み立てること", () => {
         "",
         "- 前の回の結果:`/tmp/review/context/previous-result.md`",
         "- 前の回の指摘の採否:`/tmp/review/context/previous-decisions.jsonl`",
-        `- 直したコミットの差分:\`/tmp/review/context/fixes.patch\`(\`git diff ${PREVIOUS} ${"2".repeat(40)}\`)`,
-        "- 直したコミットのメッセージ:`/tmp/review/context/fix-commits.txt`",
+        `- 前の回の後に足したコミットの差分:\`/tmp/review/context/fixes.patch\`(\`git diff ${PREVIOUS} ${"2".repeat(40)}\`)`,
+        "- 前の回の後に足したコミットのメッセージ:`/tmp/review/context/fix-commits.txt`",
         "",
         "## 前の回の指摘",
       ].join("\n"),
     );
   });
 
-  test("ブランチの全体を見るときは直したコミットを書かず、採否の記録が無ければそう書くこと", () => {
+  test("ブランチの全体を見るときは前の回の後に足したコミットを書かず、採否の記録が無ければそう書くこと", () => {
     const prompt = buildPrompt({
       ...MATERIAL,
       rereview: { ...REREVIEW, decisions: undefined, fixes: undefined },
@@ -160,7 +160,7 @@ describe("2回目からの prompt を組み立てること", () => {
     expect(prompt).toContain(
       "- 前の回の指摘の採否:記録が無い\n\n## 前の回の指摘",
     );
-    expect(prompt).not.toContain("直したコミット");
+    expect(prompt).not.toContain("前の回の後に足したコミット");
   });
 
   test("前の回の節を、観点ごとの範囲の後、「割り切ったこと」の前に置くこと", () => {
