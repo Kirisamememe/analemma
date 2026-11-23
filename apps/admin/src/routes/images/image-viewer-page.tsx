@@ -10,7 +10,11 @@ import {
   imageQueryKey,
   loadImage,
 } from "@/features/images/detail/queries/image-query";
-import { ViewerFrame, ViewerMessage } from "@/features/images/ui/image-viewer";
+import {
+  ViewerFrame,
+  ViewerLoading,
+  ViewerMessage,
+} from "@/features/images/ui/image-viewer";
 import { Text } from "@/ui/layout";
 import { ErrorState } from "@/ui/patterns";
 import { Link } from "@/ui/primitives/navigation";
@@ -126,26 +130,27 @@ export const ImageViewerPage = (): ReactNode => {
       />
     ) : (
       <ViewerFrame back={back}>
-        <ViewerMessage>
-          {query._tag === "Loading" && (
-            <Text tone="muted">{t("imageDetail.loading")}</Text>
-          )}
-          {query._tag === "Failed" && (
-            <ErrorState
-              isRetrying={query.isRetrying}
-              layout="screen"
-              level={2}
-              onRetry={() => {
-                pending.current = { id, forward: true };
-                query.retry();
-              }}
-              title={t("imageDetail.loadFailed")}
-            />
-          )}
-          {query._tag === "Loaded" && (
-            <Notice tone="warning">{t("imageDetail.gone")}</Notice>
-          )}
-        </ViewerMessage>
+        {query._tag === "Loading" ? (
+          <ViewerLoading />
+        ) : (
+          <ViewerMessage>
+            {query._tag === "Failed" && (
+              <ErrorState
+                isRetrying={query.isRetrying}
+                layout="screen"
+                level={2}
+                onRetry={() => {
+                  pending.current = { id, forward: true };
+                  query.retry();
+                }}
+                title={t("imageDetail.loadFailed")}
+              />
+            )}
+            {query._tag === "Loaded" && (
+              <Notice tone="warning">{t("imageDetail.gone")}</Notice>
+            )}
+          </ViewerMessage>
+        )}
       </ViewerFrame>
     );
 
