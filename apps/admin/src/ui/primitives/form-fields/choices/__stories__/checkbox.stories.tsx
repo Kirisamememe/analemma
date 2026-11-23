@@ -35,6 +35,8 @@ export const Disabled: Story = {
   args: { defaultSelected: true, isDisabled: true },
 };
 
+export const DisabledUnchecked: Story = { args: { isDisabled: true } };
+
 export const Invalid: Story = {
   decorators: [
     (Story) => (
@@ -46,4 +48,11 @@ export const Invalid: Story = {
       </Form>
     ),
   ],
+};
+
+export const InvalidChecked: Story = {
+  args: {
+    defaultSelected: true,
+    errorMessage: "表示位置を確認してください。",
+  },
 };

@@ -58,6 +58,18 @@ describe("NumberField", () => {
     ).toBeDefined();
   });
 
+  test("千より大きい値も、桁区切りを入れずに出す", async () => {
+    renderWithI18n(<NumberField defaultValue={2014} label="年" name="year" />);
+
+    const input = screen.getByRole<HTMLInputElement>("textbox", { name: "年" });
+
+    expect(input.value).toBe("2014");
+    await userEvent.clear(input);
+    await userEvent.type(input, "1234567.5");
+    await userEvent.tab();
+    expect(input.value).toBe("1234567.5");
+  });
+
   test("入力欄から focus を移しても、負の小数を丸めずに送る", async () => {
     const values: (FormDataEntryValue | null)[] = [];
 

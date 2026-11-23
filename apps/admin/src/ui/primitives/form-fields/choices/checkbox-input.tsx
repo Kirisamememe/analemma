@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { CheckboxButton, CheckboxField } from "react-aria-components";
 
 import { fieldRoot } from "@/ui/primitives/form-fields/field-control";
-import { Icon } from "@/ui/primitives/graphics";
 import { typography } from "@/ui/typography";
 
 /** チェックの切り替えに渡す値。 */
@@ -77,6 +76,23 @@ export const CheckboxRoot = ({
   );
 };
 
+const CheckMark = (): ReactNode => (
+  <svg
+    aria-hidden="true"
+    className="size-icon shrink-0 opacity-0 transition-opacity group-is-selected:opacity-100"
+    fill="none"
+    viewBox="0 0 16 16"
+  >
+    <path
+      d="M4.25 8.25 6.75 10.75l5-5.5"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.75"
+    />
+  </svg>
+);
+
 type CheckboxControlProps = {
   /** チェックに添えるラベル。 */
   label?: string;
@@ -92,10 +108,8 @@ export const CheckboxControl = ({ label }: CheckboxControlProps): ReactNode => (
     })}
   >
     <span aria-hidden="true" className="flex h-5 shrink-0 items-center">
-      <span className="flex size-icon items-center justify-center rounded-xs border border-line-strong bg-surface shadow-control group-is-hovered:state-hover group-is-focus-shown:focus-ring group-is-pressed:state-pressed group-is-selected:border-primary group-is-selected:bg-primary group-is-selected:text-on-primary group-is-invalid:border-danger not-forced-colors:group-is-invalid:outline-danger">
-        <span className="flex opacity-0 group-is-selected:opacity-100">
-          <Icon name="check" />
-        </span>
+      <span className="flex size-icon items-center justify-center rounded-xs border border-line-strong bg-surface shadow-control transition group-is-hovered:state-hover group-is-focus-shown:focus-ring group-is-pressed:state-pressed group-is-selected:border-primary group-is-selected:bg-primary group-is-selected:text-on-primary group-is-invalid:border-danger not-forced-colors:group-is-invalid:outline-danger">
+        <CheckMark />
       </span>
     </span>
     {label !== undefined && <span className="wrap-anywhere">{label}</span>}

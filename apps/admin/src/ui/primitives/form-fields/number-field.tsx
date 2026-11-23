@@ -20,6 +20,7 @@ import { typography } from "@/ui/typography";
 
 const FORMAT_OPTIONS: Intl.NumberFormatOptions = {
   maximumSignificantDigits: 17,
+  useGrouping: false,
 };
 
 /** 数値の入力欄に渡す値。 */
@@ -129,7 +130,7 @@ type StepButtonProps = {
 
 const StepButton = ({ slot }: StepButtonProps): ReactNode => (
   <Button
-    className="flex shrink-0 items-center justify-center border-s border-line px-2 outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring-inset is-disabled:text-fg-muted"
+    className="flex shrink-0 items-center justify-center border-s px-2 outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring-inset is-disabled:text-fg-muted"
     slot={slot}
   >
     <svg

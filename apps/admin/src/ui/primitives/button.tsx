@@ -11,7 +11,7 @@ const button = tv({
   variants: {
     tone: {
       primary: "border-transparent bg-primary text-on-primary shadow-control",
-      secondary: "border-line bg-surface text-fg shadow-control",
+      secondary: "bg-surface text-fg shadow-control",
       quiet: "border-transparent text-fg",
       danger:
         "border-transparent bg-danger-strong text-on-danger-strong shadow-control",

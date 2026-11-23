@@ -23,7 +23,7 @@ export const ContentGroup = ({
   const id = useId();
   return (
     <fieldset
-      className="min-w-0 rounded-control border border-line p-4"
+      className="min-w-0 rounded-control border p-4"
       data-field={name}
       tabIndex={-1}
       aria-describedby={error === undefined ? undefined : id}

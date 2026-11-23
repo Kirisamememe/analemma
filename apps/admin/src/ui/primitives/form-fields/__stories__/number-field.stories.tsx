@@ -23,6 +23,8 @@ export const Default: Story = {};
 
 export const Filled: Story = { args: { defaultValue: -1.25 } };
 
+export const LargeValue: Story = { args: { defaultValue: 1234567.5 } };
+
 export const Required: Story = { args: { isRequired: true } };
 
 export const ReadOnly: Story = {

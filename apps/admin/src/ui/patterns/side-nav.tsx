@@ -147,7 +147,7 @@ export const SideNav = ({
       </aside>
       <header
         data-top-bar=""
-        className="sticky top-0 z-sticky flex h-nav-bar shrink-0 items-center gap-2 bg-surface-sunken px-3 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:border-b after:border-line md:hidden"
+        className="sticky top-0 z-sticky flex h-nav-bar shrink-0 items-center gap-2 bg-surface-sunken px-3 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:border-b md:hidden"
       >
         <NavDrawer
           heading={heading}
