@@ -8,8 +8,7 @@ const EXPRESSION_WRAPPERS = new Set([
   "TSTypeAssertion",
 ]);
 
-/** 括弧や型の指定を取り除いた式。 */
-export const unwrapExpression = (node) => {
+const unwrapExpression = (node) => {
   let current = node;
 
   while (current && EXPRESSION_WRAPPERS.has(current.type)) {
