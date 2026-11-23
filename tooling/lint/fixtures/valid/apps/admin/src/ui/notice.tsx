@@ -33,6 +33,7 @@ export const Notice = ({ children, progress }: NoticeProps) => (
     <span className="w-1/2 rounded-surface" />
     <span className="-mt-2 -mb-1 md:-my-0.5" />
     <span className="m-auto mx-2 mt-0 mb-auto" />
+    <span className="flex gap-x-3 gap-y-6" />
     <span className="bg-primary text-on-primary" />
     <span className="bg-danger-strong text-on-danger-strong" />
     <span className="rounded-surface bg-surface outline -outline-offset-1 outline-fg/10" />

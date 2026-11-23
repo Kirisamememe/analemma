@@ -38,5 +38,6 @@ export const RestrictedClasses = () => (
     <span className="bg-on-danger-strong" />
     <span className="border-fg-muted" />
     <span className="bg-red-500" />
+    <span className="gap-y-5" />
   </>
 );
