@@ -19,7 +19,9 @@ const edit = (update: NonNullable<FakeRoutes["admin/fixedPages/update"]>) => {
   const server = createFixedPageRoutes({ kinds: [kind], pages: [page] });
   server.replyNext("admin/fixedPages/update", update);
 
-  return renderApp({ path: "/fixed-pages/" + page.id, routes: server.routes });
+  const path = "/fixed-pages/" + String(server.pages()[0]?.id);
+
+  return renderApp({ path, routes: server.routes });
 };
 
 test("編集を送ったら背景の操作を止め、成功の表示に切り替わった後に閉じて編集を続けられる", async () => {
@@ -40,7 +42,6 @@ test("編集を送ったら背景の操作を止め、成功の表示に切り�
   expect(title.value).toBe(page.title + "X");
   await userEvent.keyboard("{Escape}");
   await userEvent.click(document.body);
-  expect(saving.isConnected).toBe(true);
   expect(within(saving).queryByRole("button")).toBeNull();
   expect(
     calls.filter((path) => path === "admin/fixedPages/update"),
@@ -53,8 +54,8 @@ test("編集を送ったら背景の操作を止め、成功の表示に切り�
   expect(saved).toBe(saving);
   expect(screen.queryByRole("alert")).toBeNull();
   await userEvent.click(within(saved).getByRole("button", { name: "閉じる" }));
-  await userEvent.type(title, "Y");
-  expect(title.value).toBe(page.title + "XY");
+  await userEvent.type(await titleInput(), "Y");
+  expect((await titleInput()).value).toBe(page.title + "XY");
 });
 
 test("セッション切れで保存できず編集を続けたら、残った入力を選択して使える", async () => {

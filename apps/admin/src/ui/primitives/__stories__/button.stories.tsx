@@ -129,22 +129,15 @@ export const PendingWidth: Story = {
   ),
 };
 
-export const CreateRow: Story = {
-  /** 枠のない一覧の先頭に置く操作。 */
+const createAction = (size: "row" | "card", label: string): Story => ({
+  /** 一覧の先頭の追加ボタン。 */
   render: () => (
-    <Button size="row" tone="dashed" onPress={fn<() => void>()}>
+    <Button size={size} tone="dashed" onPress={fn<() => void>()}>
       <Icon name="plus" />
-      トークンを発行
+      {label}
     </Button>
   ),
-};
+});
 
-export const CreateCard: Story = {
-  /** カードの先頭に置く操作。 */
-  render: () => (
-    <Button size="card" tone="dashed" onPress={fn<() => void>()}>
-      <Icon name="plus" />
-      新しい固定ページ
-    </Button>
-  ),
-};
+export const CreateRow = createAction("row", "トークンを発行");
+export const CreateCard = createAction("card", "新しい固定ページ");

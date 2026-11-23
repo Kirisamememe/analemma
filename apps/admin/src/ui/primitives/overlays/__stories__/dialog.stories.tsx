@@ -81,29 +81,20 @@ export const LongName: Story = {
   },
 };
 
-export const Saving: Story = {
-  /** 保存中のまま表示する。 */
-  render: () => (
-    <Dialog
-      isOpen
-      onOpenChange={() => undefined}
-      status="pending"
-      title="固定ページを保存しています"
-    />
-  ),
-};
-
-export const Saved: Story = {
-  /** 保存が成功した状態を表示し、閉じる操作を試せる。 */
-  render: function SavedDialog() {
+const statusStory = (status: "pending" | "success", title: string): Story => ({
+  /** 保存中か成功時の表示を開く。 */
+  render: function StatusDialog() {
     const [open, setOpen] = useState(true);
     return (
       <Dialog
         isOpen={open}
         onOpenChange={setOpen}
-        status="success"
-        title="固定ページを更新しました。"
+        status={status}
+        title={title}
       />
     );
   },
-};
+});
+
+export const Saving = statusStory("pending", "固定ページを保存しています");
+export const Saved = statusStory("success", "固定ページを更新しました。");
