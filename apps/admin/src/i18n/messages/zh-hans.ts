@@ -117,7 +117,6 @@ export const zhHans = {
   "passkeys.loadFailed": "无法加载通行密钥。",
   "passkeys.added": "已添加通行密钥。",
   "passkeys.deleted": "已删除通行密钥，其他浏览器已退出登录。",
-  "passkeys.cancelled": "已取消通行密钥操作。",
   "passkeys.reauthenticationFailed": "无法用当前的通行密钥确认。",
   "passkeys.expired": "耗时过长，请重试。",
   "passkeys.alreadyRegistered": "此认证器中已有此管理后台的通行密钥。",
@@ -162,7 +161,6 @@ export const zhHans = {
   "deployTokens.revokeDescription":
     "使用此令牌的部署将无法再发送种类定义。吊销后无法恢复。",
   "deployTokens.revoked": "已吊销“{{name}}”。",
-  "deployTokens.cancelled": "已取消签发令牌。",
   "deployTokens.reauthenticationFailed": "无法用当前的通行密钥确认。",
   "deployTokens.notFound": "此令牌已不存在。",
   "deployTokens.failed": "出现问题，请稍后重试。",

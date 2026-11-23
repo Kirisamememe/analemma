@@ -1,18 +1,17 @@
 import type { ReactNode } from "react";
 
+import { checkAfterSubmit, useAppForm } from "@/components/forms";
+import { checkDeployTokenName } from "@/features/deploy-tokens/issue/queries/issue-deploy-token";
 import { useCopyText } from "@/features/deploy-tokens/issue/hooks/use-copy-text";
 import {
   type IssuedToken,
   useIssueDeployToken,
 } from "@/features/deploy-tokens/issue/hooks/use-issue-deploy-token";
-import { checkDeployTokenName } from "@/features/deploy-tokens/issue/logic/check-deploy-token-name";
 import { CopyButton } from "@/features/deploy-tokens/ui/copy-button";
 import { TokenValue } from "@/features/deploy-tokens/ui/token-value";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
-import { TextField } from "@/ui/primitives/form-fields";
 import { Notice } from "@/ui/primitives/notice";
 import { Dialog } from "@/ui/primitives/overlays";
 
@@ -56,6 +55,65 @@ const IssuedTokenContent = ({
   );
 };
 
+/** 名前を入れて発行を送るフォームに渡す値。 */
+type IssueFormProps = {
+  /** 発行を送っているか。 */
+  isPending: boolean;
+  /** 名前を受け取り、発行を送る関数。 */
+  onIssue: (name: string) => void;
+  /** Dialog を閉じる関数。 */
+  onClose: () => void;
+};
+
+const IssueForm = ({
+  isPending,
+  onIssue,
+  onClose,
+}: IssueFormProps): ReactNode => {
+  const t = useTranslate();
+  const form = useAppForm({
+    canSubmitWhenInvalid: true,
+    defaultValues: { name: "" },
+    onSubmit: ({ value }) => {
+      onIssue(value.name);
+    },
+  });
+
+  return (
+    <form.AppForm>
+      <form.Form isPending={isPending}>
+        <form.AppField
+          name="name"
+          validators={{
+            onChange: checkAfterSubmit((value: string) => {
+              const problem = checkDeployTokenName(value);
+
+              return problem === undefined ? undefined : t(problem);
+            }),
+          }}
+        >
+          {(field) => (
+            <field.TextField
+              autoComplete="off"
+              description={t("deployTokens.nameDescription")}
+              isRequired
+              label={t("deployTokens.name")}
+            />
+          )}
+        </form.AppField>
+        <Cluster gap={2} justify="end">
+          <Button isDisabled={isPending} onPress={onClose}>
+            {t("deployTokens.cancel")}
+          </Button>
+          <Button isPending={isPending} tone="primary" type="submit">
+            {t("deployTokens.issue")}
+          </Button>
+        </Cluster>
+      </form.Form>
+    </form.AppForm>
+  );
+};
+
 /** デプロイ用のトークンを発行する Dialog に渡す値。 */
 type IssueDeployTokenDialogProps = {
   /** 開いているか。 */
@@ -70,13 +128,13 @@ export const IssueDeployTokenDialog = ({
   onClose,
 }: IssueDeployTokenDialogProps): ReactNode => {
   const t = useTranslate();
-
-  const { issued, isPending, notice, issue, close } = useIssueDeployToken({
+  const { issued, isPending, issue, close } = useIssueDeployToken({
     onClose,
   });
 
   return (
     <Dialog
+      isDismissable={issued === undefined}
       isOpen={isOpen}
       isPending={isPending}
       onOpenChange={(open) => {
@@ -93,38 +151,7 @@ export const IssueDeployTokenDialog = ({
       {issued === undefined ? (
         <>
           <Text tone="muted">{t("deployTokens.issueDescription")}</Text>
-          <Form
-            isPending={isPending}
-            onSubmit={(data) => {
-              const name = data.get("name");
-
-              issue(typeof name === "string" ? name : "");
-            }}
-          >
-            <TextField
-              autoComplete="off"
-              description={t("deployTokens.nameDescription")}
-              isRequired
-              label={t("deployTokens.name")}
-              name="name"
-              validate={(value) => {
-                const problem = checkDeployTokenName(value);
-
-                return problem === undefined ? undefined : t(problem);
-              }}
-            />
-            {notice !== undefined && (
-              <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-            )}
-            <Cluster gap={2} justify="end">
-              <Button isDisabled={isPending} onPress={onClose}>
-                {t("deployTokens.cancel")}
-              </Button>
-              <Button isPending={isPending} tone="primary" type="submit">
-                {t("deployTokens.issue")}
-              </Button>
-            </Cluster>
-          </Form>
+          <IssueForm isPending={isPending} onClose={close} onIssue={issue} />
         </>
       ) : (
         <IssuedTokenContent issued={issued} onClose={close} />

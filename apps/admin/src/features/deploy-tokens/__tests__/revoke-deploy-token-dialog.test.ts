@@ -65,7 +65,7 @@ describe("RevokeDeployTokenDialog", () => {
     expect(app.calls).not.toContain("admin/deployTokens/revoke");
   });
 
-  test("もう無いトークンなら、Dialog を開いたまま知らせ、一覧を取り直す", async () => {
+  test("もう無いトークンなら、Dialog を開いたまま Toast で知らせ、一覧を取り直す", async () => {
     const { server, app } = renderTokens();
 
     const listCalls = (): number =>
@@ -82,14 +82,14 @@ describe("RevokeDeployTokenDialog", () => {
       within(dialog).getByRole("button", { name: "取り消す" }),
     );
 
-    expect(
-      await within(dialog).findByText("このトークンはもうありません。"),
-    ).toBeDefined();
-    expect(screen.getByRole("dialog")).toBeDefined();
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "このトークンはもうありません。",
+    );
+    expect(screen.getByRole("dialog")).toBe(dialog);
     expect(listCalls()).toBe(before + 1);
   });
 
-  test("想定外の失敗は、Dialog を開いたまま知らせる", async () => {
+  test("想定外の失敗は、Dialog を開いたまま Toast で知らせる", async () => {
     const { server } = renderTokens();
 
     server.replyNext("admin/deployTokens/revoke", () => ({
@@ -103,9 +103,10 @@ describe("RevokeDeployTokenDialog", () => {
       within(dialog).getByRole("button", { name: "取り消す" }),
     );
 
-    expect((await within(dialog).findByRole("alert")).textContent).toBe(
+    expect((await screen.findByRole("alert")).textContent).toBe(
       "操作できませんでした。時間をおいて、もう一度試してください。",
     );
+    expect(screen.getByRole("dialog")).toBe(dialog);
     expect(server.tokens()).toHaveLength(2);
   });
 });

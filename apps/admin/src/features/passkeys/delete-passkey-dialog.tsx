@@ -2,15 +2,18 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { toDeleteNotice } from "@/features/passkeys/logic/to-passkey-notice";
-import type { PasskeySummary } from "@/features/passkeys/passkey-list";
 import { deletePasskey } from "@/features/passkeys/queries/delete-passkey";
-import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";
+import type { PasskeySummary } from "@/features/passkeys/passkey-list";
+import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/passkeys-query";
+import { toDeleteFailure } from "@/features/passkeys/logic/to-passkey-notice";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Notice } from "@/ui/primitives/notice";
-import { Dialog, useShowToast } from "@/ui/primitives/overlays";
+import {
+  Dialog,
+  useFailureToast,
+  useShowToast,
+} from "@/ui/primitives/overlays";
 
 /** パスキーを削除する Dialog に渡す値。 */
 type DeletePasskeyDialogProps = {
@@ -30,6 +33,12 @@ export const DeletePasskeyDialog = ({
 }: DeletePasskeyDialogProps): ReactNode => {
   const t = useTranslate();
   const showToast = useShowToast();
+  const failure = useFailureToast();
+  const close = (): void => {
+    failure.close();
+    onClose();
+  };
+
   const { refresh } = useApiCache();
   const { api, authenticator } = useAppContext();
 
@@ -45,16 +54,14 @@ export const DeletePasskeyDialog = ({
       if (_tag === "Deleted") {
         onClose();
         showToast({ tone: "success", message: t("passkeys.deleted") });
+      } else {
+        failure.show(t(toDeleteFailure(_tag)));
       }
     },
+    onError: () => {
+      failure.show(t(toDeleteFailure("Unexpected")));
+    },
   });
-
-  const outcome = deleting.isError ? "Unexpected" : deleting.data?._tag;
-
-  const notice =
-    outcome === undefined || outcome === "Deleted"
-      ? undefined
-      : toDeleteNotice(outcome);
 
   return (
     <Dialog
@@ -62,22 +69,20 @@ export const DeletePasskeyDialog = ({
       isPending={deleting.isPending}
       onOpenChange={(open) => {
         if (!open) {
-          onClose();
+          close();
         }
       }}
       title={t("passkeys.deleteTitle", { name: passkey.name })}
     >
       <Text>{t("passkeys.deleteDescription")}</Text>
-      {notice !== undefined && (
-        <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-      )}
       <Cluster gap={2} justify="end">
-        <Button isDisabled={deleting.isPending} onPress={onClose}>
+        <Button isDisabled={deleting.isPending} onPress={close}>
           {t("passkeys.cancel")}
         </Button>
         <Button
           isPending={deleting.isPending}
           onPress={() => {
+            failure.close();
             deleting.mutate();
           }}
           tone="danger"

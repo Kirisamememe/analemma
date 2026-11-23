@@ -125,7 +125,6 @@ export const en = {
   "passkeys.added": "The passkey was added.",
   "passkeys.deleted":
     "The passkey was deleted. Other browsers were signed out.",
-  "passkeys.cancelled": "The passkey operation was cancelled.",
   "passkeys.reauthenticationFailed":
     "Could not confirm with a current passkey.",
   "passkeys.expired": "It took too long. Please try again.",
@@ -176,7 +175,6 @@ export const en = {
   "deployTokens.revokeDescription":
     "Deploys that use this token will no longer be able to send kind definitions. This cannot be undone.",
   "deployTokens.revoked": "“{{name}}” was revoked.",
-  "deployTokens.cancelled": "Issuing the token was cancelled.",
   "deployTokens.reauthenticationFailed":
     "Could not confirm with a current passkey.",
   "deployTokens.notFound": "This token no longer exists.",

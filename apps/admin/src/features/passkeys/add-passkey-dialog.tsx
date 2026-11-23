@@ -2,16 +2,19 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { PasskeyNameField } from "@/components/passkey-name-field";
-import { toAddNotice } from "@/features/passkeys/logic/to-passkey-notice";
+import { checkPasskeyName } from "@/components/logic/check-passkey-name";
+import { checkAfterSubmit, useAppForm } from "@/components/forms";
 import { addPasskey } from "@/features/passkeys/queries/add-passkey";
-import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";
+import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/passkeys-query";
+import { toAddFailure } from "@/features/passkeys/logic/to-passkey-notice";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
-import { Notice } from "@/ui/primitives/notice";
-import { Dialog, useShowToast } from "@/ui/primitives/overlays";
+import {
+  Dialog,
+  useFailureToast,
+  useShowToast,
+} from "@/ui/primitives/overlays";
 
 /** パスキーを追加する Dialog に渡す値。 */
 type AddPasskeyDialogProps = {
@@ -28,6 +31,12 @@ export const AddPasskeyDialog = ({
 }: AddPasskeyDialogProps): ReactNode => {
   const t = useTranslate();
   const showToast = useShowToast();
+  const failure = useFailureToast();
+  const close = (): void => {
+    failure.close();
+    onClose();
+  };
+
   const { refresh } = useApiCache();
   const { api, authenticator } = useAppContext();
 
@@ -43,16 +52,22 @@ export const AddPasskeyDialog = ({
       if (_tag === "Added") {
         onClose();
         showToast({ tone: "success", message: t("passkeys.added") });
+      } else {
+        failure.show(t(toAddFailure(_tag)));
       }
     },
+    onError: () => {
+      failure.show(t(toAddFailure("Unexpected")));
+    },
   });
-
-  const outcome = adding.isError ? "Unexpected" : adding.data?._tag;
-
-  const notice =
-    outcome === undefined || outcome === "Added"
-      ? undefined
-      : toAddNotice(outcome);
+  const form = useAppForm({
+    canSubmitWhenInvalid: true,
+    defaultValues: { name: "" },
+    onSubmit: ({ value }) => {
+      failure.close();
+      adding.mutate(value.name);
+    },
+  });
 
   return (
     <Dialog
@@ -60,33 +75,43 @@ export const AddPasskeyDialog = ({
       isPending={adding.isPending}
       onOpenChange={(open) => {
         if (!open) {
-          onClose();
+          close();
         }
       }}
       title={t("passkeys.add")}
     >
       <Text tone="muted">{t("passkeys.addDescription")}</Text>
-      <Form
-        isPending={adding.isPending}
-        onSubmit={(data) => {
-          const name = data.get("name");
+      <form.AppForm>
+        <form.Form isPending={adding.isPending}>
+          <form.AppField
+            name="name"
+            validators={{
+              onChange: checkAfterSubmit((value: string) => {
+                const problem = checkPasskeyName(value);
 
-          adding.mutate(typeof name === "string" ? name : "");
-        }}
-      >
-        <PasskeyNameField showDescription />
-        {notice !== undefined && (
-          <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-        )}
-        <Cluster gap={2} justify="end">
-          <Button isDisabled={adding.isPending} onPress={onClose}>
-            {t("passkeys.cancel")}
-          </Button>
-          <Button isPending={adding.isPending} tone="primary" type="submit">
-            {t("passkeys.add")}
-          </Button>
-        </Cluster>
-      </Form>
+                return problem === undefined ? undefined : t(problem);
+              }),
+            }}
+          >
+            {(field) => (
+              <field.TextField
+                autoComplete="off"
+                description={t("enroll.nameDescription")}
+                isRequired
+                label={t("enroll.name")}
+              />
+            )}
+          </form.AppField>
+          <Cluster gap={2} justify="end">
+            <Button isDisabled={adding.isPending} onPress={close}>
+              {t("passkeys.cancel")}
+            </Button>
+            <Button isPending={adding.isPending} tone="primary" type="submit">
+              {t("passkeys.add")}
+            </Button>
+          </Cluster>
+        </form.Form>
+      </form.AppForm>
     </Dialog>
   );
 };

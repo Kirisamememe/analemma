@@ -11,13 +11,19 @@ afterEach(cleanup);
 type OpenDialogProps = {
   /** 送信中か。 */
   isPending: boolean;
+  /** backdrop の押下で閉じるか。 */
+  isDismissable?: boolean;
 };
 
-const OpenDialog = ({ isPending }: OpenDialogProps): ReactNode => {
+const OpenDialog = ({
+  isPending,
+  isDismissable,
+}: OpenDialogProps): ReactNode => {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
     <Dialog
+      isDismissable={isDismissable}
       isOpen={isOpen}
       isPending={isPending}
       onOpenChange={setIsOpen}
@@ -50,6 +56,18 @@ describe("Dialog", () => {
     render(<OpenDialog isPending={false} />);
     await screen.findByRole("dialog", { name: "削除の確認" });
     await userEvent.click(document.body);
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  test("backdrop の押下で閉じないとしたときは、backdrop の押下では閉じず、Escape では閉じる", async () => {
+    render(<OpenDialog isDismissable={false} isPending={false} />);
+    await screen.findByRole("dialog", { name: "削除の確認" });
+    await userEvent.click(document.body);
+
+    expect(screen.getByRole("dialog", { name: "削除の確認" })).toBeDefined();
+
+    await userEvent.keyboard("{Escape}");
 
     expect(screen.queryByRole("dialog")).toBeNull();
   });

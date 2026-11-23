@@ -2,11 +2,11 @@ import { useState } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { issueDeployToken } from "@/features/deploy-tokens/issue/queries/issue-deploy-token";
-import { toIssueNotice } from "@/features/deploy-tokens/logic/to-deploy-token-notice";
 import { DEPLOY_TOKENS_QUERY_KEY } from "@/features/deploy-tokens/queries/deploy-tokens-query";
+import { issueDeployToken } from "@/features/deploy-tokens/issue/queries/issue-deploy-token";
+import { toIssueFailure } from "@/features/deploy-tokens/logic/to-deploy-token-notice";
 import { useTranslate } from "@/i18n/use-translate";
-import { useShowToast } from "@/ui/primitives/overlays";
+import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
 
 /** 発行したトークン。 */
 export type IssuedToken = {
@@ -26,6 +26,7 @@ type IssueDeployTokenOptions = {
 export const useIssueDeployToken = ({ onClose }: IssueDeployTokenOptions) => {
   const t = useTranslate();
   const showToast = useShowToast();
+  const failure = useFailureToast();
   const { refresh } = useApiCache();
   const { api, authenticator } = useAppContext();
   const [issued, setIssued] = useState<IssuedToken>(); // token は query client に入れない
@@ -43,18 +44,25 @@ export const useIssueDeployToken = ({ onClose }: IssueDeployTokenOptions) => {
     onSuccess: async ({ _tag }) => {
       if (_tag === "Issued") {
         await refresh(DEPLOY_TOKENS_QUERY_KEY);
+      } else if (_tag === "ReauthenticationFailed") {
+        failure.show(t(toIssueFailure(_tag)));
       }
+    },
+    onError: () => {
+      failure.show(t(toIssueFailure("Unexpected")));
     },
   });
 
   return {
     issued,
     isPending: issuing.isPending,
-    notice: toIssueNotice(issuing.isError ? "Unexpected" : issuing.data?._tag),
     issue: (name: string): void => {
+      failure.close();
       issuing.mutate(name);
     },
     close: (): void => {
+      failure.close();
+
       if (issued !== undefined) {
         showToast({
           tone: "success",

@@ -2,17 +2,20 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { toRevokeNotice } from "@/features/deploy-tokens/logic/to-deploy-token-notice";
 import {
   DEPLOY_TOKENS_QUERY_KEY,
   type DeployTokenSummary,
 } from "@/features/deploy-tokens/queries/deploy-tokens-query";
 import { revokeDeployToken } from "@/features/deploy-tokens/queries/revoke-deploy-token";
+import { toRevokeFailure } from "@/features/deploy-tokens/logic/to-deploy-token-notice";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Notice } from "@/ui/primitives/notice";
-import { Dialog, useShowToast } from "@/ui/primitives/overlays";
+import {
+  Dialog,
+  useFailureToast,
+  useShowToast,
+} from "@/ui/primitives/overlays";
 
 /** デプロイ用のトークンを取り消す Dialog に渡す値。 */
 type RevokeDeployTokenDialogProps = {
@@ -32,6 +35,12 @@ export const RevokeDeployTokenDialog = ({
 }: RevokeDeployTokenDialogProps): ReactNode => {
   const t = useTranslate();
   const showToast = useShowToast();
+  const failure = useFailureToast();
+  const close = (): void => {
+    failure.close();
+    onClose();
+  };
+
   const { refresh } = useApiCache();
   const { api } = useAppContext();
 
@@ -46,16 +55,14 @@ export const RevokeDeployTokenDialog = ({
           tone: "success",
           message: t("deployTokens.revoked", { name: token.name }),
         });
+      } else {
+        failure.show(t(toRevokeFailure(_tag)));
       }
     },
+    onError: () => {
+      failure.show(t(toRevokeFailure("Unexpected")));
+    },
   });
-
-  const outcome = revoking.isError ? "Unexpected" : revoking.data?._tag;
-
-  const notice =
-    outcome === undefined || outcome === "Revoked"
-      ? undefined
-      : toRevokeNotice(outcome);
 
   return (
     <Dialog
@@ -63,22 +70,20 @@ export const RevokeDeployTokenDialog = ({
       isPending={revoking.isPending}
       onOpenChange={(open) => {
         if (!open) {
-          onClose();
+          close();
         }
       }}
       title={t("deployTokens.revokeTitle", { name: token.name })}
     >
       <Text>{t("deployTokens.revokeDescription")}</Text>
-      {notice !== undefined && (
-        <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-      )}
       <Cluster gap={2} justify="end">
-        <Button isDisabled={revoking.isPending} onPress={onClose}>
+        <Button isDisabled={revoking.isPending} onPress={close}>
           {t("deployTokens.cancel")}
         </Button>
         <Button
           isPending={revoking.isPending}
           onPress={() => {
+            failure.close();
             revoking.mutate();
           }}
           tone="danger"

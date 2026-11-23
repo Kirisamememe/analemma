@@ -130,7 +130,6 @@ export const ja = {
   "passkeys.added": "パスキーを追加しました。",
   "passkeys.deleted":
     "パスキーを削除しました。ほかのブラウザからはログアウトしました。",
-  "passkeys.cancelled": "パスキーの操作をキャンセルしました。",
   "passkeys.reauthenticationFailed": "本人確認ができませんでした。",
   "passkeys.expired": "時間がかかりすぎました。もう一度試してください。",
   "passkeys.alreadyRegistered":
@@ -184,7 +183,6 @@ export const ja = {
   "deployTokens.revokeDescription":
     "このトークンを使うデプロイは、種類の定義を送れなくなります。取り消したトークンは元に戻せません。",
   "deployTokens.revoked": "「{{name}}」を取り消しました。",
-  "deployTokens.cancelled": "トークンの発行をキャンセルしました。",
   "deployTokens.reauthenticationFailed": "本人確認ができませんでした。",
   "deployTokens.notFound": "このトークンはもうありません。",
   "deployTokens.failed":

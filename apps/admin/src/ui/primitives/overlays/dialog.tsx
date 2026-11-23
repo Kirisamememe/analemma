@@ -37,6 +37,8 @@ type DialogProps = {
   title: string;
   /** 送信中か(送信中は Escape と backdrop の押下で閉じない)。 */
   isPending?: boolean;
+  /** backdrop の押下で閉じるか(閉じないときも、Escape では閉じる)。 */
+  isDismissable?: boolean | undefined;
   /** Dialog の中身。 */
   children: ReactNode;
 };
@@ -47,11 +49,12 @@ export const Dialog = ({
   onOpenChange,
   title,
   isPending = false,
+  isDismissable = true,
   children,
 }: DialogProps): ReactNode => (
   <ModalOverlay
     className={overlay()}
-    isDismissable={isOpen && !isPending}
+    isDismissable={isOpen && !isPending && isDismissable}
     isKeyboardDismissDisabled={isPending}
     isOpen={isOpen}
     onOpenChange={onOpenChange}

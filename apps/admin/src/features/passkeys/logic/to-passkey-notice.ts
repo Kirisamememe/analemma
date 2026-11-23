@@ -2,47 +2,37 @@ import type { AddPasskeyResult } from "@/features/passkeys/queries/add-passkey";
 import type { DeletePasskeyResult } from "@/features/passkeys/queries/delete-passkey";
 import type { MessageKey } from "@/i18n/use-translate";
 
-type PasskeyNotice = {
-  /** 知らせの用途。 */
-  readonly tone: "info" | "warning" | "danger";
-  /** 知らせの文言の訳のキー。 */
-  readonly message: MessageKey;
-};
-
 /** 想定外の失敗で終わったこと。 */
 type Unexpected = "Unexpected";
 
-type AddNoticeOutcome = Exclude<AddPasskeyResult["_tag"], "Added"> | Unexpected;
-type DeleteNoticeOutcome =
-  | Exclude<DeletePasskeyResult["_tag"], "Deleted">
+type AddFailure =
+  | Exclude<AddPasskeyResult["_tag"], "Added" | "Cancelled">
+  | Unexpected;
+type DeleteFailure =
+  | Exclude<DeletePasskeyResult["_tag"], "Deleted" | "Cancelled">
   | Unexpected;
 
 const COMMON = {
-  Cancelled: { tone: "info", message: "passkeys.cancelled" },
-  ReauthenticationFailed: {
-    tone: "danger",
-    message: "passkeys.reauthenticationFailed",
-  },
-  Unexpected: { tone: "danger", message: "passkeys.failed" },
-} satisfies Readonly<Record<string, PasskeyNotice>>;
+  ReauthenticationFailed: "passkeys.reauthenticationFailed",
+  Unexpected: "passkeys.failed",
+} satisfies Readonly<Record<string, MessageKey>>;
 
-const ADD: Readonly<Record<AddNoticeOutcome, PasskeyNotice>> = {
+const ADD: Readonly<Record<AddFailure, MessageKey>> = {
   ...COMMON,
-  ChallengeExpired: { tone: "warning", message: "passkeys.expired" },
-  AlreadyRegistered: { tone: "danger", message: "passkeys.alreadyRegistered" },
-  Rejected: { tone: "danger", message: "passkeys.rejected" },
+  ChallengeExpired: "passkeys.expired",
+  AlreadyRegistered: "passkeys.alreadyRegistered",
+  Rejected: "passkeys.rejected",
 };
 
-const DELETE: Readonly<Record<DeleteNoticeOutcome, PasskeyNotice>> = {
+const DELETE: Readonly<Record<DeleteFailure, MessageKey>> = {
   ...COMMON,
-  LastPasskey: { tone: "danger", message: "passkeys.lastPasskey" },
-  NotFound: { tone: "warning", message: "passkeys.notFound" },
+  LastPasskey: "passkeys.lastPasskey",
+  NotFound: "passkeys.notFound",
 };
 
-/** パスキーの追加の失敗やキャンセルを、Dialog の知らせにする。 */
-export const toAddNotice = (outcome: AddNoticeOutcome): PasskeyNotice =>
-  ADD[outcome];
+/** パスキーの追加の失敗を、失敗の Toast の文言の訳のキーにする。 */
+export const toAddFailure = (outcome: AddFailure): MessageKey => ADD[outcome];
 
-/** パスキーの削除の失敗やキャンセルを、Dialog の知らせにする。 */
-export const toDeleteNotice = (outcome: DeleteNoticeOutcome): PasskeyNotice =>
+/** パスキーの削除の失敗を、失敗の Toast の文言の訳のキーにする。 */
+export const toDeleteFailure = (outcome: DeleteFailure): MessageKey =>
   DELETE[outcome];
