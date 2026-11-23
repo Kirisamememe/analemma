@@ -10,10 +10,14 @@ import { tv } from "@/ui/tv";
 
 const photo = tv({
   slots: {
-    frame: "relative grid w-full place-items-center md:size-full",
+    frame: [
+      "relative grid w-full place-items-center",
+      "md:size-full md:min-h-0 md:min-w-0 md:grid-cols-1 md:grid-rows-1",
+    ],
     image: [
       "col-start-1 row-start-1 block",
-      "max-h-dvh w-full object-contain md:size-full md:max-h-none",
+      "max-h-dvh w-full object-contain",
+      "md:size-full md:max-h-none md:min-h-0 md:min-w-0",
     ],
     error: "col-start-1 row-start-1",
     notice: "absolute inset-0 flex items-center justify-center",
