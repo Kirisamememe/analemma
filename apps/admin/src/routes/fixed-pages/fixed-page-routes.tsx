@@ -260,7 +260,11 @@ const PageEditor = ({ page }: PageEditorProps): ReactNode => {
     <Titled
       actions={
         kind._tag !== "Loading" && (
-          <DeleteFixedPage onDeleted={onDeleted} page={page} />
+          <DeleteFixedPage
+            isDisabled={kind._tag === "Failed" && kind.isRetrying} // 取り直して編集のフォームに替わると、削除の Dialog ごと消える
+            onDeleted={onDeleted}
+            page={page}
+          />
         )
       }
       description={t("fixedPageEditor.kindOf", { kind: page.kind })}

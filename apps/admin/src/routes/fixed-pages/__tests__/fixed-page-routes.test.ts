@@ -2,7 +2,7 @@ import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
-import { wrapFakeRoute } from "@/testing/create-fake-api";
+import { type FakeReply, wrapFakeRoute } from "@/testing/create-fake-api";
 import { createFixedPageRoutes } from "@/testing/fake-routes/create-fixed-page-routes";
 import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
@@ -103,10 +103,11 @@ test("種類の読み込みに失敗しても、取得した固定ページを�
   await screen.findByRole("heading", { name: "固定ページはまだありません" });
   expect(server.pages()).toHaveLength(0);
 }, 10000);
-test("種類の定義を読み込めなければ、もう一度試すと編集のフォームを出す", async () => {
+test("種類の定義を読み込めなければ、もう一度試すと、取り直す間は削除を止め、取れたら編集のフォームを出す", async () => {
   const server = createFixedPageRoutes({ kinds: [kind], pages: [page] });
   const [target] = server.pages();
   const get = server.routes["admin/kinds/get"];
+  const held = Promise.withResolvers<FakeReply<"admin/kinds/get">>();
   let isBroken = true;
 
   if (target === undefined) throw new Error("固定ページがありません");
@@ -115,16 +116,24 @@ test("種類の定義を読み込めなければ、もう一度試すと編集�
     path: "/fixed-pages/" + target.id,
     routes: {
       ...server.routes,
-      "admin/kinds/get": wrapFakeRoute(get, (input) =>
+      "admin/kinds/get": wrapFakeRoute(get, async () =>
         isBroken
           ? { error: "INTERNAL_SERVER_ERROR", defined: false }
-          : get(input),
+          : held.promise,
       ),
     },
   });
   await screen.findByRole("alert", {}, { timeout: 5000 });
   isBroken = false;
   await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+
+  expect(
+    screen
+      .getByRole("button", { name: "固定ページを削除" })
+      .hasAttribute("disabled"),
+  ).toBe(true);
+
+  held.resolve(get({ name: kind.name }));
 
   expect(
     await screen.findByRole("textbox", { name: /タイトル/v }),

@@ -1,4 +1,4 @@
-import { cleanup, screen, within } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -109,6 +109,67 @@ describe("FixedPagesSection", () => {
       within(await findRow("About")).getByText(/基本のページ/v),
     ).toBeDefined();
   });
+
+  test("両方を取り直したとき、種類の一覧が届くまで一覧を出さず、固定ページが先に失敗してもボタンを送信中のままにする", async () => {
+    const server = createFixedPageRoutes(STATE);
+    const { "admin/fixedPages/list": list, "admin/kinds/list": kinds } =
+      server.routes;
+    let arePagesBroken = true;
+    let kindsReply = Promise.withResolvers<FakeReply<"admin/kinds/list">>();
+    let areKindsHeld = false;
+
+    const { calls } = renderApp({
+      path: "/fixed-pages",
+      routes: {
+        ...server.routes,
+        "admin/fixedPages/list": wrapFakeRoute(list, (input) =>
+          arePagesBroken
+            ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+            : list(input),
+        ),
+        "admin/kinds/list": wrapFakeRoute(kinds, async () =>
+          areKindsHeld
+            ? kindsReply.promise
+            : { error: "INTERNAL_SERVER_ERROR", defined: false },
+        ),
+      },
+    });
+
+    await screen.findByRole("alert", {}, { timeout: 5000 });
+    areKindsHeld = true;
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+    await waitFor(
+      () => {
+        expect(
+          calls.filter((call) => call === "admin/fixedPages/list"),
+        ).toHaveLength(6);
+      },
+      { timeout: 5000 },
+    );
+
+    expect(
+      within(screen.getByRole("button", { name: /もう一度試す/v })).getByRole(
+        "progressbar",
+      ),
+    ).toBeDefined();
+
+    kindsReply.resolve({ error: "INTERNAL_SERVER_ERROR", defined: false });
+    await screen.findByText("まだ読み込めません。", {}, { timeout: 5000 });
+    arePagesBroken = false;
+    kindsReply = Promise.withResolvers<FakeReply<"admin/kinds/list">>();
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+
+    expect(
+      await screen.findByText("固定ページを読み込んでいます。"),
+    ).toBeDefined();
+    expect(screen.queryByRole("row")).toBeNull();
+
+    kindsReply.resolve(kinds(undefined));
+
+    expect(
+      within(await findRow("About")).getByText(/基本のページ/v),
+    ).toBeDefined();
+  }, 20000);
 
   test("編集と公開の切り替えのボタンは、見える文言をそのままに、タイトルでページを見分けられる", async () => {
     setUp();

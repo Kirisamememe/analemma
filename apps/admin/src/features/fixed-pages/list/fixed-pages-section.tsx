@@ -44,14 +44,15 @@ export const FixedPagesSection = ({
     load: () => loadKinds(api),
   });
 
-  if (pages._tag === "Loading" || kinds._tag === "Loading") {
-    return <Text tone="muted">{t("fixedPages.loading")}</Text>;
-  }
+  const kindsRetrying = kinds._tag === "Failed" && kinds.isRetrying;
+  const loading = <Text tone="muted">{t("fixedPages.loading")}</Text>;
+
+  if (pages._tag === "Loading" || kinds._tag === "Loading") return loading;
 
   if (pages._tag === "Failed") {
     return (
       <ErrorState
-        isRetrying={pages.isRetrying}
+        isRetrying={pages.isRetrying || kindsRetrying}
         layout="inline"
         level={2}
         onRetry={() => {
@@ -63,6 +64,8 @@ export const FixedPagesSection = ({
       />
     );
   }
+
+  if (kindsRetrying) return loading; // 種類のラベルが届くまで、名前で出さない
 
   const labels = new Map(
     kinds._tag === "Loaded"
