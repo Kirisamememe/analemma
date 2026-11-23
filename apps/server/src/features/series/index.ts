@@ -5,3 +5,6 @@ export { updateSeries } from "./editing/update-series";
 export { deleteSeries } from "./editing/delete-series";
 export { publishSeries } from "./editing/publish-series";
 export { unpublishSeries } from "./editing/unpublish-series";
+export { addSeriesImages } from "./membership/add-series-images";
+export { removeSeriesImages } from "./membership/remove-series-images";
+export { reorderSeriesImages } from "./membership/reorder-series-images";

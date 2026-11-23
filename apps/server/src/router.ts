@@ -57,6 +57,9 @@ import {
   deleteSeries,
   publishSeries,
   unpublishSeries,
+  addSeriesImages,
+  removeSeriesImages,
+  reorderSeriesImages,
 } from "@/features/series";
 import {
   adminProcedures,
@@ -109,6 +112,9 @@ export const router = implement(contract)
         delete: deleteSeries,
         publish: publishSeries,
         unpublish: unpublishSeries,
+        addImages: addSeriesImages,
+        removeImages: removeSeriesImages,
+        reorder: reorderSeriesImages,
       },
       session: {
         get: getSession,
