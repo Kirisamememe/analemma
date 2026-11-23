@@ -1,15 +1,30 @@
 {
   "name": "@analemma/contract",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": {
+      "@analemma/source": "./src/index.ts",
+      "types": "./dist/types/index.d.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist/types",
+    "src",
+    "!src/**/__tests__"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@orpc/contract": "1.16.4",
     "zod": "4.6.7"
   },
-  "exports": {
-    ".": "./src/index.ts"
-  },
   "scripts": {
+    "build": "rm -rf dist/types && tsc -p tsconfig.build.json",
+    "prepack": "bun run build",
     "typecheck": "tsc --noEmit -p tsconfig.src.json && tsc --noEmit -p ."
   },
   "devDependencies": {

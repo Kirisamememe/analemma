@@ -57,6 +57,7 @@ tsrs はまだ prerelease なので、型エラーの判定は公式の `tsc` �
   - ただし、テストは `bun:test` を使うので、Bun の型が要る。contract と client では、`tsconfig.json` をテストを含めて Bun の型を足したものにし、テストを除いた `src` を、Bun と Node の型を持たずに検査する `tsconfig.src.json` を別に置く。typecheck は両方を流す。型付きの lint(tsrs)が読むのは `tsconfig.json` なので、テストの型も解決できる。`src` に Bun や Node の API を使うコードが入ると、`tsconfig.src.json` の検査で落ちる。
 - 型を消すだけで実行できる構文に限る(`erasableSyntaxOnly`)。enum・namespace・引数プロパティは使えない。Bun はそのまま実行し、tsc は型検査だけをする。
 - パッケージ間の import は、Bun の workspaces でパッケージ名を解決する。
+- `tsconfig.base.json` の `customConditions` に、contract の `exports` の、リポジトリの中でだけ使う condition(`@analemma/source`)を入れる。リポジトリの tsc に、contract の build した `.d.ts` が残っていても、ソースを読ませるため(利用者の tsc が `.d.ts` を読むのは `exports` の `types` による。`packages/contract/DECISIONS.md`)。
 - リポジトリの直下の tsconfig は tooling だけを検査する。各ワークスペースは自分の tsconfig で検査し、リポジトリの直下で流す `bun run typecheck` が順に回す。
 
 ## リポジトリの境界
