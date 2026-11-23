@@ -138,6 +138,7 @@ const sendEarlyReply = api.middleware(
 
 const deployTokens = api.admin.deployTokens.use(sendEarlyReply);
 const fixedPages = api.admin.fixedPages.use(sendEarlyReply);
+const images = api.admin.images.use(sendEarlyReply);
 const kinds = api.admin.kinds.use(sendEarlyReply);
 const passkeys = api.admin.passkeys.use(sendEarlyReply);
 const session = api.admin.session.use(sendEarlyReply);
@@ -154,6 +155,12 @@ const procedures = {
   "admin/fixedPages/reorder": bindReply(fixedPages.reorder),
   "admin/fixedPages/unpublish": bindReply(fixedPages.unpublish),
   "admin/fixedPages/update": bindReply(fixedPages.update),
+  "admin/images/delete": bindReply(images.delete),
+  "admin/images/get": bindReply(images.get),
+  "admin/images/list": bindReply(images.list),
+  "admin/images/publish": bindReply(images.publish),
+  "admin/images/unpublish": bindReply(images.unpublish),
+  "admin/images/update": bindReply(images.update),
   "admin/kinds/get": bindReply(kinds.get),
   "admin/kinds/list": bindReply(kinds.list),
   "admin/passkeys/delete": bindReply(passkeys.delete),
