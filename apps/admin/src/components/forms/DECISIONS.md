@@ -64,4 +64,5 @@ blur で出る誤りと、送信時に受け取る誤りと、入力すると送
 
 ## 割り切ったこと
 
+- **送信の検証で同期の validator が throw するとき**。TanStack Form 1.33.5 は、送信の検証で同期の validator が throw すると、`isSubmitting` を戻さない。入力欄は読み取り専用のまま、ボタンは送信中のままになり、ページを読み込み直すまで直せない(非同期の validator の reject は誤りとして受け取るので、止まらない)。今の validator は誤りを文言で返し(zod の `safeParse` など)、throw しない。直すには、`handleSubmit` を呼ぶ画面ごとに、送信の状態を戻す処理を足す必要がある。
 - **年 `0000` の日付**。contract が受け付ける年 `0000` は、日付の入力欄では扱わない(ユーザーが決めた)。React Aria Components が日付に使う `CalendarDate` で扱うには、別の入力表現を決める必要がある。
