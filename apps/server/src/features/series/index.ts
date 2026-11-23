@@ -8,5 +8,5 @@ export { unpublishSeries } from "./editing/unpublish-series";
 export { addSeriesImages } from "./membership/add-series-images";
 export { removeSeriesImages } from "./membership/remove-series-images";
 export { reorderSeriesImages } from "./membership/reorder-series-images";
-export { getPublishedSeries } from "./published/get-published-series";
-export { listPublishedSeries } from "./published/list-published-series";
+export { getPublishedSeries } from "@/features/series/published/get-published-series";
+export { listPublishedSeries } from "@/features/series/published/list-published-series";

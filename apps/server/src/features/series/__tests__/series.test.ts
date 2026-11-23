@@ -46,6 +46,10 @@ const addTestImages = async (server: TestClient) => {
   return ids;
 };
 
+// ----------------------------------------
+// 管理用 API
+// ----------------------------------------
+
 test("シリーズを非公開で作り、新しく作った順に一覧に返すこと", async () => {
   await using server = await createTestClient();
   await signInAsAdmin(server);
@@ -186,6 +190,10 @@ test("無い画像を含む追加と、画像の集まりが食い違う並べ�
   ]);
 });
 
+// ----------------------------------------
+// 公開 API
+// ----------------------------------------
+
 test("公開シリーズの並び順・カバー・件数は公開画像だけを使い、公開画像が無くてもシリーズを返すこと", async () => {
   await using server = await createTestClient();
   await signInAsAdmin(server);
@@ -209,6 +217,10 @@ test("公開シリーズの並び順・カバー・件数は公開画像だけ�
     images: [second, first],
   });
   await admin.series.reorder({ id, imageIds: [hidden, cover, last] });
+  expect(await api.series.get(key)).toEqual({
+    ...fields,
+    images: [first, second],
+  });
   const otherFields = { name: "空", slug: "sky", description: "夏の記録" };
   const other = await admin.series.create(otherFields);
   await admin.series.addImages({ id: other.id, imageIds: [last] });
@@ -218,6 +230,11 @@ test("公開シリーズの並び順・カバー・件数は公開画像だけ�
       { ...otherFields, imageCount: 1, coverImage: second },
       { ...fields, imageCount: 2, coverImage: first },
     ],
+  });
+  await admin.series.removeImages({ id: other.id, imageIds: [last] });
+  expect(await api.series.get({ slug: otherFields.slug })).toEqual({
+    ...otherFields,
+    images: [],
   });
   await admin.series.unpublish({ id: other.id });
   await admin.images.delete({ id: cover });

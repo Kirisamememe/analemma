@@ -1,16 +1,5 @@
-import {
-  type SQL,
-  isNotNull,
-  and,
-  asc,
-  desc,
-  eq,
-  gt,
-  lt,
-  sql,
-} from "drizzle-orm";
+import { type SQL, isNotNull, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
 
-import { deliveryImage } from "@/db/schema/delivery-image";
 import { image } from "@/db/schema/image";
 import type { DatabaseExecutor } from "@/platform/database";
 
@@ -31,14 +20,6 @@ export const isPublished = (row: Pick<ImageRow, "publishedAt">): boolean =>
 
 /** 公開サイトに見せてよい画像だけを選ぶ SQL の条件。 */
 export const matchPublished = (): SQL => isNotNull(image.publishedAt);
-
-/** 公開している画像と幅ごとの配信用の画像をまとめて引く。 */
-export const readPublishedImage = (db: DatabaseExecutor, id: string) =>
-  db
-    .select({ image, deliveryImage })
-    .from(image)
-    .leftJoin(deliveryImage, eq(deliveryImage.imageId, image.id))
-    .where(and(eq(image.id, id), matchPublished()));
 
 /** ID で画像の行を引く。 */
 export const findImage = async (

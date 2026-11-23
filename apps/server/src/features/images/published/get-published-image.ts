@@ -1,4 +1,4 @@
-import { readPublishedImage } from "@/features/images/queries/images.query";
+import { readPublishedImage } from "@/features/images/published/queries/published-images.query";
 import { toPublishedImage } from "@/features/images/to-image";
 import { publicProcedures } from "@/procedures";
 
