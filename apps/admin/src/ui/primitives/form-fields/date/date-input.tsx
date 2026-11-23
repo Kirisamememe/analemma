@@ -113,21 +113,25 @@ type DateSegmentsProps = {
 /** キーボードで日付の segment を編集する入力。 */
 export const DateSegments = ({ onBlur }: DateSegmentsProps): ReactNode => {
   const state = useContext(DateFieldStateContext);
+  const segments =
+    state?.segments.filter((segment) => segment.isEditable) ?? [];
+  const incomplete =
+    segments.some((segment) => segment.isPlaceholder) &&
+    segments.some((segment) => !segment.isPlaceholder);
   const {
     focusWithinProps: { onBlur: blurWithin, onFocus: focusWithin },
   } = useFocusWithin({
     onBlurWithin: () => {
-      const segments =
-        state?.segments.filter((segment) => segment.isEditable) ?? [];
-      onBlur?.(
-        segments.some((segment) => segment.isPlaceholder) &&
-          segments.some((segment) => !segment.isPlaceholder),
-      );
+      onBlur?.(incomplete);
     },
   });
 
   return (
-    <div onBlur={blurWithin} onFocus={focusWithin}>
+    <div
+      data-incomplete-date={incomplete || undefined}
+      onBlur={blurWithin}
+      onFocus={focusWithin}
+    >
       <AriaDateInput
         className={fieldControl({
           className: [

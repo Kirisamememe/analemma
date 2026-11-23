@@ -75,6 +75,7 @@ export const useEditorForm = ({
   );
   const saved = useRef(initial); // 開いたときの値か、最後に保存できた値
   const submitted = useRef(initial);
+  const closeSaveFailure = useRef<() => void>(undefined);
   const [errors, setErrors] = useState<EditorErrors>({ fields: {} });
 
   const saving = useApiMutation({
@@ -125,13 +126,18 @@ export const useEditorForm = ({
       });
     },
     onError: () => {
-      toast({ tone: "danger", message: t("fixedPageEditor.saveFailed") });
+      closeSaveFailure.current = toast({
+        tone: "danger",
+        message: t("fixedPageEditor.saveFailed"),
+      });
     },
   });
   const form = useAppForm({
     defaultValues: initial,
     canSubmitWhenInvalid: true,
     onSubmit: ({ value }) => {
+      closeSaveFailure.current?.();
+      closeSaveFailure.current = undefined;
       setErrors({ fields: {} });
       submitted.current = value;
       saving.mutate(value);
@@ -149,6 +155,7 @@ export const useEditorForm = ({
     const current = form.state.values;
 
     return (
+      Boolean(root.current?.querySelector("[data-incomplete-date]")) ||
       hasUnsavedChanges(base, { saved: saved.current, current }) ||
       (saving.isPending &&
         hasUnsavedChanges(base, { saved: submitted.current, current }))

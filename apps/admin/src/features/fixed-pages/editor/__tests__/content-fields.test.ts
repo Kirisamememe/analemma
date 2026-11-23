@@ -106,3 +106,53 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
     1,
   );
 });
+
+test.each(["入力中", "別の欄に移った後"])(
+  "空の日付に年だけ入れて離れるとき、%sも確かめる",
+  async (when) => {
+    const user = userEvent.setup();
+    const { history } = renderApp({
+      path: "/fixed-pages/" + page.id,
+      routes: {
+        "admin/session/get": () => ({ output: { expiresAt: page.createdAt } }),
+        "admin/kinds/get": () => ({
+          output: {
+            ...kind,
+            fields: fieldDefinitions.parse([
+              { type: "date", key: "day", label: "日付", optional: true },
+            ]),
+          },
+        }),
+        "admin/fixedPages/get": () => ({
+          output: page,
+        }),
+      },
+    });
+    const year = await screen.findByRole("spinbutton", { name: /年.*日付/v });
+    const selection = window.getSelection();
+
+    if (selection === null) throw new Error("Selection がありません");
+
+    const collapse = spyOn(selection, "collapse").mockImplementation(
+      () => undefined,
+    );
+
+    try {
+      await user.click(year);
+      await user.keyboard("2026");
+
+      if (when === "別の欄に移った後") {
+        await user.click(screen.getByRole("textbox", { name: "タイトル" }));
+      }
+
+      history.push("/");
+      expect(
+        await screen.findByRole("dialog", {
+          name: "保存していない変更があります",
+        }),
+      ).toBeDefined();
+    } finally {
+      collapse.mockRestore();
+    }
+  },
+);

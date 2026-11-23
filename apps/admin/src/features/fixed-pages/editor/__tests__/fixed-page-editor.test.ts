@@ -190,12 +190,16 @@ test("更新時の NOT_FOUND は、Toast でなく画面に残る知らせで伝
   expect(screen.queryByRole("region", { name: /通知/v })).toBeNull();
 });
 
-test("保存の想定外の失敗は、フォームの外の Toast で知らせ、送り直せる", async () => {
-  const { calls } = edit({
-    "admin/fixedPages/update": () => ({
-      error: "INTERNAL_SERVER_ERROR",
-      defined: false,
-    }),
+test("保存の失敗を Toast で知らせ、送り直して成功したら失敗の知らせが消える", async () => {
+  let failed = false;
+  edit({
+    "admin/fixedPages/update": () => {
+      if (failed) return { output: page };
+
+      failed = true;
+
+      return { error: "INTERNAL_SERVER_ERROR", defined: false };
+    },
   });
   await save();
   const toast = await within(
@@ -207,10 +211,9 @@ test("保存の想定外の失敗は、フォームの外の Toast で知らせ�
   );
   expect(screen.getAllByRole("alert")).toEqual([toast]);
   await save("bottom");
+  await screen.findByText("固定ページを更新しました。");
   await waitFor(() => {
-    expect(
-      calls.filter((path) => path === "admin/fixedPages/update"),
-    ).toHaveLength(2);
+    expect(toast.isConnected).toBe(false);
   });
 });
 
