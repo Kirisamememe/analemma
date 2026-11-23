@@ -1,4 +1,4 @@
-import { cleanup, screen, within } from "@testing-library/react";
+import { act, cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -68,14 +68,18 @@ describe("言語の選択", () => {
 
   test("別のタブで言語を変えた後でも、今の言語を選び直すと次回の言語になる", async () => {
     const sidebar = await renderSecurityPage();
-    localStorage.setItem(LOCALE_STORAGE_KEY, "en");
-
     await userEvent.click(sidebar.getByRole("button", { name: /言語/v }));
-    const current = await screen.findByRole("option", { name: "日本語" });
-    current.focus();
+    await userEvent.click(
+      await screen.findByRole("option", { name: "English" }),
+    );
+    localStorage.setItem(LOCALE_STORAGE_KEY, "zh-Hans");
+
+    await userEvent.click(sidebar.getByRole("button", { name: /Language/v }));
+    const current = await screen.findByRole("option", { name: "English" });
+    act(() => current.focus());
     await userEvent.keyboard("{Enter}");
 
-    expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("ja");
+    expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("en");
   });
 
   test("狭い画面の引き出したナビからも選べ、ナビを開いたまま画面の言葉が変わる", async () => {

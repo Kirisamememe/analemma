@@ -63,7 +63,11 @@ export const ListBoxPopover = ({
         {heading}
       </p>
     )}
-    <ListBox className="flex flex-col gap-1 p-1 outline-hidden" items={options}>
+    <ListBox
+      className="flex flex-col gap-1 p-1 outline-hidden"
+      dependencies={[onOptionPress]}
+      items={options}
+    >
       {({ value, label, icon, lang }) => (
         <ListBoxItem
           className={typography({ role: "body", className: option() })}
