@@ -18,7 +18,7 @@ const setUp = (count = 3) => {
 };
 
 describe("createImageRoutes", () => {
-  test("一覧は渡した順(新しく足した順)に返し、省いた項目は null にする", async () => {
+  test("一覧は渡した順(新しく足した順)に返し、省いた alt・撮影日時・ISO 感度は null にする", async () => {
     const { api } = setUp();
     const { images, nextCursor } = await api.admin.images.list({});
 

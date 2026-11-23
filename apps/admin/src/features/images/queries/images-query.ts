@@ -7,6 +7,6 @@ export const IMAGES_QUERY_KEY = ["admin", "images", "list"] as const;
 export type ImageSummary =
   ApiOutputs["admin"]["images"]["list"]["images"][number];
 
-/** 画像の一覧の1ページを読む(cursor を省くと最初のページ)。 */
+/** 画像の一覧の1ページを読む。 */
 export const loadImagesPage = (api: ApiClient, cursor: string | undefined) =>
   api.admin.images.list(cursor === undefined ? {} : { cursor });

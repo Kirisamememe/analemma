@@ -8,14 +8,14 @@ import type {
 /** 作り物の server が持つ、1つの画像。 */
 export type FakeImage = FakeOutput<"admin/images/get">;
 
-/** 作り物の server に最初に置く、1つの画像(省いた項目は null)。 */
+/** 作り物の server に最初に置く画像のプロパティ。 */
 export type FakeImageSeed = Partial<
   Omit<
     FakeImage,
     "id" | "published" | "publishedAt" | "createdAt" | "updatedAt"
   >
 > & {
-  /** 公開しているか(省くと公開)。 */
+  /** 画像を公開しているか。 */
   readonly published?: boolean;
 };
 
