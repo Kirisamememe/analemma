@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
 
 import { openDatabase } from "@/platform/database";
-import { readDatabaseEnv } from "@/platform/env";
 import type { LogEntry } from "@/platform/logger";
+import { readDatabaseEnv } from "@/platform/startup/env";
 
 const logs: LogEntry[] = [];
 

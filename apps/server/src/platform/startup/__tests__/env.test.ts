@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { readDatabaseEnv, readEnv } from "@/platform/env";
+import { readDatabaseEnv, readEnv } from "@/platform/startup/env";
 
 const AUTH = {
   AUTH_ORIGIN: "https://cms.example.com",
@@ -254,7 +254,7 @@ test("DB だけを使うコマンドは、AUTH_ORIGIN と AUTH_RP_ID が無く�
 
 test(".env.example を写せば、server の環境変数として読めること", () => {
   const example = readFileSync(
-    join(import.meta.dirname, "../../../.env.example"),
+    join(import.meta.dirname, "../../../../.env.example"),
     "utf8",
   );
 

@@ -1,8 +1,8 @@
 import { issueEnrollment } from "@/features/auth/enrollment/issue-enrollment";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
-import { readEnv } from "@/platform/env";
 import { type Logger, formatLogLine } from "@/platform/logger";
+import { readEnv } from "@/platform/startup/env";
 
 const stderrLogger: Logger = {
   write: (entry) => {

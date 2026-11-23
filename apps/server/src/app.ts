@@ -8,7 +8,7 @@ import { NONCE, secureHeaders } from "hono/secure-headers";
 import { tryDecodeURIComponent } from "hono/utils/url";
 
 import type { AppContext } from "@/context";
-import type { AdminDist } from "@/platform/load-admin-dist";
+import type { AdminDist } from "@/platform/startup/load-admin-dist";
 import { router } from "@/router";
 
 const API_PREFIX = "/api";
