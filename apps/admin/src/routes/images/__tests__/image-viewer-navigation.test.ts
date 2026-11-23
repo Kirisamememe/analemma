@@ -20,8 +20,10 @@ const open = () => {
   const server = createImageRoutes(SAMPLE_IMAGES);
   const [first, second] = server.images();
 
-  if (first === undefined || second === undefined)
-    {throw new Error("画像が2枚必要です");}
+  if (first === undefined || second === undefined) {
+    throw new Error("画像が2枚必要です");
+  }
+
   const app = renderApp({ path: "/images/" + first.id, routes: server.routes });
 
   return { server, first, second, ...app };
@@ -60,6 +62,7 @@ describe("写真を送るときの表示", () => {
 
   test("編集している画像を取り直せなくても入力が残り、別の画像に移れば古い Dialog を閉じる", async () => {
     const { server, first, second, queryClient, history } = open();
+    queryClient.setQueryDefaults(imageQueryKey(first.id), { retry: false });
     await userEvent.click(await screen.findByRole("button", { name: "編集" }));
     const dialog = await screen.findByRole("dialog");
     const input = within(dialog).getByRole("textbox", { name: "タイトル" });
@@ -74,6 +77,9 @@ describe("写真を送るときの表示", () => {
         queryKey: imageQueryKey(first.id),
       });
     });
+    expect(queryClient.getQueryState(imageQueryKey(first.id))?.status).toBe(
+      "error",
+    );
     expect(within(dialog).getByDisplayValue("入力の途中")).toBe(input);
     expect(dialog.isConnected).toBe(true);
     act(() => {
