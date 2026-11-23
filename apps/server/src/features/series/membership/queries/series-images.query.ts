@@ -19,7 +19,7 @@ export const lockSeries = async (db: DatabaseExecutor, id: string) => {
   return rows.length > 0;
 };
 
-/** 指定した画像がすべてあるときに、末尾に足す。 */
+/** シリーズの末尾に画像を足す。 */
 export const appendImages = async (
   db: DatabaseExecutor,
   { id, imageIds: requested }: Selection,
@@ -58,7 +58,7 @@ export const removeImages = async (
       and(eq(seriesImage.seriesId, id), inArray(seriesImage.imageId, ids)),
     );
 
-/** すべての画像が1回ずつ指定されたときに、位置を振り直す。 */
+/** シリーズの画像の位置を振り直す。 */
 export const reorderImages = async (
   db: DatabaseExecutor,
   { id, imageIds: requested }: Selection,
