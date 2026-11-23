@@ -13,7 +13,7 @@ export const zhHans = {
   "fixedPageEditor.kindsLoadFailed": "无法加载类型",
   "fixedPageEditor.kindLoadFailed": "无法加载类型定义",
   "fixedPageEditor.kindLoadFailedDescription":
-    "内容的项目根据类型定义生成。请检查网络连接，然后重试。",
+    "内容的字段根据类型定义生成。请检查网络连接，然后重试。",
   "fixedPageEditor.slug": "slug",
   "fixedPageEditor.title": "标题",
   "fixedPageEditor.slugHint":
