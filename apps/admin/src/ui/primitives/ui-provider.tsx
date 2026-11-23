@@ -10,11 +10,24 @@ import { useTranslation } from "react-i18next";
 import { type Locale, toLocale } from "@/i18n/locales";
 import { ToastProvider } from "@/ui/primitives/overlays";
 
+type WithParams<Path extends string> =
+  Path extends `${infer Head}$${string}/${infer Tail}`
+    ? `${Head}${string}/${WithParams<Tail>}`
+    : Path extends `${infer Head}$${string}`
+      ? `${Head}${string}`
+      : Path;
+
+/** 管理画面の route のパス(`$id` などは値を入れる前の形)。 */
+export type RoutePath = Extract<ToOptions["to"], `/${string}`>;
+
+/** 管理画面の中の行き先(route のパスか、その `$id` などに値を入れたもの)。 */
+export type AppHref = WithParams<RoutePath>;
+
 declare module "react-aria-components" {
   // oxlint-disable-next-line typescript/consistent-type-definitions -- React Aria Components の型の登録は、interface の宣言のマージでしか書けない
   interface RouterConfig {
     /** リンクの行き先。 */
-    href: NonNullable<ToOptions["to"]>;
+    href: AppHref;
     /** 移るときの options。 */
     routerOptions: Omit<NavigateOptions, keyof ToOptions>;
   }
@@ -40,10 +53,9 @@ export const UiProvider = ({ children }: UiProviderProps): ReactNode => {
 
   return (
     <RouterProvider
-      navigate={(to, options) => {
-        void router.navigate({ ...options, to });
+      navigate={(href, options) => {
+        void router.navigate({ ...options, href });
       }}
-      useHref={(to) => router.buildLocation({ to }).href}
     >
       <I18nProvider locale={ARIA_LOCALES[toLocale(i18n.language)]}>
         <ToastProvider>{children}</ToastProvider>

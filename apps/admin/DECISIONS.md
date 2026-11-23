@@ -283,6 +283,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - 全部の story を `composeStories` で happy-dom の上に描き、想定外の失敗も `console.error` も出さないことを、テスト(`src/__tests__/stories.test.tsx`)で確かめる。ツールバーの値が html の `lang`・`data-theme` と部品の訳に届くことと、`viteFinal` が `cssTarget` を入れて head の script の plugin を外すことも、テストで確かめる。CI では Storybook を起動もビルドもしないので、壊れた story に気づけるのはこのテストだけ。手間は、story のファイルを足すたびに import を1行足すことで、足し忘れると、一覧と `__stories__` のファイルを比べるテストで落ちる。happy-dom は配置を計算しないので、見た目(並び・中心・余白)は Storybook をブラウザで開いて測る(セルフレビューの観点)。
 - 画面の story(`src/routes/` の下の `__stories__`)は、`src/testing/app-preview.tsx` で、作り物の server と作り物の認証器につないだ管理画面の全体を描く。テストと同じ作り物なので、ボタンを押せば、作り物の server の答えで画面が進む。server の状態は、story を開いたときに作る(`createRoutes`。Controls で変えても作り直さないので、`path` などは Controls から外す)。ログインと登録の story は、成功した後にパスキーの画面まで進めるよう、パスキーの作り物の server もつなぐ。ボタンを押してから出る状態(登録していないパスキーでのログイン・使えない登録用 URL など)は、story ごとに作り物の server と認証器の答えを決めておき、story を開いて押すと見られるようにする。play で押させると、Storybook が操作を React の `act` の中で流し、router の suspend とぶつかって、入力した名前が消えた画面に描き直された。そのため play は使わない。押した後の状態は、画面のテストが確かめている。
 - 画面の story は訳を出すので、html の `lang` をツールバーの言語にする(`contentLang: null`)。
+- 写真を出す画面の story は、作り物の写真(`.storybook/sample-photos/` の SVG)を、Storybook の静的なファイルとして `/media/samples/` で配る(`staticDirs`)。配信用の画像の URL は `/` で始まる path なので、作り物の server の応答も同じ形にでき、縦横比の違う写真で並びを見られる。本番のビルドには入らない。
 - telemetry は切る(`core.disableTelemetry`)。
 
 ## server の認証に合わせること

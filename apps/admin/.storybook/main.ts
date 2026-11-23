@@ -7,6 +7,7 @@ const config: StorybookConfig = {
   stories: ["../src/**/__stories__/*.stories.@(ts|tsx)"],
   addons: ["@storybook/addon-a11y"],
   core: { disableTelemetry: true },
+  staticDirs: [{ from: "./sample-photos", to: "/media/samples" }],
   viteFinal: adaptViteConfig,
 };
 
