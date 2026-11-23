@@ -28,6 +28,7 @@ import * as routesFixedPageEditor from "@/routes/fixed-pages/__stories__/fixed-p
 import * as routesFixedPagesPage from "@/routes/fixed-pages/__stories__/fixed-pages-page.stories";
 import * as routesImageViewerPage from "@/routes/images/__stories__/image-viewer-page.stories";
 import * as routesImagesPage from "@/routes/images/__stories__/images-page.stories";
+import * as seriesPage from "@/routes/series/__stories__/series-page.stories";
 import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
 import * as layoutCenter from "@/ui/layout/__stories__/center.stories";
 import * as layoutCluster from "@/ui/layout/__stories__/cluster.stories";
@@ -71,6 +72,8 @@ import * as specimensColors from "@/ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "@/ui/specimens/__stories__/typography.stories";
 
 const MODULES = {
+  "ui/patterns/photos/__stories__/image-thumbnail.stories.ts": imageThumbnail,
+  "routes/series/__stories__/series-page.stories.ts": seriesPage,
   "components/forms/__stories__/form.stories.tsx": componentsForm,
   "components/forms/__stories__/form-fields.stories.tsx": componentsFormFields,
   "components/forms/__stories__/submitting.stories.tsx": componentsSubmitting,
@@ -89,7 +92,6 @@ const MODULES = {
     featuresImagesImageDetail,
   "components/images/__stories__/images-section.stories.tsx":
     featuresImagesSection,
-  "ui/patterns/photos/__stories__/image-thumbnail.stories.ts": imageThumbnail,
   "ui/patterns/photos/__stories__/image-rows.stories.tsx":
     featuresImagesImageRows,
   "features/images/ui/__stories__/image-viewer.stories.tsx":
