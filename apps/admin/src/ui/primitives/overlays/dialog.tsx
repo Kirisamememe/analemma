@@ -27,7 +27,7 @@ const dialog = tv({
     title: "wrap-anywhere text-fg",
     emblem: "grid size-12 place-items-center rounded-full",
     indicator: "*:stroke-2",
-    close: "absolute inset-e-1 top-1",
+    close: "absolute inset-e-2 top-2",
   },
   variants: {
     status: {
@@ -168,7 +168,7 @@ export const Dialog = ({
                   onOpenChange(false);
                 }}
                 rounded="full"
-                size="lg"
+                size="sm"
                 tone="quiet"
               />
             </div>

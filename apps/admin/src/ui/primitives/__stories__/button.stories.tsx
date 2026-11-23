@@ -35,7 +35,7 @@ export const Round: Story = {
     icon: "x",
     "aria-label": "閉じる",
     rounded: "full",
-    size: "lg",
+    size: "sm",
     tone: "quiet",
   },
 };

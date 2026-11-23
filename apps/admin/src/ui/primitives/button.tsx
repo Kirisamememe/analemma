@@ -33,7 +33,6 @@ const button = tv({
         "relative h-control-sm px-3 whitespace-nowrap md:h-control md:px-4",
         "max-md:after:absolute max-md:after:inset-x-0 max-md:after:-inset-y-2",
       ],
-      lg: "h-11 px-4",
       row: "min-h-11 px-3 md:min-h-10",
       card: "min-h-11 px-3 md:min-h-16",
     },
@@ -47,7 +46,7 @@ const button = tv({
     rounded: {
       control: "rounded-control",
       xs: "rounded-xs",
-      full: "rounded-full",
+      full: "relative rounded-full pointer-coarse:after:absolute pointer-coarse:after:-inset-1.5 pointer-coarse:after:rounded-full",
     },
     isPending: {
       true: { face: "opacity-0" },
@@ -86,7 +85,7 @@ type ButtonProps = ButtonContent & {
   /** 見た目の用途。 */
   tone?: "primary" | "secondary" | "quiet" | "danger" | "dashed";
   /** 高さ(`sm-to-md` は画面の幅で変わる)。 */
-  size?: "row" | "card" | "lg" | "md" | "sm" | "sm-to-md";
+  size?: "row" | "card" | "md" | "sm" | "sm-to-md";
   /** `icon` で指定したアイコンの線の太さ。 */
   iconWeight?: "regular" | "bold";
   /** 角の丸み。 */
