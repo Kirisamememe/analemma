@@ -1,12 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { readdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { mkdtempDisposable, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { basename, dirname } from "node:path";
+import { dirname, join } from "node:path";
 import sharp from "sharp";
 
 import { decodeHeif } from "@/platform/images/heif/decode-heif";
-
-const PREFIX = "analemma-heif-";
 
 const heicFixture = async (): Promise<Uint8Array> => {
   const response = await fetch(
@@ -15,9 +14,6 @@ const heicFixture = async (): Promise<Uint8Array> => {
 
   return new Uint8Array(await response.arrayBuffer());
 };
-
-const temporaryDirectories = async (): Promise<string[]> =>
-  (await readdir(tmpdir())).filter((name) => name.startsWith(PREFIX));
 
 describe("HEIC を PNG にする", () => {
   test("回転を当てた PNG の一時ファイルを書き、破棄すると消すこと", async () => {
@@ -28,22 +24,60 @@ describe("HEIC を PNG にする", () => {
 
     await decoded[Symbol.asyncDispose]();
 
-    expect(await temporaryDirectories()).not.toContain(
-      basename(dirname(decoded.path)),
-    );
+    expect(existsSync(dirname(decoded.path))).toBe(false);
   });
 
-  test("heif-dec が失敗しても、一時ファイルを残さないこと", async () => {
-    const before = await temporaryDirectories();
+  test.each(["入力を読めない", "出力を書けない"])(
+    "%sときは、失敗を返して一時ファイルを消すこと",
+    async (failure) => {
+      await using root = await mkdtempDisposable(
+        join(tmpdir(), "analemma-test-"),
+      );
 
-    const failure: unknown = await decodeHeif(
-      new TextEncoder().encode("not a heic"),
-      "heic",
-    ).catch((error: unknown) => error);
+      if (failure === "出力を書けない") {
+        const heif = Bun.which("heif-dec");
 
-    expect(failure).toBeInstanceOf(Error);
-    expect(await temporaryDirectories()).toEqual(before);
-  });
+        if (heif === null) throw new Error("heif-dec が必要");
+
+        await writeFile(
+          join(root.path, "heif-dec"),
+          `#!/bin/sh\nexec "${heif}" --quiet "$4" "$5/missing.png"\n`,
+          { mode: 0o755 },
+        );
+      }
+
+      const result = Bun.spawnSync(
+        [
+          process.execPath,
+          "-e",
+          `import { decodeHeif } from "../decode-heif.ts";
+           const input = new Uint8Array(await Bun.file(process.argv[1]).arrayBuffer());
+           await using decoded = await decodeHeif(input, "heic");`,
+          failure === "出力を書けない"
+            ? "../../__tests__/rotated-with-gps.heic"
+            : "decode-heif.test.ts",
+        ],
+        {
+          cwd: import.meta.dirname,
+          env: {
+            ...Bun.env,
+            TMPDIR: root.path,
+            PATH: `${root.path}:${Bun.env["PATH"]}`,
+          },
+        },
+      );
+
+      expect(result.exitCode).not.toBe(0);
+      expect(result.stderr.toString()).toContain(
+        failure === "出力を書けない" ? "could not write image" : "heif-dec",
+      );
+      expect(
+        (await readdir(root.path)).filter((name) =>
+          name.startsWith("analemma-heif-"),
+        ),
+      ).toEqual([]);
+    },
+  );
 });
 
 describe("ICC の無い AVIF を Display P3 に変換する", () => {
@@ -77,7 +111,10 @@ describe("ICC の無い AVIF を Display P3 に変換する", () => {
         "avif",
       );
 
+      expect((await sharp(result.path).metadata()).bitsPerSample).toBe(16);
+
       const { data, info } = await sharp(result.path, { ignoreIcc: true })
+        .withIccProfile("p3")
         .raw()
         .toBuffer({ resolveWithObject: true });
 

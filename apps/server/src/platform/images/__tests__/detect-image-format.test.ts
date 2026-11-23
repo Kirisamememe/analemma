@@ -30,6 +30,14 @@ test("HEIF を、中の圧縮の形式で AVIF と HEIC に分けること", asy
   ).toBe("heic");
 });
 
+test("アニメーション AVIF を受けないこと", async () => {
+  const animation = await fetch(new URL("animated.avif", import.meta.url));
+
+  expect(
+    await detectImageFormat(new Uint8Array(await animation.arrayBuffer())),
+  ).toBeUndefined();
+});
+
 test("SVG を受けないこと", async () => {
   const svg = new TextEncoder().encode(
     '<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"/>',

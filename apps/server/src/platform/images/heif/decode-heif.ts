@@ -1,17 +1,13 @@
 import { execFile } from "node:child_process";
-import { mkdtempDisposable, writeFile } from "node:fs/promises";
+import { access, mkdtempDisposable, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { promisify } from "node:util";
 import sharp, { type Sharp } from "sharp";
 import { z } from "zod";
 
-const run = async (command: string, args: readonly string[]): Promise<string> =>
-  new Promise((resolve, reject) => {
-    execFile(command, args, (error: Error | null, stdout: string) => {
-      if (error === null) resolve(stdout);
-      else reject(error);
-    });
-  });
+// oxlint-disable-next-line typescript/strict-void-return -- execFile は promisify 用の関数を持ち、ChildProcess の戻り値を使わない。
+const run = promisify(execFile);
 
 const videoStream = z.object({
   color_primaries: z.string().optional(),
@@ -33,7 +29,7 @@ const readPixels = async (bytes: Uint8Array, input: string): Promise<Sharp> => {
 
   if (!hasAlpha) return image;
 
-  const info = await run("heif-info", [input]);
+  const { stdout: info } = await run("heif-info", [input]);
 
   const primary = info
     .split("\nimage: ")
@@ -79,15 +75,21 @@ export const decodeHeif = async (
   await writeFile(input, bytes);
 
   if (format === "heic") {
-    await run("heif-dec", [
+    const { stderr } = await run("heif-dec", [
       "--quiet",
       "--png-compression-level",
       "1",
       input,
       output,
     ]);
+
+    if (stderr.includes("could not write image")) {
+      throw new Error(stderr.trim());
+    }
+
+    await access(output);
   } else {
-    const metadata = await run("ffprobe", [
+    const { stdout: metadata } = await run("ffprobe", [
       "-v",
       "error",
       "-f",

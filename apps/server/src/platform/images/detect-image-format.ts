@@ -19,23 +19,26 @@ const HEIF_BRANDS = new Set([
   "msf1",
   "miaf",
   "avif",
-  "avis",
 ]);
 
 const hasHeifBrand = (bytes: Buffer): boolean => {
   if (bytes.toString("latin1", 4, 8) !== "ftyp") return false;
 
-  if (HEIF_BRANDS.has(bytes.toString("latin1", 8, 12))) return true;
-
+  const major = bytes.toString("latin1", 8, 12);
   const end = Math.min(bytes.readUInt32BE(0), bytes.length);
+  let supported = HEIF_BRANDS.has(major);
+
+  if (major === "avis") return false;
 
   for (let offset = 16; offset + 4 <= end; offset += 4) {
-    if (HEIF_BRANDS.has(bytes.toString("latin1", offset, offset + 4))) {
-      return true;
-    }
+    const brand = bytes.toString("latin1", offset, offset + 4);
+
+    if (brand === "avis") return false;
+
+    if (HEIF_BRANDS.has(brand)) supported = true;
   }
 
-  return false;
+  return supported;
 };
 
 /** 写真の bytes から、形式を見分ける。 */
