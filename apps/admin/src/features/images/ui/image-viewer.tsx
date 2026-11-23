@@ -153,7 +153,7 @@ const SideLink = ({
   </span>
 );
 
-/** 暗い地に写真を大きく出し、横に情報の欄を置く、写真を見る画面。 */
+/** 写真と、その情報を表示する画面。 */
 export const ImageViewer = ({
   back,
   actions,

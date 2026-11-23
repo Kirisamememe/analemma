@@ -232,6 +232,10 @@
   width: var(--size-sidebar);
 }
 
+@utility max-h-viewer-photo {
+  max-height: calc(100dvh - var(--size-nav-bar));
+}
+
 @utility h-nav-bar {
   height: var(--size-nav-bar);
 }

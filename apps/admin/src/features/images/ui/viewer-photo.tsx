@@ -16,7 +16,7 @@ const photo = tv({
     ],
     image: [
       "col-start-1 row-start-1 block",
-      "max-h-dvh w-full object-contain",
+      "max-h-viewer-photo w-full object-contain short-viewport:max-h-dvh",
       "md:size-full md:max-h-none md:min-h-0 md:min-w-0",
     ],
     error: "col-start-1 row-start-1",
