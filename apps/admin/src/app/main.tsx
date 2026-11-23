@@ -1,3 +1,4 @@
+import "@/app/zod-config"; // contract の schema を作る前に当てる
 import { createBrowserHistory } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
