@@ -7,6 +7,7 @@ import { samplePhoto } from "@/testing/sample-photos";
 import { Text } from "@/ui/layout";
 import { LoadingState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
+import { Icon } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 
 const back = (
@@ -34,7 +35,10 @@ const meta = {
         back={back}
         actions={
           <ViewerActions disabled={parameters.waitingForNext === true}>
-            <Button size="sm-to-md">編集</Button>
+            <Button size="sm-to-md">
+              <Icon name="pencil" />
+              編集
+            </Button>
             <Button size="sm-to-md">非公開にする</Button>
             <Button aria-label="画像を削除" icon="trash-2" size="sm-to-md" />
           </ViewerActions>
