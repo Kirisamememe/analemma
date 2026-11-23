@@ -102,9 +102,15 @@
 ### 部品の決まり
 
 - **塗りのボタン**:`border border-transparent` を付ける。forced-colors で、塗りが消えても線として残る。
+  <<<<<<< HEAD
 - **押せない・送信中**:見た目(`state-disabled` など)だけでなく、React Aria Components の props(`isDisabled`・`isPending`)で動きを止める。CSS の `pointer-events` はキーボードの操作を止めない。送信中のボタンは、focus を残したまま押せなくし、spinner を、訳した名前の付いた `ProgressBar` の中に出して、待っていることをスクリーンリーダーに伝える(spinner だけでは、スクリーンリーダーはボタンの名前しか読まない)。送信中も、ボタンの幅を変えない(ユーザーが決めた)。spinner を文言の横に足すと、幅が spinner と間の分(24px)だけ広がり、右寄せで並んだ隣のボタンが押し出される。文言とアイコンを1つの格子のセルに置き、送信中は `opacity-0` で隠して場所を残し、spinner を同じセルに重ねる。`invisible`(`visibility: hidden`)で隠すと、文言がボタンのアクセシブルな名前から外れ、送信中の名前が「処理中」だけになる(Chrome で確かめた)。spinner は `block` にし、`ProgressBar` の箱を spinner の大きさにして、セルの `place-items-center` で文言の中心にそろえる(`inline-block` では、行の高さの箱の中で baseline に載り、文字より 2〜3px 上にずれる)。React Aria Components は送信中のボタンを `type="button"` に変えるので、入力欄の Enter がフォームを送り直せる。`Form` にも `isPending` を渡し、送信中は送らない(管理画面の「送信中はボタンを無効にする」)。 写真の前後へのリンクは、待機中だけ行き先を外し、同じ a 要素に focus を残して無効状態を伝える。React Aria の Link は無効にすると span に変わるため、ここは HTML の a を使う。
+  \=======
+- **押せない・送信中**:見た目(`state-disabled` など)だけでなく、React Aria Components の props(`isDisabled`・`isPending`)で動きを止める。CSS の `pointer-events` はキーボードの操作を止めない。送信中のボタンは、focus を残したまま押せなくし、spinner を、訳した名前の付いた `ProgressBar` の中に出して、待っていることをスクリーンリーダーに伝える(spinner だけでは、スクリーンリーダーはボタンの名前しか読まない)。送信中も、ボタンの幅を変えない(ユーザーが決めた)。spinner を文言の横に足すと、幅が spinner と間の分(24px)だけ広がり、右寄せで並んだ隣のボタンが押し出される。文言とアイコンを1つの格子のセルに置き、送信中は `opacity-0` で隠して場所を残し、spinner を同じセルに重ねる。`invisible`(`visibility: hidden`)で隠すと、文言がボタンのアクセシブルな名前から外れ、送信中の名前が「処理中」だけになる(Chrome で確かめた)。spinner は `block` にし、`ProgressBar` の箱を spinner の大きさにして、セルの `place-items-center` で文言の中心にそろえる(`inline-block` では、行の高さの箱の中で baseline に載り、文字より 2〜3px 上にずれる)。React Aria Components は送信中のボタンを `type="button"` に変えるので、入力欄の Enter がフォームを送り直せる。`Form` にも `isPending` を渡し、送信中は送らない(管理画面の「送信中はボタンを無効にする」)。 写真を見る画面は、写真の切り替え中に3つのボタンの外観と focus を保つため、操作のまとまりを `fieldset disabled` で一時的に止める。
+
+> > > > > > > 728a37d9 (fix(admin): 折り返した帯の下に通知を置き画像ごとの失敗を残す)
+
 - **長い語の折り返し**:`Text`・`Heading`・Dialog の見出しは `wrap-anywhere`(`overflow-wrap: anywhere`)にする。パスキーの名前のような利用者が付けた文字列は、空白の無い長い英数字でもよいので、語の途中でも折り返し、狭い画面や拡大で横にはみ出さないようにする(flex の中でも、min-content の幅が縮む)。happy-dom は配置を計算しないので、テストでは確かめない(Copilot のレビューで見つかった)。
-- 文言のあるボタンは、折り返した文言の高さまで伸ばす。小さい画面で文字を拡大したときも、押せる範囲に名前が収まる。
+- 文言のあるボタンは、折り返した文言の高さまで伸ばす。小さい画面で文字を拡大したときも、押せる範囲に名前が収まる。 写真ビューアの短い操作文言には `sm-to-md` を使う。各ボタンの文言を1行に保ち、狭ければ帯全体が折り返す。
 - **面の内側のボタンの角**:角の丸い面(固定ページの要素の帯など)の内側に、間を空けて置くボタンは、角の丸みを `rounded="xs"`(4px)にする。帯の丸み(8px)から間(4px)を引いた丸みにして、外と内の角の曲がり方を連続させる(ユーザーが見つけた)。
 - **ボタンのアクセシブルな名前**:並んだ要素ごとの「上へ」「削除」のように、文言だけでは何に対する操作か分からないボタンには、`aria-label` で対象を含めたアクセシブルな名前を付ける(「リンク 2 を上へ」)。名前には見える文言を含め、音声入力で見える文言を言って押せるようにする。文言に対象を書き込むと、同じ対象の名前がボタンごとに並び、見た目が重くなる。文言の代わりにアイコンだけを出すボタン(`icon`)は、名前が無くなるので `aria-label` を型で必須にし、正方形(`aspect-square`。高さは `size` のまま)にする。
 - **中身を包むリンク**(`Link` の `variant="block"`):写真と文字のように、まとまった中身を1つのリンクにする。focus の ring は中身の全体を角丸で囲み、押すと沈む。hover の見せ方は中身の側で決められるよう、`group` を付ける(写真の上に `scrim` を薄く重ねるなど)。
@@ -131,7 +137,13 @@
 - **Toast の focus の ring**:Toast と region の focus の ring は面の外の地の上に描かれるので、地の配色の `focus` で描く。面の配色と塗りは内側の要素に当て、focus を受ける外側の要素は地の配色のままにする。面に `scheme-inverse` を当てると、ring の色も逆の配色で決まり、light の白い地の上で 3:1 に届かなかった。
 - **Toast の表示時間と操作**:`success` は読める時間として5000ms表示する。region に hover や focus を始めると、React Aria Components がその時点で出ている Toast の timer を止める。`danger` は、失敗を読み終えられるよう、時間では消さず、閉じるまで残す。どちらも、訳した名前の閉じるボタンですぐに閉じられる。
 - **Toast の読み上げと queue**:region の訳と landmark、F6 での移動、`alert` の読み上げ、閉じたときの focus の復帰は React Aria Components に任せる。`UiProvider` の下の `ToastProvider` が、描いた `ToastProvider` ごとに queue を持つ。Toast を出す側は、`useShowToast` が返す関数に、訳した文と `tone` を渡す。Provider ごとに queue を持つので、画面を描き直すテストや Storybook でも知らせを持ち越さない。`useShowToast` が返す関数は、出した Toast を閉じる関数を返す。ログアウトのように、送り直すときに前の失敗の Toast を閉じるため。
+  <<<<<<< HEAD
 - **Toast の位置**:画面の上の中央に置く(ユーザーが決めた)。狭い画面のナビ、または幅によらず写真ビューアの帯があるときに、帯が占める上端の高さを CSS で `--viewport-top-inset` として渡す。帯の高さはナビの見出しと共通の `h-nav-bar` で決める。Toast はこの値と上の safe area のうち大きいほうから 1rem 空け、ナビのボタンを覆わないようにする。左右は少なくとも 1rem 空け、幅は `max-w-sm`(24rem)までにする。新しい知らせを上に積む。操作の結果が同じ場所に出て、複数あっても順にたどれるようにする。
+  \=======
+- **Toast の位置**:画面の上の中央に置く(ユーザーが決めた)。狭い画面では `data-top-bar` を付けたナビまたは写真ビューアの帯があるときだけ、帯が占める上端の高さを CSS で `--viewport-top-inset` として渡す。帯の高さはナビの見出しと共通の `h-nav-bar` で決める。Toast はこの値と上の safe area のうち大きいほうから 1rem 空け、ナビのボタンを覆わないようにする。左右は少なくとも 1rem 空け、幅は `max-w-sm`(24rem)までにする。新しい知らせを上に積む。操作の結果が同じ場所に出て、複数あっても順にたどれるようにする。 写真ビューアは幅と文字の大きさで帯が折り返すため、`ResizeObserver` で測った帯の高さを使う。
+
+> > > > > > > 728a37d9 (fix(admin): 折り返した帯の下に通知を置き画像ごとの失敗を残す)
+
 - **Toast の animation**:React Aria Components の Toast には `is-entering` と `is-exiting` が無いので、queue の `wrapUpdate` で View Transitions を始め、DOM の更新を `flushSync` で反映する。snapshot の準備中に queue が続けて変わったときは、1つの transition で反映する。続けて始めると先の transition が中断され、出入りの前後を撮れないため。opacity を変えながら、入るときは0.5rem上から下り、出るときは0.5rem上へ抜ける。入るときと残った Toast が詰まるときは200ms・`--ease-standard`、出るときは Dialog と共通の150ms・`--ease-exit` を使う。reduced motion では出入りの opacity だけを残す。Toast の transition 中は画面全体を snapshot から外して Dialog などの animation を止めず、snapshot は pointer 操作を受けないようにする。
 - **遷移の帯**(`NavigationProgress`):画面の上端に、全幅で高さ 2px の帯を重ね、`primary` の色の、幅 40% の帯を左から右へ 1.2 秒で流す。動きは `translate` だけにし、main thread が止まっている間も(大きなフォームを描く間など)compositor で流れ続ける。出すときは次のフレームですぐ出し、消すときは 100ms 待ってから 150ms で薄くする。取得の合間に一瞬だけ待ちが切れても(固定ページを読んでから種類の定義を読み始めるまで、など)、ちらつかない。消えたら `display: none` にして、流れも止める(`transition-behavior: allow-discrete`)。読み上げは、出ている間だけ、訳した名前の `ProgressBar` を、見た目では隠して置く。reduced motion では流さず、全幅で止めて出す(明滅も、待つ間ずっと続くと気を散らす)。
 - **画面が浮かび上がる動き**(`PageTransition`):opacity と 20px の上昇を、300ms の ease-out で動かす(ユーザーが決めた)。Dialog と同じ `--ease-standard` の 200ms では、出た瞬間にほぼ見えてしまい、不自然だった(ユーザーが見つけた)。終わった後に位置を残さない(`animation-fill-mode` を付けない。`translate` が残ると、中の要素の重ね順と `position: fixed` の基準が変わる)。

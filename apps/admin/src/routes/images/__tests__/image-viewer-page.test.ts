@@ -176,7 +176,7 @@ describe("ImageViewerPage", () => {
   );
 
   test("画像と前後の行き先を待ってから同じ向きに focus を戻し、端では逆側のリンクに移す", async () => {
-    const { server } = setUp(0);
+    const { server, calls } = setUp(0);
     await heading("夕暮れの稜線");
     const back = screen.getByRole("link", { name: "一覧へ" });
     const next = await screen.findByRole("link", { name: "次の画像" });
@@ -190,10 +190,11 @@ describe("ImageViewerPage", () => {
     next.focus();
     await userEvent.keyboard("{Enter}");
     await waitFor(() => {
-      expect(screen.getByRole("group").hasAttribute("disabled")).toBe(true);
+      expect(calls.filter((call) => call === "admin/images/get")).toHaveLength(
+        2,
+      );
     });
     expect(screen.getByRole("link", { name: "一覧へ" })).toBe(back);
-    expect(screen.getByRole("group").hasAttribute("disabled")).toBe(true);
     const [first, second, last] = server.images();
 
     if (first === undefined || second === undefined || last === undefined) {
@@ -238,7 +239,7 @@ describe("ImageViewerPage", () => {
   });
 
   test("取得を待つ間に一覧へのリンクへ移した focus をそのまま保つ", async () => {
-    const { server } = setUp(0);
+    const { server, calls } = setUp(0);
     await heading("夕暮れの稜線");
     const back = screen.getByRole("link", { name: "一覧へ" });
     const next = await screen.findByRole("link", { name: "次の画像" });
@@ -247,7 +248,9 @@ describe("ImageViewerPage", () => {
     next.focus();
     await userEvent.keyboard("{Enter}");
     await waitFor(() => {
-      expect(screen.getByRole("group").hasAttribute("disabled")).toBe(true);
+      expect(calls.filter((call) => call === "admin/images/get")).toHaveLength(
+        2,
+      );
     });
     back.focus();
     const second = server.images()[1];
