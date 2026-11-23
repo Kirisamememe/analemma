@@ -94,7 +94,7 @@ export const hasUnsentPhotos = (uploads: readonly PhotoUpload[]): boolean =>
 export const isUploading = (uploads: readonly PhotoUpload[]): boolean =>
   uploads.some(({ status }) => status === "waiting" || status === "sending");
 
-/** 送り終えた写真を一覧から外し、送っている写真と待っている写真だけを残す。 */
+/** 送り終えた写真の結果を閉じる。 */
 export const clearFinished = (
   uploads: readonly PhotoUpload[],
 ): readonly PhotoUpload[] =>
