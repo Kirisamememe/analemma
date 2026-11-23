@@ -103,7 +103,7 @@ describe("写真を送って画像を作る", () => {
     expect(formats).toEqual(["avif", "avif", "avif", "avif"]);
   });
 
-  test("HEIC を、ファイルの種類が空でも中身で見分け、表示の向きの大きさで登録すること", async () => {
+  test("HEIC を、MIME type が空でも中身で見分け、表示の向きの大きさで登録すること", async () => {
     await using server = await createTestClient();
     await signInAsAdmin(server);
 
