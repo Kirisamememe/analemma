@@ -31,14 +31,14 @@ const open = () => {
 
 describe("写真を送るときの表示", () => {
   test("次の写真を読み込むまで元の写真と情報を保ち、読み終えた img をそのまま表示する", async () => {
-    const { first, second } = open();
+    const { first, second, history } = open();
     const panel = await screen.findByRole("complementary");
     const old = screen.getByRole("img", { name: first.alt ?? "" });
     fireEvent.load(old);
     const title = within(panel).getByRole("heading", { level: 1 });
-    await userEvent.click(
-      await screen.findByRole("link", { name: "次の画像" }),
-    );
+    const forward = await screen.findByRole("link", { name: "次の画像" });
+    forward.focus();
+    await userEvent.keyboard("{Enter}");
 
     const next = await screen.findByAltText(
       second.alt ?? second.title ?? "無題の画像",
@@ -46,21 +46,23 @@ describe("写真を送るときの表示", () => {
 
     expect(old.isConnected).toBe(true);
     expect(title.isConnected).toBe(true);
-    expect(
-      screen.getByRole("button", { name: "編集" }).hasAttribute("disabled"),
-    ).toBe(true);
+    expect(screen.getByRole("link", { name: "次の画像" })).toBe(forward);
+    await userEvent.keyboard("{Enter}");
+    await userEvent.click(forward);
+    expect(history.location.pathname).toBe("/images/" + second.id);
+    panel.scrollTop = 120;
+
     fireEvent.load(next);
     expect(screen.getByRole("img", { name: "無題の画像" })).toBe(next);
     expect(screen.getByRole("complementary")).toBe(panel);
     expect(within(panel).getByRole("heading", { level: 1 }).textContent).toBe(
       "無題の画像",
     );
-    expect(
-      screen.getByRole("button", { name: "編集" }).hasAttribute("disabled"),
-    ).toBe(false);
+    expect(panel.scrollTop).toBe(0);
+    expect(document.activeElement).toBe(forward);
   });
 
-  test("編集している画像を取り直せなくても入力が残り、別の画像に移れば古い Dialog を閉じる", async () => {
+  test("編集している画像を取り直せなくても入力が残り、変更を破棄して別の画像に移ると Dialog を閉じる", async () => {
     const { server, first, second, queryClient, history } = open();
     queryClient.setQueryDefaults(imageQueryKey(first.id), { retry: false });
     await userEvent.click(await screen.findByRole("button", { name: "編集" }));
@@ -85,6 +87,14 @@ describe("写真を送るときの表示", () => {
     act(() => {
       history.push("/images/" + second.id);
     });
+
+    const confirm = await screen.findByRole("dialog", {
+      name: "保存していない変更があります",
+    });
+
+    await userEvent.click(
+      within(confirm).getByRole("button", { name: "変更を破棄" }),
+    );
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).toBeNull();
     });

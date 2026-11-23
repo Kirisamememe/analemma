@@ -134,7 +134,8 @@ export const ImageDetail = ({
       onSwipe={(side) => {
         const target = side === "previous" ? previous : next;
 
-        if (target !== undefined) onMove(target.href);
+        if (target !== undefined && target.disabled !== true)
+          onMove(target.href);
       }}
       previous={previous}
     >

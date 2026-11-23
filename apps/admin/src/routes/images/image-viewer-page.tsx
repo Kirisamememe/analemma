@@ -1,21 +1,29 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { memo, type ReactNode, type RefObject, use, useRef } from "react";
+import {
+  memo,
+  type ReactNode,
+  type RefObject,
+  use,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 
 import { ImageViewerActions } from "./image-viewer-actions";
-import { useViewerNavigation } from "./use-viewer-navigation";
 import { ImageViewerContext } from "./image-viewer-context";
 import { useImageVisit } from "./use-image-visit";
 
-import { useImageNeighbors } from "@/features/images/detail/hooks/use-image-neighbors";
-import { ImageDetail } from "@/features/images/detail/image-detail";
 import {
-  ViewerFrame,
-  ViewerMessage,
-} from "@/features/images/ui/image-viewer";
+  type ImageNeighbors,
+  useImageNeighbors,
+} from "@/features/images/detail/hooks/use-image-neighbors";
+import { ImageDetail } from "@/features/images/detail/image-detail";
+import type { Neighbor } from "@/features/images/ui/image-viewer";
+import { ViewerFrame, ViewerMessage } from "@/features/images/ui/viewer-frame";
+import { ViewerLoading } from "@/features/images/ui/viewer-loading";
 import { ViewerVisit } from "@/features/images/ui/viewer-visit";
 import { Heading, PageTransition, Text } from "@/ui/layout";
-import { ErrorState, LoadingState } from "@/ui/patterns";
+import { ErrorState } from "@/ui/patterns";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
 
@@ -24,26 +32,113 @@ type BackProps = {
   back: RefObject<HTMLAnchorElement | null>;
 };
 
+type PhotoSide = "previous" | "next";
+
+type PendingFocus = {
+  /** キーボードで開く写真の ID。 */
+  id: string;
+  /** 押したリンクの向き。 */
+  side: PhotoSide;
+};
+
+const useViewerNavigation = (back: BackProps["back"], disabled: boolean) => {
+  const { t } = useTranslation();
+  const previous = useRef<HTMLAnchorElement>(null);
+  const next = useRef<HTMLAnchorElement>(null);
+  const pending = useRef<PendingFocus>(undefined);
+  const retryRef = useRef<HTMLButtonElement>(null);
+  const links = { previous, next };
+
+  const neighbor = (
+    side: PhotoSide,
+    id: string | undefined,
+  ): Neighbor | undefined =>
+    id === undefined
+      ? undefined
+      : {
+          href: `/images/${id}`,
+          disabled,
+          label: t(
+            side === "next" ? "imageDetail.next" : "imageDetail.previous",
+          ),
+          attach: (element) => {
+            links[side].current = element;
+          },
+          onKeyboardNavigate: () => {
+            pending.current = { id, side };
+          },
+        };
+
+  const restore = (id: string) => {
+    const move = pending.current;
+
+    if (move?.id !== id) return;
+
+    const active = document.activeElement;
+
+    if (active !== null && active !== document.body) {
+      if (active !== retryRef.current) pending.current = undefined;
+
+      return;
+    }
+
+    if (retryRef.current !== null) {
+      retryRef.current.focus();
+      return;
+    }
+
+    pending.current = undefined;
+
+    const opposite = move.side === "previous" ? next : previous;
+    (links[move.side].current ?? opposite.current ?? back.current)?.focus();
+  };
+
+  const retry = (id: string, again: () => void) => {
+    if (pending.current?.id !== id) pending.current = { id, side: "next" };
+
+    again();
+  };
+
+  return { neighbor, restore, retry, retryRef };
+};
+
 const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
   const state = use(ImageViewerContext);
+
   const id = useParams({
     from: "/images/$id",
     select: (params) => params.id.toLowerCase(),
   });
 
   const { t } = useTranslation();
-  const navigation = useViewerNavigation(back);
   const navigate = useNavigate();
-  const neighbors = useImageNeighbors(id);
-  const failure = neighbors?.failure;
+  const currentNeighbors = useImageNeighbors(id);
+  const canMove = state?.shown?.id === id && currentNeighbors !== undefined;
+  const navigation = useViewerNavigation(back, !canMove);
+  const [lastLinks, setLastLinks] =
+    useState<Pick<ImageNeighbors, "previous" | "next">>();
 
   if (state === undefined) return null;
 
   const { shown, pending, query, direction, settle } = state;
 
+  const neighbors = canMove ? currentNeighbors : lastLinks;
+  const failure = canMove ? currentNeighbors.failure : undefined;
+
+  if (
+    canMove &&
+    (currentNeighbors.next !== lastLinks?.next ||
+      currentNeighbors.previous !== lastLinks?.previous)
+  ) {
+    setLastLinks({
+      next: currentNeighbors.next,
+      previous: currentNeighbors.previous,
+    });
+  }
+
   const ready =
     query._tag !== "Loading" &&
-    (shown === undefined || neighbors !== undefined);
+    (shown === undefined || canMove || query._tag === "Failed");
 
   const error =
     query._tag === "Failed" ? (
@@ -94,7 +189,7 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
           }}
         />
       )}
-      {query._tag === "Loading" && shown === undefined && <LoadingState layout="media" label={t("imageDetail.loading")} />}
+      {query._tag === "Loading" && shown === undefined && <ViewerLoading />}
       {error !== undefined && shown === undefined && (
         <ViewerMessage>{error}</ViewerMessage>
       )}
@@ -146,6 +241,7 @@ export const ImageViewerPage = (): ReactNode => {
     from: "/images/$id",
     select: (params) => params.id.toLowerCase(),
   });
+
   const state = useImageVisit(id);
 
   return (
