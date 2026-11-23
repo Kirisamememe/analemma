@@ -8,6 +8,16 @@ export const zhHans = {
   "fixedPageEditor.new": "新建固定页面",
   "fixedPageEditor.edit": "编辑固定页面",
   "fixedPageEditor.chooseKind": "选择类型",
+  "fixedPageEditor.addKindTitle": "如何添加固定页面类型",
+  "fixedPageEditor.addKindSummary":
+    "在公开站点的定义文件中添加类型，部署时将定义发送到 CMS。",
+  "fixedPageEditor.addKindExample": "定义方式和命令示例",
+  "fixedPageEditor.defineKind":
+    "在公开站点的定义文件中，用 @analemma/client 的 defineKind 定义新类型，再将它加入默认导出的数组。",
+  "fixedPageEditor.refreshAfterDeploy":
+    "发送成功后，刷新此页面即可选择新类型。",
+  "fixedPageEditor.deployKind":
+    "部署公开站点时，将 ANALEMMA_URL 设为 CMS 的内部 URL，将 ANALEMMA_DEPLOY_TOKEN 设为部署令牌。运行以下命令发送定义，并将示例路径替换为实际的定义文件路径。",
   "fixedPageEditor.emptyKinds": "还没有可选的类型",
   "fixedPageEditor.kindGone": "此类型已不存在。",
   "fixedPageEditor.pageGone": "此固定页面已不存在。",
@@ -27,6 +37,7 @@ export const zhHans = {
   "fixedPageEditor.invalidTitle": "请输入 1 至 200 个字符的标题，不要换行。",
   "fixedPageEditor.slugTaken": "其他固定页面已在使用此 slug。",
   "fixedPageEditor.save": "保存",
+  "fixedPageEditor.saving": "正在保存固定页面",
   "fixedPageEditor.saved": "固定页面已更新。",
   "fixedPageEditor.created": "固定页面已创建。",
   "fixedPageEditor.saveFailed": "无法保存固定页面，请重试。",
@@ -56,8 +67,6 @@ export const zhHans = {
   "fixedPageEditor.unboundIssue": "（{{path}}：{{message}}）",
   "fixedPageEditor.newDescription": "选择类型后，输入 slug、标题和内容。",
   "fixedPageEditor.kindOf": "类型：{{kind}}",
-  "fixedPageEditor.emptyKindsDescription":
-    "公开站点在部署时发送类型定义后，会显示在这里。",
   "fixedPageEditor.editReady": "编辑表单已就绪。",
   "fixedPageEditor.formReady": "新建页面表单已就绪。",
   "fixedPageEditor.chooseAgain": "重新选择类型",

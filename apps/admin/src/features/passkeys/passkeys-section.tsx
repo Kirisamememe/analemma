@@ -8,8 +8,10 @@ import {
 } from "@/features/passkeys/passkey-list";
 import { RenamePasskeyDialog } from "@/features/passkeys/rename-passkey-dialog";
 import { useTranslate } from "@/i18n/use-translate";
-import { Cluster, Heading, Stack } from "@/ui/layout";
+import { Heading, Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
+import { ActionList } from "@/ui/primitives/collections";
+import { Icon } from "@/ui/primitives/graphics";
 import { FocusScope } from "@/ui/primitives/overlays";
 
 type PasskeyDialog = "add" | "rename" | "delete";
@@ -33,27 +35,29 @@ export const PasskeysSection = (): ReactNode => {
   return (
     <FocusScope>
       <Stack as="section" gap={4}>
-        <Cluster align="center" gap={4} justify="between">
-          <Heading level={2}>{t("passkeys.title")}</Heading>
+        <Heading level={2}>{t("passkeys.title")}</Heading>
+        <ActionList as="div">
           <Button
+            size="row"
+            tone="dashed"
             onPress={() => {
               open("add");
             }}
-            tone="primary"
           >
+            <Icon name="plus" />
             {t("passkeys.add")}
           </Button>
-        </Cluster>
-        <PasskeyList
-          onDelete={(selected) => {
-            setPasskey(selected);
-            open("delete");
-          }}
-          onRename={(selected) => {
-            setPasskey(selected);
-            open("rename");
-          }}
-        />
+          <PasskeyList
+            onDelete={(selected) => {
+              setPasskey(selected);
+              open("delete");
+            }}
+            onRename={(selected) => {
+              setPasskey(selected);
+              open("rename");
+            }}
+          />
+        </ActionList>
         <AddPasskeyDialog
           isOpen={openDialog === "add"}
           key={`add-${openCount}`}

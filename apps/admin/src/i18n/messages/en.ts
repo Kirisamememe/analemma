@@ -6,6 +6,16 @@ export const en = {
   "fixedPageEditor.new": "New fixed page",
   "fixedPageEditor.edit": "Edit fixed page",
   "fixedPageEditor.chooseKind": "Choose a kind",
+  "fixedPageEditor.addKindTitle": "How to add a fixed page kind",
+  "fixedPageEditor.addKindSummary":
+    "Add the kind to the public site’s definitions file and send it to the CMS during deployment.",
+  "fixedPageEditor.addKindExample": "Definition and example command",
+  "fixedPageEditor.defineKind":
+    "In the public site’s definitions file, use defineKind from @analemma/client to define the kind and add it to the file’s default export array.",
+  "fixedPageEditor.refreshAfterDeploy":
+    "After the command succeeds, reload this page to select the new kind.",
+  "fixedPageEditor.deployKind":
+    "During deployment, set ANALEMMA_URL to the internal CMS URL and ANALEMMA_DEPLOY_TOKEN to your deploy token. Run the command with the path to your definitions file, as in this example.",
   "fixedPageEditor.emptyKinds": "No kinds yet",
   "fixedPageEditor.kindGone": "This kind no longer exists.",
   "fixedPageEditor.pageGone": "This fixed page no longer exists.",
@@ -26,6 +36,7 @@ export const en = {
     "Enter a title of 1–200 characters without line breaks.",
   "fixedPageEditor.slugTaken": "Another fixed page already uses this slug.",
   "fixedPageEditor.save": "Save",
+  "fixedPageEditor.saving": "Saving fixed page",
   "fixedPageEditor.saved": "Fixed page updated.",
   "fixedPageEditor.created": "Fixed page created.",
   "fixedPageEditor.saveFailed":
@@ -59,8 +70,6 @@ export const en = {
   "fixedPageEditor.newDescription":
     "Choose a kind, then enter the slug, title, and content.",
   "fixedPageEditor.kindOf": "Kind: {{kind}}",
-  "fixedPageEditor.emptyKindsDescription":
-    "Kinds appear here after the public site sends its kind definitions during deployment.",
   "fixedPageEditor.editReady": "The edit form is ready.",
   "fixedPageEditor.formReady": "The new page form is ready.",
   "fixedPageEditor.chooseAgain": "Choose another kind",

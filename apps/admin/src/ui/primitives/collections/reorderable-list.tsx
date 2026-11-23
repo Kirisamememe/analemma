@@ -16,7 +16,7 @@ const list = tv({ base: "flex flex-col gap-2 outline-hidden" });
 const row = tv({
   base: [
     "relative flex items-center gap-1",
-    "rounded-control bg-surface py-2 pr-3 pl-1 shadow-control",
+    "rounded-control bg-surface py-3 pr-3 pl-1 shadow-control",
     "outline-hidden transition is-focus-shown:focus-ring",
     "after:pointer-events-none after:absolute after:inset-0 after:rounded-control after:outline after:outline-fg/10 forced-colors:after:outline-line",
     "is-dragging:bg-surface-sunken is-dragging:shadow-none is-dragging:after:outline-fg/40 is-dragging:after:outline-dashed",

@@ -40,6 +40,13 @@ test("種類を読み込んでいる間と選べる種類が無いときの知�
   expect(
     await screen.findByRole("heading", { name: "選べる種類がありません" }),
   ).toBeDefined();
+  expect(
+    screen.getByRole("heading", { name: "固定ページの種類を追加するには" }),
+  ).toBeDefined();
+  await userEvent.click(screen.getByText("定義の書き方とコマンド例"));
+  expect(
+    screen.getByText("analemma push-kinds ./src/lib/kinds.ts"),
+  ).toBeDefined();
 });
 test("選んだ種類が無いときはフォームを出さずに知らせる", async () => {
   renderApp({
@@ -240,7 +247,11 @@ test("一覧から種類を選んで作り、編集の画面から一覧に戻�
   );
   await clickSave(user);
 
-  expect(await screen.findByText("固定ページを作成しました。")).toBeDefined();
+  const saved = await screen.findByRole("dialog", {
+    name: "固定ページを作成しました。",
+  });
+
+  await user.click(within(saved).getByRole("button", { name: "閉じる" }));
   const [created] = server.pages();
   expect(created?.content).toEqual({ lead: "こんにちは" });
   await screen.findByRole("heading", { name: "固定ページを編集" });

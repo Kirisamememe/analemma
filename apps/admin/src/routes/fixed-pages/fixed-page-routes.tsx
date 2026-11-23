@@ -22,6 +22,7 @@ import {
   kindQueryKey,
   loadKinds,
 } from "@/features/fixed-pages/queries/fixed-pages-query";
+import { KindGuide } from "@/features/fixed-pages/ui/kind-guide";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
 import {
   EmptyState,
@@ -145,7 +146,6 @@ const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
         {({ kinds }) =>
           kinds.length === 0 ? (
             <EmptyState
-              description={t("fixedPageEditor.emptyKindsDescription")}
               icon="file-text"
               title={t("fixedPageEditor.emptyKinds")}
             />
@@ -264,6 +264,7 @@ export const NewFixedPage = (): ReactNode => {
               setPicked(true);
             }}
           />
+          <KindGuide />
         </Titled>
       ) : (
         <NewPageEditor name={kind} picked={picked} />

@@ -21,6 +21,8 @@ const button = tv({
       primary: "border-transparent bg-primary text-on-primary shadow-control",
       secondary: "bg-surface text-fg shadow-control",
       quiet: "border-transparent text-fg",
+      dashed:
+        "w-full justify-items-start border-dashed border-line-strong text-start text-fg",
       danger:
         "border-transparent bg-danger-strong text-on-danger-strong shadow-control",
     },
@@ -31,6 +33,8 @@ const button = tv({
         "relative h-control-sm px-3 whitespace-nowrap md:h-control md:px-4",
         "max-md:after:absolute max-md:after:inset-x-0 max-md:after:-inset-y-2",
       ],
+      row: "min-h-11 px-3 md:min-h-10",
+      card: "min-h-11 px-3 md:min-h-16",
     },
     iconOnly: {
       true: "aspect-square px-0",
@@ -42,6 +46,7 @@ const button = tv({
     rounded: {
       control: "rounded-control",
       xs: "rounded-xs",
+      full: "relative rounded-full pointer-coarse:after:absolute pointer-coarse:after:-inset-1.5 pointer-coarse:after:rounded-full",
     },
     isPending: {
       true: { face: "opacity-0" },
@@ -78,13 +83,13 @@ type ButtonContent =
 /** ボタンに渡す値。 */
 type ButtonProps = ButtonContent & {
   /** 見た目の用途。 */
-  tone?: "primary" | "secondary" | "quiet" | "danger";
-  /** 画面幅に応じたボタンの高さ。 */
-  size?: "md" | "sm" | "sm-to-md";
+  tone?: "primary" | "secondary" | "quiet" | "danger" | "dashed";
+  /** 高さ(`sm-to-md` は画面の幅で変わる)。 */
+  size?: "row" | "card" | "md" | "sm" | "sm-to-md";
   /** `icon` で指定したアイコンの線の太さ。 */
   iconWeight?: "regular" | "bold";
   /** 角の丸み。 */
-  rounded?: "control" | "xs";
+  rounded?: "control" | "xs" | "full";
   /** フォームを送るボタンか。 */
   type?: "button" | "submit";
   /** 送信中か(押せなくし、待っていることを示す)。 */

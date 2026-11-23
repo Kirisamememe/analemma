@@ -80,3 +80,21 @@ export const LongName: Story = {
     name: "passkey-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijkl",
   },
 };
+
+const statusStory = (status: "pending" | "success", title: string): Story => ({
+  /** 保存中か成功時の表示を開く。 */
+  render: function StatusDialog() {
+    const [open, setOpen] = useState(true);
+    return (
+      <Dialog
+        isOpen={open}
+        onOpenChange={setOpen}
+        status={status}
+        title={title}
+      />
+    );
+  },
+});
+
+export const Saving = statusStory("pending", "固定ページを保存しています");
+export const Saved = statusStory("success", "固定ページを更新しました。");

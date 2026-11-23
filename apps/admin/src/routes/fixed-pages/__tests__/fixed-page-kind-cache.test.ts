@@ -80,6 +80,14 @@ const openPicker = async () => {
 
 const save = () => pressFirst(/保存/v);
 
+const closeSaved = async () => {
+  const saved = await screen.findByRole("dialog", {
+    name: "固定ページを更新しました。",
+  });
+
+  await userEvent.click(within(saved).getByRole("button", { name: "閉じる" }));
+};
+
 const edit = async () => {
   await userEvent.click(await findButton("「紹介」を編集"));
   await findTitle();
@@ -248,6 +256,7 @@ test("保存後に新しい項目へ切り替わっても、直前に保存し�
   pending.resolve({ output: updatedKind });
   await screen.findByText(/入力を手元に控えて/v);
   await save();
+  await closeSaved();
   const lead = await screen.findByRole("textbox", { name: "リード文" });
   expect(titleField().value).toBe("紹介の下書き");
   await userEvent.type(lead, "続けて入力");
@@ -260,14 +269,15 @@ test("未編集のまま保存を送った後に新しい定義が届いても�
   const sending = Promise.withResolvers<FakeReply<"admin/fixedPages/update">>();
   server.replyNext("admin/fixedPages/update", () => sending.promise);
   await save();
-  await screen.findAllByRole("progressbar");
+  await screen.findByRole("dialog", { name: "固定ページを保存しています" });
   pending.resolve({ output: updatedKind });
-  await save();
+  await userEvent.keyboard("{Enter}");
   expect(
     calls.filter((path) => path === "admin/fixedPages/update"),
   ).toHaveLength(1);
   expect(screen.queryByRole("textbox", { name: "リード文" })).toBeNull();
   sending.resolve({ output: page });
+  await closeSaved();
   await screen.findByRole("textbox", { name: "リード文" });
 });
 

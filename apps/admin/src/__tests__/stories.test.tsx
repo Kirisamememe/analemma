@@ -15,6 +15,7 @@ import * as featuresDeployTokensCopyButton from "@/features/deploy-tokens/ui/__s
 import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
 import * as kindRefreshNotice from "@/features/fixed-pages/list/__stories__/kind-refresh-notice.stories";
 import * as featuresFixedPagesContentGroup from "@/features/fixed-pages/ui/__stories__/content-group.stories";
+import * as fixedPageKindGuide from "@/features/fixed-pages/ui/__stories__/kind-guide.stories";
 import * as featuresImagesImageDetail from "@/features/images/detail/__stories__/image-detail.stories";
 import * as featuresImagesSection from "@/features/images/list/__stories__/images-section.stories";
 import * as featuresImagesImageRows from "@/features/images/ui/__stories__/image-rows.stories";
@@ -44,6 +45,7 @@ import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "@/ui/primitives/__stories__/button.stories";
 import * as primitivesForm from "@/ui/primitives/__stories__/form.stories";
 import * as primitivesNotice from "@/ui/primitives/__stories__/notice.stories";
+import * as collectionsActionList from "@/ui/primitives/collections/__stories__/action-list.stories";
 import * as primitivesReorderableList from "@/ui/primitives/collections/__stories__/reorderable-list.stories";
 import * as primitivesNumberField from "@/ui/primitives/form-fields/__stories__/number-field.stories";
 import * as primitivesTextArea from "@/ui/primitives/form-fields/__stories__/text-area.stories";
@@ -108,6 +110,10 @@ const MODULES = {
   "ui/layout/__stories__/cluster.stories.tsx": layoutCluster,
   "ui/layout/__stories__/heading.stories.ts": layoutHeading,
   "ui/layout/__stories__/page-transition.stories.tsx": layoutPageTransition,
+  "features/fixed-pages/ui/__stories__/kind-guide.stories.ts":
+    fixedPageKindGuide,
+  "ui/primitives/collections/__stories__/action-list.stories.tsx":
+    collectionsActionList,
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.ts": layoutText,
   "ui/patterns/__stories__/empty-state.stories.tsx": patternsEmptyState,

@@ -60,12 +60,11 @@ test("種類を選ぶと slug の欄に focus を移し、作成の送信中の�
     "紹介",
   );
   const length = history.length;
-  await save();
-  await screen.findAllByRole("progressbar");
+  const create = screen.getByRole("button", { name: "保存" });
+  await userEvent.keyboard("{Enter}");
+  await screen.findByRole("dialog", { name: "固定ページを保存しています" });
 
-  for (const button of screen.getAllByRole("button", { name: /保存/v })) {
-    await userEvent.click(button);
-  }
+  await userEvent.click(create);
 
   await userEvent.keyboard("{Enter}");
   expect(
@@ -78,10 +77,12 @@ test("種類を選ぶと slug の欄に focus を移し、作成の送信中の�
     content: {},
   });
   pending.resolve(undefined);
+  await screen.findByRole("dialog", { name: "固定ページを作成しました。" });
+  await userEvent.keyboard("{Escape}");
   await screen.findByRole("heading", { name: "固定ページを編集" });
   expect(history.location.pathname).toBe("/fixed-pages/" + page.id);
   expect(history.length).toBe(length);
-  expect(await screen.findByText("固定ページを作成しました。")).toBeDefined();
+  expect(screen.queryByRole("dialog")).toBeNull();
 });
 
 test("行を動かし、追加・削除して保存しても各段の定義に無いキーを保ち、issue は送った並びの行に付く", async () => {
@@ -351,35 +352,4 @@ test("値を変えていないときと、変えた値を保存した後は、�
 
   expect(await screen.findByRole("heading", { name: "ホーム" })).toBeDefined();
   expect(screen.queryByRole("dialog")).toBeNull();
-});
-
-test("保存の応答を待つ間に元のタイトルに戻しても、離れる前に確かめる", async () => {
-  const pending = Promise.withResolvers<undefined>();
-
-  const { history } = edit({
-    "admin/fixedPages/update": async (input) => {
-      await pending.promise;
-      return { output: { ...page, ...input } };
-    },
-  });
-
-  const title = await screen.findByRole("textbox", { name: "タイトル" });
-  await userEvent.type(title, "X");
-  await save();
-  await screen.findAllByRole("progressbar");
-  await userEvent.type(title, "{End}{Backspace}");
-  expect(screen.getByDisplayValue(page.title)).toBe(title);
-
-  history.push("/");
-
-  const dialog = await screen.findByRole("dialog", {
-    name: "保存していない変更があります",
-  });
-
-  await userEvent.click(
-    within(dialog).getByRole("button", { name: "編集を続ける" }),
-  );
-  pending.resolve(undefined);
-  await screen.findByText("固定ページを更新しました。");
-  expect(screen.getByDisplayValue(page.title)).toBe(title);
 });

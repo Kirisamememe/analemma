@@ -12,6 +12,7 @@ import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
+import { ActionListRow } from "@/ui/primitives/collections";
 import { useShowToast } from "@/ui/primitives/overlays";
 
 const DONE = {
@@ -63,7 +64,7 @@ export const FixedPageRow = ({
   });
 
   return (
-    <Cluster align="center" gap={3} justify="between">
+    <ActionListRow card>
       <Stack gap={0.5}>
         <Cluster gap={2}>
           <Text as="span" variant="label">
@@ -112,6 +113,6 @@ export const FixedPageRow = ({
           {t(page.published ? "fixedPages.unpublish" : "fixedPages.publish")}
         </Button>
       </Cluster>
-    </Cluster>
+    </ActionListRow>
   );
 };

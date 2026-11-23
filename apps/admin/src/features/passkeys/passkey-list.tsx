@@ -13,6 +13,7 @@ import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
+import { ActionList, ActionListRow } from "@/ui/primitives/collections";
 
 /** 一覧に出す、1つのパスキー。 */
 export type PasskeySummary =
@@ -48,10 +49,10 @@ export const PasskeyList = ({
       query={passkeys}
     >
       {({ passkeys: list }) => (
-        <Stack as="ul" gap={4}>
+        <ActionList>
           {list.map((passkey) => (
             <li key={passkey.id}>
-              <Cluster align="center" gap={4} justify="between">
+              <ActionListRow>
                 <Stack gap={0.5}>
                   <Cluster gap={2}>
                     <Text as="span" variant="label">
@@ -93,10 +94,10 @@ export const PasskeyList = ({
                     {t("passkeys.delete")}
                   </Button>
                 </Cluster>
-              </Cluster>
+              </ActionListRow>
             </li>
           ))}
-        </Stack>
+        </ActionList>
       )}
     </QueryContent>
   );

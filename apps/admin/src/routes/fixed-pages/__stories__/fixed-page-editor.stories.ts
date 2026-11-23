@@ -1,11 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { AppPreview } from "@/testing/app-preview";
-import type {
-  FakeOutput,
-  FakeReply,
-  FakeRoutes,
-} from "@/testing/create-fake-api";
+import type { FakeOutput, FakeRoutes } from "@/testing/create-fake-api";
 
 const DATE = "2026-03-01T09:00:00.000Z";
 const PAGE_ID = "019a0000-0000-7000-8000-000000000001";
@@ -232,11 +228,16 @@ export const InvalidRepeatItem: Story = {
 
 export const Saving: Story = {
   args: {
-    /** 保存に答えない server(保存を押すと、送信中のまま残る)。 */
+    /** 保存に少し時間がかかる server。 */
     createRoutes: () => ({
       ...signedIn,
-      "admin/fixedPages/update": async () =>
-        Promise.withResolvers<FakeReply<"admin/fixedPages/update">>().promise,
+      "admin/fixedPages/update": async (input) => {
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 2500);
+        });
+
+        return signedIn["admin/fixedPages/update"](input);
+      },
     }),
   },
 };

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useCallback } from "react";
 import {
   Dialog as AriaDialog,
   Heading,
@@ -6,6 +6,9 @@ import {
   ModalOverlay,
 } from "react-aria-components";
 
+import { useTranslate } from "@/i18n/use-translate";
+import { Button } from "@/ui/primitives/button";
+import { Icon } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
@@ -22,10 +25,26 @@ const dialog = tv({
     ],
     body: "flex flex-col gap-4 outline-hidden",
     title: "wrap-anywhere text-fg",
+    emblem: "grid size-12 place-items-center rounded-full",
+    indicator: "*:stroke-2",
+    close: "absolute inset-e-2 top-2",
+  },
+  variants: {
+    status: {
+      pending: {
+        modal: "relative w-80 max-w-full p-2",
+        body: "items-center gap-3 px-4 py-6 text-center",
+        emblem: "bg-surface-muted text-fg-muted",
+        indicator: "motion-safe:animate-spin motion-reduce:animate-pulse",
+      },
+      success: {
+        modal: "relative w-80 max-w-full p-2",
+        body: "items-center gap-3 px-4 py-6 text-center",
+        emblem: "bg-success/10 text-success",
+      },
+    },
   },
 });
-
-const { overlay, modal, body, title: titleSlot } = dialog();
 
 /** `Dialog` に渡す値。 */
 type DialogProps = {
@@ -42,7 +61,9 @@ type DialogProps = {
   /** backdrop の押下で閉じるか(閉じないときも、Escape では閉じる)。 */
   isDismissable?: boolean | undefined;
   /** Dialog の中身。 */
-  children: ReactNode;
+  children?: ReactNode;
+  /** 処理中から成功に切り替わる中央の表示。 */
+  status?: "pending" | "success" | undefined;
 };
 
 /** 今の画面の上に重ねて開き、focus を閉じ込める Dialog。 */
@@ -54,28 +75,104 @@ export const Dialog = ({
   isPending = false,
   isDismissable = true,
   children,
-}: DialogProps): ReactNode => (
-  <ModalOverlay
-    className={overlay()}
-    isDismissable={isOpen && !isPending && isDismissable}
-    isKeyboardDismissDisabled={isPending}
-    isOpen={isOpen}
-    onOpenChange={onOpenChange}
-  >
-    <Modal className={modal()}>
-      <AriaDialog
-        aria-describedby={descriptionId}
-        className={body()}
-        inert={!isOpen}
-      >
-        <Heading
-          className={titleSlot({ className: typography({ role: "section" }) })}
-          slot="title"
+  status,
+}: DialogProps): ReactNode => {
+  const t = useTranslate();
+
+  const {
+    overlay,
+    modal,
+    body,
+    title: titleSlot,
+    emblem,
+    indicator,
+    close,
+  } = dialog({ status });
+
+  const panel = useCallback(
+    (element: HTMLElement | null) => {
+      if (!isOpen || status === undefined || element === null) return;
+
+      if (status === "success") {
+        element.querySelector("button")?.focus({ preventScroll: true });
+        return;
+      }
+
+      element.focus({ preventScroll: true });
+
+      const keepTab = (event: KeyboardEvent): void => {
+        if (event.key === "Tab") event.preventDefault();
+      };
+
+      element.addEventListener("keydown", keepTab);
+
+      return () => {
+        element.removeEventListener("keydown", keepTab);
+      };
+    },
+    [isOpen, status],
+  );
+
+  const locked = isPending || status === "pending";
+
+  return (
+    <ModalOverlay
+      className={overlay()}
+      onPointerDownCapture={(event) => {
+        if (status === "pending" && event.target === event.currentTarget) {
+          event.preventDefault();
+        }
+      }}
+      isDismissable={isOpen && !locked && isDismissable}
+      isKeyboardDismissDisabled={locked}
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+    >
+      <Modal className={modal()}>
+        <AriaDialog
+          aria-describedby={descriptionId}
+          className={body()}
+          inert={!isOpen}
+          ref={panel}
         >
-          {title}
-        </Heading>
-        {children}
-      </AriaDialog>
-    </Modal>
-  </ModalOverlay>
-);
+          {status !== undefined && (
+            <span className={emblem()}>
+              <span className={indicator()}>
+                <Icon
+                  name={status === "pending" ? "loader-circle" : "check"}
+                  size="xl"
+                  weight="bold"
+                />
+              </span>
+            </span>
+          )}
+          <Heading
+            className={titleSlot({
+              className: typography({ role: "section" }),
+            })}
+            slot="title"
+          >
+            <span aria-live={status === undefined ? undefined : "polite"}>
+              {title}
+            </span>
+          </Heading>
+          {status === "success" && (
+            <div className={close()}>
+              <Button
+                aria-label={t("ui.close")}
+                icon="x"
+                onPress={() => {
+                  onOpenChange(false);
+                }}
+                rounded="full"
+                size="sm"
+                tone="quiet"
+              />
+            </div>
+          )}
+          {children}
+        </AriaDialog>
+      </Modal>
+    </ModalOverlay>
+  );
+};

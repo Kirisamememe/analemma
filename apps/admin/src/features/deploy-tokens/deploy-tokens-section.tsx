@@ -5,8 +5,10 @@ import { IssueDeployTokenDialog } from "@/features/deploy-tokens/issue/issue-dep
 import type { DeployTokenSummary } from "@/features/deploy-tokens/queries/deploy-tokens-query";
 import { RevokeDeployTokenDialog } from "@/features/deploy-tokens/revoke-deploy-token-dialog";
 import { useTranslate } from "@/i18n/use-translate";
-import { Cluster, Heading, Stack } from "@/ui/layout";
+import { Heading, Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
+import { ActionList } from "@/ui/primitives/collections";
+import { Icon } from "@/ui/primitives/graphics";
 import { FocusScope } from "@/ui/primitives/overlays";
 
 type DeployTokenDialog = "issue" | "revoke";
@@ -30,23 +32,25 @@ export const DeployTokensSection = (): ReactNode => {
   return (
     <FocusScope>
       <Stack as="section" gap={4}>
-        <Cluster align="center" gap={4} justify="between">
-          <Heading level={2}>{t("deployTokens.listTitle")}</Heading>
+        <Heading level={2}>{t("deployTokens.listTitle")}</Heading>
+        <ActionList as="div">
           <Button
+            size="row"
+            tone="dashed"
             onPress={() => {
               open("issue");
             }}
-            tone="primary"
           >
+            <Icon name="plus" />
             {t("deployTokens.issue")}
           </Button>
-        </Cluster>
-        <DeployTokenList
-          onRevoke={(selected) => {
-            setToken(selected);
-            open("revoke");
-          }}
-        />
+          <DeployTokenList
+            onRevoke={(selected) => {
+              setToken(selected);
+              open("revoke");
+            }}
+          />
+        </ActionList>
         <IssueDeployTokenDialog
           isOpen={openDialog === "issue"}
           key={`issue-${openCount}`}

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 
 import { fixedPageSlug, fixedPageTitle } from "@analemma/contract";
 
@@ -15,6 +15,7 @@ import {
   type LoadedFixedPage,
 } from "../queries/fixed-page-query";
 import { saveFixedPage } from "../queries/save-fixed-page";
+import { SaveStatusContext } from "./save-status-context";
 
 import type { ApiOutputs } from "@/api/api-types";
 import { useAppContext } from "@/api/app-context";
@@ -28,7 +29,7 @@ import { useAppForm } from "@/components/forms";
 import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { focusFirstInvalidField } from "@/ui/primitives/form-fields";
-import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
+import { useFailureToast } from "@/ui/primitives/overlays";
 
 type Page = ApiOutputs["admin"]["fixedPages"]["get"];
 /** 固定ページのフォームに渡す値。 */
@@ -64,7 +65,8 @@ export const useEditorForm = (
 ) => {
   const t = useTranslate();
   const { api } = useAppContext();
-  const toast = useShowToast();
+  const setSaveStatus = useContext(SaveStatusContext);
+
   const { refresh, replace } = useApiCache();
   const root = useRef<HTMLDivElement>(null);
 
@@ -73,7 +75,6 @@ export const useEditorForm = (
   );
 
   const saved = useRef(initial); // 開いたときの値か、最後に保存できた値
-  const submitted = useRef(initial);
   const sending = useRef(false);
   const failure = useFailureToast();
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -92,14 +93,21 @@ export const useEditorForm = (
   );
 
   const saving = useApiMutation({
-    send: async (values: EditorValues) => ({
-      values,
-      result: await saveFixedPage(api, {
-        ...base,
-        target: page === undefined ? { kind: kind.name } : { id: page.id },
-        values,
-      }),
-    }),
+    send: async (values: EditorValues) => {
+      try {
+        const result = await saveFixedPage(api, {
+          ...base,
+          target: page === undefined ? { kind: kind.name } : { id: page.id },
+          values,
+        });
+
+        return { values, result };
+      } catch (error) {
+        if (root.current !== null) setSaveStatus(undefined);
+
+        throw error;
+      }
+    },
     onSuccess: async ({ values, result }) => {
       if (result._tag === "Succeeded") {
         const isOpen = root.current !== null;
@@ -107,14 +115,7 @@ export const useEditorForm = (
         saved.current = values;
 
         if (isOpen) {
-          toast({
-            tone: "success",
-            message: t(
-              page === undefined
-                ? "fixedPageEditor.created"
-                : "fixedPageEditor.saved",
-            ),
-          });
+          setSaveStatus(page === undefined ? "created" : "saved");
           onSaved(result.data);
         }
 
@@ -130,6 +131,8 @@ export const useEditorForm = (
 
         return;
       }
+
+      if (root.current !== null) setSaveStatus(undefined);
 
       const refused = refusedSaveErrors(result, t);
 
@@ -149,8 +152,8 @@ export const useEditorForm = (
     canSubmitWhenInvalid: true,
     onSubmit: ({ value }) => {
       failure.close();
+      setSaveStatus("pending");
       setErrors({});
-      submitted.current = value;
       sending.current = true;
       onEditing?.(true);
       saving.mutate(value);
@@ -162,9 +165,7 @@ export const useEditorForm = (
 
     return (
       Boolean(root.current?.querySelector("[data-uncommitted-input]")) ||
-      hasUnsavedChanges(base, { saved: saved.current, current }) ||
-      (saving.isPending &&
-        hasUnsavedChanges(base, { saved: submitted.current, current }))
+      hasUnsavedChanges(base, { saved: saved.current, current })
     );
   };
 

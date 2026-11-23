@@ -29,6 +29,17 @@ export const IconOnly: Story = {
   args: { children: undefined, icon: "trash-2", "aria-label": "削除する" },
 };
 
+export const Round: Story = {
+  args: {
+    children: undefined,
+    icon: "x",
+    "aria-label": "閉じる",
+    rounded: "full",
+    size: "sm",
+    tone: "quiet",
+  },
+};
+
 export const IconOnlySmall: Story = {
   args: {
     children: undefined,
@@ -117,3 +128,16 @@ export const PendingWidth: Story = {
     </Cluster>
   ),
 };
+
+const createAction = (size: "row" | "card", label: string): Story => ({
+  /** 一覧の先頭の追加ボタン。 */
+  render: () => (
+    <Button size={size} tone="dashed" onPress={fn<() => void>()}>
+      <Icon name="plus" />
+      {label}
+    </Button>
+  ),
+});
+
+export const CreateRow = createAction("row", "トークンを発行");
+export const CreateCard = createAction("card", "新しい固定ページ");
