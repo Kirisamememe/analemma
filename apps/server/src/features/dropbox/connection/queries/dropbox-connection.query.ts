@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { dropboxConnection } from "@/db/schema/dropbox";
 import type { DatabaseExecutor } from "@/platform/database";
@@ -32,17 +32,12 @@ export const insertDropboxConnection = async (
   return inserted.length > 0;
 };
 
-/** 読んだときと同じ接続の行を消す。 */
+/** 読んだときと同じ認可の、接続の行を消す。 */
 export const deleteDropboxConnection = async (
   db: DatabaseExecutor,
-  row: Pick<DropboxConnectionRow, "accountId" | "connectedAt">,
+  row: Pick<DropboxConnectionRow, "refreshToken">,
 ): Promise<void> => {
   await db
     .delete(dropboxConnection)
-    .where(
-      and(
-        eq(dropboxConnection.accountId, row.accountId),
-        eq(dropboxConnection.connectedAt, row.connectedAt),
-      ),
-    );
+    .where(eq(dropboxConnection.refreshToken, row.refreshToken));
 };

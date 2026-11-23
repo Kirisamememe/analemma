@@ -80,7 +80,7 @@ describe("つなぐ", () => {
     );
   });
 
-  test("知らない state・別のセッションの state・使った state は断ること", async () => {
+  test("知らない state と、別のセッションの state は断ること", async () => {
     await using server = await createTestClient();
     const { passkey } = await signInAsAdmin(server);
     const other = server.openBrowser();
@@ -89,17 +89,30 @@ describe("つなぐ", () => {
 
     const { url } = await server.client.admin.dropbox.authorize();
     const { code, state } = server.dropbox.approve(url);
-    const { connect } = server.client.admin.dropbox;
 
-    expect(await catchErrorCode(connect({ code, state: "unknown" }))).toBe(
-      "AUTHORIZATION_EXPIRED",
-    );
+    expect(
+      await catchErrorCode(
+        server.client.admin.dropbox.connect({ code, state: "unknown" }),
+      ),
+    ).toBe("AUTHORIZATION_EXPIRED");
     expect(
       await catchErrorCode(other.client.admin.dropbox.connect({ code, state })),
     ).toBe("AUTHORIZATION_EXPIRED");
-    expect(await catchErrorCode(connect({ code, state }))).toBe(
-      "AUTHORIZATION_EXPIRED",
-    );
+  });
+
+  test("つないだ後に、同じ code と state を送り直しても断ること", async () => {
+    await using server = await createTestClient();
+    await signInAsAdmin(server);
+
+    const { url } = await server.client.admin.dropbox.authorize();
+    const returned = server.dropbox.approve(url);
+
+    expect(await server.client.admin.dropbox.connect(returned)).toMatchObject({
+      status: "connected",
+    });
+    expect(
+      await catchErrorCode(server.client.admin.dropbox.connect(returned)),
+    ).toBe("AUTHORIZATION_EXPIRED");
   });
 
   test("認可の画面を開いてから10分を過ぎて戻った state は断ること", async () => {
@@ -117,6 +130,21 @@ describe("つなぐ", () => {
         server.client.admin.dropbox.connect({ code, state }),
       ),
     ).toBe("AUTHORIZATION_EXPIRED");
+  });
+
+  test("アカウントを読めなかったら、受け取った認可を取り消してから失敗にすること", async () => {
+    await using server = await createTestClient();
+    await signInAsAdmin(server);
+
+    server.dropbox.fail("/2/users/get_current_account", 503);
+
+    expect(await catchErrorCode(connectTestDropbox(server))).toBe(
+      "INTERNAL_SERVER_ERROR",
+    );
+    expect(server.dropbox.activeGrants()).toBe(0);
+    expect(await server.client.admin.dropbox.get()).toEqual({
+      status: "disconnected",
+    });
   });
 
   test("Dropbox が code を断ったら、つながないこと", async () => {
@@ -152,6 +180,45 @@ describe("切る", () => {
     expect(await connectTestDropbox(server)).toMatchObject({
       status: "connected",
     });
+  });
+
+  test("Dropbox が取り消しを断ったら、接続を残して失敗にし、切り直せること", async () => {
+    await using server = await createTestClient();
+    await signInAsAdmin(server);
+    await connectTestDropbox(server);
+
+    server.dropbox.fail("/2/auth/token/revoke", 500);
+
+    expect(await catchErrorCode(server.client.admin.dropbox.disconnect())).toBe(
+      "INTERNAL_SERVER_ERROR",
+    );
+    expect(await server.client.admin.dropbox.get()).toMatchObject({
+      status: "connected",
+    });
+
+    await server.client.admin.dropbox.disconnect();
+
+    expect(server.dropbox.activeGrants()).toBe(0);
+  });
+
+  test("遅れて進んだ切断が、つなぎ直した接続の認可を取り消さないこと", async () => {
+    await using server = await createTestClient();
+    await signInAsAdmin(server);
+    await connectTestDropbox(server);
+
+    const held = server.dropbox.hold("/oauth2/token");
+    const late = server.client.admin.dropbox.disconnect();
+
+    await held.reached;
+    await server.client.admin.dropbox.disconnect();
+    await connectTestDropbox(server);
+    held.release();
+    await late;
+
+    expect(await server.client.admin.dropbox.get()).toMatchObject({
+      status: "connected",
+    });
+    expect(server.dropbox.activeGrants()).toBe(1);
   });
 
   test("利用者が Dropbox の側で切った後も、接続を切れること", async () => {

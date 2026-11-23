@@ -10,8 +10,9 @@
 - redirect URI は、`AUTH_ORIGIN` に管理画面の path(contract の `DROPBOX_REDIRECT_PATH`)を付けたもの。セッションの Cookie は `SameSite=Strict` で、Dropbox から戻る遷移には付かないので、server の route では受けない。管理画面の画面で code と state を受け、同じ origin の `admin.dropbox.connect` に送る。
 - state は、プロセスのメモリに、認可を始めたセッションの ID と一緒に、10分だけ1回きりで覚える(パスキーの challenge と同じく、1プロセスが前提)。知らない state・別のセッションの state・期限を過ぎた state・使った state は、どれも `AUTHORIZATION_EXPIRED` にする。
 - refresh token は DB に平文で置き、access token は DB に置かず、使う間だけメモリに持つ。暗号化はしない。鍵を app secret から作ると、refresh にもともと要る secret と同じものに頼るので、守りが増えない。別の鍵を置くと、鍵を失ったときの再接続と、鍵を替える手順が増える。DB の backup の守りは、本番の置き場所と一緒に決める。
+- code を token に換えた後で、アカウントを読めないときや、つないだ行を作れないときは、受け取った認可を Dropbox で取り消してから失敗にする。行の無い認可は、管理画面から取り消せないため。
 - つなぐのは1つのアカウントだけ(行を1つに限る)。つないでいる間は認可を始めず(`ALREADY_CONNECTED`)、別のアカウントにつなぐときは、切ってからにする。管理画面に、どのアカウントにつないだかを出すため、アカウントの表示名とメールアドレスを持つ。
-- 切るときは、Dropbox に取り消しを送ってから行を消す。Dropbox が取り消しを断ったら、warn のログを書いて、行は消す(利用者は Dropbox の設定からも切れる)。
+- 切るときは、読んだ行の refresh token で Dropbox に取り消しを送ってから、その行を消す。行は1回だけ読む。読み直すと、間につなぎ直した新しい接続の認可を取り消してしまう。Dropbox が取り消しを断ったら(5xx など)、行を残して想定外の失敗にし、管理者に切り直させる。取り消せていない認可を、取り消せたことにしないため。
 - 利用者が Dropbox の設定でアプリを切ったときや、app secret を作り直したときは、refresh token の更新が断られる。そのときは行を消して `CONNECTION_LOST` を返し、管理画面に、つなぎ直す操作を出させる。切るときも同じで、行を消して終える。
 
 ## 割り切ったこと

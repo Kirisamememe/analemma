@@ -34,7 +34,7 @@ export type DropboxAuthorizations = {
   ) => PendingAuthorization | undefined;
 };
 
-/** 認可の画面を開いてから戻るまでを待つ時間(10分)。 */
+/** 認可の画面を開いてから戻るまでを待つ時間。 */
 export const AUTHORIZATION_LIFETIME_MS = 10 * 60 * 1000;
 
 const CAPACITY = 20; // 開きかけの認可の画面は少ない

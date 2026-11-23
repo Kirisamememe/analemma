@@ -141,8 +141,10 @@ export const createFakeDropbox = (): FakeDropbox => {
       const { pathname } = new URL(request.url);
 
       requests.push(pathname);
-      await holds.get(pathname)?.();
+      const hold = holds.get(pathname);
+
       holds.delete(pathname);
+      await hold?.();
 
       const failure = failures.get(pathname);
 

@@ -24,6 +24,13 @@ export const connectDropbox = adminProcedures.dropbox.connect.handler(
 
     if (exchanged._tag === "Rejected") throw errors.AUTHORIZATION_REJECTED();
 
+    let connected = false;
+    await using rollback = new AsyncDisposableStack();
+
+    rollback.defer(async () => {
+      if (!connected) await api.revoke(exchanged.accessToken);
+    });
+
     const account = await api.getAccount(exchanged.accessToken, signal);
 
     if (account._tag === "Unauthorized") throw errors.AUTHORIZATION_REJECTED();
@@ -37,10 +44,10 @@ export const connectDropbox = adminProcedures.dropbox.connect.handler(
     };
 
     if (!(await insertDropboxConnection(context.db, row))) {
-      await api.revoke(exchanged.accessToken, signal);
-
       throw errors.ALREADY_CONNECTED();
     }
+
+    connected = true;
 
     context.logger.write({
       level: "info",

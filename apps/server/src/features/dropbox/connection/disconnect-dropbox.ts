@@ -1,4 +1,3 @@
-import { openDropboxSession } from "@/features/dropbox/connection/open-dropbox-session";
 import {
   deleteDropboxConnection,
   readDropboxConnection,
@@ -12,21 +11,11 @@ export const disconnectDropbox = adminProcedures.dropbox.disconnect.handler(
 
     if (row === undefined) return;
 
-    const opened = await openDropboxSession(context, signal);
+    const { api } = context.dropbox;
+    const refreshed = await api?.refresh(row.refreshToken, signal);
 
-    const accessToken =
-      opened._tag === "Opened" ? await opened.session.accessToken() : undefined;
-
-    if (
-      opened._tag === "Opened" &&
-      accessToken !== undefined &&
-      !(await opened.session.api.revoke(accessToken, signal))
-    ) {
-      context.logger.write({
-        level: "warn",
-        message: "Dropbox が認可の取り消しを断ったので、接続の行だけを消す",
-        details: { accountId: row.accountId },
-      });
+    if (refreshed?._tag === "Refreshed") {
+      await api?.revoke(refreshed.accessToken, signal);
     }
 
     await deleteDropboxConnection(context.db, row);
