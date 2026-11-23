@@ -14,8 +14,10 @@ describe("useApiQuery の取り直し", () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
+
     const retried = Promise.withResolvers<string[]>();
     let fetches = 0;
+
     const { result } = renderHook(
       () =>
         useApiQuery({
@@ -58,8 +60,10 @@ describe("useApiQuery の取り直し", () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
+
     const retried = Promise.withResolvers<string[]>();
     let fetches = 0;
+
     const { result } = renderHook(
       () =>
         useApiQuery({
@@ -105,8 +109,10 @@ describe("useApiQuery の取り直し", () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: 1, retryDelay: 0 } },
     });
+
     const retried = Promise.withResolvers<string[]>();
     let fetches = 0;
+
     const { result } = renderHook(
       () =>
         useApiQuery({

@@ -72,8 +72,10 @@ describe("FixedPagesSection", () => {
 
   test("一覧も種類も読み込めなければ、知らせ、もう一度試すと、両方を取り直して一覧を出す", async () => {
     const server = createFixedPageRoutes(STATE);
+
     const { "admin/fixedPages/list": list, "admin/kinds/list": kinds } =
       server.routes;
+
     let isBroken = true;
 
     renderApp({
@@ -112,8 +114,10 @@ describe("FixedPagesSection", () => {
 
   test("両方を取り直したとき、種類の一覧が届くまで一覧を出さず、固定ページが先に失敗してもボタンを送信中のままにする", async () => {
     const server = createFixedPageRoutes(STATE);
+
     const { "admin/fixedPages/list": list, "admin/kinds/list": kinds } =
       server.routes;
+
     let arePagesBroken = true;
     let kindsReply = Promise.withResolvers<FakeReply<"admin/kinds/list">>();
     let areKindsHeld = false;

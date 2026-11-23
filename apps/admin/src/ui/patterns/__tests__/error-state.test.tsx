@@ -120,6 +120,7 @@ describe("ErrorState", () => {
         title={TITLE}
       />
     );
+
     const { rerender } = renderWithI18n(view(false), "ja");
     const first = screen.getByRole("alert");
 

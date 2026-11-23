@@ -51,6 +51,7 @@ describe("DeployTokenList", () => {
     const [first, second] = await within(
       await screen.findByRole("main"),
     ).findAllByRole("listitem");
+
     const revokeFirst = within(first!).getByRole("button", {
       name: "「本番のデプロイ」を取り消す",
     });
@@ -99,6 +100,7 @@ describe("DeployTokenList", () => {
     const server = createDeployTokenRoutes([
       { name: "本番のデプロイ", lastUsedAt: null },
     ]);
+
     const list = server.routes["admin/deployTokens/list"];
     let isListBroken = true;
 
