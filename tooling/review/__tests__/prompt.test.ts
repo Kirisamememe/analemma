@@ -102,6 +102,7 @@ describe("prompt を組み立てること", () => {
 
   test("観点ごとの範囲、「割り切ったこと」、共通の約束の順に並べ、出力の形で終えること", () => {
     const prompt = buildPrompt(MATERIAL);
+
     const order = [
       "## 見る範囲",
       "## 見ない範囲",

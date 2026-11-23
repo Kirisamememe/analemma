@@ -72,6 +72,7 @@ export const NumberField = ({
   validate,
 }: NumberFieldProps): ReactNode => {
   const { t } = useTranslation();
+
   const fieldState = {
     ...(errorMessage === undefined ? {} : { isInvalid: true }),
     ...(validationBehavior === undefined ? {} : { validationBehavior }),
@@ -126,6 +127,7 @@ type NumberInputProps = {
 
 const NumberInput = ({ committed }: NumberInputProps): ReactNode => {
   const state = useContext(NumberFieldStateContext);
+
   const uncommitted =
     committed !== undefined &&
     state !== null &&

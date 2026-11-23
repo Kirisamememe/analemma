@@ -257,6 +257,7 @@ test(".env.example を写せば、server の環境変数として読めること
     join(import.meta.dirname, "../../../.env.example"),
     "utf8",
   );
+
   const values = Object.fromEntries(
     example
       .split("\n")

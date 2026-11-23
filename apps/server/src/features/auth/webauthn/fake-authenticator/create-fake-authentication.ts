@@ -47,18 +47,22 @@ export const createFakeAuthentication = async ({
   withCredential = false,
 }: FakeAuthenticationInput): Promise<AuthenticationResponse> => {
   const json = buildClientDataJson({ type, challenge, origin });
+
   const clientDataJSON = withBom
     ? new Uint8Array([0xef, 0xbb, 0xbf, ...json])
     : json;
+
   const authenticatorData = buildAuthenticatorData({
     rpIdHash: await hashRpId(rpId),
     flags,
     signCount,
     ...(withCredential ? { credential: authenticator } : {}),
   });
+
   const clientDataHash = new Uint8Array(
     await crypto.subtle.digest("SHA-256", clientDataJSON),
   );
+
   const signature = new Uint8Array(
     await crypto.subtle.sign(
       SIGN_PARAMS[authenticator.algorithm],

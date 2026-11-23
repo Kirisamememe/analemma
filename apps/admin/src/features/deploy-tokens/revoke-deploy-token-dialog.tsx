@@ -34,6 +34,7 @@ export const RevokeDeployTokenDialog = ({
   const showToast = useShowToast();
   const { refresh } = useApiCache();
   const { api } = useAppContext();
+
   const revoking = useApiMutation({
     send: () => revokeDeployToken(api, token.id),
     onSuccess: async ({ _tag }) => {
@@ -48,7 +49,9 @@ export const RevokeDeployTokenDialog = ({
       }
     },
   });
+
   const outcome = revoking.isError ? "Unexpected" : revoking.data?._tag;
+
   const notice =
     outcome === undefined || outcome === "Revoked"
       ? undefined

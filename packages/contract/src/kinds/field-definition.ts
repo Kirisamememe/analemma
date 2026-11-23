@@ -50,6 +50,7 @@ const common = {
 const textField = z.object({ ...common, type: z.literal("text") });
 const longTextField = z.object({ ...common, type: z.literal("longText") });
 const numberField = z.object({ ...common, type: z.literal("number") });
+
 const booleanField = z.object({
   key: fieldKey,
   label: displayLabel,
@@ -65,6 +66,7 @@ const booleanField = z.object({
     })
     .optional(),
 });
+
 const dateField = z.object({ ...common, type: z.literal("date") });
 const urlField = z.object({ ...common, type: z.literal("url") });
 

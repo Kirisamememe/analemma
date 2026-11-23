@@ -96,6 +96,7 @@ export const clearChangedErrors = (
   name: string,
 ): EditorErrors => {
   const entries = Object.entries(errors.fields);
+
   const remaining = entries.filter(
     ([key]) => key !== name && !name.startsWith(key + "/"),
   );

@@ -83,6 +83,7 @@ const summaryOf = (passkey: FakePasskey) => ({
 /** パスキーの管理の procedure を、状態ごと真似る作り物の server の応答を作る。 */
 export const createPasskeyRoutes = (seeds: readonly FakePasskeySeed[]) => {
   let created = 0;
+
   const nextId = (): string => {
     created += 1;
 

@@ -3,6 +3,7 @@ import { readDatabaseEnv } from "@/platform/env";
 import { stdoutLogger } from "@/platform/logger";
 
 const env = readDatabaseEnv();
+
 const { added, applied } = await migrateDatabase({
   target: env.database,
   logger: stdoutLogger,

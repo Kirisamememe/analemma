@@ -29,6 +29,7 @@ describe("デプロイ用のトークンの発行", () => {
     await using server = await createTestClient({ clock: { now: () => now } });
 
     const { passkey } = await signInAsAdmin(server);
+
     const issued = await server.client.admin.deployTokens.issue({
       name: "  本番のデプロイ  ",
       assertion: await answerReauthentication(server, passkey),
@@ -182,6 +183,7 @@ describe("デプロイ用 API の入口", () => {
             body: JSON.stringify({ json: null }),
           }),
         );
+
         const body: unknown = await response.json();
 
         expect(response.status).toBe(401);
@@ -218,6 +220,7 @@ describe("デプロイ用 API の入口", () => {
   test("セッションの Cookie では、定義を送れないこと", async () => {
     await using server = await createTestClient();
     const { browser } = await signInAsAdmin(server);
+
     const response = await server.internalApp.fetch(
       new Request(`${TEST_INTERNAL_URL}/api/deploy/kinds/push`, {
         method: "POST",

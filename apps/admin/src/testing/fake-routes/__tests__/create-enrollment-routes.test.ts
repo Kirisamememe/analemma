@@ -6,6 +6,7 @@ import { FAKE_ATTESTATION } from "@/testing/create-fake-authenticator";
 import { createEnrollmentRoutes } from "@/testing/fake-routes/create-enrollment-routes";
 
 const EXPIRY = { expiresAt: "2026-01-08T00:00:00.000Z" };
+
 const REGISTRATION = {
   token: "a.b",
   name: "MacBook",
@@ -16,6 +17,7 @@ describe("createEnrollmentRoutes", () => {
   test("登録が成功するまでは 401、成功した後はセッションを返し、受け取った入力を残す", async () => {
     const server = createEnrollmentRoutes({ output: EXPIRY });
     const { api } = createFakeApi(server.routes);
+
     const before: unknown = await api.admin.session
       .get()
       .catch((error: unknown) => error);
@@ -30,7 +32,9 @@ describe("createEnrollmentRoutes", () => {
     const { api } = createFakeApi(
       createEnrollmentRoutes({ error: "INVALID_ENROLLMENT" }).routes,
     );
+
     await safe(api.auth.enrollment.register(REGISTRATION));
+
     const session: unknown = await api.admin.session
       .get()
       .catch((error: unknown) => error);
@@ -46,6 +50,7 @@ describe("createEnrollmentRoutes", () => {
     const failure: unknown = await api.auth.enrollment
       .register(REGISTRATION)
       .catch((error: unknown) => error);
+
     const session: unknown = await api.admin.session
       .get()
       .catch((error: unknown) => error);

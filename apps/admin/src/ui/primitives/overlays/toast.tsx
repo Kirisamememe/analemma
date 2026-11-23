@@ -84,6 +84,7 @@ type ToastProviderProps = {
 export const ToastProvider = ({ children }: ToastProviderProps): ReactNode => {
   const { t } = useTranslation();
   const [queue] = useState(createQueue);
+
   const showToast = useCallback(
     (message: ToastMessage) => {
       const key = queue.add(
@@ -97,6 +98,7 @@ export const ToastProvider = ({ children }: ToastProviderProps): ReactNode => {
     },
     [queue],
   );
+
   const { region } = toastStyle();
 
   return (

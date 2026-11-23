@@ -40,6 +40,7 @@ const cancelling: Authenticator = {
 
 const serverReplying = (verify: FakeReply<"auth/login/verify">) => {
   let sent: unknown;
+
   const fake = createFakeApi({
     "auth/login/options": () => ({ output: OPTIONS }),
     "auth/login/verify": (input) => {

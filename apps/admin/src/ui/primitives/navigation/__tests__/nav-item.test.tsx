@@ -32,6 +32,7 @@ describe("NavLink", () => {
 describe("NavButton", () => {
   test("送信中になると、押したときの操作を止め、待っていることを伝える", async () => {
     const onPress = mock(() => {});
+
     const view = renderWithI18n(
       <NavButton icon="log-out" onPress={onPress}>
         ログアウト

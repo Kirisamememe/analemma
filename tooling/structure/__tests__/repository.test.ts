@@ -77,6 +77,7 @@ const SECTION_HEADING = /^## .*$/gmv;
 
 test("どの DECISIONS.md も、「割り切ったこと」の見出しで終わること", () => {
   const decisions = paths.filter((path) => DECISIONS_FILE.test(path));
+
   const lastSections = decisions.map((path) => ({
     path,
     section: readFileSync(join(repoRoot, path), "utf8")
@@ -92,8 +93,10 @@ test("どの DECISIONS.md も、「割り切ったこと」の見出しで終わ
 
 const SOURCE_FILE = /\.(?:[cm]?[jt]s|[jt]sx)$/v;
 const SKIPPED_BY_OXLINT = /[.\-]min\.(?:[cm]?[jt]s|[jt]sx)$/v;
+
 const OXLINT_CONFIG =
   /(?:^|\/)(?:\.oxlintrc\.jsonc?|oxlint\.config\.[cm]?[jt]s)$/v;
+
 const sourcePaths = paths.filter((path) => SOURCE_FILE.test(path));
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -152,6 +155,7 @@ test("Oxlint の設定はリポジトリの直下の1つだけであること", 
 
 test("守るべきルールを、設定で弱めていないこと", () => {
   const guarded = [...PROTECTED_RULES, SOFT_LIMIT_RULE];
+
   const overridden = overrides.flatMap((override: unknown) =>
     isRecord(override) && isRecord(override["rules"])
       ? Object.keys(override["rules"]).filter((rule) => guarded.includes(rule))
@@ -198,9 +202,11 @@ test("文書・コメント・文字列に、用語集で使わない表記が�
         text: readFileSync(join(repoRoot, path), "utf8"),
       }),
     }));
+
   const unreadable = extracted.flatMap(({ file, path }) =>
     file.errors.map((error) => `${path}: ${error}`),
   );
+
   const findings = extracted.flatMap(({ file, path }) =>
     findBannedTerms({ glossary, path, prose: file.prose }).map(
       ({ line, replacement, term }) =>
@@ -228,6 +234,7 @@ test("用語集で探す表記が、別の概念を指す正しい文を落と�
     "Codex のレビューで指摘された箇所",
     "安定版が出たら、Debian 版の image に上げる",
   ];
+
   const prose = sentences.map((text, index) => ({ text, line: index + 1 }));
 
   expect(
@@ -239,17 +246,20 @@ test("用語集で探す表記が、別の概念を指す正しい文を落と�
 
 test("ほかのリポジトリの名前を、どのファイルにも書いていないこと", () => {
   const names = loadPrivateNames(repoRoot);
+
   const searched =
     names.length === 0
       ? []
       : listed.stdout
           .split("\0")
           .filter((path) => path !== "" && existsSync(join(repoRoot, path)));
+
   const inPaths = searched.flatMap((path) =>
     findPrivateNames({ names, text: path }).map(
       ({ name }) => `${path}: パスに「${name}」`,
     ),
   );
+
   const inFiles = searched.flatMap((path) =>
     findPrivateNames({
       names,
@@ -264,6 +274,7 @@ const WORKFLOW = /^\.github\/workflows\/[^\/]+\.ya?ml$/v;
 const USES = /^\s*(?:-\s+)?uses:\s*(?<action>.*)$/gmv;
 const PINNED_ACTION = /^[\w.\-]+\/[\w.\-\/]+@[0-9a-f]{40} # v\d+(?:\.\d+)*$/v;
 const TOP_LEVEL_PERMISSIONS = /^permissions:/mv;
+
 const workflows = paths
   .filter((path) => WORKFLOW.test(path))
   .map((path) => ({

@@ -11,6 +11,7 @@ afterEach(cleanup);
 describe("useTranslate", () => {
   test("今の言語で訳と引数を表示し、言語が変わったら描き直す", async () => {
     const i18n = createI18n("en");
+
     const { result } = renderHook(
       () => {
         const t = useTranslate();
@@ -37,6 +38,7 @@ describe("useTranslate", () => {
     const { result } = renderHook(useTranslate, {
       wrapper: withI18n(createI18n("en")),
     });
+
     const t = result.current;
     // @ts-expect-error -- 訳に無いキー
     const unknownKey = t("notFound.missing");

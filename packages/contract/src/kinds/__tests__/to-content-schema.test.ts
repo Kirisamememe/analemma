@@ -84,6 +84,7 @@ describe("中身の検査", () => {
         ],
       },
     ]);
+
     const schema = toContentSchema({ fields: flags, unknownKeys: "strip" });
 
     expect(schema.parse({ group: {} })).toEqual({

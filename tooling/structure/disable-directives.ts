@@ -59,8 +59,10 @@ export const parseDisableDirective = (
 
   const rest = groups?.["rest"] ?? "";
   const descriptionStart = findDescriptionStart(rest);
+
   const rulesText =
     descriptionStart === -1 ? rest : rest.slice(0, descriptionStart);
+
   const description =
     descriptionStart === -1 ? "" : rest.slice(descriptionStart);
 

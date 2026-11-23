@@ -62,6 +62,7 @@ export const findTestOnlyImports = ({ path, text }: SourceFile): string[] => {
   }
 
   const { module } = parseSync(path, text);
+
   const requests = [
     ...module.staticImports.map(({ moduleRequest }) => moduleRequest.value),
     ...module.staticExports.flatMap(({ entries }) =>

@@ -3,11 +3,13 @@ import { basename } from "node:path";
 const REACT_MODULE = /^react(?:-dom)?(?:\/|$)/v;
 const HOOK_FILE = /^use-.+\.ts$/v;
 const HOOK_NAME = /^use[A-Z]/v;
+
 const FUNCTIONS = new Set([
   "ArrowFunctionExpression",
   "FunctionDeclaration",
   "FunctionExpression",
 ]);
+
 const TYPE_DECLARATIONS = new Set([
   "TSInterfaceDeclaration",
   "TSTypeAliasDeclaration",
@@ -143,6 +145,7 @@ const valueExports = (statement, { kinds, bindings }) => {
 
   if (statement.type === "ExportDefaultDeclaration") {
     const { declaration } = statement;
+
     const kind =
       declaration.type === "Identifier"
         ? (kinds.get(declaration.name) ?? "value")
@@ -218,6 +221,7 @@ const noReactInLogic = {
     }
 
     const imports = [];
+
     const remember = (node) => {
       if (isReactValueSource(node)) {
         imports.push(node);

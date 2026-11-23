@@ -42,6 +42,7 @@ export const FixedPageRow = ({
   const { refresh } = useApiCache();
   const { api } = useAppContext();
   const { title } = page;
+
   const publication = useApiMutation({
     send: () =>
       setPublication(api, { id: page.id, published: !page.published }),

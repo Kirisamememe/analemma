@@ -87,6 +87,7 @@ export const updateKinds = async (
   const sent = JSON.stringify(
     kinds.map(({ fields, label, name }) => ({ name, label, fields })),
   );
+
   const rows = await db.execute<UpdatedKind>(sql`
     update ${kind}
     set label = sent.label, fields = sent.fields, updated_at = ${now}

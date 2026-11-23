@@ -10,6 +10,7 @@ describe("useCopyText", () => {
     using write = spyOn(navigator.clipboard, "writeText")
       .mockRejectedValueOnce(new DOMException("denied", "NotAllowedError"))
       .mockResolvedValue(undefined);
+
     const { result, rerender } = renderHook(
       (text: string) => useCopyText(text),
       {

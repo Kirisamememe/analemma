@@ -15,7 +15,9 @@ const setUp = (opens: "list" | "editor") => {
       { kind: "page", slug: "colophon", title: "Colophon" },
     ],
   });
+
   const [about] = server.pages();
+
   const app = renderApp({
     path:
       opens === "list" ? "/fixed-pages" : "/fixed-pages/" + String(about?.id),

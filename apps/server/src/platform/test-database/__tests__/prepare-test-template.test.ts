@@ -11,6 +11,7 @@ import { prepareTestTemplate } from "@/platform/test-database/prepare-test-templ
 import { writeTestMigrations } from "@/platform/test-database/write-test-migrations";
 
 const logs: LogEntry[] = [];
+
 const logger = {
   write: (entry: LogEntry) => {
     logs.push(entry);
@@ -30,6 +31,7 @@ const hasTable = async (db: Database, table: string): Promise<boolean> => {
 
 const listDatabases = async (template: string): Promise<unknown[]> => {
   await using admin = connectTestAdmin();
+
   const rows = await admin.sql`
     select datname, datistemplate, datallowconn, datdba::regrole::text as owner
     from pg_database where datname in (${template}, ${`${template}_building`})
@@ -42,6 +44,7 @@ const listDatabases = async (template: string): Promise<unknown[]> => {
 const dropDatabase = async (name: string): Promise<void> => {
   await using admin = connectTestAdmin();
   const { sql: adminSql } = admin;
+
   const found =
     await adminSql`select 1 from pg_database where datname = ${name}`;
 
@@ -130,6 +133,7 @@ test("migration の SQL を適用したテンプレートから、テストの D
   });
 
   await using database = await createTestDatabase({ logger, template });
+
   const applied = await database.db.execute(
     sql`select name from drizzle.__drizzle_migrations`,
     "objects",
@@ -172,6 +176,7 @@ test("名前を決めた後に migration が書き換えられたら、テンプ
   await using migrations = await writeTestMigrations({
     [CREATE_NOTES]: "CREATE TABLE notes (body text);",
   });
+
   const preparing = prepareTestTemplate({
     template,
     logger,

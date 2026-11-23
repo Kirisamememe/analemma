@@ -71,12 +71,15 @@ export const DateRoot = ({
     () => (value === undefined || value === null ? value : parseDate(value)),
     [value],
   );
+
   const defaultDate = useMemo(
     () => (defaultValue === undefined ? null : parseDate(defaultValue)),
     [defaultValue],
   );
+
   const invalid = incomplete ? true : isInvalid;
   const behavior = incomplete ? "native" : validationBehavior;
+
   const state = {
     ...(ariaLabel === undefined ? {} : { "aria-label": ariaLabel }),
     ...(name === undefined ? {} : { name }),
@@ -113,11 +116,14 @@ type DateSegmentsProps = {
 /** キーボードで日付の segment を編集する入力。 */
 export const DateSegments = ({ onBlur }: DateSegmentsProps): ReactNode => {
   const state = useContext(DateFieldStateContext);
+
   const segments =
     state?.segments.filter((segment) => segment.isEditable) ?? [];
+
   const incomplete =
     segments.some((segment) => segment.isPlaceholder) &&
     segments.some((segment) => !segment.isPlaceholder);
+
   const {
     focusWithinProps: { onBlur: blurWithin, onFocus: focusWithin },
   } = useFocusWithin({

@@ -9,6 +9,7 @@ const EXPIRY = { expiresAt: "2026-01-08T00:00:00.000Z" };
 describe("createSignInRoutes", () => {
   test("ログインの検証が成功を返すまでは 401、返した後はセッションを返す", async () => {
     const { api } = createFakeApi(createSignInRoutes({ output: EXPIRY }));
+
     const before: unknown = await api.admin.session
       .get()
       .catch((error: unknown) => error);
@@ -22,9 +23,11 @@ describe("createSignInRoutes", () => {
     const { api } = createFakeApi(
       createSignInRoutes({ error: "UNKNOWN_CREDENTIAL" }),
     );
+
     const failure: unknown = await api.auth.login
       .verify(FAKE_ASSERTION)
       .catch((error: unknown) => error);
+
     const session: unknown = await api.admin.session
       .get()
       .catch((error: unknown) => error);
@@ -41,6 +44,7 @@ describe("createSignInRoutes", () => {
     const failure: unknown = await api.auth.login
       .verify(FAKE_ASSERTION)
       .catch((error: unknown) => error);
+
     const session: unknown = await api.admin.session
       .get()
       .catch((error: unknown) => error);

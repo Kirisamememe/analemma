@@ -50,6 +50,7 @@ const focusError = (root: HTMLElement | null, names: readonly string[]) => {
   }
 
   const targets = root?.querySelectorAll<HTMLElement>("[data-field]");
+
   const target = Array.from(targets ?? []).find((element) =>
     names.includes(element.dataset["field"] ?? ""),
   );
@@ -75,9 +76,11 @@ export const useEditorForm = ({
   const toast = useShowToast();
   const { refresh, replace } = useApiCache();
   const root = useRef<HTMLDivElement>(null);
+
   const [{ values: initial, ...base }] = useState(() =>
     createEditorValues(kind.fields, page),
   );
+
   const saved = useRef(initial); // 開いたときの値か、最後に保存できた値
   const submitted = useRef(initial);
   const closeSaveFailure = useRef<() => void>(undefined);
@@ -137,6 +140,7 @@ export const useEditorForm = ({
       });
     },
   });
+
   const form = useAppForm({
     defaultValues: initial,
     canSubmitWhenInvalid: true,
@@ -151,11 +155,13 @@ export const useEditorForm = ({
       const invalid = (["slug", "title"] as const).filter(
         (key) => (formApi.getFieldMeta(key)?.errors.length ?? 0) > 0,
       );
+
       requestAnimationFrame(() => {
         focusError(root.current, invalid);
       });
     },
   });
+
   const leaving = useLeaveConfirmation(() => {
     const current = form.state.values;
 
@@ -166,6 +172,7 @@ export const useEditorForm = ({
         hasUnsavedChanges(base, { saved: submitted.current, current }))
     );
   });
+
   const check =
     (key: "slug" | "title") =>
     ({ value }: Record<"value", string>) =>
@@ -176,6 +183,7 @@ export const useEditorForm = ({
               ? "fixedPageEditor.invalidSlug"
               : "fixedPageEditor.invalidTitle",
           );
+
   const changed = (name: string) => {
     setErrors((previous) => clearChangedErrors(previous, name));
   };

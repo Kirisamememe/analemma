@@ -95,6 +95,7 @@ const machineTerms = (rows: readonly string[][]): Parsed<BannedTerm> => {
       scopeCell === WHOLE_REPOSITORY
         ? []
         : splitItems(scopeCell).map((scope) => stripCode(scope));
+
     const excludes = splitItems(excludeCell).map((exclude) =>
       stripCode(exclude),
     );
@@ -131,9 +132,11 @@ const machineTerms = (rows: readonly string[][]): Parsed<BannedTerm> => {
 /** 用語集の Markdown から、「機械で探す語」の表を読む。 */
 export const readGlossary = (markdown: string): Glossary => {
   const tables = readTables(markdown);
+
   const machineTables = tables.values.filter(
     (table) => table.header.join("|") === MACHINE_HEADER,
   );
+
   const rows = machineTables.flatMap((table) => table.rows);
   const columns = MACHINE_HEADER.split("|").length;
   const machine = machineTerms(rows.filter((row) => row.length === columns));

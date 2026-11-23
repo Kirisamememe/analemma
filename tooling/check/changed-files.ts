@@ -38,6 +38,7 @@ export const findChangedFiles = (
   cwd: string,
 ): readonly string[] | undefined => {
   const base = findNearestBase(cwd);
+
   const forkPoint =
     base === undefined ? undefined : git(cwd, ["merge-base", base, "HEAD"]);
 
@@ -52,6 +53,7 @@ export const findChangedFiles = (
     "--no-renames",
     forkPoint.trim(),
   ]);
+
   const untracked = git(cwd, [
     "ls-files",
     "-z",

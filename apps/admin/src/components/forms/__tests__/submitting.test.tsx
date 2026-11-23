@@ -194,6 +194,7 @@ describe("送信の途中の入力欄", () => {
   test("入力で流れる非同期の検証の間は、入力を止めないこと", async () => {
     const user = userEvent.setup();
     const titleValidation = Promise.withResolvers<undefined>();
+
     const validateTitleOnChange = mock(
       (_title: string) => titleValidation.promise,
     );

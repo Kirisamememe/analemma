@@ -26,6 +26,7 @@ export const DeployTokenList = ({
   const t = useTranslate();
   const locale = useLocale();
   const { api } = useAppContext();
+
   const tokens = useApiQuery({
     key: DEPLOY_TOKENS_QUERY_KEY,
     load: () => api.admin.deployTokens.list(),

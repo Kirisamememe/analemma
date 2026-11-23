@@ -11,6 +11,7 @@ import { Button } from "@/ui/primitives/button";
 export const FixedPagesPage = (): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
   const create = (): void => {
     void navigate({ to: "/fixed-pages/new" });
   };

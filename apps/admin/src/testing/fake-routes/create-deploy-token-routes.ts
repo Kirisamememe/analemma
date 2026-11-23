@@ -56,6 +56,7 @@ export const createDeployTokenRoutes = (
   seeds: readonly FakeDeployTokenSeed[],
 ) => {
   let issued = 0;
+
   const nextSummary = (
     name: string,
     lastUsedAt: string | null,

@@ -109,6 +109,7 @@ const run = async (
   const stdout: string[] = [];
   const stderr: string[] = [];
   const inbox: Inbox = { received: [], kinds: [] };
+
   const code = await runCli({
     args: ["push-kinds", "./kinds.ts"],
     url: "http://127.0.0.1:8788",
@@ -161,6 +162,7 @@ describe("種類の定義を送る CLI", () => {
   test("CMS へのリクエストは、リダイレクトを追わないこと", async () => {
     const redirects: string[] = [];
     const fake = serveFakeCms("accept");
+
     const result = await run("accept", {
       fetch: async (request) => {
         redirects.push(request.redirect);
@@ -176,6 +178,7 @@ describe("種類の定義を送る CLI", () => {
   test("--url を渡すと、環境変数の URL より優先すること", async () => {
     const urls: string[] = [];
     const fake = serveFakeCms("accept");
+
     const result = await run("accept", {
       args: ["push-kinds", "./kinds.ts", "--url", "http://10.0.0.2:9000"],
       fetch: async (request) => {
@@ -263,6 +266,7 @@ describe("種類の定義を送る CLI", () => {
     const fields = [
       { key: "open", label: "受付中", type: "boolean", optional: true },
     ];
+
     const result = await run("accept", {
       loadModule: () =>
         Promise.resolve({

@@ -7,6 +7,7 @@ import { connectTestAdmin } from "@/platform/test-database/connect-test-admin";
 import { createTestDatabase } from "@/platform/test-database/create-test-database";
 
 const logs: LogEntry[] = [];
+
 const logger = {
   write: (entry: LogEntry) => {
     logs.push(entry);
@@ -24,6 +25,7 @@ const hasTable = async (db: Database, table: string): Promise<boolean> => {
 
 const databaseExists = async (name: string): Promise<boolean> => {
   await using admin = connectTestAdmin();
+
   const rows =
     await admin.sql`select 1 from pg_database where datname = ${name}`;
 
@@ -52,6 +54,7 @@ describe("テストの DB", () => {
 
   test("superuser でないロールで DB につなぐこと", async () => {
     await using database = await createTestDatabase({ logger });
+
     const rows = await database.db.execute(
       sql`select current_user as role, current_setting('is_superuser') as superuser`,
       "objects",
@@ -76,12 +79,15 @@ describe("テストの DB", () => {
 
   test("同じテンプレートから同時に作っても、それぞれの DB を使えること", async () => {
     await using stack = new AsyncDisposableStack();
+
     const settled = await Promise.allSettled(
       Array.from({ length: 4 }, async () => createTestDatabase({ logger })),
     );
+
     const databases = settled.flatMap((result) =>
       result.status === "fulfilled" ? [stack.use(result.value)] : [],
     );
+
     const current = await Promise.all(
       databases.map(async ({ db }) =>
         db.execute(sql`select current_database() as name`, "objects"),

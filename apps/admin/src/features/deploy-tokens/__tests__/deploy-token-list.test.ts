@@ -22,6 +22,7 @@ describe("DeployTokenList", () => {
     const [used, unused] = await within(
       await screen.findByRole("main"),
     ).findAllByRole("listitem");
+
     const [first, second] = server.tokens();
 
     expect(within(used!).getByText("本番のデプロイ")).toBeDefined();

@@ -100,6 +100,7 @@ describe("種類の定義を送る", () => {
     await using server = await createTestClient({ clock: { now: () => now } });
 
     const { passkey } = await signInAsAdmin(server);
+
     const deploy = server.internal(
       await issueTestDeployToken(server, passkey),
     ).deploy;
@@ -136,6 +137,7 @@ describe("種類の定義を送る", () => {
     await using server = await createTestClient({ clock: { now: () => now } });
 
     const { passkey } = await signInAsAdmin(server);
+
     const deploy = server.internal(
       await issueTestDeployToken(server, passkey),
     ).deploy;
@@ -280,6 +282,7 @@ describe("種類の定義を送る", () => {
       await using server = await createTestClient();
 
       const { passkey } = await signInAsAdmin(server);
+
       const deploy = server.internal(
         await issueTestDeployToken(server, passkey),
       ).deploy;

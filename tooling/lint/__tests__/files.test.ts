@@ -49,6 +49,21 @@ describe("拡張子", () => {
   );
 });
 
+describe("文の間の空行", () => {
+  test("複数行の const と export const の前後に空行がない箇所だけに診断を出すこと", () => {
+    const { diagnostics } = lintFixture("invalid/syntax/multiline-const.ts");
+
+    expect(
+      diagnostics
+        .filter(
+          ({ code }) => code === "stylistic(padding-line-between-statements)",
+        )
+        .map(({ line }) => line)
+        .toSorted((left, right) => left - right),
+    ).toEqual([3, 6, 9, 11, 14]);
+  });
+});
+
 describe("lint の抑制", () => {
   test("理由の無い抑制に診断を出すこと", () => {
     const messages = messagesOf(

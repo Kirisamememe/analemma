@@ -37,6 +37,7 @@ export const saveFixedPage = async (
   { target, values, ...base }: Submission,
 ) => {
   const { submitted, input } = toInput(base, values);
+
   const result =
     "id" in target
       ? await callApi(api.admin.fixedPages.update({ ...target, ...input }), [

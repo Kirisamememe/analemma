@@ -38,6 +38,7 @@ const { values } = parseArgs({
     number: { type: "string" },
   },
 });
+
 const { base, head, number } = values;
 
 if (base === undefined || head === undefined || number === undefined) {
@@ -47,10 +48,12 @@ if (base === undefined || head === undefined || number === undefined) {
   process.exitCode = 2;
 } else {
   const title = (await Bun.stdin.text()).trimEnd();
+
   const messages = [
     ...readCommits(`${base}..${head}`),
     { name: TITLE_FILE, text: `${title} (#${number})\n` },
   ];
+
   const directory = mkdtempSync(join(tmpdir(), "analemma-messages-"));
 
   try {

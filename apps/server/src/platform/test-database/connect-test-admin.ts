@@ -11,6 +11,7 @@ export type TestAdminConnection = AsyncDisposable & {
 /** テスト用の PostgreSQL に、DB を作ったり消したりする superuser でつなぐ。 */
 export const connectTestAdmin = (): TestAdminConnection => {
   const target = toTestDatabaseTarget("postgres", "admin");
+
   const sql = postgres({
     host: target.host,
     port: target.port,

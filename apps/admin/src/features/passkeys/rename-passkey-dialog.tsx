@@ -33,6 +33,7 @@ export const RenamePasskeyDialog = ({
   const showToast = useShowToast();
   const { refresh } = useApiCache();
   const { api } = useAppContext();
+
   const renaming = useApiMutation({
     send: (name: string) => renamePasskey(api, { id: passkey.id, name }),
     onSuccess: async ({ _tag }) => {

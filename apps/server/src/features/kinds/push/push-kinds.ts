@@ -34,9 +34,11 @@ export const pushKinds = deployProcedures.kinds.push.handler(
   async ({ context, errors, input }) => {
     const now = context.clock.now();
     const names = input.kinds.map(({ name }) => name);
+
     const result = await context.db.transaction(
       async (tx): Promise<PushOutcome> => {
         const existing = await lockKinds(tx, names);
+
         const incompatible = findIncompatiblePages({
           pages: await listKindPages(tx, existing),
           definitions: input.kinds,
@@ -47,6 +49,7 @@ export const pushKinds = deployProcedures.kinds.push.handler(
         }
 
         const created = await insertNewKinds(tx, { kinds: input.kinds, now });
+
         const updated = await updateKinds(tx, {
           kinds: input.kinds.filter(({ name }) => !created.has(name)),
           now,

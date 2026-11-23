@@ -28,6 +28,7 @@ export const EnrollPage = (): ReactNode => {
   const queryClient = useQueryClient();
   const { api, authenticator, gate } = useRouteContext({ from: "/enroll" });
   const hash = useLocation({ select: (location) => location.hash });
+
   const [opened, setOpened] = useState(() => ({
     hash,
     token: readEnrollmentToken(hash),
@@ -38,6 +39,7 @@ export const EnrollPage = (): ReactNode => {
   }
 
   const { token } = opened;
+
   const enrollment = useMutation({
     mutationFn: async (input: EnrollInput) =>
       gate.authenticate(async () => enroll({ api, authenticator }, input)),
@@ -53,6 +55,7 @@ export const EnrollPage = (): ReactNode => {
       }
     },
   });
+
   const result = enrollment.isError ? "Unexpected" : enrollment.data?._tag;
   const outcome = enrollment.variables?.token === token ? result : undefined;
   const notice = outcome === undefined ? undefined : toEnrollNotice(outcome);

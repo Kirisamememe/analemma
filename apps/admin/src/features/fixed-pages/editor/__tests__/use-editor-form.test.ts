@@ -14,6 +14,7 @@ const renderEditorForm = async (target: FixedPageEditorProps["page"]) => {
     path: "/enroll",
     routes: {},
   });
+
   await app.router.load();
 
   return renderHook(

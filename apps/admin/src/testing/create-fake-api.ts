@@ -122,6 +122,7 @@ type FakeContext = {
 const api = implement(contract, {
   initialOutputValidationIndex: -1,
 }).$context<FakeContext>();
+
 const sendEarlyReply = api.middleware(
   async ({ context, next, path, procedure }) => {
     const reply = context.replyBeforeInput(path.join("/"));
@@ -249,8 +250,10 @@ export type FakeApi = {
 export const createFakeApi = (routes: FakeRoutes): FakeApi => {
   const handler = new RPCHandler(createFakeRouter(routes));
   const calls: string[] = [];
+
   const replyBeforeInput = (path: string) =>
     isRoutePath(path) ? routes[path]?.replyBeforeInput?.() : undefined;
+
   const fetch: ApiClientOptions["fetch"] = async (request) => {
     calls.push(new URL(request.url).pathname.replace(/^\/api\//v, ""));
 

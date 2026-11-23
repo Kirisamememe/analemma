@@ -17,9 +17,11 @@ const rejectingApi = (failure: Error): ApiClient => {
 describe("callApi", () => {
   test("成功したら、contract の出力を返す", async () => {
     const data = { passkeys: [] };
+
     const { api } = createFakeApi({
       "admin/passkeys/list": () => ({ output: data }),
     });
+
     const result = await callApi(api.admin.passkeys.list(), []);
 
     expect(result._tag).toBe("Succeeded");
@@ -35,6 +37,7 @@ describe("callApi", () => {
     const { api } = createFakeApi({
       "admin/passkeys/delete": () => ({ error: "LAST_PASSKEY" }),
     });
+
     const result = await callApi(api.admin.passkeys.delete(INPUT), [
       "LAST_PASSKEY",
     ]);
@@ -66,12 +69,14 @@ describe("callApi", () => {
     const issues = [
       { path: ["name"], code: "invalid_type", message: "Invalid input" },
     ];
+
     const { api } = createFakeApi({
       "admin/fixedPages/create": () => ({
         error: "INVALID_CONTENT",
         data: { issues },
       }),
     });
+
     const result = await callApi(
       api.admin.fixedPages.create({
         kind: "about",
@@ -93,6 +98,7 @@ describe("callApi", () => {
     const { api } = createFakeApi({
       "admin/passkeys/list": () => ({ output: { passkeys: [] } }),
     });
+
     // @ts-expect-error -- 一覧には LAST_PASSKEY の定義が無い
     const result = await callApi(api.admin.passkeys.list(), ["LAST_PASSKEY"]);
 

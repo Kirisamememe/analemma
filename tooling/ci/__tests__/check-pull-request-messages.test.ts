@@ -95,6 +95,7 @@ const makePullRequest = (name: string, history: History): PullRequest => {
     "-m",
     "chore: リポジトリを作る",
   );
+
   const base =
     commitChain({ root, parent: first, messages: history.base }).at(-1) ??
     first;
@@ -129,6 +130,7 @@ const checkPullRequest = async ({
   title,
 }: Check): Promise<Outcome> => {
   const { base, commits, root } = pullRequest;
+
   const child = Bun.spawn(
     [
       process.execPath,
@@ -142,6 +144,7 @@ const checkPullRequest = async ({
     ],
     { cwd: root, stdin: new Response(title), stdout: "pipe", stderr: "pipe" },
   );
+
   const [stdout, stderr, status] = await Promise.all([
     new Response(child.stdout).text(),
     new Response(child.stderr).text(),
@@ -157,6 +160,7 @@ describe("PR のコミットのメッセージ", () => {
       base: [],
       pullRequest: ["feat: 件名を書く", "fix(server): 期限を直す\n\n本文"],
     });
+
     const result = await checkPullRequest({
       pullRequest,
       title: "feat: 件名を書く",
@@ -170,6 +174,7 @@ describe("PR のコミットのメッセージ", () => {
       base: ["update stuff"],
       pullRequest: ["docs: 説明を書く"],
     });
+
     const result = await checkPullRequest({
       pullRequest,
       title: "docs: 説明を書く",
@@ -183,6 +188,7 @@ describe("PR のコミットのメッセージ", () => {
       base: [],
       pullRequest: ["docs: 説明を書く", "update stuff"],
     });
+
     const result = await checkPullRequest({
       pullRequest,
       title: "docs: 説明を書く",
@@ -200,6 +206,7 @@ describe("PR のコミットのメッセージ", () => {
       base: [],
       pullRequest: ["docs: hidden-repo から写す"],
     });
+
     const result = await checkPullRequest({
       pullRequest,
       title: "docs: 説明を書く",

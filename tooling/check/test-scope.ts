@@ -1,4 +1,5 @@
 const SERVER_DIRECTORIES = ["apps/server/", "packages/"];
+
 const SERVER_FILES = new Set([
   "bun.lock",
   "bunfig.toml",

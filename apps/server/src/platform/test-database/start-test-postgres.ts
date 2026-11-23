@@ -48,6 +48,7 @@ const composeUp = async (
     ],
     { stdout: "ignore", stderr: "pipe" },
   );
+
   const [exitCode, output] = await Promise.all([
     compose.exited,
     new Response(compose.stderr).text(),

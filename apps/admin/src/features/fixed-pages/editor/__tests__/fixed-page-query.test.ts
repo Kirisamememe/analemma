@@ -10,6 +10,7 @@ describe("loadFixedPage", () => {
     const found = createFakeApi({
       "admin/fixedPages/get": () => ({ output: page }),
     });
+
     const missing = createFakeApi({
       "admin/fixedPages/get": () => ({ error: "NOT_FOUND" }),
     });

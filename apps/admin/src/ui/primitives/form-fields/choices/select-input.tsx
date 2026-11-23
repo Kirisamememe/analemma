@@ -79,6 +79,7 @@ export const SelectRoot = ({
   children,
 }: SelectRootProps): ReactNode => {
   const selectedValue = value === null && !isRequired ? "" : value;
+
   const state = {
     ...(ariaLabel === undefined ? {} : { "aria-label": ariaLabel }),
     ...(name === undefined ? {} : { name }),
@@ -115,6 +116,7 @@ export const SelectControl = ({
   const { t } = useTranslation();
   const state = useContext(SelectStateContext);
   const placeholder = t("ui.select.placeholder");
+
   const choices =
     isRequired === true
       ? options

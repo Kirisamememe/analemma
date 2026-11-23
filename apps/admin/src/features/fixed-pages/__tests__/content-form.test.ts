@@ -5,6 +5,7 @@ import { fieldDefinitions } from "@analemma/contract";
 import { createContentForm } from "@/features/fixed-pages/content-form";
 
 const flag = { type: "boolean", key: "flag", label: "表示" };
+
 const fields = fieldDefinitions.parse([
   { type: "text", key: "title", label: "名前" },
   { type: "longText", key: "body", label: "本文" },

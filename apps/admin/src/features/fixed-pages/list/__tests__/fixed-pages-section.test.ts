@@ -195,6 +195,7 @@ describe("FixedPagesSection", () => {
 
   test("送っている間は、動かした順に並べ、保存していることを示す", async () => {
     const { server } = setUp();
+
     const reply =
       Promise.withResolvers<FakeReply<"admin/fixedPages/reorder">>();
 

@@ -170,6 +170,7 @@ export type AppParts = {
 /** router と、セッションが切れたらログインの画面に移す query client を組み立てる。 */
 export const createApp = (dependencies: AppDependencies): AppParts => {
   const router = createAppRouter(dependencies);
+
   const queryClient = createQueryClient({
     onUnauthorized: (client) => {
       client.clear();

@@ -11,6 +11,7 @@ import { toTestDatabaseUrl } from "@/platform/test-database/to-test-database-url
 const MIGRATE = join(import.meta.dirname, "../migrate.ts");
 
 const logs: LogEntry[] = [];
+
 const logger = {
   write: (entry: LogEntry) => {
     logs.push(entry);

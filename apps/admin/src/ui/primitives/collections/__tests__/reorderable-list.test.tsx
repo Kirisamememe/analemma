@@ -16,6 +16,7 @@ const ITEMS = ["About", "Colophon", "Contact"].map((title) => ({
 describe("ReorderableList", () => {
   test("取っ手で Enter を押し、矢印で動かして Enter で置くと、並べ直した ID を渡す", async () => {
     const reorders: (readonly string[])[] = [];
+
     const onReorder = (ids: readonly string[]): void => {
       reorders.push(ids);
     };
@@ -45,6 +46,7 @@ describe("ReorderableList", () => {
 
   test("元の位置に置いたときは、ID を渡さない", async () => {
     const reorders: (readonly string[])[] = [];
+
     const onReorder = (ids: readonly string[]): void => {
       reorders.push(ids);
     };
@@ -68,6 +70,7 @@ describe("ReorderableList", () => {
 
   test("並べ直しを止めている間は、取っ手で Enter を押しても動かせない", async () => {
     const reorders: (readonly string[])[] = [];
+
     const onReorder = (ids: readonly string[]): void => {
       reorders.push(ids);
     };

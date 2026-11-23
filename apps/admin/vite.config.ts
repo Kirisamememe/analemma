@@ -44,6 +44,7 @@ const bundleBootScript = async (): Promise<string> => {
       lib: { entry: BOOT_ENTRY, formats: ["iife"], name: "boot" },
     },
   });
+
   const chunk = (Array.isArray(output) ? output : [output])
     .flatMap((result) => ("output" in result ? result.output : []))
     .find((item) => item.type === "chunk");

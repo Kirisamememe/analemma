@@ -17,6 +17,7 @@ export const LoginPage = (): ReactNode => {
   const queryClient = useQueryClient();
   const { api, authenticator, gate } = useRouteContext({ from: "/login" });
   const { redirect } = useSearch({ from: "/login" });
+
   const login = useMutation({
     mutationFn: async () =>
       gate.authenticate(async () => logIn({ api, authenticator })),
@@ -32,6 +33,7 @@ export const LoginPage = (): ReactNode => {
       }
     },
   });
+
   const outcome = login.isError ? "Unexpected" : login.data?._tag;
   const notice = outcome === undefined ? undefined : toLogInNotice(outcome);
 

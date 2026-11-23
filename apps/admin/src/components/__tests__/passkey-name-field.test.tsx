@@ -14,6 +14,7 @@ describe("PasskeyNameField", () => {
       name: "パスキーの名前",
       description: "パスキーを見分けるための名前(端末の名前など)。",
     });
+
     expect(field.getAttribute("maxlength")).toBe("64");
   });
 
@@ -24,6 +25,7 @@ describe("PasskeyNameField", () => {
       name: "パスキーの名前",
       description: "",
     });
+
     expect(screen.getByDisplayValue("MacBook")).toBe(field);
     expect(field.getAttribute("maxlength")).toBeNull();
   });

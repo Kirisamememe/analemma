@@ -39,6 +39,7 @@ const submitName = async (name: string): Promise<void> => {
 describe("EnrollPage", () => {
   test("名前を付けてパスキーを登録すると、ログインしてホームに移り、履歴から登録用 URL を消す", async () => {
     const server = createEnrollmentRoutes(EXPIRY);
+
     const { history } = renderApp({
       path: "/enroll#abc.def",
       routes: server.routes,
@@ -106,6 +107,7 @@ describe("EnrollPage", () => {
 
   test("開いたら、token を覚えて、URL と履歴から token を消す", async () => {
     const server = createEnrollmentRoutes(EXPIRY);
+
     const { history } = renderApp({
       path: "/enroll#abc.def",
       routes: server.routes,
@@ -125,6 +127,7 @@ describe("EnrollPage", () => {
 
   test("空白だけの名前は、パスキーを作る前に、入力欄で知らせる", async () => {
     const server = createEnrollmentRoutes(EXPIRY);
+
     const { calls } = renderApp({
       path: "/enroll#abc.def",
       routes: server.routes,
@@ -145,6 +148,7 @@ describe("EnrollPage", () => {
   test("開いたまま新しい登録用 URL を開くと、前の知らせを消し、新しい token で登録する", async () => {
     const server = createEnrollmentRoutes(EXPIRY);
     const register = server.routes["auth/enrollment/register"];
+
     const { history } = renderApp({
       path: "/enroll#old.token",
       routes: {

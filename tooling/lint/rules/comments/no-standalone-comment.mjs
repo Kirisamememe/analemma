@@ -112,13 +112,18 @@ const noStandaloneComment = {
   /** ファイルごとに、コメントの置き場所と長さを調べる。 */
   create(context) {
     const options = context.options[0] ?? {};
+
     const maxTrailingLength =
       options.maxTrailingLength ?? DEFAULT_MAX_TRAILING_LENGTH;
+
     const dividerAllowedAfter =
       options.dividerAllowedAfter ?? DEFAULT_DIVIDER_ALLOWED_AFTER;
+
     const dividerRequiredAfter =
       options.dividerRequiredAfter ?? DEFAULT_DIVIDER_REQUIRED_AFTER;
+
     const documentable = new Set();
+
     const remember = (node) => {
       documentable.add(node.start);
     };
@@ -135,16 +140,21 @@ const noStandaloneComment = {
       "Program:exit"(program) {
         const { text } = context.sourceCode;
         const comments = context.sourceCode.getAllComments();
+
         const commentsByStart = new Map(
           comments.map((comment) => [comment.start, comment]),
         );
+
         const lines = countCodeLines({ comments, text });
+
         const dividers = findSectionDividers(
           comments.filter((comment) => !hasCodeBefore(text, comment.start)),
         );
+
         const dividerComments = new Set(
           dividers.flatMap(({ bottom, title, top }) => [top, title, bottom]),
         );
+
         const data = {
           allowed: String(dividerAllowedAfter),
           lines: String(lines),

@@ -68,6 +68,7 @@ export const pushKindDefinitions = async ({
         fetch(new Request(request, { redirect: "error" })),
     }),
   );
+
   const { data, error } = await safe(client.deploy.kinds.push({ kinds }));
 
   if (error === null) {

@@ -139,6 +139,7 @@ describe("日付の未完の検証", () => {
   test("未完の日付を外から完全な日付に置き換えるとその値を送れること", async () => {
     const values: (FormDataEntryValue | null)[] = [];
     const user = userEvent.setup();
+
     const form = (value: string) => (
       <Form
         onSubmit={(data) => {
@@ -155,6 +156,7 @@ describe("日付の未完の検証", () => {
         <button type="submit">保存</button>
       </Form>
     );
+
     const { rerender } = renderWithI18n(form("2024-02-01"));
     const day = screen.getByRole("spinbutton", { name: /day.*公開日/iv });
 

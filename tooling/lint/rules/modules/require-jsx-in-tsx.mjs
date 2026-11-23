@@ -17,6 +17,7 @@ const requireJsxInTsx = {
     }
 
     let hasJsx = false;
+
     const onJsx = () => {
       hasJsx = true;
     };

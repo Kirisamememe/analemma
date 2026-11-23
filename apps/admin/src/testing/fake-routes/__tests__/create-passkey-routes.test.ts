@@ -45,6 +45,7 @@ describe("createPasskeyRoutes", () => {
     const { api } = setUp(Array.from({ length: 99 }, () => "MacBook"));
 
     await api.admin.session.reauthenticationOptions();
+
     const added = await api.admin.passkeys.register({
       name: "iPad",
       credential: FAKE_ATTESTATION,
@@ -113,6 +114,7 @@ describe("createPasskeyRoutes", () => {
 
       await api.admin.session.reauthenticationOptions();
       const logOut = api.admin.session.logOutAll();
+
       const change =
         operation === "追加"
           ? api.admin.passkeys.register({
@@ -124,6 +126,7 @@ describe("createPasskeyRoutes", () => {
               id: "cGsx",
               assertion: FAKE_ASSERTION,
             });
+
       const [session, failure] = await Promise.all([
         logOut,
         change.catch((error: unknown) => error),
@@ -138,6 +141,7 @@ describe("createPasskeyRoutes", () => {
   test("関数で包んだ一覧でも指定した応答を一度だけ返し、ログアウト後は UNAUTHORIZED を返すこと", async () => {
     const { server } = setUp(["MacBook"]);
     const list = server.routes["admin/passkeys/list"];
+
     const { api } = createFakeApi({
       ...server.routes,
       "admin/passkeys/list": wrapFakeRoute(list, (input) => list(input)),
@@ -147,6 +151,7 @@ describe("createPasskeyRoutes", () => {
       error: "INTERNAL_SERVER_ERROR",
       defined: false,
     }));
+
     const next: unknown = await api.admin.passkeys
       .list()
       .catch((error: unknown) => error);
@@ -155,6 +160,7 @@ describe("createPasskeyRoutes", () => {
     expect((await api.admin.passkeys.list()).passkeys).toHaveLength(1);
 
     await api.admin.session.logOutAll();
+
     const after: unknown = await api.admin.passkeys
       .list()
       .catch((error: unknown) => error);
@@ -179,6 +185,7 @@ describe("createPasskeyRoutes", () => {
     async (mode) => {
       const { server } = setUp(["MacBook"]);
       const rename = server.routes["admin/passkeys/rename"];
+
       const routes =
         mode === "元の procedure"
           ? server.routes
@@ -188,11 +195,13 @@ describe("createPasskeyRoutes", () => {
                 rename(input),
               ),
             };
+
       const { api } = createFakeApi(routes);
       await api.admin.session.logOutAll();
 
       server.replyNext("admin/passkeys/rename", () => ({ error: "NOT_FOUND" }));
       const input = { id: "cGsx", name: "" };
+
       const errors = await Promise.all([
         api.admin.passkeys.rename(input).catch((error: unknown) => error),
         api.admin.passkeys.rename(input).catch((error: unknown) => error),
@@ -218,6 +227,7 @@ describe("createPasskeyRoutes", () => {
     server.replyNext("admin/session/get", () => ({
       output: { expiresAt: "invalid" },
     }));
+
     const failure: unknown = await api.admin.session
       .get()
       .catch((error: unknown) => error);
@@ -230,6 +240,7 @@ describe("createPasskeyRoutes", () => {
 
   test("有効なセッションで名前が空なら BAD_REQUEST を返すこと", async () => {
     const { api } = setUp(["MacBook"]);
+
     const failure: unknown = await api.admin.passkeys
       .rename({ id: "cGsx", name: "" })
       .catch((error: unknown) => error);

@@ -14,6 +14,7 @@ import {
 const F = AUTHENTICATOR_FLAG;
 
 const rpIdHash = await hashRpId("analemma.test");
+
 const publicKey = encodeCbor(
   new Map<number, CborInput>([
     [1, 1],
@@ -22,11 +23,13 @@ const publicKey = encodeCbor(
     [-2, new Uint8Array(32).fill(7)],
   ]),
 );
+
 const credential = {
   aaguid: new Uint8Array(16).fill(0xaa),
   credentialId: new Uint8Array([1, 2, 3, 4, 5]),
   publicKey,
 };
+
 const extensions = encodeCbor(new Map([["credProtect", 2]]));
 
 const flagsOf = (flags: number): unknown => {

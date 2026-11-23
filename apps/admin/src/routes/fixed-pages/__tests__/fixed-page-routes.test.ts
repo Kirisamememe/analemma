@@ -7,6 +7,7 @@ import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
+
 const clickSave = async (user: ReturnType<typeof userEvent.setup>) => {
   const [save] = screen.getAllByRole("button", { name: "保存" });
 
@@ -20,6 +21,7 @@ const session = {
     output: { expiresAt: "2026-11-23T00:00:00.000Z" },
   }),
 };
+
 test("種類を読み込んでいる間と選べる種類が無いときの知らせを出す", async () => {
   const pending = Promise.withResolvers<undefined>();
   renderApp({
@@ -54,6 +56,7 @@ test("編集する固定ページが無いときは種類を取得しない", as
       "admin/fixedPages/get": () => ({ error: "NOT_FOUND" }),
     },
   });
+
   expect(
     await screen.findByText("この固定ページはもうありません。"),
   ).toBeDefined();
@@ -79,9 +82,11 @@ test("種類の読み込みに失敗しても、取得した固定ページを�
   await userEvent.click(
     screen.getByRole("button", { name: "固定ページを削除" }),
   );
+
   const dialog = await screen.findByRole("dialog", {
     name: "「紹介」を削除しますか?",
   });
+
   await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
   await screen.findByRole("heading", { name: "固定ページはまだありません" });
   expect(server.pages()).toHaveLength(0);
@@ -123,6 +128,7 @@ test.each(["true", "false", "null"])(
 
 test("ほかの画面から戻ると、前に読んだ値ではなく、読み直した固定ページでフォームを作る", async () => {
   let title = "前のタイトル";
+
   const { history } = renderApp({
     path: "/fixed-pages/" + page.id,
     routes: {
@@ -149,6 +155,7 @@ test("ほかの画面から戻ると、前に読んだ値ではなく、読み�
 
 test("一覧から種類を選んで作り、編集の画面から一覧に戻って、作ったページを編集で開ける", async () => {
   const user = userEvent.setup();
+
   const server = createFixedPageRoutes({
     kinds: [
       {
@@ -158,6 +165,7 @@ test("一覧から種類を選んで作り、編集の画面から一覧に戻�
       },
     ],
   });
+
   const { history } = renderApp({
     path: "/fixed-pages",
     routes: server.routes,
@@ -196,15 +204,19 @@ test("一覧から種類を選んで作り、編集の画面から一覧に戻�
 
 test("保存した直後にほかの画面へ移って戻っても、保存した値でフォームを作る", async () => {
   const user = userEvent.setup();
+
   const server = createFixedPageRoutes({
     kinds: [{ name: "page", label: "基本のページ", fields: [] }],
     pages: [{ kind: "page", slug: "about", title: "Original" }],
   });
+
   const [stored] = server.pages();
+
   const { history } = renderApp({
     path: "/fixed-pages/" + String(stored?.id),
     routes: server.routes,
   });
+
   const title = await screen.findByRole("textbox", { name: "タイトル" });
 
   await user.clear(title);
@@ -225,15 +237,18 @@ test("保存の応答を待つ間に画面を離れたら、届いた応答を�
   const user = userEvent.setup();
   const saving = Promise.withResolvers<undefined>();
   const reloading = Promise.withResolvers<undefined>();
+
   const server = createFixedPageRoutes({
     kinds: [{ name: "page", label: "基本のページ", fields: [] }],
     pages: [{ kind: "page", slug: "about", title: "Original" }],
   });
+
   const [stored] = server.pages();
   const id = String(stored?.id);
   const update = server.routes["admin/fixedPages/update"];
   const get = server.routes["admin/fixedPages/get"];
   let gets = 0;
+
   const { history } = renderApp({
     path: "/fixed-pages/" + id,
     routes: {
@@ -252,6 +267,7 @@ test("保存の応答を待つ間に画面を離れたら、届いた応答を�
       },
     },
   });
+
   const title = await screen.findByRole("textbox", { name: "タイトル" });
 
   await user.clear(title);

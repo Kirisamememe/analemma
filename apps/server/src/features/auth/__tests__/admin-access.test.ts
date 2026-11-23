@@ -83,6 +83,7 @@ describe("Origin の確認", () => {
 
   test("Origin が違うリクエストは、challenge を出す前に断ること", async () => {
     await using server = await createTestClient();
+
     const response = await server.app.fetch(
       post("auth/login/options", { origin: "https://evil.example" }),
     );
@@ -95,6 +96,7 @@ describe("Origin の確認", () => {
 
   test("読むだけの GET では、Origin が無くてもセッションの確認に進むこと", async () => {
     await using server = await createTestClient();
+
     const response = await server.app.fetch(
       new Request(`${TEST_ORIGIN}/api/admin/session/get`, {
         headers: { "sec-fetch-site": "same-origin" },
@@ -142,6 +144,7 @@ describe("Origin の確認", () => {
 
   test("書き換える procedure を GET では呼べないこと", async () => {
     await using server = await createTestClient();
+
     const response = await server.app.fetch(
       new Request(`${TEST_ORIGIN}/api/auth/login/options`),
     );
@@ -155,6 +158,7 @@ describe("procedure に届く前に断る応答", () => {
     "%s への、別の origin からのフォームの送信と大きすぎる本文も、キャッシュさせないこと",
     async (path) => {
       await using server = await createTestClient();
+
       const form = await server.app.fetch(
         new Request(`${TEST_ORIGIN}/api/${path}`, {
           method: "POST",
@@ -165,6 +169,7 @@ describe("procedure に届く前に断る応答", () => {
           body: "a=1",
         }),
       );
+
       const large = await server.app.fetch(
         new Request(`${TEST_ORIGIN}/api/${path}`, {
           method: "POST",
@@ -209,6 +214,7 @@ describe("セッションの Cookie", () => {
       },
       cookie: `__Host-analemma_session=${VALID_LOOKING_TOKEN}`,
     });
+
     const error = await server.client.admin.session
       .get()
       .catch((error_: unknown) => error_);

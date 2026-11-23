@@ -43,6 +43,7 @@ const webAuthn = createBrowserWebAuthn(
 );
 
 const gate = createAuthGate();
+
 const { router, queryClient } = createApp({
   history: createBrowserHistory(),
   api: createApiClient({

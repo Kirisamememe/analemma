@@ -60,6 +60,7 @@ describe("登録用 URL", () => {
 
   test("token で、管理者のパスキーの登録の options を返すこと", async () => {
     await using server = await createTestClient();
+
     const options = await server.client.auth.enrollment.options({
       token: await issueToken(server),
     });
@@ -174,6 +175,7 @@ describe("登録用 URL", () => {
     const tokens = await Promise.all(
       Array.from({ length: 5 }, async () => issueToken(server)),
     );
+
     const results = await Promise.all(
       tokens.map(async (token) =>
         catchErrorCode(server.client.auth.enrollment.options({ token })),

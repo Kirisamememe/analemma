@@ -73,6 +73,7 @@ export const ReorderableList = ({
   isDisabled = false,
 }: ReorderableListProps): ReactNode => {
   const [isDragging, setIsDragging] = useState(false); // マウスのドラッグは、置いた後の dragend で終わる
+
   const { dragAndDropHooks } = useDragAndDrop({
     isDisabled: isDisabled && !isDragging,
     onDragStart: () => {

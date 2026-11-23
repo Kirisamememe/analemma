@@ -105,6 +105,7 @@ describe("LoginPage", () => {
     const verified = Promise.withResolvers<undefined>();
     const routes = createSignInRoutes(EXPIRY);
     const verify = routes["auth/login/verify"];
+
     const { history } = renderApp({
       path: "/login?redirect=%2Fsecurity",
       routes: {

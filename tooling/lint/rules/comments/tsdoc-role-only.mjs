@@ -2,8 +2,10 @@ import { isTsdoc } from "./comment-kinds.mjs";
 
 const DEFAULT_MAX_LENGTH = 60;
 const ALLOWED_TAGS = new Set(["@deprecated", "@param", "@returns"]);
+
 const BEHAVIOR =
   /場合|ならば?[、,]|[れけ]ば[、,]|たら[、,]|とき[は、]|時[は、]|ただし|なお[、,]|ため[、。]|例[:：]|\b(?:if|when|unless|otherwise)\b/iv;
+
 const SENTENCE_END = /。|[.!?](?=\s|$)/gv;
 const CODE_SPAN = /`[^`]*`/gv;
 
@@ -98,6 +100,7 @@ const tsdocRoleOnly = {
           }
 
           const { description, tags } = splitTsdoc(comment);
+
           const report = (messageId, data) => {
             context.report({ loc: comment.loc, messageId, data });
           };

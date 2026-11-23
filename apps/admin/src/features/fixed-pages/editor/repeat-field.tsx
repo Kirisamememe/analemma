@@ -37,6 +37,7 @@ export const RepeatField = ({
 }: RepeatFieldProps): ReactNode => {
   const t = useTranslate();
   const buttons = useRef(new Map<string, HTMLButtonElement>());
+
   const remember = (key: string) => (element: HTMLButtonElement | null) => {
     if (element === null) buttons.current.delete(key);
     else buttons.current.set(key, element);
@@ -50,6 +51,7 @@ export const RepeatField = ({
     <form.Field name={`items.${path}`}>
       {(field) => {
         const ids = field.state.value;
+
         const update = (next: string[]) => {
           field.handleChange(next);
           changed("content." + path);
@@ -60,6 +62,7 @@ export const RepeatField = ({
             {ids.map((id, index) => {
               const item = path + "/" + id;
               const label = { label: definition.label, position: index + 1 };
+
               const move = (direction: -1 | 1) => {
                 const next = ids.toSpliced(index, 1);
                 const to = index + direction;
@@ -122,6 +125,7 @@ export const RepeatField = ({
                 ref={remember("add")}
                 onPress={() => {
                   const id = crypto.randomUUID();
+
                   const added = flattenContent(
                     createContentForm(definition.fields),
                     path + "/" + id + "/",

@@ -53,6 +53,7 @@ type StoredPage = {
 export const flattenContent = (form: ContentForm, prefix = "") => {
   const flat: FlatContent = { content: {}, items: {} };
   const unknownKeys: UnknownKeys = new Map();
+
   const visit = (group: ContentForm, parent: string): void => {
     unknownKeys.set(parent, group.unknownKeys);
 

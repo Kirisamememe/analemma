@@ -168,6 +168,7 @@ describe("種類の定義", () => {
         fields: about.definition.fields,
         unknownKeys: "strip",
       }).safeParse(value);
+
       const site = about.content.safeParse(value);
 
       const actual: unknown = { success: site.success, data: site.data };
@@ -202,6 +203,7 @@ describe("種類の定義", () => {
     const fields: Record<string, ReturnType<typeof text>> = {
       caption: text({ label: "説明" }),
     };
+
     const kind = defineKind({
       name: "gallery",
       label: "ギャラリー",

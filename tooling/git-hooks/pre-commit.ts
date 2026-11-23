@@ -5,6 +5,7 @@ import { readStagedFiles } from "./staged-files";
 const repository = process.cwd();
 const names = loadPrivateNames(repository);
 const staged = names.length === 0 ? [] : readStagedFiles(repository);
+
 const problems = [
   ...staged.flatMap(({ path }) =>
     findPrivateNames({ names, text: path }).map(

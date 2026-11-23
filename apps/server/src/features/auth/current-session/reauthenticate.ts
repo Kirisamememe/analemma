@@ -42,6 +42,7 @@ export const reauthenticate = async (
 ): Promise<ReauthenticationResult> => {
   const now = context.clock.now();
   const { adminUserId, id: sessionId } = context.session;
+
   const verified = await verifyLogin({
     db: context.db,
     challenges: context.challenges,

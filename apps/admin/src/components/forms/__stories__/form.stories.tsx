@@ -8,6 +8,7 @@ import { Notice } from "@/ui/primitives/notice";
 
 const FormExample = (): ReactNode => {
   const [savedTitle, setSavedTitle] = useState<string>();
+
   const form = useAppForm({
     canSubmitWhenInvalid: true,
     defaultValues: { title: "" },

@@ -15,6 +15,7 @@ describe("useAppContext", () => {
     const { result } = renderHook(useAppContext, {
       wrapper: withRouter(router),
     });
+
     const { api, authenticator, gate } = router.options.context;
 
     expect(result.current.api).toBe(api);
@@ -29,6 +30,7 @@ describe("useGoToLogin", () => {
       path: "/enroll?redirect=%2Fsecurity",
       routes: {},
     });
+
     await router.load();
 
     const { result } = renderHook(useGoToLogin, {

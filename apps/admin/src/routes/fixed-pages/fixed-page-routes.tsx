@@ -92,6 +92,7 @@ const KindPicker = (): ReactNode => {
   const { api } = useAppContext();
   const { t } = useTranslation();
   const navigate = useNavigate();
+
   const query = useApiQuery({
     key: KINDS_QUERY_KEY,
     load: () => api.admin.kinds.list(),
@@ -142,6 +143,7 @@ const NewPageEditor = ({ name }: NewPageEditorProps): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const kind = useKind(name);
+
   const choose = (): void => {
     void navigate({ to: "/fixed-pages/new", search: {} });
   };
@@ -207,6 +209,7 @@ const PageEditor = ({ page }: PageEditorProps): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const kind = useKind(page.kind);
+
   const onDeleted = (): void => {
     void navigate({ to: "/fixed-pages", ignoreBlocker: true });
   };
@@ -247,6 +250,7 @@ export const EditFixedPage = (): ReactNode => {
   const { api } = useAppContext();
   const { t } = useTranslation();
   const { id } = useParams({ from: "/signed-in/fixed-pages/$id" });
+
   const query = useApiQuery({
     key: fixedPageQueryKey(id),
     load: () => loadFixedPage(api, id),

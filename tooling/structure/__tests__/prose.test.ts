@@ -19,6 +19,7 @@ describe("Markdown", () => {
       "~~~",
       "閉じない中身",
     ].join("\n");
+
     const { prose } = extractProse({ path: "a.md", text });
     const [document] = prose;
 
@@ -40,6 +41,7 @@ describe("ソース", () => {
       "/** 説明。 */",
       "export const 値 = 型;",
     ].join("\n");
+
     const { errors, prose } = extractProse({ path: "a.ts", text });
 
     expect(errors).toEqual([]);

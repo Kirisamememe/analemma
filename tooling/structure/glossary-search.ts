@@ -82,8 +82,10 @@ const isJoined = (near: string | undefined, beyond: string | undefined) =>
 
 const standsAlone = ({ index, term, text }: Position): boolean => {
   const end = index + term.length;
+
   const joinedBefore =
     ASCII_WORD.test(term) && isJoined(text[index - 1], text[index - 2]);
+
   const joinedAfter =
     ASCII_WORD.test(term.at(-1) ?? "") && isJoined(text[end], text[end + 1]);
 
@@ -104,6 +106,7 @@ export const findBannedTerms = ({
       (scopes.length === 0 || scopes.some((scope) => path.startsWith(scope))) &&
       !excludes.some((exclude) => path.startsWith(exclude)),
   );
+
   const found = new Map<string, GlossaryFinding>();
 
   for (const [part, { line, text }] of prose.entries()) {
