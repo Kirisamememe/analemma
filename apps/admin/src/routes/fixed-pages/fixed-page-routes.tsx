@@ -86,7 +86,7 @@ const useKind = (name: string | undefined) => {
 
   return useApiQuery({
     key: kindQueryKey(name),
-    tabStaleTime: KIND_STALE_TIME,
+    tabStaleTime: (kind) => (kind?._tag === "Succeeded" ? KIND_STALE_TIME : 0),
     load:
       name === undefined
         ? undefined

@@ -28,6 +28,8 @@ export const zhHans = {
   "fixedPageEditor.created": "固定页面已创建。",
   "fixedPageEditor.saveFailed": "无法保存固定页面，请重试。",
   "fixedPageEditor.invalidContent": "有无法保存的值。请修改标出错误的字段。",
+  "fixedPageEditor.updatedFields":
+    "字段已更新。请先复制尚未保存的内容，然后重新加载页面。",
   "fixedPageEditor.changedKind":
     "类型定义可能已更改。请重新加载页面并检查字段。",
   "fixedPageEditor.issue.type": "请输入值。",

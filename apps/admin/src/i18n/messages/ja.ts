@@ -31,6 +31,8 @@ export const ja = {
     "固定ページを保存できませんでした。もう一度試してください。",
   "fixedPageEditor.invalidContent":
     "保存できない値があります。誤りの出た欄を直してください。",
+  "fixedPageEditor.updatedFields":
+    "項目が更新されました。入力を手元に控えてから、ページを読み込み直してください。",
   "fixedPageEditor.changedKind":
     "種類の定義が変わった可能性があります。読み込み直して項目を確認してください。",
   "fixedPageEditor.issue.type": "入力してください。",

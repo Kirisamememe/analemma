@@ -2,6 +2,8 @@ import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, setSystemTime, test } from "bun:test";
 
+import { kindDefinition } from "@analemma/contract";
+
 import {
   FIXED_PAGE_KINDS_KEY,
   kindQueryKey,
@@ -23,12 +25,22 @@ const setup = () => {
   return { ...app, server };
 };
 
+const updatedKind = {
+  ...kind,
+  ...kindDefinition.parse({
+    ...kind,
+    fields: [{ key: "lead", type: "text", label: "リード文" }],
+  }),
+};
+
 const listRow = () => screen.findByRole("row", { name: page.title });
 
 const openPicker = async () => {
-  await userEvent.click(
-    screen.getByRole("button", { name: "新しい固定ページ" }),
-  );
+  const [create] = screen.getAllByRole("button", { name: "新しい固定ページ" });
+
+  if (create === undefined) throw new Error("作成するボタンがありません");
+
+  await userEvent.click(create);
 
   return screen.findByRole("button", { name: kind.label });
 };
@@ -43,7 +55,7 @@ const backToList = async () => {
   await listRow();
 };
 
-test("種類の一覧は15分以内なら取り直さず、期限後は元の選択肢を出してから新しい種類名を反映する", async () => {
+test("種類の一覧は15分以内なら取り直さず、期限後は元の選択肢を出してから新しいラベルを反映する", async () => {
   const { calls, server } = setup();
   await listRow();
   const now = Date.now();
@@ -120,14 +132,70 @@ test("期限後の種類の更新が失敗しても成功しても、編集し�
   expect(title.value).toBe("紹介の下書き");
 
   server.replyNext("admin/kinds/get", () => ({
-    output: { ...kind, label: "プロフィール" },
+    output: { ...updatedKind, label: "プロフィール" },
   }));
   await act(async () => {
     await queryClient.refetchQueries({ queryKey: key });
   });
   await screen.findByText("種類:プロフィール");
+  await screen.findByText(/入力を手元に控えて/v);
+  expect(screen.queryByRole("textbox", { name: "リード文" })).toBeNull();
   expect(screen.getByRole("textbox", { name: "タイトル" }) === title).toBe(
     true,
   );
   expect(title.value).toBe("紹介の下書き");
+});
+
+test("期限後に必須項目が増えたとき、未編集の作成フォームに新しい項目を入力して保存できる", async () => {
+  const server = createFixedPageRoutes({ kinds: [updatedKind] });
+  server.replyNext("admin/kinds/get", () => ({ output: kind }));
+  renderApp({ path: "/fixed-pages/new", routes: server.routes });
+
+  await userEvent.click(
+    await screen.findByRole("button", { name: kind.label }),
+  );
+  await screen.findByRole("textbox", { name: "タイトル" });
+  await userEvent.click(screen.getByRole("link", { name: "固定ページの一覧" }));
+  await screen.findByRole("heading", { name: "固定ページ" });
+
+  const held = Promise.withResolvers<FakeReply<"admin/kinds/get">>();
+  server.replyNext("admin/kinds/get", () => held.promise);
+  setSystemTime(Date.now() + 16 * 60_000);
+  await userEvent.click(await openPicker());
+  await screen.findByRole("textbox", { name: "タイトル" });
+  expect(screen.queryByRole("textbox", { name: "リード文" })).toBeNull();
+
+  held.resolve({ output: updatedKind });
+
+  const lead = await screen.findByRole<HTMLInputElement>("textbox", {
+    name: "リード文",
+  });
+
+  await userEvent.type(lead, "更新後の項目");
+  await userEvent.type(screen.getByRole("textbox", { name: "slug" }), "intro");
+  await userEvent.type(
+    screen.getByRole("textbox", { name: "タイトル" }),
+    "はじめに",
+  );
+  const [save] = screen.getAllByRole("button", { name: "保存" });
+
+  if (save === undefined) throw new Error("保存のボタンがありません");
+
+  await userEvent.click(save);
+  await screen.findByText("固定ページを作成しました。");
+  expect(server.pages()[0]?.content).toEqual({ lead: "更新後の項目" });
+});
+
+test("見つからなかった種類を選び直すと、15分以内でも定義を取り直す", async () => {
+  const { server, calls } = setup();
+  await listRow();
+  server.replyNext("admin/kinds/get", () => ({ error: "NOT_FOUND" }));
+  await userEvent.click(await openPicker());
+  await screen.findByText("この種類はもうありません。");
+  await userEvent.click(screen.getByRole("button", { name: "種類を選び直す" }));
+  await userEvent.click(
+    await screen.findByRole("button", { name: kind.label }),
+  );
+  await screen.findByRole("textbox", { name: "タイトル" });
+  expect(calls.filter((path) => path === "admin/kinds/get")).toHaveLength(2);
 });
