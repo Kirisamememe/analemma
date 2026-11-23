@@ -19,7 +19,7 @@ const photo = tv({
       "max-h-viewer-photo w-full object-contain short-viewport:max-h-dvh",
       "md:size-full md:max-h-none md:min-h-0 md:min-w-0",
     ],
-    error: "col-start-1 row-start-1",
+    error: "col-start-1 row-start-1 max-h-full overflow-y-auto",
     notice: "absolute inset-0 flex items-center justify-center",
     loading: [
       "flex items-center gap-2 rounded-surface bg-surface px-4 py-2",
