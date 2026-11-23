@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
@@ -31,6 +31,7 @@ export const DeleteFixedPage = ({
   const { refresh } = useApiCache();
   const { api } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null); // 画面を閉じると null になる
   const deleting = useApiMutation({
     send: () => deleteFixedPage(api, page.id),
     onSuccess: async ({ _tag }) => {
@@ -41,7 +42,8 @@ export const DeleteFixedPage = ({
           tone: "success",
           message: t("fixedPages.deleted", { title: page.title }),
         });
-        onDeleted();
+
+        if (trigger.current !== null) onDeleted(); // 画面を閉じていたら、移った先の画面から動かさない
       }
     },
     onError: () => {
@@ -57,6 +59,7 @@ export const DeleteFixedPage = ({
       <Button
         aria-label={t("fixedPageEditor.delete")}
         icon="trash-2"
+        ref={trigger}
         onPress={() => {
           deleting.reset(); // 開き直したら、前の送信の結果を消す
           setIsOpen(true);

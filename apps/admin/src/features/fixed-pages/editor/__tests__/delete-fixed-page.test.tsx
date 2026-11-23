@@ -102,6 +102,27 @@ describe("DeleteFixedPage", () => {
     ).toBeNull();
   });
 
+  test("応答を待つ間にほかの画面へ移っていたら、削除できても一覧へは移らない", async () => {
+    const { server, history, id } = setUp("editor");
+    const deleting = Promise.withResolvers<undefined>();
+    const dialog = await openDelete();
+
+    server.replyNext("admin/fixedPages/delete", async () => {
+      await deleting.promise;
+
+      return server.routes["admin/fixedPages/delete"]({ id });
+    });
+    await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
+    history.push("/");
+    await screen.findByRole("heading", { name: "ホーム" });
+    deleting.resolve(undefined);
+
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "「About」を削除しました。",
+    );
+    expect(history.location.pathname).toBe("/");
+  });
+
   test("キャンセルしたら、削除しない", async () => {
     const { server, calls, history, id } = setUp("editor");
     const dialog = await openDelete();
