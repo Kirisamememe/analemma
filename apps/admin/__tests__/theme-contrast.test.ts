@@ -15,7 +15,12 @@ const normal = source.replace(FORCED_COLORS, "");
 
 const AA = 4.5;
 const SCHEMES = ["light", "dark"] as const;
-const SURFACES = ["canvas", "surface", "surface-sunken"] as const;
+const SURFACES = [
+  "canvas",
+  "surface",
+  "surface-sunken",
+  "surface-muted",
+] as const;
 const MEANINGS = ["info", "success", "warning", "danger"] as const;
 const TINT = 0.1;
 const WITHOUT_FILL = ["on-media"];

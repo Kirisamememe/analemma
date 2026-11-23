@@ -50,6 +50,10 @@
     var(--palette-neutral-50),
     var(--palette-neutral-950)
   );
+  --color-surface-muted: light-dark(
+    var(--palette-neutral-100),
+    var(--palette-neutral-800)
+  );
   --color-fg: light-dark(var(--palette-neutral-950), var(--palette-neutral-50));
   --color-fg-muted: light-dark(
     var(--palette-neutral-500),
@@ -168,7 +172,11 @@
 :root {
   --size-control: 2.25rem;
   --size-control-sm: 2rem;
+  --size-icon-xs: 0.75rem;
+  --size-icon-sm: 0.875rem;
   --size-icon: 1rem;
+  --size-icon-lg: 1.25rem;
+  --size-icon-xl: 1.5rem;
   --size-sidebar: 15rem;
   --size-nav-bar: --spacing(14);
 }
@@ -184,6 +192,26 @@
 @utility size-icon {
   width: var(--size-icon);
   height: var(--size-icon);
+}
+
+@utility size-icon-xs {
+  width: var(--size-icon-xs);
+  height: var(--size-icon-xs);
+}
+
+@utility size-icon-sm {
+  width: var(--size-icon-sm);
+  height: var(--size-icon-sm);
+}
+
+@utility size-icon-lg {
+  width: var(--size-icon-lg);
+  height: var(--size-icon-lg);
+}
+
+@utility size-icon-xl {
+  width: var(--size-icon-xl);
+  height: var(--size-icon-xl);
 }
 
 @utility size-control {

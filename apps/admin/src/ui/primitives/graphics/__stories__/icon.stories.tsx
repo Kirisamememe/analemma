@@ -9,6 +9,7 @@ const NAMES: readonly IconName[] = [
   "chevron-left",
   "circle-alert",
   "circle-check",
+  "cloud-alert",
   "file-text",
   "grip-vertical",
   "house",
@@ -36,6 +37,25 @@ export const All: Story = {
         <Cluster key={name}>
           <Icon name={name} />
           <Text>{name}</Text>
+        </Cluster>
+      ))}
+    </Stack>
+  ),
+};
+
+const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
+
+export const Sizes: Story = {
+  /** 大きさごとに、線の太さと文字との釣り合いを見比べる。 */
+  render: () => (
+    <Stack gap={3}>
+      {SIZES.map((size) => (
+        <Cluster align="center" gap={2} key={size}>
+          <Icon name="cloud-alert" size={size} />
+          <Icon name="file-text" size={size} />
+          <Icon name="key-round" size={size} />
+          <Icon name="check" size={size} />
+          <Text>{size}</Text>
         </Cluster>
       ))}
     </Stack>

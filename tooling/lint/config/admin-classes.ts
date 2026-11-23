@@ -39,6 +39,7 @@ export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
   canvas: ["bg"],
   surface: ["bg"],
   "surface-sunken": ["bg"],
+  "surface-muted": ["bg"],
   fg: ["text", "fill", "stroke", "bg", "outline"],
   "fg-muted": ["text", "fill", "stroke"],
   line: ["border", "divide", "outline"],
@@ -61,7 +62,7 @@ export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
 };
 
 /** 不透明度を付けない、面の色。 */
-const OPAQUE_COLORS = ["canvas", "surface", "surface-sunken"];
+const OPAQUE_COLORS = ["canvas", "surface", "surface-sunken", "surface-muted"];
 
 /** 部品が読んでよい、実行時に決まる CSS 変数。 */
 export const READABLE_VARIABLES = [
@@ -174,7 +175,7 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
   {
     pattern: `${VARIANTS}[a-z\\-]+-(?:${OPAQUE_COLORS.join("|")})/`,
     message:
-      "面の色(canvas・surface・surface-sunken)には不透明度を付けません。",
+      "面の色(canvas・surface・surface-sunken・surface-muted)には不透明度を付けません。",
   },
   {
     pattern: `${VARIANTS}(?!text-(?:${SCALE})/)[a-z\\-]+-(?:${COLORS.join("|")}|current|transparent|inherit|\\([^)]*\\))/(?!(?:${OPACITY.join("|")})$)[^/]+$`,

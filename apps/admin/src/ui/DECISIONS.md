@@ -27,16 +27,17 @@
 
 ## 色
 
-不透明な色を22個だけ持つ。
+不透明な色を23個だけ持つ。
 
-| 種類                       | 名前                                                                                                               |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| 面                         | `canvas`(画面の地)・`surface`(カード・ダイアログ・入力欄)・`surface-sunken`(サイドバー・表の見出し)                |
-| 文字と線                   | `fg`・`fg-muted`(補足と placeholder)・`line`(線の既定)・`line-strong`(入力を受ける部品の枠)・`focus`               |
-| 塗り                       | `primary`・`on-primary`・`danger-strong`・`on-danger-strong`(取り消せない操作のボタンと失敗の Toast)               |
-| 意味                       | `info`・`success`・`warning`・`danger` と、その塗りの上の文字の `on-info`・`on-success`・`on-warning`・`on-danger` |
-| light と dark で変わらない | `scrim`(写真や画面の上に重ねて暗くする色)・`on-media`(写真の上の文字)                                              |
+| 種類                       | 名前                                                                                                                                       |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 面                         | `canvas`(画面の地)・`surface`(カード・ダイアログ・入力欄)・`surface-sunken`(サイドバー・表の見出し)・`surface-muted`(面の上の控えめな塗り) |
+| 文字と線                   | `fg`・`fg-muted`(補足と placeholder)・`line`(線の既定)・`line-strong`(入力を受ける部品の枠)・`focus`                                       |
+| 塗り                       | `primary`・`on-primary`・`danger-strong`・`on-danger-strong`(取り消せない操作のボタンと失敗の Toast)                                       |
+| 意味                       | `info`・`success`・`warning`・`danger` と、その塗りの上の文字の `on-info`・`on-success`・`on-warning`・`on-danger`                         |
+| light と dark で変わらない | `scrim`(写真や画面の上に重ねて暗くする色)・`on-media`(写真の上の文字)                                                                      |
 
+- `surface-muted` は、面の上に置く、控えめな塗り(中身の無い欄のアイコンの丸など)に使う。light で neutral-100、dark で neutral-800 にする。`surface-sunken` は light で neutral-50 なので、白い面の上ではほとんど見えなかった(ユーザーが見つけた)。`fg` は前景(文字・アイコン)の色なので、薄めて面の塗りに使わない(ユーザーが決めた)。
 - 透明度付きの色の変数は作らない。薄い色は、部品の中で Tailwind の不透明度の修飾(`bg-danger/10` など)で作る。透明度付きの変数を足していくと、同じような色の変数が増える。
 - 面の色は不透明にする。`surface-sunken` は sticky の見出しにも使うので、下が透けない。
 - 意味の色の塗りの上の文字は、色ごとの `on-*`(`on-info` など)にする。今の値はどれも `canvas` と同じ(light では白、dark では黒)。dark の意味の色は明るく、白い文字では読めないため。色ごとに名前を分けておき、塗りによって文字の色を変えたくなったときに、部品を書き換えずに済むようにする(ユーザーが決めた)。
@@ -44,7 +45,7 @@
 - `black`・`white` という名前は使わず、用途の名前(`scrim`・`on-media`)にする。`bg-white` をカードに、`text-white` を塗りの上に、と書かれやすく、dark の意味の色の塗りの上の白い文字は、コントラストが 1.7〜2.9:1 しかない。
 - パレットの無彩色は、Tailwind CSS の neutral と同じ値にする。管理画面の `primary` は白と黒。役割の名前は、自分たちの名前(`canvas`・`surface`・`fg` など)を使う。
 - light の意味の色は、薄い面の上の文字でも 4.5:1(WCAG の AA)に届く段にする(red-700・green-800・amber-800・blue-700)。
-- コントラストは、theme.css を読むテスト(`apps/admin/__tests__/theme-contrast.test.ts`)で確かめる。塗りと、その上の文字の組(`on-*`)は、hover の重ねも含めて 4.5:1 に届く。意味の色は、面(`canvas`・`surface`・`surface-sunken`)と、その上の `/10` の薄い面の上の文字として、light でも dark でも 4.5:1 に届く。OKLCH を sRGB に直し、sRGB に入らない色は 0〜1 に clamp して計算する。計算は役割の色の定義を読むので、同じテストで、役割の色をほかの場所で上書きしないこと(forced-colors のシステムの色を除く)、`on-*` が、`on-` を除いた名前の塗りと組になること(写真の上の `on-media` を除く)、hover の重ねが文字の色を透明と混ぜたものであることも確かめる。上書きは forced-colors の中だけに許し、そこでは塗りを `Highlight` に、その上の文字を `HighlightText` に差し替えること、パレットの色も1か所だけで定義すること、hover の utility が1か所だけであることも確かめる(CSS のコメントは除いて読む)。どれかが崩れると、計算した色と実際の色が食い違う(Codex と Cursor のレビューで見つかった)。
+- コントラストは、theme.css を読むテスト(`apps/admin/__tests__/theme-contrast.test.ts`)で確かめる。塗りと、その上の文字の組(`on-*`)は、hover の重ねも含めて 4.5:1 に届く。意味の色は、面(`canvas`・`surface`・`surface-sunken`・`surface-muted`)と、その上の `/10` の薄い面の上の文字として、light でも dark でも 4.5:1 に届く。OKLCH を sRGB に直し、sRGB に入らない色は 0〜1 に clamp して計算する。計算は役割の色の定義を読むので、同じテストで、役割の色をほかの場所で上書きしないこと(forced-colors のシステムの色を除く)、`on-*` が、`on-` を除いた名前の塗りと組になること(写真の上の `on-media` を除く)、hover の重ねが文字の色を透明と混ぜたものであることも確かめる。上書きは forced-colors の中だけに許し、そこでは塗りを `Highlight` に、その上の文字を `HighlightText` に差し替えること、パレットの色も1か所だけで定義すること、hover の utility が1か所だけであることも確かめる(CSS のコメントは除いて読む)。どれかが崩れると、計算した色と実際の色が食い違う(Codex と Cursor のレビューで見つかった)。
 - dark の `surface-sunken` は、`surface` と別の段(neutral-950)にする。同じ色だと、dark のサイドバーで、今いる場所が見分けられない。
 - light の `focus` は neutral-500 にする。白に対して 3:1 に届く。
 - 線の色は2つ。区切りの線やカードの枠は `line`(light で neutral-300、dark で neutral-700)、入力を受ける部品(入力欄・Checkbox・Radio・Switch・Select など)の枠は `line-strong`(light で neutral-400、dark で neutral-600)で描く。どちらの値も、ユーザーが決めた。文字の色の `fg-muted` を枠に流用しない(役割を混ぜない。ユーザーが決めた)。
@@ -129,7 +130,8 @@
 - **引き出したナビの animation**:開くときは 200ms、閉じるときは 150ms。面は `translate` で幅の分だけ左へ動かし、backdrop は Dialog と同じように濃さを変える。reduced motion では、面の位置を固定して opacity だけを変える。閉じ始めたら中身を `inert` にし、backdrop を押しても閉じないようにする。送信中は、送っていることを押したボタンで見せ続けるため、Escape・backdrop の押下・閉じるボタンで閉じられないようにする。
 - **`FocusScope`**:`FocusScope` の中から開いた Dialog を閉じ終えたとき、Dialog を開いたボタンが消えていれば(行ごと削除したなど)、React Aria Components は外側の `FocusScope` の最初の要素に focus を移す。行と一緒に消えるボタンから Dialog を開く欄は `FocusScope` で包み、欄の最初の要素を戻す先にする。`react-aria-components` は `FocusScope` を export しないので、`react-aria` を依存に足す。バージョンは `react-aria-components` が依存するものにそろえる。ずれると `react-aria` が2つ入り、それぞれが別の `FocusScope` の木を持つので、Dialog が外側の `FocusScope` を見つけられない(パスキーの focus のテストで落ちる)。
 - **並べ直せる一覧**(`ReorderableList`):React Aria Components の GridList と drag and drop で作る。マウスでは行をドラッグし、キーボードでは取っ手に focus して Enter で持ち上げ、矢印で動かし、Enter で置く。取っ手はマウスでは行の一部として振る舞う(React Aria Components が取っ手に `pointer-events: none` を当てる)ので、取っ手に hover の見た目を付けない。取っ手の名前・操作の案内・置いた結果の読み上げは React Aria Components に任せる。行の中の操作は Tab でたどり(`keyboardNavigationBehavior="tab"`)、行は矢印で移る。行は `surface` の面に半透明の縁と `shadow-control` を付け、行の間を 0.5rem 空ける。置く位置は、行の間に `primary` の線で示す。線の要素は高さを持たず、上下の負の margin で、線の要素が増やす gap の分を打ち消すので、ドラッグの間も行が動かない。動かしている行は、`surface-sunken` の面と点線の縁にする。並びが変わらない置き方では、呼び出し元に知らせない。送っている間などは `isDisabled` で並べ直しを止める(取っ手は押せなくなり、行の中の操作は使える)。止めるのは、ドラッグを終えてからにする。マウスでは、置いた後に dragend が届いてドラッグが終わるので、置いてすぐ(送り始めたとき)に止めると、React Aria Components がドラッグの終わりを受け取れず、置いた行が動かしている見た目のまま残った(Playwright で確かめた)。
-- **中身の無い欄**(`EmptyState`):一覧などが空のとき、アイコン・見出し・補足・操作を、点線の枠の真ん中に並べる。点線で、中身が置かれる場所を示す。
+- **中身の無い欄**(`EmptyState`):一覧などが空のとき、アイコン・見出し・補足・操作を、点線の枠の真ん中に並べる。点線で、中身が置かれる場所を示す。アイコンは `surface-muted` の丸(36px)の中に、20px(`lg`)で描く。
+- **アイコンの大きさ**(`Icon` の `size`):12・14・16・20・24px の5段(`xs`〜`xl`。既定は16px の `md`)。lucide の線の太さは viewBox(24)に対する値なので、小さく描くほど線が細くなる。大きさごとに viewBox の中の太さを決め(`xs`・`sm` は 2、`md` は 1.75、`lg`・`xl` は 1.5)、描いた線を 1〜1.5px に収める。36px の丸の中に16px で曲線の多いアイコンを描くと、線が 1.2px ほどになり、曲線と短い直線とで太さが違って見えた(ユーザーが見つけた)。
 - **バッジ**(`Badge`):状態を短く示す。用途(`tone`)ごとの色の組は、`Notice` と同じく `/10` の面と、同じ色の線と文字。見せ方(`variant`)は、線と薄い面の `outline`(既定)と、薄い面と文字だけの `soft` の2つ(ユーザーが決めた)。`soft` の線は透明にして残し、forced-colors で面が消えても形を残す(塗りのボタンと同じ)。どちらも高さは 20px で、並べても揃う。`neutral` の `soft` は、`fg` の 10% の面に `fg` の文字にする。`fg-muted` の文字では、薄い面の上で 4.5:1 に届かない。
 - **ナビと本文**:広い画面では、`surface-sunken` の地にナビを置き、隣の `surface` の本文を角丸・影・半透明の縁で浮かせる。本文は document と一緒に scroll し、ナビは sticky で残して中だけ scroll できるようにする。狭い画面では sticky の帯の下に全幅の本文を置き、ナビは左の全高の drawer に収める。閉じるボタンは、帯の開くボタンと同じ位置に置く。狭い画面では、focus した要素と ring が帯に隠れないよう、document の scroll-padding-top に帯の高さと ring の幅・offset を足した分を取る。
 - **ナビの左端**:広い画面では、アプリのロゴ・まとまりの見出し・リンクのアイコンを左から24px にそろえ、アプリ名とリンクの文言を48px にそろえる。狭い画面では、本文の左端と開くボタンのアイコンを24px にそろえる。
@@ -156,9 +158,9 @@
 - 余白(gap・padding・margin・scroll の padding と margin)の値は 0・0.5・1・1.5・2・3・4・6・8・12 だけ(margin は `auto` も)。正の上と下の margin(`mt-*`・`mb-*`・`my-*` と、上下にも付く `m-*`)と `space-x/y` は使わず、親の gap で空ける。`0` と `auto` は空きを作らないので許す。子の側で空けると、並べ替えや出し分けのたびに空きが崩れる。負の margin は、はみ出させるために許す。
 - `leading-*` と、行間を付けない `text-*`(文字の大きさ)。文字の大きさと太さ(`text-sm/xl`・`font-semibold` など)は、`ui/typography.ts` の文字の役割の対応にだけ書く。対応の中で使える組は、役割で使う6つ(`xs/lg`・`sm/xl`・`sm/2xl`・`base/2xl`・`xl/3xl`・`3xl/5xl`)だけ。`text-sm/5` のような数の行間は、`--spacing` の倍数として通ってしまうので止める。
 - `--*: initial` の後も Tailwind CSS が作る class(`duration-150`・`delay-*`・`ease-linear`・`ring-2`・`opacity-50`・`bg-linear-*`・`from-*` など)。`opacity-0` と `opacity-100` は、出入りの動きに使うので許す。
-- 色の不透明度の修飾は 5・10・15・20・30・40・60・80 だけ(theme.css の色のほか、`current`・`transparent`・CSS 変数の色にも)。面の色(`canvas`・`surface`・`surface-sunken`)には付けない。面は不透明にすると決めているため。
+- 色の不透明度の修飾は 5・10・15・20・30・40・60・80 だけ(theme.css の色のほか、`current`・`transparent`・CSS 変数の色にも)。面の色(`canvas`・`surface`・`surface-sunken`・`surface-muted`)には付けない。面は不透明にすると決めているため。
 - 色の見本(`specimens/color-specimen.tsx`)だけは、色ごとに使ってよい utility の決まりと、`line-strong` を `primitives/` の外で止める決まりを外す。どの色も `bg-` で塗って並べるため。見本の正方形の縁は、外周の border でなく、塗りの上に重ねる半透明の線(内側に1px の `outline`、`fg` の 10%)で描く。不透明な `line` の border だと、塗りの外に枠が足されて見えた(ユーザーが決めた)。見本が theme.css の色をすべて並べることを、テスト(`specimens/__tests__/color-specimen.test.tsx`)で確かめる。
-- 色ごとに、使ってよい utility を決める。`canvas`・`surface`・`surface-sunken`・`scrim`・`danger-strong` は `bg-` だけ、`line` は `border-`・`divide-`・`outline-` だけ、`line-strong` は `border-` だけ、`danger` は invalid の focus の ring のために `outline-` も、`fg` は面の縁の半透明の線のために `outline-` も、`focus` は `focus-ring` の中だけ、など(一覧は `admin-classes.ts` の `COLOR_USAGE`)。色を取る utility を列挙すると漏れる(`ring-offset-*`・`text-shadow-*` など)ので、末尾が色の名前の class をすべて見て、決めた utility の外を止める。角丸の `rounded-surface` は、色でないので除く。色を足したら、ここにも決まりを足す(テストで止まる)。
+- 色ごとに、使ってよい utility を決める。`canvas`・`surface`・`surface-sunken`・`surface-muted`・`scrim`・`danger-strong` は `bg-` だけ、`line` は `border-`・`divide-`・`outline-` だけ、`line-strong` は `border-` だけ、`danger` は invalid の focus の ring のために `outline-` も、`fg` は面の縁の半透明の線のために `outline-` も、`focus` は `focus-ring` の中だけ、など(一覧は `admin-classes.ts` の `COLOR_USAGE`)。色を取る utility を列挙すると漏れる(`ring-offset-*`・`text-shadow-*` など)ので、末尾が色の名前の class をすべて見て、決めた utility の外を止める。角丸の `rounded-surface` は、色でないので除く。色を足したら、ここにも決まりを足す(テストで止まる)。
 - `className` には、文字列のリテラルか、`tv` などで作った関数の呼び出しを渡す。React Aria Components の render props で値を持つ属性を渡すときは、呼び出しを返す関数(`({ placement }) => popover({ placement })`)にする。変数や条件の式を渡すと、class の検査が中身を読めない。
 - 1つの文字列に書ける class は8個まで(ユーザーが決めた。`project/max-classes-per-string` で止まる)。長い文字列は、どこからどこまでが並べ方で、どこからが状態かを読み分けにくい。`tv` の設定(`base`・`slots`・`variants`・`compoundVariants`)と、`tv` の関数に渡す `className` の文字列は、配列にし、意味のまとまり(並べ方・箱・色・状態など)ごとの文字列に分ける。整形が、配列の要素を1行ずつに折り返す。JSX の `className` の文字列は、React が配列を受けないので、`tv` に移す。入れている tailwind-variants(4.0)は、`base` や `className` に配列を受け、つないでから merge する。分ける前と後で、全部の story を描いた要素の class の組が変わらないことを確かめた。
 - `style` には、その場で書いたオブジェクトだけを渡し、キーは `--` で始まる CSS 変数だけにする。見た目は class で書き、`style` は実行時に決まる値を CSS 変数として渡すためだけに使う。画像の縦横比は `width`・`height` の属性で付ける。
