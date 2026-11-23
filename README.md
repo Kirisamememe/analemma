@@ -86,7 +86,7 @@ bun --cwd=apps/server run passkey:enroll
 | `bun run passkey:enroll`       | 管理者のパスキーを登録するための、1回きりで10分だけ使える登録用 URL を出す  |
 | `bun run test:prepare`         | `bun run test` が `bun test` の前に流すもの                                 |
 
-管理画面(Stilus)は、Vite の開発のサーバーで動かす。`/api` は server へ流すので、server も起動しておく。ブラウザでは `http://localhost:5173` を開く(`127.0.0.1` ではパスキーが使えない)。
+管理画面(Stilus)は、Vite の開発のサーバーで動かす。`/api` と `/media`(配信用の画像)は server へ流すので、server も起動しておく。ブラウザでは `http://localhost:5173` を開く(`127.0.0.1` ではパスキーが使えない)。
 
 ```bash
 bun --cwd=apps/admin run dev

@@ -50,7 +50,7 @@
 
 ## 開発とテスト
 
-- 開発のサーバーは `bun --cwd=apps/admin run dev`(`http://localhost:5173`)。`/api` は server の外部用のポート(`http://localhost:8787`)へ流す。開くのは `localhost` で、`127.0.0.1` ではない(server の `AUTH_ORIGIN` とパスキーの RP ID に合わせる)。
+- 開発のサーバーは `bun --cwd=apps/admin run dev`(`http://localhost:5173`)。`/api` と `/media`(配信用の画像)は server の外部用のポート(`http://localhost:8787`)へ流す。開くのは `localhost` で、`127.0.0.1` ではない(server の `AUTH_ORIGIN` とパスキーの RP ID に合わせる)。
 - `src/` のテストは、リポジトリの直下の `bun test` からは外し、`apps/admin` の `bun test` で流す(`bun run test` は両方を流す)。`apps/admin/bunfig.toml` が DOM を用意してから流す。
 - Vite の設定とビルドのテスト(`__tests__/`)は、DOM を用意しない直下の `bun test` で流す。
 - Storybook は `bun run storybook`(`http://localhost:6006`)。ツールバーで light・dark と言語を切り替える。
