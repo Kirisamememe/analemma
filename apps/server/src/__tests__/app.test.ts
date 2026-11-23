@@ -8,8 +8,8 @@ import {
   TEST_ORIGIN,
   type TestClient,
   createTestClient,
-} from "../test-client/create-test-client";
-import { listProcedurePaths } from "../test-client/list-procedure-paths";
+  listProcedurePaths,
+} from "@/test-client";
 
 const PORTS = [
   {
@@ -37,6 +37,7 @@ describe.each(PORTS)("$port の API の入口", ({ appOf, path, url }) => {
     "%s では procedure を呼ばず、405 を返すこと",
     async (method) => {
       await using server = await createTestClient();
+
       const response = await appOf(server).fetch(
         new Request(`${url}${path}`, {
           method,
@@ -51,6 +52,7 @@ describe.each(PORTS)("$port の API の入口", ({ appOf, path, url }) => {
 
   test("壊れた JSON には 400 を返し、想定外の失敗としてログに残さないこと", async () => {
     await using server = await createTestClient();
+
     const response = await appOf(server).fetch(
       new Request(`${url}${path}`, postJson(url, "{")),
     );
@@ -61,6 +63,7 @@ describe.each(PORTS)("$port の API の入口", ({ appOf, path, url }) => {
 
   test("大きすぎる本文を断ること", async () => {
     await using server = await createTestClient();
+
     const response = await appOf(server).fetch(
       new Request(`${url}${path}`, postJson(url, "x".repeat(1024 * 1024 + 1))),
     );
@@ -70,6 +73,7 @@ describe.each(PORTS)("$port の API の入口", ({ appOf, path, url }) => {
 
   test("知らないパスには 404 を返すこと", async () => {
     await using server = await createTestClient();
+
     const response = await appOf(server).fetch(
       new Request(
         `${url}/api/public/nothing`,
@@ -87,6 +91,7 @@ describe("2つのポートの分け方", () => {
     ...listProcedurePaths(contract.deploy, "deploy"),
   ])("%s は、外部用のポートには無いこと", async (procedure) => {
     await using server = await createTestClient();
+
     const response = await server.app.fetch(
       new Request(
         `${TEST_ORIGIN}/api/${procedure}`,
@@ -102,6 +107,7 @@ describe("2つのポートの分け方", () => {
     ...listProcedurePaths(contract.auth, "auth"),
   ])("%s は、内部用のポートには無いこと", async (procedure) => {
     await using server = await createTestClient();
+
     const response = await server.internalApp.fetch(
       new Request(
         `${TEST_INTERNAL_URL}/api/${procedure}`,
@@ -116,6 +122,7 @@ describe("2つのポートの分け方", () => {
 describe("外部用のポートの応答のヘッダー", () => {
   test("パスキーの操作を自分の origin だけに許し、ほかのサイトの iframe に入れさせないこと", async () => {
     await using server = await createTestClient();
+
     const response = await server.app.fetch(
       new Request(`${TEST_ORIGIN}/api/admin/session/get`),
     );
@@ -131,6 +138,7 @@ describe("外部用のポートの応答のヘッダー", () => {
 
   test("別の origin からのフォームの送信を、procedure に届く前の CSRF の確認で断ること", async () => {
     await using server = await createTestClient();
+
     const response = await server.app.fetch(
       new Request(`${TEST_ORIGIN}/api/admin/session/get`, {
         method: "POST",
@@ -149,6 +157,7 @@ describe("外部用のポートの応答のヘッダー", () => {
 
   test("TLS を終端するリバースプロキシの後ろでも、管理画面の origin からのフォームの送信を、CSRF の確認で止めないこと", async () => {
     await using server = await createTestClient();
+
     const response = await server.app.fetch(
       new Request("http://127.0.0.1:8787/api/admin/session/get", {
         method: "POST",

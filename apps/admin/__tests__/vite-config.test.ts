@@ -7,10 +7,12 @@ import { build, createServer } from "vite";
 import { DEV_API_PATH, DEV_ORIGIN } from "../vite.config";
 
 const ADMIN_ROOT = fileURLToPath(new URL("../", import.meta.url));
+
 const SERVER_ENV_EXAMPLE = new URL(
   "../../server/.env.example",
   import.meta.url,
 );
+
 const INLINE_SCRIPT = /<script>(?<code>.*?)<\/script>/sv;
 
 /** 本番のビルドの出力のうち、確かめるもの。 */
@@ -27,9 +29,11 @@ const buildAdmin = async (): Promise<Built> => {
     logLevel: "silent",
     build: { write: false },
   });
+
   const files = (Array.isArray(output) ? output : [output]).flatMap((result) =>
     "output" in result ? result.output : [],
   );
+
   const sourceOf = (pattern: RegExp): string =>
     files
       .flatMap((file) =>
@@ -93,6 +97,14 @@ describe("本番のビルド", () => {
     expect(built.css).not.toContain("--lightningcss-");
   });
 
+  test("最大幅の class と本文の query container を CSS に出力すること", () => {
+    for (const size of ["sm", "md", "lg", "form", "page"]) {
+      expect(built.css).toContain(`max-width:var(--max-width-${size})`);
+    }
+
+    expect(built.css).toContain("container-type:inline-size");
+  });
+
   test("言語と配色を当てる script を、head の中で、アプリの script より前に置く", () => {
     const head = built.html.slice(0, built.html.indexOf("</head>"));
     const inline = head.indexOf("<script>");
@@ -125,6 +137,38 @@ describe("開発のときの origin", () => {
   });
 });
 
+describe("開発のときの import", () => {
+  test.each(["../src/routes/login-page.tsx", "../.storybook/story-frame.tsx"])(
+    "%s から別名で src/ のモジュールを解決すること",
+    async (path) => {
+      const server = await createServer({
+        root: ADMIN_ROOT,
+        logLevel: "silent",
+        optimizeDeps: { noDiscovery: true, include: [] },
+        server: { middlewareMode: true, ws: false },
+      });
+
+      try {
+        const importer = fileURLToPath(new URL(path, import.meta.url));
+
+        const resolved =
+          await server.environments.client.pluginContainer.resolveId(
+            "@/ui/layout/center",
+            importer,
+          );
+
+        expect(resolved?.id).toBe(
+          fileURLToPath(
+            new URL("../src/ui/layout/center.tsx", import.meta.url),
+          ),
+        );
+      } finally {
+        await server.close();
+      }
+    },
+  );
+});
+
 /** 作り物の server が受け取ったリクエスト。 */
 type Received = {
   /** パス。 */
@@ -154,6 +198,7 @@ describe("開発のときのプロキシ", () => {
           },
         ),
     });
+
     const server = await createServer({
       root: ADMIN_ROOT,
       logLevel: "silent",
@@ -169,10 +214,12 @@ describe("開発のときのプロキシ", () => {
 
     try {
       const base = server.resolvedUrls?.local[0] ?? "";
+
       const api = await fetch(new URL("/api/auth/login/options", base), {
         method: "POST",
         headers: { Origin: DEV_ORIGIN, "Sec-Fetch-Site": "same-origin" },
       });
+
       const page = await fetch(new URL("/api-guide", base));
 
       expect(await api.json()).toEqual({

@@ -6,7 +6,7 @@ import { z } from "zod";
 import { contract } from "@analemma/contract";
 
 import { defineKind } from "../../kinds/define-kind";
-import { optional, text } from "../../kinds/fields";
+import { boolean, optional, text } from "../../kinds/fields";
 import {
   type AnalemmaClient,
   createAnalemmaClient,
@@ -18,6 +18,8 @@ const about = defineKind({
   fields: {
     headline: text({ label: "見出し" }),
     note: optional(text({ label: "メモ" })),
+    showContact: boolean({ label: "連絡先を出す", default: true }),
+    toc: boolean({ label: "目次を出す" }),
   },
 });
 
@@ -30,7 +32,7 @@ const PAGE = {
 };
 
 /** テスト用の CMS に置く、公開している固定ページの中身。 */
-type FakeContent = Record<string, string>;
+type FakeContent = Record<string, string | boolean>;
 
 const os = implement({ public: contract.public });
 
@@ -84,10 +86,16 @@ describe("公開している固定ページを引く", () => {
       removed: "古い項目",
     }).fixedPages.get(about, "about");
 
-    expect(page).toEqual({ ...PAGE, content: { headline: "こんにちは" } });
+    expect(page).toEqual({
+      ...PAGE,
+      content: { headline: "こんにちは", showContact: true, toc: false },
+    });
+
     const expected = z.object({
       headline: z.string(),
       note: z.string().optional(),
+      showContact: z.boolean(),
+      toc: z.boolean(),
     });
 
     expectTypeOf(page?.content).toEqualTypeOf<
@@ -95,10 +103,45 @@ describe("公開している固定ページを引く", () => {
     >();
   });
 
+  test("値の無い真偽値の項目は、項目の既定値を入れて返すこと", async () => {
+    const page = await clientFor({
+      headline: "a",
+      toc: true,
+    }).fixedPages.get(about, "about");
+
+    expect(page?.content).toEqual({
+      headline: "a",
+      showContact: true,
+      toc: true,
+    });
+  });
+
   test("無いページは undefined を返すこと", async () => {
     expect(
       await clientFor({ headline: "a" }).fixedPages.get(about, "nothing"),
     ).toBeUndefined();
+  });
+
+  test("slug の形に合わない名前は、公開 API を呼ばずに undefined を返すこと", async () => {
+    const requests: string[] = [];
+    const fake = serveFakeCms({ headline: "a" });
+
+    const client = createAnalemmaClient({
+      url: "http://127.0.0.1:8788",
+      fetch: async (request) => {
+        requests.push(request.url);
+
+        return fake(request);
+      },
+    });
+
+    for (const slug of ["About", "about me", "../about", "", "a".repeat(101)]) {
+      expect(await client.fixedPages.get(about, slug)).toBeUndefined();
+    }
+
+    expect(requests).toEqual([]);
+    expect(await client.fixedPages.get(about, "about")).toBeDefined();
+    expect(requests).toHaveLength(1);
   });
 
   test("CMS の想定外の失敗と、定義に合わない中身は、失敗として投げること", () => {
@@ -119,6 +162,7 @@ describe("CMS へのリクエスト", () => {
   test("リダイレクトを追わず、失敗として扱わせること", async () => {
     const redirects: string[] = [];
     const fake = serveFakeCms({ headline: "a" });
+
     const client = createAnalemmaClient({
       url: "http://127.0.0.1:8788",
       fetch: async (request) => {

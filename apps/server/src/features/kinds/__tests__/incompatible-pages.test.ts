@@ -9,12 +9,10 @@ import type {
 import {
   SUCCEEDED,
   catchErrorCode,
-} from "../../../test-client/catch-error-code";
-import {
   type TestClient,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { prepareTestKinds } from "../../../test-client/prepare-test-kinds";
+  prepareTestKinds,
+} from "@/test-client";
 
 const headline: FieldDefinitionInput = {
   key: "headline",
@@ -60,6 +58,7 @@ const preparePage = async (
   content: FixedPageContent,
 ): Promise<Prepared> => {
   const token = await prepareTestKinds(server, [profile]);
+
   const page = await server.client.admin.fixedPages.create({
     kind: "profile",
     slug: "about",
@@ -80,6 +79,7 @@ describe("既存の固定ページに合わない定義", () => {
   test("データの入った項目の型を変えると、合わないページの一覧を添えて断り、何も変えないこと", async () => {
     await using server = await createTestClient();
     const prepared = await preparePage(server, { headline: "やあ", age: 30 });
+
     const error = await server
       .internal(prepared.token)
       .deploy.kinds.push({
@@ -156,8 +156,47 @@ describe("既存の固定ページに合わない定義", () => {
     ).toBe(SUCCEEDED);
   });
 
+  test("ページがある種類に真偽値の項目を足しても受け付け、値の無いページは、保存し直すと既定値を書くこと", async () => {
+    await using server = await createTestClient();
+    const prepared = await preparePage(server, { headline: "やあ" });
+
+    expect(
+      await push(prepared, [
+        withFields([
+          ...profile.fields,
+          { key: "toc", label: "目次を出す", type: "boolean" },
+          {
+            key: "showContact",
+            label: "連絡先を出す",
+            type: "boolean",
+            default: true,
+          },
+        ]),
+      ]),
+    ).toBe(SUCCEEDED);
+
+    const page = await server.client.admin.fixedPages.get({
+      id: prepared.pageId,
+    });
+
+    expect(page.content).toEqual({ headline: "やあ" });
+
+    await server.client.admin.fixedPages.update({
+      id: page.id,
+      slug: page.slug,
+      title: page.title,
+      content: page.content,
+    });
+
+    expect(
+      (await server.client.admin.fixedPages.get({ id: prepared.pageId }))
+        .content,
+    ).toEqual({ headline: "やあ", toc: false, showContact: true });
+  });
+
   test("使われている選択肢を消すと断ること", async () => {
     await using server = await createTestClient();
+
     const prepared = await preparePage(server, {
       headline: "やあ",
       theme: "dark",
@@ -181,6 +220,7 @@ describe("既存の固定ページに合わない定義", () => {
 
   test("項目を消しても断らず、データは残るので、元の定義に戻せること", async () => {
     await using server = await createTestClient();
+
     const prepared = await preparePage(server, {
       headline: "やあ",
       age: 30,

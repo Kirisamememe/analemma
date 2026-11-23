@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 
-import { LOCALES } from "../locales";
-import { en } from "../messages/en";
-import { RESOURCES } from "../resources";
+import { LOCALES } from "@/i18n/locales";
+import { en } from "@/i18n/messages/en";
+import { RESOURCES } from "@/i18n/resources";
 
 const PLACEHOLDER = /\{\{(?<name>[A-Za-z][A-Za-z0-9]*)\}\}/gv;
 const BRACE = /[\{\}]/v;

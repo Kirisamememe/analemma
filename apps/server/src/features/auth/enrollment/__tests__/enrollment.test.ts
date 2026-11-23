@@ -1,26 +1,22 @@
 import { describe, expect, test } from "bun:test";
 
-import { answerRegistration } from "../../../../test-client/answer-registration";
+import { COSE_ALGORITHM } from "@/features/auth/webauthn/cose-key/cose-algorithm";
 import {
+  type FakeAuthenticator,
+  createFakeAuthenticator,
+} from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
+import {
+  answerRegistration,
   SUCCEEDED,
   catchErrorCode,
-} from "../../../../test-client/catch-error-code";
-import {
   TEST_NOW,
   TEST_ORIGIN,
   TEST_RP_ID,
   type TestClient,
   createTestClient,
-} from "../../../../test-client/create-test-client";
-import {
   logInWithPasskey,
   signInAsAdmin,
-} from "../../../../test-client/sign-in-as-admin";
-import { COSE_ALGORITHM } from "../../webauthn/cose-key/cose-algorithm";
-import {
-  type FakeAuthenticator,
-  createFakeAuthenticator,
-} from "../../webauthn/fake-authenticator/create-fake-authenticator";
+} from "@/test-client";
 
 const MINUTE = 60 * 1000;
 
@@ -64,6 +60,7 @@ describe("登録用 URL", () => {
 
   test("token で、管理者のパスキーの登録の options を返すこと", async () => {
     await using server = await createTestClient();
+
     const options = await server.client.auth.enrollment.options({
       token: await issueToken(server),
     });
@@ -178,6 +175,7 @@ describe("登録用 URL", () => {
     const tokens = await Promise.all(
       Array.from({ length: 5 }, async () => issueToken(server)),
     );
+
     const results = await Promise.all(
       tokens.map(async (token) =>
         catchErrorCode(server.client.auth.enrollment.options({ token })),

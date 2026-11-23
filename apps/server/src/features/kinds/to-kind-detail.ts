@@ -1,13 +1,12 @@
-import type { InferContractRouterOutputs } from "@orpc/contract";
+import type { ContractOutputs } from "@analemma/contract";
 
-import type { contract } from "@analemma/contract";
+import type {
+  KindRow,
+  KindSummaryRow,
+} from "@/features/kinds/queries/kinds.query";
+import { readKindFields } from "@/features/kinds/read-kind-fields";
 
-import type { KindRow, KindSummaryRow } from "./kinds.query";
-import { readKindFields } from "./read-kind-fields";
-
-type KindOutputs = InferContractRouterOutputs<
-  typeof contract
->["admin"]["kinds"];
+type KindOutputs = ContractOutputs["admin"]["kinds"];
 
 /** 管理画面に返す、種類の一覧の1件。 */
 export type KindSummary = KindOutputs["list"]["kinds"][number];

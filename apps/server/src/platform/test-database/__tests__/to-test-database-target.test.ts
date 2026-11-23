@@ -3,9 +3,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 
-import { readDatabaseEnv } from "../../env";
-import { COMPOSE_PROJECT } from "../start-test-postgres";
-import { TEST_POSTGRES } from "../to-test-database-target";
+import { readDatabaseEnv } from "@/platform/env";
+import { COMPOSE_PROJECT } from "@/platform/test-database/start-test-postgres";
+import { TEST_POSTGRES } from "@/platform/test-database/to-test-database-target";
 
 const SERVER_ROOT = join(import.meta.dirname, "../../../..");
 
@@ -53,6 +53,7 @@ test("アプリのロールが、compose.yaml の init で作るロールと DB 
 
 test(".env.example の接続先が、compose.yaml の開発用のポートとアプリのロールにそろっていること", () => {
   const example = readFileSync(join(SERVER_ROOT, ".env.example"), "utf8");
+
   const values = Object.fromEntries(
     example
       .split("\n")
@@ -62,6 +63,7 @@ test(".env.example の接続先が、compose.yaml の開発用のポートとア
         line.slice(line.indexOf("=") + 1),
       ]),
   );
+
   const { database } = readDatabaseEnv(values);
 
   expect(compose.services.postgres.ports[0]).toBe(

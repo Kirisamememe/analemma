@@ -1,9 +1,12 @@
 import { dirname, resolve, sep } from "node:path";
 
 const WORKSPACE_GROUPS = new Set(["apps", "packages"]);
+const SOURCE_ALIAS = "@/";
+const SOURCE_ALIAS_WORKSPACES = new Set(["apps/admin", "apps/server"]);
 
 const workspaceRoot = (filename) => {
   const segments = filename.split(sep);
+
   const groupIndex = segments.findLastIndex(
     (segment, index) =>
       WORKSPACE_GROUPS.has(segment) && index < segments.length - 2,
@@ -17,7 +20,7 @@ const noCrossWorkspaceImport = {
     type: "problem",
     docs: {
       description:
-        "相対パスで、自分のワークスペースの外にあるファイルを import することを禁止する。",
+        "相対パスと @/ で、ワークスペースの外にあるファイルを import することを禁止する。",
     },
     schema: [],
     messages: {
@@ -25,7 +28,7 @@ const noCrossWorkspaceImport = {
         "{{source}} は、このワークスペースの外を指しています。ほかのワークスペースは、package.json に書いたパッケージ名で import します(書いていない依存は import できません)。",
     },
   },
-  /** ワークスペースの中のファイルごとに、相対パスの import の行き先を調べる。 */
+  /** ワークスペースの中のファイルごとに、import の行き先を調べる。 */
   create(context) {
     const root = workspaceRoot(context.filename);
 
@@ -33,14 +36,36 @@ const noCrossWorkspaceImport = {
       return {};
     }
 
+    const directory = dirname(context.filename);
+
+    const usesSourceAlias = SOURCE_ALIAS_WORKSPACES.has(
+      root.split(sep).slice(-2).join("/"),
+    );
+
+    const resolveImport = (source) => {
+      if (source.startsWith(".")) {
+        return resolve(directory, source);
+      }
+
+      if (usesSourceAlias && source.startsWith(SOURCE_ALIAS)) {
+        return resolve(root, "src", source.slice(SOURCE_ALIAS.length));
+      }
+
+      return undefined;
+    };
+
     const check = (node, source) => {
-      if (typeof source !== "string" || !source.startsWith(".")) {
+      if (typeof source !== "string") {
         return;
       }
 
-      const target = resolve(dirname(context.filename), source);
+      const target = resolveImport(source);
 
-      if (target !== root && !target.startsWith(`${root}${sep}`)) {
+      if (
+        target !== undefined &&
+        target !== root &&
+        !target.startsWith(`${root}${sep}`)
+      ) {
         context.report({ node, messageId: "crossWorkspace", data: { source } });
       }
     };

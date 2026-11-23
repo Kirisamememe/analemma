@@ -5,12 +5,10 @@ import type { FixedPageContent, KindDefinitionInput } from "@analemma/contract";
 import {
   SUCCEEDED,
   catchErrorCode,
-} from "../../../test-client/catch-error-code";
-import {
   TEST_NOW,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { prepareTestKinds } from "../../../test-client/prepare-test-kinds";
+  prepareTestKinds,
+} from "@/test-client";
 
 const profile: KindDefinitionInput = {
   name: "profile",
@@ -44,12 +42,14 @@ describe("固定ページを作る", () => {
     await prepareTestKinds(server, [profile]);
 
     const admin = server.client.admin.fixedPages;
+
     const first = await admin.create({
       kind: "profile",
       slug: "about",
       title: " 自己紹介 ",
       content,
     });
+
     const second = await admin.create({
       kind: "profile",
       slug: "now",
@@ -140,6 +140,7 @@ describe("固定ページを書き換える", () => {
     await prepareTestKinds(server, [profile]);
 
     const admin = server.client.admin.fixedPages;
+
     const page = await admin.create({
       kind: "profile",
       slug: "about",
@@ -172,6 +173,7 @@ describe("固定ページを書き換える", () => {
     await prepareTestKinds(server, [profile]);
 
     const admin = server.client.admin.fixedPages;
+
     const page = await admin.create({
       kind: "profile",
       slug: "about",
@@ -197,6 +199,7 @@ describe("固定ページを書き換える", () => {
     await prepareTestKinds(server, [profile]);
 
     const admin = server.client.admin.fixedPages;
+
     const about = await admin.create({
       kind: "profile",
       slug: "about",
@@ -239,6 +242,7 @@ describe("固定ページを消す", () => {
     await prepareTestKinds(server, [profile]);
 
     const admin = server.client.admin.fixedPages;
+
     const page = await admin.create({
       kind: "profile",
       slug: "about",
@@ -294,18 +298,21 @@ describe("固定ページの並び順", () => {
     await prepareTestKinds(server, [profile]);
 
     const admin = server.client.admin.fixedPages;
+
     const a = await admin.create({
       kind: "profile",
       slug: "a",
       title: "a",
       content,
     });
+
     const b = await admin.create({
       kind: "profile",
       slug: "b",
       title: "b",
       content,
     });
+
     const unknown = "0190b5e0-0000-7000-8000-000000000000";
 
     expect(await catchErrorCode(admin.reorder({ ids: [a.id] }))).toBe(

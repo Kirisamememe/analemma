@@ -1,11 +1,8 @@
-import type { InferContractRouterOutputs } from "@orpc/contract";
-
-import type { contract } from "@analemma/contract";
+import type { ContractOutputs } from "@analemma/contract";
 
 /** 送られた定義で、種類がどう変わったか。 */
-export type KindChange = InferContractRouterOutputs<
-  typeof contract
->["deploy"]["kinds"]["push"]["kinds"][number];
+export type KindChange =
+  ContractOutputs["deploy"]["kinds"]["push"]["kinds"][number];
 
 /** 送られた種類の名前と、作った種類と書き換えた種類の名前。 */
 export type KindChangeSets = {

@@ -1,16 +1,16 @@
 import { implement } from "@orpc/server";
-import { getCookie } from "@orpc/server/helpers";
 
 import { contract } from "@analemma/contract";
 
-import type { RequestContext } from "./context";
-import { resumeSession } from "./features/auth/session/resume-session";
-import { toSessionCookie } from "./features/auth/session/to-session-cookie";
+import type { RequestContext } from "@/context";
+import { resumeSession } from "@/features/auth/session/resume-session";
+import { verifyDeployToken } from "@/features/deploy-tokens/verify-deploy-token";
 import {
   clearSessionCookie,
+  readSessionCookie,
+  toSessionCookie,
   writeSessionCookie,
-} from "./features/auth/session/write-session-cookie";
-import { verifyDeployToken } from "./features/deploy-tokens/verify-deploy-token";
+} from "@/platform/session-cookie";
 
 const api = implement(contract).$context<RequestContext>();
 
@@ -60,7 +60,7 @@ const requireAuthOrigin = api.auth.middleware(
 const requireSession = api.admin.middleware(
   async ({ context, errors, next }) => {
     const cookie = toSessionCookie(context.relyingParty.origin);
-    const token = getCookie(context.headers, cookie.name);
+    const token = readSessionCookie(context.headers, cookie);
 
     if (token === undefined) {
       throw errors.UNAUTHORIZED();
@@ -94,6 +94,7 @@ const requireDeployToken = api.deploy.middleware(
   async ({ context, errors, next }) => {
     const token = BEARER.exec(context.headers.get("authorization") ?? "")
       ?.groups?.["token"];
+
     const verified =
       token === undefined
         ? undefined

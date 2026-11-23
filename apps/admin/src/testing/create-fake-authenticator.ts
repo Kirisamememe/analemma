@@ -3,7 +3,7 @@ import type {
   Authenticator,
   AuthenticatorAnswer,
   RegistrationCredential,
-} from "../features/auth/webauthn/create-authenticator";
+} from "@/features/auth/webauthn";
 
 /** 作り物の認証器が返す答え。 */
 export type FakeAnswers = {

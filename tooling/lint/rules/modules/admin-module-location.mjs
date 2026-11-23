@@ -1,0 +1,170 @@
+import { basename, dirname } from "node:path";
+
+import { collectExportedFunctions } from "./exported-functions.mjs";
+
+const HOOK_NAME = /^use[A-Z]/v;
+const API_GROUPS = new Set(["admin", "auth", "deploy", "public"]);
+
+const memberName = (node) => {
+  if (node.type !== "MemberExpression") return undefined;
+
+  return node.computed ? node.property.value : node.property.name;
+};
+
+const hasClientType = (node, clientTypes) =>
+  clientTypes.has(node.typeAnnotation?.typeAnnotation?.typeName?.name);
+
+const isClient = (node, clients) =>
+  clients.has(node.name) || memberName(node) === "api";
+
+const readsApiGroup = (node, clients) =>
+  API_GROUPS.has(memberName(node)) && isClient(node.object, clients);
+
+const destructuresClient = (pattern, clients) => {
+  const { parent } = pattern;
+
+  if (parent.type === "VariableDeclarator") {
+    return parent.init !== null && isClient(parent.init, clients);
+  }
+
+  return parent.type === "Property" && parent.key?.name === "api";
+};
+
+const takesApiGroup = (node, { clients, clientTypes }) =>
+  node.parent.type === "ObjectPattern" &&
+  API_GROUPS.has(node.key?.name) &&
+  (hasClientType(node.parent, clientTypes) ||
+    destructuresClient(node.parent, clients));
+
+const destructuredHookNames = (program) =>
+  new Set(
+    program.body
+      .filter(({ type }) => type === "VariableDeclaration")
+      .flatMap(({ declarations }) => declarations)
+      .filter(({ id }) => id.type === "ObjectPattern")
+      .flatMap(({ id }) => id.properties.map(({ value }) => value?.name))
+      .filter((name) => HOOK_NAME.test(name ?? "")),
+  );
+
+const laterExportedHooks = (program) => {
+  const names = destructuredHookNames(program);
+
+  return program.body
+    .filter(
+      ({ type, source, declaration }) =>
+        type === "ExportNamedDeclaration" && !source && !declaration,
+    )
+    .flatMap(({ specifiers }) => specifiers)
+    .filter(({ local }) => names.has(local.name));
+};
+
+const adminModuleLocation = {
+  meta: {
+    type: "problem",
+    docs: {
+      description:
+        "管理画面の hook・純粋な関数・server の API を呼ぶ処理を、決めたフォルダの外に置かせない。",
+    },
+    schema: [
+      {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          effectfulModules: {
+            type: "array",
+            items: { type: "string" },
+            uniqueItems: true,
+          },
+        },
+      },
+    ],
+    messages: {
+      query:
+        "server の API を呼ぶ処理は、使う部品に近い `queries/` に置きます(feature の中の複数の部品が使うなら、どの部品からも近い `queries/`)。",
+      hook: "hook は、使う部品に近い `hooks/` に置きます。",
+      logic:
+        "関数を export する `.ts` は、`logic/`(純粋な関数)か `queries/`(server の API を呼ぶ処理)に置きます。ブラウザの API を使うなどで、そのどちらでもないファイルは、lint の設定の `effectfulModules` に足します。",
+    },
+  },
+  /** export する関数の名前と、server の API の参照から、置き場所を確かめる。 */
+  create(context) {
+    const path = context.filename.split("/apps/admin/src/").at(-1);
+    const directory = basename(dirname(path));
+    const inQueries = directory === "queries";
+    const inFeature = path.startsWith("features/");
+
+    const checkLogic =
+      path.endsWith(".ts") &&
+      !inQueries &&
+      directory !== "logic" &&
+      !context.options[0]?.effectfulModules?.includes(path);
+
+    const clients = new Set(["api"]);
+    const clientTypes = new Set();
+    let usesApi = false;
+
+    return {
+      "ExportNamedDeclaration > VariableDeclaration > VariableDeclarator > ObjectPattern > Property"(
+        node,
+      ) {
+        if (directory !== "hooks" && HOOK_NAME.test(node.value.name ?? "")) {
+          context.report({ node: node.value, messageId: "hook" });
+        }
+      },
+      ImportSpecifier(node) {
+        if (
+          node.imported.name === "ApiClient" &&
+          node.parent.source.value === "@/api/api-types"
+        ) {
+          clientTypes.add(node.local.name);
+        }
+      },
+      Identifier(node) {
+        if (hasClientType(node, clientTypes)) clients.add(node.name);
+      },
+      Property(node) {
+        if (
+          node.parent.type === "ObjectPattern" &&
+          node.key.name === "api" &&
+          node.value.type === "Identifier"
+        ) {
+          clients.add(node.value.name);
+        }
+
+        if (
+          inFeature &&
+          !inQueries &&
+          takesApiGroup(node, { clients, clientTypes })
+        ) {
+          usesApi = true;
+          context.report({ node, messageId: "query" });
+        }
+      },
+      MemberExpression(node) {
+        if (inFeature && !inQueries && readsApiGroup(node, clients)) {
+          usesApi = true;
+          context.report({ node, messageId: "query" });
+        }
+      },
+      "Program:exit"(program) {
+        if (directory !== "hooks") {
+          for (const node of laterExportedHooks(program)) {
+            context.report({ node, messageId: "hook" });
+          }
+        }
+
+        for (const node of collectExportedFunctions(program)) {
+          if (HOOK_NAME.test(node.id?.name ?? "")) {
+            if (directory !== "hooks") {
+              context.report({ node, messageId: "hook" });
+            }
+          } else if (checkLogic && !usesApi) {
+            context.report({ node, messageId: "logic" });
+          }
+        }
+      },
+    };
+  },
+};
+
+export default adminModuleLocation;

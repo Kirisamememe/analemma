@@ -1,4 +1,4 @@
-import { FALLBACK_LOCALE, LOCALES, type Locale } from "./locales";
+import { FALLBACK_LOCALE, LOCALES, type Locale } from "@/i18n/locales";
 
 /** 言語と文字体系の組。 */
 type Script = {

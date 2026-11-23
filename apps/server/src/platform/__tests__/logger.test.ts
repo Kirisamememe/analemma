@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { formatLogLine } from "../logger";
+import { formatLogLine } from "@/platform/logger";
 
 test("1件のログを、改行で終わる1行の JSON にすること", () => {
   const line = formatLogLine({
@@ -21,6 +21,7 @@ test("1件のログを、改行で終わる1行の JSON にすること", () => 
 test("Error の名前・メッセージ・cause・スタックを失わないこと", () => {
   const cause = new Error("接続が切れた");
   const error = new TypeError("DB に接続できない", { cause });
+
   const logged: unknown = JSON.parse(
     formatLogLine({ level: "error", message: "失敗した", details: { error } }),
   );
@@ -59,6 +60,7 @@ test("Error でない cause は書かないこと", () => {
   const error = new Error("失敗した", {
     cause: { cookie: "analemma_session=secret" },
   });
+
   const line = formatLogLine({
     level: "error",
     message: "失敗した",

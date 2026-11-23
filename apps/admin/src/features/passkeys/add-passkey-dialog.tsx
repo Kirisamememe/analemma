@@ -1,60 +1,75 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 
-import { Cluster } from "../../ui/layout/cluster";
-import { Text } from "../../ui/layout/text";
-import { Button } from "../../ui/primitives/button";
-import { Dialog } from "../../ui/primitives/dialog";
-import { Form } from "../../ui/primitives/form";
-import { Notice } from "../../ui/primitives/notice";
-import { TextField } from "../../ui/primitives/text-field";
-import { checkPasskeyName } from "../auth/check-passkey-name";
-import { addPasskey } from "./add-passkey";
-import { refreshPasskeys } from "./passkeys-query";
-import { type PasskeyNotice, toAddNotice } from "./to-passkey-notice";
+import { useAppContext } from "@/api/app-context";
+import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
+import { checkAfterSubmit, useAppForm } from "@/components/forms";
+import { checkPasskeyName } from "@/components/logic/check-passkey-name";
+import { toAddFailure } from "@/features/passkeys/logic/to-passkey-notice";
+import { addPasskey } from "@/features/passkeys/queries/add-passkey";
+import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";
+import { useTranslate } from "@/i18n/use-translate";
+import { Cluster, Text } from "@/ui/layout";
+import { Button } from "@/ui/primitives/button";
+import {
+  Dialog,
+  useFailureToast,
+  useShowToast,
+} from "@/ui/primitives/overlays";
 
 /** パスキーを追加する Dialog に渡す値。 */
 type AddPasskeyDialogProps = {
   /** 開いているか。 */
-  readonly isOpen: boolean;
+  isOpen: boolean;
   /** 閉じる関数。 */
-  readonly onClose: () => void;
-  /** 足せたことを知らせる関数。 */
-  readonly onAdded: (notice: PasskeyNotice) => void;
+  onClose: () => void;
 };
 
 /** 再認証をしてから、新しいパスキーを追加する Dialog。 */
 export const AddPasskeyDialog = ({
   isOpen,
   onClose,
-  onAdded,
 }: AddPasskeyDialogProps): ReactNode => {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const { api, authenticator } = useRouteContext({ from: "__root__" });
-  const adding = useMutation({
-    mutationFn: async (name: string) =>
-      addPasskey({ api, authenticator }, name),
+  const t = useTranslate();
+  const showToast = useShowToast();
+  const failure = useFailureToast();
+
+  const close = (): void => {
+    failure.close();
+    onClose();
+  };
+
+  const { refresh } = useApiCache();
+  const { api, authenticator } = useAppContext();
+
+  const adding = useApiMutation({
+    send: (name: string) => addPasskey({ api, authenticator }, name),
     onSuccess: async ({ _tag }) => {
       if (_tag === "Cancelled") {
         return;
       }
 
-      await refreshPasskeys(queryClient);
+      await refresh(PASSKEYS_QUERY_KEY);
 
       if (_tag === "Added") {
-        onAdded({ tone: "success", message: "passkeys.added" });
         onClose();
+        showToast({ tone: "success", message: t("passkeys.added") });
+      } else {
+        failure.show(t(toAddFailure(_tag)));
       }
     },
+    onError: () => {
+      failure.show(t(toAddFailure("Unexpected")));
+    },
   });
-  const outcome = adding.isError ? "Unexpected" : adding.data?._tag;
-  const notice =
-    outcome === undefined || outcome === "Added"
-      ? undefined
-      : toAddNotice(outcome);
+
+  const form = useAppForm({
+    canSubmitWhenInvalid: true,
+    defaultValues: { name: "" },
+    onSubmit: ({ value }) => {
+      failure.close();
+      adding.mutate(value.name);
+    },
+  });
 
   return (
     <Dialog
@@ -62,44 +77,43 @@ export const AddPasskeyDialog = ({
       isPending={adding.isPending}
       onOpenChange={(open) => {
         if (!open) {
-          onClose();
+          close();
         }
       }}
       title={t("passkeys.add")}
     >
       <Text tone="muted">{t("passkeys.addDescription")}</Text>
-      <Form
-        isPending={adding.isPending}
-        onSubmit={(data) => {
-          const name = data.get("name");
+      <form.AppForm>
+        <form.Form isPending={adding.isPending}>
+          <form.AppField
+            name="name"
+            validators={{
+              onChange: checkAfterSubmit((value: string) => {
+                const problem = checkPasskeyName(value);
 
-          adding.mutate(typeof name === "string" ? name : "");
-        }}
-      >
-        <TextField
-          autoComplete="off"
-          description={t("enroll.nameDescription")}
-          isRequired
-          label={t("enroll.name")}
-          name="name"
-          validate={(value) => {
-            const problem = checkPasskeyName(value);
-
-            return problem === undefined ? undefined : t(problem);
-          }}
-        />
-        {notice !== undefined && (
-          <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-        )}
-        <Cluster gap={2} justify="end">
-          <Button isDisabled={adding.isPending} onPress={onClose}>
-            {t("passkeys.cancel")}
-          </Button>
-          <Button isPending={adding.isPending} tone="primary" type="submit">
-            {t("passkeys.add")}
-          </Button>
-        </Cluster>
-      </Form>
+                return problem === undefined ? undefined : t(problem);
+              }),
+            }}
+          >
+            {(field) => (
+              <field.TextField
+                autoComplete="off"
+                description={t("enroll.nameDescription")}
+                isRequired
+                label={t("enroll.name")}
+              />
+            )}
+          </form.AppField>
+          <Cluster gap={2} justify="end">
+            <Button isDisabled={adding.isPending} onPress={close}>
+              {t("passkeys.cancel")}
+            </Button>
+            <Button isPending={adding.isPending} tone="primary" type="submit">
+              {t("passkeys.add")}
+            </Button>
+          </Cluster>
+        </form.Form>
+      </form.AppForm>
     </Dialog>
   );
 };

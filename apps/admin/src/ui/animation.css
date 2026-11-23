@@ -1,0 +1,160 @@
+@theme static {
+  --animate-spin: spin 1s linear infinite;
+  --animate-pulse: pulse 1.5s ease-in-out infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes pulse {
+    50% {
+      opacity: 0.5;
+    }
+  }
+}
+
+:root {
+  --overlay-exit-duration: 150ms;
+}
+
+@utility dialog-backdrop-animation {
+  @variant is-entering {
+    animation: backdrop-in var(--transition-duration-normal)
+      var(--ease-standard);
+  }
+
+  @variant is-exiting {
+    animation: backdrop-out var(--overlay-exit-duration) var(--ease-exit)
+      forwards;
+  }
+}
+
+@utility dialog-panel-animation {
+  --dialog-closed-scale: 0.97;
+
+  @media (prefers-reduced-motion: reduce) {
+    --dialog-closed-scale: 1;
+  }
+
+  @variant is-entering {
+    animation: dialog-in var(--transition-duration-normal) var(--ease-standard);
+  }
+
+  @variant is-exiting {
+    animation: dialog-out var(--overlay-exit-duration) var(--ease-exit) forwards;
+  }
+}
+
+@utility nav-drawer-panel-animation {
+  --nav-drawer-closed-translate: -100%;
+  --nav-drawer-closed-opacity: 1;
+
+  @media (prefers-reduced-motion: reduce) {
+    --nav-drawer-closed-translate: 0%;
+    --nav-drawer-closed-opacity: 0;
+  }
+
+  @variant is-entering {
+    animation: nav-drawer-in var(--transition-duration-normal)
+      var(--ease-standard);
+  }
+
+  @variant is-exiting {
+    animation: nav-drawer-out var(--overlay-exit-duration) var(--ease-exit)
+      forwards;
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    background-color: transparent;
+  }
+}
+
+@keyframes backdrop-out {
+  to {
+    background-color: transparent;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    scale: var(--dialog-closed-scale);
+  }
+}
+
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    scale: var(--dialog-closed-scale);
+  }
+}
+
+@keyframes nav-drawer-in {
+  from {
+    translate: var(--nav-drawer-closed-translate);
+    opacity: var(--nav-drawer-closed-opacity);
+  }
+}
+
+@keyframes nav-drawer-out {
+  to {
+    translate: var(--nav-drawer-closed-translate);
+    opacity: var(--nav-drawer-closed-opacity);
+  }
+}
+
+@utility toast-animation {
+  :root:active-view-transition-type(toast) & {
+    view-transition-name: match-element;
+    view-transition-class: toast;
+  }
+}
+
+:root:active-view-transition-type(toast) {
+  view-transition-name: none;
+  --toast-transition-offset: -0.5rem;
+
+  &::view-transition {
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    --toast-transition-offset: 0px;
+  }
+}
+
+::view-transition-new(.toast):only-child {
+  animation: toast-in var(--transition-duration-normal) var(--ease-standard)
+    both;
+}
+
+::view-transition-old(.toast):only-child {
+  animation: toast-out var(--overlay-exit-duration) var(--ease-exit) both;
+}
+
+::view-transition-group(.toast) {
+  animation-duration: var(--transition-duration-normal);
+  animation-timing-function: var(--ease-standard);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation-name: none;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    translate: 0 var(--toast-transition-offset);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    translate: 0 var(--toast-transition-offset);
+  }
+}

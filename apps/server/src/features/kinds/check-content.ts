@@ -1,13 +1,8 @@
-import type { z } from "zod";
-
 import {
   type FieldDefinition,
-  type contentIssues,
+  type ContentIssue,
   toContentSchema,
 } from "@analemma/contract";
-
-/** 中身が種類の定義に合わない理由の1件。 */
-export type ContentIssue = z.output<typeof contentIssues>[number];
 
 /** 種類の定義に合った中身。 */
 export type ValidContent = {

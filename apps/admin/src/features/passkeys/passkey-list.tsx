@@ -1,18 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 
-import type { ApiOutputs } from "../../api/api-types";
-import { formatDateTime } from "../../i18n/format-date-time";
-import { toLocale } from "../../i18n/locales";
-import { Cluster } from "../../ui/layout/cluster";
-import { Stack } from "../../ui/layout/stack";
-import { Text } from "../../ui/layout/text";
-import { Badge } from "../../ui/primitives/badge";
-import { Button } from "../../ui/primitives/button";
-import { Notice } from "../../ui/primitives/notice";
-import { PASSKEYS_QUERY_KEY } from "./passkeys-query";
+import type { ApiOutputs } from "@/api/api-types";
+import { useAppContext } from "@/api/app-context";
+import { useApiQuery } from "@/api/server-state/server-state";
+import {
+  PASSKEYS_QUERY_KEY,
+  loadPasskeys,
+} from "@/features/passkeys/queries/passkeys-query";
+import { formatDateTime } from "@/i18n/format-date-time";
+import { useLocale, useTranslate } from "@/i18n/use-translate";
+import { Cluster, Stack, Text } from "@/ui/layout";
+import { ErrorState } from "@/ui/patterns";
+import { Badge } from "@/ui/primitives/badge";
+import { Button } from "@/ui/primitives/button";
 
 /** 一覧に出す、1つのパスキー。 */
 export type PasskeySummary =
@@ -21,9 +21,9 @@ export type PasskeySummary =
 /** パスキーの一覧に渡す値。 */
 type PasskeyListProps = {
   /** 名前の変更を始める関数。 */
-  readonly onRename: (passkey: PasskeySummary) => void;
+  onRename: (passkey: PasskeySummary) => void;
   /** 削除を始める関数。 */
-  readonly onDelete: (passkey: PasskeySummary) => void;
+  onDelete: (passkey: PasskeySummary) => void;
 };
 
 /** 登録したパスキーの一覧。 */
@@ -31,20 +31,29 @@ export const PasskeyList = ({
   onRename,
   onDelete,
 }: PasskeyListProps): ReactNode => {
-  const { t, i18n } = useTranslation();
-  const locale = toLocale(i18n.language);
-  const { api } = useRouteContext({ from: "__root__" });
-  const passkeys = useQuery({
-    queryKey: PASSKEYS_QUERY_KEY,
-    queryFn: async () => api.admin.passkeys.list(),
+  const t = useTranslate();
+  const locale = useLocale();
+  const { api } = useAppContext();
+
+  const passkeys = useApiQuery({
+    key: PASSKEYS_QUERY_KEY,
+    load: () => loadPasskeys(api),
   });
 
-  if (passkeys.isPending) {
+  if (passkeys._tag === "Loading") {
     return <Text tone="muted">{t("passkeys.loading")}</Text>;
   }
 
-  if (passkeys.isError) {
-    return <Notice tone="danger">{t("passkeys.loadFailed")}</Notice>;
+  if (passkeys._tag === "Failed") {
+    return (
+      <ErrorState
+        isRetrying={passkeys.isRetrying}
+        layout="inline"
+        level={3}
+        onRetry={passkeys.retry}
+        title={t("passkeys.loadFailed")}
+      />
+    );
   }
 
   return (
@@ -70,6 +79,7 @@ export const PasskeyList = ({
             </Stack>
             <Cluster gap={2}>
               <Button
+                aria-label={t("passkeys.renamePasskey", { name: passkey.name })}
                 onPress={() => {
                   onRename(passkey);
                 }}
@@ -78,6 +88,7 @@ export const PasskeyList = ({
                 {t("passkeys.rename")}
               </Button>
               <Button
+                aria-label={t("passkeys.deletePasskey", { name: passkey.name })}
                 onPress={() => {
                   onDelete(passkey);
                 }}

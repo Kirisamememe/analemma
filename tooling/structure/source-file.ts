@@ -150,12 +150,14 @@ export const checkSourceFile = ({
   const text = source.replace(BOM, "");
   const comments: readonly Comment[] = parseSync(path, text).comments;
   const lines = countCodeLines(text, comments);
+
   const lengthProblems =
     lines > HARD_LIMIT
       ? [
           `コードが ${String(lines)} 行あり、${String(HARD_LIMIT)} 行を超えている`,
         ]
       : [];
+
   const exceptionProblems =
     lines > SOFT_LIMIT
       ? [

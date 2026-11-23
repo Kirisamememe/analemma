@@ -4,14 +4,17 @@ import { ResponseHeadersPlugin } from "@orpc/server/plugins";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { csrf } from "hono/csrf";
-import { secureHeaders } from "hono/secure-headers";
+import { NONCE, secureHeaders } from "hono/secure-headers";
+import { tryDecodeURIComponent } from "hono/utils/url";
 
-import type { AppContext } from "./context";
-import { router } from "./router";
+import type { AppContext } from "@/context";
+import type { AdminDist } from "@/platform/load-admin-dist";
+import { router } from "@/router";
 
 const API_PREFIX = "/api";
 const API_BODY_LIMIT = 1024 * 1024;
 const API_METHODS = new Set(["GET", "POST"]);
+
 const PERMISSIONS_POLICY =
   "publickey-credentials-create=(self), publickey-credentials-get=(self)";
 
@@ -79,13 +82,72 @@ const addNoStore = (app: Hono, paths: readonly string[]): void => {
   }
 };
 
-/** 管理用 API と認証用 API を、リバースプロキシを通って届くブラウザのリクエストから受けるアプリを作る。 */
-export const createExternalApp = (context: AppContext): Hono => {
+const HEAD_TAG = "<head>";
+
+const withNonce = (html: string, nonce: string | undefined): string =>
+  html.replace(
+    HEAD_TAG,
+    `${HEAD_TAG}<meta name="csp-nonce" content="${nonce ?? ""}">`,
+  );
+
+const mountAdminDist = (app: Hono, dist: AdminDist): void => {
+  app.get("*", (c) => {
+    const path = tryDecodeURIComponent(new URL(c.req.url).pathname);
+
+    if (
+      path.split("/").some((part) => part.startsWith(".")) ||
+      path.includes("\\") ||
+      path.startsWith("/api/")
+    ) {
+      return c.notFound();
+    }
+
+    const file = dist.files.get(path);
+    const asset = path.startsWith("/assets/");
+
+    if (file === undefined && asset) {
+      return c.notFound();
+    }
+
+    if (file === undefined || path === "/index.html") {
+      return c.body(withNonce(dist.index, c.get("secureHeadersNonce")), 200, {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-store",
+      });
+    }
+
+    return c.body(file, 200, {
+      "Content-Type": file.type,
+      "Cache-Control": asset
+        ? "public, max-age=31536000, immutable"
+        : "no-cache",
+    });
+  });
+  app.all("*", (c) => c.body(null, 405, { Allow: "GET, HEAD" }));
+};
+
+/** 管理用 API・認証用 API と管理画面を外部用のポートで配信するアプリを作る。 */
+export const createExternalApp = (
+  context: AppContext,
+  dist?: AdminDist,
+): Hono => {
   const app = new Hono();
 
   app.use(
     secureHeaders({
-      contentSecurityPolicy: { frameAncestors: ["'none'"] },
+      contentSecurityPolicy: {
+        frameAncestors: ["'none'"],
+        ...(dist && {
+          defaultSrc: ["'none'"],
+          scriptSrc: ["'self'", ...dist.scriptHashes],
+          styleSrc: ["'self'", NONCE],
+          imgSrc: ["'self'"],
+          connectSrc: ["'self'"],
+          baseUri: ["'none'"],
+          formAction: ["'none'"],
+          objectSrc: ["'none'"],
+        }),
+      },
       xFrameOptions: "DENY",
     }),
   );
@@ -94,8 +156,12 @@ export const createExternalApp = (context: AppContext): Hono => {
     c.header("Permissions-Policy", PERMISSIONS_POLICY);
   });
   addNoStore(app, [`${API_PREFIX}/admin/*`, `${API_PREFIX}/auth/*`]);
-  app.use(csrf({ origin: context.relyingParty.origin }));
+  app.use(`${API_PREFIX}/*`, csrf({ origin: context.relyingParty.origin }));
   mountApi({ app, context, procedures: externalRouter });
+
+  if (dist !== undefined) {
+    mountAdminDist(app, dist);
+  }
 
   return app;
 };

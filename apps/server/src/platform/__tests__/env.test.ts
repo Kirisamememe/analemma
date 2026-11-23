@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { readDatabaseEnv, readEnv } from "../env";
+import { readDatabaseEnv, readEnv } from "@/platform/env";
 
 const AUTH = {
   AUTH_ORIGIN: "https://cms.example.com",
@@ -257,6 +257,7 @@ test(".env.example を写せば、server の環境変数として読めること
     join(import.meta.dirname, "../../../.env.example"),
     "utf8",
   );
+
   const values = Object.fromEntries(
     example
       .split("\n")
@@ -270,5 +271,13 @@ test(".env.example を写せば、server の環境変数として読めること
   expect(readEnv(values).relyingParty).toEqual({
     origin: "http://localhost:5173",
     rpId: "localhost",
+  });
+});
+
+describe("ADMIN_DIST_DIR", () => {
+  test("空文字は設定の誤りとして、起動時に断ること", () => {
+    expect(readError({ ...AUTH, DATABASE_URL, ADMIN_DIST_DIR: "" })).toContain(
+      "ADMIN_DIST_DIR",
+    );
   });
 });

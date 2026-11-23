@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
-import { formatAaguid } from "../format-aaguid";
-import { keepKnownTransports } from "../keep-known-transports";
+import { formatAaguid } from "@/features/auth/registration/format-aaguid";
+import { keepKnownTransports } from "@/features/auth/registration/keep-known-transports";
 
 describe("transports", () => {
   test("仕様にある値だけを、重ねずに順のまま残すこと", () => {

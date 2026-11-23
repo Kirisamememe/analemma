@@ -3,7 +3,8 @@ import { z } from "zod";
 import { adminAccess, reauthenticatedAccess } from "../access-errors";
 import { reauthenticationAssertion } from "../webauthn";
 
-const tokenName = z
+/** デプロイ用のトークンに付ける名前。 */
+export const deployTokenName = z
   .string()
   .trim()
   .min(1)
@@ -18,7 +19,7 @@ const tokenId = z
 
 const tokenSummary = z.object({
   id: tokenId,
-  name: tokenName,
+  name: deployTokenName,
   createdAt: z.iso.datetime({ offset: true }).describe("発行した日時。"),
   lastUsedAt: z.iso
     .datetime({ offset: true })
@@ -41,7 +42,9 @@ export const deployTokens = {
       path: "/admin/deploy-tokens",
       summary: "今のパスキーで確かめ直してから、デプロイ用のトークンを発行する",
     })
-    .input(z.object({ name: tokenName, assertion: reauthenticationAssertion }))
+    .input(
+      z.object({ name: deployTokenName, assertion: reauthenticationAssertion }),
+    )
     .output(
       tokenSummary.extend({
         token: z

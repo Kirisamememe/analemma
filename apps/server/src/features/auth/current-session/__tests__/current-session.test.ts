@@ -1,21 +1,17 @@
 import { describe, expect, test } from "bun:test";
 
-import { addTestPasskey } from "../../../../test-client/add-test-passkey";
 import {
+  addTestPasskey,
   SUCCEEDED,
   catchErrorCode,
-} from "../../../../test-client/catch-error-code";
-import {
   TEST_NOW,
   TEST_ORIGIN,
   type TestBrowser,
   type TestClient,
   createTestClient,
-} from "../../../../test-client/create-test-client";
-import {
   logInWithPasskey,
   signInAsAdmin,
-} from "../../../../test-client/sign-in-as-admin";
+} from "@/test-client";
 
 const SECOND = 1000;
 const HOUR = 60 * 60 * SECOND;
@@ -108,6 +104,7 @@ describe("ログインしたセッション", () => {
           headers: { cookie: server.cookie(), "sec-fetch-site": site },
         }),
       );
+
     const sameSite = await get("same-site");
 
     expect(sameSite.status).toBe(403);

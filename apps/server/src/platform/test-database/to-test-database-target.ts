@@ -1,4 +1,4 @@
-import type { DatabaseTarget } from "../database";
+import type { DatabaseTarget } from "@/platform/database";
 
 /** テスト用の PostgreSQL の接続先と、使うロール。 */
 export const TEST_POSTGRES = {

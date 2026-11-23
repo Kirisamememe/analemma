@@ -1,10 +1,10 @@
+import type { AuthenticatorData } from "@/features/auth/webauthn/authenticator-data/parse-authenticator-data";
 import {
   PASSED,
   type WebAuthnPassed,
   type WebAuthnRejection,
   reject,
-} from "../rejection";
-import type { AuthenticatorData } from "./parse-authenticator-data";
+} from "@/features/auth/webauthn/rejection";
 
 /** authenticatorData と照らし合わせる値。 */
 export type AuthenticatorExpectation = {

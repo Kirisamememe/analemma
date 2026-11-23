@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-import { bytes } from "./bytes";
+import { bytes } from "@/db/schema/bytes";
 
 /** 種類の定義を送るための、デプロイ用のトークンのテーブル。 */
 export const deployToken = pgTable("deploy_token", {

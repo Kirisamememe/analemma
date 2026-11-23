@@ -1,6 +1,6 @@
-import { adminProcedures } from "../../procedures";
-import { listKinds as listKindRows } from "./kinds.query";
-import { toKindSummary } from "./to-kind-detail";
+import { listKinds as listKindRows } from "@/features/kinds/queries/kinds.query";
+import { toKindSummary } from "@/features/kinds/to-kind-detail";
+import { adminProcedures } from "@/procedures";
 
 /** 種類の一覧を返す procedure。 */
 export const listKinds = adminProcedures.kinds.list.handler(

@@ -1,8 +1,8 @@
-import type { Locale } from "./locales";
-import { en } from "./messages/en";
-import { ja } from "./messages/ja";
-import { zhHans } from "./messages/zh-hans";
-import type { Translation } from "./translation";
+import type { Locale } from "@/i18n/locales";
+import { en } from "@/i18n/messages/en";
+import { ja } from "@/i18n/messages/ja";
+import { zhHans } from "@/i18n/messages/zh-hans";
+import type { Translation } from "@/i18n/translation";
 
 /** i18next に渡す、言語ごとの訳(namespace は既定の1つだけ)。 */
 export const RESOURCES = {

@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
 
-import { Heading } from "../layout/heading";
-import { Text } from "../layout/text";
-import { tv } from "../tv";
+import { Heading, Text } from "@/ui/layout";
+import { tv } from "@/ui/tv";
 
 const swatch = tv({
   base: "size-control shrink-0 rounded-control outline -outline-offset-1 outline-fg/10",
@@ -11,6 +10,7 @@ const swatch = tv({
       canvas: "bg-canvas",
       surface: "bg-surface",
       "surface-sunken": "bg-surface-sunken",
+      "surface-muted": "bg-surface-muted",
       fg: "bg-fg",
       "fg-muted": "bg-fg-muted",
       line: "bg-line",
@@ -35,7 +35,10 @@ const swatch = tv({
 });
 
 const panel = tv({
-  base: "flex min-w-0 grow flex-col gap-4 rounded-surface bg-canvas p-6 outline outline-fg/10",
+  base: [
+    "flex min-w-0 grow flex-col gap-4",
+    "rounded-surface bg-canvas p-6 outline outline-fg/10",
+  ],
   variants: {
     scheme: { light: "scheme-light", dark: "scheme-dark" },
   },
@@ -53,7 +56,10 @@ type ColorGroup = {
 };
 
 const GROUPS: readonly ColorGroup[] = [
-  { name: "面", colors: ["canvas", "surface", "surface-sunken"] },
+  {
+    name: "面",
+    colors: ["canvas", "surface", "surface-sunken", "surface-muted"],
+  },
   {
     name: "文字と線",
     colors: ["fg", "fg-muted", "line", "line-strong", "focus"],

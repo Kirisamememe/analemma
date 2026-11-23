@@ -1,19 +1,20 @@
 import { describe, expect, test } from "bun:test";
 
+import { parseAuthenticatorData } from "@/features/auth/webauthn/authenticator-data/parse-authenticator-data";
 import {
   AUTHENTICATOR_FLAG,
   buildAuthenticatorData,
   hashRpId,
-} from "../../fake-authenticator/build-authenticator-data";
+} from "@/features/auth/webauthn/fake-authenticator/build-authenticator-data";
 import {
   type CborInput,
   encodeCbor,
-} from "../../fake-authenticator/encode-cbor";
-import { parseAuthenticatorData } from "../parse-authenticator-data";
+} from "@/features/auth/webauthn/fake-authenticator/encode-cbor";
 
 const F = AUTHENTICATOR_FLAG;
 
 const rpIdHash = await hashRpId("analemma.test");
+
 const publicKey = encodeCbor(
   new Map<number, CborInput>([
     [1, 1],
@@ -22,11 +23,13 @@ const publicKey = encodeCbor(
     [-2, new Uint8Array(32).fill(7)],
   ]),
 );
+
 const credential = {
   aaguid: new Uint8Array(16).fill(0xaa),
   credentialId: new Uint8Array([1, 2, 3, 4, 5]),
   publicKey,
 };
+
 const extensions = encodeCbor(new Map([["credProtect", 2]]));
 
 const flagsOf = (flags: number): unknown => {

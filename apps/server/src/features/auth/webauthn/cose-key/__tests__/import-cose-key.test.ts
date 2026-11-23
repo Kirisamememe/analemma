@@ -1,21 +1,25 @@
 import { describe, expect, test } from "bun:test";
 
-import { type CborMap, decodeCbor } from "../../cbor/decode-cbor";
-import { convertToDerSignature } from "../../fake-authenticator/convert-to-der-signature";
+import {
+  type CborMap,
+  decodeCbor,
+} from "@/features/auth/webauthn/cbor/decode-cbor";
+import { COSE_ALGORITHM } from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import { importCoseKey } from "@/features/auth/webauthn/cose-key/import-cose-key";
+import { convertToDerSignature } from "@/features/auth/webauthn/fake-authenticator/convert-to-der-signature";
 import {
   type CborInput,
   encodeCbor,
-} from "../../fake-authenticator/encode-cbor";
-import { encodeCoseKey } from "../../fake-authenticator/encode-cose-key";
+} from "@/features/auth/webauthn/fake-authenticator/encode-cbor";
+import { encodeCoseKey } from "@/features/auth/webauthn/fake-authenticator/encode-cose-key";
 import {
   SIGN_PARAMS,
   generateTestKeyPair,
-} from "../../fake-authenticator/generate-test-key-pair";
-import { COSE_ALGORITHM } from "../cose-algorithm";
-import { importCoseKey } from "../import-cose-key";
+} from "@/features/auth/webauthn/fake-authenticator/generate-test-key-pair";
 
 const es256Map = async (): Promise<CborMap> => {
   const pair = await generateTestKeyPair(COSE_ALGORITHM.ES256);
+
   const decoded = decodeCbor(
     await encodeCoseKey(pair.publicKey, COSE_ALGORITHM.ES256),
   );
@@ -81,13 +85,17 @@ describe("COSE の鍵の読み込み", () => {
     "%s:WebCrypto で作った鍵を COSE に直して戻すと、認証器の形の署名を検証できること",
     async (_, algorithm) => {
       const pair = await generateTestKeyPair(algorithm);
+
       const imported = await importCoseKey(
         await encodeCoseKey(pair.publicKey, algorithm),
       );
+
       const data = new TextEncoder().encode("signed data");
+
       const signed = new Uint8Array(
         await crypto.subtle.sign(SIGN_PARAMS[algorithm], pair.privateKey, data),
       );
+
       const signature =
         algorithm === COSE_ALGORITHM.ES256
           ? convertToDerSignature(signed)

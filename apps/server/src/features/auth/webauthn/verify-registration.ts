@@ -1,13 +1,19 @@
-import { parseAuthenticatorData } from "./authenticator-data/parse-authenticator-data";
+import { parseAuthenticatorData } from "@/features/auth/webauthn/authenticator-data/parse-authenticator-data";
 import {
   type AuthenticatorExpectation,
   verifyAuthenticatorFlags,
-} from "./authenticator-data/verify-authenticator-flags";
-import { decodeCbor, isCborMap } from "./cbor/decode-cbor";
-import { verifyClientData } from "./client-data/verify-client-data";
-import type { CoseAlgorithm } from "./cose-key/cose-algorithm";
-import { importCoseKey } from "./cose-key/import-cose-key";
-import { type WebAuthnRejection, reject } from "./rejection";
+} from "@/features/auth/webauthn/authenticator-data/verify-authenticator-flags";
+import {
+  decodeCbor,
+  isCborMap,
+} from "@/features/auth/webauthn/cbor/decode-cbor";
+import { verifyClientData } from "@/features/auth/webauthn/client-data/verify-client-data";
+import type { CoseAlgorithm } from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import { importCoseKey } from "@/features/auth/webauthn/cose-key/import-cose-key";
+import {
+  type WebAuthnRejection,
+  reject,
+} from "@/features/auth/webauthn/rejection";
 
 /** 登録で届く、ブラウザの `AuthenticatorAttestationResponse` の中身。 */
 export type RegistrationResponse = {

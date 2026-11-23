@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { tv } from "../tv";
+import { tv } from "@/ui/tv";
 
 const center = tv({
   base: "mx-auto w-full px-4",
@@ -17,9 +17,9 @@ const center = tv({
 /** 中身を真ん中に寄せる箱に渡す値。 */
 type CenterProps = {
   /** 中身の幅の上限。 */
-  readonly width: "sm" | "md" | "form" | "page";
+  width: "sm" | "md" | "form" | "page";
   /** 寄せる中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 中身の幅を絞り、左右の真ん中に寄せる箱。 */

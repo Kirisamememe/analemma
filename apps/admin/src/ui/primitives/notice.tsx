@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import { tv } from "../tv";
-import { typography } from "../typography";
+import { tv } from "@/ui/tv";
+import { typography } from "@/ui/typography";
 
 const notice = tv({
   base: "rounded-control border px-3 py-2",
@@ -18,9 +18,9 @@ const notice = tv({
 /** `Notice` に渡す値。 */
 type NoticeProps = {
   /** 知らせの用途。 */
-  readonly tone: "info" | "success" | "warning" | "danger";
+  tone: "info" | "success" | "warning" | "danger";
   /** 知らせの中身。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 画面の中に残す知らせ(誤りはすぐに読み上げる)。 */

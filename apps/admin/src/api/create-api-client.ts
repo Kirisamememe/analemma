@@ -1,7 +1,7 @@
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 
-import type { ApiClient } from "./api-types";
+import type { ApiClient } from "@/api/api-types";
 
 /** リクエストの送り方(リダイレクトの扱い)。 */
 type SendInit = {

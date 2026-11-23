@@ -1,8 +1,9 @@
 import type { Preview } from "@storybook/react-vite";
 
-import { LOCALES, toLocale } from "../src/i18n/locales";
-import "../src/ui/app.css";
 import { Staged, StoryFrame } from "./story-frame";
+
+import "@/ui/app.css";
+import { LOCALES, toLocale } from "@/i18n/locales";
 
 const toStageWidth = (value: unknown): "fit" | "fill" | undefined =>
   value === "fit" || value === "fill" ? value : undefined;

@@ -1,13 +1,10 @@
-import type { InferContractRouterOutputs } from "@orpc/contract";
+import type { ContractOutputs } from "@analemma/contract";
 
-import type { contract } from "@analemma/contract";
-
-import type { DeployTokenRow } from "./deploy-tokens.query";
+import type { DeployTokenRow } from "@/features/deploy-tokens/queries/deploy-tokens.query";
 
 /** 管理画面に返す、デプロイ用のトークン。 */
-export type DeployTokenSummary = InferContractRouterOutputs<
-  typeof contract
->["admin"]["deployTokens"]["list"]["tokens"][number];
+export type DeployTokenSummary =
+  ContractOutputs["admin"]["deployTokens"]["list"]["tokens"][number];
 
 /** デプロイ用のトークンの行を、管理画面に返す形にする。 */
 export const toDeployTokenSummary = (

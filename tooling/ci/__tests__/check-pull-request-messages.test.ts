@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, setDefaultTimeout, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -7,6 +7,8 @@ import { join } from "node:path";
 const SCRIPT = join(import.meta.dirname, "../check-pull-request-messages.ts");
 const temporaryRoot = mkdtempSync(join(tmpdir(), "analemma-ci-"));
 const PULL_REQUEST_NUMBER = "7";
+
+setDefaultTimeout(30_000);
 
 afterAll(() => {
   rmSync(temporaryRoot, { recursive: true, force: true });
@@ -93,6 +95,7 @@ const makePullRequest = (name: string, history: History): PullRequest => {
     "-m",
     "chore: リポジトリを作る",
   );
+
   const base =
     commitChain({ root, parent: first, messages: history.base }).at(-1) ??
     first;
@@ -127,6 +130,7 @@ const checkPullRequest = async ({
   title,
 }: Check): Promise<Outcome> => {
   const { base, commits, root } = pullRequest;
+
   const child = Bun.spawn(
     [
       process.execPath,
@@ -140,6 +144,7 @@ const checkPullRequest = async ({
     ],
     { cwd: root, stdin: new Response(title), stdout: "pipe", stderr: "pipe" },
   );
+
   const [stdout, stderr, status] = await Promise.all([
     new Response(child.stdout).text(),
     new Response(child.stderr).text(),
@@ -155,6 +160,7 @@ describe("PR のコミットのメッセージ", () => {
       base: [],
       pullRequest: ["feat: 件名を書く", "fix(server): 期限を直す\n\n本文"],
     });
+
     const result = await checkPullRequest({
       pullRequest,
       title: "feat: 件名を書く",
@@ -168,6 +174,7 @@ describe("PR のコミットのメッセージ", () => {
       base: ["update stuff"],
       pullRequest: ["docs: 説明を書く"],
     });
+
     const result = await checkPullRequest({
       pullRequest,
       title: "docs: 説明を書く",
@@ -181,6 +188,7 @@ describe("PR のコミットのメッセージ", () => {
       base: [],
       pullRequest: ["docs: 説明を書く", "update stuff"],
     });
+
     const result = await checkPullRequest({
       pullRequest,
       title: "docs: 説明を書く",
@@ -198,6 +206,7 @@ describe("PR のコミットのメッセージ", () => {
       base: [],
       pullRequest: ["docs: hidden-repo から写す"],
     });
+
     const result = await checkPullRequest({
       pullRequest,
       title: "docs: 説明を書く",
@@ -245,4 +254,43 @@ describe("PR のタイトル", () => {
     expect(overflows.status).toBe(1);
     expect(overflows.stdout).toContain("[header-max-width]");
   });
+});
+
+describe("PR 作成前の追加行数", () => {
+  test.each([
+    { lines: 500, status: 0, notice: false },
+    { lines: 501, status: 0, notice: true },
+    { lines: 800, status: 0, notice: true },
+    { lines: 801, status: 1, notice: false },
+  ])(
+    "追加 $lines 行なら終了コード $status を返すこと",
+    async ({ lines, status, notice }) => {
+      const { root, base } = makePullRequest(`size-${lines}`, {
+        base: [],
+        pullRequest: [],
+      });
+
+      writeFileSync(join(root, "changes.txt"), "追加\n".repeat(lines));
+      git(root, "add", "changes.txt");
+
+      const head = git(
+        root,
+        "commit-tree",
+        git(root, "write-tree"),
+        "-p",
+        base,
+        "-m",
+        "docs: 説明を足す",
+      );
+
+      const result = await checkPullRequest({
+        pullRequest: { root, base, commits: [head] },
+        title: "docs: 説明を足す",
+      });
+
+      expect(result.stdout).toContain(`追加 ${lines} 行`);
+      expect(result.stdout.includes("目安の500行を超えています")).toBe(notice);
+      expect(result.status).toBe(status);
+    },
+  );
 });

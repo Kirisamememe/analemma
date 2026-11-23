@@ -1,7 +1,7 @@
-import { adminProcedures } from "../../../procedures";
-import { findAdminUser } from "../admin-user/admin-user.query";
-import { createRegistrationOptions } from "../registration/create-registration-options";
-import { listPasskeys } from "./list-passkeys.query";
+import { findAdminUser } from "@/features/auth/admin-user/queries/admin-user.query";
+import { listPasskeys } from "@/features/auth/passkeys/queries/list-passkeys.query";
+import { createRegistrationOptions } from "@/features/auth/registration/create-registration-options";
+import { adminProcedures } from "@/procedures";
 
 /** パスキーを足すための、登録の options を返す procedure。 */
 export const getPasskeyOptions =

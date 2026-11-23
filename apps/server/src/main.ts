@@ -1,23 +1,40 @@
-import { createExternalApp, createInternalApp } from "./app";
-import type { AppContext } from "./context";
+import { createExternalApp, createInternalApp } from "@/app";
+import type { AppContext } from "@/context";
 import {
   CHALLENGE_CAPACITY,
   CHALLENGE_LIFETIME_MS,
   createChallengeStore,
-} from "./features/auth/challenge/create-challenge-store";
-import { chooseFirstListener } from "./platform/choose-first-listener";
-import { systemClock } from "./platform/clock";
-import { openDatabase } from "./platform/database";
-import { readEnv } from "./platform/env";
-import { stdoutLogger } from "./platform/logger";
+} from "@/features/auth/challenge/create-challenge-store";
+import { chooseFirstListener } from "@/platform/choose-first-listener";
+import { systemClock } from "@/platform/clock";
+import { openDatabase } from "@/platform/database";
+import { readEnv } from "@/platform/env";
+import { loadAdminDist } from "@/platform/load-admin-dist";
+import { stdoutLogger } from "@/platform/logger";
 
 const env = readEnv();
+
+const prepareAdminDist = async (directory: string) => {
+  try {
+    return await loadAdminDist(directory);
+  } catch (cause) {
+    throw new Error("ADMIN_DIST_DIR から管理画面のビルドを読み込めなかった。", {
+      cause,
+    });
+  }
+};
+
+const adminDist =
+  env.adminDistDir === undefined
+    ? undefined
+    : await prepareAdminDist(env.adminDistDir);
 
 await using resources = new AsyncDisposableStack();
 
 const database = resources.use(
   openDatabase({ target: env.database, logger: stdoutLogger }),
 );
+
 const context: AppContext = {
   clock: systemClock,
   db: database.db,
@@ -28,15 +45,18 @@ const context: AppContext = {
     lifetimeMs: CHALLENGE_LIFETIME_MS,
   }),
 };
+
 const internalOptions = {
   fetch: createInternalApp(context).fetch,
   port: env.internal.port,
   hostname: env.internal.host,
 };
+
 const externalOptions = {
-  fetch: createExternalApp(context).fetch,
+  fetch: createExternalApp(context, adminDist).fetch,
   port: env.port,
 };
+
 const { external, internal } =
   chooseFirstListener({ external: env.port, internal: env.internal.port }) ===
   "external"

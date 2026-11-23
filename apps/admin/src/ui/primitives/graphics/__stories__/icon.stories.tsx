@@ -1,0 +1,63 @@
+import type { Meta, StoryObj } from "@storybook/react-vite";
+
+import { Cluster, Stack, Text } from "@/ui/layout";
+import { Icon, type IconName } from "@/ui/primitives/graphics/icon";
+
+const NAMES: readonly IconName[] = [
+  "check",
+  "chevron-down",
+  "chevron-left",
+  "circle-alert",
+  "circle-check",
+  "cloud-alert",
+  "file-text",
+  "grip-vertical",
+  "house",
+  "key-round",
+  "shield-check",
+  "log-out",
+  "menu",
+  "trash-2",
+  "x",
+];
+
+const meta = {
+  title: "primitives/Icon",
+} satisfies Meta;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const All: Story = {
+  /** 管理画面で使うアイコンの見本。 */
+  render: () => (
+    <Stack gap={2}>
+      {NAMES.map((name) => (
+        <Cluster key={name}>
+          <Icon name={name} />
+          <Text>{name}</Text>
+        </Cluster>
+      ))}
+    </Stack>
+  ),
+};
+
+const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
+
+export const Sizes: Story = {
+  /** 大きさごとに、線の太さと文字との釣り合いを見比べる。 */
+  render: () => (
+    <Stack gap={3}>
+      {SIZES.map((size) => (
+        <Cluster align="center" gap={2} key={size}>
+          <Icon name="cloud-alert" size={size} />
+          <Icon name="file-text" size={size} />
+          <Icon name="key-round" size={size} />
+          <Icon name="check" size={size} />
+          <Text>{size}</Text>
+        </Cluster>
+      ))}
+    </Stack>
+  ),
+};

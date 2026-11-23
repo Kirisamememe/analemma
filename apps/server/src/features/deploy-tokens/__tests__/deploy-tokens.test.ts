@@ -2,20 +2,18 @@ import { describe, expect, test } from "bun:test";
 
 import { contract } from "@analemma/contract";
 
-import { answerReauthentication } from "../../../test-client/answer-authentication";
+import { createFakeAuthenticator } from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
 import {
+  answerReauthentication,
   SUCCEEDED,
   catchErrorCode,
-} from "../../../test-client/catch-error-code";
-import {
   TEST_INTERNAL_URL,
   TEST_NOW,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { listProcedurePaths } from "../../../test-client/list-procedure-paths";
-import { issueTestDeployToken } from "../../../test-client/prepare-test-kinds";
-import { signInAsAdmin } from "../../../test-client/sign-in-as-admin";
-import { createFakeAuthenticator } from "../../auth/webauthn/fake-authenticator/create-fake-authenticator";
+  listProcedurePaths,
+  issueTestDeployToken,
+  signInAsAdmin,
+} from "@/test-client";
 
 const deployPaths = listProcedurePaths(contract.deploy, "deploy");
 
@@ -31,6 +29,7 @@ describe("デプロイ用のトークンの発行", () => {
     await using server = await createTestClient({ clock: { now: () => now } });
 
     const { passkey } = await signInAsAdmin(server);
+
     const issued = await server.client.admin.deployTokens.issue({
       name: "  本番のデプロイ  ",
       assertion: await answerReauthentication(server, passkey),
@@ -184,6 +183,7 @@ describe("デプロイ用 API の入口", () => {
             body: JSON.stringify({ json: null }),
           }),
         );
+
         const body: unknown = await response.json();
 
         expect(response.status).toBe(401);
@@ -220,6 +220,7 @@ describe("デプロイ用 API の入口", () => {
   test("セッションの Cookie では、定義を送れないこと", async () => {
     await using server = await createTestClient();
     const { browser } = await signInAsAdmin(server);
+
     const response = await server.internalApp.fetch(
       new Request(`${TEST_INTERNAL_URL}/api/deploy/kinds/push`, {
         method: "POST",

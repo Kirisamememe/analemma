@@ -1,13 +1,10 @@
-import type { InferContractRouterInputs } from "@orpc/contract";
+import type { ContractInputs } from "@analemma/contract";
 
-import type { contract } from "@analemma/contract";
-
-import type { AuthenticationResponse } from "../webauthn/verify-authentication";
+import type { AuthenticationResponse } from "@/features/auth/webauthn/verify-authentication";
 
 /** ログインの資格情報の入力。 */
-export type AuthenticationCredentialInput = InferContractRouterInputs<
-  typeof contract
->["auth"]["login"]["verify"];
+export type AuthenticationCredentialInput =
+  ContractInputs["auth"]["login"]["verify"];
 
 /** バイト列に戻したログインの資格情報。 */
 export type DecodedAuthenticationCredential = {

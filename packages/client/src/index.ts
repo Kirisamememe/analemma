@@ -6,6 +6,7 @@ export {
   defineKind,
 } from "./kinds/define-kind";
 export {
+  type BooleanOptions,
   type FieldOptions,
   type NestedOptions,
   type SelectOption,

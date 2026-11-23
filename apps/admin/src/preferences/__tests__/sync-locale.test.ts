@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { createI18n } from "../../i18n/create-i18n";
-import type { Locale } from "../../i18n/locales";
-import { LOCALE_STORAGE_KEY } from "../storage-keys";
-import { syncLocale } from "../sync-locale";
+import { createI18n } from "@/i18n/create-i18n";
+import type { Locale } from "@/i18n/locales";
+import { LOCALE_STORAGE_KEY } from "@/preferences/storage-keys";
+import { syncLocale } from "@/preferences/sync-locale";
 
 const setUp = (locale: Locale) => {
   const i18n = createI18n(locale);

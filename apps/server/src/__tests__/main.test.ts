@@ -4,14 +4,15 @@ import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { z } from "zod";
 
-import type { LogEntry } from "../platform/logger";
-import { createTestDatabase } from "../platform/test-database/create-test-database";
-import { toTestDatabaseUrl } from "../platform/test-database/to-test-database-url";
+import type { LogEntry } from "@/platform/logger";
+import { createTestDatabase } from "@/platform/test-database/create-test-database";
+import { toTestDatabaseUrl } from "@/platform/test-database/to-test-database-url";
 
 const MAIN = join(import.meta.dirname, "../main.ts");
 const STOP_DEADLINE_MS = 5000;
 
 const logs: LogEntry[] = [];
+
 const logger = {
   write: (entry: LogEntry) => {
     logs.push(entry);
@@ -49,6 +50,7 @@ const postHealth = async (port: number): Promise<number> =>
 test("2つのポートで待ち受け、SIGTERM を受けると、受け付けを止め、止めることをログに書いて終わること", async () => {
   await using database = await createTestDatabase({ logger });
   await using stack = new AsyncDisposableStack();
+
   const server = spawn(process.execPath, ["--no-env-file", MAIN], {
     env: {
       PORT: "0",
@@ -58,10 +60,12 @@ test("2つのポートで待ち受け、SIGTERM を受けると、受け付け�
       AUTH_RP_ID: "analemma.test",
     },
   });
+
   const lines: string[] = [];
   let pending = "";
   let stderr = "";
   const started = Promise.withResolvers<StartedPorts>();
+
   const closed = new Promise<number | null>((resolve) => {
     server.once("close", resolve);
   });
@@ -101,6 +105,7 @@ test("2つのポートで待ち受け、SIGTERM を受けると、受け付け�
       );
     }),
   ]);
+
   const statuses = [
     await postHealth(ports.internalPort),
     await postHealth(ports.port),

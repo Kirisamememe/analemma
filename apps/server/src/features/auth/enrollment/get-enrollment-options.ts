@@ -1,13 +1,14 @@
-import { authProcedures } from "../../../procedures";
-import { findAdminUser } from "../admin-user/admin-user.query";
-import { listPasskeys } from "../passkeys/list-passkeys.query";
-import { createRegistrationOptions } from "../registration/create-registration-options";
-import { checkEnrollment } from "./check-enrollment";
+import { findAdminUser } from "@/features/auth/admin-user/queries/admin-user.query";
+import { checkEnrollment } from "@/features/auth/enrollment/check-enrollment";
+import { listPasskeys } from "@/features/auth/passkeys/queries/list-passkeys.query";
+import { createRegistrationOptions } from "@/features/auth/registration/create-registration-options";
+import { authProcedures } from "@/procedures";
 
 /** 登録用 URL の token で、パスキーの登録の options を返す procedure。 */
 export const getEnrollmentOptions = authProcedures.enrollment.options.handler(
   async ({ context, errors, input }) => {
     const now = context.clock.now();
+
     const enrollment = await checkEnrollment({
       db: context.db,
       token: input.token,

@@ -1,13 +1,14 @@
-import { adminProcedures } from "../../procedures";
-import { reauthenticate } from "../auth/current-session/reauthenticate";
-import { issueSecretToken } from "../auth/secret-token/secret-token";
-import { recordIssue } from "./deploy-tokens.query";
-import { toDeployTokenSummary } from "./to-deploy-token-summary";
+import { reauthenticate } from "@/features/auth/current-session/reauthenticate";
+import { issueSecretToken } from "@/features/auth/secret-token/secret-token";
+import { recordIssue } from "@/features/deploy-tokens/queries/deploy-tokens.query";
+import { toDeployTokenSummary } from "@/features/deploy-tokens/to-deploy-token-summary";
+import { adminProcedures } from "@/procedures";
 
 /** 今のパスキーで確かめ直してから、デプロイ用のトークンを発行し、1回だけ token を返す procedure。 */
 export const issueDeployToken = adminProcedures.deployTokens.issue.handler(
   async ({ context, errors, input }) => {
     const sessionId = context.session.id;
+
     const reauthenticated = await reauthenticate(context, {
       action: "deployTokens.issue",
       assertion: input.assertion,
@@ -18,6 +19,7 @@ export const issueDeployToken = adminProcedures.deployTokens.issue.handler(
     }
 
     const issued = await issueSecretToken();
+
     const recorded = await recordIssue(context.db, {
       reauthentication: { sessionId, use: reauthenticated.use },
       token: { id: issued.id, secretHash: issued.secretHash, name: input.name },

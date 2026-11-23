@@ -232,10 +232,12 @@ describe("管理画面の画面のコードの class", () => {
 
   test("部品の __stories__ でも、画面のコードと同じく、決めた class の外と style に診断を出すこと", () => {
     const stories = "invalid/apps/admin/src/ui/__stories__/styled.stories.tsx";
+
     const classes: Expected[] = [
       [3, "画面のコードは"],
       [3, "画面のコードは"],
     ];
+
     const boundary: Expected[] = [[5, "style は ui/ の部品"]];
 
     expect(diagnosticsOf({ file: stories, rule: RESTRICTED }, classes)).toEqual(
@@ -288,6 +290,7 @@ describe("検査の設定と theme.css", () => {
     join(import.meta.dirname, "../../../apps/admin/src/ui/theme.css"),
     "utf8",
   );
+
   const namesOf = (prefix: string): string[] => [
     ...new Set(
       [
@@ -310,6 +313,39 @@ describe("検査の設定と theme.css", () => {
     expect(
       TEXT_PAIRS.flatMap((pair) => pair.split("/")).filter(
         (name) => !scale.has(name),
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("1つの文字列の class の数", () => {
+  const rule = "project(max-classes-per-string)";
+
+  test("class が9個以上の文字列を、属性・関数の引数・変数の初期値と既定値で止めること", () => {
+    const expected: Expected[] = [
+      [4, "1つの文字列に class が 9 個あります"],
+      [7, "1つの文字列に class が 9 個あります"],
+      [15, "1つの文字列に class が 9 個あります"],
+      [22, "className の文字列に class が 9 個あります"],
+      [26, "1つの文字列に class が 9 個あります"],
+      [39, "1つの文字列に class が 9 個あります"],
+      [43, "1つの文字列に class が 9 個あります"],
+      [47, "1つの文字列に class が 9 個あります"],
+      [58, "1つの文字列に class が 9 個あります"],
+    ];
+
+    expect(
+      diagnosticsOf(
+        { file: "invalid/apps/admin/src/ui/primitives/long-classes.tsx", rule },
+        expected,
+      ),
+    ).toEqual(expected);
+  });
+
+  test("配列に分けた8個までの文字列と、class でない文字列には診断を出さないこと", () => {
+    expect(
+      ruleIdsOf(
+        lintFixture("valid/apps/admin/src/ui/primitives/split-classes.tsx"),
       ),
     ).toEqual([]);
   });

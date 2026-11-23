@@ -1,4 +1,7 @@
-import { type WebAuthnRejection, reject } from "../rejection";
+import {
+  type WebAuthnRejection,
+  reject,
+} from "@/features/auth/webauthn/rejection";
 
 /** DER から r‖s に直した、ES256 の署名。 */
 export type RawSignature = {

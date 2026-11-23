@@ -13,6 +13,7 @@ const MERGE_CONFIG: TWMergeConfig = {
         "canvas",
         "surface",
         "surface-sunken",
+        "surface-muted",
         "fg",
         "fg-muted",
         "line",
@@ -42,23 +43,31 @@ const MERGE_CONFIG: TWMergeConfig = {
       animate: ["spin", "pulse"],
     },
     classGroups: {
-      h: ["h-control", "h-control-sm"],
-      size: ["size-icon", "size-control"],
+      h: ["h-control", "h-control-sm", "h-nav-bar"],
+      top: ["top-toast"],
+      size: [
+        "size-icon-xs",
+        "size-icon-sm",
+        "size-icon",
+        "size-icon-lg",
+        "size-icon-xl",
+        "size-control",
+      ],
       w: ["w-sidebar"],
       "object-position": ["object-focal"],
       z: [{ z: ["sticky", "overlay", "toast"] }],
       "grid-cols": [{ "grid-cols": ["thumbnails"] }],
       aspect: [{ aspect: ["photo"] }],
       duration: [{ duration: ["fast", "normal"] }],
-      "interaction-state": ["state-hover", "state-pressed"],
-      "focus-ring": ["focus-ring", "focus-ring-inset"],
-      "color-scheme": ["scheme-dark", "scheme-light"],
+      translate: ["state-pressed"],
+      "focus-ring": ["focus-ring", "focus-ring-inset", "focus-ring-current"],
+      "color-scheme": ["scheme-dark", "scheme-light", "scheme-inverse"],
     },
   },
 };
 
-/** theme.css の名前を入れた、class を merge する関数。 */
+/** デザインシステムの名前を入れた、class を merge する関数。 */
 export const merge = createTwMerge(MERGE_CONFIG);
 
-/** theme.css の名前を入れた merge を使う、tailwind-variants の `tv`。 */
+/** デザインシステムの名前を入れた merge を使う、tailwind-variants の `tv`。 */
 export const tv = createTV({ twMergeConfig: MERGE_CONFIG });

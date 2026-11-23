@@ -10,6 +10,8 @@
 - fixture のテストは、Oxlint が設定を読めずに JSON の結果を出さなかったときに、Oxlint の出力をそのまま失敗の文言に入れる。Node が古いと、JSON を読めないという失敗だけが出て、原因が分からなかった。
 - 1つのファイルのコードは400行までなので、ルールの一覧も、組み込みのプラグインのルール(`core-rules.ts`)と、自作と JS のプラグインのルール(`project-rules.ts`)に分ける。
 
+- 複数行の `const` と `export const` は前後の文との境目を見つけにくいので、`stylistic/padding-line-between-statements` で前後に空行を求める。1行の宣言同士は続けて書ける。
+
 - **自作のルール**(`tooling/lint/rules/`)
   - `no-standalone-comment`:単独の行のコメントとブロックコメントを禁止し、行末のコメントは40文字までにする。lint への指示(`oxlint-disable` など)と `@ts-expect-error` は除く。TSDoc は宣言・型のプロパティ・メンバーの直前にだけ書ける。分割の見出し(10本以上の `-` の罫線・見出しの行・罫線の3行)は、コードが200行を超えるファイルでだけ許し、400行を超えるファイルには1つ以上を求める。行数は、空行とコメントだけの行を除いて数える(`eslint/max-lines` の `skipBlankLines`・`skipComments` と同じ数え方)。見出しの行は、文字か数字を含み、lint への指示ではないものに限り、40文字までにする。必須の条件を満たすのは、後ろにコードが続く見出しだけ(ファイルの末尾に置いただけの見出しは数えない)。改行は LF・CRLF・CR・U+2028・U+2029 のどれでも1行と数える。TSDoc と宣言のあいだに見出しを挟むと、宣言の直前に無い TSDoc の診断を出す。
   - `tsdoc-role-only`:TSDoc の説明とタグを、それぞれ1行・1文・60文字までにし、条件・例・補足・理由の言い回しと、`@param`・`@returns`・`@deprecated` 以外のタグを禁止する。言い回しは正規表現で見る(「割り切ったこと」)。「起動時に組み立てる」のような定義まで止めていたので、「時に」「ときに」は条件の言い回しから外した。`test.if` のようなコードの名前で引っかからないよう、バッククォートで囲んだ部分は言い回しの検査から外す。
@@ -17,8 +19,11 @@
   - `max-code-lines`・`file-length-limit`:ファイルのコードの行数(空行とコメントだけの行を除く)に上限を設ける。同じ実装を、400行(`max-code-lines`。1行目に理由付きで抑制できる)と800行(`file-length-limit`。抑制できない)の2つの名前で使う。Oxlint の `eslint/max-lines` は、複数行のコメントや CR だけの改行で数え方が食い違ったので使わない。
   - `require-disable-reason`:lint の抑制に、ルールの名前と `--` の後の理由を求める。ルールの名前と説明の区切りは、Oxlint と同じ読み方にする(カンマと空白で区切り、`--` か前後に空白のある `-` から説明が始まる。`/` の無い名前はプラグイン名を除いた部分で照らし合わせる)。抑制できないルール(`file-length-limit`・`no-standalone-comment`・このルール自身)の抑制を止め、`max-code-lines` の抑制は1行目の `// oxlint-disable` の形だけを許す。
   - `no-focused-test`:`test.only`・`describe.skip`・`test.todo`・`test.if` などを禁止する。
-  - `no-cross-workspace-import`:相対パスで、自分のワークスペース(`apps/<名前>`・`packages/<名前>`)の外のファイルを import することを禁止する。Bun の isolated linker はパッケージ名での import しか縛らないので、相対パスなら server のコードを contract から読めてしまう。
-  - `require-sibling-test`:管理画面の `.ts` が関数を export するなら、同じフォルダの `__tests__` に `.test.ts` を求める。表示を出し分ける `.tsx`(JSX を返す条件分岐がある)には、`__tests__` に `.test.tsx` を求める。テストのファイルは、中に `test(` か `it(` があるときだけ数える。lint を通すためだけの空のファイルやフォルダでは通らない。
+  - `no-cross-workspace-import`:相対パスと server・管理画面の `@/` が自分のワークスペース(`apps/<名前>`・`packages/<名前>`)の外を指す import と re-export を止める。Bun の isolated linker が依存を制限するのはパッケージ名での import なので、ファイルを直接指すパスはこのルールで検査する。
+  - `require-sibling-test`:管理画面の `src/` の `.ts` が関数(hook を含む)を export するなら、同じフォルダの `__tests__` にテストを求める。表示を出し分ける `.tsx`(JSX を返す条件分岐がある)にも、`__tests__` にテストを求める。テストのファイルは、`.test.ts` と `.test.tsx` のどちらでも数える(テストの拡張子は、テストに JSX があるかで決まる)。テストのファイルは、中に `test(` か `it(` があるときだけ数える。lint を通すためだけの空のファイルやフォルダでは通らない。`.storybook/` には掛けない。管理画面のテストは `src/` から流す(`apps/admin/bunfig.toml` の `root`)ので、`.storybook/__tests__` に置いても流れない。`.storybook/` の `useHtmlPreferences` は、全部の story を描くテスト(`src/__tests__/stories.test.tsx`)が、html の `lang` と `data-theme` で確かめる。
+  - `require-jsx-in-tsx`:JSX の要素も fragment も含まない `.tsx` を止める。リポジトリの全体(テスト・story・`.storybook/`・fixture を含む)に掛ける。理由は `apps/admin/DECISIONS.md` の「`.ts` と `.tsx`」。
+  - `no-react-in-logic`:管理画面の `src/` の `.ts`(テストと story を含む)で、React(`react`・`react-dom` とそのサブパス)の値の import と re-export を、hook のファイルと context のファイルにだけ許す。どちらのファイルかは、ファイルの名前と、export するものの形で決める(`apps/admin/DECISIONS.md` の「`.ts` と `.tsx`」)。hook の名前は、export する名前で見る(`export { a as useA }` も hook)。`export { … } from` で、ほかのモジュールから re-export する値は、関数かどうかを読めないので、関数と数える。import してから別の文で export する値は、関数と数えない(hook のファイルで React の関数を export し直すことは、わざとしない限り起きない)。`createContext` は、React から import した名前(別名を含む)と、React の default と namespace の import から呼んだものを数える。context のファイルは、`createContext` の結果を1つ以上 export する。`no-restricted-imports` は、ファイルの名前や export の形を見られないので、自作のルールにした。`.storybook/` は `src/` の外で、Storybook の設定と枠を置く場所なので掛けない。
+  - `admin-module-location`:管理画面の `features/`・`components/`・`ui/`(テストと story を除く)で、hook を `hooks/` の外に、関数を export する `.ts` を `logic/` と `queries/` の外に置かせない。`features/` では、server の API を呼ぶ処理も `queries/` の外に置かせない。理由は `apps/admin/DECISIONS.md` の「hook・純粋な関数・server の API を呼ぶ処理の置き場所」。hook は、export する名前が `use` で始まる関数と、分割代入で受けて export する `use` で始まる名前(TanStack Form の `createFormHook` の結果など。宣言に `export` を付けても、別の文の `export { … }` でも)で見る。ほかのファイルからの re-export は、hook を置いたファイルの側で見るので、見ない。server の API を呼ぶかは、`api` という名前の変数・分割代入で `api` から受けた変数・`ApiClient` の型を付けた変数から、`admin`・`auth`・`deploy`・`public` を読む式と、それらを分割代入で取り出す書き方(`{ api: { admin } }` のような入れ子も)で見る。純粋な関数でも server の API を呼ぶ処理でもない `.ts`(ブラウザの API を呼ぶ、呼び出しのあいだ状態を持つ、渡された関数で外に書き込む、`crypto.randomUUID()` で値を作る、など)は、設定の `effectfulModules` にパスを書いて外す。フォルダの名前が置き場所の約束なので、名前を見るだけでよい。`no-restricted-imports` ではファイルの置き場所と export の形を照らし合わせられないので、自作のルールにした。
   - `test-location`:テストのファイルを `__tests__` の直下に置かせ、`__tests__` にはテストのファイルだけを置かせ、`__tests__` の中にフォルダを作らせない。テストがテストするコードと同じフォルダにあるかまでは見ない(API 越しのテストは、1つのファイルに対応しないため)。
   - `max-exported-functions`:コードの行数(空行とコメントだけの行を除く)が200行を超えるファイルは、export できる関数を2つまでにする(型は数えない)。200行以下なら、数は問わない(ユーザーが決めた。理由は直下の `DECISIONS.md` の「ファイルの長さ」)。境目の200行は、分割の見出しを使える行数と同じ値を、`tooling/lint/config/project-rules.ts` の1か所から渡す。数えるのは、arrow function・function 宣言・function 式だけで、呼び出しの結果(oRPC の procedure や、関数を返す関数の戻り値)は数えない。server の「1ファイルに、1つの procedure か1つの関数」のうち、この上限で抑えるのは関数の数だけで、procedure の数は抑えない。
   - `no-inline-parameter-type`:関数の引数に、インラインのオブジェクト型を書かせず、名前付きの型にさせる。
@@ -26,10 +31,12 @@
     - 入口と dispatcher では、Oxlint の設定の `overrides` でこのルールを外す。入口に数えるのは、HTTP の入口(`src/app.ts`)、コマンドの入口(`src/main.ts`・`src/enroll.ts`・`src/db/migrate.ts`)、起動のときの環境変数の検証(`src/platform/parse-database-url.ts`)。環境変数の検証は、起動の入口で外からの値をデコードする場所なので入口に数える。`.env` のパスワードの `%` のような、人が普通にする書き間違いを、パスワードを出さない決まった文言で知らせるため、`decodeURIComponent` の失敗を受け止める。dispatcher(ビジネスイベントを配る場所)は、作るときに足す。
     - テストのファイルと、テストの部品(`src/test-client/`・`src/platform/test-database/`)でも外す。テストは失敗を値として受け取って確かめるので、握りつぶしではない。本番のコードは、この2つのフォルダを import できない(`tooling/structure/` のテストが止める)。import できると、`catchErrorCode` のような部品を通して、このルールをすり抜けられる。
   - `styling-boundary`:管理画面の見た目の境界を守る(デザインシステムの判断は `apps/admin/src/ui/DECISIONS.md`)。画面のコード(`ui/` の外)では、`style` と、文字列のリテラルでない `className`(と `…ClassName`)を止める。式を渡すと、class の検査(eslint-plugin-better-tailwindcss)が中身を読めず、すり抜けるため。`ui/` の中では、`className` を、リテラル・関数の呼び出し・呼び出しを返す関数(React Aria Components の render props)に限り、`style` にその場で書いたオブジェクトだけを許して、キーを `--` で始まる CSS 変数に限る。どちらでも、JSX の props の spread を止める(spread で渡した `className` や `style` は検査が見ない)。
+  - `max-classes-per-string`:`ui/` と `features/*/ui/` で、class を書く文字列(JSX の `className` と `…ClassName` の属性、`tv`・`merge` の呼び出しの中、`class`・`className` のプロパティ、名前が `ClassName(s)` で終わる変数)の1つに、9個以上の class を書くと止める(上限はユーザーが決めた8個)。理由は `apps/admin/src/ui/DECISIONS.md` の「検査」。空白で区切って数える。テンプレートリテラルでは、補間を空文字としても9個以上になる場合に止める。class を選ぶ条件の比較文字列は数えない。eslint-plugin-better-tailwindcss の `enforce-consistent-line-wrapping` は、行の幅で折り返させるルールで、整形と食い違うので使わない(下の「管理画面の Tailwind CSS の class の検査」)。class の数で区切れば、整形とぶつからない。JSX の `className` の文字列は、配列にできないので、文言で `tv` に移すように伝える。
   - `no-dynamic-import`:`import()` による動的な import を禁止する。境界を守る `no-restricted-imports` は動的な import を見ないので、`import()` なら Drizzle や Bun の API を、決めた場所の外から読めてしまう。今のコードでは、client の CLI の入口(`packages/client/src/cli/main.ts`)の1か所だけで、理由付きで抑制している(利用者の定義のファイルは、実行するときにしかパスが分からない)。
-- **管理画面の層の境界**(`tooling/lint/config/admin-overrides.ts`):React Aria Components とその下の層を import できるのは `ui/primitives/` だけ、`tailwind-variants` を import できるのは `ui/tv.ts` だけ(どちらもサブパスを含む)。`ui/layout/` は primitives と patterns を、`ui/primitives/` は patterns を、相対パスで import できない。理由は `apps/admin/src/ui/DECISIONS.md` の「部品の層」。場所ごとに `no-restricted-imports` の options が違うので、Bun・Node・React の制限と同じ部品から、場所ごとに組み立てる。
+  - `no-effect-outside-allowed-hook`:React の `useEffect`・`useLayoutEffect`・`useInsertionEffect` を、一覧に載せた hook の直下でだけ呼べるようにする。React の外と同期する処理の目的を hook の名前で示し、effect が必要な場所を一覧で把握するため。React からの import を参照する呼び出しを見て、直接囲む関数の名前を `allowedHooks` と照らし合わせる。管理画面全体(`src/` のテスト・story と `.storybook/` を含む)に掛ける設定と hook の一覧は、管理画面の層の境界と同じ `tooling/lint/config/admin-overrides.ts` に置く。effect を使う判断は `apps/admin/DECISIONS.md` の「React の effect」に書く。
+- **管理画面の層の境界**(`tooling/lint/config/admin-overrides.ts`):React Aria Components とその下の層と lucide-react を import できるのは `ui/primitives/` だけ、`tailwind-variants` を import できるのは `ui/tv.ts` だけ(どれもサブパスを含む)。`ui/layout/` から primitives と patterns へ、`ui/primitives/` から patterns への import は、相対パスと `@/` のどちらでも止める。理由は `apps/admin/src/ui/DECISIONS.md` の「部品の層」。場所ごとに `no-restricted-imports` の options が違うので、Bun・Node・React の制限と同じ部品から、場所ごとに組み立てる。
 - **管理画面の Tailwind CSS の class の検査**(eslint-plugin-better-tailwindcss を、Oxlint の JS のプラグインで動かす。設定は `tooling/lint/config/admin-classes.ts`)
-  - 管理画面の `src/` にだけプラグインを読み込む(`overrides` の `jsPlugins`)。server などのファイルで、Tailwind CSS の設定を読む時間を使わない。プラグインの設定(`settings`)は `overrides` に書けないので、直下に書く。`cwd` を `apps/admin` にし、`entryPoint` に管理画面の `src/ui/app.css` を渡して、theme.css に無い class を「無い class」として落とす。
+  - 管理画面の `src/` にだけプラグインを読み込む(`overrides` の `jsPlugins`)。server などのファイルで、Tailwind CSS の設定を読む時間を使わない。プラグインの設定(`settings`)は `overrides` に書けないので、直下に書く。`cwd` を `apps/admin` にし、`entryPoint` に管理画面の `src/ui/app.css` を渡す。`app.css` が読む `theme.css` と `animation.css` を含めた設定で、生成できない class を落とす。
   - 使うルールは、無い class・止める class・効き目がぶつかる class・重なった class・古い class・余分な空白・canonical な class(`enforce-canonical-classes`)・class の並び。行の折り返しは整形と食い違うので使わない。
   - 止める class は、場所ごとに違う(画面のコード、`ui/` と `features/*/ui/`、入力を受ける部品の枠の色 `line-strong` を書ける `ui/primitives/`、文字の役割を決める `ui/typography.ts`)。`overrides` は同じルールの options を丸ごと置き換えるので、止める形を部品にして、場所ごとの一覧を組み立てる(「設定を TypeScript で組み立てる」)。何を止めるかと理由は `apps/admin/src/ui/DECISIONS.md` にある。
   - selectors は、プラグインの既定から、class と関係の無い変数の名前(`style`・`styles`・`classes`)を除き、名前が `ClassName` で終わる属性と変数(`contentClassName` など)と、`ui/tv.ts` の `merge` の呼び出しを足す。既定のままだと、`Intl.NumberFormat` に渡す `const style = "currency"` まで class として止めた。
@@ -37,12 +44,12 @@
   - Storybook の story(`__stories__`)は、`ui/` の中にあっても、画面のコードと同じ決まりで検査する。`ui/` の決まりは部品を作るためのもので、story は部品を組んで見せるだけなので、色や class を選ばせない。story で決まりから外れたくなったら、部品を足すことになる。
   - 色の見本(`ui/specimens/color-specimen.tsx`)だけ、色ごとに使える utility の決まりと、`line-strong` を `ui/primitives/` の外で止める決まりを外す。色の見本は、どの色も `bg-` で塗って並べる必要がある(`focus` や `line` は、ふだん `bg-` に使えない)。ほかの決まり(任意の値・不透明度・文字の役割など)は外さない。
   - story の import の決まりは、置いた層(primitives・layout)の決まりでなく、画面のコードと同じにする(React Aria Components を直に使えず、ほかの層の部品は使える)。story は描くだけなので、`require-sibling-test` も外す(全部の story を描くテストがある)。
-- **Storybook の設定のファイル**(`apps/admin/.storybook/`):`main.ts` は Storybook が Node で読むので、相対 import に `.ts` を付ける(oxlint の設定と同じく、`import/extensions` を変える)。`.storybook/` の中は、型付きの lint が tsconfig の `noPropertyAccessFromIndexSignature` を読まないように振る舞う(`dataset["x"]` を `dot-notation` が止め、`dataset.x` を tsc が止める。`no-floating-promises` などのほかの型付きのルールは効く)。TypeScript の方を取り、ぶつかる `story-frame.tsx` だけ `dot-notation` を外す。`setAttribute("data-theme", …)` で書くと、こんどは `unicorn/prefer-dom-node-dataset` が止める。tsrs の振る舞いなので、tsrs を上げたら、外したままでよいかを見直す。
+- **Storybook の設定のファイル**(`apps/admin/.storybook/`):`main.ts` は Storybook が Node で読むので、相対 import に `.ts` を付ける(oxlint の設定と同じく、`import/extensions` を変える)。`.storybook/` の中は、型付きの lint が tsconfig の `noPropertyAccessFromIndexSignature` を読まないように振る舞う(`dataset["x"]` を `dot-notation` が止め、`dataset.x` を tsc が止める。`no-floating-promises` などのほかの型付きのルールは効く)。TypeScript の方を取り、ぶつかる `use-html-preferences.ts` だけ `dot-notation` を外す。`setAttribute("data-theme", …)` で書くと、こんどは `unicorn/prefer-dom-node-dataset` が止める。tsrs の振る舞いなので、tsrs を上げたら、外したままでよいかを見直す。
 - **TSDoc のタグの検査**(eslint-plugin-jsdoc):`@param` の名前が引数と合うこと(`check-param-names`)、1つでも書いたら全部の引数に書くこと(`require-param`)、何も返さない関数に `@returns` を書かないこと(`require-returns-check`)、タグに型を書かないこと(`no-types`。型は TypeScript が持つ)。
 - **使える API の制限**
   - `node:*` と Bun 専用のモジュールは、contract・client・管理画面で import できない。Node と Bun のグローバルも、server と tooling だけで有効にする。目的は、ブラウザ(や Node でないところ)でも動かすコードに、Node や Bun でしか動かない API を入れさせないこと。`node:fs/promises` のようなサブパスも止める(`node:*` だけではサブパスが pattern をすり抜けた。本番のコードでは、管理画面も contract と client の SDK も、Node の型を持たない tsconfig で tsc が止める)。
   - 管理画面のテスト(`src/**/__tests__/`)では、Node と Bun の import とグローバルを許す。テストは Bun で動くので、上の目的に当たらない(theme.css を読むテストなど)。
-  - 管理画面の `.ts` から `react`・`react-dom` を import できない。フックやコンポーネントは `.tsx` に置き、`.ts` をテストできるロジックだけにする。
+  - 管理画面の `.ts` で React の値を import できるのは、hook のファイルと context のファイルだけ(`no-react-in-logic`)。こうすると、ロジックを React なしでテストできる。拡張子は JSX の有無で決めるので(`require-jsx-in-tsx`)、JSX を書かない hook や context も `.ts` に置く。
   - `console`(ログは context で渡す logger を使う)、`process.env`(環境変数は起動時に検証する1か所だけで読む)、引数のプロパティの書き換えを禁止する。
 - **足したルール**:`no-unnecessary-condition`(要らない `?.` や条件)、`no-abusive-eslint-disable`(ルールを指定しない抑制)、React の `only-export-components`・`no-danger`・`button-has-type`。
   - `typescript/return-await`(`in-try-catch`):`try`・`finally` の中と `await using` の後で、`await` を省いた `return` に診断を出す。省くと、返した処理が終わる前に後始末が走り、使っている最中の接続が閉じる。Postgres の用意で実際にこの誤りがあった。型は同じ `Promise` なので型検査では止まらない。ほかの場所の `return` には診断を出さない。テストでも外さない(テストで出るのも同じ誤り)。型付きのルールなので fixture では確かめられない。
@@ -66,9 +73,9 @@
   - `import/extensions`:`.mjs` の拡張子を付ける。Node の ES モジュールは、相対 import に拡張子が無いと読み込めない。全体に掛けると、`.mjs` で配布されているパッケージ(oRPC など)の import にまで拡張子を求められたので、範囲を絞った。
   - `typescript/no-unsafe-*` と `strict-boolean-expressions` を外す。Oxlint は JS プラグインへ型の無い構文木を渡すので、型付きのルールを当てても意味が無い。
 - **server の境界**(`apps/server/src/` に `no-restricted-imports`・`no-restricted-globals`・`no-restricted-properties` を掛ける。上書きの設定は、後に書いたものが勝つ)
-  - Drizzle と DB のドライバを値として import できるのは、`*.query.ts`・`src/db/`・`src/platform/` だけ。型だけの import は、mapper のためにどこでも許す。
-  - Bun 専用の API(`Bun` と `HTMLRewriter` のグローバル、`globalThis.Bun`、`bun` と `bun:*` のモジュール、`hono/bun`)を使えるのは、`src/platform/` と `src/main.ts` だけ。テストのための `bun:test` はどこでも使える。
-  - 素の oRPC の builder(`implement`・`os`・`Builder`)を値として使えるのは、`src/procedures.ts` と `src/router.ts` だけ。型だけの import は許す。
+  - Drizzle と DB のドライバを値として import できるのは、`*.query.ts`・`src/db/`・`src/platform/` だけ。`src/features/` の外では、型だけの import も許す。feature には下の制限を掛ける。
+  - Bun 専用の API(`Bun` と `HTMLRewriter` のグローバル、`globalThis.Bun`、`bun` と `bun:*` のモジュール、`hono/bun`)を使えるのは、`src/platform/` と `src/main.ts` だけ。`bun:test` はテストに使う。feature ではテストのファイルだけに許す。
+  - 素の oRPC の builder(`implement`・`os`・`Builder`)を値として使えるのは、`src/procedures.ts` と `src/router.ts` だけ。feature の外では型だけの import も許す。
   - contract・client・管理画面にも、同じ形で Bun の API と `node:*` の禁止を掛ける。
   - ただし、client の CLI(`packages/client/src/cli/`)は Node で動かすコマンドなので、`node:*` の import と Node のグローバルを許す(Bun の API は禁じたまま)。`process.env` は、CLI の入口の `main.ts` でだけ読める。CLI では `node:process` の import を禁じ、グローバルの `process` を使わせる(下の `node/no-process-env` の穴をふさぐため。Codex のレビューで挙がった)。fixture は `packages/client/src/` の下に置く。
   - `node/no-process-env` は、グローバルの `process` の `env` だけを見る。`import process from "node:process"` で読み込んだ `process` の `env` には診断を出さない(fixture を書いていて分かった)。今は server と CLI のどちらも、そう書いていない。
@@ -89,6 +96,28 @@
   - 対象のパスが無ければ、テストを失敗させる。まとめた結果を絞り込む形では、打ち間違えたパスが空の結果を返し、診断を出さないことを確かめるテストが、空のまま通ってしまうため。
   - 手元の check で、lint に関わるファイルに触れていない変更のときに fixture のテストを飛ばすことはしない(ユーザーが決めた)。約2秒なので、飛ばす仕組みに見合わない。
 - **fixture**:ルールの分類ごとのフォルダ(`comments/`(TSDoc は `comments/tsdoc/`)・`jsdoc/`・`functions/`・`imports/`・`syntax/`・`tests/`)に分け、server や管理画面だけに掛かるルールの fixture は、`apps/server/src/` のように同じパスを再現したフォルダに置く。`tooling/lint/fixtures/` は `bun test` の対象から外す(`bunfig.toml` の `pathIgnorePatterns`)。描画するライブラリを import する fixture など、実行できないものを置くため。
+
+### 管理画面の feature の import
+
+feature が使う外のライブラリは `src/i18n/` と `src/api/` のモジュールに集める。
+ライブラリを差し替えるときに調べて直す場所を限るため、feature に渡す形は今使うものに絞る。
+差し替えへの備えは、抽象化の層を増やさず、依存する場所を限ることで担保する。
+
+`eslint/no-restricted-imports` の否定の pattern で、`@analemma/contract`・管理画面内の相対パスと `@/`・`react` を通す。`!react` は `@storybook/react` のように最後の path segment が `react` の import にも一致するので、`*/**/react` でその例外を取り消す。
+既存のルールで書けるので、自作のルールは足さない。
+features の import には、この pattern を使う。React Aria Components・lucide-react・tailwind-variants・Node・Bun の import も `**` が止めるため、同じ import への診断は1件で済む。
+テストと story は、描画や作り物の server の組み立てに外のライブラリを使える。
+この制限は `src/features/` の製品のコードに掛ける。`src/routes/` は今回の適用範囲から外す。
+
+### 管理画面で共有する部品の import
+
+`src/components/` の製品のコードが `src/features/` を import したり再 export したりすると、複数の feature で使う部品が特定の feature に依存する。UI の層と同じ `eslint/no-restricted-imports` の設定で、相対パスと `@/` の両方を検査する。
+
+### server の feature の import
+
+`src/features/` では、server 内への相対パスと `@/`、それに `@analemma/contract` を許す。管理画面と同じ `no-restricted-imports` の pattern で、許していないモジュールは型だけの import も含め、import ごとに1件の診断を出す。相対パスと `@/` が server の外を指していないかは、ワークスペースの境界のルールが確かめる。
+
+用途ごとの `queries/` にある `*.query.ts` では Drizzle、`__tests__/` のテストでは `bun:test` も許す。zod は、WebAuthn の `clientDataJSON` を検証する `parse-client-data.ts` で当面許す。ここで検証するのは、contract が受け取った文字列をデコードした後の値なので、すぐには contract のスキーマに移せない。検証をどこに置くかは、設定の TODO に残す。
 
 ## 手元の検査
 
@@ -158,12 +187,13 @@ lint のルールは、書いているときにすぐ気づくための早めの
 
 `tooling/structure/` のテストが、リポジトリの全ファイル(`git ls-files` で一覧にしたもの)を見て検査する。フォルダの中身を数えるには全体を見る必要があり、1ファイルずつ見る lint には向かない。
 
-- 1つのフォルダに置けるのは10件まで。`__tests__`・`__stories__` と、`AGENTS.md`・`CLAUDE.md`・`DECISIONS.md`・`README.md` は数えない。story は、テストと同じく部品の隣の `__stories__` に置き、部品のフォルダの件数を使わない(部品が多いフォルダほど story も多い)。`__stories__` を置けるのは管理画面の `src/` の下だけで、中には `*.stories.tsx` だけを置ける。`*.stories.tsx` を `__stories__` の外に置くと、Storybook にもテストにも載らないので、それも止める。どこにでも置けると、ふつうのファイルを `__stories__` に入れて、件数の検査をすり抜けられる(Codex のレビューで見つかった)。リポジトリの直下と、`.` で始まるフォルダの中は検査しない(設定ファイルの置き場所がツールで決まっているため)。`.` で始まるフォルダも、親のフォルダでは1件と数える。
+- 1つのフォルダに置けるのは10件まで。`__tests__`・`__stories__` と、`AGENTS.md`・`CLAUDE.md`・`DECISIONS.md`・`README.md` は数えない。story は、テストと同じく部品の隣の `__stories__` に置き、部品のフォルダの件数を使わない(部品が多いフォルダほど story も多い)。`__stories__` を置けるのは管理画面の `src/` の下だけで、中には `*.stories.ts` と `*.stories.tsx` だけを置ける。story を `__stories__` の外に置くと、Storybook にもテストにも載らないので、それも止める。どこにでも置けると、ふつうのファイルを `__stories__` に入れて、件数の検査をすり抜けられる(Codex のレビューで見つかった)。リポジトリの直下と、`.` で始まるフォルダの中は検査しない(設定ファイルの置き場所がツールで決まっているため)。`.` で始まるフォルダも、親のフォルダでは1件と数える。
 - フォルダの名前は kebab-case(`__tests__`・`__stories__` は除く)。`__tests__` と `__stories__` の中にフォルダは作れない。
 - 一覧は `git ls-files -z` で取る。日本語のファイル名が引用符付きで返ってくるのを避けるため。作業ツリーから消したファイルは数えない。
 - わざと約束を破る fixture を置く `tooling/lint/fixtures/invalid/` は、この検査から外す。
 - 色と文字の見本(`apps/admin/src/ui/specimens/`)・story(`__stories__`)・Storybook の設定(`.storybook/`)は、テストの側(テストとテストの部品)・story・Storybook の設定だけが import できる(本番のコードから読むと、色ごとの utility の決まりの外の部品や、Storybook の依存が本番に入る)。テストの部品(`src/testing/`)と同じ検査で止める。
 - テストの部品(`apps/admin/src/testing/` など)を import できるのは、テストと、管理画面の story(`__stories__`)だけ。画面の story は、テストと同じ作り物の server と認証器で動かす。story は本番のビルドに入らない(Storybook だけが読む)。
+- server と管理画面の `@/` で始まる import と re-export は、それぞれの `src/` からのパスに直して検査する。相対パスと同じ場所を指せるので、同じ制限をかける。
 - drizzle-kit が migration を書き出す `apps/server/src/db/migrations/` と、その下のフォルダは、名前と数の検査から外す。drizzle-kit は migration を1件ごとに `20261121073110_create-notes/` のようなフォルダに書き、名前と数はこちらで変えられない。名前の先頭の日時が適用する順番を表すので、kebab-case にもそろえられず、migration は増える一方なので10件にも収まらない。外すのはこのフォルダの下だけで、親の `apps/server/src/db/` では、ほかと同じく1件と数える。
 - 同じ理由で、migration のフォルダは oxfmt の整形からも外す(`.oxfmtrc.json` の `ignorePatterns`)。drizzle-kit が書く `snapshot.json` の配列の折り返しが oxfmt と違い、`bun run check` の整形の確認で落ちた(使い捨ての migration で確かめた)。生成物を整形し直すと、生成し直すたびに差分が出る。SQL と JSON は Oxlint の対象ではないので、lint の設定は変えない。
 - 並べ替えでは `localeCompare` を使わない。テストを書いている途中で、`localeCompare` が実行環境のロケールで順番を変え、テストの期待と食い違った。文字コードの順で並べる。
@@ -209,8 +239,9 @@ git の `core.hooksPath` を、コミットしたフォルダ `tooling/git-hooks
 
 GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の名前(`check`・`commit-messages`)は、main とフェーズのブランチの ruleset で、通ることを必須にする check として登録した名前なので、変えるときは ruleset も直す。
 
-- **`check`**(`check.yml`):PR と、main とフェーズのブランチへの push で、`bun install --frozen-lockfile` と `bun run check --all` を流し、client をビルドして CLI を1回流す(`packages/client/DECISIONS.md`)。PR の CI は、その時点の base に merge した中身で流れるので、ある PR の最後の CI が、別の PR が入る前に流れていると、2つを合わせた中身はどこでも流れない。ruleset で守るブランチへの push でも流し、入れた後の中身を確かめる。手元と違い、変えたファイルにかかわらず server のテストも流す(「手元の検査」)。テスト用の PostgreSQL は、手元と同じく `bun run check` が Docker Compose で起動する(直下の `DECISIONS.md` の「PostgreSQL の用意」)。
+- **`check`**(`check.yml`):PR と、main とフェーズのブランチへの push で、`bun install --frozen-lockfile` と `bun run check --all` を流し、client をビルドして CLI を1回流す(`packages/client/DECISIONS.md`)。PR の CI は、その時点の base に merge した中身で流れるので、ある PR の最後の CI が、別の PR が入る前に流れていると、2つを合わせた中身はどこでも流れない。そこで ruleset で、PR の branch が base の先端を含む中身で CI に通っていることを、merge の条件にする(必須にする check に付ける、ruleset の strict required status checks。ユーザーが決めた)。それぞれ通った2つの PR が、合わせると落ちてフェーズのブランチを壊すのを、入る前に止める。先端を取り込むときは、「Update branch」で merge commit を作らず、rebase で合わせる(stack の linear history と同じ考え方)。ruleset で守るブランチへの push でも流し、入れた後の中身を確かめる。手元と違い、変えたファイルにかかわらず server のテストも流す(「手元の検査」)。テスト用の PostgreSQL は、手元と同じく `bun run check` が Docker Compose で起動する(直下の `DECISIONS.md` の「PostgreSQL の用意」)。
 - **`commit-messages`**(`commit-messages.yml`):PR で、PR のコミットのメッセージと、PR のタイトルを確かめる。merge の方法は、merge commit・squash・rebase のどれも許す(直下の `DECISIONS.md` の「ブランチとレビュー」)。merge commit と squash では PR のタイトルが入れた先に残るコミットの1行目になり、merge commit と rebase では PR のコミットもそのまま残るため。
+- **子の PR の追加行数**:PR を作る前に上限超過に気づけるよう、必須のタイトル検査で追加行数も確かめる。手元と CI で同じスクリプトを使い、数え方をそろえる。stack では、その PR で増えた分だけを読むので、base と head の共通の祖先からの差分を使う。
 - **workflow を分ける**:`commit-messages` は、PR のタイトルを直したとき(`edited`)にも流す必要がある。`check` を同じ workflow に置くと、タイトルや本文を直すたびに `check` も流れる。job の `if` で `check` を飛ばすと、飛ばした job は通ったものとして扱われ、落ちていた `check` が、タイトルを直しただけで通ったことになる。同じ理由で、本文だけを直したときも `commit-messages` を飛ばさない。
 
 ### メッセージの検査
@@ -221,6 +252,7 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **PR の本文は確かめない**:merge commit と squash のコミットの本文を空にする設定にしてあり、PR の本文は履歴に残らない。本文も残す設定にするなら、本文も確かめる。
 - **タイトルは環境変数と標準入力で渡す**:`${{ }}` で `run` に直接書くと、タイトルがシェルのスクリプトの一部として展開され、タイトルに書いたコマンドが流れる(script injection)。引数でなく標準入力で渡すのは、`-` で始まるタイトルを option と読ませないため。
 - **ほかのリポジトリの名前は探さない**:CI には名前の一覧が無い(一覧は手元にだけ置くため)。名前は、手元の `bun run check` とコミットのときの hook が探す。
+- **このスクリプトのテストだけ、時間の上限を30秒にする**:メッセージ1件ごとに、hook と commitlint の Bun のプロセスを起動し、1件に約0.3秒かかる(git の用意は1テストで約0.07秒)。テスト7つを同時に流すと、ファイル全体で約3秒かかり、load average(1分)が33のマシンでは3.4〜4.4秒と、`bun test` の既定の5秒に近づく。1テストのメッセージは、最小の2件(コミット1件とタイトル)に近く、全部で18件のうち減らせるのは数件だけなので、減らさずに `setDefaultTimeout` で `tooling/ci/__tests__/check-pull-request-messages.test.ts` だけ延ばす。メッセージを hook に1件ずつ渡す形は、「同じ検査を2か所に書かない」のとおり変えない。
 
 ### 守りの設定
 
@@ -237,18 +269,34 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 `bun run review`(`tooling/review/review.ts`)が、1つの観点のレビューを1回流す。進め方と理由は、直下の `DECISIONS.md` の「ブランチとレビュー」にある。
 
 - **prompt**:`tooling/review/prompts/` に、観点ごとのファイル(見る範囲・見ない範囲)と、どの観点にも共通の `common.md`(守ること・重要度・出力の形)を置く。スクリプトは、読むものの場所と「割り切ったこと」を添えて組み立て、出力の形を最後に置く。prompt を Markdown にするのは、コードの文字列より読み書きしやすく、用語集の検査にも掛かるため。
-- **レビューさせる中身**:レビューするブランチにコミットした中身を、`git archive` で一時フォルダに書き出し、そこを外の CLI の作業フォルダにする。作業ツリーの状態(コミットしていない変更や、別のブランチを checkout した worktree)に左右されず、どの worktree から流しても、同じものを見せられる。コミットしない手元のファイル(`AGENTS.local.md`・`.private/`)も見せない。
+- **レビューさせる中身**:レビューするコミットの中身を、`git archive` で一時フォルダに書き出し、そこを外の CLI の作業フォルダにする。作業ツリーの状態(コミットしていない変更や、別のブランチを checkout した worktree)に左右されず、どの worktree から流しても、同じものを見せられる。コミットしない手元のファイル(`AGENTS.local.md`・`.private/`)も見せない。
 - **差分とコミットのメッセージ**:書き出した中身には git の履歴が無いので、差分(`git diff base...head`)とコミットのメッセージを、別のファイルにして渡す。Cursor の ask モードは shell を使えないので、どのみち差分はファイルで渡す必要がある。
-- **割り切ったこと**:レビューするブランチの全 `DECISIONS.md` から「## 割り切ったこと」の節を集め、prompt に書き込む。ファイルの場所を渡すだけより、確実に読ませられる。コードのブロックの中の、見出しの形の行では区切らない。
+- **割り切ったこと**:レビューするコミットの全 `DECISIONS.md` から「## 割り切ったこと」の節を集め、prompt に書き込む。ファイルの場所を渡すだけより、確実に読ませられる。コードのブロックの中の、見出しの形の行では区切らない。
 - **読み取り専用**:Codex は `-s read-only`、Cursor は `--mode ask` で呼ぶ(ask は書き込みも shell も断る。確かめた)。コマンドの組み立てを純粋関数にし、読み取り専用で呼ぶことをテストで確かめる。外の CLI を実際に呼ぶ部分はテストしない。
-- **モデルの選び方**:Cursor のモデルは、候補のうち `cursor-agent models` の一覧に載っている最初のものを使う(UI/UX とアクセシビリティは、Gemini 4 Neon が無ければ Grok 4.7。規約やルールの遵守は、Grok 4.7 が無ければ Composer 2.5。どちらもユーザーが決めた)。どの候補も無ければ、ほかのモデルで流さずに止まる。Codex の観点には代わりを置かず、使えないときはユーザーに聞く。モデルを option で変えられるようにはしない。ユーザーと決めた割り当てを、その場の判断で崩さないため。変えるときは `perspectives.ts` とテストを直す。
-- **言葉の観点**:Claude の subagent で流す。subagent は Claude Code の中からしか呼べないので、スクリプトは prompt を書き出して場所を出すだけにする。結果は、スクリプトが出した場所(`.private/reviews/<ブランチ>/wording-<回>.md`)に、呼んだエージェントが書く。書かないと回数に数えない。
+- **モデルの選び方**:Cursor のモデルは、候補のうち `cursor-agent models` の一覧に載っている最初のものを使う(規約やルールの遵守は、Grok 4.7 が無ければ Composer 2.5。言葉は Grok 4.7 だけ。どちらもユーザーが決めた)。どの候補も無ければ、ほかのモデルで流さずに止まる。Codex の観点には代わりを置かず、使えないときはユーザーに聞く。モデルを option で変えられるようにはしない。ユーザーと決めた割り当てを、その場の判断で崩さないため。変えるときは `perspectives.ts` とテストを直す。
+- **UI/UX とアクセシビリティのモデル**:Codex で流す(ユーザーが決めた)。Cursor の Gemini 4 Neon は、月の上限に当たると結果を返さなかった。モデルと reasoning effort は、ビジネスロジックと同じ `gpt-6.2-sol`・`xhigh` にした(エージェントが決めた)。この観点も、画面を描かずに、状態の移り変わり・フォーカスの移り方・accessible name を、部品と hook をまたいでコードから読み取るので、ビジネスロジックと同じ深さで読むモデルが要る。
+- **言葉の観点**:Cursor の Grok 4.7 で流す(ユーザーが決めた)。言葉を見るだけなら、Grok 4.7 で足りる。ほかの観点と同じく、スクリプトが流して結果を書くので、結果のファイルには、モデルの出力がそのまま残る(レビューを頼んだエージェントが手で書き写さない)。
 - **つながりと一貫性のモデル**:Codex にした(エージェントが決めた)。フェーズ全体の差分と、リポジトリ中の文書を読み合わせるので、子のブランチのビジネスロジックとセキュリティと同じく、深く読むモデルを使う。
-- **結果の置き場所**:メインの checkout の `.private/reviews/<ブランチ>/` に、`<観点>-<回>.md`(結果)・`<観点>-<回>.prompt.md`(prompt)・`<観点>-<回>.log`(外の CLI の出力)を書く。コミットしない。worktree を消しても残り、どの worktree から流しても、同じブランチの回数がそろう。メインの checkout は、ほかのリポジトリの名前の一覧と同じく、`git rev-parse --git-common-dir` でたどる。
+- **古い base のブランチ**:`--base` に渡した手元のブランチが、origin の同じ名前のブランチより古い(その祖先にある)ときは、流さずに止め、`git fetch` してから `origin/<ブランチ>` を渡すよう伝える。古い base と比べると、base に入ったほかの PR の変更まで差分に入り、費用がかさみ、範囲の外の指摘も出る。origin の方に黙って替えると、prompt に書く base の名前と、比べたコミットが食い違う。手元の方が新しいときと、分かれたときは、手元のまま比べる。stack で、まだ push していないコミットを持つ手元のブランチに積むときに要る。
+- **`--head` にコミットを許す**:手元のブランチの名前に加え、`git rev-parse` で1つのコミットに解決できる名前も渡せる(ユーザーが決めた)。両方に当てはまる名前はブランチとして扱う。直したコミットだけを見る2回目のレビューや、PR の先端のコミットをレビューするときに、手で材料をそろえる手間を省ける。コミットを渡したときも今のブランチのフォルダを使う(ユーザーが決めた)。これでブランチごとの回数がそろう。detached HEAD から流すときは、手元のブランチを渡す。
+- **結果の置き場所**:メインの checkout の `.private/reviews/<ブランチ>/` に、`<観点>-<回>.md`(結果)・`<観点>-<回>.prompt.md`(prompt)・`<観点>-<回>.log`(外の CLI の出力)を書く。`<ブランチ>` はレビューするブランチの名前とし、コミットを渡したときは今のブランチの名前とする。コミットしない。worktree を消しても残り、どの worktree から流しても、同じブランチの回数がそろう。メインの checkout は、ほかのリポジトリの名前の一覧と同じく、`git rev-parse --git-common-dir` でたどる。
 - **回数**:今の回は、結果のファイルの一番大きい番号の次にし、観点ごとの上限(子のブランチの観点は3回、つながりと一貫性は2回)を超えたら流さない。文書だけの上限は守られないため(直下の `DECISIONS.md` の「境界はツールで強制する」)。前の回の結果は、次の回の prompt に添えない。前の指摘に引っぱられるうえ、読ませる量が増えるため(ユーザーが決めた)。
-- **レビューしたコミット**:prompt の頭に、base と head の、流したときのコミットの SHA を書く。prompt は結果と同じフォルダに残るので、結果ごとに、どのコミットをレビューしたかが分かる。SHA は最初に1回だけ決め、差分があるかの判定・書き出す中身・差分・「割り切ったこと」も同じ SHA から作る。流している間にブランチが進んでも、記録とずれず、差分の無いレビューも流れない。観点ごとに流すので、ある観点が LGTM になった後に、別の観点の指摘を直すコミットを足すことは普通に起きる。そのコミットは PR の本文の観点の表に書き(直下の `AGENTS.md`)、流し直す決まりは足さない。足すと、観点の数だけ回数と費用が増える。
+- **レビューしたコミット**:prompt の頭に、base と head のコミットの SHA を書く。ブランチをレビューするときは、ブランチの名前も添える。prompt は結果と同じフォルダに残るので、結果ごとに、どのコミットをレビューしたかが分かる。SHA は最初に1回だけ決め、差分があるかの判定・書き出す中身・差分・コミットのメッセージ・「割り切ったこと」に同じ組を使う。流している間にブランチが進んでも、記録とずれず、差分の無いレビューも流れない。観点ごとに流すので、ある観点が LGTM になった後に、別の観点の指摘を直すコミットを足すことは普通に起きる。そのコミットは PR の本文の観点の表に書き(直下の `AGENTS.md`)、流し直す決まりは足さない。足すと、観点の数だけ回数と費用が増える。
 - **結果の最後の行**:`VERDICT: LGTM` か `VERDICT: CHANGES_REQUESTED` のどちらかにさせ、スクリプトが読んで判定を出す。形から外れたら、読めなかったと出して終了コード1で終える。崩れた形を推し量って読むと、LGTM でないものを LGTM と取り違えうる。
 - **失敗**:外の CLI が失敗したときや、結果が空のときは、結果のファイルを消し、その回を数えない。外の CLI の出力は `.log` に残す。
+- **高・中を付けるときは、使う人の立場で判断する**:問題が起きる例を作れても、その手順を普段の利用や開発で選ぶ理由があるとは限らない。手順が自然かはレビュー担当の判断に任せ、変更によって何に困るのかはコードや仕様に照らして確かめる。
+
+## スペルチェック
+
+エディタの Code Spell Checker(cspell)が、プロジェクトやライブラリの語に波線を出し、本当の綴りの誤りが埋もれていた。直下の `cspell.json` に辞書を置き、エディタと CLI の両方が読む。
+
+- **フェーズの終わりに1回だけ集める**(ユーザーが決めた):知らない語の大半は、プロジェクト・ライブラリ・Postgres の語で、本当の綴りの誤りは少ない。PR のたびに辞書を手入れさせるのはノイズなので、`bun run check` にも CI にも入れない。
+- **CLI は依存に足さない**:`bunx` でバージョンを固定して一時的に取ってくる(`tooling/AGENTS.md`)。フェーズの終わりにしか流さないものを、毎回の `bun install` で入れないため。
+- **`words` と `ignoreWords` を分ける**:`words` はプロジェクトの語で、エディタが綴りの候補にも出す。テストのデータ(base64 の切れ端、URL のエンコード)、わざと崩した綴り(未知の引数を試す `--urll` など)、コードの断片(正規表現の文字の集まり、option の一部など)は `ignoreWords` に置き、候補に出さない。
+
+## query のファイルの置き場所
+
+`tooling/structure/__tests__/repository.test.ts` は、server の `src/` にある `*.query.ts` が `queries/` の直下にあることを確かめる。ほかの query を呼ぶファイルも同じ場所に置くので、Drizzle の import の有無にかかわらず名前で検査する。
 
 ## 割り切ったこと
 
@@ -256,6 +304,7 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **字下げのコードのブロック**:用語集の検査は、Markdown の、4つの空白で字下げしたコードのブロックを扱わない。コードはフェンスで書くので、受け入れる。
 - **`Promise.allSettled`・`Promise.any`**:どちらも失敗を値に変えられるが、`no-catch-outside-entry` は止めていない。結果の型に失敗が出るので、握りつぶしがコードから見える。使う場面が出たら、止めるかを決める。
 - **`import()` のほかの読み込み**:`no-dynamic-import` は `import()` だけを止める。`import.meta.require` や `node:module` の `createRequire` を使えば、境界の外のモジュールを読み込めるが、普通は書かない形なので止めていない。
+- **React の effect の間接的な呼び出し**:effect を `const run = useEffect` で別の変数に代入したり、`const { useEffect } = React` と分割代入したりすると、その変数からの呼び出しは診断を出さない。React の import をそのまま使うのが普段の書き方で、代入後の値まで追跡する手間に見合わない。`React.useEffect(…)` のようにドットで呼ぶ形は検査し、`React["useEffect"](…)` の形は見ない。
 - **`-m` で書いたメッセージの `#` の行**:git は、エディタを開かないとき(`-m`・`-F`)はコメントを消さないが、commit-msg の検査は `#` で始まる行を読まない。エディタで書いたときの git のコメントと見分けられないため。commitlint も同じ扱いをする。`core.commentChar` を `auto` にしたときも、`#` として扱う。どちらも、普通の使い方では起きないので受け入れる。
 - **commitlint の既定の除外**:commitlint は、本文のどこかに `Merge branch …` のような行があるメッセージや、`1.2.3` だけのメッセージを、形を確かめずに通す。普通のメッセージには現れず、通っても、名前と「機械で探す語」の検索は流れるので、受け入れる。
 - **既にある hook**:`install.ts` は、ほかの `core.hooksPath` があれば置き換える(前の値を出す)。そのため、`.git/hooks` の hook も流れなくなる。このリポジトリでは、ほかの hook を使っていない。
@@ -263,7 +312,9 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **PR のタイトルの句点**:確かめるのは ` (#番号)` を足した1行目なので、タイトルを `。` で終えても `subject-full-stop` では止まらない。merge commit と squash の1行目は番号で終わり、句点では終わらないので受け入れる。
 - **hook を通らないメッセージの中の名前**:PR のタイトルと本文、GitHub の画面で作ったコミット(レビューの提案の取り込みなど)のメッセージは、手元の hook を通らない。CI にも名前の一覧が無い。一覧を CI に渡すと、一覧そのものを GitHub に預けることになり、見つけた名前も公開のログに出る。PR はエージェントが作るので、タイトルは、作る前に手元で `tooling/ci/check-pull-request-messages.ts` に通す(直下の `AGENTS.md`)。PR の本文は、どの検査も読まない。GitHub の画面で作ったコミットのメッセージは、CI が形を確かめるが、名前は探さない。どちらも書いた人が見る。本文を手元で探す仕組みは、足さないとユーザーが決めた。
 - **レビューの回数の数え直し**:回数は、メインの checkout の結果のファイルから数える。結果のファイルを消すと回数が戻り、同じ名前のブランチを作り直すと、前のブランチの回数を引き継ぐ。どちらも普通の使い方では起きず、回数の上限は費用を抑えるための目安なので、受け入れる。
-- **レビューの一時フォルダ**:レビューの途中でスクリプトを止めると、書き出したブランチの中身が、OS の一時フォルダに残る。言葉の観点では、subagent が読むので、わざと残す。どちらも OS が片付けるので、受け入れる。
-- **言葉の観点の判定**:言葉の観点の結果は、頼んだエージェントが、subagent の返した結果を写して書く。写さずに書き換えても、確かめる手段は無い(subagent に書かせても、頼んだ側が後から書き換えられる)。言葉の指摘は、直したコミットとして PR に残り、確かめる仕組みを作るほどの害が無いので受け入れる。
-- **SHA を先に決めることのテスト**:レビューのスクリプトが、SHA を最初に決めて、差分の判定と材料に同じ組を使うことは、テストで確かめていない。壊れると(判定をブランチの名前で行う形に戻ると)、モデルを選ぶ数秒の間に base が head を取り込んだときに、空の差分のレビューが1回流れ、回数を1回使う。確かめるには、組み立てを分けて git の呼び出しを差し替え、途中で base を進める仕組みが要り、それでも後の材料づくりまでは確かめきれない。害が小さく、手間に見合わないので受け入れる。
-- **Cursor の `--trust`**:書き出したブランチの中身を、Cursor に信頼させて読ませる(`--trust` が無いと、信頼するかを尋ねて止まる)。中身に Cursor の hook の設定があれば、Cursor が流しうる。レビューするのは、このリポジトリでエージェントとユーザーが作ったブランチだけで、同じ中身を `bun run check` と CI も流すので、受け入れる。MCP の server は、`--approve-mcps` を渡さないので動かない。外から来た PR をレビューするなら、`.cursor/`・`.claude/` などの設定のフォルダを除いてから渡す。
+- **同じ観点のレビューの同時実行**:同じ結果のフォルダで、前の回の結果が書かれる前に同じ観点を流すと、同じ回の番号を使い、prompt が上書きされる。結果と prompt に記録された SHA が食い違うことがある。結果を書いてから次の回を流せば起きず、回数の上限は費用を抑えるための目安なので、排他の仕組みを足す手間に見合わない。
+- **レビューの一時フォルダ**:レビューの途中でスクリプトを止めると、書き出したコミットの中身が、OS の一時フォルダに残る。OS が片付けるので、受け入れる。
+- **SHA を先に決めることのテスト**:先に決めた SHA の組が、ブランチが進んだ後も同じ差分を指すことはテストで確かめる。スクリプト全体で、差分の判定から材料の書き出しまで同じ組を使うことは、途中でブランチを進めて確かめる仕組みが要る。スクリプトが差分の判定と材料の書き出しで別々の組を使うようになると、モデルを選ぶ数秒の間に base が head を取り込んだとき、空の差分のレビューが1回流れ、回数を1回使う。この害に対して、仕組みを足す手間が見合わないので受け入れる。
+- **Cursor の `--trust`**:書き出したコミットの中身を、Cursor に信頼させて読ませる(`--trust` が無いと、信頼するかを尋ねて止まる)。中身に Cursor の hook の設定があれば、Cursor が流しうる。レビューするのは、このリポジトリでエージェントとユーザーが作ったブランチのコミットで、同じ中身を `bun run check` と CI も流すので、受け入れる。MCP の server は、`--approve-mcps` を渡さないので動かない。外から来た PR をレビューするなら、`.cursor/`・`.claude/` などの設定のフォルダを除いてから渡す。
+- **別の名前で受け直した server の client**:`admin-module-location` は、`const client = api` のように受け直した client からの呼び出しを見ない。管理画面では、client を `useAppContext()` から分割代入で受けるか、`ApiClient` の型を付けた引数で受けるので、受け直す書き方は普通は現れない。値の流れまで追う手間に見合わない。
+- **`@/` の、区切りを細工した import**:`no-cross-workspace-import` と `tooling/structure/` のテストは、`@/` の後ろの文字列をそのまま `src/` に足して行き先を決める。`@//preferences/…` のように `/` を重ねた指定は、ワークスペースの中を指すのに lint が外と見なして止める。`\` を区切りに使った指定は、Bun では外のファイルを指せるが、macOS の lint は診断を出さない。人が書かない形で、ルールは絶対パスの import も見ないので、直さない。

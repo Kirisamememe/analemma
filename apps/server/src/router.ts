@@ -2,42 +2,49 @@ import { implement } from "@orpc/server";
 
 import { contract } from "@analemma/contract";
 
-import type { RequestContext } from "./context";
-import { getReauthenticationOptions } from "./features/auth/current-session/get-reauthentication-options";
-import { getSession } from "./features/auth/current-session/get-session";
-import { logOut } from "./features/auth/current-session/log-out";
-import { logOutAllSessions } from "./features/auth/current-session/log-out-all-sessions";
-import { enrollPasskey } from "./features/auth/enrollment/enroll-passkey";
-import { getEnrollmentOptions } from "./features/auth/enrollment/get-enrollment-options";
-import { getLoginOptions } from "./features/auth/login/get-login-options";
-import { logIn } from "./features/auth/login/log-in";
-import { addPasskey } from "./features/auth/passkeys/add-passkey";
-import { deletePasskey } from "./features/auth/passkeys/delete-passkey";
-import { getPasskeyOptions } from "./features/auth/passkeys/get-passkey-options";
-import { listPasskeys } from "./features/auth/passkeys/list-passkeys";
-import { renamePasskey } from "./features/auth/passkeys/rename-passkey";
-import { issueDeployToken } from "./features/deploy-tokens/issue-deploy-token";
-import { listDeployTokens } from "./features/deploy-tokens/list-deploy-tokens";
-import { revokeDeployToken } from "./features/deploy-tokens/revoke-deploy-token";
-import { createFixedPage } from "./features/fixed-pages/editing/create-fixed-page";
-import { deleteFixedPage } from "./features/fixed-pages/editing/delete-fixed-page";
-import { updateFixedPage } from "./features/fixed-pages/editing/update-fixed-page";
-import { getFixedPage } from "./features/fixed-pages/get-fixed-page";
-import { listFixedPages } from "./features/fixed-pages/list-fixed-pages";
-import { reorderFixedPages } from "./features/fixed-pages/ordering/reorder-fixed-pages";
-import { getPublishedFixedPage } from "./features/fixed-pages/published/get-published-fixed-page";
-import { listPublishedFixedPages } from "./features/fixed-pages/published/list-published-fixed-pages";
-import { publishFixedPage } from "./features/fixed-pages/publishing/publish-fixed-page";
-import { unpublishFixedPage } from "./features/fixed-pages/publishing/unpublish-fixed-page";
-import { getHealth } from "./features/health/get-health";
-import { getKind } from "./features/kinds/get-kind";
-import { listKinds } from "./features/kinds/list-kinds";
-import { pushKinds } from "./features/kinds/push/push-kinds";
+import type { RequestContext } from "@/context";
+import {
+  getReauthenticationOptions,
+  getSession,
+  logOut,
+  logOutAllSessions,
+} from "@/features/auth/current-session";
+import {
+  enrollPasskey,
+  getEnrollmentOptions,
+} from "@/features/auth/enrollment";
+import { getLoginOptions, logIn } from "@/features/auth/login";
+import {
+  addPasskey,
+  deletePasskey,
+  getPasskeyOptions,
+  listPasskeys,
+  renamePasskey,
+} from "@/features/auth/passkeys";
+import {
+  issueDeployToken,
+  listDeployTokens,
+  revokeDeployToken,
+} from "@/features/deploy-tokens";
+import {
+  createFixedPage,
+  deleteFixedPage,
+  updateFixedPage,
+  getFixedPage,
+  listFixedPages,
+  reorderFixedPages,
+  getPublishedFixedPage,
+  listPublishedFixedPages,
+  publishFixedPage,
+  unpublishFixedPage,
+} from "@/features/fixed-pages";
+import { getHealth } from "@/features/health/get-health";
+import { getKind, listKinds, pushKinds } from "@/features/kinds";
 import {
   adminProcedures,
   authProcedures,
   deployProcedures,
-} from "./procedures";
+} from "@/procedures";
 
 /** 全 feature の procedure を束ねたルーター。 */
 export const router = implement(contract)

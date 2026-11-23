@@ -1,7 +1,13 @@
-import type { CborMap } from "../cbor/decode-cbor";
-import { type WebAuthnRejection, reject } from "../rejection";
-import { COSE_ALGORITHM, type CoseAlgorithm } from "./cose-algorithm";
-import { readDerSignature } from "./read-der-signature";
+import type { CborMap } from "@/features/auth/webauthn/cbor/decode-cbor";
+import {
+  COSE_ALGORITHM,
+  type CoseAlgorithm,
+} from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import { readDerSignature } from "@/features/auth/webauthn/cose-key/read-der-signature";
+import {
+  type WebAuthnRejection,
+  reject,
+} from "@/features/auth/webauthn/rejection";
 
 /** JWK の形の公開鍵。 */
 export type PublicJwk = {
@@ -50,11 +56,13 @@ type KeyBytes = Uint8Array | WebAuthnRejection;
 
 const KEY = { kty: 1, crv: -1, x: -2, y: -3, n: -1, e: -2 } as const;
 const KEY_TYPE = { OKP: 1, EC2: 2, RSA: 3 } as const;
+
 const PRIVATE_LABELS: Readonly<Record<number, readonly number[]>> = {
   [KEY_TYPE.OKP]: [-4],
   [KEY_TYPE.EC2]: [-4],
   [KEY_TYPE.RSA]: [-3, -4, -5, -6, -7, -8, -9, -10, -11, -12],
 };
+
 const CURVE = { P256: 1, Ed25519: 6 } as const;
 const COORDINATE_LENGTH = 32;
 const RSA_MODULUS_BITS = { min: 2048, max: 4096 } as const;
@@ -174,6 +182,7 @@ const findRsaProblem = (
   exponent: Uint8Array,
 ): WebAuthnRejection | undefined => {
   const modulusBits = bitLength(modulus);
+
   const exponentValue = trimLeadingZeros(exponent).reduce(
     (value, byte) => value * 256 + byte,
     0,

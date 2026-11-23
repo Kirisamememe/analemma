@@ -1,17 +1,17 @@
-import type { RelyingParty } from "../../../platform/parse-relying-party";
 import type {
   ChallengePurpose,
   ChallengeStore,
-} from "../challenge/create-challenge-store";
-import { parseClientData } from "../webauthn/client-data/parse-client-data";
-import type { CoseAlgorithm } from "../webauthn/cose-key/cose-algorithm";
-import { verifyRegistration } from "../webauthn/verify-registration";
+} from "@/features/auth/challenge/create-challenge-store";
 import {
   type RegistrationCredentialInput,
   decodeRegistrationCredential,
-} from "./decode-registration-credential";
-import { formatAaguid } from "./format-aaguid";
-import { PASSKEY_ALGORITHMS } from "./passkey-policy";
+} from "@/features/auth/registration/decode-registration-credential";
+import { formatAaguid } from "@/features/auth/registration/format-aaguid";
+import { PASSKEY_ALGORITHMS } from "@/features/auth/registration/passkey-policy";
+import { parseClientData } from "@/features/auth/webauthn/client-data/parse-client-data";
+import type { CoseAlgorithm } from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import { verifyRegistration } from "@/features/auth/webauthn/verify-registration";
+import type { RelyingParty } from "@/platform/parse-relying-party";
 
 /** 検証できた、保存する前のパスキー。 */
 export type NewPasskey = {

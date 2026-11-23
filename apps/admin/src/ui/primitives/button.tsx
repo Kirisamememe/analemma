@@ -2,16 +2,24 @@ import type { ReactNode, Ref } from "react";
 import { Button as AriaButton, ProgressBar } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { tv } from "../tv";
-import { typography } from "../typography";
-import { Spinner } from "./spinner";
+import { Icon, type IconName, Spinner } from "@/ui/primitives/graphics";
+import { tv } from "@/ui/tv";
+import { typography } from "@/ui/typography";
 
 const button = tv({
-  base: "inline-flex items-center justify-center gap-2 rounded-control border outline-hidden transition-colors is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-pending:cursor-wait is-disabled:state-disabled",
+  slots: {
+    base: [
+      "inline-grid place-items-center",
+      "rounded-control border outline-hidden transition",
+      "is-hovered:state-hover is-focus-shown:focus-ring is-pressed:state-pressed is-pending:cursor-wait is-disabled:state-disabled",
+    ],
+    face: "col-start-1 row-start-1 flex items-center gap-2",
+    progress: "col-start-1 row-start-1",
+  },
   variants: {
     tone: {
       primary: "border-transparent bg-primary text-on-primary shadow-control",
-      secondary: "border-line bg-surface text-fg shadow-control",
+      secondary: "bg-surface text-fg shadow-control",
       quiet: "border-transparent text-fg",
       danger:
         "border-transparent bg-danger-strong text-on-danger-strong shadow-control",
@@ -20,27 +28,50 @@ const button = tv({
       md: "h-control px-4",
       sm: "h-control-sm px-3",
     },
+    iconOnly: {
+      true: "aspect-square px-0",
+    },
+    isPending: {
+      true: { face: "opacity-0" },
+    },
   },
 });
 
+/** ボタンの中身(文言か、アクセシブルな名前を付けたアイコン)。 */
+type ButtonContent =
+  | {
+      /** ボタンの文言。 */
+      children: ReactNode;
+      /** 文言の代わりに出すアイコン(文言と一緒には使わない)。 */
+      icon?: undefined;
+      /** アクセシブルな名前。 */
+      "aria-label"?: string | undefined;
+    }
+  | {
+      /** ボタンの文言(アイコンだけのボタンでは使わない)。 */
+      children?: undefined;
+      /** 文言の代わりに出すアイコン。 */
+      icon: IconName;
+      /** アクセシブルな名前(アイコンだけでは名前にならないので必ず付ける)。 */
+      "aria-label": string;
+    };
+
 /** ボタンに渡す値。 */
-type ButtonProps = {
+type ButtonProps = ButtonContent & {
   /** 見た目の用途。 */
-  readonly tone?: "primary" | "secondary" | "quiet" | "danger";
+  tone?: "primary" | "secondary" | "quiet" | "danger";
   /** 高さ。 */
-  readonly size?: "md" | "sm";
+  size?: "md" | "sm";
   /** フォームを送るボタンか。 */
-  readonly type?: "button" | "submit";
+  type?: "button" | "submit";
   /** 送信中か(押せなくし、待っていることを示す)。 */
-  readonly isPending?: boolean;
+  isPending?: boolean;
   /** 押せないか。 */
-  readonly isDisabled?: boolean;
+  isDisabled?: boolean;
   /** 押したときに呼ぶ関数。 */
-  readonly onPress?: () => void;
+  onPress?: () => void;
   /** ボタンの要素(focus を移すときに使う)。 */
-  readonly ref?: Ref<HTMLButtonElement>;
-  /** ボタンの文言。 */
-  readonly children: ReactNode;
+  ref?: Ref<HTMLButtonElement>;
 };
 
 /** 操作のボタン。 */
@@ -52,29 +83,37 @@ export const Button = ({
   isDisabled = false,
   onPress,
   ref,
+  icon,
+  "aria-label": ariaLabel,
   children,
 }: ButtonProps): ReactNode => {
   const { t } = useTranslation();
+  const labelling = ariaLabel === undefined ? {} : { "aria-label": ariaLabel };
+  const style = button({ tone, size, iconOnly: icon !== undefined, isPending });
 
   return (
     <AriaButton
-      className={button({
-        tone,
-        size,
-        className: typography({ role: "label" }),
-      })}
+      className={style.base({ className: typography({ role: "label" }) })}
       isDisabled={isDisabled}
       isPending={isPending}
       onPress={() => onPress?.()}
       ref={ref}
       type={type}
+      // oxlint-disable-next-line project/styling-boundary -- アクセシブルな名前が無いときに属性を省く。見た目の props は含まない。
+      {...labelling}
     >
       {isPending && (
-        <ProgressBar aria-label={t("ui.pending")} isIndeterminate>
+        <ProgressBar
+          aria-label={t("ui.pending")}
+          className={style.progress()}
+          isIndeterminate
+        >
           <Spinner />
         </ProgressBar>
       )}
-      {children}
+      <span className={style.face()}>
+        {icon === undefined ? children : <Icon name={icon} />}
+      </span>
     </AriaButton>
   );
 };

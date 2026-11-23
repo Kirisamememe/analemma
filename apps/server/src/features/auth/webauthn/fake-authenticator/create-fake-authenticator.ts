@@ -1,6 +1,9 @@
-import { COSE_ALGORITHM, type CoseAlgorithm } from "../cose-key/cose-algorithm";
-import { encodeCoseKey } from "./encode-cose-key";
-import { generateTestKeyPair } from "./generate-test-key-pair";
+import {
+  COSE_ALGORITHM,
+  type CoseAlgorithm,
+} from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import { encodeCoseKey } from "@/features/auth/webauthn/fake-authenticator/encode-cose-key";
+import { generateTestKeyPair } from "@/features/auth/webauthn/fake-authenticator/generate-test-key-pair";
 
 /** テストで本物の認証器の代わりに鍵を持ち、応答に署名するもの。 */
 export type FakeAuthenticator = {

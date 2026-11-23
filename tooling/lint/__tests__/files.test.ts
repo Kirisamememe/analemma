@@ -32,6 +32,38 @@ describe("ファイルの長さ", () => {
   });
 });
 
+describe("拡張子", () => {
+  test("JSX の要素も fragment も含まない .tsx に診断を出すこと", () => {
+    expect(
+      messagesOf("files/without-jsx.tsx", "project(require-jsx-in-tsx)"),
+    ).toEqual([
+      "JSX を含まないファイルは `.ts` にします。`.tsx` にするのは、JSX の要素か fragment を書くファイルだけです。",
+    ]);
+  });
+
+  test.each(["files/jsx-element.tsx", "files/jsx-fragment.tsx"])(
+    "JSX を含む %s には診断を出さないこと",
+    (file) => {
+      expect(lintFixture(`valid/${file}`).diagnostics).toEqual([]);
+    },
+  );
+});
+
+describe("文の間の空行", () => {
+  test("複数行の const と export const の前後に空行がない箇所だけに診断を出すこと", () => {
+    const { diagnostics } = lintFixture("invalid/syntax/multiline-const.ts");
+
+    expect(
+      diagnostics
+        .filter(
+          ({ code }) => code === "stylistic(padding-line-between-statements)",
+        )
+        .map(({ line }) => line)
+        .toSorted((left, right) => left - right),
+    ).toEqual([3, 6, 9, 11, 14]);
+  });
+});
+
 describe("lint の抑制", () => {
   test("理由の無い抑制に診断を出すこと", () => {
     const messages = messagesOf(

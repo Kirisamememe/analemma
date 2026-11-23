@@ -9,5 +9,8 @@ export const contentIssue = z.object({
   message: z.string().describe("合わない理由(英語)。"),
 });
 
+/** 中身が種類の定義に合わない理由の型。 */
+export type ContentIssue = z.output<typeof contentIssue>;
+
 /** 中身が種類の定義に合わない理由の並び。 */
 export const contentIssues = z.array(contentIssue);

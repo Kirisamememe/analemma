@@ -2,8 +2,8 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { renderWithI18n } from "../../../testing/render-with-i18n";
-import { Button } from "../button";
+import { renderWithI18n } from "@/testing/render-with-i18n";
+import { Button } from "@/ui/primitives/button";
 
 afterEach(cleanup);
 
@@ -43,6 +43,15 @@ describe("Button", () => {
     expect(screen.getByRole("progressbar", { name: "Working" })).toBeDefined();
   });
 
+  test("送信中になっても、文言を残し、ボタンの名前を変えない", () => {
+    const { rerender } = renderWithI18n(<Button>保存</Button>);
+    const idle = screen.getByRole("button", { name: "保存" }).textContent;
+
+    rerender(<Button isPending>保存</Button>);
+
+    expect(screen.getByRole("button", { name: "保存" }).textContent).toBe(idle);
+  });
+
   test("送信中でなければ、待っていることを伝えない", () => {
     renderWithI18n(<Button>保存</Button>);
 
@@ -73,5 +82,22 @@ describe("Button", () => {
     await userEvent.click(screen.getByRole("button", { name: "保存" }));
 
     expect(counter.count()).toBe(0);
+  });
+
+  test("アクセシブルな名前を渡すと、文言の代わりにその名前で探せる", () => {
+    renderWithI18n(<Button aria-label="リンク 2 を上へ">上へ</Button>);
+
+    expect(
+      screen.getByRole("button", { name: "リンク 2 を上へ" }),
+    ).toBeDefined();
+    expect(screen.queryByRole("button", { name: "上へ" })).toBeNull();
+  });
+
+  test("アイコンだけのボタンは、文言を出さず、アクセシブルな名前で探せる", () => {
+    renderWithI18n(<Button aria-label="固定ページを削除" icon="trash-2" />);
+
+    expect(
+      screen.getByRole("button", { name: "固定ページを削除" }).textContent,
+    ).toBe("");
   });
 });

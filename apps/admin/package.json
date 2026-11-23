@@ -12,20 +12,26 @@
   },
   "dependencies": {
     "@analemma/contract": "workspace:*",
+    "@internationalized/date": "3.12.4",
     "@orpc/client": "1.16.4",
     "@orpc/contract": "1.16.4",
     "@orpc/tanstack-query": "1.16.4",
+    "@tanstack/react-form": "1.33.5",
     "@tanstack/react-query": "5.108.2",
     "@tanstack/react-router": "1.170.46",
     "i18next": "27.2.3",
+    "lucide-react": "1.77.0",
     "react": "19.3.1",
+    "react-aria": "3.53.1",
     "react-aria-components": "1.22.1",
     "react-dom": "19.3.1",
     "react-i18next": "18.0.3",
-    "tailwind-variants": "4.0.2"
+    "tailwind-variants": "4.0.2",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "21.0.4",
+    "@orpc/server": "1.16.4",
     "@storybook/addon-a11y": "10.6.8",
     "@storybook/builder-vite": "10.6.8",
     "@storybook/react-vite": "10.6.8",

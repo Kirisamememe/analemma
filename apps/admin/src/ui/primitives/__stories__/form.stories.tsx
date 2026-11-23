@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
-import { Button } from "../button";
-import { Form } from "../form";
-import { TextField } from "../text-field";
+import { Button } from "@/ui/primitives/button";
+import { Form } from "@/ui/primitives/form";
+import { TextField } from "@/ui/primitives/form-fields";
 
 const meta = {
   title: "primitives/Form",

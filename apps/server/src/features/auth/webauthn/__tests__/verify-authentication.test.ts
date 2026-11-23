@@ -1,26 +1,26 @@
 import { describe, expect, test } from "bun:test";
 
-import { COSE_ALGORITHM } from "../cose-key/cose-algorithm";
-import { AUTHENTICATOR_FLAG } from "../fake-authenticator/build-authenticator-data";
+import { COSE_ALGORITHM } from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import { AUTHENTICATOR_FLAG } from "@/features/auth/webauthn/fake-authenticator/build-authenticator-data";
 import {
   type FakeAuthenticationInput,
   createFakeAuthentication,
-} from "../fake-authenticator/create-fake-authentication";
+} from "@/features/auth/webauthn/fake-authenticator/create-fake-authentication";
 import {
   type FakeAuthenticator,
   createFakeAuthenticator,
-} from "../fake-authenticator/create-fake-authenticator";
+} from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
 import {
   type AuthenticationExpectation,
   type AuthenticationResponse,
   verifyAuthentication,
-} from "../verify-authentication";
-import { verifyRegistration } from "../verify-registration";
+} from "@/features/auth/webauthn/verify-authentication";
+import { verifyRegistration } from "@/features/auth/webauthn/verify-registration";
 import {
   W3C_RELYING_PARTY,
   W3C_TEST_VECTORS,
   type W3cTestVector,
-} from "../w3c-test-vectors";
+} from "@/features/auth/webauthn/w3c-test-vectors";
 
 const F = AUTHENTICATOR_FLAG;
 const ORIGIN = "https://analemma.test";
@@ -141,6 +141,7 @@ describe("ログインの検証", () => {
   test("署名・authenticatorData・clientDataJSON のどれかを変えると、署名が合わないこと", async () => {
     const authenticator = await createFakeAuthenticator();
     const response = await respond(authenticator);
+
     const withExtraField = new TextEncoder().encode(
       new TextDecoder()
         .decode(response.clientDataJSON)
@@ -217,6 +218,7 @@ describe("ログインの検証", () => {
 
   test("登録したときと BE が違っても拒まず、変わったことを返すこと", async () => {
     const authenticator = await createFakeAuthenticator();
+
     const changed = async (
       registered: boolean,
       flags: number,
@@ -265,6 +267,7 @@ describe("ログインの検証", () => {
 
   test("signCount が戻っても拒まず、戻ったことを返すこと", async () => {
     const authenticator = await createFakeAuthenticator();
+
     const wentBack = async (
       stored: number,
       received: number,

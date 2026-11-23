@@ -1,9 +1,9 @@
-import type { DatabaseExecutor } from "../../../platform/database";
+import { findEnrollment } from "@/features/auth/enrollment/queries/find-enrollment.query";
 import {
   equalSecretHashes,
   readSecretToken,
-} from "../secret-token/secret-token";
-import { findEnrollment } from "./find-enrollment.query";
+} from "@/features/auth/secret-token/secret-token";
+import type { DatabaseExecutor } from "@/platform/database";
 
 /** 使える登録用の token。 */
 export type ValidEnrollment = {

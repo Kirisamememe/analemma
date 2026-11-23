@@ -1,98 +1,116 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 
-import { Cluster } from "../../ui/layout/cluster";
-import { Button } from "../../ui/primitives/button";
-import { Dialog } from "../../ui/primitives/dialog";
-import { Form } from "../../ui/primitives/form";
-import { Notice } from "../../ui/primitives/notice";
-import { TextField } from "../../ui/primitives/text-field";
-import { checkPasskeyName } from "../auth/check-passkey-name";
-import type { PasskeySummary } from "./passkey-list";
-import { refreshPasskeys } from "./passkeys-query";
-import { renamePasskey } from "./rename-passkey";
-import type { PasskeyNotice } from "./to-passkey-notice";
+import { useAppContext } from "@/api/app-context";
+import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
+import { checkAfterSubmit, useAppForm } from "@/components/forms";
+import { checkPasskeyName } from "@/components/logic/check-passkey-name";
+import type { PasskeySummary } from "@/features/passkeys/passkey-list";
+import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";
+import { renamePasskey } from "@/features/passkeys/queries/rename-passkey";
+import { useTranslate } from "@/i18n/use-translate";
+import { Cluster } from "@/ui/layout";
+import { Button } from "@/ui/primitives/button";
+import {
+  Dialog,
+  useFailureToast,
+  useShowToast,
+} from "@/ui/primitives/overlays";
 
 /** パスキーの名前を変更する Dialog に渡す値。 */
 type RenamePasskeyDialogProps = {
+  /** 開いているか。 */
+  isOpen: boolean;
   /** 名前を変更するパスキー。 */
-  readonly passkey: PasskeySummary;
+  passkey: PasskeySummary;
   /** 閉じる関数。 */
-  readonly onClose: () => void;
-  /** 名前を変更したことを知らせる関数。 */
-  readonly onRenamed: (notice: PasskeyNotice) => void;
+  onClose: () => void;
 };
 
 /** パスキーの名前を変更する Dialog。 */
 export const RenamePasskeyDialog = ({
+  isOpen,
   passkey,
   onClose,
-  onRenamed,
 }: RenamePasskeyDialogProps): ReactNode => {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const { api } = useRouteContext({ from: "__root__" });
-  const renaming = useMutation({
-    mutationFn: async (name: string) =>
-      renamePasskey(api, { id: passkey.id, name }),
+  const t = useTranslate();
+  const showToast = useShowToast();
+  const failure = useFailureToast();
+
+  const close = (): void => {
+    failure.close();
+    onClose();
+  };
+
+  const { refresh } = useApiCache();
+  const { api } = useAppContext();
+
+  const renaming = useApiMutation({
+    send: (name: string) => renamePasskey(api, { id: passkey.id, name }),
     onSuccess: async ({ _tag }) => {
-      await refreshPasskeys(queryClient);
+      await refresh(PASSKEYS_QUERY_KEY);
 
       if (_tag === "Renamed") {
-        onRenamed({ tone: "success", message: "passkeys.renamed" });
         onClose();
+        showToast({ tone: "success", message: t("passkeys.renamed") });
+      } else {
+        failure.show(t("passkeys.notFound"));
       }
+    },
+    onError: () => {
+      failure.show(t("passkeys.failed"));
+    },
+  });
+
+  const form = useAppForm({
+    canSubmitWhenInvalid: true,
+    defaultValues: { name: passkey.name },
+    onSubmit: ({ value }) => {
+      failure.close();
+      renaming.mutate(value.name);
     },
   });
 
   return (
     <Dialog
-      isOpen
+      isOpen={isOpen}
       isPending={renaming.isPending}
       onOpenChange={(open) => {
         if (!open) {
-          onClose();
+          close();
         }
       }}
       title={t("passkeys.renameTitle")}
     >
-      <Form
-        isPending={renaming.isPending}
-        onSubmit={(data) => {
-          const name = data.get("name");
+      <form.AppForm>
+        <form.Form isPending={renaming.isPending}>
+          <form.AppField
+            name="name"
+            validators={{
+              onChange: checkAfterSubmit((value: string) => {
+                const problem = checkPasskeyName(value);
 
-          renaming.mutate(typeof name === "string" ? name : "");
-        }}
-      >
-        <TextField
-          autoComplete="off"
-          defaultValue={passkey.name}
-          isRequired
-          label={t("enroll.name")}
-          name="name"
-          validate={(value) => {
-            const problem = checkPasskeyName(value);
-
-            return problem === undefined ? undefined : t(problem);
-          }}
-        />
-        {renaming.data?._tag === "NotFound" && (
-          <Notice tone="warning">{t("passkeys.notFound")}</Notice>
-        )}
-        {renaming.isError && (
-          <Notice tone="danger">{t("passkeys.failed")}</Notice>
-        )}
-        <Cluster gap={2} justify="end">
-          <Button isDisabled={renaming.isPending} onPress={onClose}>
-            {t("passkeys.cancel")}
-          </Button>
-          <Button isPending={renaming.isPending} tone="primary" type="submit">
-            {t("passkeys.save")}
-          </Button>
-        </Cluster>
-      </Form>
+                return problem === undefined ? undefined : t(problem);
+              }),
+            }}
+          >
+            {(field) => (
+              <field.TextField
+                autoComplete="off"
+                isRequired
+                label={t("enroll.name")}
+              />
+            )}
+          </form.AppField>
+          <Cluster gap={2} justify="end">
+            <Button isDisabled={renaming.isPending} onPress={close}>
+              {t("passkeys.cancel")}
+            </Button>
+            <Button isPending={renaming.isPending} tone="primary" type="submit">
+              {t("passkeys.save")}
+            </Button>
+          </Cluster>
+        </form.Form>
+      </form.AppForm>
     </Dialog>
   );
 };

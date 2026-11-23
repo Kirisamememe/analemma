@@ -12,7 +12,7 @@ if (perspective === undefined) {
 const MATERIAL: PromptMaterial = {
   perspective,
   base: "phase/1",
-  head: "claude/pages",
+  headBranch: "claude/pages",
   baseCommit: "1".repeat(40),
   headCommit: "2".repeat(40),
   paths: {
@@ -58,6 +58,21 @@ describe("prompt を組み立てること", () => {
     );
   });
 
+  test("コミットをレビューするときは、対象の中身と差分を SHA で示すこと", () => {
+    const { baseCommit, headCommit } = MATERIAL;
+    const prompt = buildPrompt({ ...MATERIAL, headBranch: undefined });
+
+    expect(prompt).toContain(
+      `コミット \`${headCommit}\` の変更を、\`phase/1\`(コミット \`${baseCommit}\`)と比べて`,
+    );
+    expect(prompt).toContain(
+      `レビューするコミットの中身:\`/tmp/review/tree\`。コミット \`${headCommit}\` のすべてのファイル`,
+    );
+    expect(prompt).toContain(
+      `差分:\`/tmp/review/context/diff.patch\`(\`git diff ${baseCommit}...${headCommit}\`)`,
+    );
+  });
+
   test("「直下」が、レビューするブランチの中身のフォルダの直下を指すと書くこと", () => {
     const prompt = buildPrompt(MATERIAL);
 
@@ -87,6 +102,7 @@ describe("prompt を組み立てること", () => {
 
   test("観点ごとの範囲、「割り切ったこと」、共通の約束の順に並べ、出力の形で終えること", () => {
     const prompt = buildPrompt(MATERIAL);
+
     const order = [
       "## 見る範囲",
       "## 見ない範囲",

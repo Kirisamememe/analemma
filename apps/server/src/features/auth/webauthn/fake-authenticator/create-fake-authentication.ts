@@ -1,14 +1,14 @@
-import { COSE_ALGORITHM } from "../cose-key/cose-algorithm";
-import type { AuthenticationResponse } from "../verify-authentication";
+import { COSE_ALGORITHM } from "@/features/auth/webauthn/cose-key/cose-algorithm";
 import {
   AUTHENTICATOR_FLAG,
   buildAuthenticatorData,
   hashRpId,
-} from "./build-authenticator-data";
-import { buildClientDataJson } from "./build-client-data-json";
-import { convertToDerSignature } from "./convert-to-der-signature";
-import type { FakeAuthenticator } from "./create-fake-authenticator";
-import { SIGN_PARAMS } from "./generate-test-key-pair";
+} from "@/features/auth/webauthn/fake-authenticator/build-authenticator-data";
+import { buildClientDataJson } from "@/features/auth/webauthn/fake-authenticator/build-client-data-json";
+import { convertToDerSignature } from "@/features/auth/webauthn/fake-authenticator/convert-to-der-signature";
+import type { FakeAuthenticator } from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
+import { SIGN_PARAMS } from "@/features/auth/webauthn/fake-authenticator/generate-test-key-pair";
+import type { AuthenticationResponse } from "@/features/auth/webauthn/verify-authentication";
 
 /** ログインの応答の作り方。 */
 export type FakeAuthenticationInput = {
@@ -47,18 +47,22 @@ export const createFakeAuthentication = async ({
   withCredential = false,
 }: FakeAuthenticationInput): Promise<AuthenticationResponse> => {
   const json = buildClientDataJson({ type, challenge, origin });
+
   const clientDataJSON = withBom
     ? new Uint8Array([0xef, 0xbb, 0xbf, ...json])
     : json;
+
   const authenticatorData = buildAuthenticatorData({
     rpIdHash: await hashRpId(rpId),
     flags,
     signCount,
     ...(withCredential ? { credential: authenticator } : {}),
   });
+
   const clientDataHash = new Uint8Array(
     await crypto.subtle.digest("SHA-256", clientDataJSON),
   );
+
   const signature = new Uint8Array(
     await crypto.subtle.sign(
       SIGN_PARAMS[authenticator.algorithm],

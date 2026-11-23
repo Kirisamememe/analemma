@@ -2,12 +2,12 @@ import { describe, expect, test } from "bun:test";
 
 import type { KindDefinitionInput } from "@analemma/contract";
 
-import { catchErrorCode } from "../../../test-client/catch-error-code";
 import {
+  catchErrorCode,
   TEST_NOW,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { prepareTestKinds } from "../../../test-client/prepare-test-kinds";
+  prepareTestKinds,
+} from "@/test-client";
 
 const profile: KindDefinitionInput = {
   name: "profile",
@@ -32,12 +32,14 @@ describe("固定ページの公開", () => {
     await prepareTestKinds(server, [profile]);
 
     const admin = server.client.admin.fixedPages;
+
     const page = await admin.create({
       kind: "profile",
       slug: "about",
       title: "自己紹介",
       content: { headline: "こんにちは" },
     });
+
     const get = async (): Promise<string> =>
       catchErrorCode(
         server
@@ -89,6 +91,7 @@ describe("固定ページの公開", () => {
     await prepareTestKinds(server, [profile, colophon]);
 
     const admin = server.client.admin.fixedPages;
+
     const page = await admin.create({
       kind: "profile",
       slug: "about",
@@ -113,18 +116,21 @@ describe("固定ページの公開", () => {
     await prepareTestKinds(server, [profile, colophon]);
 
     const admin = server.client.admin.fixedPages;
+
     const about = await admin.create({
       kind: "profile",
       slug: "about",
       title: "自己紹介",
       content: { headline: "こんにちは" },
     });
+
     const draft = await admin.create({
       kind: "profile",
       slug: "draft",
       title: "下書き",
       content: { headline: "まだ" },
     });
+
     const site = await admin.create({
       kind: "colophon",
       slug: "colophon",
@@ -159,6 +165,7 @@ describe("固定ページの公開", () => {
     await using server = await createTestClient();
     const token = await prepareTestKinds(server, [profile]);
     const admin = server.client.admin.fixedPages;
+
     const page = await admin.create({
       kind: "profile",
       slug: "about",

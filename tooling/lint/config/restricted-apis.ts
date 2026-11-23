@@ -48,16 +48,18 @@ export type RestrictedApis = {
 
 const BUN_MODULES = ["bun", "bun:*", "!bun:test", "hono/bun"];
 const BUN_GLOBALS = ["Bun", "HTMLRewriter"];
+
 const SERVER_BUN =
   "Bun 専用の API は src/platform/ と src/main.ts だけで使います。それ以外は Web 標準で書きます。";
+
 const WORKSPACE_BUN =
   "Bun 専用の API は server の src/platform/ と src/main.ts だけで使います。";
+
 const DATABASE =
   "Drizzle と DB のドライバを値として使えるのは *.query.ts と src/db/ と src/platform/ だけです。型だけなら import できます。";
+
 const BUILDER =
   "procedure は procedures.ts の base(publicProcedures・authProcedures・adminProcedures)から作ります。素の builder は procedures.ts と router.ts だけで使います。";
-const REACT =
-  "React を使うコードは .tsx に置きます。.ts にはテストできるロジックだけを置きます。";
 
 /** Drizzle と DB のドライバ。 */
 export const DATABASE_PATHS: readonly RestrictedPath[] = [
@@ -105,7 +107,7 @@ export const WORKSPACE_BUN_GLOBALS: readonly RestrictedGlobal[] = [
   { name: "Bun", message: WORKSPACE_BUN },
 ];
 
-/** 部品のライブラリ(React Aria Components と、その下の層)。 */
+/** `ui/primitives/` の中でだけ使う、UI の外部ライブラリ。 */
 export const UI_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
   {
     group: [
@@ -121,6 +123,11 @@ export const UI_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
     ],
     message:
       "React Aria Components は ui/primitives/ の中でだけ使います。ほかの場所は primitives の部品を使います。",
+  },
+  {
+    group: ["lucide-react", "lucide-react/*"],
+    message:
+      "lucide-react は ui/primitives/ の中でだけ使います。ほかの場所は Icon を使います。",
   },
 ];
 
@@ -138,10 +145,21 @@ export const VARIANT_LIBRARY_PATTERNS: readonly RestrictedPattern[] = [
   },
 ];
 
-/** 管理画面の `.ts` で止める、React。 */
-export const REACT_PATHS: readonly RestrictedPath[] = [
-  { name: "react", message: REACT },
-  { name: "react-dom", message: REACT },
+/** 管理画面の feature から import できるモジュールの範囲。 */
+export const ADMIN_FEATURE_PATTERNS: readonly RestrictedPattern[] = [
+  {
+    group: [
+      "**",
+      "!react",
+      "*/**/react",
+      "!@analemma/contract",
+      "!./**",
+      "!../**",
+      "!@/**",
+    ],
+    message:
+      "管理画面の features で import できるのは、React・@analemma/contract・相対パスか @/ で指定する管理画面内のモジュールだけです。訳・API・認証器・server の状態は src/i18n/ と src/api/ の部品を、画面の部品は ui/ の部品を通して使います。Node と Bun の API は使いません。",
+  },
 ];
 
 /** 3つのルールの設定を組み立てる。 */

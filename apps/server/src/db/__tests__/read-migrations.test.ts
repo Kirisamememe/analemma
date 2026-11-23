@@ -2,7 +2,8 @@ import { expect, test } from "bun:test";
 import { join } from "node:path";
 
 import drizzleConfig from "../../../drizzle.config";
-import { MIGRATIONS_FOLDER } from "../read-migrations";
+
+import { MIGRATIONS_FOLDER } from "@/db/read-migrations";
 
 const SERVER_ROOT = join(import.meta.dirname, "../../..");
 

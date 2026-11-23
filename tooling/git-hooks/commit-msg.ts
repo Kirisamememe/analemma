@@ -35,6 +35,7 @@ if (messageFile === undefined) {
     [COMMITLINT, "--edit", resolve(messageFile)],
     { cwd: repoRoot, stdio: "inherit" },
   );
+
   const problems = findMessageProblems({
     glossary: readGlossary(readFileSync(join(repoRoot, "GLOSSARY.md"), "utf8")),
     names: loadPrivateNames(repository),

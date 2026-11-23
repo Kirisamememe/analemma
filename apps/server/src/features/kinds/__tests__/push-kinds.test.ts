@@ -2,13 +2,13 @@ import { describe, expect, test } from "bun:test";
 
 import type { KindDefinitionInput } from "@analemma/contract";
 
-import { catchErrorCode } from "../../../test-client/catch-error-code";
 import {
+  catchErrorCode,
   TEST_NOW,
   createTestClient,
-} from "../../../test-client/create-test-client";
-import { issueTestDeployToken } from "../../../test-client/prepare-test-kinds";
-import { signInAsAdmin } from "../../../test-client/sign-in-as-admin";
+  issueTestDeployToken,
+  signInAsAdmin,
+} from "@/test-client";
 
 const about: KindDefinitionInput = {
   name: "about",
@@ -100,6 +100,7 @@ describe("種類の定義を送る", () => {
     await using server = await createTestClient({ clock: { now: () => now } });
 
     const { passkey } = await signInAsAdmin(server);
+
     const deploy = server.internal(
       await issueTestDeployToken(server, passkey),
     ).deploy;
@@ -136,6 +137,7 @@ describe("種類の定義を送る", () => {
     await using server = await createTestClient({ clock: { now: () => now } });
 
     const { passkey } = await signInAsAdmin(server);
+
     const deploy = server.internal(
       await issueTestDeployToken(server, passkey),
     ).deploy;
@@ -245,7 +247,7 @@ describe("種類の定義を送る", () => {
       ],
     },
     {
-      title: "項目が6段に入れ子になる",
+      title: "項目が4段に入れ子になる",
       kinds: [
         {
           ...colophon,
@@ -264,21 +266,7 @@ describe("種類の定義を送る", () => {
                       key: "c",
                       label: "3",
                       type: "group",
-                      fields: [
-                        {
-                          key: "d",
-                          label: "4",
-                          type: "group",
-                          fields: [
-                            {
-                              key: "e",
-                              label: "5",
-                              type: "group",
-                              fields: [{ key: "f", label: "6", type: "text" }],
-                            },
-                          ],
-                        },
-                      ],
+                      fields: [{ key: "d", label: "4", type: "text" }],
                     },
                   ],
                 },
@@ -294,6 +282,7 @@ describe("種類の定義を送る", () => {
       await using server = await createTestClient();
 
       const { passkey } = await signInAsAdmin(server);
+
       const deploy = server.internal(
         await issueTestDeployToken(server, passkey),
       ).deploy;

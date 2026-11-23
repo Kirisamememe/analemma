@@ -97,13 +97,16 @@ describe("story の置き場所", () => {
   test("__stories__ の中の story でないファイルと、__stories__ の外の story を返すこと", () => {
     const paths = [
       "apps/admin/src/ui/__stories__/a.stories.tsx",
+      "apps/admin/src/ui/__stories__/b.stories.ts",
       "apps/admin/src/ui/__stories__/helper.ts",
       "apps/admin/src/ui/a.stories.tsx",
+      "apps/admin/src/ui/b.stories.ts",
     ];
 
     expect(findStrayStoryFiles(paths)).toEqual([
       "apps/admin/src/ui/__stories__/helper.ts",
       "apps/admin/src/ui/a.stories.tsx",
+      "apps/admin/src/ui/b.stories.ts",
     ]);
   });
 });
@@ -148,9 +151,11 @@ describe("drizzle-kit が書き出す migration のフォルダ", () => {
 
 test("drizzle-kit の書き出し先を、生成物のフォルダとして、検査からも整形からも外していること", () => {
   const out = join("apps/server", drizzleConfig.out ?? "");
+
   const oxfmt: unknown = JSON.parse(
     readFileSync(join(import.meta.dirname, "../../../.oxfmtrc.json"), "utf8"),
   );
+
   const ignorePatterns =
     typeof oxfmt === "object" &&
     oxfmt !== null &&

@@ -18,6 +18,8 @@ export const BROWSER_TARGET = "esnext";
 /** html の head に、最初の描画の前に流す script を書き込む plugin の名前。 */
 export const BOOT_SCRIPT_PLUGIN = "analemma:inline-boot-script";
 
+const resolve = { tsconfigPaths: true };
+
 const devServer = {
   host: "localhost",
   port: Number(new URL(DEV_ORIGIN).port),
@@ -34,6 +36,7 @@ const bundleBootScript = async (): Promise<string> => {
     configFile: false,
     envDir: false,
     logLevel: "warn",
+    resolve,
     build: {
       write: false,
       minify: true,
@@ -41,6 +44,7 @@ const bundleBootScript = async (): Promise<string> => {
       lib: { entry: BOOT_ENTRY, formats: ["iife"], name: "boot" },
     },
   });
+
   const chunk = (Array.isArray(output) ? output : [output])
     .flatMap((result) => ("output" in result ? result.output : []))
     .find((item) => item.type === "chunk");
@@ -64,6 +68,7 @@ const inlineBootScript = (): Plugin => ({
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), inlineBootScript()],
+  resolve,
   server: devServer,
   preview: devServer,
   build: {

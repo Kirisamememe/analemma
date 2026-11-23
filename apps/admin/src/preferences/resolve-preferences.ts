@@ -1,6 +1,6 @@
-import { isLocale, type Locale } from "../i18n/locales";
-import { negotiateLocale } from "../i18n/negotiate-locale";
-import { isTheme, type Theme } from "./theme";
+import { isLocale, type Locale } from "@/i18n/locales";
+import { negotiateLocale } from "@/i18n/negotiate-locale";
+import { isTheme, type Theme } from "@/preferences/theme";
 
 /** localStorage に置いてあった値(無ければ null)。 */
 export type StoredPreferences = {

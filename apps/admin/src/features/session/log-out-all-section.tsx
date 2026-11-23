@@ -1,28 +1,30 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { type ReactNode, useState } from "react";
-import { useTranslation } from "react-i18next";
 
-import { Cluster } from "../../ui/layout/cluster";
-import { Heading } from "../../ui/layout/heading";
-import { Stack } from "../../ui/layout/stack";
-import { Text } from "../../ui/layout/text";
-import { Button } from "../../ui/primitives/button";
-import { Dialog } from "../../ui/primitives/dialog";
-import { Notice } from "../../ui/primitives/notice";
+import { useAppContext, useGoToLogin } from "@/api/app-context";
+import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
+import { sendLogOutAll } from "@/features/session/queries/log-out";
+import { useTranslate } from "@/i18n/use-translate";
+import { Cluster, Heading, Stack, Text } from "@/ui/layout";
+import { Button } from "@/ui/primitives/button";
+import { Dialog, useFailureToast } from "@/ui/primitives/overlays";
 
 /** すべてのセッションからログアウトする操作。 */
 export const LogOutAllSection = (): ReactNode => {
-  const { t } = useTranslation();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { api } = useRouteContext({ from: "__root__" });
+  const t = useTranslate();
+  const goToLogin = useGoToLogin();
+  const { clear } = useApiCache();
+  const { api } = useAppContext();
   const [isConfirming, setConfirming] = useState(false);
-  const logOutAll = useMutation({
-    mutationFn: async () => api.admin.session.logOutAll(),
+  const failure = useFailureToast();
+
+  const logOutAll = useApiMutation({
+    send: () => sendLogOutAll(api),
     onSuccess: () => {
-      queryClient.clear();
-      void router.navigate({ to: "/login" });
+      clear();
+      goToLogin();
+    },
+    onError: () => {
+      failure.show(t("sessions.logOutAllFailed"));
     },
   });
 
@@ -44,20 +46,20 @@ export const LogOutAllSection = (): ReactNode => {
         isOpen={isConfirming}
         isPending={logOutAll.isPending}
         onOpenChange={(open) => {
-          logOutAll.reset();
+          if (!open) {
+            failure.close();
+          }
+
           setConfirming(open);
         }}
         title={t("sessions.logOutAllTitle")}
       >
         <Text>{t("sessions.description")}</Text>
-        {logOutAll.isError && (
-          <Notice tone="danger">{t("sessions.logOutAllFailed")}</Notice>
-        )}
         <Cluster gap={2} justify="end">
           <Button
             isDisabled={logOutAll.isPending}
             onPress={() => {
-              logOutAll.reset();
+              failure.close();
               setConfirming(false);
             }}
           >
@@ -66,6 +68,7 @@ export const LogOutAllSection = (): ReactNode => {
           <Button
             isPending={logOutAll.isPending}
             onPress={() => {
+              failure.close();
               logOutAll.mutate();
             }}
             tone="danger"

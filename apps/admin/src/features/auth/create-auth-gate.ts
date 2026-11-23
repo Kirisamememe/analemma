@@ -1,4 +1,4 @@
-import type { ApiClientOptions } from "../../api/create-api-client";
+import type { ApiClientOptions } from "@/api/create-api-client";
 
 /** ログインの最中に、管理用 API を送らせない gate。 */
 export type AuthGate = {

@@ -1,4 +1,4 @@
-import type { Locale } from "./locales";
+import type { Locale } from "@/i18n/locales";
 
 /** ISO 8601 の日時を、言語の書き方で、日付と時刻にする。 */
 export const formatDateTime = (locale: Locale, iso: string): string =>

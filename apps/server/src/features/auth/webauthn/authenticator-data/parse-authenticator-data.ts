@@ -1,5 +1,11 @@
-import { decodeCbor, isCborMap } from "../cbor/decode-cbor";
-import { type WebAuthnRejection, reject } from "../rejection";
+import {
+  decodeCbor,
+  isCborMap,
+} from "@/features/auth/webauthn/cbor/decode-cbor";
+import {
+  type WebAuthnRejection,
+  reject,
+} from "@/features/auth/webauthn/rejection";
 
 /** authenticatorData の flags。 */
 export type AuthenticatorFlags = {
@@ -50,6 +56,7 @@ type ReadCredential = {
 const HEADER_LENGTH = 37;
 const AAGUID_LENGTH = 16;
 const CREDENTIAL_HEADER_LENGTH = AAGUID_LENGTH + 2;
+
 const FLAG = {
   userPresent: 0x01,
   userVerified: 0x04,
@@ -120,6 +127,7 @@ export const parseAuthenticatorData = (
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const flagByte = view.getUint8(32);
   const has = (flag: number): boolean => (flagByte & flag) !== 0;
+
   const attested = has(FLAG.attestedCredentialData)
     ? readAttestedCredential(bytes)
     : undefined;
@@ -129,6 +137,7 @@ export const parseAuthenticatorData = (
   }
 
   const afterCredential = attested?.end ?? HEADER_LENGTH;
+
   const end = has(FLAG.extensionData)
     ? skipExtensions(bytes, afterCredential)
     : afterCredential;

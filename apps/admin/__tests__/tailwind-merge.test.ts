@@ -1,30 +1,33 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 
-import { merge, tv } from "../src/ui/tv";
+import { merge, tv } from "@/ui/tv";
 
-const theme = await readFile(
-  new URL("../src/ui/theme.css", import.meta.url),
-  "utf8",
-);
+const css = (
+  await Promise.all(
+    ["theme.css", "animation.css"].map((file) =>
+      readFile(new URL(`../src/ui/${file}`, import.meta.url), "utf8"),
+    ),
+  )
+).join("\n");
 
 const namesOf = (prefix: string): string[] => [
   ...new Set(
     [
-      ...theme.matchAll(
+      ...css.matchAll(
         new RegExp(`^\\s*--${prefix}-(?<name>[a-z0-9\\-]+):`, "gmv"),
       ),
     ].map(({ groups }) => groups?.["name"] ?? ""),
   ),
 ];
 
-const UTILITIES = [...theme.matchAll(/^@utility (?<name>[a-z0-9\-]+)/gmv)].map(
+const UTILITIES = [...css.matchAll(/^@utility (?<name>[a-z0-9\-]+)/gmv)].map(
   ({ groups }) => groups?.["name"] ?? "",
 );
 
-/** theme.css の変数の名前と、それを使う utility。 */
+/** デザインシステムの変数の名前と、それを使う utility。 */
 type ThemeGroup = {
-  /** theme.css の変数の、名前の前の部分。 */
+  /** デザインシステムの変数の、名前の前の部分。 */
   readonly variable: string;
   /** class の、名前の前の部分。 */
   readonly utility: string;
@@ -45,9 +48,9 @@ const THEME_GROUPS: readonly ThemeGroup[] = [
   { variable: "animate", utility: "animate" },
 ];
 
-/** theme.css に名前が1つしかない変数と、組の相手の class。 */
+/** デザインシステムに名前が1つしかない変数と、組の相手の class。 */
 type SingleNameGroup = {
-  /** theme.css の変数の、名前の前の部分。 */
+  /** デザインシステムの変数の、名前の前の部分。 */
   readonly variable: string;
   /** class の、名前の前の部分。 */
   readonly utility: string;
@@ -67,20 +70,32 @@ const SINGLE_NAME_GROUPS: readonly SingleNameGroup[] = [
 const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "h-control": "h-full",
   "h-control-sm": "h-full",
+  "h-nav-bar": "h-full",
+  "top-toast": "top-0",
+  "size-icon-xs": "size-full",
+  "size-icon-sm": "size-full",
   "size-icon": "size-full",
+  "size-icon-lg": "size-full",
+  "size-icon-xl": "size-full",
   "size-control": "size-full",
   "object-focal": "object-center",
   "w-sidebar": "w-full",
-  "state-hover": "state-pressed",
-  "state-pressed": "state-hover",
+  "state-hover": null,
+  "state-pressed": "translate-none",
   "state-disabled": null,
   "focus-ring": "focus-ring-inset",
   "focus-ring-inset": "focus-ring",
+  "focus-ring-current": "focus-ring",
   "scheme-dark": "scheme-light",
   "scheme-light": "scheme-dark",
+  "scheme-inverse": "scheme-dark",
+  "dialog-backdrop-animation": null,
+  "dialog-panel-animation": null,
+  "nav-drawer-panel-animation": null,
+  "toast-animation": null,
 };
 
-describe("theme.css の名前の merge", () => {
+describe("デザインシステムの class の merge", () => {
   test.each(THEME_GROUPS)(
     "--$variable-* の名前の $utility-* は、同じ組の2つを渡すと後だけが残る",
     ({ variable, utility, suffix = "" }) => {
@@ -125,7 +140,7 @@ describe("theme.css の名前の merge", () => {
     expect(merge("text-xs/lg text-canvas")).toBe("text-xs/lg text-canvas");
   });
 
-  test("theme.css の utility には、どれも merge の組を決めてある", () => {
+  test("デザインシステムの utility には、どれも merge の組を決めてある", () => {
     expect(UTILITIES.toSorted()).toEqual(
       Object.keys(UTILITY_PARTNERS).toSorted(),
     );
@@ -140,8 +155,12 @@ describe("theme.css の名前の merge", () => {
   });
 
   test("state-disabled は、hover や pressed の class を消さない", () => {
-    expect(merge("state-hover state-disabled")).toBe(
-      "state-hover state-disabled",
+    expect(merge("state-hover state-pressed state-disabled")).toBe(
+      "state-hover state-pressed state-disabled",
     );
+  });
+
+  test("state-pressed の後で translate を指定すると、後の位置が残る", () => {
+    expect(merge("state-pressed translate-none")).toBe("translate-none");
   });
 });

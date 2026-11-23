@@ -1,11 +1,18 @@
-import { deployProcedures } from "../../../procedures";
 import {
   type IncompatiblePage,
   findIncompatiblePages,
-} from "./find-incompatible-pages";
-import { insertNewKinds, lockKinds, updateKinds } from "./kinds.query";
-import { listKindPages } from "./list-kind-pages.query";
-import { type KindChange, toKindChanges } from "./to-kind-changes";
+} from "@/features/kinds/push/find-incompatible-pages";
+import {
+  insertNewKinds,
+  lockKinds,
+  updateKinds,
+} from "@/features/kinds/push/queries/kinds.query";
+import { listKindPages } from "@/features/kinds/push/queries/list-kind-pages.query";
+import {
+  type KindChange,
+  toKindChanges,
+} from "@/features/kinds/push/to-kind-changes";
+import { deployProcedures } from "@/procedures";
 
 /** 送られた定義を受け付けたか、既存のページに合わずに断ったか。 */
 type PushOutcome =
@@ -27,9 +34,11 @@ export const pushKinds = deployProcedures.kinds.push.handler(
   async ({ context, errors, input }) => {
     const now = context.clock.now();
     const names = input.kinds.map(({ name }) => name);
+
     const result = await context.db.transaction(
       async (tx): Promise<PushOutcome> => {
         const existing = await lockKinds(tx, names);
+
         const incompatible = findIncompatiblePages({
           pages: await listKindPages(tx, existing),
           definitions: input.kinds,
@@ -40,6 +49,7 @@ export const pushKinds = deployProcedures.kinds.push.handler(
         }
 
         const created = await insertNewKinds(tx, { kinds: input.kinds, now });
+
         const updated = await updateKinds(tx, {
           kinds: input.kinds.filter(({ name }) => !created.has(name)),
           now,

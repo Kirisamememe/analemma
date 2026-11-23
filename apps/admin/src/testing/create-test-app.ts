@@ -3,14 +3,14 @@ import {
   type RouterHistory,
 } from "@tanstack/react-router";
 
-import { createApiClient } from "../api/create-api-client";
+import { createApiClient } from "@/api/create-api-client";
+import { type AppParts, createApp } from "@/app";
 import {
   createAuthGate,
   gateAdminRequests,
-} from "../features/auth/create-auth-gate";
-import type { Authenticator } from "../features/auth/webauthn/create-authenticator";
-import { type AppParts, createApp } from "../router";
-import { type FakeRoutes, createFakeApi } from "./create-fake-api";
+} from "@/features/auth/create-auth-gate";
+import type { Authenticator } from "@/features/auth/webauthn";
+import { type FakeRoutes, createFakeApi } from "@/testing/create-fake-api";
 
 /** 組み立てる管理画面の条件。 */
 export type TestAppOptions = {
@@ -20,6 +20,8 @@ export type TestAppOptions = {
   readonly routes: FakeRoutes;
   /** 作り物の認証器。 */
   readonly authenticator?: Authenticator;
+  /** 画面の履歴(省くと、最初に開くパスから始まる memory の履歴)。 */
+  readonly history?: RouterHistory;
 };
 
 /** 組み立てた管理画面と、確かめるためのもの。 */
@@ -40,10 +42,11 @@ export const createTestApp = ({
   path,
   routes,
   authenticator = NO_AUTHENTICATOR,
+  history = createMemoryHistory({ initialEntries: [path] }),
 }: TestAppOptions): TestApp => {
-  const history = createMemoryHistory({ initialEntries: [path] });
   const { calls, fetch } = createFakeApi(routes);
   const gate = createAuthGate();
+
   const api = createApiClient({
     origin: "http://localhost:5173",
     fetch: gateAdminRequests(gate, fetch),

@@ -14,7 +14,7 @@ describe("decideTestScope", () => {
     expect(
       decideTestScope({
         all: false,
-        changedFiles: ["apps/admin/src/main.tsx", path],
+        changedFiles: ["apps/admin/src/app/main.tsx", path],
       }),
     ).toBe("all");
   });
@@ -24,7 +24,7 @@ describe("decideTestScope", () => {
       decideTestScope({
         all: false,
         changedFiles: [
-          "apps/admin/src/main.tsx",
+          "apps/admin/src/app/main.tsx",
           "tooling/check/check.ts",
           "apps/server-notes.md",
           "README.md",
@@ -35,7 +35,10 @@ describe("decideTestScope", () => {
 
   test("--all を付けたら、server に触れていなくても server のテストを流す", () => {
     expect(
-      decideTestScope({ all: true, changedFiles: ["apps/admin/src/main.tsx"] }),
+      decideTestScope({
+        all: true,
+        changedFiles: ["apps/admin/src/app/main.tsx"],
+      }),
     ).toBe("all");
   });
 

@@ -39,6 +39,7 @@ export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
   canvas: ["bg"],
   surface: ["bg"],
   "surface-sunken": ["bg"],
+  "surface-muted": ["bg"],
   fg: ["text", "fill", "stroke", "bg", "outline"],
   "fg-muted": ["text", "fill", "stroke"],
   line: ["border", "divide", "outline"],
@@ -61,7 +62,7 @@ export const COLOR_USAGE: Readonly<Record<string, readonly string[]>> = {
 };
 
 /** 不透明度を付けない、面の色。 */
-const OPAQUE_COLORS = ["canvas", "surface", "surface-sunken"];
+const OPAQUE_COLORS = ["canvas", "surface", "surface-sunken", "surface-muted"];
 
 /** 部品が読んでよい、実行時に決まる CSS 変数。 */
 export const READABLE_VARIABLES = [
@@ -89,11 +90,14 @@ const COLORS = Object.keys(COLOR_USAGE).toSorted(
 
 const colorRestriction = (color: string): Restriction => {
   const allowed = COLOR_USAGE[color] ?? [];
+
   const utilities = allowed.map((utility) =>
     utility === "border" ? BORDER : utility,
   );
+
   const usage = utilities.length === 0 ? "(?!)" : `(?:${utilities.join("|")})`;
   const longer = COLORS.filter((other) => other.endsWith(`-${color}`));
+
   const notLonger =
     longer.length === 0 ? "" : `(?!.*-(?:${longer.join("|")})${MODIFIER}$)`;
 
@@ -171,7 +175,7 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
   {
     pattern: `${VARIANTS}[a-z\\-]+-(?:${OPAQUE_COLORS.join("|")})/`,
     message:
-      "面の色(canvas・surface・surface-sunken)には不透明度を付けません。",
+      "面の色(canvas・surface・surface-sunken・surface-muted)には不透明度を付けません。",
   },
   {
     pattern: `${VARIANTS}(?!text-(?:${SCALE})/)[a-z\\-]+-(?:${COLORS.join("|")}|current|transparent|inherit|\\([^)]*\\))/(?!(?:${OPACITY.join("|")})$)[^/]+$`,
@@ -245,6 +249,7 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
         LINE_STRONG_OUTSIDE_PRIMITIVES,
       ]),
       "project/styling-boundary": ["error", { area: "ui" }],
+      "project/max-classes-per-string": ["error", { max: 8 }],
     },
   },
   {

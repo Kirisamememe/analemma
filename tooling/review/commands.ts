@@ -36,7 +36,7 @@ export type CursorCall = {
 
 /** 外の CLI に渡す場所。 */
 export type ReviewPaths = {
-  /** レビューするブランチの中身を書き出したフォルダ。 */
+  /** レビューするコミットの中身を書き出したフォルダ。 */
   readonly tree: string;
   /** 差分とコミットのメッセージを書き出したフォルダ。 */
   readonly context: string;

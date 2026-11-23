@@ -1,17 +1,91 @@
-import type { Translation } from "../translation";
+import type { Translation } from "@/i18n/translation";
 
 /** 日本語の訳。 */
 export const ja = {
+  "fixedPageEditor.new": "新しい固定ページ",
+  "fixedPageEditor.edit": "固定ページを編集",
+  "fixedPageEditor.chooseKind": "種類を選択",
+  "fixedPageEditor.emptyKinds": "選べる種類がありません",
+  "fixedPageEditor.kindGone": "この種類はもうありません。",
+  "fixedPageEditor.pageGone": "この固定ページはもうありません。",
+  "fixedPageEditor.loading": "読み込んでいます。",
+  "fixedPageEditor.loadFailed": "固定ページを読み込めませんでした",
+  "fixedPageEditor.kindsLoadFailed": "種類を読み込めませんでした",
+  "fixedPageEditor.kindLoadFailed": "種類の定義を読み込めませんでした",
+  "fixedPageEditor.kindLoadFailedDescription":
+    "中身の項目は、種類の定義から作ります。接続を確かめてから、もう一度試してください。",
+  "fixedPageEditor.slug": "slug",
+  "fixedPageEditor.title": "タイトル",
+  "fixedPageEditor.slugHint":
+    "半角の英小文字と数字を使い、語の間はハイフン1つでつなげます。100文字までです。",
+  "fixedPageEditor.invalidSlug": "slug の文字と長さを確認してください。",
+  "fixedPageEditor.invalidTitle":
+    "タイトルは1〜200文字で、改行を使わずに入力してください。",
+  "fixedPageEditor.slugTaken": "この slug は、ほかの固定ページが使っています。",
+  "fixedPageEditor.save": "保存",
+  "fixedPageEditor.saved": "固定ページを更新しました。",
+  "fixedPageEditor.created": "固定ページを作成しました。",
+  "fixedPageEditor.saveFailed":
+    "固定ページを保存できませんでした。もう一度試してください。",
+  "fixedPageEditor.invalidContent":
+    "保存できない値があります。誤りの出た欄を直してください。",
+  "fixedPageEditor.changedKind":
+    "種類の定義が変わった可能性があります。読み込み直して項目を確認してください。",
+  "fixedPageEditor.issue.type": "入力してください。",
+  "fixedPageEditor.issue.format": "値の形式を確認してください。",
+  "fixedPageEditor.issue.choice": "選択肢から選んでください。",
+  "fixedPageEditor.issue.large": "長すぎます。",
+  "fixedPageEditor.issue.small": "短すぎます。",
+  "fixedPageEditor.issue.other": "値を確認してください。",
+  "fixedPageEditor.item": "{{label}} {{position}}",
+  "fixedPageEditor.up": "{{label}} {{position}} を上へ",
+  "fixedPageEditor.down": "{{label}} {{position}} を下へ",
+  "fixedPageEditor.remove": "{{label}} {{position}} を削除",
+  "fixedPageEditor.add": "{{label}}を追加",
+  "fixedPageEditor.backToList": "固定ページの一覧",
+  "fixedPageEditor.delete": "固定ページを削除",
+  "fixedPageEditor.leaveTitle": "保存していない変更があります",
+  "fixedPageEditor.leaveDescription":
+    "この画面を離れると、保存していない変更は失われます。",
+  "fixedPageEditor.stay": "編集を続ける",
+  "fixedPageEditor.leave": "変更を破棄",
+  "fixedPageEditor.urlHint": "http:// か https:// で始まる URL を入力します。",
+  "fixedPageEditor.unboundIssue": "({{path}}:{{message}})",
+  "fixedPageEditor.moveUp": "上へ",
+  "fixedPageEditor.moveDown": "下へ",
+  "fixedPageEditor.removeItem": "削除",
+  "fixedPageEditor.newDescription":
+    "種類を選び、slug・タイトル・中身を入力します。",
+  "fixedPageEditor.kindOf": "種類:{{kind}}",
+  "fixedPageEditor.emptyKindsDescription":
+    "公開サイトのデプロイで種類の定義を送ると、ここに並びます。",
+  "fixedPageEditor.chooseAgain": "種類を選び直す",
   "app.name": "Stilus",
-  "home.title": "Stilus",
+  "home.title": "ホーム",
+  "navigation.main": "メイン",
+  "navigation.drawer": "ナビ",
+  "navigation.settings": "設定",
+  "navigation.content": "コンテンツ",
   "notFound.title": "ページが見つかりません",
   "notFound.description": "{{path}} にページはありません。",
   "notFound.backHome": "ホームに戻る",
   "ui.pending": "処理中",
+  "ui.dateField.incomplete": "年・月・日を入力してください。",
+  "ui.numberField.decrease": "{{label}}の値を減らす",
+  "ui.numberField.increase": "{{label}}の値を増やす",
+  "ui.select.none": "選択なし",
+  "ui.select.placeholder": "選択してください",
+  "ui.openNav": "ナビを開く",
+  "ui.closeNav": "ナビを閉じる",
+  "ui.close": "閉じる",
+  "ui.required": "必須",
+  "ui.errorState.description": "接続を確かめてから、もう一度試してください。",
+  "ui.errorState.failedAgain": "まだ読み込めません。",
+  "ui.errorState.retryLater": "時間をおいて試してください。",
+  "ui.errorState.retry": "もう一度試す",
   "login.title": "Stilus にログイン",
   "login.description": "この管理画面に登録したパスキーを使います。",
   "login.submit": "パスキーでログイン",
-  "login.cancelled": "ログインをキャンセルしました。",
   "login.expired": "時間がかかりすぎました。もう一度ログインしてください。",
   "login.unknownPasskey":
     "このパスキーは登録されていません。削除されたパスキーかもしれません。",
@@ -25,7 +99,6 @@ export const ja = {
   "enroll.submit": "パスキーを登録",
   "enroll.missingToken":
     "登録用 URL が不完全です。サーバーのコマンドで発行し直してください。",
-  "enroll.cancelled": "登録をキャンセルしました。",
   "enroll.invalid":
     "この登録用 URL は使えません。期限切れか、使用済みの可能性があります。サーバーのコマンドで発行し直してください。",
   "enroll.expired": "時間がかかりすぎました。もう一度登録してください。",
@@ -43,7 +116,6 @@ export const ja = {
     "ログイン状態を確認できませんでした。もう一度試してください。",
   "sessionError.retry": "もう一度試す",
   "passkeyName.invalid": "1〜64文字で、改行などを使わずに付けてください。",
-  "home.security": "セキュリティ",
   "security.title": "セキュリティ",
   "security.description":
     "この管理画面へのログインに使う、パスキーとセッション。",
@@ -54,19 +126,20 @@ export const ja = {
   "passkeys.dates": "登録 {{created}}・最終使用 {{lastUsed}}",
   "passkeys.synced": "同期済み",
   "passkeys.rename": "名前を変更",
+  "passkeys.renamePasskey": "「{{name}}」の名前を変更",
   "passkeys.renameTitle": "パスキーの名前を変更",
   "passkeys.delete": "削除",
+  "passkeys.deletePasskey": "「{{name}}」を削除",
   "passkeys.deleteTitle": "「{{name}}」を削除しますか?",
   "passkeys.deleteDescription":
     "登録済みのパスキーで本人確認をしてから削除します。ほかのブラウザからはログアウトします。",
   "passkeys.cancel": "キャンセル",
   "passkeys.save": "保存",
   "passkeys.loading": "パスキーを読み込んでいます。",
-  "passkeys.loadFailed": "パスキーを読み込めませんでした。",
+  "passkeys.loadFailed": "パスキーを読み込めませんでした",
   "passkeys.added": "パスキーを追加しました。",
   "passkeys.deleted":
     "パスキーを削除しました。ほかのブラウザからはログアウトしました。",
-  "passkeys.cancelled": "パスキーの操作をキャンセルしました。",
   "passkeys.reauthenticationFailed": "本人確認ができませんでした。",
   "passkeys.expired": "時間がかかりすぎました。もう一度試してください。",
   "passkeys.alreadyRegistered":
@@ -84,4 +157,83 @@ export const ja = {
   "sessions.logOutAllFailed":
     "ログアウトできませんでした。もう一度試してください。",
   "passkeys.renamed": "パスキーの名前を変更しました。",
+  "deployTokens.title": "デプロイ用のトークン",
+  "deployTokens.description":
+    "公開サイトのデプロイで、種類の定義を送るときに使うトークン。トークンの値は、発行した直後に一度だけ表示します。",
+  "deployTokens.listTitle": "発行したトークン",
+  "deployTokens.issue": "トークンを発行",
+  "deployTokens.issueDescription":
+    "発行の前に、登録済みのパスキーで本人確認をします。",
+  "deployTokens.name": "トークンの名前",
+  "deployTokens.nameDescription":
+    "どこで使うかが分かる名前(本番のデプロイなど)。",
+  "deployTokens.invalidName": "1〜64文字で、改行などを使わずに付けてください。",
+  "deployTokens.cancel": "キャンセル",
+  "deployTokens.issued": "「{{name}}」を発行しました。",
+  "deployTokens.issuedTitle": "新しいトークンをコピー",
+  "deployTokens.shownOnce":
+    "トークンの値を表示するのは今だけです。閉じる前にコピーしてください。",
+  "deployTokens.value": "「{{name}}」のトークン",
+  "deployTokens.copy": "コピー",
+  "deployTokens.copiedLabel": "コピーしました",
+  "deployTokens.copyFailedLabel": "コピーできませんでした",
+  "deployTokens.copied": "トークンをクリップボードにコピーしました。",
+  "deployTokens.copyFailed":
+    "コピーできませんでした。トークンを選んで、手でコピーしてください。",
+  "deployTokens.close": "閉じる",
+  "deployTokens.dates": "発行 {{created}}・最終使用 {{lastUsed}}",
+  "deployTokens.datesUnused": "発行 {{created}}・未使用",
+  "deployTokens.loading": "トークンを読み込んでいます。",
+  "deployTokens.loadFailed": "トークンを読み込めませんでした",
+  "deployTokens.emptyTitle": "トークンはまだありません",
+  "deployTokens.emptyDescription":
+    "公開サイトのデプロイに使うトークンを発行してください。",
+  "deployTokens.revoke": "取り消す",
+  "deployTokens.revokeToken": "「{{name}}」を取り消す",
+  "deployTokens.revokeTitle": "「{{name}}」を取り消しますか?",
+  "deployTokens.revokeDescription":
+    "このトークンを使うデプロイは、種類の定義を送れなくなります。取り消したトークンは元に戻せません。",
+  "deployTokens.revoked": "「{{name}}」を取り消しました。",
+  "deployTokens.reauthenticationFailed": "本人確認ができませんでした。",
+  "deployTokens.notFound": "このトークンはもうありません。",
+  "deployTokens.failed":
+    "操作できませんでした。時間をおいて、もう一度試してください。",
+  "fixedPages.title": "固定ページ",
+  "fixedPages.description": "About など、公開サイトに置くページ。",
+  "fixedPages.loading": "固定ページを読み込んでいます。",
+  "fixedPages.loadFailed": "固定ページを読み込めませんでした",
+  "fixedPages.emptyTitle": "固定ページはまだありません",
+  "fixedPages.emptyDescription": "作った固定ページは、ここに並びます。",
+  "fixedPages.reorderHint":
+    "左の取っ手をドラッグすると、並び順を変えられます。",
+  "fixedPages.savingOrder": "並び順を保存しています",
+  "fixedPages.reordered": "並び順を保存しました。",
+  "fixedPages.orderMismatch":
+    "ほかで固定ページが増えたか減ったため、並び順を保存できませんでした。一覧を読み込み直したので、もう一度並べ直してください。",
+  "fixedPages.reorderFailed":
+    "並び順を保存できませんでした。もう一度試してください。",
+  "fixedPages.published": "公開中",
+  "fixedPages.unpublished": "非公開",
+  "fixedPages.details": "{{slug}}・{{kind}}・{{updated}} に更新",
+  "fixedPages.publish": "公開する",
+  "fixedPages.unpublish": "非公開にする",
+  "fixedPages.publishPage": "「{{title}}」を公開する",
+  "fixedPages.unpublishPage": "「{{title}}」を非公開にする",
+  "fixedPages.publishDone": "「{{title}}」を公開しました。",
+  "fixedPages.unpublishDone": "「{{title}}」を非公開にしました。",
+  "fixedPages.gone":
+    "「{{title}}」はもうありません。一覧を読み込み直しました。",
+  "fixedPages.publicationFailed":
+    "「{{title}}」の公開状態を変えられませんでした。もう一度試してください。",
+  "fixedPages.edit": "編集",
+  "fixedPages.editPage": "「{{title}}」を編集",
+  "fixedPages.create": "新しい固定ページ",
+  "fixedPages.delete": "削除",
+  "fixedPages.deleteTitle": "「{{title}}」を削除しますか?",
+  "fixedPages.deleteDescription":
+    "削除した固定ページは元に戻せません。公開サイトからも見えなくなります。",
+  "fixedPages.cancel": "キャンセル",
+  "fixedPages.deleted": "「{{title}}」を削除しました。",
+  "fixedPages.deleteFailed":
+    "固定ページを削除できませんでした。もう一度試してください。",
 } satisfies Translation;

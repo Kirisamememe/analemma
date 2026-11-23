@@ -1,5 +1,11 @@
-import { COSE_ALGORITHM, type CoseAlgorithm } from "../cose-key/cose-algorithm";
-import { type CborInput, encodeCbor } from "./encode-cbor";
+import {
+  COSE_ALGORITHM,
+  type CoseAlgorithm,
+} from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import {
+  type CborInput,
+  encodeCbor,
+} from "@/features/auth/webauthn/fake-authenticator/encode-cbor";
 
 const fromBase64url = (text: string | undefined): Uint8Array =>
   Uint8Array.fromBase64(text ?? "", { alphabet: "base64url" });

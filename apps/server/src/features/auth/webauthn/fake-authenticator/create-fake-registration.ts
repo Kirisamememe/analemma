@@ -1,12 +1,15 @@
-import type { RegistrationResponse } from "../verify-registration";
 import {
   AUTHENTICATOR_FLAG,
   buildAuthenticatorData,
   hashRpId,
-} from "./build-authenticator-data";
-import { buildClientDataJson } from "./build-client-data-json";
-import type { FakeAuthenticator } from "./create-fake-authenticator";
-import { type CborInput, encodeCbor } from "./encode-cbor";
+} from "@/features/auth/webauthn/fake-authenticator/build-authenticator-data";
+import { buildClientDataJson } from "@/features/auth/webauthn/fake-authenticator/build-client-data-json";
+import type { FakeAuthenticator } from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
+import {
+  type CborInput,
+  encodeCbor,
+} from "@/features/auth/webauthn/fake-authenticator/encode-cbor";
+import type { RegistrationResponse } from "@/features/auth/webauthn/verify-registration";
 
 /** 登録の応答の作り方。 */
 export type FakeRegistrationInput = {

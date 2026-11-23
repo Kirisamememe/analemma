@@ -2,7 +2,7 @@
 
 理由は同じフォルダの `DECISIONS.md` にある。
 
-- lint の設定は直下の `oxlint.config.ts` で、中身は `tooling/lint/config/` に分けて置く(ルールの一覧、ワークスペースごとの `overrides`、server の `overrides`、API の制限の部品)。設定のファイルは Node が TypeScript のまま読むので、相対 import に `.ts` を付ける。自作のルールは `tooling/lint/rules/` の `comments/`・`errors/`・`tests/`・`modules/`・`styles/`(`tooling/lint/plugin.mjs` がまとめる)。管理画面の Tailwind CSS の class の検査は `tooling/lint/config/admin-classes.ts`。
+- lint の設定は直下の `oxlint.config.ts` で、中身は `tooling/lint/config/` に分けて置く(ルールの一覧、ワークスペースごとの `overrides`、server の `overrides`、API の制限の部品)。設定のファイルは Node が TypeScript のまま読むので、相対 import に `.ts` を付ける。自作のルールは `tooling/lint/rules/` の `comments/`・`errors/`・`tests/`・`modules/`・`react/`・`styles/`(`tooling/lint/plugin.mjs` がまとめる)。管理画面の Tailwind CSS の class の検査は `tooling/lint/config/admin-classes.ts`。
 - `tooling/lint/config/` のモジュールを直したら、エディタで `Oxc: Restart oxlint Server` を実行する。エディタの Oxlint(LSP)は `oxlint.config.ts` だけを監視し、ほかのモジュールを直しても読み直さない(CLI と CI は毎回読み直す)。
 - フォルダの中身の数と名前は、lint ではなく `tooling/structure/` のテストが検査する(1ファイルずつ見る lint では、フォルダ全体を数えられない)。
 - `GLOSSARY.md` の「機械で探す語」に挙げた表記は、`tooling/structure/` のテストが文書・コメント・文字列から探す。コミットのメッセージからは、commit-msg の hook が探す。表記を足すときは、別の概念を指す正しい文まで落とさないかを確かめ、落としそうな文を `tooling/structure/__tests__/repository.test.ts` の例に足す。「機械で探す語」の表の見出しや書き方を変えるときは、`tooling/structure/glossary.ts` も合わせて直す。
@@ -14,13 +14,15 @@
 - TypeScript の検査と lint のルールがぶつかったら、TypeScript の方を取り、lint のルールを外すか変える(ユーザーが決めた)。外したら、ほかのルールを外したときと同じく、理由を `tooling/DECISIONS.md` に書く。
 - `bun run check` は `tooling/check/check.ts`。整形の確認・lint・型検査・テストを順に流す。server のテストを流すかは、一番近いフェーズのブランチか main から分かれた後に変えたファイルで決める(`test-scope.ts`)。server のテストが読む場所を足したら、`test-scope.ts` とそのテストを直す。`--all` で、いつも全部流す(CI)。
 - Claude Code では、作業の終わりに `tooling/hooks/stop-check.ts` が `bun run check` を流す(設定は `.claude/settings.json`)。
-- 観点ごとのレビューは `tooling/review/` の `bun run review` が流す(進め方は直下の `AGENTS.md` の「ブランチとレビュー」)。prompt は `prompts/` にあり、観点ごとのファイルと、どの観点にも共通の `common.md` に分ける。観点とモデルの割り当ては `perspectives.ts` にある。観点やモデルを変えたら、`perspectives.ts` とそのテスト、直下の `AGENTS.md` の観点の表、`prompts/` の各ファイルの「見ない範囲」に挙げた観点の名前を合わせて直す。結果は、メインの checkout の `.private/reviews/<ブランチ>/` に書く。
+- 観点ごとのレビューは `tooling/review/` の `bun run review` が流す(進め方は直下の `AGENTS.md` の「ブランチとレビュー」)。prompt は `prompts/` にあり、観点ごとのファイルと、どの観点にも共通の `common.md` に分ける。観点とモデルの割り当ては `perspectives.ts` にある。観点やモデルを変えたら、`perspectives.ts` とそのテスト、直下の `AGENTS.md` の観点の表、`prompts/` の各ファイルの「見ない範囲」に挙げた観点の名前を合わせて直す。結果は、メインの checkout の `.private/reviews/<ブランチ>/` に書く。`<ブランチ>` は、レビューするブランチの名前とし、`--head` にコミットを渡したときは今のブランチの名前とする。
 - git の hook は `tooling/git-hooks/` にある(中身は同じ名前の `.ts`。pre-merge-commit は `pre-commit.ts` を流す)。`bun install` が、`install.ts` で git の `core.hooksPath` をこのフォルダにする。worktree でも、その worktree のブランチにある hook が流れる。
 - pre-commit と pre-merge-commit は、ステージしたファイルのパスと中身から、ほかのリポジトリの名前を探す。整形・lint・型検査・テストは流さない(CI と `bun run check` に任せる)。
 - commit-msg は、commitlint(設定は直下の `commitlint.config.ts`、足したルールは `commit-rules.ts`)と、メッセージの中の、ほかのリポジトリの名前と「機械で探す語」の検索を流す。commitlint は Bun で流す。足したルールが `Bun.stringWidth` を使うので、Node では動かない。
 - hook を飛ばさない。`git commit --no-verify`(`-n`)を使わず、`core.hooksPath` を外さず、hook を飛ばすための環境変数や設定も足さない。通らなければ直してからコミットする。hook の側に無理があるなら、ユーザーに報告する。
 - CI は `.github/workflows/` にある(理由は `tooling/DECISIONS.md` の「CI」)。job の `check`(`check.yml`)は、PR と、main とフェーズのブランチへの push で `bun install --frozen-lockfile` と `bun run check --all` を流し、client をビルドして CLI を1回流す。job の `commit-messages`(`commit-messages.yml`)は、PR で、PR のコミットのメッセージと、PR のタイトル(merge commit か squash で入れたときの1行目。` (#番号)` を足したもの)を、`tooling/ci/check-pull-request-messages.ts` で確かめる。
+- 下の PR 作成前のコマンドは、タイトルの検査に先立って追加行数を表示する。501〜800行は通知して続行し、801行以上は失敗する。CI も同じコマンドを使う。
 - job の名前(`check`・`commit-messages`)は、main とフェーズのブランチの ruleset で、通ることを必須にする check として登録した名前。変えるときは、ruleset も直す(ユーザーに頼む)。
 - `commit-messages` は、メッセージを commit-msg の hook のスクリプトに1件ずつ渡すだけ。メッセージの検査を変えるときは `tooling/git-hooks/` を直し、CI の側に検査を書き足さない。
-- 手元との違い:CI には、ほかのリポジトリの名前の一覧が無いので、名前を探さない(ファイルからも、メッセージからも)。名前を探すのは、手元の `bun run check` とコミットのときの hook だけ。PR のタイトルは hook を通らないので、PR を作る前に、手元で `printf '%s' '<タイトル>' | bun tooling/ci/check-pull-request-messages.ts --base <base のブランチ> --head HEAD --number <番号の見込み>` に通す。PR の本文はどの検査も読まず、GitHub の画面で作ったコミットのメッセージは名前を探す検査を通らないので、名前が無いかを自分で見る。
+- 手元との違い:CI には、ほかのリポジトリの名前の一覧が無いので、名前を探さない(ファイルからも、メッセージからも)。名前を探すのは、手元の `bun run check` とコミットのときの hook だけ。PR のタイトルは hook を通らないので、PR を作る前に、手元で `printf '%s' '<タイトル>' | bun tooling/ci/check-pull-request-messages.ts --base origin/<PR の base> --head HEAD --number <番号の見込み>` に通す。stack では直前の PR のブランチを base にする。PR の本文はどの検査も読まず、GitHub の画面で作ったコミットのメッセージは名前を探す検査を通らないので、名前が無いかを自分で見る。
+- スペルチェックの辞書は直下の `cspell.json`(エディタの Code Spell Checker も読む)。フェーズの終わりに1回、`git ls-files | grep -v '^bun\.lock$' | bunx --bun cspell@10.5.2 --file-list stdin --words-only --no-progress --no-summary --no-must-find-files | sort -fu` で知らない語を集める。プロジェクトの語は `words`、テストのデータ・わざと崩した綴り・コードの断片は `ignoreWords` に足し、綴りの誤りは直す。`bun run check` と CI では流さない(理由は `DECISIONS.md` の「スペルチェック」)。
 - workflow では、actions をコミットの SHA で固定し、行末のコメントにバージョンを書く(`uses: owner/repo@<SHA> # v1.2.3`)。`permissions` は最上位に書き、必要最小限にする。どちらも `tooling/structure/` のテストが確かめる。PR のタイトルのような外から来る値は、`${{ }}` で `run` に直接書かず、環境変数で渡す。

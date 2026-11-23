@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import { Text } from "../layout/text";
-import { type TypographyRole, typography } from "../typography";
+import { Text } from "@/ui/layout";
+import { type TypographyRole, typography } from "@/ui/typography";
 
 const isRole = (name: string): name is TypographyRole =>
   name in typography.variants.role;
@@ -13,9 +13,9 @@ const ROLES = Object.keys(typography.variants.role).filter((name) =>
 /** `TypeSpecimen` に渡す値。 */
 type TypeSpecimenProps = {
   /** 文字の役割ごとに描く見本の文。 */
-  readonly sample: string;
+  sample: string;
   /** 見本の文の言語(言語ごとの字体で描く)。 */
-  readonly lang: string;
+  lang: string;
 };
 
 /** 文字の役割ごとの、大きさと行間の組と太さを並べた見本。 */

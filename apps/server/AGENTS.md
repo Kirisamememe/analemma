@@ -6,9 +6,10 @@
 
 - `src/main.ts`:起動。環境変数の検証と依存の組み立て。SIGINT・SIGTERM で受け付けを止め、DB の接続を閉じて終わる。
 - `src/enroll.ts`:パスキーの登録用 URL を出すコマンド(`bun run passkey:enroll`)。最初の登録と、パスキーを全部失ったときの復旧に使う。
-- `src/app.ts`:HTTP の層。外部用のポート(管理用 API・認証用 API)と内部用のポート(公開 API・デプロイ用 API)の、2つの Hono のアプリを作り、それぞれの middleware に、oRPC の handler を `/api` でつなぐ。
+- `src/app.ts`:HTTP の層。外部用のポート(管理用 API・認証用 API・管理画面)と内部用のポート(公開 API・デプロイ用 API)の、2つの Hono のアプリを作り、それぞれの middleware に、oRPC の handler を `/api` でつなぐ。
 - `src/context.ts`:context の型(起動時に組み立てる `AppContext` と、リクエストごとの `RequestContext`)。
 - `src/platform/`:Bun 専用の API、DB の接続、clock、logger。
+- `src/platform/load-admin-dist.ts`:`ADMIN_DIST_DIR` に指定した管理画面のビルドを読み込み、CSP に使う script の hash を求める。
 - `src/db/schema/`:全テーブルの Drizzle の定義。
 - `src/db/migrate.ts`:migration を適用するコマンド(`bun run db:migrate`)。server の起動とは別に流す。
 - `src/db/migrations/`:drizzle-kit(`bun run db:generate`)が書き出す migration。
@@ -23,8 +24,9 @@
 
 - 1ファイルに、1つの procedure を置く。関係する小さな関数(同じテーブルの query、同じ概念の小さな純粋関数)は、コードの行数が200行以下なら、1つのファイルにまとめてよい。
 - 名前は kebab-case にする。procedure と、1つの関数だけのファイルは、動詞から始める(`get-post.ts`、`decide-publish.ts`、`to-post-detail.ts`)。複数の操作をまとめた query のファイルは、テーブルか概念の名前に `.query.ts` を付ける(`session.query.ts`、`deploy-tokens.query.ts`)。小さな純粋関数をまとめたファイルも、概念の名前にする(`secret-token.ts`)。
-- procedure の中を、DB に触れる関数(`*.query.ts`)、判断する純粋関数、DB の行を contract の出力に変える mapper(純粋関数)に分ける。controller / service / repository の決まった層には分けない。
-- Drizzle と DB のドライバを値として import できるのは `*.query.ts`・`src/db/`・`src/platform/` だけ。Bun 専用の API を使えるのは `src/platform/` と `src/main.ts` だけ。それ以外は `Request`・`Response`・`fetch` などの Web 標準で書く(どちらも lint で止まる)。
+- 用途ごとの `queries/` に `*.query.ts` を置く。procedure の中を、DB に触れる関数、判断する純粋関数、DB の行を contract の出力に変える mapper(純粋関数)に分ける。controller / service / repository の決まった層には分けない。
+- feature は `src/` 内のモジュールを `@/` で import し、contract は `@analemma/contract` から import する。依存先を検査する lint は、server 内を指す相対パスも許す。Drizzle は feature の用途ごとの `queries/` にある `*.query.ts`、`bun:test` はテスト、zod は `auth/webauthn/client-data/parse-client-data.ts` で使える(lint で止める)。contract の入出力の型は、`@analemma/contract` の `ContractInputs` と `ContractOutputs` から取る。
+- feature の外で Drizzle と DB のドライバを値として import できるのは `*.query.ts`・`src/db/`・`src/platform/` だけ。Bun 専用の API を使えるのは `src/platform/` と `src/main.ts` だけ。それ以外は `Request`・`Response`・`fetch` などの Web 標準で書く(どちらも lint で止まる)。
 - procedure は `procedures.ts` の `publicProcedures`・`authProcedures`・`deployProcedures`・`adminProcedures` から作る。素の oRPC の builder(`implement`・`os`)は `procedures.ts` と `router.ts` だけで使う(lint で止まる)。
 - テーブルに書き込めるのは、そのテーブルを持つ feature だけ。読むのはどこからでもよい。
 - 公開状態の判定は、公開状態を持つ feature の関数だけで行う。見つからないものと公開していないものは区別せず、どちらも「無い」として返す。

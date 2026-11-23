@@ -1,3 +1,8 @@
+import type {
+  InferContractRouterInputs,
+  InferContractRouterOutputs,
+} from "@orpc/contract";
+
 import { enrollment } from "./enrollment";
 import { fixedPages } from "./fixed-pages/admin-fixed-pages";
 import { publicFixedPages } from "./fixed-pages/public-fixed-pages";
@@ -12,8 +17,10 @@ import { session } from "./session";
 export {
   type FixedPageContent,
   fixedPageContent,
+  fixedPageSlug,
+  fixedPageTitle,
 } from "./fixed-pages/fixed-page-values";
-export { contentIssues } from "./kinds/content-issues";
+export { type ContentIssue, contentIssues } from "./kinds/content-issues";
 export {
   booleanValue,
   dateValue,
@@ -22,6 +29,7 @@ export {
   textValue,
   urlValue,
 } from "./kinds/content-values";
+export { deployTokenName } from "./kinds/deploy-tokens";
 export {
   type FieldDefinition,
   type FieldDefinitionInput,
@@ -52,3 +60,9 @@ export const contract = {
   deploy: { kinds: deployKinds },
   public: { fixedPages: publicFixedPages, health },
 };
+
+/** contract の入力の型。 */
+export type ContractInputs = InferContractRouterInputs<typeof contract>;
+
+/** contract の出力の型。 */
+export type ContractOutputs = InferContractRouterOutputs<typeof contract>;

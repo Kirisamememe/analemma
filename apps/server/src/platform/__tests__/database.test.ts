@@ -1,10 +1,11 @@
 import { expect, test } from "bun:test";
 
-import { openDatabase } from "../database";
-import { readDatabaseEnv } from "../env";
-import type { LogEntry } from "../logger";
+import { openDatabase } from "@/platform/database";
+import { readDatabaseEnv } from "@/platform/env";
+import type { LogEntry } from "@/platform/logger";
 
 const logs: LogEntry[] = [];
+
 const logger = {
   write: (entry: LogEntry) => {
     logs.push(entry);
@@ -21,6 +22,7 @@ const OTHER_TARGET = {
 
 test("PG で始まる環境変数があっても、DATABASE_URL から読んだ接続先だけを postgres.js に渡すこと", async () => {
   await using stack = new AsyncDisposableStack();
+
   const previous = Object.entries(OTHER_TARGET).map(
     ([name]) => [name, Bun.env[name]] as const,
   );
@@ -39,6 +41,7 @@ test("PG で始まる環境変数があっても、DATABASE_URL から読んだ�
   const { database } = readDatabaseEnv({
     DATABASE_URL: "postgres://analemma:s3cret@db.example/analemma",
   });
+
   const connection = stack.use(openDatabase({ target: database, logger }));
 
   expect(connection.client.options).toMatchObject({

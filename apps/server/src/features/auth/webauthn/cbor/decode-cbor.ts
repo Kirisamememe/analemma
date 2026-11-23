@@ -1,4 +1,7 @@
-import { type WebAuthnRejection, reject } from "../rejection";
+import {
+  type WebAuthnRejection,
+  reject,
+} from "@/features/auth/webauthn/rejection";
 
 /** 読める CBOR の値。 */
 export type CborValue =
@@ -35,12 +38,14 @@ type Read<T> =
 
 const MAX_DEPTH = 16;
 const INDEFINITE_LENGTH = 31;
+
 const ARGUMENT_SIZES = new Map([
   [24, 1],
   [25, 2],
   [26, 4],
   [27, 8],
 ]);
+
 const SIMPLE_VALUES = new Map([
   [20, false],
   [21, true],

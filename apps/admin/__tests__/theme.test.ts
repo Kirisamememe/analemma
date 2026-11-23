@@ -8,6 +8,7 @@ const THEME = "src/ui/theme.css";
 const sourceFiles = await Array.fromAsync(
   new Bun.Glob("src/**/*.{css,ts,tsx}").scan({ cwd: ADMIN_ROOT }),
 );
+
 const theme = await readFile(`${ADMIN_ROOT}${THEME}`, "utf8");
 
 const namesOf = (prefix: string): string[] =>

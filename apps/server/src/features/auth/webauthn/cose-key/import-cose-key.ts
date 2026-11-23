@@ -1,12 +1,18 @@
-import { decodeCbor, isCborMap } from "../cbor/decode-cbor";
+import {
+  decodeCbor,
+  isCborMap,
+} from "@/features/auth/webauthn/cbor/decode-cbor";
+import {
+  type CoseAlgorithm,
+  isCoseAlgorithm,
+} from "@/features/auth/webauthn/cose-key/cose-algorithm";
+import { toKeyImport } from "@/features/auth/webauthn/cose-key/to-key-import";
 import {
   PASSED,
   type WebAuthnPassed,
   type WebAuthnRejection,
   reject,
-} from "../rejection";
-import { type CoseAlgorithm, isCoseAlgorithm } from "./cose-algorithm";
-import { toKeyImport } from "./to-key-import";
+} from "@/features/auth/webauthn/rejection";
 
 /** 認証器の署名を、署名の対象に照らして確かめる。 */
 export type VerifySignature = (
@@ -66,6 +72,7 @@ export const importCoseKey = async (
   }
 
   const { importParams, jwk, readSignature, verifyParams } = keyImport;
+
   const key = await crypto.subtle.importKey("jwk", jwk, importParams, false, [
     "verify",
   ]);

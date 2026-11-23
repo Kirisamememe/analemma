@@ -3,6 +3,15 @@ import type { DummyRuleMap } from "oxlint";
 /** 長いファイルとして扱い始める、コードの行数。 */
 export const LONG_FILE_CODE_LINES = 200;
 
+const MULTILINE_CONST = [
+  "multiline-const",
+  {
+    selector:
+      "ExportNamedDeclaration[declaration.type='VariableDeclaration'][declaration.kind='const']",
+    lineMode: "multiline",
+  },
+];
+
 /** 自作のルールと、JS のプラグインのルール。 */
 export const PROJECT_RULES = {
   "jsdoc-js/require-description": "error",
@@ -52,6 +61,8 @@ export const PROJECT_RULES = {
   "stylistic/lines-between-class-members": ["error", "always"],
   "stylistic/padding-line-between-statements": [
     "error",
+    { blankLine: "always", prev: "*", next: MULTILINE_CONST },
+    { blankLine: "always", prev: MULTILINE_CONST, next: "*" },
     {
       blankLine: "always",
       prev: "*",
@@ -123,6 +134,7 @@ export const PROJECT_RULES = {
   ],
   "project/no-cross-workspace-import": "error",
   "project/no-dynamic-import": "error",
+  "project/require-jsx-in-tsx": "error",
   "project/test-location": "error",
   "project/file-length-limit": [
     "error",

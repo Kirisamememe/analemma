@@ -121,6 +121,7 @@ const collectNamedExports = ({ exported, functions, statement }) => {
   for (const specifier of statement.specifiers) {
     const name =
       specifier.local?.type === "Identifier" ? specifier.local.name : undefined;
+
     addExportedFunction(exported, name ? functions.get(name) : undefined);
   }
 };

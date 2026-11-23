@@ -1,14 +1,15 @@
-import { adminProcedures } from "../../../procedures";
-import { reauthenticate } from "../current-session/reauthenticate";
-import { REGISTRATION_ERRORS } from "../registration/registration-errors";
-import { verifyPasskeyRegistration } from "../registration/verify-passkey-registration";
-import { recordAddition } from "./record-addition.query";
-import { toPasskeySummary } from "./to-passkey-summary";
+import { reauthenticate } from "@/features/auth/current-session/reauthenticate";
+import { recordAddition } from "@/features/auth/passkeys/queries/record-addition.query";
+import { toPasskeySummary } from "@/features/auth/passkeys/to-passkey-summary";
+import { REGISTRATION_ERRORS } from "@/features/auth/registration/registration-errors";
+import { verifyPasskeyRegistration } from "@/features/auth/registration/verify-passkey-registration";
+import { adminProcedures } from "@/procedures";
 
 /** 今のパスキーで確かめ直してから、管理者のパスキーを足す procedure。 */
 export const addPasskey = adminProcedures.passkeys.register.handler(
   async ({ context, errors, input }) => {
     const { adminUserId, id: sessionId } = context.session;
+
     const reauthenticated = await reauthenticate(context, {
       action: "passkeys.register",
       assertion: input.assertion,

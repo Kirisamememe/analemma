@@ -8,17 +8,17 @@ import {
   createInternalApp,
   type externalRouter,
   type internalRouter,
-} from "../app";
+} from "@/app";
 import {
   CHALLENGE_CAPACITY,
   CHALLENGE_LIFETIME_MS,
   createChallengeStore,
-} from "../features/auth/challenge/create-challenge-store";
-import { issueEnrollment } from "../features/auth/enrollment/issue-enrollment";
-import type { Clock } from "../platform/clock";
-import type { LogEntry, Logger } from "../platform/logger";
-import { createTestDatabase } from "../platform/test-database/create-test-database";
-import { createCookieJar } from "./create-cookie-jar";
+} from "@/features/auth/challenge/create-challenge-store";
+import { issueEnrollment } from "@/features/auth/enrollment/issue-enrollment";
+import type { Clock } from "@/platform/clock";
+import type { LogEntry, Logger } from "@/platform/logger";
+import { createTestDatabase } from "@/platform/test-database/create-test-database";
+import { createCookieJar } from "@/test-client/create-cookie-jar";
 
 /** テストで差し替える依存と、最初から持たせる Cookie。 */
 export type TestClientOptions = {
@@ -73,13 +73,16 @@ export const createTestClient = async (
 ): Promise<TestClient> => {
   await using stack = new AsyncDisposableStack();
   const logs: LogEntry[] = [];
+
   const logger: Logger = {
     write: (entry) => {
       logs.push(entry);
     },
   };
+
   const clock = options.clock ?? { now: () => TEST_NOW };
   const database = stack.use(await createTestDatabase({ logger }));
+
   const context = {
     clock,
     db: database.db,
@@ -90,11 +93,13 @@ export const createTestClient = async (
       lifetimeMs: CHALLENGE_LIFETIME_MS,
     }),
   };
+
   const app = createExternalApp(context);
   const internalApp = createInternalApp(context);
 
   const openBrowser = (seed = ""): TestBrowser => {
     const jar = createCookieJar(seed);
+
     const link = new RPCLink({
       url: `${TEST_ORIGIN}/api`,
       headers: () =>
@@ -129,6 +134,7 @@ export const createTestClient = async (
         fetch: async (request) => internalApp.fetch(request),
       }),
     );
+
   const browser = openBrowser(options.cookie);
   const resources = stack.move();
 

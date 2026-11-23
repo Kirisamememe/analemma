@@ -5,8 +5,13 @@ import { lintFixture, ruleIdsOf } from "../fixture-lint";
 describe("使える API と書き方", () => {
   test.each([
     {
-      label: "管理画面の .ts での React の import",
-      file: "apps/admin/src/uses-react.ts",
+      label: "管理画面の components から feature の import",
+      file: "apps/admin/src/components/uses-feature.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の components から feature の再 export",
+      file: "apps/admin/src/components/reexports-feature.ts",
       rule: "eslint(no-restricted-imports)",
     },
     {
@@ -26,6 +31,16 @@ describe("使える API と書き方", () => {
       rule: "eslint(no-restricted-imports)",
     },
     {
+      label: "管理画面の画面のコードでの lucide-react の import",
+      file: "apps/admin/src/routes/uses-lucide.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の画面のコードでの lucide-react のサブパスの import",
+      file: "apps/admin/src/routes/uses-lucide-subpath.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
       label: "管理画面の、tailwind-variants の merge の入口の import",
       file: "apps/admin/src/ui/primitives/uses-merge-entry.ts",
       rule: "eslint(no-restricted-imports)",
@@ -38,6 +53,45 @@ describe("使える API と書き方", () => {
     {
       label: "管理画面の ui/primitives/ からの patterns の import",
       file: "apps/admin/src/ui/primitives/uses-pattern.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/layout/ から `@/` で書いた primitives の import",
+      file: "apps/admin/src/ui/layout/uses-aliased-primitive.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/layout/ から `@/` で書いた patterns の import",
+      file: "apps/admin/src/ui/layout/uses-aliased-pattern.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/primitives/ から `@/` で書いた patterns の import",
+      file: "apps/admin/src/ui/primitives/uses-aliased-pattern.tsx",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label:
+        "管理画面の ui/layout/ から primitives のフォルダを指定した import",
+      file: "apps/admin/src/ui/layout/uses-primitive-entry.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label:
+        "管理画面の ui/layout/ から patterns のフォルダを相対パスで指定した import",
+      file: "apps/admin/src/ui/layout/uses-pattern-entry.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label:
+        "管理画面の ui/layout/ から primitives の下のフォルダを指定した import",
+      file: "apps/admin/src/ui/layout/uses-primitive-group-entry.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label:
+        "管理画面の ui/primitives/ から patterns のフォルダを指定した import",
+      file: "apps/admin/src/ui/primitives/uses-pattern-entry.ts",
       rule: "eslint(no-restricted-imports)",
     },
     {
@@ -141,6 +195,50 @@ describe("使える API と書き方", () => {
 
     expect(ruleIdsOf(result)).toContain(rule);
     expect(result.status).not.toBe(0);
+  });
+});
+
+describe("feature の import", () => {
+  test.each([
+    { app: "admin", file: "dependencies.ts", lines: [1, 2, 4] },
+    { app: "admin", file: "react-libraries.ts", lines: [1, 2, 3, 5, 6] },
+    { app: "admin", file: "ui-libraries.ts", lines: [1, 2, 3, 4] },
+    {
+      app: "server",
+      file: "external-imports.ts",
+      lines: [1, 2, 3, 4, 5, 6, 7, 9],
+    },
+    {
+      app: "server",
+      file: "queries/external-imports.query.ts",
+      lines: [1, 3, 4],
+    },
+    { app: "server", file: "misplaced.query.ts", lines: [1] },
+    { app: "server", file: "queries/not-a-query.ts", lines: [1, 5] },
+  ])(
+    "$app の $file の外部 import に、import ごとに診断を1件ずつ出すこと",
+    ({ app, file, lines }) => {
+      const { diagnostics } = lintFixture(
+        `invalid/apps/${app}/src/features/dependencies/${file}`,
+      );
+
+      const restrictedImports = diagnostics.filter(
+        ({ code }) => code === "eslint(no-restricted-imports)",
+      );
+
+      expect(
+        restrictedImports
+          .map(({ line }) => line)
+          .toSorted((left, right) => left - right),
+      ).toEqual([...lines]);
+    },
+  );
+  test("queries/ の外で Drizzle の型を書く import() に診断を出すこと", () => {
+    const result = lintFixture(
+      "invalid/apps/server/src/features/dependencies/misplaced.query.ts",
+    );
+
+    expect(ruleIdsOf(result)).toContain("typescript(consistent-type-imports)");
   });
 });
 

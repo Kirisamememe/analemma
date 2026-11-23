@@ -25,6 +25,7 @@ const about = defineKind({
     bio: optional(longText({ label: "本文" })),
     age: optional(number({ label: "年" })),
     open: boolean({ label: "受付中" }),
+    listed: boolean({ label: "一覧に出す", default: true }),
     born: optional(date({ label: "生まれた日" })),
     theme: select({
       label: "色",
@@ -52,7 +53,8 @@ describe("種類の定義", () => {
         { key: "headline", label: "見出し", type: "text", optional: false },
         { key: "bio", label: "本文", type: "longText", optional: true },
         { key: "age", label: "年", type: "number", optional: true },
-        { key: "open", label: "受付中", type: "boolean", optional: false },
+        { key: "open", label: "受付中", type: "boolean", default: false },
+        { key: "listed", label: "一覧に出す", type: "boolean", default: true },
         { key: "born", label: "生まれた日", type: "date", optional: true },
         {
           key: "theme",
@@ -93,6 +95,7 @@ describe("種類の定義", () => {
       bio: z.string().optional(),
       age: z.number().optional(),
       open: z.boolean(),
+      listed: z.boolean(),
       born: z.string().optional(),
       theme: z.enum(["light", "dark"]),
       profile: z.object({ role: z.string() }).optional(),
@@ -122,6 +125,14 @@ describe("種類の定義", () => {
     {
       title: "必須の項目が無い値",
       value: { open: true, theme: "dark", links: [] },
+    },
+    {
+      title: "真偽値の項目が無い値",
+      value: { headline: "a", theme: "dark", links: [] },
+    },
+    {
+      title: "真偽値の項目が null の値",
+      value: { headline: "a", open: null, theme: "dark", links: [] },
     },
     {
       title: "選択肢に無い値",
@@ -157,6 +168,7 @@ describe("種類の定義", () => {
         fields: about.definition.fields,
         unknownKeys: "strip",
       }).safeParse(value);
+
       const site = about.content.safeParse(value);
 
       const actual: unknown = { success: site.success, data: site.data };
@@ -191,6 +203,7 @@ describe("種類の定義", () => {
     const fields: Record<string, ReturnType<typeof text>> = {
       caption: text({ label: "説明" }),
     };
+
     const kind = defineKind({
       name: "gallery",
       label: "ギャラリー",
@@ -201,6 +214,22 @@ describe("種類の定義", () => {
 
     expect(kind.content.safeParse({ items: [{ caption: "a" }] }).success).toBe(
       true,
+    );
+  });
+
+  test("真偽値の項目は、optional で省けるようにできないこと", () => {
+    expectTypeOf<
+      Parameters<typeof optional<ReturnType<typeof boolean>>>[0]
+    >().toBeNever();
+
+    type TextOrBoolean = ReturnType<typeof text> | ReturnType<typeof boolean>;
+
+    expectTypeOf<Parameters<typeof optional<TextOrBoolean>>[0]>().toBeNever();
+
+    const schema: z.ZodType = boolean({ label: "受付中" });
+
+    expect(() => optional(schema)).toThrow(
+      "真偽値の項目には optional を指定できない。3つ目の状態が要るなら select を使う",
     );
   });
 

@@ -1,25 +1,24 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  Navigate,
   useLocation,
   useRouteContext,
   useRouter,
 } from "@tanstack/react-router";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { checkPasskeyName } from "../features/auth/check-passkey-name";
-import { type EnrollInput, enroll } from "../features/auth/enroll";
-import { readEnrollmentToken } from "../features/auth/read-enrollment-token";
-import { toEnrollNotice } from "../features/auth/to-auth-notice";
-import { Center } from "../ui/layout/center";
-import { Stack } from "../ui/layout/stack";
-import { Text } from "../ui/layout/text";
-import { PageHeader } from "../ui/patterns/page-header";
-import { Button } from "../ui/primitives/button";
-import { Form } from "../ui/primitives/form";
-import { Link } from "../ui/primitives/link";
-import { Notice } from "../ui/primitives/notice";
-import { TextField } from "../ui/primitives/text-field";
+import { PasskeyNameField } from "@/components/passkey-name-field";
+import { readEnrollmentToken } from "@/features/auth/logic/read-enrollment-token";
+import { toEnrollNotice } from "@/features/auth/logic/to-auth-notice";
+import { type EnrollInput, enroll } from "@/features/auth/queries/enroll";
+import { AppShell, Center, Stack, Text } from "@/ui/layout";
+import { PageHeader } from "@/ui/patterns";
+import { Button } from "@/ui/primitives/button";
+import { Form } from "@/ui/primitives/form";
+import { Link } from "@/ui/primitives/navigation";
+import { Notice } from "@/ui/primitives/notice";
+import { useFailureToast } from "@/ui/primitives/overlays";
 
 const PASSKEY_NAME_MAX_LENGTH = 64;
 
@@ -30,6 +29,7 @@ export const EnrollPage = (): ReactNode => {
   const queryClient = useQueryClient();
   const { api, authenticator, gate } = useRouteContext({ from: "/enroll" });
   const hash = useLocation({ select: (location) => location.hash });
+
   const [opened, setOpened] = useState(() => ({
     hash,
     token: readEnrollmentToken(hash),
@@ -40,10 +40,18 @@ export const EnrollPage = (): ReactNode => {
   }
 
   const { token } = opened;
+  const failure = useFailureToast();
+
   const enrollment = useMutation({
     mutationFn: async (input: EnrollInput) =>
       gate.authenticate(async () => enroll({ api, authenticator }, input)),
     onSuccess: ({ _tag }) => {
+      const notice = toEnrollNotice(_tag);
+
+      if (notice?.place === "Toast") {
+        failure.show(t(notice.message));
+      }
+
       if (_tag !== "Enrolled") {
         return;
       }
@@ -54,69 +62,62 @@ export const EnrollPage = (): ReactNode => {
         router.history.replace("/");
       }
     },
+    onError: () => {
+      failure.show(t("enroll.failed"));
+    },
   });
-  const result = enrollment.isError ? "Unexpected" : enrollment.data?._tag;
+
+  const result = enrollment.data?._tag;
   const outcome = enrollment.variables?.token === token ? result : undefined;
   const notice = outcome === undefined ? undefined : toEnrollNotice(outcome);
 
-  useEffect(() => {
-    if (hash !== "") {
-      router.history.replace("/enroll");
-    }
-  }, [hash, router]);
-
   return (
-    <Center width="sm">
-      <Stack gap={6}>
-        <PageHeader
-          description={t("enroll.description")}
-          title={t("enroll.title")}
-        />
-        {token === undefined ? (
-          <Notice tone="danger">{t("enroll.missingToken")}</Notice>
-        ) : (
-          <Form
-            isPending={enrollment.isPending}
-            onSubmit={(data) => {
-              const name = data.get("name");
-
-              enrollment.mutate({
-                token,
-                name: typeof name === "string" ? name : "",
-              });
-            }}
-          >
-            <TextField
-              autoComplete="off"
-              description={t("enroll.nameDescription")}
-              isRequired
-              label={t("enroll.name")}
-              maxLength={PASSKEY_NAME_MAX_LENGTH}
-              name="name"
-              validate={(value) => {
-                const problem = checkPasskeyName(value);
-
-                return problem === undefined ? undefined : t(problem);
-              }}
-            />
-            {notice !== undefined && (
-              <Notice tone={notice.tone}>{t(notice.message)}</Notice>
-            )}
-            {outcome === "AlreadyRegistered" && (
-              <Text>
-                <Link href="/login">{t("enroll.signIn")}</Link>
-              </Text>
-            )}
-            <Button
+    <AppShell>
+      <Center width="sm">
+        {hash !== "" && <Navigate replace to="/enroll" />}
+        <Stack gap={6}>
+          <PageHeader
+            description={t("enroll.description")}
+            title={t("enroll.title")}
+          />
+          {token === undefined ? (
+            <Notice tone="danger">{t("enroll.missingToken")}</Notice>
+          ) : (
+            <Form
               isPending={enrollment.isPending}
-              tone="primary"
-              type="submit"
+              onSubmit={(data) => {
+                const name = data.get("name");
+
+                failure.close();
+                enrollment.mutate({
+                  token,
+                  name: typeof name === "string" ? name : "",
+                });
+              }}
             >
-              {t("enroll.submit")}
-            </Button>
-          </Form>
-        )}
-      </Stack>
-    </Center>
+              <PasskeyNameField
+                maxLength={PASSKEY_NAME_MAX_LENGTH}
+                showDescription
+              />
+              {notice?.place === "Notice" && (
+                <Notice tone="danger">{t(notice.message)}</Notice>
+              )}
+              {outcome === "AlreadyRegistered" && (
+                <Text>
+                  <Link href="/login">{t("enroll.signIn")}</Link>
+                </Text>
+              )}
+              <Button
+                isPending={enrollment.isPending}
+                tone="primary"
+                type="submit"
+              >
+                {t("enroll.submit")}
+              </Button>
+            </Form>
+          )}
+        </Stack>
+      </Center>
+    </AppShell>
   );
 };

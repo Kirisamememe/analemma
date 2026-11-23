@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
-import { createApiClient, type ApiClientOptions } from "../create-api-client";
+import {
+  createApiClient,
+  type ApiClientOptions,
+} from "@/api/create-api-client";
 
 /** 送ったリクエストの、確かめる部分。 */
 type Sent = {

@@ -19,10 +19,7 @@ describe("観点とモデルの割り当て", () => {
       },
       {
         id: "ui",
-        reviewer: {
-          runner: "cursor",
-          models: ["gemini-4-neon-xhigh", "grok-4.7-xhigh"],
-        },
+        reviewer: { runner: "codex", model: "gpt-6.2-sol", effort: "xhigh" },
       },
       {
         id: "conventions",
@@ -31,7 +28,10 @@ describe("観点とモデルの割り当て", () => {
           models: ["grok-4.7-xhigh", "composer-2.5"],
         },
       },
-      { id: "wording", reviewer: { runner: "subagent" } },
+      {
+        id: "wording",
+        reviewer: { runner: "cursor", models: ["grok-4.7-xhigh"] },
+      },
       {
         id: "coherence",
         reviewer: { runner: "codex", model: "gpt-6.2-sol", effort: "xhigh" },

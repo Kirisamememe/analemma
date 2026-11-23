@@ -109,6 +109,7 @@ const run = async (
   const stdout: string[] = [];
   const stderr: string[] = [];
   const inbox: Inbox = { received: [], kinds: [] };
+
   const code = await runCli({
     args: ["push-kinds", "./kinds.ts"],
     url: "http://127.0.0.1:8788",
@@ -161,6 +162,7 @@ describe("種類の定義を送る CLI", () => {
   test("CMS へのリクエストは、リダイレクトを追わないこと", async () => {
     const redirects: string[] = [];
     const fake = serveFakeCms("accept");
+
     const result = await run("accept", {
       fetch: async (request) => {
         redirects.push(request.redirect);
@@ -176,6 +178,7 @@ describe("種類の定義を送る CLI", () => {
   test("--url を渡すと、環境変数の URL より優先すること", async () => {
     const urls: string[] = [];
     const fake = serveFakeCms("accept");
+
     const result = await run("accept", {
       args: ["push-kinds", "./kinds.ts", "--url", "http://10.0.0.2:9000"],
       fetch: async (request) => {
@@ -258,4 +261,24 @@ describe("種類の定義を送る CLI", () => {
       expect(result.stderr[0]).toStartWith("種類の定義を読めない。");
     },
   );
+
+  test("真偽値の項目を省けるようにした定義では、select を使うよう書き、何も送らずに 1 で終わること", async () => {
+    const fields = [
+      { key: "open", label: "受付中", type: "boolean", optional: true },
+    ];
+
+    const result = await run("accept", {
+      loadModule: () =>
+        Promise.resolve({
+          default: [{ definition: { ...about.definition, fields } }],
+        }),
+    });
+
+    expect(result.code).toBe(1);
+    expect(result.received).toEqual([]);
+    expect(result.stderr.join("\n").split("\n")).toEqual([
+      "種類の定義を読めない。",
+      "0.fields.0.optional: 真偽値の項目には optional を指定できない。3つ目の状態が要るなら select を使う",
+    ]);
+  });
 });

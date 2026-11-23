@@ -28,6 +28,7 @@ const parseDirective = (value) => {
 
   const { rest } = groups;
   const descriptionStart = findDescriptionStart(rest);
+
   const description =
     descriptionStart === -1 ? "" : rest.slice(descriptionStart);
 

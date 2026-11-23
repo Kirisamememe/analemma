@@ -1,16 +1,20 @@
-import { getCookie } from "@orpc/server/helpers";
-
-import { authProcedures } from "../../../procedures";
+import { recordLogin } from "@/features/auth/login/queries/record-login.query";
+import {
+  type LoginFailure,
+  verifyLogin,
+} from "@/features/auth/login/verify-login";
+import { writeLoginWarnings } from "@/features/auth/login/write-login-warnings";
 import {
   issueSecretToken,
   readSecretToken,
-} from "../secret-token/secret-token";
-import { toSessionExpiry } from "../session/decide-session";
-import { toSessionCookie } from "../session/to-session-cookie";
-import { writeSessionCookie } from "../session/write-session-cookie";
-import { recordLogin } from "./record-login.query";
-import { type LoginFailure, verifyLogin } from "./verify-login";
-import { writeLoginWarnings } from "./write-login-warnings";
+} from "@/features/auth/secret-token/secret-token";
+import { toSessionExpiry } from "@/features/auth/session/decide-session";
+import {
+  readSessionCookie,
+  toSessionCookie,
+  writeSessionCookie,
+} from "@/platform/session-cookie";
+import { authProcedures } from "@/procedures";
 
 const LOGIN_ERRORS = {
   ChallengeExpired: "CHALLENGE_EXPIRED",
@@ -22,6 +26,7 @@ const LOGIN_ERRORS = {
 export const logIn = authProcedures.login.verify.handler(
   async ({ context, errors, input }) => {
     const now = context.clock.now();
+
     const verified = await verifyLogin({
       db: context.db,
       challenges: context.challenges,
@@ -44,11 +49,13 @@ export const logIn = authProcedures.login.verify.handler(
     writeLoginWarnings(context.logger, verified);
 
     const cookie = toSessionCookie(context.relyingParty.origin);
-    const previousToken = getCookie(context.headers, cookie.name);
+    const previousToken = readSessionCookie(context.headers, cookie);
+
     const previous =
       previousToken === undefined
         ? undefined
         : await readSecretToken(previousToken);
+
     const issued = await issueSecretToken();
 
     const recorded = await recordLogin(context.db, {

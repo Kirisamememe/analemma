@@ -1,14 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import { sql } from "drizzle-orm";
 
-import type { Database } from "../../platform/database";
-import type { LogEntry } from "../../platform/logger";
-import { createTestDatabase } from "../../platform/test-database/create-test-database";
-import { toTestDatabaseTarget } from "../../platform/test-database/to-test-database-target";
-import { writeTestMigrations } from "../../platform/test-database/write-test-migrations";
-import { migrateDatabase } from "../migrate-database";
+import { migrateDatabase } from "@/db/migrate-database";
+import type { Database } from "@/platform/database";
+import type { LogEntry } from "@/platform/logger";
+import { createTestDatabase } from "@/platform/test-database/create-test-database";
+import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
+import { writeTestMigrations } from "@/platform/test-database/write-test-migrations";
 
 const logs: LogEntry[] = [];
+
 const logger = {
   write: (entry: LogEntry) => {
     logs.push(entry);
@@ -39,6 +40,7 @@ describe("migration を適用する", () => {
         "CREATE TABLE notes (body text);",
       ].join("\n"),
     });
+
     const options = {
       target: toTestDatabaseTarget(database.name),
       logger,
@@ -49,6 +51,7 @@ describe("migration を適用する", () => {
       migrateDatabase(options),
       migrateDatabase(options),
     ]);
+
     const recorded = await database.db.execute(
       sql`select name from drizzle.__drizzle_migrations`,
       "objects",
@@ -76,6 +79,7 @@ describe("migration を適用する", () => {
     await using migrations = await writeTestMigrations({
       [CREATE_NOTES]: "CREATE TABLE notes (body text);",
     });
+
     const error = await migrateDatabase({
       target: toTestDatabaseTarget(database.name, "admin"),
       logger,
@@ -97,6 +101,7 @@ describe("migration を適用する", () => {
     await using migrations = await writeTestMigrations({
       [CREATE_NOTES]: "CREATE TABLE notes (body text);",
     });
+
     const options = {
       target: toTestDatabaseTarget(database.name),
       logger,
@@ -153,6 +158,7 @@ describe("migration を適用する", () => {
     await using migrations = await writeTestMigrations({
       [CREATE_NOTES]: "CREATE TABLE notes (body text);",
     });
+
     const options = {
       target: toTestDatabaseTarget(database.name),
       logger,

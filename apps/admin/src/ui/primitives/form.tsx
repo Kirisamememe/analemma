@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import {
   Form as AriaForm,
   type FormProps as AriaFormProps,
@@ -9,20 +9,23 @@ const NO_ERRORS: Readonly<Record<string, string>> = {};
 /** フォームに渡す値。 */
 type FormProps = {
   /** 送ったときに、入力をまとめて受け取る関数。 */
-  readonly onSubmit: (data: FormData) => void;
+  onSubmit: (data: FormData) => void;
   /** 送信中か(送信中は、Enter で送り直させない)。 */
-  readonly isPending?: boolean;
+  isPending?: boolean;
   /** server が断った入力ごとの、誤りの知らせ。 */
-  readonly validationErrors?: Readonly<Record<string, string>>;
+  validationErrors?: Readonly<Record<string, string>> | undefined;
+  /** フォームの要素(最初の誤りの欄へ focus を移すときに使う)。 */
+  ref?: Ref<HTMLFormElement>;
   /** 入力欄とボタン。 */
-  readonly children: ReactNode;
+  children: ReactNode;
 };
 
 /** 入力欄をまとめて送るフォーム。 */
 export const Form = ({
   onSubmit,
   isPending = false,
-  validationErrors = NO_ERRORS,
+  validationErrors,
+  ref,
   children,
 }: FormProps): ReactNode => {
   const submit: NonNullable<AriaFormProps["onSubmit"]> = (event) => {
@@ -37,7 +40,8 @@ export const Form = ({
     <AriaForm
       className="flex flex-col gap-4"
       onSubmit={submit}
-      validationErrors={validationErrors}
+      ref={ref}
+      validationErrors={validationErrors ?? NO_ERRORS}
     >
       {children}
     </AriaForm>

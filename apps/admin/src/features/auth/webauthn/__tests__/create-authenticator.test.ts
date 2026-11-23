@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
-import { type WebAuthn, createAuthenticator } from "../create-authenticator";
+import {
+  type WebAuthn,
+  createAuthenticator,
+} from "@/features/auth/webauthn/create-authenticator";
 
 const AUTHENTICATION_OPTIONS = {
   challenge: "AQID",
@@ -68,6 +71,7 @@ const throwing = (name: string): WebAuthn => ({
 describe("createAuthenticator", () => {
   test("server の options をそのまま渡し、toJSON() の値を server に送る資格情報として返す", async () => {
     const received: unknown[] = [];
+
     const authenticator = createAuthenticator({
       get: (options) => {
         received.push(options);
@@ -122,6 +126,7 @@ describe("createAuthenticator", () => {
 
   test("userHandle だけが無いログインの応答も、想定外の失敗として throw する", () => {
     const { userHandle: _userHandle, ...response } = ASSERTION_JSON.response;
+
     const authenticator = createAuthenticator(
       answering({ ...ASSERTION_JSON, response }),
     );
@@ -133,6 +138,7 @@ describe("createAuthenticator", () => {
 
   test("登録では、server の options をそのまま渡し、資格情報の形でない toJSON() の値は throw する", () => {
     const received: unknown[] = [];
+
     const authenticator = createAuthenticator({
       get: () => Promise.resolve(null),
       create: (options) => {
@@ -188,6 +194,7 @@ describe("createAuthenticator", () => {
 
   test("パスキーを作るときは、渡した signal を認証器に渡す", async () => {
     const received: unknown[] = [];
+
     const authenticator = createAuthenticator({
       get: () => Promise.resolve(null),
       create: (_options, signal) => {
@@ -196,6 +203,7 @@ describe("createAuthenticator", () => {
         return Promise.resolve(null);
       },
     });
+
     const signal = new AbortController().signal;
 
     await authenticator.register(REGISTRATION_OPTIONS, signal);

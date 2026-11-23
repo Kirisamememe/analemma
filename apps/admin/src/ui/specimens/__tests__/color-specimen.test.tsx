@@ -2,7 +2,7 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 
-import { ColorSpecimen } from "../color-specimen";
+import { ColorSpecimen } from "@/ui/specimens/color-specimen";
 
 afterEach(cleanup);
 
