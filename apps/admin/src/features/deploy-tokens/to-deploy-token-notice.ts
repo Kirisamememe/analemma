@@ -1,5 +1,4 @@
-import type { CopyTextResult } from "@/features/deploy-tokens/copy-text";
-import type { IssueDeployTokenResult } from "@/features/deploy-tokens/issue-deploy-token";
+import type { IssueDeployTokenResult } from "@/features/deploy-tokens/issue/issue-deploy-token";
 import type { RevokeDeployTokenResult } from "@/features/deploy-tokens/revoke-deploy-token";
 import type { MessageKey } from "@/i18n/use-translate";
 
@@ -34,21 +33,13 @@ const REVOKE: Readonly<Record<RevokeNoticeOutcome, DeployTokenNotice>> = {
   Unexpected: { tone: "danger", message: "deployTokens.failed" },
 };
 
-const COPY: Readonly<Record<CopyTextResult["_tag"], DeployTokenNotice>> = {
-  Copied: { tone: "success", message: "deployTokens.copied" },
-  Failed: { tone: "danger", message: "deployTokens.copyFailed" },
-};
-
-/** 発行の失敗やキャンセルを、Dialog の知らせにする。 */
-export const toIssueNotice = (outcome: IssueNoticeOutcome): DeployTokenNotice =>
-  ISSUE[outcome];
+/** 発行の結果を、Dialog の知らせにする。 */
+export const toIssueNotice = (
+  outcome: IssueDeployTokenResult["_tag"] | Unexpected | undefined,
+): DeployTokenNotice | undefined =>
+  outcome === undefined || outcome === "Issued" ? undefined : ISSUE[outcome];
 
 /** 取り消しの失敗を、Dialog の知らせにする。 */
 export const toRevokeNotice = (
   outcome: RevokeNoticeOutcome,
 ): DeployTokenNotice => REVOKE[outcome];
-
-/** クリップボードに書いた結果を、Dialog の知らせにする。 */
-export const toCopyNotice = (
-  outcome: CopyTextResult["_tag"],
-): DeployTokenNotice => COPY[outcome];

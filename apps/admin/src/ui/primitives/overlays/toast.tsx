@@ -80,10 +80,14 @@ export const ToastProvider = ({ children }: ToastProviderProps): ReactNode => {
   const [queue] = useState(createQueue);
   const showToast = useCallback(
     (message: ToastMessage) => {
-      queue.add(
+      const key = queue.add(
         message,
         message.tone === "success" ? { timeout: 5000 } : undefined,
       );
+
+      return () => {
+        queue.close(key);
+      };
     },
     [queue],
   );

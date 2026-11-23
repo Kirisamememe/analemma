@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { copyText } from "@/features/deploy-tokens/copy-text";
+import { copyText } from "@/features/deploy-tokens/issue/copy-text";
 
 describe("copyText", () => {
   test("クリップボードに書けたら Copied を返す", async () => {

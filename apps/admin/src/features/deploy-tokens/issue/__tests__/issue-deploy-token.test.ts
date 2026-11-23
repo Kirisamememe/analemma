@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   checkDeployTokenName,
   issueDeployToken,
-} from "@/features/deploy-tokens/issue-deploy-token";
+} from "@/features/deploy-tokens/issue/issue-deploy-token";
 import type { MessageKey } from "@/i18n/use-translate";
 import { createFakeApi, type FakeReply } from "@/testing/create-fake-api";
 import {

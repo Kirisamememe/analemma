@@ -8,7 +8,10 @@ export type ToastMessage = {
   readonly message: string;
 };
 
-type ShowToast = (message: ToastMessage) => void;
+/** 出した Toast を閉じる関数。 */
+type CloseToast = () => void;
+
+type ShowToast = (message: ToastMessage) => CloseToast;
 
 export const ShowToastContext = createContext<ShowToast | undefined>(undefined);
 

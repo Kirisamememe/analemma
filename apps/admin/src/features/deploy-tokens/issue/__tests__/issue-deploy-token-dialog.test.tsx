@@ -53,6 +53,11 @@ const isShown = (token: string): boolean =>
       (field) => field instanceof HTMLTextAreaElement && field.value === token,
     );
 
+const wait = (ms: number): Promise<void> =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
 describe("IssueDeployTokenDialog", () => {
   test("再認証をしてから発行して token を見せ、閉じたら Toast で知らせ、一覧に足す", async () => {
     const { server, app } = renderIssuing();
@@ -189,7 +194,7 @@ describe("IssueDeployTokenDialog", () => {
     expect(app.calls).not.toContain("admin/session/reauthenticationOptions");
   });
 
-  test("コピーを押すと、token をクリップボードに書き、知らせる", async () => {
+  test("コピーを押すと、token をクリップボードに書いてボタンの文言で知らせ、最後のコピーが成功してから2秒で文言を戻す", async () => {
     const write = spyOn(navigator.clipboard, "writeText").mockResolvedValue(
       undefined,
     );
@@ -201,14 +206,30 @@ describe("IssueDeployTokenDialog", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "コピー" }));
 
-    expect(
-      await screen.findByText("トークンをクリップボードにコピーしました。"),
-    ).toBeDefined();
+    const copied = await screen.findByRole("button", {
+      name: "コピーしました",
+    });
+
+    expect(document.activeElement).toBe(copied);
     expect(write).toHaveBeenCalledWith(token);
+    expect(screen.queryByRole("alert")).toBeNull();
+
+    await wait(1000);
+    await userEvent.click(copied); // 1回目の2秒の timer が、押し直した結果を消さない
+    await wait(1300);
+    expect(screen.getByRole("button", { name: "コピーしました" })).toBe(copied);
+    await waitFor(
+      () => {
+        expect(document.activeElement).toBe(
+          screen.getByRole("button", { name: "コピー" }),
+        );
+      },
+      { timeout: 2000 },
+    );
     write.mockRestore();
   });
 
-  test("クリップボードに書けなければ、手でコピーするよう知らせる", async () => {
+  test("クリップボードに書けなければ、ボタンの文言で知らせ、押し直すまで残す", async () => {
     const write = spyOn(navigator.clipboard, "writeText").mockRejectedValue(
       new DOMException("denied", "NotAllowedError"),
     );
@@ -219,9 +240,19 @@ describe("IssueDeployTokenDialog", () => {
     await userEvent.click(screen.getByRole("button", { name: "コピー" }));
 
     expect(
-      await screen.findByText(
-        "コピーできませんでした。トークンを選んで、手でコピーしてください。",
-      ),
+      await screen.findByRole("button", { name: "コピーできませんでした" }),
+    ).toBeDefined();
+    await wait(2100);
+    expect(
+      screen.getByRole("button", { name: "コピーできませんでした" }),
+    ).toBeDefined();
+
+    write.mockResolvedValue(undefined);
+    await userEvent.click(
+      screen.getByRole("button", { name: "コピーできませんでした" }),
+    );
+    expect(
+      await screen.findByRole("button", { name: "コピーしました" }),
     ).toBeDefined();
     write.mockRestore();
   });

@@ -1,4 +1,4 @@
-import { cleanup, screen, within } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -47,7 +47,7 @@ describe("LogOutButton", () => {
     expect(history.location.pathname).toBe("/login");
   });
 
-  test("ログアウトできなければ、引き出したナビの中に知らせる", async () => {
+  test("ログアウトできなければ、引き出したナビから押しても Toast で知らせ、ログインの画面に移らない", async () => {
     const { history } = renderHome({
       error: "INTERNAL_SERVER_ERROR",
       defined: false,
@@ -56,10 +56,46 @@ describe("LogOutButton", () => {
     const drawer = within(await openDrawer());
     await userEvent.click(drawer.getByRole("button", { name: "ログアウト" }));
 
-    expect((await drawer.findByRole("alert")).textContent).toBe(
+    const toast = await screen.findByRole("alert");
+
+    expect(toast.textContent).toBe(
       "ログアウトできませんでした。もう一度試してください。",
     );
+    expect(drawer.queryByRole("alert")).toBeNull();
     expect(history.location.pathname).toBe("/");
+  });
+
+  test("送り直すときは前の失敗の Toast を閉じ、送り直して成功したらログインの画面に失敗を残さない", async () => {
+    const replies: FakeReply<"admin/session/logOut">[] = [
+      { error: "INTERNAL_SERVER_ERROR", defined: false },
+      { error: "INTERNAL_SERVER_ERROR", defined: false },
+      { output: undefined },
+    ];
+
+    renderApp({
+      path: "/",
+      routes: {
+        "admin/session/get": () => EXPIRY,
+        "admin/session/logOut": () => replies.shift() ?? { output: undefined },
+      },
+    });
+
+    await pressLogOut();
+    await screen.findByRole("alert");
+    await pressLogOut();
+    await waitFor(() => {
+      expect(replies).toHaveLength(1);
+      expect(screen.queryByRole("progressbar", { name: "処理中" })).toBeNull();
+    });
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+    await pressLogOut();
+
+    expect(
+      await screen.findByRole("heading", { name: "Stilus にログイン" }),
+    ).toBeDefined();
+    await waitFor(() => {
+      expect(screen.queryByRole("alert")).toBeNull();
+    });
   });
 
   test("送信中は Escape と閉じるボタンでナビを閉じず、応答が届いたらログインの画面に移る", async () => {

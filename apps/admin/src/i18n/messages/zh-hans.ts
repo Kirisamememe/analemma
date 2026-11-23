@@ -140,6 +140,8 @@ export const zhHans = {
   "deployTokens.shownOnce": "令牌的值仅显示这一次。请在关闭前复制。",
   "deployTokens.value": "“{{name}}”的令牌",
   "deployTokens.copy": "复制",
+  "deployTokens.copiedLabel": "已复制",
+  "deployTokens.copyFailedLabel": "无法复制",
   "deployTokens.copied": "已将令牌复制到剪贴板。",
   "deployTokens.copyFailed": "无法复制。请选中令牌后手动复制。",
   "deployTokens.close": "关闭",
