@@ -5,7 +5,7 @@ import { findDeliveryImageFile } from "@/features/images/queries/delivery-images
 import { isPublished } from "@/features/images/queries/images.query";
 import { readSessionCookie, toSessionCookie } from "@/platform/session-cookie";
 
-const PUBLISHED_CACHE = "public, max-age=3600";
+const PUBLISHED_CACHE = "public, max-age=3600, must-revalidate";
 const UNPUBLISHED_CACHE = "private, no-store";
 const SESSION_SITES = new Set(["same-origin", "none"]);
 

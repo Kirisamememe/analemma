@@ -52,9 +52,9 @@ const insertDeliveredImage = async (
     imageId: id,
     width: 640,
     height: 427,
-    fileKey: `${id}-640.avif`,
+    fileKey: `stored/${id}-small.avif`,
   });
-  await server.storage.write(`${id}-640.avif`, BYTES);
+  await server.storage.write(`stored/${id}-small.avif`, BYTES);
 
   return id;
 };
@@ -74,7 +74,7 @@ const summarize = async (response: Response) => ({
 const NOT_FOUND = { status: 404, cacheControl: "no-store", body: [] };
 
 describe("公開の画像", () => {
-  test("Cookie が無くても AVIF のファイルを返し、キャッシュに1時間まで残させ、ほかの origin のページにも埋め込ませること", async () => {
+  test("Cookie が無くても、行にある名前のファイルを AVIF として返し、キャッシュに1時間まで残させ、ほかの origin のページにも埋め込ませること", async () => {
     await using server = await createTestClient();
 
     const id = await insertDeliveredImage(server, true);
@@ -83,7 +83,7 @@ describe("公開の画像", () => {
 
     expect(await summarize(response)).toEqual({
       status: 200,
-      cacheControl: "public, max-age=3600",
+      cacheControl: "public, max-age=3600, must-revalidate",
       body: [...BYTES],
     });
     expect(response.headers.get("content-type")).toBe("image/avif");
@@ -93,7 +93,11 @@ describe("公開の画像", () => {
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
     expect(
       await summarize(await fetchMedia(server, { path, method: "HEAD" })),
-    ).toEqual({ status: 200, cacheControl: "public, max-age=3600", body: [] });
+    ).toEqual({
+      status: 200,
+      cacheControl: "public, max-age=3600, must-revalidate",
+      body: [],
+    });
   });
 
   test("非公開にすると、セッションの無いリクエストには返さないこと", async () => {
@@ -249,7 +253,7 @@ describe("返さないリクエスト", () => {
 
     const id = await insertDeliveredImage(server, true);
 
-    await server.storage.remove([`${id}-640.avif`]);
+    await server.storage.remove([`stored/${id}-small.avif`]);
 
     expect(
       await summarize(
@@ -259,7 +263,7 @@ describe("返さないリクエスト", () => {
     expect(server.logs).toContainEqual({
       level: "error",
       message: "配信用の画像のファイルが置き場所に無い",
-      details: { imageId: id, width: 640, fileKey: `${id}-640.avif` },
+      details: { imageId: id, width: 640, fileKey: `stored/${id}-small.avif` },
     });
   });
 });
