@@ -48,8 +48,8 @@ feature ごとにフォルダを分け、中を controller / service / repositor
 - 外部用のポートでは、静的ファイルを含むすべての応答に `secureHeaders` を掛ける。API には `csrf` と `bodyLimit`(1 MB)も掛ける。内部用のポートの middleware は `bodyLimit` だけとする。
 - `ADMIN_DIST_DIR` に管理画面のビルドの出力先を指定する。相対パスの起点は server プロセスの cwd。未設定なら、server は管理画面を配信しない(開発では Vite の開発のサーバーが配る)。設定したときは起動時にファイルを読み込み、フォルダや `index.html` が読めなければ、ポートを開く前に止まる。
 - 配信するのは、起動時に読んだ通常のファイルだけ。ドットで始まる名前とシンボリックリンクを除く。管理画面のビルドがメモリに収まるので、リクエストのパスでファイルシステムを開く必要がなく、HTML と CSP も同じビルドのものになる。ビルドを入れ替えたら server を再起動する。
-- `/api` と `/api/` 以下は oRPC に渡す。それ以外は GET・HEAD で静的ファイルを返し、ほかのメソッドには 405 を返す。ファイルに当たらない画面の URL には SPA の入口の `index.html` を返す。`/assets/` 以下の欠落は 404 にし、JS や CSS のリクエストに HTML が返るのを防ぐ。
-- `/media/` 以下は、配信用の画像を返す経路にする(`src/features/images/DECISIONS.md` の「配信」)。管理画面を配る設定でも、静的ファイルより先に受け、形の違う path も `index.html` にせずに 404 を返す。GET・HEAD のほかは 405。管理画面の画面の route(`/images`)とぶつけないため、`/images/` にしない。
+- `/api` と `/api/` 以下は oRPC に渡し、`/media/` 以下は配信用の画像の経路に渡す(次の項目)。それ以外は GET・HEAD で静的ファイルを返し、ほかのメソッドには 405 を返す。ファイルに当たらない画面の URL には SPA の入口の `index.html` を返す。`/assets/` 以下の欠落は 404 にし、JS や CSS のリクエストに HTML が返るのを防ぐ。
+- `/media/` 以下は、配信用の画像を返す経路にする(`src/features/images/DECISIONS.md` の「配信」)。管理画面を配る設定でも、静的ファイルより先に受け、形の違う path も `index.html` にせずに 404 を返す。GET・HEAD のほかは 405。管理画面に画像の画面を作るときの route(`/images`)とぶつけないため、`/images/` にしない。
 - `/media/` 以下の応答だけは、`Cross-Origin-Resource-Policy` を `cross-origin` にする。公開サイト(別の origin)のページが、公開の画像を `<img>` で読めるようにするため。`secureHeaders` は既定で `same-origin` を付け、handler が付けた値を上書きするので、`secureHeaders` より先に登録した middleware で、後から付け直す。非公開の画像は、Cookie と `Sec-Fetch-Site` で守り、別の origin からのリクエストには 404 を返す。
 - `index.html` は、ビルドを入れ替えると新しいファイルを指し、応答ごとに nonce も変わるので `no-store` とする。Vite がファイル名に hash を含める `/assets/` は `public, max-age=31536000, immutable`、同じ名前のまま差し替わる favicon などは毎回確かめるよう `no-cache` とする。
 - バージョンは安定版で始める(Hono 4、oRPC 1)。Hono 5 と oRPC 2 は、まだ RC と beta。
