@@ -38,10 +38,12 @@ export const FieldLabel = ({
   <Label
     className={typography({
       role: "label",
-      className: "flex items-start gap-2 text-fg",
+      className: "flex flex-wrap items-start gap-2 text-fg",
     })}
   >
-    <span className="min-w-0 wrap-anywhere">{children}</span>
+    <span className="max-w-max min-w-0 grow basis-3.5 wrap-anywhere">
+      {children}
+    </span>
     {isRequired && <RequiredBadge />}
   </Label>
 );
