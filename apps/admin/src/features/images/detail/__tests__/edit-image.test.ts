@@ -113,7 +113,7 @@ describe("EditImage", () => {
   });
 
   test.each(["先に離れる", "保存が先に完了", "先に削除された"] as const)(
-    "保存中に別の写真への移動を頼むと、%s場合も URL の写真を表示する",
+    "保存中に別の写真へ移動しても URL と表示が一致する（%s）",
     async (order) => {
       const deferred = Promise.withResolvers<undefined>();
       const { history, image, next, server } = setup(deferred.promise);
