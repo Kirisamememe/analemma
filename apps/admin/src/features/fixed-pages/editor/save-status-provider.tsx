@@ -28,7 +28,7 @@ export const SaveStatusProvider = ({
   if (previousLocation !== location) {
     setPreviousLocation(location);
 
-    if (status === "pending" || location === undefined) setStatus(undefined);
+    if (status !== "created" || location === undefined) setStatus(undefined);
   }
 
   return (
@@ -40,13 +40,24 @@ export const SaveStatusProvider = ({
           title={t(
             status === "pending"
               ? "fixedPageEditor.saving"
-              : status === "saved"
-                ? "fixedPageEditor.saved"
-                : "fixedPageEditor.created",
+              : `fixedPageEditor.${status}`,
           )}
           status={status === "pending" ? "pending" : "success"}
           onOpenChange={(open) => {
-            if (!open && status !== "pending") setStatus(undefined);
+            if (open || status === "pending") return;
+
+            setStatus(undefined);
+
+            if (status === "created") {
+              requestAnimationFrame(() => {
+                const main = document.querySelector("main");
+
+                const field =
+                  main?.querySelector("input") ?? main?.querySelector("a");
+
+                field?.focus();
+              });
+            }
           }}
         />
       )}

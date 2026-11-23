@@ -67,10 +67,6 @@ export const useEditorForm = (
   const { api } = useAppContext();
   const setSaveStatus = useContext(SaveStatusContext);
 
-  if (!setSaveStatus) {
-    throw new Error("固定ページの保存状態を扱う Provider がありません。");
-  }
-
   const { refresh, replace } = useApiCache();
   const root = useRef<HTMLDivElement>(null);
 
@@ -79,7 +75,6 @@ export const useEditorForm = (
   );
 
   const saved = useRef(initial); // 開いたときの値か、最後に保存できた値
-  const submitted = useRef(initial);
   const sending = useRef(false);
   const failure = useFailureToast();
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -159,7 +154,6 @@ export const useEditorForm = (
       failure.close();
       setSaveStatus("pending");
       setErrors({});
-      submitted.current = value;
       sending.current = true;
       onEditing?.(true);
       saving.mutate(value);
@@ -171,9 +165,7 @@ export const useEditorForm = (
 
     return (
       Boolean(root.current?.querySelector("[data-uncommitted-input]")) ||
-      hasUnsavedChanges(base, { saved: saved.current, current }) ||
-      (saving.isPending &&
-        hasUnsavedChanges(base, { saved: submitted.current, current }))
+      hasUnsavedChanges(base, { saved: saved.current, current })
     );
   };
 
