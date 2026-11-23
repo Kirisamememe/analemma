@@ -23,6 +23,19 @@ export const Danger: Story = { args: { tone: "danger", children: "削除する" 
 
 export const Small: Story = { args: { size: "sm" } };
 
+export const IconOnly: Story = {
+  args: { children: undefined, icon: "trash-2", "aria-label": "削除する" },
+};
+
+export const IconOnlySmall: Story = {
+  args: {
+    children: undefined,
+    icon: "trash-2",
+    "aria-label": "削除する",
+    size: "sm",
+  },
+};
+
 export const Pending: Story = { args: { tone: "primary", isPending: true } };
 
 export const Disabled: Story = { args: { tone: "primary", isDisabled: true } };

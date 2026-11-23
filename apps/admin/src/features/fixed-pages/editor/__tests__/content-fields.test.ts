@@ -78,7 +78,11 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
     await user.keyboard("{ArrowUp}");
     await user.click(screen.getByRole("button", { name: /色/v }));
     await user.click(screen.getByRole("option", { name: "赤" }));
-    await userEvent.click(await screen.findByRole("button", { name: "保存" }));
+    const [save] = await screen.findAllByRole("button", { name: "保存" });
+
+    if (save === undefined) throw new Error("保存のボタンがありません");
+
+    await userEvent.click(save);
     expect(await screen.findByText("固定ページを更新しました。")).toBeDefined();
   } finally {
     collapse.mockRestore();
@@ -101,4 +105,83 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
   expect(calls.filter((path) => path === "admin/fixedPages/get")).toHaveLength(
     1,
   );
+});
+
+test.each(["入力中", "別の欄に移った後"])(
+  "空の日付に年だけ入れて離れるとき、%sも確かめる",
+  async (when) => {
+    const user = userEvent.setup();
+    const { history } = renderApp({
+      path: "/fixed-pages/" + page.id,
+      routes: {
+        "admin/session/get": () => ({ output: { expiresAt: page.createdAt } }),
+        "admin/kinds/get": () => ({
+          output: {
+            ...kind,
+            fields: fieldDefinitions.parse([
+              { type: "date", key: "day", label: "日付", optional: true },
+            ]),
+          },
+        }),
+        "admin/fixedPages/get": () => ({
+          output: page,
+        }),
+      },
+    });
+    const year = await screen.findByRole("spinbutton", { name: /年.*日付/v });
+    const selection = window.getSelection();
+
+    if (selection === null) throw new Error("Selection がありません");
+
+    const collapse = spyOn(selection, "collapse").mockImplementation(
+      () => undefined,
+    );
+
+    try {
+      await user.click(year);
+      await user.keyboard("2026");
+
+      if (when === "別の欄に移った後") {
+        await user.click(screen.getByRole("textbox", { name: "タイトル" }));
+      }
+
+      history.push("/");
+      expect(
+        await screen.findByRole("dialog", {
+          name: "保存していない変更があります",
+        }),
+      ).toBeDefined();
+    } finally {
+      collapse.mockRestore();
+    }
+  },
+);
+
+test("数値を入力した欄から focus を移さずに離れるときも確かめる", async () => {
+  const { history } = renderApp({
+    path: "/fixed-pages/" + page.id,
+    routes: {
+      "admin/session/get": () => ({ output: { expiresAt: page.createdAt } }),
+      "admin/kinds/get": () => ({
+        output: {
+          ...kind,
+          fields: fieldDefinitions.parse([
+            { type: "number", key: "count", label: "件数" },
+          ]),
+        },
+      }),
+      "admin/fixedPages/get": () => ({
+        output: { ...page, content: { count: 7 } },
+      }),
+    },
+  });
+  const input = await screen.findByRole<HTMLInputElement>("textbox", {
+    name: "件数",
+  });
+  await userEvent.type(input, "{End}2");
+  expect(input.value).toBe("72");
+  history.push("/");
+  expect(
+    await screen.findByRole("dialog", { name: "保存していない変更があります" }),
+  ).toBeDefined();
 });

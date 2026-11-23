@@ -1,4 +1,4 @@
-import { cleanup, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
@@ -7,6 +7,14 @@ import { kind, page } from "@/testing/fixed-page-samples";
 import { renderApp } from "@/testing/render-app";
 
 afterEach(cleanup);
+const clickSave = async (user: ReturnType<typeof userEvent.setup>) => {
+  const [save] = screen.getAllByRole("button", { name: "保存" });
+
+  if (save === undefined) throw new Error("保存のボタンがありません");
+
+  await user.click(save);
+};
+
 const session = {
   "admin/session/get": () => ({
     output: { expiresAt: "2026-11-23T00:00:00.000Z" },
@@ -51,6 +59,33 @@ test("編集する固定ページが無いときは種類を取得しない", as
   ).toBeDefined();
   expect(calls).not.toContain("admin/kinds/get");
 });
+test("種類の読み込みに失敗しても、取得した固定ページを確認して削除できる", async () => {
+  const server = createFixedPageRoutes({ kinds: [kind], pages: [page] });
+  const [target] = server.pages();
+
+  if (target === undefined) throw new Error("固定ページがありません");
+
+  renderApp({
+    path: "/fixed-pages/" + target.id,
+    routes: {
+      ...server.routes,
+      "admin/kinds/get": () => ({
+        error: "INTERNAL_SERVER_ERROR",
+        defined: false,
+      }),
+    },
+  });
+  await screen.findByText("読み込めませんでした。", {}, { timeout: 5000 });
+  await userEvent.click(
+    screen.getByRole("button", { name: "固定ページを削除" }),
+  );
+  const dialog = await screen.findByRole("dialog", {
+    name: "「紹介」を削除しますか?",
+  });
+  await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
+  await screen.findByRole("heading", { name: "固定ページはまだありません" });
+  expect(server.pages()).toHaveLength(0);
+}, 10000);
 test("編集する固定ページを読み込めないときは失敗を知らせる", async () => {
   renderApp({
     path: "/fixed-pages/019affff-0000-7000-8000-000000000001",
@@ -141,7 +176,7 @@ test("一覧から種類を選んで作り、編集の画面から一覧に戻�
     screen.getByRole("textbox", { name: "リード文" }),
     "こんにちは",
   );
-  await user.click(screen.getByRole("button", { name: "保存" }));
+  await clickSave(user);
 
   expect(await screen.findByText("固定ページを作成しました。")).toBeDefined();
   const [created] = server.pages();
@@ -174,7 +209,7 @@ test("保存した直後にほかの画面へ移って戻っても、保存し�
 
   await user.clear(title);
   await user.type(title, "New title");
-  await user.click(screen.getByRole("button", { name: "保存" }));
+  await clickSave(user);
   await screen.findByText("固定ページを更新しました。");
   history.push("/");
   await screen.findByRole("heading", { name: "ホーム" });
@@ -221,8 +256,15 @@ test("保存の応答を待つ間に画面を離れたら、届いた応答を�
 
   await user.clear(title);
   await user.type(title, "Saved");
-  await user.click(screen.getByRole("button", { name: "保存" }));
+  await clickSave(user);
   history.push("/");
+  await user.click(
+    within(
+      await screen.findByRole("dialog", {
+        name: "保存していない変更があります",
+      }),
+    ).getByRole("button", { name: "変更を破棄" }),
+  );
   await screen.findByRole("heading", { name: "ホーム" });
   saving.resolve(undefined);
   await waitFor(() => {
@@ -239,4 +281,32 @@ test("保存の応答を待つ間に画面を離れたら、届いた応答を�
     (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
       .value,
   ).toBe("Other tab");
+});
+
+test("読み込む間に一覧へ戻るリンクへ移した focus を、編集のフォームを出した後も残す", async () => {
+  const loading = Promise.withResolvers<undefined>();
+
+  renderApp({
+    path: "/fixed-pages/" + page.id,
+    routes: {
+      ...session,
+      "admin/fixedPages/get": () => ({ output: page }),
+      "admin/kinds/get": async () => {
+        await loading.promise;
+
+        return { output: kind };
+      },
+    },
+  });
+
+  await screen.findByText("読み込んでいます。");
+  const back = screen.getByRole("link", { name: "固定ページの一覧" });
+
+  act(() => {
+    back.focus();
+  });
+  loading.resolve(undefined);
+  await screen.findByRole("textbox", { name: "タイトル" });
+
+  expect(document.activeElement).toBe(back);
 });

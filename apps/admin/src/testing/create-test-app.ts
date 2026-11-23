@@ -20,6 +20,8 @@ export type TestAppOptions = {
   readonly routes: FakeRoutes;
   /** 作り物の認証器。 */
   readonly authenticator?: Authenticator;
+  /** 画面の履歴(省くと、最初に開くパスから始まる memory の履歴)。 */
+  readonly history?: RouterHistory;
 };
 
 /** 組み立てた管理画面と、確かめるためのもの。 */
@@ -40,8 +42,8 @@ export const createTestApp = ({
   path,
   routes,
   authenticator = NO_AUTHENTICATOR,
+  history = createMemoryHistory({ initialEntries: [path] }),
 }: TestAppOptions): TestApp => {
-  const history = createMemoryHistory({ initialEntries: [path] });
   const { calls, fetch } = createFakeApi(routes);
   const gate = createAuthGate();
   const api = createApiClient({

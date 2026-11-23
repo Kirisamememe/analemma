@@ -20,8 +20,14 @@ const edit = (overrides: FakeRoutes) =>
     path: "/fixed-pages/" + page.id,
     routes: { ...routes, ...overrides },
   });
-const save = async () =>
-  userEvent.click(await screen.findByRole("button", { name: "保存" }));
+const save = async (position: "top" | "bottom" = "top") => {
+  const buttons = await screen.findAllByRole("button", { name: "保存" });
+  const button = position === "top" ? buttons.at(0) : buttons.at(-1);
+
+  if (button === undefined) throw new Error("保存のボタンがありません");
+
+  await userEvent.click(button);
+};
 
 test("種類を選んで作成し、送信中の二重送信を防ぎ、履歴を置き換えて編集画面を開く", async () => {
   const pending = Promise.withResolvers<undefined>();
@@ -50,8 +56,12 @@ test("種類を選んで作成し、送信中の二重送信を防ぎ、履歴�
   );
   const length = history.length;
   await save();
-  await screen.findByRole("progressbar");
-  await userEvent.click(screen.getByRole("button", { name: /保存/v }));
+  await screen.findAllByRole("progressbar");
+
+  for (const button of screen.getAllByRole("button", { name: /保存/v })) {
+    await userEvent.click(button);
+  }
+
   await userEvent.keyboard("{Enter}");
   expect(
     calls.filter((path) => path === "admin/fixedPages/create"),
@@ -170,16 +180,43 @@ test("行を動かし、追加・削除して保存しても各段の定義に�
   expect(screen.queryByText("長すぎます。")).toBeNull();
 });
 
-test.each([
-  ["NOT_FOUND", "この固定ページはもうありません。"],
-  ["INTERNAL_SERVER_ERROR", "保存できませんでした。"],
-] as const)("更新時の %s を知らせる", async (error, message) => {
+test("更新時の NOT_FOUND は、Toast でなく画面に残る知らせで伝える", async () => {
+  edit({ "admin/fixedPages/update": () => ({ error: "NOT_FOUND" }) });
+  await save();
+
+  const notice = await screen.findByText("この固定ページはもうありません。");
+  await waitFor(() => {
+    expect(document.activeElement?.contains(notice)).toBe(true);
+    expect(document.activeElement).not.toBe(document.body);
+  });
+  expect(screen.queryByRole("region", { name: /通知/v })).toBeNull();
+});
+
+test("保存の失敗を Toast で知らせ、送り直して成功したら失敗の知らせが消える", async () => {
+  let failed = false;
   edit({
-    "admin/fixedPages/update": () =>
-      error === "NOT_FOUND" ? { error } : { error, defined: false },
+    "admin/fixedPages/update": () => {
+      if (failed) return { output: page };
+
+      failed = true;
+
+      return { error: "INTERNAL_SERVER_ERROR", defined: false };
+    },
   });
   await save();
-  expect(await screen.findByText(message)).toBeDefined();
+  const toast = await within(
+    await screen.findByRole("region", { name: /通知/v }),
+  ).findByRole("alert");
+
+  expect(toast.textContent).toBe(
+    "固定ページを保存できませんでした。もう一度試してください。",
+  );
+  expect(screen.getAllByRole("alert")).toEqual([toast]);
+  await save("bottom");
+  await screen.findByText("固定ページを更新しました。");
+  await waitFor(() => {
+    expect(toast.isConnected).toBe(false);
+  });
 });
 
 test("slug の重複は入力欄で知らせ、変更すると消す", async () => {
@@ -227,4 +264,89 @@ test("slug は blur、空のタイトルは送信時に知らせ、種類が消�
   );
   await save();
   expect(await screen.findByText("この種類はもうありません。")).toBeDefined();
+});
+
+test("値を変えたまま一覧へ移ろうとすると確かめ、編集を続けると値を残し、破棄すると移る", async () => {
+  const { history } = edit({});
+  const title = await screen.findByRole("textbox", { name: "タイトル" });
+
+  await userEvent.type(title, "の続き");
+  await userEvent.click(screen.getByRole("link", { name: "固定ページの一覧" }));
+  const dialog = await screen.findByRole("dialog", {
+    name: "保存していない変更があります",
+  });
+  await userEvent.click(
+    within(dialog).getByRole("button", { name: "編集を続ける" }),
+  );
+  await waitFor(() => {
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+  expect(history.location.pathname).toBe("/fixed-pages/" + page.id);
+  expect(
+    screen.getByRole<HTMLInputElement>("textbox", { name: "タイトル" }).value,
+  ).toBe("紹介の続き");
+
+  await userEvent.click(screen.getByRole("link", { name: "固定ページの一覧" }));
+  await userEvent.click(
+    within(
+      await screen.findByRole("dialog", {
+        name: "保存していない変更があります",
+      }),
+    ).getByRole("button", { name: "変更を破棄" }),
+  );
+  await waitFor(() => {
+    expect(history.location.pathname).toBe("/fixed-pages");
+  });
+});
+
+test("値を変えていないときと、変えた値を保存した後は、確かめずに移る", async () => {
+  const { history } = edit({
+    "admin/fixedPages/update": (input) => ({ output: { ...page, ...input } }),
+  });
+  const title = await screen.findByRole("textbox", { name: "タイトル" });
+
+  await userEvent.type(title, "X");
+  await userEvent.clear(title);
+  await userEvent.type(title, "紹介");
+  history.push("/");
+  await screen.findByRole("heading", { name: "ホーム" });
+  history.push("/fixed-pages/" + page.id);
+
+  await userEvent.type(
+    await screen.findByRole("textbox", { name: "タイトル" }),
+    "の続き",
+  );
+  await save();
+  await screen.findByText("固定ページを更新しました。");
+  history.push("/");
+
+  expect(await screen.findByRole("heading", { name: "ホーム" })).toBeDefined();
+  expect(screen.queryByRole("dialog")).toBeNull();
+});
+
+test("保存の応答を待つ間に元のタイトルに戻しても、離れる前に確かめる", async () => {
+  const pending = Promise.withResolvers<undefined>();
+  const { history } = edit({
+    "admin/fixedPages/update": async (input) => {
+      await pending.promise;
+      return { output: { ...page, ...input } };
+    },
+  });
+  const title = await screen.findByRole("textbox", { name: "タイトル" });
+  await userEvent.type(title, "X");
+  await save();
+  await screen.findAllByRole("progressbar");
+  await userEvent.type(title, "{End}{Backspace}");
+  expect(screen.getByDisplayValue(page.title)).toBe(title);
+
+  history.push("/");
+  const dialog = await screen.findByRole("dialog", {
+    name: "保存していない変更があります",
+  });
+  await userEvent.click(
+    within(dialog).getByRole("button", { name: "編集を続ける" }),
+  );
+  pending.resolve(undefined);
+  await screen.findByText("固定ページを更新しました。");
+  expect(screen.getByDisplayValue(page.title)).toBe(title);
 });

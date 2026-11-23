@@ -1,5 +1,5 @@
 /** ID を持つ行。 */
-type Identified = {
+export type Identified = {
   /** 行の ID。 */
   readonly id: string;
 };

@@ -13,3 +13,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const Back: Story = {
+  args: { href: "/fixed-pages", variant: "back", children: "固定ページの一覧" },
+};

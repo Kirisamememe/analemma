@@ -21,7 +21,8 @@ export const ja = {
   "fixedPageEditor.save": "保存",
   "fixedPageEditor.saved": "固定ページを更新しました。",
   "fixedPageEditor.created": "固定ページを作成しました。",
-  "fixedPageEditor.saveFailed": "保存できませんでした。",
+  "fixedPageEditor.saveFailed":
+    "固定ページを保存できませんでした。もう一度試してください。",
   "fixedPageEditor.changedKind":
     "種類の定義が変わった可能性があります。読み込み直して項目を確認してください。",
   "fixedPageEditor.issue.type": "入力してください。",
@@ -36,6 +37,12 @@ export const ja = {
   "fixedPageEditor.remove": "{{label}} {{position}} を削除",
   "fixedPageEditor.add": "{{label}}を追加",
   "fixedPageEditor.backToList": "固定ページの一覧",
+  "fixedPageEditor.delete": "固定ページを削除",
+  "fixedPageEditor.leaveTitle": "保存していない変更があります",
+  "fixedPageEditor.leaveDescription":
+    "この画面を離れると、保存していない変更は失われます。",
+  "fixedPageEditor.stay": "編集を続ける",
+  "fixedPageEditor.leave": "変更を破棄",
   "fixedPageEditor.urlHint": "http:// か https:// で始まる URL を入力します。",
   "fixedPageEditor.unboundIssue": "({{path}}:{{message}})",
   "fixedPageEditor.moveUp": "上へ",
@@ -214,8 +221,6 @@ export const ja = {
     "削除した固定ページは元に戻せません。公開サイトからも見えなくなります。",
   "fixedPages.cancel": "キャンセル",
   "fixedPages.deleted": "「{{title}}」を削除しました。",
-  "fixedPages.notFound":
-    "この固定ページはもうありません。一覧を読み込み直しました。",
   "fixedPages.deleteFailed":
     "固定ページを削除できませんでした。もう一度試してください。",
 } satisfies Translation;

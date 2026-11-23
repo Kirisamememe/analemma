@@ -2,7 +2,7 @@ import type { ReactNode, Ref } from "react";
 import { Button as AriaButton, ProgressBar } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 
-import { Spinner } from "@/ui/primitives/graphics";
+import { Icon, type IconName, Spinner } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
@@ -20,11 +20,33 @@ const button = tv({
       md: "h-control px-4",
       sm: "h-control-sm px-3",
     },
+    iconOnly: {
+      true: "aspect-square px-0",
+    },
   },
 });
 
+/** ボタンの中身(文言か、アクセシブルな名前を付けたアイコン)。 */
+type ButtonContent =
+  | {
+      /** ボタンの文言。 */
+      children: ReactNode;
+      /** 文言の代わりに出すアイコン(文言と一緒には使わない)。 */
+      icon?: undefined;
+      /** アクセシブルな名前。 */
+      "aria-label"?: string | undefined;
+    }
+  | {
+      /** ボタンの文言(アイコンだけのボタンでは使わない)。 */
+      children?: undefined;
+      /** 文言の代わりに出すアイコン。 */
+      icon: IconName;
+      /** アクセシブルな名前(アイコンだけでは名前にならないので必ず付ける)。 */
+      "aria-label": string;
+    };
+
 /** ボタンに渡す値。 */
-type ButtonProps = {
+type ButtonProps = ButtonContent & {
   /** 見た目の用途。 */
   tone?: "primary" | "secondary" | "quiet" | "danger";
   /** 高さ。 */
@@ -39,10 +61,6 @@ type ButtonProps = {
   onPress?: () => void;
   /** ボタンの要素(focus を移すときに使う)。 */
   ref?: Ref<HTMLButtonElement>;
-  /** アクセシブルな名前。 */
-  "aria-label"?: string | undefined;
-  /** ボタンの文言。 */
-  children: ReactNode;
 };
 
 /** 操作のボタン。 */
@@ -54,6 +72,7 @@ export const Button = ({
   isDisabled = false,
   onPress,
   ref,
+  icon,
   "aria-label": ariaLabel,
   children,
 }: ButtonProps): ReactNode => {
@@ -65,6 +84,7 @@ export const Button = ({
       className={button({
         tone,
         size,
+        iconOnly: icon !== undefined,
         className: typography({ role: "label" }),
       })}
       isDisabled={isDisabled}
@@ -80,7 +100,7 @@ export const Button = ({
           <Spinner />
         </ProgressBar>
       )}
-      {children}
+      {icon === undefined ? children : <Icon name={icon} />}
     </AriaButton>
   );
 };

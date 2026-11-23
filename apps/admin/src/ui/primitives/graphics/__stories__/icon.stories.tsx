@@ -6,6 +6,7 @@ import { Icon, type IconName } from "@/ui/primitives/graphics/icon";
 const NAMES: readonly IconName[] = [
   "check",
   "chevron-down",
+  "chevron-left",
   "circle-alert",
   "circle-check",
   "file-text",
@@ -15,6 +16,7 @@ const NAMES: readonly IconName[] = [
   "shield-check",
   "log-out",
   "menu",
+  "trash-2",
   "x",
 ];
 

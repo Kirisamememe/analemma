@@ -4,6 +4,7 @@ import { fieldDefinitions } from "@analemma/contract";
 
 import { createContentForm } from "@/features/fixed-pages/content-form";
 import {
+  createEditorValues,
   flattenContent,
   restoreContent,
 } from "@/features/fixed-pages/editor/flat-content";
@@ -44,4 +45,28 @@ test("各段の定義に無いキーを保ち、現在の並びにある要素�
       { name: "A", extra: 1 },
     ],
   });
+});
+
+test("作成では slug とタイトルを空にし、編集では保存した固定ページの値から始める", () => {
+  const created = createEditorValues(fields);
+  const edited = createEditorValues(fields, {
+    slug: "about",
+    title: "紹介",
+    content: { hero: { name: "Aoi" }, rows: [{ name: "A" }] },
+  });
+  const [row] = edited.values.items["rows"] ?? [];
+
+  expect(created.values).toEqual({
+    slug: "",
+    title: "",
+    content: { "hero/name": "" },
+    items: { rows: [] },
+  });
+  expect(edited.values).toEqual({
+    slug: "about",
+    title: "紹介",
+    content: { "hero/name": "Aoi", [`rows/${String(row)}/name`]: "A" },
+    items: { rows: [String(row)] },
+  });
+  expect(edited.fields).toBe(fields);
 });

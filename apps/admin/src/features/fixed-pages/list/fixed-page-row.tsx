@@ -26,8 +26,6 @@ type FixedPageRowProps = {
   page: FixedPageSummary;
   /** 種類のラベル。 */
   kindLabel: string;
-  /** 削除を始める関数。 */
-  onDelete: (page: FixedPageSummary) => void;
   /** 編集の画面を開く関数。 */
   onEdit: (id: string) => void;
 };
@@ -36,7 +34,6 @@ type FixedPageRowProps = {
 export const FixedPageRow = ({
   page,
   kindLabel,
-  onDelete,
   onEdit,
 }: FixedPageRowProps): ReactNode => {
   const t = useTranslate();
@@ -102,17 +99,9 @@ export const FixedPageRow = ({
             publication.mutate();
           }}
           size="sm"
+          tone={page.published ? "secondary" : "primary"}
         >
           {t(page.published ? "fixedPages.unpublish" : "fixedPages.publish")}
-        </Button>
-        <Button
-          onPress={() => {
-            onDelete(page);
-          }}
-          size="sm"
-          tone="danger"
-        >
-          {t("fixedPages.delete")}
         </Button>
       </Cluster>
     </Cluster>

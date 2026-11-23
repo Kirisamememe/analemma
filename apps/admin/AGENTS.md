@@ -9,7 +9,7 @@
 - `src/main.tsx`:React を描き始める入口。i18next の instance・ブラウザの履歴・API の client・認証器を組み立てて渡す。
 - `src/app/app.tsx`:i18next の instance・server の状態(TanStack Query)・route をつないだ全体。
 - `src/app/router.ts`:route の木と、router と query client を組み立てる関数(`createApp`)。ログインした後の画面は、開く前に server でセッションを確かめる。
-- `src/api/`:server の API の client(contract の型付き)と、query client。features が使う、oRPC の失敗の仕分け(`call-api.ts`)・TanStack Router の context とログインの画面への移動(`app-context.ts`)・TanStack Query の取得と送信とキャッシュ(`server-state/`)の包みも置く。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
+- `src/api/`:server の API の client(contract の型付き)と、query client。features が使う、oRPC の失敗の仕分け(`call-api.ts`)・TanStack Router の context とログインの画面への移動(`app-context.ts`)・画面を離れる前の確かめ(`leave-confirmation.ts`)・TanStack Query の取得と送信とキャッシュ(`server-state/`)の包みも置く。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
 - `src/routes/`:route ごとの画面。
 - `src/components/`:複数の feature から使う、管理画面に固有の部品。`@/components/...` で import する。部品のコードは features を import しない(lint で止まる)。
 - `src/i18n/`:訳と言語(i18next と react-i18next)。訳は `messages/` に言語ごとに1ファイル。i18next の instance は `create-i18n.ts` で作る。features が使う、訳を引く hook と今の言語を読む hook と訳のキーの型は `use-translate.ts` が包む。
