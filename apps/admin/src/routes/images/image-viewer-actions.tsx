@@ -19,7 +19,7 @@ export const ImageViewerActions = (): ReactNode => {
 
   const { id, shown } = state;
 
-  const isDisabled = shown.id !== id;
+  const isDisabled = shown.id !== id || state.query._tag !== "Loaded";
 
   return (
     <Fragment key={id}>

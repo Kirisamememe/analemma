@@ -10,6 +10,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { imageQueryKey } from "@/features/images/detail/queries/image-query";
+import type { FakeReply } from "@/testing/create-fake-api";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { renderApp } from "@/testing/render-app";
 import { SAMPLE_IMAGES } from "@/testing/sample-photos";
@@ -65,6 +66,40 @@ describe("写真を送るときの表示", () => {
     expect(panel.scrollTop).toBe(0);
     expect(document.activeElement).toBe(forward);
     expect(forward.getAttribute("aria-disabled")).toBeNull();
+  });
+
+  test("履歴で戻った画像を読み直すまでは、以前の表示から公開状態を変更できない", async () => {
+    const { server, first, second, history, queryClient } = open();
+    await screen.findByRole("heading", { name: first.title ?? "" });
+    act(() => {
+      history.push("/images/" + second.id);
+    });
+    await screen.findByAltText(second.alt ?? second.title ?? "無題の画像");
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryState(imageQueryKey(first.id)),
+      ).toBeUndefined();
+    });
+    const response = Promise.withResolvers<FakeReply<"admin/images/get">>();
+    server.replyNext("admin/images/get", () => response.promise);
+    act(() => {
+      history.back();
+    });
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryState(imageQueryKey(first.id))?.fetchStatus,
+      ).toBe("fetching");
+    });
+    await userEvent.click(screen.getByRole("button", { name: "非公開にする" }));
+    expect(screen.queryByRole("dialog") === null).toBe(true);
+    response.resolve({ output: first });
+    await waitFor(() => {
+      expect(queryClient.getQueryState(imageQueryKey(first.id))?.status).toBe(
+        "success",
+      );
+    });
+    await userEvent.click(screen.getByRole("button", { name: "非公開にする" }));
+    expect(await screen.findByRole("dialog")).toBeDefined();
   });
 
   test("編集している画像を取り直せなくても入力が残り、変更を破棄して別の画像に移ると Dialog を閉じる", async () => {
