@@ -15,6 +15,8 @@ type Image = ApiOutputs["admin"]["images"]["get"];
 
 /** 写真を見る画面に渡す値。 */
 type ImageDetailProps = {
+  /** 前後の写真の取得に失敗したときの案内。 */
+  navigationError?: ReactNode;
   /** 見る画像。 */
   image: Image;
   /** 帯の左に置く、一覧へ戻るリンク。 */
@@ -29,6 +31,7 @@ type ImageDetailProps = {
 
 /** 1枚の画像を大きく出し、横に情報を置く。 */
 export const ImageDetail = ({
+  navigationError,
   image,
   back,
   previous,
@@ -85,6 +88,7 @@ export const ImageDetail = ({
           </Text>
         </Cluster>
       </Stack>
+      {navigationError}
       {texts.length > 0 && <InfoList items={texts} layout="stacked" />}
       <Stack gap={3}>
         <Heading level={2}>{t("imageDetail.shotHeading")}</Heading>

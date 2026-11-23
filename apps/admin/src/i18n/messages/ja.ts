@@ -256,6 +256,7 @@ export const ja = {
   "imageDetail.backToList": "画像の一覧",
   "imageDetail.untitled": "無題の画像",
   "imageDetail.loading": "画像を読み込んでいます。",
+  "imageDetail.neighborsFailed": "前後の画像を読み込めませんでした",
   "imageDetail.loadFailed": "画像を読み込めませんでした",
   "imageDetail.gone": "この画像はもうありません。",
   "imageDetail.published": "公開中",

@@ -72,6 +72,7 @@ export const ImageViewerPage = (): ReactNode => {
 
     if (
       destination === undefined &&
+      neighbors.failure === undefined &&
       query._tag === "Loaded" &&
       query.data._tag === "Succeeded"
     ) {
@@ -101,6 +102,20 @@ export const ImageViewerPage = (): ReactNode => {
   const content =
     query._tag === "Loaded" && query.data._tag === "Succeeded" ? (
       <ImageDetail
+        navigationError={
+          neighbors.failure && (
+            <ErrorState
+              layout="inline"
+              level={2}
+              isRetrying={neighbors.failure.isRetrying}
+              onRetry={() => {
+                pending.current = { id, forward: true };
+                neighbors.failure?.retry();
+              }}
+              title={t("imageDetail.neighborsFailed")}
+            />
+          )
+        }
         back={back}
         image={query.data.data}
         next={hrefOf(neighbors.next)}
@@ -120,7 +135,10 @@ export const ImageViewerPage = (): ReactNode => {
               isRetrying={query.isRetrying}
               layout="screen"
               level={2}
-              onRetry={query.retry}
+              onRetry={() => {
+                pending.current = { id, forward: true };
+                query.retry();
+              }}
               title={t("imageDetail.loadFailed")}
             />
           )}

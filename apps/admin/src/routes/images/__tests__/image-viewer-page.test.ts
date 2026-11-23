@@ -96,6 +96,33 @@ describe("ImageViewerPage", () => {
     });
   });
 
+  test("前後の取得に失敗しても写真を表示し、取り直した後は次の写真へ進める", async () => {
+    const server = createImageRoutes(IMAGES);
+    let offline = true;
+    renderApp({
+      path: `/images/${server.images()[0]?.id ?? ""}`,
+      routes: {
+        ...server.routes,
+        "admin/images/neighbors": (input) =>
+          offline
+            ? { error: "INTERNAL_SERVER_ERROR", defined: false }
+            : server.routes["admin/images/neighbors"](input),
+      },
+    });
+    await heading("夕暮れの稜線");
+    await screen.findByRole(
+      "heading",
+      { name: "前後の画像を読み込めませんでした" },
+      { timeout: 8000 },
+    );
+    offline = false;
+    await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+    await userEvent.click(
+      await screen.findByRole("link", { name: "次の画像" }),
+    );
+    await heading("港の灯り");
+  }, 15_000);
+
   test("無い画像を開くと、もう無いことを知らせる", async () => {
     setUp(0, "/images/019b0000-0000-7000-8000-0000000000ff");
 

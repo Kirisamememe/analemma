@@ -226,6 +226,7 @@ export const zhHans = {
   "imageDetail.backToList": "图片列表",
   "imageDetail.untitled": "无标题图片",
   "imageDetail.loading": "正在加载图片。",
+  "imageDetail.neighborsFailed": "无法加载上一张和下一张图片",
   "imageDetail.loadFailed": "无法加载图片",
   "imageDetail.gone": "此图片已不存在。",
   "imageDetail.published": "已公开",
