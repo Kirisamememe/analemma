@@ -4,7 +4,7 @@ import { expect, test } from "bun:test";
 
 import { contract } from "@analemma/contract";
 
-import { createAnalemmaClient } from "../../index";
+import { createAnalemmaClient, image as imageField } from "../../index";
 
 const id = "019b0000-0000-7000-8000-000000000001";
 
@@ -95,4 +95,17 @@ test("ID や slug の形に合わなければ公開 API を呼ばず、CMS の�
   expect(await client.series.get("Bad Slug")).toBeUndefined();
   expect(client.images.get(image.id)).rejects.toThrow("CMS に届かない");
   expect(client.series.get("sea")).rejects.toThrow("CMS に届かない");
+});
+
+test("公開サイトの画像の項目で、公開画像と配信用の絶対 URL を検査すること", () => {
+  const field = imageField({ label: "写真" });
+  const value = { available: true, image } as const;
+  expect(field.parse(value)).toEqual(value);
+  const relative = { width: 640, height: 320, url: "/photo.avif" };
+  expect(
+    field.safeParse({
+      ...value,
+      image: { ...image, deliveryImages: [relative] },
+    }).success,
+  ).toBe(false);
 });

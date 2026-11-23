@@ -1,8 +1,8 @@
 import { type SQL, isNotNull, and, eq, asc } from "drizzle-orm";
 
 import { fixedPage } from "@/db/schema/fixed-page";
+import { kind } from "@/db/schema/kind";
 import {
-  type FixedPageRow,
   type FixedPageSummaryRow,
   fixedPageSummaryColumns,
 } from "@/features/fixed-pages/queries/fixed-pages.query";
@@ -33,10 +33,11 @@ export type PublishedFixedPageKey = {
 export const findPublishedFixedPage = async (
   db: DatabaseExecutor,
   key: PublishedFixedPageKey,
-): Promise<FixedPageRow | undefined> => {
+) => {
   const [row] = await db
-    .select()
+    .select({ page: fixedPage, fields: kind.fields })
     .from(fixedPage)
+    .innerJoin(kind, eq(fixedPage.kind, kind.name))
     .where(
       and(
         eq(fixedPage.kind, key.kind),

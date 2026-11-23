@@ -35,6 +35,8 @@ export {
 } from "./kinds/content-values";
 export {
   PHOTO_MAX_BYTES,
+  type PublishedImageValue,
+  publishedImageValue,
   imageAlt,
   imageDescription,
   imageId,

@@ -108,6 +108,15 @@ export const publishedImage = imageDetails.extend({
     .describe("配信用の画像。幅の昇順。まだ作っていなければ空。"),
 });
 
+/** 固定ページの画像の項目を公開サイトに返す形。 */
+export const publishedImageValue = z.discriminatedUnion("available", [
+  z.object({ available: z.literal(true), image: publishedImage }),
+  z.object({ available: z.literal(false) }),
+]);
+
+/** 公開サイトが取得できたかを判別できる、画像の項目の値。 */
+export type PublishedImageValue = z.output<typeof publishedImageValue>;
+
 /** 管理画面に返す画像。 */
 export const adminImage = imageDetails.extend({
   published: z.boolean().describe("公開しているか。"),
