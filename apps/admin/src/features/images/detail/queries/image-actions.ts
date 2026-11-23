@@ -12,6 +12,9 @@ export type ImageTextChange = {
   readonly values: ImageText;
 };
 
+/** 画像の書き換えの送信を、画面をまたいで見分けるキー。 */
+export const imageSaveKey = (id: string) => ["admin", "images", "update", id];
+
 /** 画像のタイトル・説明・alt を、フォームの値で書き換える。 */
 export const saveImage = async (
   api: ApiClient,
