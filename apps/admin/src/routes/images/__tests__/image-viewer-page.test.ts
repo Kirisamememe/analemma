@@ -1,4 +1,4 @@
-import { act, cleanup, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
@@ -97,6 +97,29 @@ describe("ImageViewerPage", () => {
     );
     await heading("港の灯り");
   }, 15_000);
+
+  test("タイトル・説明・alt を編集して保存すると、閉じて画面に出し、知らせる", async () => {
+    const { server } = setUp(1);
+    const user = userEvent.setup();
+
+    await heading("港の灯り");
+    await user.click(screen.getByRole("button", { name: "編集" }));
+
+    const dialog = await screen.findByRole("dialog", {
+      name: "タイトルと説明を編集",
+    });
+
+    await user.clear(within(dialog).getByRole("textbox", { name: "タイトル" }));
+    await user.type(
+      within(dialog).getByRole("textbox", { name: "タイトル" }),
+      "港の夜",
+    );
+    await user.clear(within(dialog).getByRole("textbox", { name: "alt" }));
+    await user.click(within(dialog).getByRole("button", { name: "保存" }));
+    expect(await screen.findByText("画像を更新しました。")).toBeDefined();
+    await heading("港の夜");
+    expect(server.images()[1]).toMatchObject({ title: "港の夜", alt: null });
+  });
 
   test("無い画像を開くと、もう無いことを知らせる", async () => {
     setUp("/images/019b0000-0000-7000-8000-0000000000ff");

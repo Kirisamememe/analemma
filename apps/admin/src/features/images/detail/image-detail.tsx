@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { EditImage } from "./edit-image";
 import { toShotInfo } from "./logic/shot-info";
 
 import type { ApiOutputs } from "@/api/api-types";
@@ -29,7 +30,7 @@ type ImageDetailProps = {
   onMove: (href: AppHref) => void;
 };
 
-/** 1枚の画像を大きく出し、横に情報を置く。 */
+/** 1枚の画像を大きく出し、情報と、編集の操作を置く。 */
 export const ImageDetail = ({
   navigationError,
   image,
@@ -50,7 +51,7 @@ export const ImageDetail = ({
 
   return (
     <ImageViewer
-      actions={null}
+      actions={<EditImage image={image} />}
       alt={image.alt ?? name}
       back={back}
       images={image.deliveryImages}
