@@ -10,7 +10,7 @@ import {
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
-import { ErrorState } from "@/ui/patterns";
+import { ErrorState, useRetryFocus } from "@/ui/patterns";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
 
@@ -32,6 +32,7 @@ export const PasskeyList = ({
   onDelete,
 }: PasskeyListProps): ReactNode => {
   const t = useTranslate();
+  const { remember, focus } = useRetryFocus();
   const locale = useLocale();
   const { api } = useAppContext();
 
@@ -47,6 +48,7 @@ export const PasskeyList = ({
   if (passkeys._tag === "Failed") {
     return (
       <ErrorState
+        onRetryPress={remember}
         isRetrying={passkeys.isRetrying}
         layout="inline"
         level={3}
@@ -57,50 +59,56 @@ export const PasskeyList = ({
   }
 
   return (
-    <Stack as="ul" gap={4}>
-      {passkeys.data.passkeys.map((passkey) => (
-        <li key={passkey.id}>
-          <Cluster align="center" gap={4} justify="between">
-            <Stack gap={0.5}>
-              <Cluster gap={2}>
-                <Text as="span" variant="label">
-                  {passkey.name}
+    <section aria-label={t("passkeys.title")} ref={focus} tabIndex={-1}>
+      <Stack as="ul" gap={4}>
+        {passkeys.data.passkeys.map((passkey) => (
+          <li key={passkey.id}>
+            <Cluster align="center" gap={4} justify="between">
+              <Stack gap={0.5}>
+                <Cluster gap={2}>
+                  <Text as="span" variant="label">
+                    {passkey.name}
+                  </Text>
+                  {passkey.backedUp && (
+                    <Badge tone="neutral">{t("passkeys.synced")}</Badge>
+                  )}
+                </Cluster>
+                <Text tone="muted" variant="caption">
+                  {t("passkeys.dates", {
+                    created: formatDateTime(locale, passkey.createdAt),
+                    lastUsed: formatDateTime(locale, passkey.lastUsedAt),
+                  })}
                 </Text>
-                {passkey.backedUp && (
-                  <Badge tone="neutral">{t("passkeys.synced")}</Badge>
-                )}
+              </Stack>
+              <Cluster gap={2}>
+                <Button
+                  aria-label={t("passkeys.renamePasskey", {
+                    name: passkey.name,
+                  })}
+                  onPress={() => {
+                    onRename(passkey);
+                  }}
+                  size="sm"
+                >
+                  {t("passkeys.rename")}
+                </Button>
+                <Button
+                  aria-label={t("passkeys.deletePasskey", {
+                    name: passkey.name,
+                  })}
+                  onPress={() => {
+                    onDelete(passkey);
+                  }}
+                  size="sm"
+                  tone="danger"
+                >
+                  {t("passkeys.delete")}
+                </Button>
               </Cluster>
-              <Text tone="muted" variant="caption">
-                {t("passkeys.dates", {
-                  created: formatDateTime(locale, passkey.createdAt),
-                  lastUsed: formatDateTime(locale, passkey.lastUsedAt),
-                })}
-              </Text>
-            </Stack>
-            <Cluster gap={2}>
-              <Button
-                aria-label={t("passkeys.renamePasskey", { name: passkey.name })}
-                onPress={() => {
-                  onRename(passkey);
-                }}
-                size="sm"
-              >
-                {t("passkeys.rename")}
-              </Button>
-              <Button
-                aria-label={t("passkeys.deletePasskey", { name: passkey.name })}
-                onPress={() => {
-                  onDelete(passkey);
-                }}
-                size="sm"
-                tone="danger"
-              >
-                {t("passkeys.delete")}
-              </Button>
             </Cluster>
-          </Cluster>
-        </li>
-      ))}
-    </Stack>
+          </li>
+        ))}
+      </Stack>
+    </section>
   );
 };

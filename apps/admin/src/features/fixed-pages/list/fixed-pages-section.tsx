@@ -12,7 +12,7 @@ import {
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
-import { EmptyState, ErrorState } from "@/ui/patterns";
+import { EmptyState, ErrorState, useRetryFocus } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { ReorderableList } from "@/ui/primitives/collections";
 import { Spinner } from "@/ui/primitives/graphics";
@@ -31,6 +31,7 @@ export const FixedPagesSection = ({
   onCreate,
 }: FixedPagesSectionProps): ReactNode => {
   const t = useTranslate();
+  const { remember, focus } = useRetryFocus();
   const { api } = useAppContext();
   const reordering = useReorderFixedPages();
 
@@ -52,6 +53,7 @@ export const FixedPagesSection = ({
   if (pages._tag === "Failed") {
     return (
       <ErrorState
+        onRetryPress={remember}
         isRetrying={pages.isRetrying || kindsRetrying}
         layout="inline"
         level={2}
@@ -77,54 +79,58 @@ export const FixedPagesSection = ({
 
   if (rows.length === 0) {
     return (
-      <EmptyState
-        actions={
-          <Button onPress={onCreate} tone="primary">
-            {t("fixedPages.create")}
-          </Button>
-        }
-        description={t("fixedPages.emptyDescription")}
-        icon="file-text"
-        title={t("fixedPages.emptyTitle")}
-      />
+      <section aria-label={t("fixedPages.title")} ref={focus} tabIndex={-1}>
+        <EmptyState
+          actions={
+            <Button onPress={onCreate} tone="primary">
+              {t("fixedPages.create")}
+            </Button>
+          }
+          description={t("fixedPages.emptyDescription")}
+          icon="file-text"
+          title={t("fixedPages.emptyTitle")}
+        />
+      </section>
     );
   }
 
   return (
-    <Stack gap={3}>
-      {rows.length > 1 && (
-        <Cluster align="center" gap={2} justify="between">
-          <Text tone="muted" variant="caption">
-            {t("fixedPages.reorderHint")}
-          </Text>
-          <output>
-            {reordering.isSaving && (
-              <Cluster align="center" gap={1.5}>
-                <Spinner />
-                <Text as="span" tone="muted" variant="caption">
-                  {t("fixedPages.savingOrder")}
-                </Text>
-              </Cluster>
-            )}
-          </output>
-        </Cluster>
-      )}
-      <ReorderableList
-        isDisabled={reordering.isSaving}
-        items={rows.map((page) => ({
-          id: page.id,
-          textValue: page.title,
-          children: (
-            <FixedPageRow
-              kindLabel={labels.get(page.kind) ?? page.kind}
-              onEdit={onEdit}
-              page={page}
-            />
-          ),
-        }))}
-        label={t("fixedPages.title")}
-        onReorder={reordering.reorder}
-      />
-    </Stack>
+    <section aria-label={t("fixedPages.title")} ref={focus} tabIndex={-1}>
+      <Stack gap={3}>
+        {rows.length > 1 && (
+          <Cluster align="center" gap={2} justify="between">
+            <Text tone="muted" variant="caption">
+              {t("fixedPages.reorderHint")}
+            </Text>
+            <output>
+              {reordering.isSaving && (
+                <Cluster align="center" gap={1.5}>
+                  <Spinner />
+                  <Text as="span" tone="muted" variant="caption">
+                    {t("fixedPages.savingOrder")}
+                  </Text>
+                </Cluster>
+              )}
+            </output>
+          </Cluster>
+        )}
+        <ReorderableList
+          isDisabled={reordering.isSaving}
+          items={rows.map((page) => ({
+            id: page.id,
+            textValue: page.title,
+            children: (
+              <FixedPageRow
+                kindLabel={labels.get(page.kind) ?? page.kind}
+                onEdit={onEdit}
+                page={page}
+              />
+            ),
+          }))}
+          label={t("fixedPages.title")}
+          onReorder={reordering.reorder}
+        />
+      </Stack>
+    </section>
   );
 };

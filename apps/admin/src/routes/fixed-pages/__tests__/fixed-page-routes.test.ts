@@ -125,7 +125,9 @@ test("種類の定義を読み込めなければ、もう一度試すと、取�
   });
   await screen.findByRole("alert", {}, { timeout: 5000 });
   isBroken = false;
-  await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+  const retry = screen.getByRole("button", { name: "もう一度試す" });
+  retry.focus();
+  await userEvent.keyboard("{Enter}");
 
   expect(
     screen
@@ -138,6 +140,9 @@ test("種類の定義を読み込めなければ、もう一度試すと、取�
   expect(
     await screen.findByRole("textbox", { name: /タイトル/v }),
   ).toBeDefined();
+  expect(document.activeElement).toBe(
+    screen.getByRole("region", { name: "固定ページを編集" }),
+  );
   expect(screen.queryByRole("alert")).toBeNull();
 }, 10000);
 test("編集する固定ページを読み込めないときは失敗を知らせる", async () => {
