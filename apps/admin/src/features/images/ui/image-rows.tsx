@@ -13,7 +13,6 @@ import { Icon } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 import { tv } from "@/ui/tv";
-import { typography } from "@/ui/typography";
 
 const rows = tv({
   slots: {
@@ -119,25 +118,22 @@ export const ImageTile = ({
                 alt={title === null ? (alt ?? "") : ""}
                 className={style.photo()}
                 decoding="async"
+                height={smallest.height}
                 loading="lazy"
                 sizes={toTileSizes(aspect)}
                 src={smallest.url}
                 srcSet={toSrcSet(images)}
+                width={smallest.width}
               />
             )}
             <span className={style.shade()} />
           </span>
           <span className={style.caption()}>
             <span className={style.heading()}>
-              <span
-                className={style.title({
-                  className: typography({
-                    role: title === null ? "body" : "label",
-                  }),
-                })}
-                title={title ?? undefined}
-              >
-                {title ?? untitled}
+              <span className={style.title()} title={title ?? undefined}>
+                <Text as="span" variant={title === null ? "body" : "label"}>
+                  {title ?? untitled}
+                </Text>
               </span>
               {badge !== undefined && (
                 <span className={style.badge()}>
