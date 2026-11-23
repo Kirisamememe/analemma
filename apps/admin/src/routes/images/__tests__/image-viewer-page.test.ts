@@ -20,9 +20,9 @@ const IMAGES: readonly FakeImageSeed[] = [
 const setUp = (at: number | string) => {
   const server = createImageRoutes(IMAGES);
   const path = typeof at === "string" ? at : `/images/${server.images()[at]?.id ?? ""}`;
-  const { history } = renderApp({ path, routes: server.routes });
+  const { history, calls } = renderApp({ path, routes: server.routes });
 
-  return { server, history, ids: server.images().map(({ id }) => id) };
+  return { server, history, calls, ids: server.images().map(({ id }) => id) };
 };
 
 const expectLinkFocus = (name: string) =>
@@ -99,11 +99,27 @@ describe("ImageViewerPage", () => {
     await heading("港の灯り");
   }, 15_000);
 
-  test("非公開にすると、公開状態と操作を替えて知らせる", async () => {
-    const { server } = setUp(0);
+  test("非公開の確認を取り消すと公開を保ち、確定したときだけ非公開にする", async () => {
+    const { server, calls } = setUp(0);
 
     await heading("夕暮れの稜線");
     await userEvent.click(screen.getByRole("button", { name: "非公開にする" }));
+
+    const dialog = await screen.findByRole("dialog", {
+      name: /夕暮れの稜線.*非公開/v,
+    });
+
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "キャンセル" }),
+    );
+    expect(calls).not.toContain("admin/images/unpublish");
+    expect(server.images()[0]?.published).toBe(true);
+    await userEvent.click(screen.getByRole("button", { name: "非公開にする" }));
+    await userEvent.click(
+      within(await screen.findByRole("dialog")).getByRole("button", {
+        name: "非公開にする",
+      }),
+    );
     expect(await screen.findByText("画像を非公開にしました。")).toBeDefined();
     expect(
       within(screen.getByRole("complementary")).getByText("非公開"),
@@ -130,6 +146,26 @@ describe("ImageViewerPage", () => {
       expect(history.location.pathname).toBe("/images");
     });
     expect(server.images()).toHaveLength(2);
+  });
+
+  test("ほかの画面で削除済みの画像を削除すると、編集を閉じて一覧にも反映する", async () => {
+    const { server, ids } = setUp(0, "/images");
+    const id = ids[0] ?? "";
+    await userEvent.click(
+      await screen.findByRole("link", { name: /夕暮れの稜線/v }),
+    );
+    await heading("夕暮れの稜線");
+    await userEvent.click(screen.getByRole("button", { name: "画像を削除" }));
+    const dialog = await screen.findByRole("dialog");
+    server.routes["admin/images/delete"]({ id });
+    await userEvent.click(within(dialog).getByRole("button", { name: "削除" }));
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: "編集" })).toBeNull();
+      expect(screen.queryByRole("dialog")).toBeNull();
+    });
+    await userEvent.click(screen.getByRole("link", { name: "画像の一覧" }));
+    await screen.findByRole("link", { name: /港の灯り/v });
+    expect(screen.queryByRole("link", { name: /夕暮れの稜線/v })).toBeNull();
   });
 
   test("無い画像を開くと、もう無いことを知らせる", async () => {

@@ -257,6 +257,7 @@ export const zhHans = {
   "imageDetail.publish": "公开",
   "imageDetail.unpublish": "取消公开",
   "imageDetail.publishDone": "已公开图片。",
+  "imageDetail.unpublishTitle": "要取消公开“{{title}}”吗？",
   "imageDetail.unpublishDone": "已取消公开图片。",
   "imageDetail.publicationFailed": "无法更改图片的公开状态，请重试。",
   "imageDetail.delete": "删除图片",

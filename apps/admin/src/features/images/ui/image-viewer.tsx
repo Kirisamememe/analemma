@@ -77,7 +77,7 @@ export const ViewerFrame = ({
   children,
 }: ViewerFrameProps): ReactNode => (
   <div className={style.root()}>
-    <header className={style.bar()}>
+    <header data-top-bar="" className={style.bar()}>
       {back}
       <div className={style.actions()}>{actions}</div>
     </header>

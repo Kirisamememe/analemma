@@ -1,10 +1,17 @@
 import { type ReactNode, useRef, useState } from "react";
 
 import { deleteImage } from "./queries/image-actions";
+import {
+  IMAGE_NEIGHBORS_QUERY_KEY,
+  imageQueryKey,
+} from "./queries/image-query";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import { IMAGES_QUERY_KEY } from "@/features/images/queries/images-query";
+import {
+  IMAGES_QUERY_KEY,
+  updateImagePage,
+} from "@/features/images/queries/images-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
@@ -33,25 +40,31 @@ export const DeleteImage = ({
   const t = useTranslate();
   const showToast = useShowToast();
   const failure = useFailureToast();
-  const { refresh } = useApiCache();
+  const { refresh, updatePages } = useApiCache();
   const { api } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null); // 画面を閉じると null になる
 
   const deleting = useApiMutation({
-    send: () => deleteImage(api, id),
-    onSuccess: async ({ _tag }) => {
-      await refresh(IMAGES_QUERY_KEY); // 一覧に戻ったとき、消した画像を出さない
+    send: async (target: Pick<DeleteImageProps, "id" | "name">) => ({
+      ...(await deleteImage(api, target.id)),
+      target,
+    }),
+    onSuccess: async ({ _tag, target }) => {
+      await updatePages(IMAGES_QUERY_KEY, updateImagePage(target.id));
+      void refresh(IMAGE_NEIGHBORS_QUERY_KEY, "active"); // ほかの画像の前後に、消した画像を出さない
 
       if (_tag === "Deleted") {
         showToast({
           tone: "success",
-          message: t("imageDetail.deleted", { title: name }),
+          message: t("imageDetail.deleted", { title: target.name }),
         });
 
         if (trigger.current !== null) onDeleted(); // 画面を閉じていたら、移った先の画面から動かさない
       } else {
+        setIsOpen(false);
         failure.show(t("imageDetail.gone"));
+        await refresh(imageQueryKey(target.id), "active");
       }
     },
     onError: () => {
@@ -95,7 +108,7 @@ export const DeleteImage = ({
             onPress={() => {
               if (isOpen) {
                 failure.close();
-                deleting.mutate(); // 閉じ始めた後に遅れて届いた押下では送らない
+                deleting.mutate({ id, name }); // 閉じ始めた後に遅れて届いた押下では送らない
               }
             }}
             tone="danger"

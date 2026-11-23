@@ -1,5 +1,6 @@
 import {
   skipToken,
+  type InfiniteData,
   useIsFetching,
   useIsMutating,
   useMutation,
@@ -63,9 +64,22 @@ type MutationResult<Input, Data> = {
 
 type ApiCache = {
   /** 取得を中断してから、使う画面の無い取得も含めて取り直す関数。 */
-  readonly refresh: (key: readonly unknown[]) => Promise<void>;
+  readonly refresh: (
+    key: readonly unknown[],
+    refetchType?: "all" | "active",
+  ) => Promise<void>;
   /** 取得を中断し、取り直さずにデータを差し替える関数。 */
   readonly replace: (key: readonly unknown[], data: unknown) => Promise<void>;
+  /** 取得済みのデータに変更を反映する関数。 */
+  readonly update: <Data>(
+    key: readonly unknown[],
+    apply: (data: Data) => Data,
+  ) => Promise<void>;
+  /** 取得済みの一覧のページを、server の書き換えの結果に合わせる関数。 */
+  readonly updatePages: <Page>(
+    key: readonly unknown[],
+    update: (page: Page) => Page,
+  ) => Promise<void>;
   /** 取得と送信のキャッシュを消す関数。 */
   readonly clear: () => void;
 };
@@ -142,13 +156,33 @@ export const useApiCache = (): ApiCache => {
   const client = useQueryClient();
 
   return {
-    refresh: async (key) => {
+    refresh: async (key, refetchType = "all") => {
       await client.cancelQueries({ queryKey: key });
-      await client.invalidateQueries({ queryKey: key, refetchType: "all" });
+      await client.invalidateQueries({ queryKey: key, refetchType });
     },
     replace: async (key, data) => {
       await client.cancelQueries({ queryKey: key });
       client.setQueryData(key, data);
+    },
+    update: async <Data>(
+      key: readonly unknown[],
+      apply: (data: Data) => Data,
+    ) => {
+      await client.cancelQueries({ queryKey: key, exact: true });
+      client.setQueryData<Data>(key, (data) =>
+        data === undefined ? undefined : apply(data),
+      );
+    },
+    updatePages: async <Page>(
+      key: readonly unknown[],
+      update: (page: Page) => Page,
+    ) => {
+      await client.cancelQueries({ queryKey: key, exact: true });
+      client.setQueryData<InfiniteData<Page>>(key, (data) =>
+        data === undefined
+          ? undefined
+          : { ...data, pages: data.pages.map(update) },
+      );
     },
     clear: () => {
       client.clear();

@@ -6,6 +6,7 @@ import {
   isValidImageText,
   toImageText,
 } from "./logic/image-text";
+import { mergeImageChange } from "./logic/merge-image-change";
 import { saveImage } from "./queries/image-actions";
 import {
   imageQueryKey,
@@ -22,7 +23,10 @@ import {
 } from "@/api/server-state/server-state";
 import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
 import { checkAfterSubmit, useAppForm } from "@/components/forms";
-import { IMAGES_QUERY_KEY } from "@/features/images/queries/images-query";
+import {
+  IMAGES_QUERY_KEY,
+  updateImagePage,
+} from "@/features/images/queries/images-query";
 import { type MessageKey, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
@@ -58,7 +62,7 @@ const EditImageDialog = ({
   const t = useTranslate();
   const showToast = useShowToast();
   const failure = useFailureToast();
-  const { refresh, replace } = useApiCache();
+  const { refresh, update, updatePages } = useApiCache();
   const { api } = useAppContext();
 
   const [confirmClose, setConfirmClose] = useState(false);
@@ -76,11 +80,18 @@ const EditImageDialog = ({
       saveImage(api, { id: image.id, values }),
     onSuccess: async (result) => {
       if (result._tag === "Saved") {
-        await replace(imageQueryKey(result.image.id), {
-          _tag: "Succeeded",
-          data: result.image,
-        } satisfies LoadedImage);
-        await refresh(IMAGES_QUERY_KEY);
+        const apply = mergeImageChange(result.image, "text");
+        await Promise.all([
+          update<LoadedImage>(imageQueryKey(result.image.id), (current) =>
+            current._tag === "Succeeded"
+              ? { ...current, data: apply(current.data) }
+              : current,
+          ),
+          updatePages(
+            IMAGES_QUERY_KEY,
+            updateImagePage(result.image.id, apply),
+          ),
+        ]);
         leaving.leave();
         onClose();
         showToast({ tone: "success", message: t("imageDetail.saved") });
@@ -88,8 +99,10 @@ const EditImageDialog = ({
         failure.show(t("imageDetail.gone"));
         leaving.leave();
         onClose();
-        await refresh(imageQueryKey(image.id)); // もう無いことを、画面にも出す
-        await refresh(IMAGES_QUERY_KEY);
+        await Promise.all([
+          refresh(imageQueryKey(id)),
+          updatePages(IMAGES_QUERY_KEY, updateImagePage(id)),
+        ]);
       }
     },
     onError: () => {

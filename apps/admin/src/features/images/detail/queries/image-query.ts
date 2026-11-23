@@ -21,7 +21,7 @@ export const IMAGE_NEIGHBORS_QUERY_KEY = [
 
 /** 画像の前後の画像の ID の、query のキー。 */
 export const imageNeighborsQueryKey = (id: string) =>
-  [...IMAGE_NEIGHBORS_QUERY_KEY, id] as const;
+  [...IMAGE_NEIGHBORS_QUERY_KEY, id.toLowerCase()] as const;
 
 /** 一覧の並びで、画像の前後の画像の ID を読む。 */
 export const loadImageNeighbors = (api: ApiClient, id: string) =>
