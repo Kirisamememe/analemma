@@ -21,6 +21,8 @@ const button = tv({
       primary: "border-transparent bg-primary text-on-primary shadow-control",
       secondary: "bg-surface text-fg shadow-control",
       quiet: "border-transparent text-fg",
+      dashed:
+        "w-full justify-items-start border-dashed border-line-strong text-start text-fg",
       danger:
         "border-transparent bg-danger-strong text-on-danger-strong shadow-control",
     },
@@ -32,6 +34,8 @@ const button = tv({
         "max-md:after:absolute max-md:after:inset-x-0 max-md:after:-inset-y-2",
       ],
       lg: "h-11 px-4",
+      row: "min-h-11 px-3 md:min-h-10",
+      card: "min-h-11 px-3 md:min-h-16",
     },
     iconOnly: {
       true: "aspect-square px-0",
@@ -80,9 +84,9 @@ type ButtonContent =
 /** ボタンに渡す値。 */
 type ButtonProps = ButtonContent & {
   /** 見た目の用途。 */
-  tone?: "primary" | "secondary" | "quiet" | "danger";
+  tone?: "primary" | "secondary" | "quiet" | "danger" | "dashed";
   /** 高さ(`sm-to-md` は画面の幅で変わる)。 */
-  size?: "lg" | "md" | "sm" | "sm-to-md";
+  size?: "row" | "card" | "lg" | "md" | "sm" | "sm-to-md";
   /** `icon` で指定したアイコンの線の太さ。 */
   iconWeight?: "regular" | "bold";
   /** 角の丸み。 */
@@ -155,40 +159,3 @@ export const Button = ({
     </AriaButton>
   );
 };
-
-const createButton = tv({
-  base: [
-    "flex w-full items-center gap-2 px-3 text-start",
-    "rounded-control border border-dashed border-line-strong text-fg",
-    "outline-hidden transition is-focus-shown:focus-ring",
-    "is-hovered:state-hover is-pressed:state-pressed",
-  ],
-  variants: {
-    card: { true: "min-h-11 md:min-h-16", false: "min-h-11 md:min-h-10" },
-  },
-});
-
-type ListCreateButtonProps = {
-  /** 追加する操作の名前。 */
-  children: ReactNode;
-  /** 追加を始める関数。 */
-  onPress: () => void;
-  /** 広い画面でカードの高さに合わせるか。 */
-  card?: boolean;
-};
-
-/** 一覧の先頭に置く追加のボタン。 */
-export const ListCreateButton = ({
-  children,
-  onPress,
-  card = false,
-}: ListCreateButtonProps): ReactNode => (
-  <AriaButton
-    className={createButton({ card, className: typography({ role: "label" }) })}
-    onPress={onPress}
-    type="button"
-  >
-    <Icon name="plus" />
-    {children}
-  </AriaButton>
-);

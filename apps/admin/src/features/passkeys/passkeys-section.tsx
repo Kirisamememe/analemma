@@ -9,7 +9,8 @@ import {
 import { RenamePasskeyDialog } from "@/features/passkeys/rename-passkey-dialog";
 import { useTranslate } from "@/i18n/use-translate";
 import { ActionList, Heading, Stack } from "@/ui/layout";
-import { ListCreateButton } from "@/ui/primitives/button";
+import { Button } from "@/ui/primitives/button";
+import { Icon } from "@/ui/primitives/graphics";
 import { FocusScope } from "@/ui/primitives/overlays";
 
 type PasskeyDialog = "add" | "rename" | "delete";
@@ -35,13 +36,16 @@ export const PasskeysSection = (): ReactNode => {
       <Stack as="section" gap={4}>
         <Heading level={2}>{t("passkeys.title")}</Heading>
         <ActionList as="div">
-          <ListCreateButton
+          <Button
+            size="row"
+            tone="dashed"
             onPress={() => {
               open("add");
             }}
           >
+            <Icon name="plus" />
             {t("passkeys.add")}
-          </ListCreateButton>
+          </Button>
           <PasskeyList
             onDelete={(selected) => {
               setPasskey(selected);

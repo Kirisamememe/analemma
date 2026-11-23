@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { Cluster, Stack } from "@/ui/layout";
-import { Button, ListCreateButton } from "@/ui/primitives/button";
+import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
 
 const meta = {
@@ -132,17 +132,19 @@ export const PendingWidth: Story = {
 export const CreateRow: Story = {
   /** 枠のない一覧の先頭に置く操作。 */
   render: () => (
-    <ListCreateButton onPress={fn<() => void>()}>
+    <Button size="row" tone="dashed" onPress={fn<() => void>()}>
+      <Icon name="plus" />
       トークンを発行
-    </ListCreateButton>
+    </Button>
   ),
 };
 
 export const CreateCard: Story = {
   /** カードの先頭に置く操作。 */
   render: () => (
-    <ListCreateButton card onPress={fn<() => void>()}>
+    <Button size="card" tone="dashed" onPress={fn<() => void>()}>
+      <Icon name="plus" />
       新しい固定ページ
-    </ListCreateButton>
+    </Button>
   ),
 };

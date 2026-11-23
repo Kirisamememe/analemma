@@ -16,9 +16,9 @@ import {
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { EmptyState, ErrorState, LoadingState } from "@/ui/patterns";
-import { ListCreateButton } from "@/ui/primitives/button";
+import { Button } from "@/ui/primitives/button";
 import { ReorderableList } from "@/ui/primitives/collections";
-import { Spinner } from "@/ui/primitives/graphics";
+import { Icon, Spinner } from "@/ui/primitives/graphics";
 
 /** 固定ページの一覧に渡す値。 */
 type FixedPagesSectionProps = {
@@ -117,9 +117,10 @@ export const FixedPagesSection = ({
 
   return (
     <Stack gap={2}>
-      <ListCreateButton card onPress={onCreate}>
+      <Button size="card" tone="dashed" onPress={onCreate}>
+        <Icon name="plus" />
         {t("fixedPages.create")}
-      </ListCreateButton>
+      </Button>
       {showRows && rows.length > 1 && (
         <Cluster align="center" gap={2} justify="between">
           <Text tone="muted" variant="caption">

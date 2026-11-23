@@ -6,7 +6,8 @@ import type { DeployTokenSummary } from "@/features/deploy-tokens/queries/deploy
 import { RevokeDeployTokenDialog } from "@/features/deploy-tokens/revoke-deploy-token-dialog";
 import { useTranslate } from "@/i18n/use-translate";
 import { ActionList, Heading, Stack } from "@/ui/layout";
-import { ListCreateButton } from "@/ui/primitives/button";
+import { Button } from "@/ui/primitives/button";
+import { Icon } from "@/ui/primitives/graphics";
 import { FocusScope } from "@/ui/primitives/overlays";
 
 type DeployTokenDialog = "issue" | "revoke";
@@ -32,13 +33,16 @@ export const DeployTokensSection = (): ReactNode => {
       <Stack as="section" gap={4}>
         <Heading level={2}>{t("deployTokens.listTitle")}</Heading>
         <ActionList as="div">
-          <ListCreateButton
+          <Button
+            size="row"
+            tone="dashed"
             onPress={() => {
               open("issue");
             }}
           >
+            <Icon name="plus" />
             {t("deployTokens.issue")}
-          </ListCreateButton>
+          </Button>
           <DeployTokenList
             onRevoke={(selected) => {
               setToken(selected);

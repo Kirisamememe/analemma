@@ -34,6 +34,7 @@
 - server との通信には contract の型を使い、応答の型を手で書かない。
 - features の製品のコードから import できるのは、`react`(`.ts` では hook と context のファイルだけ)・`@analemma/contract`・管理画面の中のモジュールだけ。外のライブラリは `src/i18n/` と `src/api/` の部品を通して使う(lint で止まる)。`src/routes/` は今は対象外。
 - features で API の失敗を仕分けるときは `callApi` を使う。
+- 管理画面のボタンには共通の `Button` を使う。必要な形や大きさがなければ `Button` に足す。共通の部品では必要な動作を実現できないときにだけ専用のボタンを作り、その理由を一番近い `DECISIONS.md` に書く。
 - 操作を送っている間は、そのボタンを無効にする。同じ操作を続けて送らせない。
 - route の `beforeLoad`・`loader` で、通信の応答を待たない。server のデータは画面の中で読み、読み込み中は `LoadingState`、読み込めなかったことは `ErrorState` で出す。見出しや操作を保ったまま、欄の中で1つの取得を出し分けるときは `QueryContent` を使う。
 - パスキーでのログインの最中(options を取ってから、ログインの応答が届くまで)は、ほかの管理用 API を呼ばない。
