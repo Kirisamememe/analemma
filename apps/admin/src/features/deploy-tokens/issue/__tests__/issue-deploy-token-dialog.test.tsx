@@ -194,7 +194,7 @@ describe("IssueDeployTokenDialog", () => {
     expect(app.calls).not.toContain("admin/session/reauthenticationOptions");
   });
 
-  test("コピーを押すと、token をクリップボードに書いてボタンの文言で知らせ、最後に押してから2秒で文言を戻す", async () => {
+  test("コピーを押すと、token をクリップボードに書いてボタンの文言で知らせ、最後のコピーが成功してから2秒で文言を戻す", async () => {
     const write = spyOn(navigator.clipboard, "writeText").mockResolvedValue(
       undefined,
     );
