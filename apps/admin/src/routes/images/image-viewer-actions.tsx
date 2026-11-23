@@ -1,5 +1,5 @@
 import { useNavigate, useRouter } from "@tanstack/react-router";
-import { use, type ReactNode } from "react";
+import { memo, use, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ImageViewerContext } from "./image-viewer-context";
@@ -16,8 +16,6 @@ type Image = ApiOutputs["admin"]["images"]["get"];
 export const ImageViewerActions = (): ReactNode => {
   const state = use(ImageViewerContext);
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const router = useRouter();
 
   if (state?.shown === undefined) return null;
 
@@ -30,11 +28,6 @@ export const ImageViewerActions = (): ReactNode => {
       image={shown}
       isDisabled={isDisabled}
       name={shown.title ?? t("imageDetail.untitled")}
-      onDeleted={(deletedId) => {
-        if (router.state.location.pathname.toLowerCase().replace(/\/+$/v, "") === `/images/${deletedId}`) {
-          void navigate({ to: "/images" });
-        }
-      }}
     />
   );
 };
@@ -46,24 +39,31 @@ type ImageActionButtonsProps = {
   isDisabled: boolean;
   /** 削除の確認で見せる名前。 */
   name: string;
-  /** 画像を削除した後に呼ぶ関数。 */
-  onDeleted: (id: string) => void;
 };
 
-const ImageActionButtons = ({
+const ImageActionButtonsContent = ({
   image,
   name,
   isDisabled,
-  onDeleted,
-}: ImageActionButtonsProps): ReactNode => (
-  <ViewerActions disabled={isDisabled}>
-    <EditImage image={image} isDisabled={isDisabled} />
-    <PublicationButton image={image} isDisabled={isDisabled} />
-    <DeleteImage
-      id={image.id}
-      name={name}
-      isDisabled={isDisabled}
-      onDeleted={onDeleted}
-    />
-  </ViewerActions>
-);
+}: ImageActionButtonsProps): ReactNode => {
+  const navigate = useNavigate();
+  const router = useRouter();
+  return (
+    <ViewerActions disabled={isDisabled}>
+      <EditImage image={image} isDisabled={isDisabled} />
+      <PublicationButton image={image} isDisabled={isDisabled} />
+      <DeleteImage
+        id={image.id}
+        name={name}
+        isDisabled={isDisabled}
+        onDeleted={(deletedId) => {
+          if (router.state.location.pathname.toLowerCase().replace(/\/+$/v, "") === `/images/${deletedId}`) {
+            void navigate({ to: "/images" });
+          }
+        }}
+      />
+    </ViewerActions>
+  );
+};
+
+const ImageActionButtons = memo(ImageActionButtonsContent);
