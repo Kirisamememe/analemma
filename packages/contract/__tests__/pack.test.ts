@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { z } from "zod";
@@ -120,9 +120,5 @@ describe("contract を固めたもの", () => {
           )?.[1];
 
     expect(target).toBe("./dist/index.d.ts");
-  });
-
-  test("固めた後に、dist を残さないこと", () => {
-    expect(existsSync(join(packageRoot, "dist"))).toBe(false);
   });
 });

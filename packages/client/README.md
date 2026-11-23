@@ -77,7 +77,7 @@ analemma push-kinds ./src/lib/kinds.ts --url http://127.0.0.1:8788
 bun run build
 ```
 
-`dist/` に、SDK(`index.js` と型)と CLI(`cli/main.js`)を書き出す。開発の間は、公開サイトから、このフォルダをつないで使う。
+`dist/` に、SDK(`index.js` と型)と CLI(`cli/main.js`)を書き出す。SDK の型が読む contract の型(`packages/contract/dist/`)も作り直す。開発の間は、公開サイトから、このフォルダをつないで使う。
 
 npm から入れるのと同じ形で、公開サイトに入れて試すときは、`packages/contract` と `packages/client` で、それぞれ固める(`prepack` が build する)。
 

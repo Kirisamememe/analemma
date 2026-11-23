@@ -24,6 +24,7 @@ type Packed = {
 };
 
 const packageRoot = join(import.meta.dirname, "..");
+const contractRoot = join(packageRoot, "../contract");
 const destination = mkdtempSync(join(tmpdir(), "analemma-client-pack-"));
 
 const pack = async (): Promise<Packed> => {
@@ -72,6 +73,9 @@ const exportTargets = (
     typeof target === "string" ? [target] : Object.values(target),
   );
 
+const filesIn = (root: string, pattern: string): string[] =>
+  [...new Bun.Glob(pattern).scanSync(root)].toSorted();
+
 const sdkSources = [
   ...new Bun.Glob("src/**/*.ts").scanSync(packageRoot),
 ].filter(
@@ -81,6 +85,7 @@ const sdkSources = [
 let packed: Packed;
 
 beforeAll(async () => {
+  rmSync(join(contractRoot, "dist"), { recursive: true, force: true });
   packed = await pack();
 }, 60_000);
 
@@ -120,9 +125,7 @@ describe("client を固めたもの", () => {
   test("contract への依存を、workspace の指定でなく、contract の version で書くこと", async () => {
     const contract = z
       .object({ version: z.string() })
-      .parse(
-        await Bun.file(join(packageRoot, "../contract/package.json")).json(),
-      );
+      .parse(await Bun.file(join(contractRoot, "package.json")).json());
 
     expect(packed.manifest.dependencies["@analemma/contract"]).toBe(
       contract.version,
@@ -132,5 +135,16 @@ describe("client を固めたもの", () => {
         version.startsWith("workspace:"),
       ),
     ).toEqual([]);
+  });
+
+  test("client を build すると、contract のソースごとの型の宣言も作り直すこと", () => {
+    expect(filesIn(contractRoot, "dist/**/*.d.ts")).toEqual(
+      filesIn(contractRoot, "src/**/*.ts")
+        .filter((path) => !path.includes("/__tests__/"))
+        .map((path) =>
+          path.replace(/^src\//v, "dist/").replace(/\.ts$/v, ".d.ts"),
+        )
+        .toSorted(),
+    );
   });
 });
