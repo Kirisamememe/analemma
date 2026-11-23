@@ -63,9 +63,11 @@ test("編集を送ったら背景の操作を止め、成功の表示に切り�
 
 test("セッション切れで保存できず編集を続けたら、残った入力を選択して使える", async () => {
   edit(() => ({ error: "UNAUTHORIZED" }));
+
   const title = await screen.findByRole<HTMLInputElement>("textbox", {
     name: "タイトル",
   });
+
   await userEvent.type(title, "の下書き{Enter}");
   await userEvent.click(
     await screen.findByRole("button", { name: "編集を続ける" }),
