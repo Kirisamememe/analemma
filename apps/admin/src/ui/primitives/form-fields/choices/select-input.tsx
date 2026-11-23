@@ -1,9 +1,6 @@
 import { useContext, type ReactNode } from "react";
 import {
   Button,
-  ListBox,
-  ListBoxItem,
-  Popover,
   Select as AriaSelect,
   SelectStateContext,
   SelectValue,
@@ -15,15 +12,8 @@ import {
   fieldRoot,
 } from "@/ui/primitives/form-fields/field-control";
 import { Icon } from "@/ui/primitives/graphics";
-import { tv } from "@/ui/tv";
+import { ListBoxPopover } from "@/ui/primitives/overlays";
 import { typography } from "@/ui/typography";
-
-const popover = tv({
-  base: [
-    "z-overlay w-(--trigger-width) overflow-y-auto overscroll-contain",
-    "rounded-control bg-surface text-fg shadow-overlay outline outline-fg/10",
-  ],
-});
 
 /** Select の選択肢。 */
 export type SelectOption = {
@@ -144,32 +134,7 @@ export const SelectControl = ({
           <Icon name="chevron-down" />
         </span>
       </Button>
-      <Popover className={popover()} offset={4}>
-        <ListBox
-          className="flex flex-col gap-1 p-1 outline-hidden"
-          items={choices}
-        >
-          {({ label: optionLabel, value: optionValue }) => (
-            <ListBoxItem
-              className={typography({
-                role: "body",
-                className: [
-                  "group flex items-start justify-between gap-2",
-                  "rounded-xs px-2 py-1 text-fg outline-hidden",
-                  "is-hovered:state-hover is-focus-shown:focus-ring-inset is-pressed:state-pressed is-selected:bg-fg/10",
-                ],
-              })}
-              id={optionValue}
-              textValue={optionLabel}
-            >
-              <span className="wrap-anywhere">{optionLabel}</span>
-              <span className="flex h-5 shrink-0 items-center opacity-0 group-is-selected:opacity-100">
-                <Icon name="check" />
-              </span>
-            </ListBoxItem>
-          )}
-        </ListBox>
-      </Popover>
+      <ListBoxPopover options={choices} />
     </>
   );
 };
