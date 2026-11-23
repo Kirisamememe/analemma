@@ -192,49 +192,7 @@ describe("写真を送って画像を作る", () => {
     expect((await server.client.admin.images.list({})).images).toEqual([]);
   });
 
-  test("同時に送った2枚の写真を、1枚ずつ変換して、どちらも画像にすること", async () => {
-    const queue = createConversionQueue();
-    const steps: string[] = [];
-
-    const conversions: ConversionQueue = {
-      run: async <T>(convert: () => Promise<T>): Promise<T> =>
-        queue.run(async () => {
-          const order = steps.filter((step) => step.endsWith("始めた")).length;
-          steps.push(`${String(order + 1)} を始めた`);
-          const result = await convert();
-          steps.push(`${String(order + 1)} を終えた`);
-
-          return result;
-        }),
-    };
-
-    await using server = await createTestClient({ conversions });
-    await signInAsAdmin(server);
-
-    const images = await Promise.all([
-      server.client.admin.images.upload({
-        photo: await photo("high-iso.jpg"),
-      }),
-      server.client.admin.images.upload({
-        photo: await photo("rotated-with-gps.heic"),
-      }),
-    ]);
-
-    expect(steps).toEqual([
-      "1 を始めた",
-      "1 を終えた",
-      "2 を始めた",
-      "2 を終えた",
-    ]);
-
-    const listed = (await server.client.admin.images.list({})).images;
-
-    expect(listed.map(({ id }) => id).toSorted()).toEqual(
-      images.map(({ id }) => id).toSorted(),
-    );
-  });
-
-  test("ログイン中でも、3枚目を同時に送ると、末尾の / の有無によらず本文を読まずに 503 で断り、空いたら受けること", async () => {
+  test("同時に送った写真は1枚ずつ変換し、3枚目は、末尾の / の有無によらず本文を読まずに 503 で断り、空いたら受けること", async () => {
     const held = holdFirstConversion();
     await using server = await createTestClient({
       conversions: held.conversions,
@@ -251,6 +209,7 @@ describe("写真を送って画像を作る", () => {
     const first = [upload(), upload()];
     await held.queued(2);
 
+    expect(held.converted()).toBe(0);
     expect(await upload()).toBe("SERVICE_UNAVAILABLE");
 
     for (const path of ["images/upload", "images/upload/"]) {
@@ -266,6 +225,7 @@ describe("写真を送って画像を作る", () => {
 
     expect(await Promise.all(first)).toEqual([SUCCEEDED, SUCCEEDED]);
     expect(await upload()).toBe(SUCCEEDED);
+    expect((await server.client.admin.images.list({})).images).toHaveLength(3);
   });
 
   test("変換を待つ間に送るのをやめた写真は、画像にせず、枠を空けて、ログに失敗と書かないこと", async () => {
