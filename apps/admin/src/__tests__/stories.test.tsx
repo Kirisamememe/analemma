@@ -57,7 +57,7 @@ const MODULES = {
   "components/forms/__stories__/submitting.stories.tsx": componentsSubmitting,
   "components/__stories__/passkey-name-field.stories.ts":
     componentsPasskeyNameField,
-  "features/deploy-tokens/ui/__stories__/copy-button.stories.tsx":
+  "features/deploy-tokens/ui/__stories__/copy-button.stories.ts":
     featuresDeployTokensCopyButton,
   "features/deploy-tokens/ui/__stories__/token-value.stories.ts":
     featuresDeployTokensTokenValue,
