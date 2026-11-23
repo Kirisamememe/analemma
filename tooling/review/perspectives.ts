@@ -31,7 +31,7 @@ export type Perspective = {
   readonly maxRounds: number;
 };
 
-const CODEX: CodexReviewer = {
+const SOL: CodexReviewer = {
   runner: "codex",
   model: "gpt-6.2-sol",
   effort: "xhigh",
@@ -44,37 +44,37 @@ export const PERSPECTIVES: readonly Perspective[] = [
   {
     id: "logic",
     label: "ビジネスロジック",
-    reviewer: CODEX,
+    reviewer: SOL,
     maxRounds: CHILD_BRANCH_ROUNDS,
   },
   {
     id: "security",
     label: "セキュリティ",
-    reviewer: CODEX,
+    reviewer: SOL,
     maxRounds: CHILD_BRANCH_ROUNDS,
   },
   {
     id: "ui",
     label: "UI/UX とアクセシビリティ",
-    reviewer: CODEX,
+    reviewer: SOL,
     maxRounds: CHILD_BRANCH_ROUNDS,
   },
   {
     id: "conventions",
     label: "規約やルールの遵守",
-    reviewer: { runner: "cursor", models: ["grok-4.7-xhigh", "composer-2.5"] },
+    reviewer: SOL,
     maxRounds: CHILD_BRANCH_ROUNDS,
   },
   {
     id: "wording",
     label: "言葉",
-    reviewer: { runner: "cursor", models: ["grok-4.7-xhigh"] },
+    reviewer: { runner: "codex", model: "gpt-6.1-terra", effort: "high" },
     maxRounds: CHILD_BRANCH_ROUNDS,
   },
   {
     id: "coherence",
     label: "つながりと一貫性",
-    reviewer: CODEX,
+    reviewer: SOL,
     maxRounds: PHASE_BRANCH_ROUNDS,
   },
 ];

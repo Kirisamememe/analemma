@@ -23,14 +23,11 @@ describe("観点とモデルの割り当て", () => {
       },
       {
         id: "conventions",
-        reviewer: {
-          runner: "cursor",
-          models: ["grok-4.7-xhigh", "composer-2.5"],
-        },
+        reviewer: { runner: "codex", model: "gpt-6.2-sol", effort: "xhigh" },
       },
       {
         id: "wording",
-        reviewer: { runner: "cursor", models: ["grok-4.7-xhigh"] },
+        reviewer: { runner: "codex", model: "gpt-6.1-terra", effort: "high" },
       },
       {
         id: "coherence",
