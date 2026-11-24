@@ -1,30 +1,24 @@
-import { createRef, useState } from "react";
+import { useCallback, useRef } from "react";
 
 import { useShowToast } from "@/ui/primitives/overlays/hooks/use-show-toast";
 
-/** 失敗の Toast を出す関数と、閉じる関数を返す。 */
+/** 対象の id ごとに、失敗の Toast を出す関数と、最後に出したものを閉じる関数を返す。 */
 export const useFailureToast = (id?: string) => {
   const showToast = useShowToast();
+  const shown = useRef(new Map<string | undefined, () => void>()); // id を替えても描き直さないよう、state にしない
 
-  const [owner, setOwner] = useState(() => ({
-    id,
-    closeShownRef: createRef<() => void>(),
-  }));
+  const close = useCallback((): void => {
+    shown.current.get(id)?.();
+    shown.current.delete(id);
+  }, [id]);
 
-  if (owner.id !== id) setOwner({ id, closeShownRef: createRef() });
-
-  const { closeShownRef } = owner;
-
-  const close = (): void => {
-    closeShownRef.current?.();
-    closeShownRef.current = null;
-  };
-
-  return {
-    show: (message: string): void => {
+  const show = useCallback(
+    (message: string): void => {
       close();
-      closeShownRef.current = showToast({ tone: "danger", message });
+      shown.current.set(id, showToast({ tone: "danger", message }));
     },
-    close,
-  };
+    [close, id, showToast],
+  );
+
+  return { show, close };
 };

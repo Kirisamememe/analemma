@@ -1,8 +1,8 @@
 import { imageAlt, imageDescription, imageTitle } from "@analemma/contract";
 
-import type { ApiInputs, ApiOutputs } from "@/api/api-types";
+import type { AdminImage } from "../queries/image-query";
 
-type Image = ApiOutputs["admin"]["images"]["get"];
+import type { ApiInputs } from "@/api/api-types";
 
 /** 画像のフォームで書き換える、タイトル・説明・alt の入力。 */
 export type ImageText = Record<"title" | "description" | "alt", string>;
@@ -30,7 +30,7 @@ export const toImageText = ({
   title,
   description,
   alt,
-}: Pick<Image, ImageTextName>): ImageText => ({
+}: Pick<AdminImage, ImageTextName>): ImageText => ({
   title: title ?? "",
   description: description ?? "",
   alt: alt ?? "",

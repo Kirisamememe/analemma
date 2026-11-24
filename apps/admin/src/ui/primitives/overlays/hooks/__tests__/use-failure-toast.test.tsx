@@ -65,6 +65,56 @@ describe("useFailureToast", () => {
     ).toBeDefined();
   });
 
+  test("別の対象に移ってから戻っても、前にその対象で出した失敗の Toast を閉じられる", () => {
+    const { result, rerender } = renderHook(
+      (id: string) => useFailureToast(id),
+      { initialProps: "A", wrapper: withToast },
+    );
+
+    act(() => {
+      result.current.show("山の画像を公開できませんでした。");
+    });
+    rerender("B");
+    act(() => {
+      result.current.show("港の画像を公開できませんでした。");
+    });
+    rerender("A");
+    act(() => {
+      result.current.close();
+    });
+
+    expect(
+      screen.getAllByRole("alert").map((toast) => toast.textContent),
+    ).toEqual(["港の画像を公開できませんでした。"]);
+  });
+
+  test("対象の id が替わっても、描き直しを増やさない", () => {
+    let renders = 0;
+
+    const { rerender } = renderHook(
+      (id: string) => {
+        renders += 1;
+        return useFailureToast(id);
+      },
+      { initialProps: "A", wrapper: withToast },
+    );
+
+    rerender("B");
+    expect(renders).toBe(2);
+  });
+
+  test("同じ対象のうちは、描き直しても同じ関数を返す", () => {
+    const { result, rerender } = renderHook(
+      (id: string) => useFailureToast(id),
+      { initialProps: "A", wrapper: withToast },
+    );
+
+    const first = result.current;
+    rerender("A");
+    expect(result.current.show).toBe(first.show);
+    expect(result.current.close).toBe(first.close);
+  });
+
   test("閉じる関数で、出した失敗の Toast を閉じる", () => {
     const { result } = renderHook(useFailureToast, { wrapper: withToast });
 

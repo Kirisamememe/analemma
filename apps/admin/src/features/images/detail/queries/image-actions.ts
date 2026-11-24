@@ -1,6 +1,7 @@
 import { type ImageText, toUpdateInput } from "../logic/image-text";
+import type { AdminImage } from "./image-query";
 
-import type { ApiClient, ApiOutputs } from "@/api/api-types";
+import type { ApiClient } from "@/api/api-types";
 import { callApi } from "@/api/call-api";
 
 /** 書き換える画像と、フォームの値。 */
@@ -29,10 +30,7 @@ export const saveImage = async (
 /** 画像を公開するか、非公開にする。 */
 export const setPublication = (
   api: ApiClient,
-  {
-    id,
-    published,
-  }: Pick<ApiOutputs["admin"]["images"]["get"], "id" | "published">,
+  { id, published }: Pick<AdminImage, "id" | "published">,
 ) =>
   callApi(
     published
