@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { memo, type ReactNode, useCallback, useRef } from "react";
 
 import type { FieldDefinition } from "@analemma/contract";
 
@@ -6,6 +6,13 @@ import { createContentForm } from "../content-form";
 import { Branch, ContentGroup } from "../ui/content-group";
 import type { ContentFieldsProps } from "./content-fields";
 import { flattenContent } from "./logic/flat-content";
+import {
+  moveRepeatItem,
+  removeRepeatItem,
+  type RepeatChange,
+  type RepeatFocus,
+  repeatFocusKey,
+} from "./logic/repeat-items";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Button } from "@/ui/primitives/button";
@@ -26,6 +33,103 @@ type RepeatFieldProps = Pick<
   children: (path: string) => ReactNode;
 };
 
+/** repeat の1つの要素に渡す値。 */
+type RepeatItemProps = {
+  /** 要素の ID。 */
+  id: string;
+  /** repeat の場所。 */
+  path: string;
+  /** repeat の見出しの名前。 */
+  label: string;
+  /** 何番目の要素か(1から)。 */
+  position: number;
+  /** 最後の要素か。 */
+  isLast: boolean;
+  /** 要素に結び付いた誤り。 */
+  error: string | undefined;
+  /** 要素を上か下へ動かす関数。 */
+  onMove: (id: string, direction: -1 | 1) => void;
+  /** 要素を外す関数。 */
+  onRemove: (id: string) => void;
+  /** focus を移すボタンを覚える関数。 */
+  remember: (focus: RepeatFocus) => (button: HTMLButtonElement | null) => void;
+  /** 要素の項目を描く関数。 */
+  children: (path: string) => ReactNode;
+};
+
+const RepeatItemContent = ({
+  id,
+  path,
+  label,
+  position,
+  isLast,
+  error,
+  onMove,
+  onRemove,
+  remember,
+  children,
+}: RepeatItemProps): ReactNode => {
+  const t = useTranslate();
+  const item = path + "/" + id;
+  const name = { label, position };
+
+  return (
+    <Branch parent="repeat" target="item">
+      <ContentGroup
+        actions={
+          <>
+            <Button
+              aria-label={t("fixedPageEditor.up", name)}
+              icon="arrow-up"
+              iconWeight="bold"
+              rounded="xs"
+              ref={remember({ id, button: "up" })}
+              size="sm"
+              tone="quiet"
+              isDisabled={position === 1}
+              onPress={() => {
+                onMove(id, -1);
+              }}
+            />
+            <Button
+              aria-label={t("fixedPageEditor.down", name)}
+              icon="arrow-down"
+              iconWeight="bold"
+              rounded="xs"
+              ref={remember({ id, button: "down" })}
+              size="sm"
+              tone="quiet"
+              isDisabled={isLast}
+              onPress={() => {
+                onMove(id, 1);
+              }}
+            />
+            <Button
+              aria-label={t("fixedPageEditor.remove", name)}
+              icon="trash-2"
+              iconWeight="bold"
+              rounded="xs"
+              ref={remember({ id, button: "remove" })}
+              size="sm"
+              tone="quiet"
+              onPress={() => {
+                onRemove(id);
+              }}
+            />
+          </>
+        }
+        error={error}
+        kind="item"
+        label={t("fixedPageEditor.item", name)}
+      >
+        {children(item)}
+      </ContentGroup>
+    </Branch>
+  );
+};
+
+const RepeatItem = memo(RepeatItemContent);
+
 /** ID ごとに項目を描き、追加・削除・並べ替えを扱う。 */
 export const RepeatField = ({
   form,
@@ -37,98 +141,68 @@ export const RepeatField = ({
 }: RepeatFieldProps): ReactNode => {
   const t = useTranslate();
   const buttons = useRef(new Map<string, HTMLButtonElement>());
+  const name = `items.${path}` as const;
 
-  const remember = (key: string) => (element: HTMLButtonElement | null) => {
-    if (element === null) buttons.current.delete(key);
-    else buttons.current.set(key, element);
-  };
+  const remember = useCallback(
+    (focus: RepeatFocus) => (element: HTMLButtonElement | null) => {
+      const key = repeatFocusKey(focus);
 
-  const focus = (key: string) => {
-    requestAnimationFrame(() => buttons.current.get(key)?.focus());
-  };
+      if (element === null) buttons.current.delete(key);
+      else buttons.current.set(key, element);
+    },
+    [],
+  );
+
+  const apply = useCallback(
+    (change: RepeatChange | undefined) => {
+      if (change === undefined) return;
+
+      form.setFieldValue(name, change.ids);
+      changed("content." + path);
+      requestAnimationFrame(() =>
+        buttons.current.get(repeatFocusKey(change.focus))?.focus(),
+      );
+    },
+    [form, name, changed, path],
+  );
+
+  const onMove = useCallback(
+    (id: string, direction: -1 | 1) => {
+      apply(moveRepeatItem(form.getFieldValue(name), { id, direction }));
+    },
+    [apply, form, name],
+  );
+
+  const onRemove = useCallback(
+    (id: string) => {
+      apply(removeRepeatItem(form.getFieldValue(name), id));
+    },
+    [apply, form, name],
+  );
 
   return (
-    <form.Field name={`items.${path}`}>
+    <form.Field name={name}>
       {(field) => {
         const ids = field.state.value;
 
-        const update = (next: string[]) => {
-          field.handleChange(next);
-          changed("content." + path);
-        };
-
         return (
           <>
-            {ids.map((id, index) => {
-              const item = path + "/" + id;
-              const label = { label: definition.label, position: index + 1 };
-
-              const move = (direction: -1 | 1) => {
-                const next = ids.toSpliced(index, 1);
-                const to = index + direction;
-                const atEdge = to === 0 || to === ids.length - 1;
-
-                next.splice(to, 0, id);
-                update(next);
-                focus(id + ((direction === 1) === atEdge ? "up" : "down"));
-              };
-
-              return (
-                <Branch key={id} parent="repeat" target="item">
-                  <ContentGroup
-                    actions={
-                      <>
-                        <Button
-                          aria-label={t("fixedPageEditor.up", label)}
-                          icon="arrow-up"
-                          iconWeight="bold"
-                          rounded="xs"
-                          ref={remember(id + "up")}
-                          size="sm"
-                          tone="quiet"
-                          isDisabled={index === 0}
-                          onPress={() => {
-                            move(-1);
-                          }}
-                        />
-                        <Button
-                          aria-label={t("fixedPageEditor.down", label)}
-                          icon="arrow-down"
-                          iconWeight="bold"
-                          rounded="xs"
-                          ref={remember(id + "down")}
-                          size="sm"
-                          tone="quiet"
-                          isDisabled={index === ids.length - 1}
-                          onPress={() => {
-                            move(1);
-                          }}
-                        />
-                        <Button
-                          aria-label={t("fixedPageEditor.remove", label)}
-                          icon="trash-2"
-                          iconWeight="bold"
-                          rounded="xs"
-                          ref={remember(id + "remove")}
-                          size="sm"
-                          tone="quiet"
-                          onPress={() => {
-                            const next = ids[index + 1];
-                            update(ids.toSpliced(index, 1));
-                            focus(next === undefined ? "add" : next + "remove");
-                          }}
-                        />
-                      </>
-                    }
-                    error={errors["content." + item]}
-                    kind="item"
-                    label={t("fixedPageEditor.item", label)}
-                  >
-                    {children(item)}
-                  </ContentGroup>
-                </Branch>
-              );
-            })}
+            {ids.map((id, index) => (
+              <RepeatItem
+                key={id}
+                id={id}
+                path={path}
+                label={definition.label}
+                position={index + 1}
+                isLast={index === ids.length - 1}
+                error={errors["content." + path + "/" + id]}
+                onMove={onMove}
+                onRemove={onRemove}
+                remember={remember}
+              >
+                {children}
+              </RepeatItem>
+            ))}
             <Branch parent="repeat" target="add" isLast>
               <Button
                 ref={remember("add")}
@@ -142,15 +216,16 @@ export const RepeatField = ({
                     path + "/" + id + "/",
                   );
 
-                  for (const [name, value] of Object.entries(added.content)) {
-                    form.setFieldValue(`content.${name}`, value);
+                  for (const [key, value] of Object.entries(added.content)) {
+                    form.setFieldValue(`content.${key}`, value);
                   }
 
-                  for (const [name, value] of Object.entries(added.items)) {
-                    form.setFieldValue(`items.${name}`, value);
+                  for (const [key, value] of Object.entries(added.items)) {
+                    form.setFieldValue(`items.${key}`, value);
                   }
 
-                  update([...ids, id]);
+                  field.handleChange([...ids, id]);
+                  changed("content." + path);
                 }}
               >
                 <Icon name="plus" size="md" weight="bold" />

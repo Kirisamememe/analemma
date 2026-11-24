@@ -5,38 +5,61 @@ import { Icon } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
+const PARENT_COLUMN = [
+  "-inset-s-4.75",
+  "@max-3xs/nested-form:-inset-s-nested-branch",
+]; // 親の丸の中心を通る列
+
+const ELBOW = [
+  "absolute top-0 w-4.75 rounded-es-control border-s-2 border-b-2",
+  "@max-3xs/nested-form:w-nested-branch",
+];
+
+const nestLine = tv({
+  base: PARENT_COLUMN,
+  variants: {
+    shape: {
+      gapUnderGroup: "relative block h-4 w-0 border-s-2",
+      gapUnderRepeat: "relative block h-6 w-0 border-s-2",
+      through: "absolute inset-y-0 border-s-2",
+      lead: "relative grow self-start border-s-2",
+      elbowToHeading: [
+        ...ELBOW,
+        "h-3.75 @max-3xs/nested-form:h-nested-heading",
+      ],
+      elbowToItem: [...ELBOW, "h-5.25 @max-3xs/nested-form:h-nested-item"],
+      elbowToAdd: [
+        "absolute top-0 h-1/2 w-7.75",
+        "@max-3xs/nested-form:w-nested-add",
+      ],
+    },
+  },
+});
+
+type NestLineProps = {
+  /** 線の形。 */
+  shape:
+    | "gapUnderGroup"
+    | "gapUnderRepeat"
+    | "through"
+    | "lead"
+    | "elbowToHeading"
+    | "elbowToItem"
+    | "elbowToAdd";
+};
+
+/** 入れ子のまとまりの、親の列を通る線と、子へつなぐ枝。 */
+const NestLine = ({ shape }: NestLineProps): ReactNode => (
+  <span aria-hidden="true" className={nestLine({ shape })}>
+    {shape === "elbowToAdd" && (
+      <span className="absolute inset-x-0 top-0 -bottom-px rounded-es-control border-s-2 border-b-2" />
+    )}
+  </span>
+);
+
 const branch = tv({
   base: "relative",
   variants: { add: { true: "flex ps-3 @max-3xs/nested-form:ps-1" } },
-});
-
-const gapLine = tv({
-  base: "relative -inset-s-4.75 block w-0 border-s-2 @max-3xs/nested-form:-inset-s-nested-branch",
-  variants: {
-    parent: { group: "h-4", repeat: "h-6" },
-  },
-});
-
-const headingLead = tv({
-  base: "grow",
-  variants: {
-    connected: {
-      true: "relative -inset-s-4.75 self-start border-s-2 @max-3xs/nested-form:-inset-s-nested-branch",
-    },
-  },
-});
-
-const elbow = tv({
-  base: [
-    "absolute -inset-s-4.75 top-0 w-4.75 rounded-es-control border-s-2 border-b-2",
-    "@max-3xs/nested-form:-inset-s-nested-branch @max-3xs/nested-form:w-nested-branch",
-  ],
-  variants: {
-    target: {
-      heading: "h-3.75 @max-3xs/nested-form:h-nested-heading",
-      item: "h-5.25 @max-3xs/nested-form:h-nested-item",
-    },
-  },
 });
 
 type BranchProps = {
@@ -58,25 +81,11 @@ export const Branch = ({
   children,
 }: BranchProps): ReactNode => (
   <div>
-    <span aria-hidden="true" className={gapLine({ parent })} />
+    <NestLine shape={parent === "group" ? "gapUnderGroup" : "gapUnderRepeat"} />
     <div className={branch({ add: target === "add" })}>
-      {(!isLast || target === undefined) && (
-        <span
-          aria-hidden="true"
-          className="absolute inset-y-0 -inset-s-4.75 border-s-2 @max-3xs/nested-form:-inset-s-nested-branch"
-        />
-      )}
-      {target === "item" && (
-        <span aria-hidden="true" className={elbow({ target })} />
-      )}
-      {target === "add" && (
-        <span
-          aria-hidden="true"
-          className="absolute -inset-s-4.75 top-0 h-1/2 w-7.75 @max-3xs/nested-form:-inset-s-nested-branch @max-3xs/nested-form:w-nested-add"
-        >
-          <span className="absolute inset-x-0 top-0 -bottom-px rounded-es-control border-s-2 border-b-2" />
-        </span>
-      )}
+      {(!isLast || target === undefined) && <NestLine shape="through" />}
+      {target === "item" && <NestLine shape="elbowToItem" />}
+      {target === "add" && <NestLine shape="elbowToAdd" />}
       {children}
     </div>
   </div>
@@ -186,11 +195,13 @@ export const ContentGroup = (props: ContentGroupProps): ReactNode => {
               aria-hidden="true"
               className="flex shrink-0 flex-col items-center"
             >
-              <span className={headingLead({ connected: props.inGroup })} />
+              {props.inGroup === true ? (
+                <NestLine shape="lead" />
+              ) : (
+                <span className="grow" />
+              )}
               <div className="relative">
-                {props.inGroup === true && (
-                  <span className={elbow({ target: "heading" })} />
-                )}
+                {props.inGroup === true && <NestLine shape="elbowToHeading" />}
                 <span className={style.marker()}>
                   <Icon
                     name={kind === "group" ? "layers" : "list"}
