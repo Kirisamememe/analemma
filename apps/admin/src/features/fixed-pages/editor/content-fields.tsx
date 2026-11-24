@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 
 import type { FieldDefinition } from "@analemma/contract";
 
@@ -24,8 +24,7 @@ export type ContentFieldsProps = {
   inGroup?: boolean;
 };
 
-/** 定義の順に、中身の各項目を描く。 */
-export const ContentFields = ({
+const ContentFieldsContent = ({
   fields,
   prefix,
   form,
@@ -142,3 +141,6 @@ export const ContentFields = ({
     );
   });
 };
+
+/** 定義の順に、中身の各項目を描く。 */
+export const ContentFields = memo(ContentFieldsContent); // repeat の要素を動かしても、中の repeat の要素まで描き直さない
