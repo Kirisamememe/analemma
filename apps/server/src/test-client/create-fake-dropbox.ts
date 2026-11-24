@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import type { DropboxAppCredential } from "@/platform/dropbox/dropbox-oauth";
 
 /** テストの Dropbox のアプリの app key と app secret。 */
@@ -11,6 +13,20 @@ export const TEST_DROPBOX_ACCOUNT = {
   account_id: "dbid:test-account",
   name: { display_name: "Kirisame Test" },
   email: "photos@example.com",
+};
+
+/** App folder に置いたファイル。 */
+type FakeFile = {
+  /** ファイルの ID。 */
+  readonly id: string;
+  /** App folder の中のパス。 */
+  readonly path: string;
+  /** 中身。 */
+  readonly bytes: Uint8Array;
+  /** Dropbox と同じ求め方の content_hash。 */
+  readonly contentHash: string;
+  /** 置いた日時。 */
+  readonly modifiedAt: string;
 };
 
 /** 認可の画面から戻る URL に付く値。 */
@@ -33,6 +49,12 @@ export type FakeHold = {
 export type FakeDropbox = {
   /** Dropbox へのリクエストを受ける。 */
   readonly fetch: (request: Request) => Promise<Response>;
+  /** App folder にファイルを置き、ID を返す。 */
+  readonly put: (path: string, bytes: Uint8Array) => Promise<string>;
+  /** App folder のファイルの中身を、ID を変えずに書き換える。 */
+  readonly overwrite: (id: string, bytes: Uint8Array) => Promise<void>;
+  /** App folder からファイルを消す。 */
+  readonly remove: (path: string) => void;
   /** 利用者が認可の画面で許したことにして、戻る URL の code と state を返す。 */
   readonly approve: (authorizeUrl: string) => FakeApproval;
   /** 利用者が Dropbox の設定からアプリの接続を切ったことにする。 */
@@ -47,20 +69,82 @@ export type FakeDropbox = {
   readonly requests: readonly string[];
 };
 
+const BLOCK_BYTES = 4 * 1024 * 1024;
+const PAGE_SIZE = 2; // ページ送りを確かめるため、小さく区切る
+
+const sha256 = async (bytes: Uint8Array<ArrayBuffer>): Promise<Uint8Array> =>
+  new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+
+const toContentHash = async (bytes: Uint8Array): Promise<string> => {
+  const blocks = await Promise.all(
+    Array.from(
+      { length: Math.ceil(bytes.byteLength / BLOCK_BYTES) },
+      async (_, index) =>
+        sha256(bytes.slice(index * BLOCK_BYTES, (index + 1) * BLOCK_BYTES)),
+    ),
+  );
+
+  const joined = new Uint8Array(blocks.length * 32);
+
+  for (const [index, block] of blocks.entries()) joined.set(block, index * 32);
+
+  return (await sha256(joined)).toHex();
+};
+
+const listArgument = z.object({ cursor: z.string().optional() });
+const downloadArgument = z.object({ path: z.string() });
+
+const FIRST_MODIFIED = Date.parse("2026-01-01T00:00:00.000Z");
+const SECOND = 1000;
+
+const toHeaderSafeJson = (value: unknown): string =>
+  JSON.stringify(value).replaceAll(/[\u007F-\u{10FFFF}]/gv, (character) =>
+    character
+      .split("")
+      .map(
+        (unit) =>
+          `\\u${(unit.codePointAt(0) ?? 0).toString(16).padStart(4, "0")}`,
+      )
+      .join(""),
+  );
+
 const json = (body: unknown, status = 200): Response =>
   Response.json(body, { status });
+
+const conflict = (summary: string): Response =>
+  json({ error_summary: summary, error: {} }, 409);
 
 const UNAUTHORIZED = (): Response =>
   json({ error_summary: "invalid_access_token/", error: {} }, 401);
 
+const toMetadata = ({
+  id,
+  path,
+  bytes,
+  contentHash,
+  modifiedAt,
+}: FakeFile) => ({
+  ".tag": "file",
+  id,
+  name: path.split("/").at(-1),
+  path_lower: path.toLowerCase(),
+  path_display: path,
+  server_modified: modifiedAt,
+  size: bytes.byteLength,
+  content_hash: contentHash,
+  is_downloadable: true,
+});
+
 /** HTTP の API を真似る、作り物の Dropbox を作る。 */
 export const createFakeDropbox = (): FakeDropbox => {
+  const files = new Map<string, FakeFile>();
   const codes = new Map<string, string>(); // code と、認可の画面に渡した redirect URI
   const grants = new Map<string, string>(); // access token と、その refresh token
   const refreshTokens = new Set<string>();
   const requests: string[] = [];
   const failures = new Map<string, number>();
   const holds = new Map<string, () => Promise<undefined>>();
+  let nextId = 1;
 
   const issueAccess = (refreshToken: string): string => {
     const accessToken = `access-${crypto.randomUUID()}`;
@@ -109,7 +193,7 @@ export const createFakeDropbox = (): FakeDropbox => {
     });
   };
 
-  const api = (request: Request, path: string): Response => {
+  const api = async (request: Request, path: string): Promise<Response> => {
     const accessToken = /^Bearer (.+)$/v.exec(
       request.headers.get("authorization") ?? "",
     )?.[1];
@@ -129,6 +213,39 @@ export const createFakeDropbox = (): FakeDropbox => {
       }
       case "/2/users/get_current_account": {
         return json(TEST_DROPBOX_ACCOUNT);
+      }
+      case "/2/files/list_folder":
+      case "/2/files/list_folder/continue": {
+        const { cursor } = listArgument.parse(await request.json());
+        const start = Number(cursor ?? "0");
+        const all = [...files.values()];
+
+        return json({
+          entries: [
+            ...(start === 0 ? [{ ".tag": "folder", id: "id:folder" }] : []),
+            ...all
+              .slice(start, start + PAGE_SIZE)
+              .map((file) => toMetadata(file)),
+          ],
+          cursor: String(start + PAGE_SIZE),
+          has_more: start + PAGE_SIZE < all.length,
+        });
+      }
+      case "/2/files/download": {
+        const { path: id } = downloadArgument.parse(
+          JSON.parse(request.headers.get("dropbox-api-arg") ?? "{}"),
+        );
+
+        const file = files.get(id);
+
+        if (file === undefined) return conflict("path/not_found/..");
+
+        return new Response(file.bytes, {
+          headers: {
+            "content-type": "application/octet-stream",
+            "dropbox-api-result": toHeaderSafeJson(toMetadata(file)),
+          },
+        });
       }
       default: {
         return json({ error_summary: "not_found" }, 404);
@@ -157,6 +274,34 @@ export const createFakeDropbox = (): FakeDropbox => {
       return pathname === "/oauth2/token"
         ? token(request)
         : api(request, pathname);
+    },
+    put: async (path, bytes) => {
+      const id = `id:file${nextId}`;
+
+      nextId += 1;
+      files.set(id, {
+        id,
+        path,
+        bytes,
+        contentHash: await toContentHash(bytes),
+        modifiedAt: new Date(FIRST_MODIFIED + nextId * SECOND).toISOString(),
+      });
+
+      return id;
+    },
+    overwrite: async (id, bytes) => {
+      const file = files.get(id);
+
+      if (file === undefined) throw new Error(`作り物の Dropbox に無い: ${id}`);
+
+      files.set(id, {
+        ...file,
+        bytes,
+        contentHash: await toContentHash(bytes),
+      });
+    },
+    remove: (path) => {
+      for (const [id, file] of files) if (file.path === path) files.delete(id);
     },
     approve: (authorizeUrl) => {
       const params = new URL(authorizeUrl).searchParams;

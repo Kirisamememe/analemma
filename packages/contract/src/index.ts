@@ -25,7 +25,11 @@ export {
   fixedPageSlug,
   fixedPageTitle,
 } from "./fixed-pages/fixed-page-values";
-export { DROPBOX_REDIRECT_PATH } from "./dropbox/dropbox-values";
+export {
+  DROPBOX_IMPORT_MAX_PHOTOS,
+  DROPBOX_REDIRECT_PATH,
+  type DropboxImport,
+} from "./dropbox/dropbox-values";
 export { type ContentIssue, contentIssues } from "./kinds/content-issues";
 export {
   booleanValue,
