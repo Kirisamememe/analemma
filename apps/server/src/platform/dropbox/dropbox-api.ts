@@ -85,8 +85,14 @@ export type DropboxDownload =
       readonly _tag: "NotFound";
     }
   | {
-      /** 上限より大きい(本文は読まない)。 */
+      /** 上限より大きい。 */
       readonly _tag: "TooLarge";
+    }
+  | {
+      /** 読む前に、呼んだ側が断った。 */
+      readonly _tag: "Declined";
+      /** 読もうとしたときのファイル。 */
+      readonly file: DropboxFile;
     }
   | DropboxUnauthorized;
 
@@ -104,6 +110,8 @@ export type DropboxFileRequest = {
   readonly fileId: string;
   /** 読む大きさの上限(bytes)。 */
   readonly maxBytes: number;
+  /** 本文を読む前に、ファイルを読むかを決める関数。 */
+  readonly accept?: (file: DropboxFile) => boolean;
 };
 
 /** App folder のファイルの一覧。 */

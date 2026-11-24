@@ -58,6 +58,25 @@ describe("createDropboxApi のファイル", () => {
     ).toEqual({ _tag: "NotFound" });
   });
 
+  test("呼んだ側が断ったファイルは、本文を読まずにファイルだけを返すこと", async () => {
+    const { api, dropbox, token } = await connect();
+    const id = await dropbox.put("/a.jpg", new Uint8Array(3));
+    const seen: string[] = [];
+
+    const downloaded = await api.download(token, {
+      fileId: id,
+      maxBytes: 10,
+      accept: (file) => {
+        seen.push(file.contentHash);
+
+        return false;
+      },
+    });
+
+    expect(downloaded).toMatchObject({ _tag: "Declined", file: { id } });
+    expect(seen).toHaveLength(1);
+  });
+
   test("ASCII でない文字を、header に書ける形で送ること", async () => {
     const sent: string[] = [];
 

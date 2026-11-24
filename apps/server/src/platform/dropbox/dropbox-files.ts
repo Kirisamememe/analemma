@@ -77,7 +77,7 @@ const toHeaderSafeJson = (value: unknown): string =>
 const unexpected = (action: string, response: Response): Error =>
   new Error(`Dropbox の ${action} が ${response.status} を返した`);
 
-/** Dropbox のアカウントを読む部分を作る。 */
+/** Dropbox のアカウントとファイルを読む部分を作る。 */
 export const createDropboxFiles = (
   send: DropboxFetch,
 ): Pick<DropboxApi, "getAccount" | "listFiles" | "download"> => {
@@ -169,7 +169,7 @@ export const createDropboxFiles = (
         };
       }
     },
-    download: async (accessToken, { fileId, maxBytes }) => {
+    download: async (accessToken, { fileId, maxBytes, accept }) => {
       const response = await send(
         new Request(`${CONTENT}/files/download`, {
           method: "POST",
@@ -202,6 +202,12 @@ export const createDropboxFiles = (
         await response.body?.cancel();
 
         return { _tag: "TooLarge" };
+      }
+
+      if (accept !== undefined && !accept(file)) {
+        await response.body?.cancel();
+
+        return { _tag: "Declined", file };
       }
 
       const bytes = new Uint8Array(await response.arrayBuffer());
