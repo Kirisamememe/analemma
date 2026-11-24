@@ -49,7 +49,7 @@ describe("fixedPagesView", () => {
       fixedPagesView({ pages: loaded, kinds: failed().query, rows: ["a"] }),
     ).toEqual({ _tag: "Rows", rows: ["a"] });
     expect(
-      fixedPagesView({ pages: loaded, kinds: loaded, rows: [] })._tag,
+      fixedPagesView({ pages: loaded, kinds: failed().query, rows: [] })._tag,
     ).toBe("Empty");
   });
 });
