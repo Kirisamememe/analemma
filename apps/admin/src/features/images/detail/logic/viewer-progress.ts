@@ -24,7 +24,7 @@ type ViewerInput = {
 export type ViewerProgress = {
   /** 前後の写真へ移れるか。 */
   readonly canMove: boolean;
-  /** 待つものが無くなり、focus を戻せるか。 */
+  /** 呼び出し側が focus を戻せるか。 */
   readonly ready: boolean;
   /** 写真や情報を待つ間の案内(待っていなければ undefined)。 */
   readonly waiting: MessageKey | undefined;

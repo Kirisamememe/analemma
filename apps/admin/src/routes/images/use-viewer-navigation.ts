@@ -57,7 +57,7 @@ export const useViewerNavigation = (
       previous: neighbor("previous", previousId),
       next: neighbor("next", nextId),
     };
-  }, [previousId, nextId, disabled, t, previous, next, pending]); // 写真を送るときと、待つ間だけ、矢印のリンクを作り直す
+  }, [previousId, nextId, disabled, t, previous, next, pending]);
 
   const restore = (id: string) => {
     const move = pending.current;
