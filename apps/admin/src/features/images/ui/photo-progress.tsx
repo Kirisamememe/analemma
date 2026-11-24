@@ -7,7 +7,7 @@ import { tv } from "@/ui/tv";
 
 const progress = tv({
   slots: {
-    frame: "absolute inset-0 flex items-center justify-center",
+    frame: "absolute flex justify-center",
     pill: [
       "flex items-center gap-2 rounded-surface bg-surface px-4 py-2",
       "forced-colors:hidden",
@@ -16,9 +16,11 @@ const progress = tv({
   variants: {
     place: {
       top: {
-        pill: ["absolute top-4", "pointer-events-none loading-state-animation"],
+        frame: "pointer-events-none inset-x-0 top-4",
+        pill: "pointer-events-none loading-state-animation",
       },
       center: {
+        frame: "inset-0 items-center",
         pill: "transition-opacity loading-delay starting:opacity-0",
       },
     },
@@ -51,7 +53,7 @@ export const PhotoProgress = ({
   return place === "top" ? (
     <>
       {status}
-      {pill}
+      <div className={style.frame()}>{pill}</div>
     </>
   ) : (
     <div className={style.frame()}>
