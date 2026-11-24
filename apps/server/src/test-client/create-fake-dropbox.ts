@@ -74,12 +74,13 @@ const sha256 = async (bytes: Uint8Array<ArrayBuffer>): Promise<Uint8Array> =>
   new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
 
 const toContentHash = async (bytes: Uint8Array): Promise<string> => {
-  const blocks: Uint8Array[] = [];
-
-  for (let start = 0; start < bytes.byteLength; start += BLOCK_BYTES) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- テストの小さなファイルだけを読む
-    blocks.push(await sha256(bytes.slice(start, start + BLOCK_BYTES)));
-  }
+  const blocks = await Promise.all(
+    Array.from(
+      { length: Math.ceil(bytes.byteLength / BLOCK_BYTES) },
+      async (_, index) =>
+        sha256(bytes.slice(index * BLOCK_BYTES, (index + 1) * BLOCK_BYTES)),
+    ),
+  );
 
   const joined = new Uint8Array(blocks.length * 32);
 

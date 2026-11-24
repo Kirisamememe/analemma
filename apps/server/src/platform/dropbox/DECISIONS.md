@@ -13,7 +13,7 @@ Dropbox のアプリとして API を呼ぶ処理を置く。どの写真を取�
   - refresh token は、400 の `invalid_grant`(利用者がアプリを切った・認可を取り消した)だけを `Revoked` にする。app secret の誤り(`invalid_client`)を `Revoked` にすると、取り消しを送らずに接続を消し、Dropbox に認可が残る。設定の誤りは、500 とログで知らせ、直した後でやり直させる。
 - `Dropbox-API-Arg` のヘッダーの JSON は、0x7F と ASCII の外の文字を `\uXXXX` にする(Dropbox の決まり)。
 - 一覧(`files/list_folder`)は、App folder の下のフォルダまでを、1ページ 2000 件(上限)で読み、`has_more` の間 cursor で続きを読む。フォルダと、ダウンロードできないファイルは除く。
-- ダウンロードは、`Dropbox-API-Result` の大きさが上限を超えれば、本文を読まずに `TooLarge` を返す。呼んだ側が `Dropbox-API-Result` のファイル(content_hash など)を見て断れば、本文を読まずに `Declined` を返す。読んだ大きさが合わなければ throw する。
+- ダウンロードは、409 の `path/not_found` を `NotFound` にする。一覧を読んだ後で消えた写真は、利用者が App folder を整理すれば普通に起きるので、想定内の失敗にする。`Dropbox-API-Result` の大きさが上限を超えれば、本文を読まずに `TooLarge` を返す。呼んだ側が `Dropbox-API-Result` のファイル(content_hash など)を見て断れば、本文を読まずに `Declined` を返す。読んだ大きさが合わなければ throw する。
 
 ## テスト
 
