@@ -35,9 +35,9 @@ const prepare = () => {
   return { api, dropbox, sent };
 };
 
-const replying = (status: number) =>
+const replying = (status: number, error = "invalid_client") =>
   createDropboxApi(TEST_DROPBOX_APP, () =>
-    Promise.resolve(Response.json({ error: "invalid_client" }, { status })),
+    Promise.resolve(Response.json({ error }, { status })),
   );
 
 const authorized = async ({ api, dropbox }: ReturnType<typeof prepare>) => {
@@ -108,9 +108,15 @@ describe("createDropboxApi の OAuth", () => {
     expect(replying(500).revoke("token")).rejects.toThrow("500");
   });
 
-  test("refresh token の更新を 4xx で断られたら取り消し済みとし、5xx は失敗とすること", async () => {
-    expect(await replying(401).refresh("token")).toEqual({ _tag: "Revoked" });
-    expect(replying(503).refresh("token")).rejects.toThrow("503");
-    expect(replying(429).refresh("token")).rejects.toThrow("429");
+  test("refresh token の更新は、invalid_grant だけを取り消し済みとし、app secret の誤りと 5xx は失敗とすること", async () => {
+    expect(await replying(400, "invalid_grant").refresh("token")).toEqual({
+      _tag: "Revoked",
+    });
+    expect(replying(400, "invalid_client").refresh("token")).rejects.toThrow(
+      "400",
+    );
+    expect(
+      replying(503, "temporarily_unavailable").refresh("token"),
+    ).rejects.toThrow("503");
   });
 });

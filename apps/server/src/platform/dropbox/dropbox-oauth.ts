@@ -39,11 +39,6 @@ const isInvalidGrant = async (response: Response): Promise<boolean> =>
   response.status === 400 &&
   tokenError.safeParse(await response.json()).data?.error === "invalid_grant";
 
-const TOO_MANY_REQUESTS = 429;
-
-const isRefusal = ({ status }: Response): boolean =>
-  status >= 400 && status < 500 && status !== TOO_MANY_REQUESTS;
-
 const unexpected = (action: string, response: Response): Error =>
   new Error(`Dropbox の ${action} が ${response.status} を返した`);
 
@@ -124,7 +119,7 @@ export const createDropboxOAuth = (
         };
       }
 
-      if (isRefusal(response)) return { _tag: "Revoked" };
+      if (await isInvalidGrant(response)) return { _tag: "Revoked" };
 
       throw unexpected("token の更新", response);
     },
