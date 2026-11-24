@@ -25,6 +25,7 @@ import {
 } from "@/routes/fixed-pages/fixed-page-routes";
 import { FixedPagesPage } from "@/routes/fixed-pages/fixed-pages-page";
 import { HomePage } from "@/routes/home-page";
+import { DropboxCallbackPage } from "@/routes/images/dropbox-callback-page";
 import { DropboxImportPage } from "@/routes/images/dropbox-import-page";
 import { ImageViewerPage } from "@/routes/images/image-viewer-page";
 import { ImagesPage } from "@/routes/images/images-page";
@@ -168,6 +169,27 @@ const dropboxImportRoute = createRoute({
   component: DropboxImportPage,
 });
 
+/** Dropbox の認可の画面から戻った URL の search。 */
+type DropboxCallbackSearch = Readonly<
+  Record<"code" | "state" | "error", string | undefined>
+>;
+
+const toSearchText = (value: unknown): string | undefined =>
+  typeof value === "string" || typeof value === "number"
+    ? String(value)
+    : undefined;
+
+const dropboxCallbackRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/images/dropbox/callback", // contract の DROPBOX_REDIRECT_PATH と同じ
+  validateSearch: ({ code, state, error }): DropboxCallbackSearch => ({
+    code: toSearchText(code),
+    state: toSearchText(state),
+    error: toSearchText(error),
+  }),
+  component: DropboxCallbackPage,
+});
+
 const imageViewerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/images/$id",
@@ -195,6 +217,7 @@ const routeTree = rootRoute.addChildren([
     ]),
     imagesRoute,
     dropboxImportRoute,
+    dropboxCallbackRoute,
     securityRoute,
     deployTokensRoute,
   ]),
