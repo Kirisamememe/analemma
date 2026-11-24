@@ -8,7 +8,7 @@ import { useApiMutation } from "@/api/server-state/server-state";
 import { useTranslate } from "@/i18n/use-translate";
 import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
 
-/** 公開はその場で送り、非公開は確かめてから送る。 */
+/** 画像の公開と非公開を切り替える操作を持つ。 */
 export const usePublication = (
   image: Pick<AdminImage, "id" | "published">,
   isDisabled: boolean,
