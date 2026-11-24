@@ -8,6 +8,9 @@ export type DropboxConnection = ApiOutputs["admin"]["dropbox"]["get"];
 export type DropboxPhoto =
   ApiOutputs["admin"]["dropbox"]["photos"]["photos"][number];
 
+/** 取り込むために選んだ写真(ID と、選んだときの content_hash)。 */
+export type DropboxSelection = Pick<DropboxPhoto, "id" | "contentHash">;
+
 /** 1回の取り込みの進み具合。 */
 export type DropboxImport = NonNullable<
   ApiOutputs["admin"]["dropbox"]["getImport"]
