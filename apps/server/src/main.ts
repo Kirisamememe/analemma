@@ -70,6 +70,10 @@ const context: AppContext = {
   ),
 };
 
+resources.defer(async () => {
+  await context.dropbox.imports.stop(); // HTTP を止めた後、DB を閉じる前に、取り込んでいる途中の1枚を終える
+});
+
 const internalOptions = {
   fetch: createInternalApp(context).fetch,
   port: env.internal.port,

@@ -30,19 +30,20 @@ export const startDropboxImport = adminProcedures.dropbox.startImport.handler(
     });
 
     signal?.throwIfAborted();
-    claim.begin(run);
 
     const { clock, conversions, db, dropbox, logger, storage } = context;
 
-    void runDropboxImport({
-      clock,
-      conversions,
-      db,
-      dropbox,
-      logger,
-      storage,
-      session: read.session,
-    });
+    claim.begin(run, async () =>
+      runDropboxImport({
+        clock,
+        conversions,
+        db,
+        dropbox,
+        logger,
+        storage,
+        session: read.session,
+      }),
+    );
 
     logger.write({
       level: "info",

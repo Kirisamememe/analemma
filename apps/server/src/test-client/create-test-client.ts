@@ -138,6 +138,10 @@ export const createTestClient = async (
     ),
   };
 
+  stack.defer(async () => {
+    await context.dropbox.imports.stop();
+  });
+
   const app = createExternalApp(context, { listener: options.listener });
   const internalApp = createInternalApp(context);
 

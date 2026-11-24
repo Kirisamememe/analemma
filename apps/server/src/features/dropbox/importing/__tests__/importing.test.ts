@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+
 import type { ConversionQueue } from "@/features/images/processing/conversion-queue";
 import {
   catchErrorCode,
@@ -308,6 +309,37 @@ describe("取り込み", () => {
 
     held.release();
     await disconnecting;
+  });
+
+  test("server を止めるときは、取り込んでいる途中の1枚を終えてから止まり、残りの写真を読まないこと", async () => {
+    const { conversions, reached, open } = gatedConversions();
+    const server = await prepare(conversions);
+    const bytes = await readPhoto();
+    const first = await server.dropbox.put("/a.jpg", bytes);
+
+    const second = await server.dropbox.put(
+      "/b.jpg",
+      new Uint8Array([...bytes, 0]),
+    );
+
+    await startImport(server, [first, second]);
+    await reached;
+
+    const stopped = server[Symbol.asyncDispose]();
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    open();
+    await stopped;
+
+    expect(
+      server.dropbox.requests.filter((path) => path === "/2/files/download"),
+    ).toHaveLength(1);
+    expect(server.logs.filter(({ level }) => level === "error")).toEqual([]);
+    expect(server.logs.map(({ message }) => message)).toContain(
+      "server を止めるので、残りの写真を取り込まなかった",
+    );
   });
 
   test("server を起動してから取り込んでいなければ、進み具合は無いこと", async () => {

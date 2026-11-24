@@ -21,8 +21,8 @@ export type ImportRun = {
 
 /** 取り込みを始める権利。 */
 export type ImportClaim = Disposable & {
-  /** 取り込みを始める。 */
-  readonly begin: (run: ImportRun) => void;
+  /** 取り込みを始め、写真を1枚ずつ読む処理を流す。 */
+  readonly begin: (run: ImportRun, process: () => Promise<void>) => void;
 };
 
 /** server のプロセスの中で、最後に始めた取り込みを持つ場所。 */
@@ -37,6 +37,10 @@ export type DropboxImports = {
   readonly pause: () => Disposable;
   /** 取り込みの状態を変える。 */
   readonly update: (change: (run: ImportRun) => ImportRun) => void;
+  /** server を止めるので、次の写真へ進まないか。 */
+  readonly stopping: () => boolean;
+  /** 取り込みを始めさせず、取り込んでいる途中の1枚を終えるまで待つ。 */
+  readonly stop: () => Promise<void>;
 };
 
 /** 最後に始めた取り込みを、プロセスのメモリに持つ場所を作る。 */
@@ -44,6 +48,8 @@ export const createDropboxImports = (): DropboxImports => {
   let run: ImportRun | undefined;
   let claimed = false;
   let paused = 0;
+  let stopRequested = false;
+  let running = Promise.resolve();
 
   const isBusy = (): boolean => claimed || run?.finishedAt === null;
 
@@ -51,14 +57,15 @@ export const createDropboxImports = (): DropboxImports => {
     current: () => run,
     isBusy,
     claim: () => {
-      if (isBusy() || paused > 0) return undefined;
+      if (isBusy() || paused > 0 || stopRequested) return undefined;
 
       claimed = true;
 
       return {
-        begin: (next) => {
+        begin: (next, process) => {
           run = next;
           claimed = false;
+          running = process();
         },
         [Symbol.dispose]: () => {
           claimed = false;
@@ -76,6 +83,11 @@ export const createDropboxImports = (): DropboxImports => {
     },
     update: (change) => {
       if (run !== undefined) run = change(run);
+    },
+    stopping: () => stopRequested,
+    stop: async () => {
+      stopRequested = true;
+      await running;
     },
   };
 };

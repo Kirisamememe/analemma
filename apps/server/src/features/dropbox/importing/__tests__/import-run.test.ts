@@ -40,7 +40,7 @@ describe("createDropboxImports", () => {
 
     expect(imports.claim()).toBeUndefined();
 
-    claim?.begin(run);
+    claim?.begin(run, () => Promise.resolve());
     expect(imports.isBusy()).toBe(true);
     expect(imports.claim()).toBeUndefined();
 
@@ -75,6 +75,31 @@ describe("pause", () => {
     }
 
     expect(imports.claim()).toBeDefined();
+  });
+});
+
+describe("stop", () => {
+  test("取り込みを始めさせず、流している処理を終えるまで待つこと", async () => {
+    const imports = createDropboxImports();
+    const processing = Promise.withResolvers<undefined>();
+    const steps: string[] = [];
+
+    imports.claim()?.begin(run, async () => {
+      await processing.promise;
+      steps.push("processed");
+    });
+
+    const stopped = (async () => {
+      await imports.stop();
+      steps.push("stopped");
+    })();
+
+    processing.resolve(undefined);
+    await stopped;
+    imports.update(finishRun(FINISHED_AT));
+
+    expect(steps).toEqual(["processed", "stopped"]);
+    expect(imports.claim()).toBeUndefined();
   });
 });
 

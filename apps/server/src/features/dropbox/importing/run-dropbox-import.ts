@@ -21,6 +21,15 @@ export const runDropboxImport = async (
   for (const [index, photo] of photos.entries()) {
     if (photo.status !== "waiting") continue;
 
+    if (imports.stopping()) {
+      context.logger.write({
+        level: "info",
+        message: "server を止めるので、残りの写真を取り込まなかった",
+        details: {},
+      });
+      break;
+    }
+
     imports.update(
       withPhotoStatus(index, { status: "importing", imageId: null }),
     );
