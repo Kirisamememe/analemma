@@ -7,7 +7,11 @@ afterEach(cleanup);
 
 test("キャンセルと同じ画像の確定では値を変えず、取り外すと未入力に戻す", () => {
   const change = mock((_value: string | null): void => undefined);
-  const { result } = renderHook(() => useImageField("photo", change));
+
+  const { result } = renderHook(() =>
+    useImageField({ value: "photo", onChange: change }),
+  );
+
   act(result.current.choose);
   expect(result.current.open).toBe(true);
   act(result.current.close);

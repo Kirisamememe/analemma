@@ -1,6 +1,6 @@
-import { type ReactNode, useId } from "react";
+import { type ReactNode, type Ref, useId } from "react";
 
-import { useImageField } from "./hooks/use-image-field";
+import { type ImageFieldInput, useImageField } from "./hooks/use-image-field";
 
 import { useImage } from "@/components/images/hooks/use-image";
 import { ImagePicker } from "@/components/images/image-picker";
@@ -11,13 +11,21 @@ import { ImageThumbnail } from "@/ui/patterns";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
 
-const SelectedImage = ({ id }: Record<"id", string>): ReactNode => {
+type SelectedImageProps = {
+  /** 選んだ画像。 */
+  id: string;
+  /** 再試行ボタンの参照。 */
+  retryRef: Ref<HTMLButtonElement>;
+};
+
+const SelectedImage = ({ id, retryRef }: SelectedImageProps): ReactNode => {
   const query = useImage(id);
   const t = useTranslate();
 
   return (
     <QueryContent
       query={query}
+      retryRef={retryRef}
       failedTitle={t("imageDetail.loadFailed")}
       level={3}
       loading="list"
@@ -46,38 +54,41 @@ const SelectedImage = ({ id }: Record<"id", string>): ReactNode => {
   );
 };
 
-type ImageFieldProps = {
+type ImageFieldProps = ImageFieldInput & {
   /** 項目のラベル。 */
   label: string;
   /** 必須の項目か。 */
   required: boolean;
-  /** server が断った誤り。 */
-  error: string | undefined;
-  /** フォームが保持する画像の ID。 */
-  value: string | null;
-  /** 画像の変更をフォームに渡す。 */
-  onChange: (value: string | null) => void;
+  /** 操作する項目と、そこまでの group や repeat の要素名。 */
+  target: string;
 };
 
 /** 固定ページで画像を1枚選ぶ項目。 */
-export const ImageField = ({
-  label,
-  required,
-  error,
-  value,
-  onChange,
-}: ImageFieldProps): ReactNode => {
+export const ImageField = (props: ImageFieldProps): ReactNode => {
+  const { label, required, target, value } = props;
   const t = useTranslate();
 
-  const { open, trigger, choose, remove, confirm, close } = useImageField(
-    value,
-    onChange,
-  );
+  const { open, trigger, retryRef, error, choose, remove, confirm, close } =
+    useImageField(props);
 
   const errorId = useId();
 
+  const chooseLabel = t(
+    value === null
+      ? "fixedPageEditor.chooseImage"
+      : "fixedPageEditor.replaceImage",
+  );
+
+  const removeLabel = t("fixedPageEditor.removeImage");
+
+  const actionName = (action: string) =>
+    t("fixedPageEditor.imageAction", { action, target });
+
   return (
-    <fieldset aria-describedby={error === undefined ? undefined : errorId}>
+    <fieldset
+      data-invalid={error === undefined ? undefined : true}
+      aria-describedby={error === undefined ? undefined : errorId}
+    >
       <legend>
         <Text as="span" variant="label">
           {label}
@@ -92,27 +103,21 @@ export const ImageField = ({
         )}
       </legend>
       <Stack gap={1.5}>
-        {value !== null && <SelectedImage id={value} />}
-        <div data-invalid={error === undefined ? undefined : true}>
-          <Cluster gap={2}>
-            <Button
-              ref={trigger}
-              aria-describedby={error === undefined ? undefined : errorId}
-              onPress={choose}
-            >
-              {t(
-                value === null
-                  ? "fixedPageEditor.chooseImage"
-                  : "fixedPageEditor.replaceImage",
-              )}
+        <Cluster gap={2}>
+          <Button
+            ref={trigger}
+            aria-label={actionName(chooseLabel)}
+            aria-describedby={error === undefined ? undefined : errorId}
+            onPress={choose}
+          >
+            {chooseLabel}
+          </Button>
+          {value !== null && !required && (
+            <Button aria-label={actionName(removeLabel)} onPress={remove}>
+              {removeLabel}
             </Button>
-            {value !== null && !required && (
-              <Button onPress={remove}>
-                {t("fixedPageEditor.removeImage")}
-              </Button>
-            )}
-          </Cluster>
-        </div>
+          )}
+        </Cluster>
         {error !== undefined && (
           <div role="alert" id={errorId}>
             <Text variant="caption" tone="danger">
@@ -120,6 +125,7 @@ export const ImageField = ({
             </Text>
           </div>
         )}
+        {value !== null && <SelectedImage id={value} retryRef={retryRef} />}
       </Stack>
       {open && (
         <ImagePicker mode="single" onConfirm={confirm} onClose={close} />

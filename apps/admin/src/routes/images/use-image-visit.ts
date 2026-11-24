@@ -16,7 +16,7 @@ type Visit = {
 
 /** URL と表示中の写真を照らし合わせ、次の写真の準備を待つ。 */
 export const useImageVisit = (id: string) => {
-  const query = useImage(id);
+  const query = useImage(id, { keepDataOnRefreshError: true });
   const [visit, setVisit] = useState<Visit>({ id });
 
   const current =

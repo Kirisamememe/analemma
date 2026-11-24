@@ -1,11 +1,11 @@
 import { setPublication } from "../queries/image-actions";
-import type { AdminImage } from "@/queries/image-query";
 import { useImageCache } from "./use-image-cache";
 import { useImageDialog } from "./use-image-dialog";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiMutation } from "@/api/server-state/server-state";
 import { useTranslate } from "@/i18n/use-translate";
+import type { AdminImage } from "@/queries/image-query";
 import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
 
 /** 画像の公開と非公開を切り替える操作を持つ。 */

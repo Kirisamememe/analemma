@@ -1,8 +1,7 @@
 import { imageAlt, imageDescription, imageTitle } from "@analemma/contract";
 
-import type { AdminImage } from "@/queries/image-query";
-
 import type { ApiInputs } from "@/api/api-types";
+import type { AdminImage } from "@/queries/image-query";
 
 /** 画像のフォームで書き換える、タイトル・説明・alt の入力。 */
 export type ImageText = Record<"title" | "description" | "alt", string>;

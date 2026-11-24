@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 
 import type { ApiQueryResult } from "@/api/server-state/server-state";
 import { ErrorState, LoadingState } from "@/ui/patterns";
@@ -13,6 +13,8 @@ type QueryContentProps<Data> = {
   failedTitle: string;
   /** 読み込めなかった欄の見出しのレベル(置く場所の見出しの次)。 */
   level: 2 | 3;
+  /** 再試行後の focus を引き継ぐ ref。 */
+  retryRef?: Ref<HTMLButtonElement>;
   /** 読み込めたときに描く中身。 */
   children: (data: Data) => ReactNode;
 };
@@ -22,6 +24,7 @@ export const QueryContent = <Data,>({
   query,
   loading,
   failedTitle,
+  retryRef,
   level,
   children,
 }: QueryContentProps<Data>): ReactNode => {
@@ -34,6 +37,7 @@ export const QueryContent = <Data,>({
         layout="inline"
         level={level}
         onRetry={query.retry}
+        retryRef={retryRef}
         title={failedTitle}
       />
     );

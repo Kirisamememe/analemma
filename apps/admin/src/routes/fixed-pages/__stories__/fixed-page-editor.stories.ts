@@ -2,8 +2,13 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { AppPreview } from "@/testing/app-preview";
 import type { FakeOutput, FakeRoutes } from "@/testing/create-fake-api";
+import { createFixedPageRoutes } from "@/testing/fake-routes/create-fixed-page-routes";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { SAMPLE_IMAGES } from "@/testing/sample-photos";
+
+// --------------------
+// 編集画面の見本のデータと作り物の server
+// --------------------
 
 const library = createImageRoutes(SAMPLE_IMAGES);
 const [cover] = library.images();
@@ -124,8 +129,7 @@ const PAGE = {
 } satisfies FakeOutput<"admin/fixedPages/get">;
 
 const signedIn = {
-  "admin/images/get": library.routes["admin/images/get"],
-  "admin/images/list": library.routes["admin/images/list"],
+  ...library.routes,
   "admin/session/get": () => ({
     output: { expiresAt: "2026-03-02T09:00:00Z" },
   }),
@@ -166,68 +170,37 @@ type Story = StoryObj<typeof meta>;
 
 export const Edit: Story = {};
 
-const imageRoutes = (coverId?: string): FakeRoutes => {
-  const { cover: _, ...content } = PAGE.content;
-  return {
-    ...signedIn,
-    "admin/fixedPages/get": () => ({
-      output: {
-        ...PAGE,
-        content:
-          coverId === undefined ? content : { ...content, cover: coverId },
-      },
-    }),
-  };
-};
+// --------------------
+// 画像の項目
+// --------------------
 
-export const EmptyImage: Story = {
-  args: {
-    /** 表紙が未入力のページ。 */
-    createRoutes: () => imageRoutes(),
-  },
-};
+const imageArgs = (coverId?: string, optional = false) => ({
+  /** 表紙を指定した状態で開き、保存時に定義で中身を確かめる server。 */
+  createRoutes: () => {
+    const { cover: _, ...rest } = PAGE.content;
+    const content = coverId === undefined ? rest : { ...rest, cover: coverId };
 
-export const UnpublishedImage: Story = {
-  args: {
-    /** 表紙の画像が非公開のページ。 */
-    createRoutes: () => imageRoutes(privateCover.id),
-  },
-};
+    const fields = ABOUT.fields.map((field) =>
+      field.type === "image" ? { ...field, optional } : field,
+    );
 
-export const MissingImage: Story = {
-  args: {
-    /** 表紙の画像が削除されたページ。 */
-    createRoutes: () => imageRoutes(PAGE_ID),
-  },
-};
-
-export const RequiredImageError: Story = {
-  args: {
-    /** 未入力の表紙を保存すると誤りを返す server。 */
-    createRoutes: () => ({
-      ...imageRoutes(),
-      "admin/fixedPages/update": (input) =>
-        input.content["cover"] === undefined
-          ? {
-              error: "INVALID_CONTENT",
-              data: {
-                issues: [
-                  { path: ["cover"], code: "invalid_type", message: "" },
-                ],
-              },
-            }
-          : signedIn["admin/fixedPages/update"](input),
-    }),
-  },
-  /** 必須の表紙を空のまま送る。 */
-  play: async ({ canvas, userEvent }) => {
-    const [save] = await canvas.findAllByRole("button", {
-      name: /^(?:保存|Save)$/v,
+    const server = createFixedPageRoutes({
+      kinds: [{ name: ABOUT.name, label: ABOUT.label, fields }],
+      pages: [{ ...PAGE, content }],
     });
 
-    if (save !== undefined) await userEvent.click(save);
+    return { ...library.routes, ...server.routes };
   },
-};
+});
+
+export const EmptyImage: Story = { args: imageArgs(undefined, true) };
+export const UnpublishedImage: Story = { args: imageArgs(privateCover.id) };
+export const MissingImage: Story = { args: imageArgs(PAGE_ID) };
+export const RequiredImageError: Story = { args: imageArgs() };
+
+// --------------------
+// 固定ページの作成・保存・削除
+// --------------------
 
 export const ChooseKind: Story = {
   args: { path: "/fixed-pages/new" },
@@ -349,6 +322,10 @@ export const DeleteFailed: Story = {
     }),
   },
 };
+
+// --------------------
+// 読み込みの失敗
+// --------------------
 
 export const KindLoadFailed: Story = {
   args: {

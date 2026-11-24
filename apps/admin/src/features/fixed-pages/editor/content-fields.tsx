@@ -5,9 +5,9 @@ import type { FieldDefinition } from "@analemma/contract";
 import { Branch, ContentGroup } from "../ui/content-group";
 import type { EditorForm } from "./hooks/use-editor-form";
 import { ImageField } from "./image-field";
+import type { RefusedSave } from "./logic/editor-errors";
 import { RepeatField } from "./repeat-field";
 
-import { toFieldErrorMessage } from "@/components/forms/logic/to-field-error-message";
 import { useTranslate } from "@/i18n/use-translate";
 
 /** 同じ段にある項目に渡す値。 */
@@ -20,6 +20,10 @@ export type ContentFieldsProps = {
   form: EditorForm;
   /** 各項目の誤りの知らせ。 */
   errors: Record<string, string>;
+  /** 最後に送った画像の項目の誤り。 */
+  imageErrors: RefusedSave["images"];
+  /** ここまでの group と repeat の要素名。 */
+  parentLabel?: string;
   /** 値の変更を知らせる関数。 */
   changed: (name: string) => void;
   /** group の直下の項目か。 */
@@ -32,19 +36,26 @@ const ContentFieldsContent = ({
   form,
   errors,
   changed,
+  parentLabel = "",
+  imageErrors,
   inGroup = false,
 }: ContentFieldsProps): ReactNode => {
   const t = useTranslate();
+
+  const target = (label: string) =>
+    parentLabel === "" ? label : parentLabel + " / " + label;
 
   const draw = (definition: FieldDefinition): ReactNode => {
     const path = prefix + definition.key;
     const name = `content.${path}` as const;
 
     if ("fields" in definition) {
-      const nested = (parent: string) => (
+      const nested = (parent: string, label = definition.label) => (
         <ContentFields
           fields={definition.fields}
           prefix={parent + "/"}
+          imageErrors={imageErrors}
+          parentLabel={target(label)}
           form={form}
           errors={errors}
           changed={changed}
@@ -99,7 +110,8 @@ const ContentFieldsContent = ({
                 <ImageField
                   label={label}
                   required={required}
-                  error={toFieldErrorMessage(field.state.meta.errors)}
+                  target={target(label)}
+                  issue={imageErrors?.[name]}
                   value={
                     typeof field.state.value === "string"
                       ? field.state.value

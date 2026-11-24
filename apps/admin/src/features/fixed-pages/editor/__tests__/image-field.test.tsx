@@ -9,13 +9,13 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, expect, spyOn, test } from "bun:test";
 import { Profiler } from "react";
 
-import { fieldDefinitions } from "@analemma/contract";
+import { fieldDefinitions, type FixedPageContent } from "@analemma/contract";
 
 import * as groups from "../../ui/content-group";
 import { ImageField } from "../image-field";
 
-import type { FakeRoutes } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
+import { createFixedPageRoutes } from "@/testing/fake-routes/create-fixed-page-routes";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { kind, page } from "@/testing/fixed-page-samples";
 import { withAppProviders } from "@/testing/hook-wrappers";
@@ -25,12 +25,25 @@ import * as inputs from "@/ui/primitives/form-fields";
 
 afterEach(cleanup);
 
+// --------------------
+// 編集画面の見本と操作
+// --------------------
+
 const library = createImageRoutes(SAMPLE_IMAGES);
 const portrait = { type: "image", key: "portrait", label: "肖像" };
 
 const fields = fieldDefinitions.parse([
   { type: "text", key: "caption", label: "説明" },
-  { type: "group", key: "profile", label: "紹介", fields: [portrait] },
+  {
+    type: "group",
+    key: "profile",
+    label: "紹介",
+    optional: true,
+    fields: [
+      portrait,
+      { type: "text", key: "note", label: "補足", optional: true },
+    ],
+  },
   {
     type: "repeat",
     key: "rows",
@@ -40,33 +53,47 @@ const fields = fieldDefinitions.parse([
 ]);
 
 const missing = "019affff-0000-7000-8000-0000000000ff";
-const harbor = library.images().find(({ title }) => title === "港の灯り");
 
-if (harbor === undefined) throw new Error("画像がありません");
+const imageId = (title: string) => {
+  const image = library.images().find((photo) => photo.title === title);
+
+  if (image === undefined) throw new Error(title);
+
+  return image.id;
+};
 
 const content = {
   caption: "写真",
-  profile: {},
-  rows: [{ portrait: harbor.id }, { portrait: missing }],
+  profile: { note: "写真" },
+  rows: [{ portrait: imageId("港の灯り") }, { portrait: missing }],
 };
 
-const edit = (routes: FakeRoutes = {}) =>
-  renderApp({
-    path: "/fixed-pages/" + page.id,
-    routes: {
-      ...library.routes,
-      "admin/kinds/get": () => ({ output: { ...kind, fields } }),
-      "admin/fixedPages/get": () => ({ output: { ...page, content } }),
-      ...routes,
-    },
+const edit = (saved: FixedPageContent = content) => {
+  const server = createFixedPageRoutes({
+    kinds: [{ name: kind.name, label: kind.label, fields }],
+    pages: [{ ...page, content: saved }],
   });
 
+  const [stored] = server.pages();
+
+  if (stored === undefined) throw new Error("固定ページがありません");
+
+  renderApp({
+    path: "/fixed-pages/" + stored.id,
+    routes: { ...library.routes, ...server.routes },
+  });
+
+  return server;
+};
+
+const button = (name: string) => screen.getByRole("button", { name });
+
 const save = async () => {
-  const [button] = screen.getAllByRole("button", { name: "保存" });
+  const [saveButton] = screen.getAllByRole("button", { name: "保存" });
 
-  if (button === undefined) throw new Error("保存のボタンがありません");
+  if (saveButton === undefined) throw new Error("保存のボタンがありません");
 
-  await userEvent.click(button);
+  await userEvent.click(saveButton);
 };
 
 const pickRidge = async (
@@ -77,8 +104,12 @@ const pickRidge = async (
   await userEvent.click(
     await screen.findByRole("radio", { name: /夕暮れの稜線/v }),
   );
-  await userEvent.click(screen.getByRole("button", { name: action }));
+  await userEvent.click(button(action));
 };
+
+// --------------------
+// 画像の操作と保存
+// --------------------
 
 test.each(["group の未入力", "必須の誤り", "repeat の画像"])(
   "%sで画像を選んでも、ほかの入力欄と要素は描き直さない",
@@ -103,39 +134,28 @@ test.each(["group の未入力", "必須の誤り", "repeat の画像"])(
         {ContentGroup(props)}
       </Profiler>
     ));
-    edit({
-      "admin/fixedPages/update": () => ({
-        error: "INVALID_CONTENT",
-        data: {
-          issues: [
-            {
-              path: ["profile", "portrait"],
-              code: "invalid_type",
-              message: "",
-            },
-          ],
-        },
-      }),
-    });
+    edit();
     await screen.findByText("画像がありません");
     await screen.findByText("港の灯り");
 
     const target = scenario === "repeat の画像" ? "行 2" : "紹介";
     const section = within(screen.getByRole("group", { name: target }));
 
-    const trigger = section.getByRole("button", {
-      name: scenario === "repeat の画像" ? "替える" : "画像を選ぶ",
-    });
+    const action = scenario === "repeat の画像" ? "替える" : "画像を選ぶ";
+    const trigger = button(`${action}（${target} / 肖像）`);
 
     if (scenario === "必須の誤り") {
+      const fieldset = section.getByRole("group", { name: /肖像/v });
+      using scroll = spyOn(fieldset, "scrollIntoView");
       await save();
       expect(section.getByText("必須")).toBeDefined();
       await section.findByRole("button", {
-        name: "画像を選ぶ",
+        name: "画像を選ぶ（紹介 / 肖像）",
         description: "入力してください。",
       });
       await waitFor(() => {
         expect(document.activeElement).toBe(trigger);
+        expect(scroll).toHaveBeenCalled();
       });
     }
 
@@ -154,7 +174,7 @@ test.each(["group の未入力", "必須の誤り", "repeat の画像"])(
 
     if (scenario === "必須の誤り") {
       expect(section.queryByText("入力してください。")).toBeNull();
-      expect(section.queryByRole("button", { name: "外す" })).toBeNull();
+      expect(section.queryByRole("button", { name: /外す/v })).toBeNull();
     }
 
     await userEvent.click(
@@ -166,62 +186,103 @@ test.each(["group の未入力", "必須の誤り", "repeat の画像"])(
 
 test("非公開と削除済みの画像を保って保存でき、取り替え・取り消し・取り外しを反映する", async () => {
   const saved = { ...content, profile: { portrait: missing } };
-  let sent: unknown;
-  edit({
-    "admin/fixedPages/get": () => ({ output: { ...page, content: saved } }),
-    "admin/fixedPages/update": (input) => {
-      sent = input.content;
-      return { output: { ...page, ...input } };
-    },
-  });
+  const server = edit(saved);
   const first = within(await screen.findByRole("group", { name: "行 1" }));
   const second = within(screen.getByRole("group", { name: "行 2" }));
   await first.findByText("非公開");
   await second.findByText("画像がありません");
   await save();
   await screen.findByText("固定ページを更新しました。");
-  expect(sent).toEqual(saved);
+  expect(server.pages()[0]?.content).toEqual(saved);
   await userEvent.keyboard("{Escape}");
-  await pickRidge(second.getByRole("button", { name: "替える" }), "キャンセル");
+  await pickRidge(button("替える（行 2 / 肖像）"), "キャンセル");
   expect(second.getByText("画像がありません")).toBeDefined();
-  await pickRidge(second.getByRole("button", { name: "替える" }), "選択を確定");
-  expect(
-    (await second.findByRole("img", { name: /夕日の残る空/v })).getAttribute(
-      "src",
-    ),
-  ).toContain("dusk-ridge");
-  await userEvent.click(first.getByRole("button", { name: "外す" }));
+  await pickRidge(button("替える（行 2 / 肖像）"), "選択を確定");
+  const image = await second.findByRole("img", { name: /夕日の残る空/v });
+  expect(image.getAttribute("src")).toContain("dusk-ridge");
+  await userEvent.click(button("外す（行 1 / 肖像）"));
   await save();
   await waitFor(() => {
-    expect(sent).toEqual({
+    expect(server.pages()[0]?.content).toEqual({
       ...saved,
-      rows: [{}, { portrait: library.images()[0]?.id }],
+      rows: [{}, { portrait: imageId("夕暮れの稜線") }],
     });
   });
 });
 
-test("取得に失敗した画像はその場で読み直し、公開中の画像を表示する", async () => {
+test("必須画像の誤りが出た後、任意の group を空に戻して保存できる", async () => {
+  const server = edit();
+  const note = await screen.findByRole("textbox", { name: "補足" });
+  await save();
+  await screen.findByText("入力してください。");
+  await userEvent.clear(note);
+  await save();
+  await screen.findByText("固定ページを更新しました。");
+  expect(server.pages()[0]?.content).toEqual({
+    caption: content.caption,
+    rows: content.rows,
+  });
+});
+
+test("画像の初回取得と再取得の失敗を欄で再試行し、最新の公開状態と focus を引き継ぐ", async () => {
   const server = createImageRoutes([{ title: "海" }]);
-  server.replyNext("admin/images/get", () => ({
-    error: "INTERNAL_SERVER_ERROR",
-    defined: false,
-  }));
+
+  const failNext = () => {
+    server.replyNext("admin/images/get", () => ({
+      error: "INTERNAL_SERVER_ERROR",
+      defined: false,
+    }));
+  };
+
   const app = createTestApp({ path: "/", routes: server.routes });
   app.queryClient.setDefaultOptions({ queries: { retry: false } });
   await app.router.load();
-  render(
+  const id = server.images()[0]?.id ?? "";
+
+  const field = (label: string) => (
     <ImageField
-      value={server.images()[0]?.id ?? null}
-      label="表紙"
+      value={id}
+      label={label}
+      target={label}
       required={false}
-      error={undefined}
       onChange={() => undefined}
-    />,
-    { wrapper: withAppProviders(app) },
+    />
   );
-  await screen.findByText("画像を読み込めませんでした");
+
+  failNext();
+
+  const { rerender } = render(<>{field("表紙")}</>, {
+    wrapper: withAppProviders(app),
+  });
+
+  const retry = await screen.findByRole("button", { name: "もう一度試す" });
   expect(screen.queryByText("画像がありません")).toBeNull();
-  await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
+  await userEvent.tab();
+  await userEvent.tab();
+  await userEvent.tab();
+  expect(document.activeElement).toBe(retry);
+  await userEvent.keyboard("{Enter}");
   await screen.findByText("海");
-  expect(screen.queryByText("非公開")).toBeNull();
+  expect(document.activeElement).toBe(button("替える（表紙）"));
+  server.routes["admin/images/unpublish"]({ id });
+  failNext();
+  rerender(
+    <>
+      {field("表紙")}
+      {field("挿絵")}
+    </>,
+  );
+  await waitFor(() => {
+    expect(screen.getAllByText("画像を読み込めませんでした")).toHaveLength(2);
+  });
+  expect(screen.queryByText("海")).toBeNull();
+  await userEvent.click(
+    within(screen.getByRole("group", { name: "挿絵" })).getByRole("button", {
+      name: "もう一度試す",
+    }),
+  );
+  await waitFor(() => {
+    expect(screen.getAllByText("非公開")).toHaveLength(2);
+  });
+  expect(document.activeElement).toBe(button("替える（挿絵）"));
 });

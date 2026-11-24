@@ -69,6 +69,7 @@ test.each<[Parameters<typeof refusedSaveErrors>[0], RefusedSave]>([
       },
     },
     {
+      images: {},
       fields: { "content.lead": "fixedPageEditor.issue.large" },
       message: "fixedPageEditor.invalidContent",
     },
