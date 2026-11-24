@@ -23,6 +23,16 @@ import {
 
 const TEN_MINUTES_MS = 10 * 60 * 1000;
 
+const countConnections = async (server: TestClient): Promise<number> => {
+  await using connection = openDatabase({
+    target: toTestDatabaseTarget(server.databaseName),
+    logger: { write: () => undefined },
+    max: 1,
+  });
+
+  return (await connection.db.select().from(dropboxConnection)).length;
+};
+
 const insertConnection = async (server: TestClient): Promise<void> => {
   await using connection = openDatabase({
     target: toTestDatabaseTarget(server.databaseName),
@@ -250,6 +260,7 @@ describe("切る", () => {
       "NOT_CONFIGURED",
     );
     expect(server.dropbox.requests).toEqual([]);
+    expect(await countConnections(server)).toBe(1);
   });
 
   test("利用者が Dropbox の側で切った後も、接続を切れること", async () => {

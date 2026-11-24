@@ -5,7 +5,7 @@ import { dropboxConnection } from "./dropbox-values";
 
 const NOT_CONFIGURED = { NOT_CONFIGURED: { status: 409 } };
 
-/** 管理画面で Dropbox につなぎ、写真を取り込む procedure の contract。 */
+/** 管理画面で Dropbox につなぐ procedure の contract。 */
 export const dropbox = {
   get: adminAccess
     .route({

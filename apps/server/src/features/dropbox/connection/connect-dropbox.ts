@@ -17,10 +17,10 @@ export const connectDropbox = adminProcedures.dropbox.connect.handler(
 
     if (pending === undefined) throw errors.AUTHORIZATION_EXPIRED();
 
-    const exchanged = await api.exchangeCode(
-      { code: input.code, redirectUri: pending.redirectUri },
-      signal,
-    );
+    const exchanged = await api.exchangeCode({
+      code: input.code,
+      redirectUri: pending.redirectUri,
+    });
 
     if (exchanged._tag === "Rejected") throw errors.AUTHORIZATION_REJECTED();
 
