@@ -275,8 +275,13 @@ export const ja = {
   "series.gone": "このシリーズはもうありません。",
   "series.deleteDescription":
     "削除したシリーズは元に戻せません。画像は画像の一覧に残ります。",
+  "series.noImages": "このシリーズにはまだ画像がありません",
+  "series.orderMismatch":
+    "画像の構成が変わったため、並び順を保存できませんでした。取り直した一覧でもう一度並べ直してください。",
   "series.changeFailed":
     "シリーズの変更を保存できませんでした。もう一度試してください。",
+  "series.untitledAtPosition": "無題（{{position}} 枚目）",
+  "series.untitledWithDate": "無題、{{date}}（{{position}} 枚目）",
   "series.imageGone": "シリーズまたは画像が見つかりません。",
   "images.title": "画像",
   "images.description": "写真作品を兼ねる画像。新しく足した順に並びます。",

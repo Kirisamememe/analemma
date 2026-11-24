@@ -13,6 +13,47 @@ const path = `/series/${SAMPLE_SERIES_ID}`;
 const button = (name: string) => screen.getByRole("button", { name });
 const dialog = () => within(screen.getByRole("dialog"));
 
+const dragFirst = async (): Promise<void> => {
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("row", { name: "夕暮れの稜線" }));
+  await user.keyboard("{Tab}{Enter}{ArrowDown}{Enter}");
+};
+
+test("キーボードで置くとすぐに保存し、一覧のカバーも入れ替わる", async () => {
+  renderApp({ path, routes: createSeriesRoutes() });
+  await dragFirst();
+  await screen.findByText("並び順を保存しました。");
+  await userEvent.click(screen.getByRole("link", { name: "シリーズの一覧" }));
+
+  const cover = await within(screen.getByRole("main")).findByRole(
+    "presentation",
+  );
+
+  expect(cover.getAttribute("src")).toContain("morning-lake");
+});
+
+test("画像がほかで外されたときは並び順の競合を知らせ、取り直した画像で続けられる", async () => {
+  const routes = createSeriesRoutes();
+  renderApp({
+    path,
+    routes: {
+      ...routes,
+      "admin/series/reorder": (input) => {
+        routes["admin/series/removeImages"]({
+          id: input.id,
+          imageIds: input.imageIds.slice(-1),
+        });
+
+        return routes["admin/series/reorder"](input);
+      },
+    },
+  });
+  await dragFirst();
+  await screen.findByText(/画像の構成が変わった/v);
+  expect(screen.getAllByRole("row")).toHaveLength(2);
+  expect(screen.queryByRole("row", { name: "港の灯り" })).toBeNull();
+});
+
 test("詳細の編集・公開切り替え・削除が一覧に反映され、削除後は追加の行に focus が移る", async () => {
   renderApp({ path: "/series", routes: createSeriesRoutes() });
   await userEvent.click(await screen.findByRole("link", { name: "旅の写真" }));

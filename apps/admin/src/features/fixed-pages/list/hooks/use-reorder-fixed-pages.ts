@@ -2,13 +2,10 @@ import { useState } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
-import {
-  type Identified,
-  orderPages,
-} from "@/features/fixed-pages/list/logic/order-pages";
 import { reorderFixedPages } from "@/features/fixed-pages/list/queries/fixed-page-actions";
 import { FIXED_PAGES_QUERY_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
+import { type Identified, orderItems } from "@/ui/primitives/collections";
 import { useShowToast } from "@/ui/primitives/overlays";
 
 /** 固定ページの並べ直しの状態と操作。 */
@@ -51,7 +48,7 @@ export const useReorderFixedPages = (): FixedPagesReordering => {
 
   return {
     isSaving: reordering.isPending,
-    arrange: (pages) => orderPages(pages, order),
+    arrange: (pages) => orderItems(pages, order),
     reorder: (ids) => {
       setOrder(ids);
       reordering.mutate(ids);

@@ -5,7 +5,7 @@ export type Identified = {
 };
 
 /** 並べ直しを送っている間、送った ID の順に行を並べる(送った後に増えた行は後ろに付ける)。 */
-export const orderPages = <Page extends Identified>(
+export const orderItems = <Page extends Identified>(
   pages: readonly Page[],
   order: readonly string[] | undefined,
 ): readonly Page[] => {

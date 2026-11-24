@@ -55,6 +55,14 @@ export const LoadFailed: Story = {
 const detail = `/series/${SAMPLE_SERIES_ID}`;
 export const Detail: Story = { args: { path: detail } };
 
+export const EmptySeries: Story = {
+  args: {
+    path: detail,
+    /** 画像の無いシリーズ。 */
+    createRoutes: () => createSeriesRoutes("empty"),
+  },
+};
+
 export const DetailLoading: Story = {
   args: {
     path: detail,
@@ -92,5 +100,26 @@ export const SaveFailed: Story = {
         defined: false,
       }),
     }),
+  },
+};
+
+export const OrderMismatch: Story = {
+  args: {
+    path: detail,
+    /** 並べ直す直前に末尾の画像が外された server。 */
+    createRoutes: () => {
+      const routes = createSeriesRoutes();
+      return {
+        ...routes,
+        "admin/series/reorder": ({ id, imageIds }) => {
+          routes["admin/series/removeImages"]({
+            id,
+            imageIds: imageIds.slice(-1),
+          });
+
+          return routes["admin/series/reorder"]({ id, imageIds });
+        },
+      };
+    },
   },
 };

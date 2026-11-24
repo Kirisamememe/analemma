@@ -3,11 +3,11 @@ import { useCallback, useReducer, useRef } from "react";
 import {
   seriesChangeResult,
   seriesDetailReducer,
+  seriesPendingOrder,
 } from "../logic/series-detail";
 import { seriesMutationScope } from "../logic/series-mutation-scope";
+import { changeSeries, type SeriesChange } from "../queries/change-series";
 import {
-  changeSeries,
-  type SeriesChange,
   SERIES_LIST_KEY,
   seriesKey,
   seriesSaveKey,
@@ -68,7 +68,9 @@ export const useSeriesDetail = (
         dispatch({ type: "changed", change });
         toast({
           tone: "success",
-          message: t(result.message, { title: name }),
+          message: result.withTitle
+            ? t(result.message, { title: name })
+            : t(result.message),
         });
       }
     },
@@ -95,6 +97,7 @@ export const useSeriesDetail = (
   return {
     dialog: state.dialog,
     pending: state.pending,
+    order: seriesPendingOrder(state.pending),
     isPending,
     isSaving,
     change,

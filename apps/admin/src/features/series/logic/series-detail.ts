@@ -1,4 +1,4 @@
-import type { changeSeries, SeriesChange } from "../queries/series-query";
+import type { changeSeries, SeriesChange } from "../queries/change-series";
 
 const DONE = {
   publish: "fixedPages.publishDone",
@@ -10,14 +10,31 @@ const DONE = {
 export const seriesChangeResult = (
   change: SeriesChange,
   code: Awaited<ReturnType<typeof changeSeries>>,
-) =>
-  code === undefined
-    ? ({
-        kind: "changed",
-        message: DONE[change.action],
-        deleted: change.action === "delete",
-      } as const)
-    : ({ kind: "failed", message: "series.imageGone" } as const);
+) => {
+  if (code !== undefined) {
+    return {
+      kind: "failed",
+      message:
+        code === "ORDER_MISMATCH" ? "series.orderMismatch" : "series.imageGone",
+    } as const;
+  }
+
+  if (change.action === "reorder") {
+    return {
+      kind: "changed",
+      message: "fixedPages.reordered",
+      withTitle: false,
+      deleted: false,
+    } as const;
+  }
+
+  return {
+    kind: "changed",
+    message: DONE[change.action],
+    withTitle: true,
+    deleted: change.action === "delete",
+  } as const;
+};
 
 type DetailState = {
   /** 開いている Dialog。 */
@@ -52,3 +69,7 @@ export const seriesDetailReducer = (
       return state.pending === event.change ? {} : state;
   }
 };
+
+/** 応答を待つ間、画面に表示する並び。 */
+export const seriesPendingOrder = (pending: SeriesChange | undefined) =>
+  pending?.action === "reorder" ? pending.imageIds : undefined;

@@ -11,7 +11,7 @@ import { Center, Stack } from "@/ui/layout";
 import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
 
-/** シリーズの情報と公開状態を編集する画面。 */
+/** シリーズの情報と画像の並びを編集する画面。 */
 export const SeriesDetailPage = (): ReactNode => {
   const t = useTranslate();
   const { api } = useAppContext();

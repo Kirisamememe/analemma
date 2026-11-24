@@ -263,8 +263,13 @@ export const en = {
   "series.gone": "This series no longer exists.",
   "series.deleteDescription":
     "Deleting this series is permanent. Its images remain in the image library.",
+  "series.noImages": "No images in this series yet",
+  "series.orderMismatch":
+    "The images in this series changed. Reorder the refreshed list and try again.",
   "series.changeFailed":
     "Could not save the changes to this series. Try again.",
+  "series.untitledAtPosition": "Untitled ({{position}})",
+  "series.untitledWithDate": "Untitled, {{date}} ({{position}})",
   "series.imageGone": "The series or image could not be found.",
   "images.title": "Images",
   "images.description": "Photos that double as works, newest first.",
