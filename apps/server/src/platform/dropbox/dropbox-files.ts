@@ -26,7 +26,7 @@ type RpcCall = {
 const unexpected = (action: string, response: Response): Error =>
   new Error(`Dropbox の ${action} が ${response.status} を返した`);
 
-/** Dropbox のアカウントとファイルを読む部分を作る。 */
+/** Dropbox のアカウントを読む部分を作る。 */
 export const createDropboxFiles = (
   send: DropboxFetch,
 ): Pick<DropboxApi, "getAccount"> => {

@@ -86,7 +86,7 @@ bun --cwd=apps/server run passkey:enroll
 | `bun run passkey:enroll`       | 管理者のパスキーを登録するための、1回きりで10分だけ使える登録用 URL を出す  |
 | `bun run test:prepare`         | `bun run test` が `bun test` の前に流すもの                                 |
 
-Dropbox の App folder から写真を取り込むときは、Dropbox の App Console(https://www.dropbox.com/developers/apps)でアプリを作り、app key と app secret を `apps/server/.env` の `DROPBOX_APP_KEY`・`DROPBOX_APP_SECRET` に書く。書かなければ、server は Dropbox につながない設定で起動する。
+Dropbox につなぐときは、Dropbox の App Console(https://www.dropbox.com/developers/apps)でアプリを作り、app key と app secret を `apps/server/.env` の `DROPBOX_APP_KEY`・`DROPBOX_APP_SECRET` に書く。書かなければ、server は Dropbox につながない設定で起動する。
 
 - access type は App folder にする。後から変えられない。
 - Permissions で `account_info.read`・`files.metadata.read`・`files.content.read` を有効にする。
