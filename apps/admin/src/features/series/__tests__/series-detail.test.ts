@@ -54,6 +54,34 @@ test("画像がほかで外されたときは並び順の競合を知らせ、�
   expect(screen.queryByRole("row", { name: "港の灯り" })).toBeNull();
 });
 
+test("画像を選ぶ Dialog はキャンセルで追加に戻り、確定すれば非公開の写真も追加・取り外しできる", async () => {
+  renderApp({ path, routes: createSeriesRoutes("empty") });
+  await screen.findByText("このシリーズにはまだ画像がありません");
+  const add = button("画像を追加");
+  await userEvent.click(add);
+  await userEvent.keyboard("{Escape}");
+  await waitFor(() => {
+    expect(document.activeElement).toBe(add);
+  });
+  await userEvent.click(add);
+  await userEvent.click(
+    await screen.findByRole("checkbox", { name: /港の灯り/v }),
+  );
+  await userEvent.click(button("選択を確定"));
+  const row = await screen.findByRole("row", { name: "港の灯り" });
+  expect(within(row).getByText("非公開")).toBeDefined();
+  await waitFor(() => {
+    expect(add.matches(":focus")).toBe(true);
+  });
+  await userEvent.click(
+    within(row).getByRole("button", { name: "「港の灯り」をシリーズから外す" }),
+  );
+  await screen.findByText("このシリーズにはまだ画像がありません");
+  await waitFor(() => {
+    expect(add.matches(":focus")).toBe(true);
+  });
+});
+
 test("詳細の編集・公開切り替え・削除が一覧に反映され、削除後は追加の行に focus が移る", async () => {
   renderApp({ path: "/series", routes: createSeriesRoutes() });
   await userEvent.click(await screen.findByRole("link", { name: "旅の写真" }));
@@ -98,6 +126,46 @@ test("詳細の編集・公開切り替え・削除が一覧に反映され、�
   });
 });
 
+test("追加時に削除された写真だけを選択から外し、残った写真を再確定できる", async () => {
+  const routes = createSeriesRoutes("empty");
+  let first = true;
+  renderApp({
+    path,
+    routes: {
+      ...routes,
+      "admin/series/addImages": (input) => {
+        const [id] = input.imageIds;
+
+        if (first && id !== undefined) {
+          routes["admin/images/delete"]({ id });
+          first = false;
+        }
+
+        return routes["admin/series/addImages"](input);
+      },
+    },
+  });
+  await userEvent.click(
+    await screen.findByRole("button", { name: "画像を追加" }),
+  );
+  await userEvent.click(
+    await screen.findByRole("checkbox", { name: /夕暮れの稜線/v }),
+  );
+  await userEvent.click(screen.getByRole("checkbox", { name: /港の灯り/v }));
+  await userEvent.click(button("選択を確定"));
+  await screen.findByText(/削除された画像を選択から外しました/v);
+  expect(dialog().getByText("選択中の画像 1 枚")).toBeDefined();
+  expect(
+    dialog().queryByRole("checkbox", { name: /夕暮れの稜線/v }),
+  ).toBeNull();
+  expect(
+    dialog().getByRole("checkbox", { name: /港の灯り/v, checked: true }),
+  ).toBeDefined();
+  await userEvent.click(button("選択を確定"));
+  await screen.findByRole("row", { name: "港の灯り" });
+  expect(screen.queryByText(/削除された画像を選択から外しました/v)).toBeNull();
+});
+
 test("削除に失敗して確認の Dialog を閉じると失敗の Toast も消える", async () => {
   renderApp({
     path,
@@ -117,6 +185,18 @@ test("削除に失敗して確認の Dialog を閉じると失敗の Toast も�
   expect(
     screen.queryByText(/シリーズの変更を保存できませんでした/v),
   ).toBeNull();
+});
+
+test("撮影日のある無題の写真は行と取り外しのボタンに日付と位置が付く", async () => {
+  renderApp({ path, routes: createSeriesRoutes() });
+
+  const row = await screen.findByRole("row", {
+    name: /無題.*2025.*4.*28.*2 枚目/v,
+  });
+
+  expect(
+    within(row).getByRole("button", { name: /2025.*4.*28.*シリーズから外す/v }),
+  ).toBeDefined();
 });
 
 test("保存中に離れて同じシリーズを開き直しても、次の編集は保存済みの名前から始まる", async () => {

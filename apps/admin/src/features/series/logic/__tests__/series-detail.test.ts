@@ -16,6 +16,7 @@ test("公開・非公開・削除はシリーズ名を付けた完了の知ら�
       kind: "changed",
       message,
       deleted: action === "delete",
+      focusAdd: false,
     });
     expect(seriesChangeResult({ action }, "NOT_FOUND")).toMatchObject({
       kind: "failed",
@@ -37,6 +38,7 @@ test("送った並びを表示し、後の並べ直しが始まったら前の�
   const late = seriesDetailReducer(current, {
     type: "changed",
     change: first,
+    focusAdd: false,
   });
 
   expect(seriesPendingOrder(late.pending)).toEqual(second.imageIds);
@@ -49,4 +51,37 @@ test("送った並びを表示し、後の並べ直しが始まったら前の�
       seriesDetailReducer(late, { type: "failed", change: second }).pending,
     ),
   ).toBeUndefined();
+});
+
+test("追加に失敗した画像を調べる間は Dialog を保ち、追加・取り外しが済んだら追加のボタンに戻る", () => {
+  const add = { action: "addImages", imageIds: ["a", "b"] } as const;
+  const open = seriesDetailReducer({}, { type: "dialog", dialog: "picker" });
+  const sending = seriesDetailReducer(open, { type: "sent", change: add });
+  expect(seriesChangeResult(add, "NOT_FOUND")).toEqual({
+    kind: "checkImages",
+    imageIds: add.imageIds,
+  });
+  expect(
+    seriesDetailReducer(sending, {
+      type: "failed",
+      change: add,
+      missing: new Set(["a"]),
+    }),
+  ).toMatchObject({ dialog: "picker", missing: new Set(["a"]) });
+
+  for (const action of ["addImages", "removeImages"] as const) {
+    expect(
+      seriesChangeResult({ action, imageIds: ["b"] }, undefined),
+    ).toMatchObject({ kind: "changed", focusAdd: true });
+  }
+
+  const done = seriesDetailReducer(sending, {
+    type: "changed",
+    change: add,
+    focusAdd: true,
+  });
+
+  expect(done.dialog).toBeUndefined();
+  expect(done.focusAdd).toBe(true);
+  expect(seriesDetailReducer(done, { type: "focused" }).focusAdd).toBe(false);
 });

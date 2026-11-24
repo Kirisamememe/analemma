@@ -263,11 +263,17 @@ export const en = {
   "series.gone": "This series no longer exists.",
   "series.deleteDescription":
     "Deleting this series is permanent. Its images remain in the image library.",
+  "series.add": "Add images",
+  "series.remove": "Remove “{{title}}” from series",
   "series.noImages": "No images in this series yet",
+  "series.added": "Images added to the series.",
+  "series.removed": "Image removed from the series.",
   "series.orderMismatch":
     "The images in this series changed. Reorder the refreshed list and try again.",
   "series.changeFailed":
     "Could not save the changes to this series. Try again.",
+  "series.selectionChanged":
+    "Deleted images were removed from your selection. Confirm the remaining images to add them.",
   "series.untitledAtPosition": "Untitled ({{position}})",
   "series.untitledWithDate": "Untitled, {{date}} ({{position}})",
   "series.imageGone": "The series or image could not be found.",

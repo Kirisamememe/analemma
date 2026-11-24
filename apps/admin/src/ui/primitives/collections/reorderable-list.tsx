@@ -1,6 +1,7 @@
 import { type ReactNode, useState } from "react";
 import {
   Button as AriaButton,
+  ButtonContext,
   DropIndicator,
   GridList,
   GridListItem,
@@ -63,6 +64,8 @@ type ReorderableListProps = {
   onReorder: (ids: readonly string[]) => void;
   /** 並べ直しを止めるか(行の中の操作は使える)。 */
   isDisabled?: boolean;
+  /** 行の中にある操作も止めるか。 */
+  areActionsDisabled?: boolean;
 };
 
 /** 取っ手のドラッグかキーボードで、行を並べ直せる一覧。 */
@@ -71,6 +74,7 @@ export const ReorderableList = ({
   items,
   onReorder,
   isDisabled = false,
+  areActionsDisabled,
 }: ReorderableListProps): ReactNode => {
   const [isDragging, setIsDragging] = useState(false); // マウスのドラッグは、置いた後の dragend で終わる
 
@@ -116,7 +120,18 @@ export const ReorderableList = ({
           <AriaButton className={handle()} slot="drag">
             <Icon name="grip-vertical" />
           </AriaButton>
-          <div className="min-w-0 grow">{children}</div>
+          {areActionsDisabled === undefined ? (
+            <div className="min-w-0 grow">{children}</div>
+          ) : (
+            <ButtonContext.Provider value={null}>
+              <fieldset
+                disabled={areActionsDisabled}
+                className="min-w-0 grow **:disabled:state-disabled"
+              >
+                {children}
+              </fieldset>
+            </ButtonContext.Provider>
+          )}
         </GridListItem>
       ))}
     </GridList>

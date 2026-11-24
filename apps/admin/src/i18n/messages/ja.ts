@@ -275,11 +275,17 @@ export const ja = {
   "series.gone": "このシリーズはもうありません。",
   "series.deleteDescription":
     "削除したシリーズは元に戻せません。画像は画像の一覧に残ります。",
+  "series.add": "画像を追加",
+  "series.remove": "「{{title}}」をシリーズから外す",
   "series.noImages": "このシリーズにはまだ画像がありません",
+  "series.added": "シリーズに画像を追加しました。",
+  "series.removed": "シリーズから画像を外しました。",
   "series.orderMismatch":
     "画像の構成が変わったため、並び順を保存できませんでした。取り直した一覧でもう一度並べ直してください。",
   "series.changeFailed":
     "シリーズの変更を保存できませんでした。もう一度試してください。",
+  "series.selectionChanged":
+    "削除された画像を選択から外しました。残りの画像を確認して、もう一度確定してください。",
   "series.untitledAtPosition": "無題（{{position}} 枚目）",
   "series.untitledWithDate": "無題、{{date}}（{{position}} 枚目）",
   "series.imageGone": "シリーズまたは画像が見つかりません。",

@@ -19,7 +19,7 @@ type SeriesDetailProps = {
   onDeleted: () => void;
 };
 
-/** シリーズの公開状態と情報、画像の並べ直し。 */
+/** シリーズの公開状態と情報、画像の出し入れと並べ直し。 */
 export const SeriesDetail = ({
   series,
   onDeleted,
