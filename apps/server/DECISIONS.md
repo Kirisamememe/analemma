@@ -135,6 +135,10 @@ contract を4つのアクセス区分に分け、server ではそれぞれの ba
 - 適用済みの migration は、書き換えず、消さず、名前も変えない。直したいときは、新しい migration を足す。Drizzle は名前だけを見て適用済みのものを飛ばすので、書き換えても黙って成功し、名前を変えると新しい migration として適用し直してしまう。`migrateDatabase` は、適用済みのものと同じ名前で SQL の hash が違う migration か、フォルダから消えた migration があれば、何も適用せずに失敗する。
 - `migrate()` は、migration が空でも、`drizzle` という PostgreSQL のスキーマと `__drizzle_migrations` テーブルを作る。DB への CREATE 権限が要るので、ロールは DB の持ち主にする。開発とテストでは、server も同じロールでつなぐ。本番で実行用のロールを DML だけに絞るかは、本番の置き場所と一緒に決める。
 - migration は drizzle-kit(`bun run db:generate`)で `src/db/migrations/` に書き出す。Drizzle の `migrate()` は、フォルダが無いと失敗する。
+- 表や列を改名するときは、制約と index の名前も新しい名前にそろえる。新しく作った DB と、migration を順に適用した DB で、名前が食い違わないようにする。
+  - drizzle-kit は、名前を明示していない制約(主キー・一意・外部キー)の名前を、表を改名しても前の名前のまま保つ。生成するときだけテーブル定義で制約の名前を明示して、改名の SQL を出させる。snapshot から `nameExplicit` を `true` にする delta を除き、テーブル定義は明示しない形に戻す。除かないと、次に生成する migration に `nameExplicit` を戻す delta が混ざる。
+  - PostgreSQL 18 が付ける NOT NULL の制約の名前は、drizzle-kit が扱わないので、`RENAME CONSTRAINT` を SQL に書き足す。
+  - 列を改名しても、index の中の列の名前(`\d` で index を見たときの列)は変わらないので、その列を含む index は作り直す。
 - テーブル定義を変えて migration を生成し忘れると、テストの DB にも本番にも新しい形が入らない。`src/db/__tests__/schema-drift.test.ts` が、migration のフォルダを一時的なフォルダに写して `drizzle-kit generate` を流し、差分が出ないこと(新しい migration が書かれないこと)を確かめる。リポジトリの migration のフォルダには書かない。drizzle-kit の設定は `drizzle.config.ts` を読み込んで `out` だけを差し替え、設定を写さない。
 - bytea の列は、Drizzle の `bytea` ではなく `src/db/bytes.ts` の型で読み書きする。Drizzle の `bytea` は Node の `Buffer` の型を持つ。feature のコードは Web 標準の `Uint8Array` で書くので、読むときに `Uint8Array` に写す。
 - `src/db/migrations/` は生成物なので、フォルダの名前と数の検査と、oxfmt の整形から外している(理由は `tooling/DECISIONS.md` の「フォルダの整理」)。このフォルダは、`drizzle.config.ts` の `out`・`MIGRATIONS_FOLDER`・structure の検査の除外・`.oxfmtrc.json` の4か所に書くので、そろっていることをテストで確かめる。
