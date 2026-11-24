@@ -14,7 +14,7 @@ import { useFailureToast } from "@/ui/primitives/overlays";
 
 type EditRequest = Pick<AdminImage, "id">;
 
-/** 編集を開くたびに今の値を取得し、取得できた画像を編集する画像として返す。 */
+/** 編集する画像を用意し、編集を開く・閉じる操作を返す。 */
 export const useOpenImageEditor = (id: string, isDisabled: boolean) => {
   const t = useTranslate();
   const { api } = useAppContext();
@@ -28,7 +28,7 @@ export const useOpenImageEditor = (id: string, isDisabled: boolean) => {
   const attach = useCallback(
     (button: HTMLButtonElement | null) => {
       if (button === null || isDisabled || request.current?.id !== id) {
-        request.current = undefined; // ほかの写真に移ったら、取得の結果で開かない
+        request.current = undefined;
       }
     },
     [id, isDisabled],

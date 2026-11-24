@@ -24,7 +24,11 @@ const setUp = async () => {
     data: image,
   });
 
-  const onClose = mock(() => undefined);
+  const shownAtClose: unknown[] = [];
+
+  const onClose = mock(() => {
+    shownAtClose.push(app.queryClient.getQueryData(imageQueryKey(image.id)));
+  });
 
   const { result } = renderHook(
     () => ({
@@ -34,7 +38,7 @@ const setUp = async () => {
     { wrapper: withAppProviders(app) },
   );
 
-  return { image, onClose, result };
+  return { image, onClose, result, shownAtClose };
 };
 
 test("変更が無ければすぐに閉じ、変更があれば、捨ててよいかを確かめる", async () => {
@@ -63,7 +67,7 @@ test("変更が無ければすぐに閉じ、変更があれば、捨ててよ�
 });
 
 test("保存すると、詳細の値を応答で差し替えてから閉じる", async () => {
-  const { onClose, result } = await setUp();
+  const { onClose, result, shownAtClose } = await setUp();
 
   act(() => {
     result.current.editor.form.setFieldValue("title", " 港 ");
@@ -72,6 +76,7 @@ test("保存すると、詳細の値を応答で差し替えてから閉じる",
   await waitFor(() => {
     expect(onClose).toHaveBeenCalled();
   });
+  expect(shownAtClose).toMatchObject([{ data: { title: "港" } }]);
   expect(result.current.shown).toMatchObject({
     _tag: "Loaded",
     data: { data: { title: "港" } },

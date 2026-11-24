@@ -19,6 +19,6 @@ const DISCARD: ClosePrompt = {
   leave: "imageDetail.discard",
 };
 
-/** 保存を送っている間に離れるなら保存が続くことを、ほかは入力を捨てることを確かめる。 */
+/** 編集を閉じる前・画面を離れる前の確かめに出す文言の、訳のキーを返す。 */
 export const closePrompt = (whileSaving: boolean): ClosePrompt =>
   whileSaving ? WHILE_SAVING : DISCARD;
