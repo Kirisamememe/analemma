@@ -7,6 +7,8 @@ import { adminProcedures } from "@/procedures";
 /** Dropbox に預けた認可を取り消し、接続の行を消す procedure。 */
 export const disconnectDropbox = adminProcedures.dropbox.disconnect.handler(
   async ({ context, errors, signal }) => {
+    if (context.dropbox.imports.isBusy()) throw errors.IMPORT_RUNNING();
+
     const row = await readDropboxConnection(context.db);
 
     if (row === undefined) return;

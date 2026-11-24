@@ -31,7 +31,9 @@ import {
   connectDropbox,
   disconnectDropbox,
   getDropboxConnection,
+  getDropboxImport,
   listDropboxPhotos,
+  startDropboxImport,
 } from "@/features/dropbox";
 import {
   createFixedPage,
@@ -94,6 +96,8 @@ export const router = implement(contract)
         connect: connectDropbox,
         disconnect: disconnectDropbox,
         photos: listDropboxPhotos,
+        startImport: startDropboxImport,
+        getImport: getDropboxImport,
       },
       fixedPages: {
         list: listFixedPages,
