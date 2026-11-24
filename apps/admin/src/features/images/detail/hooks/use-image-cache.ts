@@ -36,9 +36,11 @@ export const useImageCache = () => {
     /** 無くなった画像を、読み込んだ一覧から外す。 */
     dropFromList: (id: string): Promise<void> =>
       updatePages(IMAGES_QUERY_KEY, updateImagePage(id)),
-    /** 画像の詳細を、server が返した結果に替える。 */
-    replaceImage: (id: string, result: unknown): Promise<void> =>
-      update<unknown>(imageQueryKey(id), () => result),
+    /** 画像の詳細を、server が返した「無い」という結果に替える。 */
+    replaceImage: (
+      id: string,
+      result: Extract<LoadedImage, Record<"_tag", "Failed">>,
+    ): Promise<void> => update<LoadedImage>(imageQueryKey(id), () => result),
     /** 画像の詳細を取り直す。 */
     refreshImage: (id: string, refetchType?: "all" | "active"): Promise<void> =>
       refresh(imageQueryKey(id), refetchType),

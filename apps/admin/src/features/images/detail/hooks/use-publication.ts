@@ -61,7 +61,7 @@ export const usePublication = (
     isConfirming: dialog.isOpen,
     /** 切り替えを送っているか。 */
     isPending: publication.isPending,
-    /** 公開していれば確かめを開き、非公開ならその場で公開する。 */
+    /** 公開と非公開を切り替える。 */
     toggle: (): void => {
       if (isDisabled) return;
 

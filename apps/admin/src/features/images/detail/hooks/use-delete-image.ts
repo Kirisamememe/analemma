@@ -75,11 +75,11 @@ export const useDeleteImage = ({
   return {
     /** 確かめを開いているか。 */
     isConfirming: dialog.isOpen,
-    /** この画像の削除を送っているか(ほかの画面で送ったものも含む)。 */
+    /** ほかの画面で送ったものを含め、この画像の削除を送っているか。 */
     isDeleting,
     /** この確かめから送った削除を待っているか。 */
     isPending: deleting.isPending,
-    /** 送った画像がもう無かったか(確かめを開き直すまで、送り直させない)。 */
+    /** 送った画像がもう無かったか。 */
     isGone: deleting.data?._tag === "Failed",
     /** 確かめを開く。 */
     confirm: (): void => {

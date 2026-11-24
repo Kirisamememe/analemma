@@ -1,10 +1,11 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
-import { imageQueryKey } from "../../queries/image-query";
+import { imageQueryKey, loadImage } from "../../queries/image-query";
 import { useImageCache } from "../use-image-cache";
 
 import { IMAGES_QUERY_KEY } from "@/features/images/queries/images-query";
+import { createFakeApi } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";
@@ -38,7 +39,7 @@ const setUp = () => {
     wrapper: withAppProviders(app),
   });
 
-  return { app, first, second, cache: result };
+  return { app, server, first, second, cache: result };
 };
 
 test("書き換えの応答は、その操作が変えた欄だけを、詳細と一覧の同じ画像に当てる", async () => {
@@ -64,8 +65,13 @@ test("書き換えの応答は、その操作が変えた欄だけを、詳細�
 });
 
 test("無くなった画像は一覧から外し、詳細は server の結果に替える", async () => {
-  const { app, first, second, cache } = setUp();
-  const gone = { _tag: "Gone" } as const;
+  const { app, server, first, second, cache } = setUp();
+  const { api } = createFakeApi(server.routes);
+
+  server.routes["admin/images/delete"]({ id: first.id });
+  const gone = await loadImage(api, first.id);
+
+  if (gone._tag !== "Failed") throw new Error("無い画像の結果が要ります");
 
   await act(async () => {
     await cache.current.dropFromList(first.id);
