@@ -1,7 +1,9 @@
+import { dropboxJa } from "@/i18n/messages/dropbox/ja";
 import type { Translation } from "@/i18n/translation";
 
 /** 日本語の訳。 */
 export const ja = {
+  ...dropboxJa,
   "imageViewer.info": "写真の情報",
   "imageViewer.loading": "写真を読み込んでいます。",
   "imageViewer.loadFailed": "写真を読み込めませんでした",

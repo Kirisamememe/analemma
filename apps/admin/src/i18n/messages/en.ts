@@ -1,5 +1,8 @@
+import { dropboxEn } from "@/i18n/messages/dropbox/en";
+
 /** 英語の訳で、ほかの言語のキーと引数の出どころ。 */
 export const en = {
+  ...dropboxEn,
   "imageViewer.info": "Photo information",
   "imageViewer.loading": "Loading photo…",
   "imageViewer.loadFailed": "Could not load the photo",
