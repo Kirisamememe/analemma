@@ -11,6 +11,7 @@ import * as componentsQueryContent from "@/components/__stories__/query-content.
 import * as componentsFormFields from "@/components/forms/__stories__/form-fields.stories";
 import * as componentsForm from "@/components/forms/__stories__/form.stories";
 import * as componentsSubmitting from "@/components/forms/__stories__/submitting.stories";
+import * as componentsPhotoProgressRow from "@/components/photo-progress/__stories__/photo-progress-row.stories";
 import * as featuresDeployTokensCopyButton from "@/features/deploy-tokens/ui/__stories__/copy-button.stories";
 import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
 import * as kindRefreshNotice from "@/features/fixed-pages/list/__stories__/kind-refresh-notice.stories";
@@ -74,6 +75,8 @@ const MODULES = {
   "components/forms/__stories__/form-fields.stories.tsx": componentsFormFields,
   "components/forms/__stories__/submitting.stories.tsx": componentsSubmitting,
   "components/__stories__/query-content.stories.tsx": componentsQueryContent,
+  "components/photo-progress/__stories__/photo-progress-row.stories.tsx":
+    componentsPhotoProgressRow,
   "components/__stories__/passkey-name-field.stories.ts":
     componentsPasskeyNameField,
   "features/deploy-tokens/ui/__stories__/copy-button.stories.ts":

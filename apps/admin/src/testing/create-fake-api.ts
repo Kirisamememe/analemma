@@ -137,6 +137,7 @@ const sendEarlyReply = api.middleware(
 );
 
 const deployTokens = api.admin.deployTokens.use(sendEarlyReply);
+const dropbox = api.admin.dropbox.use(sendEarlyReply);
 const fixedPages = api.admin.fixedPages.use(sendEarlyReply);
 const images = api.admin.images.use(sendEarlyReply);
 const kinds = api.admin.kinds.use(sendEarlyReply);
@@ -147,6 +148,13 @@ const procedures = {
   "admin/deployTokens/issue": bindReply(deployTokens.issue),
   "admin/deployTokens/list": bindReply(deployTokens.list),
   "admin/deployTokens/revoke": bindReply(deployTokens.revoke),
+  "admin/dropbox/authorize": bindReply(dropbox.authorize),
+  "admin/dropbox/connect": bindReply(dropbox.connect),
+  "admin/dropbox/disconnect": bindReply(dropbox.disconnect),
+  "admin/dropbox/get": bindReply(dropbox.get),
+  "admin/dropbox/getImport": bindReply(dropbox.getImport),
+  "admin/dropbox/photos": bindReply(dropbox.photos),
+  "admin/dropbox/startImport": bindReply(dropbox.startImport),
   "admin/fixedPages/create": bindReply(fixedPages.create),
   "admin/fixedPages/delete": bindReply(fixedPages.delete),
   "admin/fixedPages/get": bindReply(fixedPages.get),
