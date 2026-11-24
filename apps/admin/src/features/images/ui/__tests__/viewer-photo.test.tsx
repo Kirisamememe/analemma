@@ -51,7 +51,7 @@ describe("ViewerPhoto", () => {
     expect(document.activeElement).toBe(screen.getByAltText("山並み"));
   });
 
-  test("待っている次の写真は、読み込めても読み込めなくても、その写真の ID で知らせる", () => {
+  test("待っている次の写真が読み込めなかったときも、その写真の ID で知らせる", () => {
     const image = { width: 640, height: 420, url: "/media/b/640.avif" };
     const onSettled = mock((_id: string) => undefined);
 
