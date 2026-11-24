@@ -33,6 +33,8 @@ export type DropboxImports = {
   readonly isBusy: () => boolean;
   /** 取り込みを始める権利を取る。 */
   readonly claim: () => ImportClaim | undefined;
+  /** 手放すまで、取り込みを始めさせない。 */
+  readonly pause: () => Disposable;
   /** 取り込みの状態を変える。 */
   readonly update: (change: (run: ImportRun) => ImportRun) => void;
 };
@@ -41,6 +43,7 @@ export type DropboxImports = {
 export const createDropboxImports = (): DropboxImports => {
   let run: ImportRun | undefined;
   let claimed = false;
+  let paused = 0;
 
   const isBusy = (): boolean => claimed || run?.finishedAt === null;
 
@@ -48,7 +51,7 @@ export const createDropboxImports = (): DropboxImports => {
     current: () => run,
     isBusy,
     claim: () => {
-      if (isBusy()) return undefined;
+      if (isBusy() || paused > 0) return undefined;
 
       claimed = true;
 
@@ -59,6 +62,15 @@ export const createDropboxImports = (): DropboxImports => {
         },
         [Symbol.dispose]: () => {
           claimed = false;
+        },
+      };
+    },
+    pause: () => {
+      paused += 1;
+
+      return {
+        [Symbol.dispose]: () => {
+          paused -= 1;
         },
       };
     },
@@ -78,6 +90,18 @@ export const withPhotoStatus =
     ...run,
     photos: run.photos.map((photo, at) =>
       at === index ? { ...photo, ...change } : photo,
+    ),
+  });
+
+/** 指した写真と、その後で待っている写真を、取り込めなかったことにする。 */
+export const failRemaining =
+  (from: number) =>
+  (run: ImportRun): ImportRun => ({
+    ...run,
+    photos: run.photos.map((photo, at) =>
+      at === from || (at > from && photo.status === "waiting")
+        ? { ...photo, status: "failed", imageId: null }
+        : photo,
     ),
   });
 

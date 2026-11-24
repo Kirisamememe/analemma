@@ -7,10 +7,7 @@ import type {
   ImportStatus,
   PhotoChange,
 } from "@/features/dropbox/importing/import-run";
-import {
-  findImportedPhotos,
-  recordImportedPhoto,
-} from "@/features/dropbox/importing/queries/dropbox-imports.query";
+import { recordImportedPhoto } from "@/features/dropbox/importing/queries/dropbox-imports.query";
 import { createImage } from "@/features/images/creating/create-image";
 
 /** 写真1枚を取り込んだ結果。 */
@@ -33,6 +30,8 @@ export type ImportContext = Pick<
 > & {
   /** つないだアカウントの session。 */
   readonly session: DropboxSession;
+  /** この取り込みで画像を作った写真の content_hash と、画像の ID。 */
+  readonly added: ReadonlyMap<string, string>;
 };
 
 const finished = (
@@ -40,12 +39,12 @@ const finished = (
   imageId: string | null = null,
 ): ImportOutcome => ({ _tag: "Finished", change: { status, imageId } });
 
-/** Dropbox から写真1枚を読み、まだ取り込んでいない中身なら画像を作って記録する。 */
+/** Dropbox から写真1枚を読み、選んだときと同じ中身なら画像を作って記録する。 */
 export const importPhoto = async (
   context: ImportContext,
   photo: ImportPhoto,
 ): Promise<ImportOutcome> => {
-  const { session } = context;
+  const { session, added } = context;
   const accessToken = await session.accessToken();
 
   if (accessToken === undefined) return { _tag: "ConnectionLost" };
@@ -53,10 +52,14 @@ export const importPhoto = async (
   const downloaded = await session.api.download(accessToken, {
     fileId: photo.id,
     maxBytes: PHOTO_MAX_BYTES,
+    accept: ({ contentHash }) =>
+      contentHash === photo.contentHash && !added.has(contentHash),
   });
 
   switch (downloaded._tag) {
     case "Unauthorized": {
+      await session.confirmLost();
+
       return { _tag: "ConnectionLost" };
     }
     case "NotFound": {
@@ -65,21 +68,19 @@ export const importPhoto = async (
     case "TooLarge": {
       return finished("too-large");
     }
+    case "Declined": {
+      const { contentHash } = downloaded.file;
+
+      return contentHash === photo.contentHash
+        ? finished("already-added", added.get(contentHash) ?? null)
+        : finished("changed");
+    }
     case "Downloaded": {
       break;
     }
   }
 
   const { file, bytes } = downloaded;
-
-  const imported = (
-    await findImportedPhotos(context.db, [file.contentHash])
-  ).get(file.contentHash);
-
-  if (imported !== undefined) {
-    return finished("already-added", imported.imageId);
-  }
-
   const created = await createImage(context, bytes);
 
   if (created._tag === "UnsupportedFormat") return finished("unsupported");

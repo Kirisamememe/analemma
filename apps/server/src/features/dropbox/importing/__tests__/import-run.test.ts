@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   createDropboxImports,
+  failRemaining,
   finishRun,
   type ImportRun,
   withPhotoStatus,
@@ -62,6 +63,21 @@ describe("createDropboxImports", () => {
   });
 });
 
+describe("pause", () => {
+  test("手放すまでは、取り込みを始める権利を渡さないこと", () => {
+    const imports = createDropboxImports();
+
+    {
+      using paused = imports.pause();
+
+      expect(imports.claim()).toBeUndefined();
+      expect(imports.isBusy()).toBe(false);
+    }
+
+    expect(imports.claim()).toBeDefined();
+  });
+});
+
 describe("withPhotoStatus", () => {
   test("指した写真だけの状態と画像の ID を変えること", () => {
     expect(
@@ -72,5 +88,34 @@ describe("withPhotoStatus", () => {
       { status: "waiting", imageId: null },
       { status: "added", imageId: IMAGE_ID },
     ]);
+  });
+});
+
+const photoOf = (
+  id: string,
+  status: ImportRun["photos"][number]["status"],
+): ImportRun["photos"][number] => ({
+  id,
+  path: `/${id}.jpg`,
+  status,
+  imageId: null,
+  contentHash: `hash-${id}`,
+});
+
+describe("failRemaining", () => {
+  test("指した写真と、その後で待っている写真だけを、取り込めなかったことにすること", () => {
+    const longer: ImportRun = {
+      ...run,
+      photos: [
+        photoOf("a", "added"),
+        photoOf("b", "importing"),
+        photoOf("c", "waiting"),
+        photoOf("d", "too-large"),
+      ],
+    };
+
+    expect(failRemaining(1)(longer).photos.map(({ status }) => status)).toEqual(
+      ["added", "failed", "failed", "too-large"],
+    );
   });
 });

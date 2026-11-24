@@ -51,6 +51,8 @@ export type FakeDropbox = {
   readonly fetch: (request: Request) => Promise<Response>;
   /** App folder にファイルを置き、ID を返す。 */
   readonly put: (path: string, bytes: Uint8Array) => Promise<string>;
+  /** App folder のファイルの中身を、ID を変えずに書き換える。 */
+  readonly overwrite: (id: string, bytes: Uint8Array) => Promise<void>;
   /** App folder からファイルを消す。 */
   readonly remove: (path: string) => void;
   /** 利用者が認可の画面で許したことにして、戻る URL の code と state を返す。 */
@@ -286,6 +288,17 @@ export const createFakeDropbox = (): FakeDropbox => {
       });
 
       return id;
+    },
+    overwrite: async (id, bytes) => {
+      const file = files.get(id);
+
+      if (file === undefined) throw new Error(`作り物の Dropbox に無い: ${id}`);
+
+      files.set(id, {
+        ...file,
+        bytes,
+        contentHash: await toContentHash(bytes),
+      });
     },
     remove: (path) => {
       for (const [id, file] of files) if (file.path === path) files.delete(id);

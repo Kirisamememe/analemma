@@ -249,6 +249,45 @@ describe("取り込み", () => {
     ).toEqual(["added", "failed"]);
   });
 
+  test("選んだ後に中身が変わった写真は、取り込まずに変わったとすること", async () => {
+    const { conversions, reached, open } = gatedConversions();
+    await using server = await prepare(conversions);
+    const bytes = await readPhoto();
+    const first = await server.dropbox.put("/a.jpg", bytes);
+
+    const second = await server.dropbox.put(
+      "/b.jpg",
+      new Uint8Array([...bytes, 0]),
+    );
+
+    await server.client.admin.dropbox.startImport({ ids: [first, second] });
+    await reached;
+    await server.dropbox.overwrite(second, new Uint8Array([...bytes, 1]));
+    open();
+
+    expect(
+      (await waitForImport(server))?.photos.map(({ status }) => status),
+    ).toEqual(["added", "changed"]);
+  });
+
+  test("切っている間は、取り込みを始めないこと", async () => {
+    await using server = await prepare();
+    const id = await server.dropbox.put("/a.jpg", await readPhoto());
+    const held = server.dropbox.hold("/oauth2/token");
+    const disconnecting = server.client.admin.dropbox.disconnect();
+
+    await held.reached;
+
+    expect(
+      await catchErrorCode(
+        server.client.admin.dropbox.startImport({ ids: [id] }),
+      ),
+    ).toBe("IMPORT_RUNNING");
+
+    held.release();
+    await disconnecting;
+  });
+
   test("server を起動してから取り込んでいなければ、進み具合は無いこと", async () => {
     await using server = await prepare();
 
