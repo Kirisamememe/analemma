@@ -17,10 +17,11 @@ type FixedPageOutputs = PublicOutputs["fixedPages"];
 
 /** 公開している画像。 */
 export type PublishedImage = PublicOutputs["images"]["get"];
-/** 公開しているシリーズと、その画像。 */
-export type PublishedSeries = PublicOutputs["series"]["get"];
-/** 公開しているシリーズの一覧の1件。 */
-export type SeriesSummary = PublicOutputs["series"]["list"]["series"][number];
+/** 公開している作品集と、その画像。 */
+export type PublishedCollection = PublicOutputs["collections"]["get"];
+/** 公開している作品集の一覧の1件。 */
+export type CollectionSummary =
+  PublicOutputs["collections"]["list"]["collections"][number];
 
 /** 公開している固定ページの一覧の1件。 */
 export type FixedPageSummary = FixedPageOutputs["list"]["pages"][number];
@@ -53,12 +54,12 @@ export type AnalemmaClient = {
     /** ID で画像を引く。 */
     readonly get: (id: string) => Promise<PublishedImage | undefined>;
   };
-  /** 公開しているシリーズを読む関数。 */
-  readonly series: {
-    /** slug でシリーズを引く。 */
-    readonly get: (slug: string) => Promise<PublishedSeries | undefined>;
-    /** シリーズを新しく作った順に並べる。 */
-    readonly list: () => Promise<SeriesSummary[]>;
+  /** 公開している作品集を読む関数。 */
+  readonly collections: {
+    /** slug で作品集を引く。 */
+    readonly get: (slug: string) => Promise<PublishedCollection | undefined>;
+    /** 作品集を新しく作った順に並べる。 */
+    readonly list: () => Promise<CollectionSummary[]>;
   };
   /** 公開している固定ページを読む関数。 */
   readonly fixedPages: {
@@ -110,12 +111,12 @@ export const createAnalemmaClient = ({
           ? getOrUndefined(client.public.images.get({ id }))
           : undefined,
     },
-    series: {
+    collections: {
       get: async (slug) =>
         fixedPageSlug.safeParse(slug).success
-          ? getOrUndefined(client.public.series.get({ slug }))
+          ? getOrUndefined(client.public.collections.get({ slug }))
           : undefined,
-      list: async () => (await client.public.series.list()).series,
+      list: async () => (await client.public.collections.list()).collections,
     },
     fixedPages: {
       get: async <K extends AnyKind>(

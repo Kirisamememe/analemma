@@ -7,6 +7,8 @@ import { enrollment } from "./auth/enrollment";
 import { login } from "./auth/login";
 import { passkeys } from "./auth/passkeys";
 import { session } from "./auth/session";
+import { collections } from "./collections/admin-collections";
+import { publicCollections } from "./collections/public-collections";
 import { dropbox } from "./dropbox/admin-dropbox";
 import { fixedPages } from "./fixed-pages/admin-fixed-pages";
 import { publicFixedPages } from "./fixed-pages/public-fixed-pages";
@@ -16,8 +18,6 @@ import { publicImages } from "./images/public-images";
 import { kinds } from "./kinds/admin-kinds";
 import { deployKinds } from "./kinds/deploy-kinds";
 import { deployTokens } from "./kinds/deploy-tokens";
-import { series } from "./series/admin-series";
-import { publicSeries } from "./series/public-series";
 
 export {
   type FixedPageContent,
@@ -73,22 +73,22 @@ export {
 /** Analemma の API 全体の contract。 */
 export const contract = {
   admin: {
+    collections,
     deployTokens,
     dropbox,
     fixedPages,
     images,
     kinds,
     passkeys,
-    series,
     session,
   },
   auth: { enrollment, login },
   deploy: { kinds: deployKinds },
   public: {
+    collections: publicCollections,
     fixedPages: publicFixedPages,
     health,
     images: publicImages,
-    series: publicSeries,
   },
 };
 
