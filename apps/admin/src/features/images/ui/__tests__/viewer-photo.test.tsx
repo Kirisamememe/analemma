@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import { ViewerPhoto } from "../viewer-photo";
 
@@ -49,5 +49,25 @@ describe("ViewerPhoto", () => {
     expect(screen.queryByRole("status")).toBeNull();
 
     expect(document.activeElement).toBe(screen.getByAltText("山並み"));
+  });
+
+  test("待っている次の写真は、読み込めても読み込めなくても、その写真の ID で知らせる", () => {
+    const image = { width: 640, height: 420, url: "/media/b/640.avif" };
+    const onSettled = mock((_id: string) => undefined);
+
+    renderWithI18n(
+      <ViewerPhoto
+        alt="港"
+        images={[image]}
+        largest={image}
+        smallest={image}
+        pending
+        photoId="b"
+        onSettled={onSettled}
+      />,
+      "ja",
+    );
+    fireEvent.error(screen.getByAltText("港"));
+    expect(onSettled).toHaveBeenCalledWith("b");
   });
 });
