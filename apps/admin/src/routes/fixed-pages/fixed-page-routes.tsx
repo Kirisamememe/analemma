@@ -14,7 +14,10 @@ import {
 import { useKindDefinition } from "@/features/fixed-pages/hooks/use-kind-definition";
 import { useKinds } from "@/features/fixed-pages/hooks/use-kinds";
 import { KindRefreshNotice } from "@/features/fixed-pages/list/kind-refresh-notice";
-import { editScreen, loadStage } from "@/features/fixed-pages/logic/load-stage";
+import {
+  definitionScreen,
+  editScreen,
+} from "@/features/fixed-pages/logic/edit-screen";
 import { KindGuide } from "@/features/fixed-pages/ui/kind-guide";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
 import {
@@ -148,49 +151,22 @@ const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
   const navigate = useNavigate();
   const kind = useKindDefinition(name);
 
+  const screen = definitionScreen(kind);
+
   const choose = (): void => {
     void navigate({ to: "/fixed-pages/new", search: {} });
   };
 
-  const definition =
-    kind._tag === "Loaded" && kind.data._tag === "Succeeded"
-      ? kind.data.data
-      : undefined;
-
   return (
     <>
       <output className="sr-only">
-        {definition !== undefined && t("fixedPageEditor.formReady")}
+        {screen._tag === "Editor" && t("fixedPageEditor.formReady")}
       </output>
-      {definition === undefined ? (
-        <Titled title={t("fixedPageEditor.new")}>
-          {kind._tag === "Loading" && <LoadingState layout="form" />}
-          {kind._tag === "Failed" && (
-            <ErrorState
-              description={t("fixedPageEditor.kindLoadFailedDescription")}
-              isRetrying={kind.isRetrying}
-              layout="screen"
-              level={2}
-              onRetry={kind.retry}
-              title={t("fixedPageEditor.kindLoadFailed")}
-            />
-          )}
-          {kind._tag === "Loaded" && (
-            <Stack align="start" gap={3}>
-              <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
-              <Button onPress={choose}>
-                {t("fixedPageEditor.chooseAgain")}
-              </Button>
-            </Stack>
-          )}
-        </Titled>
-      ) : (
+      {screen._tag === "Editor" ? (
         <FixedPageEditor
           key={name}
-          kind={definition}
-          refreshFailure={
-            kind._tag === "Loaded" ? kind.refreshFailure : undefined
-          }
+          kind={screen.kind}
+          refreshFailure={screen.refreshFailure}
           picked={picked}
           onSaved={(saved) => {
             void navigate({
@@ -201,6 +177,28 @@ const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
             });
           }}
         />
+      ) : (
+        <Titled title={t("fixedPageEditor.new")}>
+          {screen._tag === "Loading" && <LoadingState layout="form" />}
+          {screen._tag === "KindFailed" && (
+            <ErrorState
+              description={t("fixedPageEditor.kindLoadFailedDescription")}
+              isRetrying={screen.retry.isRetrying}
+              layout="screen"
+              level={2}
+              onRetry={screen.retry.retry}
+              title={t("fixedPageEditor.kindLoadFailed")}
+            />
+          )}
+          {screen._tag === "KindGone" && (
+            <Stack align="start" gap={3}>
+              <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
+              <Button onPress={choose}>
+                {t("fixedPageEditor.chooseAgain")}
+              </Button>
+            </Stack>
+          )}
+        </Titled>
       )}
     </>
   );
@@ -251,80 +249,81 @@ export const EditFixedPage = (): ReactNode => {
       : undefined;
 
   const kind = useKindDefinition(page?.kind, page?.content);
-  const screen = editScreen(loadStage(query), loadStage(kind));
+  const screen = editScreen(query, kind);
 
   const onDeleted = (): void => {
     void navigate({ to: "/fixed-pages", ignoreBlocker: true });
   };
 
-  if (
-    screen === "Editor" &&
-    page !== undefined &&
-    kind._tag === "Loaded" &&
-    kind.data._tag === "Succeeded"
-  ) {
-    return (
-      <Frame ready>
-        <FixedPageEditor
-          key={page.id}
-          kind={kind.data.data}
-          refreshFailure={kind.refreshFailure}
-          onDeleted={onDeleted}
-          onSaved={() => undefined}
-          page={page}
-        />
-      </Frame>
-    );
-  }
-
-  if (page === undefined || screen === "Loading") {
-    return (
-      <Frame ready={false}>
-        <Titled title={t("fixedPageEditor.edit")}>
-          {query._tag === "Failed" && (
-            <ErrorState
-              isRetrying={query.isRetrying}
-              layout="screen"
-              level={2}
-              onRetry={query.retry}
-              title={t("fixedPageEditor.loadFailed")}
-            />
-          )}
-          {screen === "PageGone" && (
-            <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
-          )}
-          {screen === "Loading" && <LoadingState layout="form" />}
-        </Titled>
-      </Frame>
-    );
-  }
-
-  return (
-    <Frame ready={false}>
-      <Titled
-        actions={
-          <DeleteFixedPage
-            isDisabled={kind._tag === "Failed" && kind.isRetrying} // 取り直して編集のフォームに替わると、削除の Dialog ごと消える
+  switch (screen._tag) {
+    case "Editor":
+      return (
+        <Frame ready>
+          <FixedPageEditor
+            key={screen.page.id}
+            kind={screen.kind}
+            refreshFailure={screen.refreshFailure}
             onDeleted={onDeleted}
-            page={page}
+            onSaved={() => undefined}
+            page={screen.page}
           />
-        }
-        description={t("fixedPageEditor.kindOf", { kind: page.kind })}
-        title={t("fixedPageEditor.edit")}
-      >
-        {kind._tag === "Failed" ? (
-          <ErrorState
-            description={t("fixedPageEditor.kindLoadFailedDescription")}
-            isRetrying={kind.isRetrying}
-            layout="screen"
-            level={2}
-            onRetry={kind.retry}
-            title={t("fixedPageEditor.kindLoadFailed")}
-          />
-        ) : (
-          <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
-        )}
-      </Titled>
-    </Frame>
-  );
+        </Frame>
+      );
+    case "Loading":
+    case "PageFailed":
+    case "PageGone":
+      return (
+        <Frame ready={false}>
+          <Titled title={t("fixedPageEditor.edit")}>
+            {screen._tag === "PageFailed" && (
+              <ErrorState
+                isRetrying={screen.retry.isRetrying}
+                layout="screen"
+                level={2}
+                onRetry={screen.retry.retry}
+                title={t("fixedPageEditor.loadFailed")}
+              />
+            )}
+            {screen._tag === "PageGone" && (
+              <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
+            )}
+            {screen._tag === "Loading" && <LoadingState layout="form" />}
+          </Titled>
+        </Frame>
+      );
+    case "KindFailed":
+    case "KindGone":
+      return (
+        <Frame ready={false}>
+          <Titled
+            actions={
+              <DeleteFixedPage
+                isDisabled={
+                  screen._tag === "KindFailed" && screen.retry.isRetrying
+                } // 取り直して編集のフォームに替わると、削除の Dialog ごと消える
+                onDeleted={onDeleted}
+                page={screen.page}
+              />
+            }
+            description={t("fixedPageEditor.kindOf", {
+              kind: screen.page.kind,
+            })}
+            title={t("fixedPageEditor.edit")}
+          >
+            {screen._tag === "KindFailed" ? (
+              <ErrorState
+                description={t("fixedPageEditor.kindLoadFailedDescription")}
+                isRetrying={screen.retry.isRetrying}
+                layout="screen"
+                level={2}
+                onRetry={screen.retry.retry}
+                title={t("fixedPageEditor.kindLoadFailed")}
+              />
+            ) : (
+              <Notice tone="warning">{t("fixedPageEditor.kindGone")}</Notice>
+            )}
+          </Titled>
+        </Frame>
+      );
+  }
 };

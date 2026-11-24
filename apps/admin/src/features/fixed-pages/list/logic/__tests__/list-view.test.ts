@@ -1,31 +1,56 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
 
 import { fixedPagesView, kindLabels } from "../list-view";
 
+import type { ApiQueryResult } from "@/api/server-state/server-state";
 import { kind } from "@/testing/fixed-page-samples";
 
-const view = (overrides: Partial<Parameters<typeof fixedPagesView>[0]>) =>
-  fixedPagesView({
-    pages: "Loaded",
-    kinds: "Loaded",
-    kindsRetrying: false,
-    rows: 2,
-    ...overrides,
-  });
+const loaded: ApiQueryResult<unknown> = { _tag: "Loaded", data: {} };
+const loading: ApiQueryResult<unknown> = { _tag: "Loading" };
+
+const failed = (isRetrying = false) => {
+  const retry = mock(() => undefined);
+  const query: ApiQueryResult<unknown> = { _tag: "Failed", isRetrying, retry };
+
+  return { query, retry };
+};
 
 describe("fixedPagesView", () => {
   test("種類のラベルが届くまでは、行を出さずに読み込み中にする", () => {
-    expect(view({ kinds: "Loading" })).toBe("Loading");
-    expect(view({ kinds: "Failed", kindsRetrying: true })).toBe("Loading");
+    expect(
+      fixedPagesView({ pages: loaded, kinds: loading, rows: ["a"] })._tag,
+    ).toBe("Loading");
+    expect(
+      fixedPagesView({ pages: loaded, kinds: failed(true).query, rows: ["a"] })
+        ._tag,
+    ).toBe("Loading");
   });
 
-  test("固定ページを読めなければ、種類の一覧によらず、読めなかった欄を出す", () => {
-    expect(view({ pages: "Failed", kinds: "Failed" })).toBe("Failed");
+  test("固定ページを読めなければ、読めていない種類の一覧も一緒に取り直す", () => {
+    const pages = failed();
+    const kinds = failed(true);
+
+    const view = fixedPagesView({
+      pages: pages.query,
+      kinds: kinds.query,
+      rows: [],
+    });
+
+    expect(view).toMatchObject({ _tag: "Failed", isRetrying: true });
+
+    if (view._tag === "Failed") view.retry();
+
+    expect(pages.retry).toHaveBeenCalledTimes(1);
+    expect(kinds.retry).toHaveBeenCalledTimes(1);
   });
 
-  test("種類の一覧だけを読めないときは、行を出す", () => {
-    expect(view({ kinds: "Failed" })).toBe("Rows");
-    expect(view({ rows: 0 })).toBe("Empty");
+  test("種類の一覧だけを読めないときは、行を出し、行が無ければ空にする", () => {
+    expect(
+      fixedPagesView({ pages: loaded, kinds: failed().query, rows: ["a"] }),
+    ).toEqual({ _tag: "Rows", rows: ["a"] });
+    expect(
+      fixedPagesView({ pages: loaded, kinds: loaded, rows: [] })._tag,
+    ).toBe("Empty");
   });
 });
 

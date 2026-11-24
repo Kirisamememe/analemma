@@ -29,15 +29,16 @@ export const loadFixedPages = (api: ApiClient) => api.admin.fixedPages.list();
 /** 種類の一覧を読む。 */
 export const loadKinds = (api: ApiClient) => api.admin.kinds.list();
 
-/** 名前で種類の定義を読み、保存済みの中身を表せない定義なら失敗にする。 */
-export const loadKind = async (
-  api: ApiClient,
-  {
-    name,
-    fits,
-  }: Record<"name", string> &
-    Record<"fits", (fields: readonly FieldDefinition[]) => boolean>,
-) => {
+/** 種類の定義を読むときに渡す値。 */
+type KindLoad = {
+  /** 種類の名前。 */
+  readonly name: string;
+  /** 定義の項目で、保存済みの中身を表せるかを返す関数。 */
+  readonly fits: (fields: readonly FieldDefinition[]) => boolean;
+};
+
+/** 編集に使う種類の定義を、名前で読む。 */
+export const loadKind = async (api: ApiClient, { name, fits }: KindLoad) => {
   const result = await callApi(api.admin.kinds.get({ name }), ["NOT_FOUND"]);
 
   if (result._tag === "Succeeded" && !fits(result.data.fields)) {

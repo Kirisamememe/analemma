@@ -1,37 +1,57 @@
 import type { ApiOutputs } from "@/api/api-types";
-import type { ApiQueryResult } from "@/api/server-state/server-state";
-
-type QueryStage = ApiQueryResult<unknown>["_tag"];
+import type {
+  ApiQueryResult,
+  QueryRetry,
+} from "@/api/server-state/server-state";
 
 /** 固定ページの一覧の欄に出すもの。 */
-export type FixedPagesView = "Loading" | "Failed" | "Empty" | "Rows";
+export type FixedPagesView<Row> =
+  | Readonly<Record<"_tag", "Loading" | "Empty">>
+  | (Readonly<Record<"_tag", "Failed">> & QueryRetry)
+  | {
+      /** どの表示か。 */
+      readonly _tag: "Rows";
+      /** 並べる行。 */
+      readonly rows: readonly Row[];
+    };
 
-/** 一覧の欄を決める、取得の進み具合と行の数。 */
-type ListInput = {
-  /** 固定ページの一覧の取得の状態。 */
-  readonly pages: QueryStage;
-  /** 種類の一覧の取得の状態。 */
-  readonly kinds: QueryStage;
-  /** 読めなかった種類の一覧を取り直しているか。 */
-  readonly kindsRetrying: boolean;
-  /** 並べる行の数。 */
-  readonly rows: number;
+/** 一覧の欄を決める、取得と行。 */
+type ListInput<Row> = {
+  /** 固定ページの一覧の取得。 */
+  readonly pages: ApiQueryResult<unknown>;
+  /** 種類の一覧の取得。 */
+  readonly kinds: ApiQueryResult<unknown>;
+  /** 並べる行。 */
+  readonly rows: readonly Row[];
 };
 
 /** 固定ページと種類の一覧の取得から、一覧の欄に出すものを決める。 */
-export const fixedPagesView = ({
+export const fixedPagesView = <Row>({
   pages,
   kinds,
-  kindsRetrying,
   rows,
-}: ListInput): FixedPagesView => {
-  if (pages === "Loading" || kinds === "Loading") return "Loading";
+}: ListInput<Row>): FixedPagesView<Row> => {
+  const kindsRetrying = kinds._tag === "Failed" && kinds.isRetrying;
 
-  if (pages === "Failed") return "Failed";
+  if (pages._tag === "Loading" || kinds._tag === "Loading") {
+    return { _tag: "Loading" };
+  }
 
-  if (kindsRetrying) return "Loading";
+  if (pages._tag === "Failed") {
+    return {
+      _tag: "Failed",
+      isRetrying: pages.isRetrying || kindsRetrying,
+      retry: () => {
+        pages.retry();
 
-  return rows === 0 ? "Empty" : "Rows";
+        if (kinds._tag === "Failed") kinds.retry(); // 種類のラベルも読めていなければ、一緒に取り直す
+      },
+    };
+  }
+
+  if (kindsRetrying) return { _tag: "Loading" };
+
+  return rows.length === 0 ? { _tag: "Empty" } : { _tag: "Rows", rows };
 };
 
 /** 種類の名前から、表示するラベルを引く表。 */

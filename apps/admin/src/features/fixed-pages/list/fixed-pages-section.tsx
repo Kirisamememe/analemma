@@ -42,16 +42,11 @@ export const FixedPagesSection = ({
   });
 
   const kinds = useKinds();
-  const kindsRetrying = kinds._tag === "Failed" && kinds.isRetrying;
-
-  const rows =
-    pages._tag === "Loaded" ? reordering.arrange(pages.data.pages) : [];
 
   const view = fixedPagesView({
-    pages: pages._tag,
-    kinds: kinds._tag,
-    kindsRetrying,
-    rows: rows.length,
+    pages,
+    kinds,
+    rows: pages._tag === "Loaded" ? reordering.arrange(pages.data.pages) : [],
   });
 
   const labels = kindLabels(
@@ -59,52 +54,47 @@ export const FixedPagesSection = ({
   );
 
   const content = (): ReactNode => {
-    if (view === "Loading") return <LoadingState layout="list" />;
-
-    if (pages._tag === "Failed") {
-      return (
-        <ErrorState
-          isRetrying={pages.isRetrying || kindsRetrying}
-          layout="inline"
-          level={2}
-          onRetry={() => {
-            pages.retry();
-
-            if (kinds._tag === "Failed") kinds.retry(); // 種類のラベルも読めていなければ、一緒に取り直す
-          }}
-          title={t("fixedPages.loadFailed")}
-        />
-      );
+    switch (view._tag) {
+      case "Loading":
+        return <LoadingState layout="list" />;
+      case "Failed":
+        return (
+          <ErrorState
+            isRetrying={view.isRetrying}
+            layout="inline"
+            level={2}
+            onRetry={view.retry}
+            title={t("fixedPages.loadFailed")}
+          />
+        );
+      case "Empty":
+        return (
+          <EmptyState
+            description={t("fixedPages.emptyDescription")}
+            icon="file-text"
+            title={t("fixedPages.emptyTitle")}
+          />
+        );
+      case "Rows":
+        return (
+          <ReorderableList
+            isDisabled={reordering.isSaving}
+            items={view.rows.map((page) => ({
+              id: page.id,
+              textValue: page.title,
+              children: (
+                <FixedPageRow
+                  kindLabel={labels.get(page.kind) ?? page.kind}
+                  onEdit={onEdit}
+                  page={page}
+                />
+              ),
+            }))}
+            label={t("fixedPages.title")}
+            onReorder={reordering.reorder}
+          />
+        );
     }
-
-    if (view === "Empty") {
-      return (
-        <EmptyState
-          description={t("fixedPages.emptyDescription")}
-          icon="file-text"
-          title={t("fixedPages.emptyTitle")}
-        />
-      );
-    }
-
-    return (
-      <ReorderableList
-        isDisabled={reordering.isSaving}
-        items={rows.map((page) => ({
-          id: page.id,
-          textValue: page.title,
-          children: (
-            <FixedPageRow
-              kindLabel={labels.get(page.kind) ?? page.kind}
-              onEdit={onEdit}
-              page={page}
-            />
-          ),
-        }))}
-        label={t("fixedPages.title")}
-        onReorder={reordering.reorder}
-      />
-    );
   };
 
   return (
@@ -113,7 +103,7 @@ export const FixedPagesSection = ({
         <Icon name="plus" />
         {t("fixedPages.create")}
       </Button>
-      {view === "Rows" && rows.length > 1 && (
+      {view._tag === "Rows" && view.rows.length > 1 && (
         <Cluster align="center" gap={2} justify="between">
           <Text tone="muted" variant="caption">
             {t("fixedPages.reorderHint")}

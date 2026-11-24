@@ -12,7 +12,7 @@ import {
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
 
-/** 種類の定義を読み、保存済みの中身を表せる定義だけを、タブの中で使い回す。 */
+/** 固定ページの作成と編集に使う、種類の定義を読む。 */
 export const useKindDefinition = (
   name: string | undefined,
   content?: FixedPageContent,
