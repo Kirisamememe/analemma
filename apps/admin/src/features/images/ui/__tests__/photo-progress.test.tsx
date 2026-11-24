@@ -1,4 +1,9 @@
-import { cleanup, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  isInaccessible,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
 import { PhotoProgress } from "../photo-progress";
@@ -22,9 +27,9 @@ test.each(["top", "center"] as const)(
       );
     });
     expect(
-      screen.getAllByText("次の写真を待っています", {
-        ignore: "[aria-hidden] *",
-      }),
+      screen
+        .getAllByText("次の写真を待っています")
+        .filter((element) => !isInaccessible(element)),
     ).toHaveLength(1);
   },
 );

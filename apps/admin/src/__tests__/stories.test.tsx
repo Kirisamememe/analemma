@@ -21,6 +21,7 @@ import * as featuresImagesSection from "@/features/images/list/__stories__/image
 import * as featuresImagesImageRows from "@/features/images/ui/__stories__/image-rows.stories";
 import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/image-viewer.stories";
 import * as featuresImagesInfoList from "@/features/images/ui/__stories__/info-list.stories";
+import * as featuresImagesPhotoProgress from "@/features/images/ui/__stories__/photo-progress.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
 import * as routesEnrollPage from "@/routes/auth/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/auth/__stories__/login-page.stories";
@@ -93,6 +94,8 @@ const MODULES = {
   "features/images/ui/__stories__/image-viewer.stories.tsx":
     featuresImagesImageViewer,
   "features/images/ui/__stories__/info-list.stories.ts": featuresImagesInfoList,
+  "features/images/ui/__stories__/photo-progress.stories.ts":
+    featuresImagesPhotoProgress,
   "routes/auth/__stories__/enroll-page.stories.ts": routesEnrollPage,
   "routes/auth/__stories__/login-page.stories.ts": routesLoginPage,
   "routes/__stories__/security-page.stories.ts": routesSecurityPage,
