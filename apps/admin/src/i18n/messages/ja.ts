@@ -273,6 +273,11 @@ export const ja = {
   "series.edit": "シリーズを編集",
   "series.back": "シリーズの一覧",
   "series.gone": "このシリーズはもうありません。",
+  "series.deleteDescription":
+    "削除したシリーズは元に戻せません。画像は画像の一覧に残ります。",
+  "series.changeFailed":
+    "シリーズの変更を保存できませんでした。もう一度試してください。",
+  "series.imageGone": "シリーズまたは画像が見つかりません。",
   "images.title": "画像",
   "images.description": "写真作品を兼ねる画像。新しく足した順に並びます。",
   "images.loading": "画像を読み込んでいます。",

@@ -63,3 +63,23 @@ export const saveSeries = (
   "id" in fields
     ? callApi(api.admin.series.update(fields), ["SLUG_TAKEN", "NOT_FOUND"])
     : callApi(api.admin.series.create(fields), ["SLUG_TAKEN"]);
+
+type Action = "publish" | "unpublish" | "delete";
+/** シリーズの公開状態の変更、または削除。 */
+export type SeriesChange = Record<"action", Action>;
+
+/** 操作を送り、取り直しが必要な失敗を返す。 */
+export const changeSeries = async (
+  api: ApiClient,
+  change: SeriesChange & Record<"id", string>,
+) => {
+  const { id } = change;
+  const service = api.admin.series;
+
+  const result =
+    change.action === "delete"
+      ? await callApi(service.delete({ id }), ["NOT_FOUND"])
+      : await callApi(service[change.action]({ id }), ["NOT_FOUND"]);
+
+  return result._tag === "Failed" ? result.code : undefined;
+};

@@ -1,4 +1,5 @@
-import { type ReactNode, useRef, useState } from "react";
+import { useLocation } from "@tanstack/react-router";
+import { type ReactNode, useCallback, useRef, useState } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
@@ -19,19 +20,42 @@ const CreateSeries = (): ReactNode => {
   const [creating, setCreating] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
 
+  const focusCreate = useLocation({
+    select: (location) => location.hash === "new-series",
+  });
+
+  const attach = useCallback(
+    (button: HTMLButtonElement | null) => {
+      trigger.current = button;
+
+      if (!focusCreate || button === null) return;
+
+      const frame = requestAnimationFrame(() => {
+        button.focus();
+      });
+
+      return () => {
+        cancelAnimationFrame(frame);
+      };
+    },
+    [focusCreate],
+  );
+
   return (
     <>
-      <Button
-        ref={trigger}
-        size="card"
-        tone="dashed"
-        onPress={() => {
-          setCreating(true);
-        }}
-      >
-        <Icon name="plus" />
-        {t("series.new")}
-      </Button>
+      <div id="new-series">
+        <Button
+          ref={attach}
+          size="card"
+          tone="dashed"
+          onPress={() => {
+            setCreating(true);
+          }}
+        >
+          <Icon name="plus" />
+          {t("series.new")}
+        </Button>
+      </div>
       {creating && (
         <SeriesForm
           onClose={() => {

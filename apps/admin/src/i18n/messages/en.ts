@@ -261,6 +261,11 @@ export const en = {
   "series.edit": "Edit series",
   "series.back": "Series list",
   "series.gone": "This series no longer exists.",
+  "series.deleteDescription":
+    "Deleting this series is permanent. Its images remain in the image library.",
+  "series.changeFailed":
+    "Could not save the changes to this series. Try again.",
+  "series.imageGone": "The series or image could not be found.",
   "images.title": "Images",
   "images.description": "Photos that double as works, newest first.",
   "images.loading": "Loading images.",
