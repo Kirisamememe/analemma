@@ -25,6 +25,7 @@ import {
 } from "@/routes/fixed-pages/fixed-page-routes";
 import { FixedPagesPage } from "@/routes/fixed-pages/fixed-pages-page";
 import { HomePage } from "@/routes/home-page";
+import { DropboxImportPage } from "@/routes/images/dropbox-import-page";
 import { ImageViewerPage } from "@/routes/images/image-viewer-page";
 import { ImagesPage } from "@/routes/images/images-page";
 import { NotFoundPage } from "@/routes/not-found-page";
@@ -161,6 +162,12 @@ const imagesRoute = createRoute({
   component: ImagesPage,
 });
 
+const dropboxImportRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/images/dropbox",
+  component: DropboxImportPage,
+});
+
 const imageViewerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/images/$id",
@@ -187,6 +194,7 @@ const routeTree = rootRoute.addChildren([
       editFixedPageRoute,
     ]),
     imagesRoute,
+    dropboxImportRoute,
     securityRoute,
     deployTokensRoute,
   ]),
