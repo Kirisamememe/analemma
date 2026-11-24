@@ -141,6 +141,7 @@ const fixedPages = api.admin.fixedPages.use(sendEarlyReply);
 const images = api.admin.images.use(sendEarlyReply);
 const kinds = api.admin.kinds.use(sendEarlyReply);
 const passkeys = api.admin.passkeys.use(sendEarlyReply);
+const series = api.admin.series.use(sendEarlyReply);
 const session = api.admin.session.use(sendEarlyReply);
 
 const procedures = {
@@ -169,6 +170,16 @@ const procedures = {
   "admin/passkeys/register": bindReply(passkeys.register),
   "admin/passkeys/registrationOptions": bindReply(passkeys.registrationOptions),
   "admin/passkeys/rename": bindReply(passkeys.rename),
+  "admin/series/get": bindReply(series.get),
+  "admin/series/update": bindReply(series.update),
+  "admin/series/delete": bindReply(series.delete),
+  "admin/series/publish": bindReply(series.publish),
+  "admin/series/unpublish": bindReply(series.unpublish),
+  "admin/series/addImages": bindReply(series.addImages),
+  "admin/series/removeImages": bindReply(series.removeImages),
+  "admin/series/reorder": bindReply(series.reorder),
+  "admin/series/create": bindReply(series.create),
+  "admin/series/list": bindReply(series.list),
   "admin/session/get": bindReply(session.get),
   "admin/session/logOut": bindReply(session.logOut),
   "admin/session/logOutAll": bindReply(session.logOutAll),

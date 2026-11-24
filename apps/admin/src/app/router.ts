@@ -19,6 +19,8 @@ import { IMAGES_QUERY_KEY } from "@/queries/images-query";
 import { EnrollPage } from "@/routes/auth/enroll-page";
 import { LoginPage } from "@/routes/auth/login-page";
 import { DeployTokensPage } from "@/routes/deploy-tokens/deploy-tokens-page";
+import { NotFoundPage } from "@/routes/errors/not-found-page";
+import { SessionErrorPage } from "@/routes/errors/session-error-page";
 import {
   EditFixedPage,
   NewFixedPage,
@@ -27,10 +29,9 @@ import { FixedPagesPage } from "@/routes/fixed-pages/fixed-pages-page";
 import { HomePage } from "@/routes/home-page";
 import { ImageViewerPage } from "@/routes/images/image-viewer-page";
 import { ImagesPage } from "@/routes/images/images-page";
-import { NotFoundPage } from "@/routes/not-found-page";
 import { RootLayout } from "@/routes/root-layout";
 import { SecurityPage } from "@/routes/security-page";
-import { SessionErrorPage } from "@/routes/session-error-page";
+import { SeriesPage } from "@/routes/series/series-page";
 import { SignedInLayout } from "@/routes/signed-in-layout";
 
 /** 画面が使う、server と認証器の窓口。 */
@@ -155,6 +156,12 @@ const editFixedPageRoute = createRoute({
   component: EditFixedPage,
 });
 
+const seriesRoute = createRoute({
+  getParentRoute: () => signedInRoute,
+  path: "/series",
+  component: SeriesPage,
+});
+
 const imagesRoute = createRoute({
   getParentRoute: () => signedInRoute,
   path: "/images",
@@ -187,6 +194,7 @@ const routeTree = rootRoute.addChildren([
       editFixedPageRoute,
     ]),
     imagesRoute,
+    seriesRoute,
     securityRoute,
     deployTokensRoute,
   ]),
