@@ -14,7 +14,7 @@ type SummaryRow = Awaited<
   ReturnType<typeof listPublishedCollectionRows>
 >[number];
 
-/** 作品集とその画像の行を、公開サイトに返す形にする。 */
+/** コレクションとその画像の行を、公開サイトに返す形にする。 */
 export const toPublishedCollection = (
   rows: readonly CollectionRow[],
   origin: string,
@@ -33,7 +33,7 @@ export const toPublishedCollection = (
   };
 };
 
-/** 作品集とカバーの画像の行を、公開サイトに返す一覧にする。 */
+/** コレクションとカバーの画像の行を、公開サイトに返す一覧にする。 */
 export const toPublishedCollectionList = (
   rows: readonly SummaryRow[],
   origin: string,

@@ -34,7 +34,7 @@ const collection = { name: "海辺", slug: "sea", description: null };
 const summary = { ...collection, imageCount: 1, coverImage: image };
 const url = "http://127.0.0.1:8788";
 
-test("公開している画像と作品集を取得し、無いときは undefined を返すこと", async () => {
+test("公開している画像とコレクションを取得し、無いときは undefined を返すこと", async () => {
   const os = implement({
     public: {
       images: contract.public.images,

@@ -3,7 +3,7 @@ import { toAdminCollection } from "@/features/collections/to-admin-collection";
 import { toAdminImage } from "@/features/images/to-image";
 import { adminProcedures } from "@/procedures";
 
-/** 作品集と並び順どおりの画像を返す procedure。 */
+/** コレクションと並び順どおりの画像を返す procedure。 */
 export const getCollection = adminProcedures.collections.get.handler(
   async ({ context, errors, input }) => {
     const rows = await readCollectionRows(context.db, input.id);

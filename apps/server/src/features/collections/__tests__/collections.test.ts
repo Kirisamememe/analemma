@@ -50,7 +50,7 @@ const addTestImages = async (server: TestClient) => {
 // 管理用 API
 // ----------------------------------------
 
-test("作品集を非公開で作り、新しく作った順に一覧に返すこと", async () => {
+test("コレクションを非公開で作り、新しく作った順に一覧に返すこと", async () => {
   await using server = await createTestClient();
   await signInAsAdmin(server);
   const api = server.client.admin.collections;
@@ -122,7 +122,7 @@ test("公開し直しても公開した日時を保ち、非公開に戻すと�
   }
 });
 
-test("画像は作品集ごとに並び、公開状態を変えても残り、画像を消すとすべての作品集から外れること", async () => {
+test("画像はコレクションごとに並び、公開状態を変えても残り、画像を消すとすべてのコレクションから外れること", async () => {
   await using server = await createTestClient();
   await signInAsAdmin(server);
   const api = server.client.admin.collections;
@@ -194,7 +194,7 @@ test("無い画像を含む追加と、画像の集まりが食い違う並べ�
 // 公開 API
 // ----------------------------------------
 
-test("公開している作品集の並び順・カバー・件数は公開画像だけを使い、公開画像が無くても作品集を返すこと", async () => {
+test("公開しているコレクションの並び順・カバー・件数は公開画像だけを使い、公開画像が無くてもコレクションを返すこと", async () => {
   await using server = await createTestClient();
   await signInAsAdmin(server);
   const admin = server.client.admin;

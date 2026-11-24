@@ -4,7 +4,7 @@ import {
 } from "@/features/collections/membership/queries/collection-images.query";
 import { adminProcedures } from "@/procedures";
 
-/** 作品集から画像を外す procedure。 */
+/** コレクションから画像を外す procedure。 */
 export const removeCollectionImages =
   adminProcedures.collections.removeImages.handler(
     async ({ context, errors, input }) => {
@@ -15,7 +15,7 @@ export const removeCollectionImages =
       });
       context.logger.write({
         level: "info",
-        message: "作品集から画像を外した",
+        message: "コレクションから画像を外した",
         details: { collectionId: input.id },
       });
     },

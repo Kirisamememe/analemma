@@ -2,7 +2,7 @@ import { setPublished } from "@/features/collections/editing/queries/collections
 import { toAdminCollection } from "@/features/collections/to-admin-collection";
 import { adminProcedures } from "@/procedures";
 
-/** 作品集を非公開にする procedure。 */
+/** コレクションを非公開にする procedure。 */
 export const unpublishCollection =
   adminProcedures.collections.unpublish.handler(
     async ({ context, errors, input }) => {
@@ -15,7 +15,7 @@ export const unpublishCollection =
 
       context.logger.write({
         level: "info",
-        message: "作品集を非公開にした",
+        message: "コレクションを非公開にした",
         details: { collectionId: input.id },
       });
 

@@ -7,7 +7,7 @@ import type { Database, DatabaseExecutor } from "@/platform/database";
 
 type Fields = ContractInputs["admin"]["collections"]["create"];
 
-/** 新しい作品集の行。 */
+/** 新しいコレクションの行。 */
 export const insertCollection = async (
   db: DatabaseExecutor,
   fields: Fields,
@@ -21,7 +21,7 @@ export const insertCollection = async (
   return row;
 };
 
-/** 作品集の名前・slug・説明の書き換え。 */
+/** コレクションの名前・slug・説明の書き換え。 */
 export const replaceCollection = async (
   db: Database,
   { id, ...fields }: ContractInputs["admin"]["collections"]["update"],
@@ -48,7 +48,7 @@ export const replaceCollection = async (
     return { _tag: "Saved", row } as const;
   });
 
-/** 作品集の公開日時の変更。 */
+/** コレクションの公開日時の変更。 */
 export const setPublished = async (
   db: DatabaseExecutor,
   {
@@ -70,7 +70,7 @@ export const setPublished = async (
   return row;
 };
 
-/** 作品集の物理削除。 */
+/** コレクションの物理削除。 */
 export const deleteCollectionRow = async (db: DatabaseExecutor, id: string) => {
   const rows = await db
     .delete(collection)

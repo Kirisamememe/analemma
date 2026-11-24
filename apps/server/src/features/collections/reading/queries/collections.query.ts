@@ -5,7 +5,7 @@ import { deliveryImage } from "@/db/schema/delivery-image";
 import { image } from "@/db/schema/image";
 import type { DatabaseExecutor } from "@/platform/database";
 
-/** 作品集と、その画像と配信用の画像の行。 */
+/** コレクションと、その画像と配信用の画像の行。 */
 export const readCollectionRows = (db: DatabaseExecutor, id: string) =>
   db
     .select({ collection, image, deliveryImage })
@@ -16,7 +16,7 @@ export const readCollectionRows = (db: DatabaseExecutor, id: string) =>
     .where(eq(collection.id, id))
     .orderBy(collectionImage.position);
 
-/** 作品集の一覧と、それぞれの画像の数と先頭の画像。 */
+/** コレクションの一覧と、それぞれの画像の数と先頭の画像。 */
 export const listCollectionRows = (db: DatabaseExecutor) => {
   const memberOfCollection = eq(collectionImage.collectionId, collection.id);
 

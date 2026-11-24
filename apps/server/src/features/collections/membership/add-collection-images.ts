@@ -4,7 +4,7 @@ import {
 } from "@/features/collections/membership/queries/collection-images.query";
 import { adminProcedures } from "@/procedures";
 
-/** 作品集の末尾に画像を足す procedure。 */
+/** コレクションの末尾に画像を足す procedure。 */
 export const addCollectionImages =
   adminProcedures.collections.addImages.handler(
     async ({ context, errors, input }) => {
@@ -17,7 +17,7 @@ export const addCollectionImages =
       });
       context.logger.write({
         level: "info",
-        message: "作品集に画像を足した",
+        message: "コレクションに画像を足した",
         details: { collectionId: input.id },
       });
     },

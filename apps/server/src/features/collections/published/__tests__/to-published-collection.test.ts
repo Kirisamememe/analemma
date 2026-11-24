@@ -36,7 +36,7 @@ const deliveries = [1280, 640].map((width) => ({
 
 const empty = { fields, image: null, deliveryImage: null };
 
-test("同じ画像の幅ごとの行をまとめ、公開画像を作品集の中の並び順で返すこと", () => {
+test("同じ画像の幅ごとの行をまとめ、公開画像をコレクションの中の並び順で返すこと", () => {
   const second = { ...image, id: "019b0000-0000-7000-8000-000000000002" };
 
   const rows = deliveries.map((deliveryImage) => ({
@@ -62,7 +62,7 @@ test("同じ画像の幅ごとの行をまとめ、公開画像を作品集の�
   );
 });
 
-test("公開画像が無い作品集は空の画像一覧を返し、作品集自体が無ければ undefined を返すこと", () => {
+test("公開画像が無いコレクションは空の画像一覧を返し、コレクション自体が無ければ undefined を返すこと", () => {
   expect(toPublishedCollection([empty], origin)).toEqual({
     ...fields,
     images: [],
@@ -70,7 +70,7 @@ test("公開画像が無い作品集は空の画像一覧を返し、作品集�
   expect(toPublishedCollection([], origin)).toBeUndefined();
 });
 
-test("一覧では作品集ごとにカバーと件数を返し、公開画像が無ければカバーは null になること", () => {
+test("一覧ではコレクションごとにカバーと件数を返し、公開画像が無ければカバーは null になること", () => {
   const sky = { name: "空", slug: "sky", description: "夏の記録" };
 
   const list = toPublishedCollectionList(

@@ -4,7 +4,7 @@ import { listDeliveryImages } from "@/features/images/queries/delivery-images.qu
 import { toAdminImage } from "@/features/images/to-image";
 import { adminProcedures } from "@/procedures";
 
-/** 作品集を新しく作った順に返す procedure。 */
+/** コレクションを新しく作った順に返す procedure。 */
 export const listCollections = adminProcedures.collections.list.handler(
   ({ context }) =>
     context.db.transaction(

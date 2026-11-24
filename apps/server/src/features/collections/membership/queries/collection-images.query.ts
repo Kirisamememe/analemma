@@ -8,7 +8,7 @@ import type { DatabaseExecutor } from "@/platform/database";
 
 type Selection = ContractInputs["admin"]["collections"]["addImages"];
 
-/** 画像の並びを変える作品集の行のロック。 */
+/** 画像の並びを変えるコレクションの行のロック。 */
 export const lockCollection = async (db: DatabaseExecutor, id: string) => {
   const rows = await db
     .select({ id: collection.id })
@@ -19,7 +19,7 @@ export const lockCollection = async (db: DatabaseExecutor, id: string) => {
   return rows.length > 0;
 };
 
-/** 作品集の末尾に画像を足す。 */
+/** コレクションの末尾に画像を足す。 */
 export const appendImages = async (
   db: DatabaseExecutor,
   { id, imageIds: requested }: Selection,
@@ -47,7 +47,7 @@ export const appendImages = async (
   return true;
 };
 
-/** 作品集から指定した画像を外す。 */
+/** コレクションから指定した画像を外す。 */
 export const removeImages = async (
   db: DatabaseExecutor,
   { id, imageIds: ids }: Selection,
@@ -61,7 +61,7 @@ export const removeImages = async (
       ),
     );
 
-/** 作品集の画像の位置を振り直す。 */
+/** コレクションの画像の位置を振り直す。 */
 export const reorderImages = async (
   db: DatabaseExecutor,
   { id, imageIds: requested }: Selection,

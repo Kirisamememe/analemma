@@ -58,9 +58,9 @@ const page = await cms.fixedPages.get(about, "about");
 
 公開していないページと、無いページは、どちらも `undefined` になる。slug の形(英小文字と数字の kebab-case、100文字まで)に合わない名前も、公開 API を呼ばずに `undefined` を返すので、URL の一部をそのまま渡し、`undefined` なら 404 にすればよい。
 
-## 公開している画像と作品集を読む
+## 公開している画像とコレクションを読む
 
-同じ client の `cms.images.get(id)` で画像を、`cms.collections.list()` で作品集の一覧を、`cms.collections.get(slug)` で作品集と並び順どおりの画像を取得する。1件の取得で見つからなければ `undefined` になる。画像の `deliveryImages` には、ブラウザで読める絶対 URL と幅・高さが幅の昇順で入る。
+同じ client の `cms.images.get(id)` で画像を、`cms.collections.list()` でコレクションの一覧を、`cms.collections.get(slug)` でコレクションと並び順どおりの画像を取得する。1件の取得で見つからなければ `undefined` になる。画像の `deliveryImages` には、ブラウザで読める絶対 URL と幅・高さが幅の昇順で入る。
 
 ## 種類の定義を送る
 

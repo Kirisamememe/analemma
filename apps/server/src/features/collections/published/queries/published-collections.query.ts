@@ -12,14 +12,14 @@ const fields = {
   description: collection.description,
 };
 
-/** 作品集を公開しているか。 */
+/** コレクションを公開しているか。 */
 export const isPublished = (
   row: Pick<typeof collection.$inferSelect, "publishedAt">,
 ): boolean => row.publishedAt !== null;
 
 const matchPublished = (): SQL => isNotNull(collection.publishedAt);
 
-/** 公開している作品集と、その公開画像を、作品集の中の並び順で読む。 */
+/** 公開しているコレクションと、その公開画像を、コレクションの中の並び順で読む。 */
 export const readPublishedCollection = (db: DatabaseExecutor, slug: string) =>
   db
     .select({ fields, image, deliveryImage })
@@ -33,7 +33,7 @@ export const readPublishedCollection = (db: DatabaseExecutor, slug: string) =>
     .where(and(matchPublished(), eq(collection.slug, slug)))
     .orderBy(collectionImage.position);
 
-/** 公開している作品集ごとに、公開画像の数と先頭の画像をまとめて読む。 */
+/** 公開しているコレクションごとに、公開画像の数と先頭の画像をまとめて読む。 */
 export const listPublishedCollectionRows = (db: DatabaseExecutor) => {
   const first = db
     .select({

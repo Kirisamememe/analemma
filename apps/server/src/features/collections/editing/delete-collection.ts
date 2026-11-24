@@ -1,7 +1,7 @@
 import { deleteCollectionRow } from "@/features/collections/editing/queries/collections.query";
 import { adminProcedures } from "@/procedures";
 
-/** 作品集を消す procedure。 */
+/** コレクションを消す procedure。 */
 export const deleteCollection = adminProcedures.collections.delete.handler(
   async ({ context, errors, input }) => {
     if (!(await deleteCollectionRow(context.db, input.id))) {
@@ -10,7 +10,7 @@ export const deleteCollection = adminProcedures.collections.delete.handler(
 
     context.logger.write({
       level: "info",
-      message: "作品集を消した",
+      message: "コレクションを消した",
       details: { collectionId: input.id },
     });
   },

@@ -11,7 +11,7 @@ import {
 
 import { image } from "@/db/schema/image";
 
-/** 作品集のテーブル。 */
+/** コレクションのテーブル。 */
 export const collection = pgTable("collection", {
   id: uuid("id")
     .primaryKey()
@@ -22,7 +22,7 @@ export const collection = pgTable("collection", {
   publishedAt: timestamp("published_at", { withTimezone: true }),
 });
 
-/** 作品集の中の画像と並び順。 */
+/** コレクションの中の画像と並び順。 */
 export const collectionImage = pgTable(
   "collection_image",
   {

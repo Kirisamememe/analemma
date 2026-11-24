@@ -2,7 +2,7 @@ import { replaceCollection } from "@/features/collections/editing/queries/collec
 import { toAdminCollection } from "@/features/collections/to-admin-collection";
 import { adminProcedures } from "@/procedures";
 
-/** 作品集の名前・slug・説明を書き換える procedure。 */
+/** コレクションの名前・slug・説明を書き換える procedure。 */
 export const updateCollection = adminProcedures.collections.update.handler(
   async ({ context, errors, input }) => {
     const result = await replaceCollection(context.db, input);
@@ -13,7 +13,7 @@ export const updateCollection = adminProcedures.collections.update.handler(
 
     context.logger.write({
       level: "info",
-      message: "作品集を書き換えた",
+      message: "コレクションを書き換えた",
       details: { collectionId: input.id },
     });
 

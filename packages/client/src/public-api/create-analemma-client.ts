@@ -17,9 +17,9 @@ type FixedPageOutputs = PublicOutputs["fixedPages"];
 
 /** 公開している画像。 */
 export type PublishedImage = PublicOutputs["images"]["get"];
-/** 公開している作品集と、その画像。 */
+/** 公開しているコレクションと、その画像。 */
 export type PublishedCollection = PublicOutputs["collections"]["get"];
-/** 公開している作品集の一覧の1件。 */
+/** 公開しているコレクションの一覧の1件。 */
 export type CollectionSummary =
   PublicOutputs["collections"]["list"]["collections"][number];
 
@@ -54,11 +54,11 @@ export type AnalemmaClient = {
     /** ID で画像を引く。 */
     readonly get: (id: string) => Promise<PublishedImage | undefined>;
   };
-  /** 公開している作品集を読む関数。 */
+  /** 公開しているコレクションを読む関数。 */
   readonly collections: {
-    /** slug で作品集を引く。 */
+    /** slug でコレクションを引く。 */
     readonly get: (slug: string) => Promise<PublishedCollection | undefined>;
-    /** 作品集を新しく作った順に並べる。 */
+    /** コレクションを新しく作った順に並べる。 */
     readonly list: () => Promise<CollectionSummary[]>;
   };
   /** 公開している固定ページを読む関数。 */

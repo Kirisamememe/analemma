@@ -2,7 +2,7 @@ import { insertCollection } from "@/features/collections/editing/queries/collect
 import { toAdminCollection } from "@/features/collections/to-admin-collection";
 import { adminProcedures } from "@/procedures";
 
-/** 作品集を作る procedure。 */
+/** コレクションを作る procedure。 */
 export const createCollection = adminProcedures.collections.create.handler(
   async ({ context, errors, input }) => {
     const row = await insertCollection(context.db, input);
@@ -11,7 +11,7 @@ export const createCollection = adminProcedures.collections.create.handler(
 
     context.logger.write({
       level: "info",
-      message: "作品集を作った",
+      message: "コレクションを作った",
       details: { collectionId: row.id },
     });
 

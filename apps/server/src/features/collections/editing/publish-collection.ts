@@ -2,7 +2,7 @@ import { setPublished } from "@/features/collections/editing/queries/collections
 import { toAdminCollection } from "@/features/collections/to-admin-collection";
 import { adminProcedures } from "@/procedures";
 
-/** 作品集を公開する procedure。 */
+/** コレクションを公開する procedure。 */
 export const publishCollection = adminProcedures.collections.publish.handler(
   async ({ context, errors, input }) => {
     const row = await setPublished(context.db, {
@@ -14,7 +14,7 @@ export const publishCollection = adminProcedures.collections.publish.handler(
 
     context.logger.write({
       level: "info",
-      message: "作品集を公開した",
+      message: "コレクションを公開した",
       details: { collectionId: input.id },
     });
 
