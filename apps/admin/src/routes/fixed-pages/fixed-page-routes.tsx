@@ -298,9 +298,7 @@ export const EditFixedPage = (): ReactNode => {
           <Titled
             actions={
               <DeleteFixedPage
-                isDisabled={
-                  screen._tag === "KindFailed" && screen.retry.isRetrying
-                } // 取り直して編集のフォームに替わると、削除の Dialog ごと消える
+                isDisabled={!screen.canDelete}
                 onDeleted={onDeleted}
                 page={screen.page}
               />

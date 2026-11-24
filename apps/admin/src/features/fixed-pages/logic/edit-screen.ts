@@ -50,7 +50,8 @@ export const definitionScreen = <Kind>(
 /** 編集の画面に出すもの。 */
 export type EditScreen<Page, Kind> =
   | (Exclude<DefinitionScreen<Kind>, Readonly<Record<"_tag", "Loading">>> &
-      Record<"page", Page>)
+      Record<"page", Page> &
+      Record<"canDelete", boolean>)
   | Readonly<Record<"_tag", "Loading" | "PageGone">>
   | (Readonly<Record<"_tag", "PageFailed">> & Record<"retry", QueryRetry>);
 
@@ -67,7 +68,11 @@ export const editScreen = <Page, Kind>(
 
   const definition = definitionScreen(kind);
 
-  return definition._tag === "Loading"
-    ? { _tag: "Loading" }
-    : { ...definition, page: page.data.data };
+  if (definition._tag === "Loading") return { _tag: "Loading" };
+
+  return {
+    ...definition,
+    page: page.data.data,
+    canDelete: definition._tag !== "KindFailed" || !definition.retry.isRetrying, // 取り直して編集のフォームに替わると、削除の Dialog ごと消える
+  };
 };

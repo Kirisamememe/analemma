@@ -47,6 +47,7 @@ describe("editScreen", () => {
       page: "about",
       kind: "紹介",
       refreshFailure: undefined,
+      canDelete: true,
     });
   });
 
@@ -68,6 +69,22 @@ describe("editScreen", () => {
     expect(editScreen(found("about"), gone)).toEqual({
       _tag: "KindGone",
       page: "about",
+      canDelete: true,
+    });
+  });
+
+  test("種類の定義を取り直している間は、固定ページを削除させない", () => {
+    const retrying: ApiQueryResult<Found> = {
+      _tag: "Failed",
+      isRetrying: true,
+      retry: () => undefined,
+    };
+
+    expect(editScreen(found("about"), failed)).toMatchObject({
+      canDelete: true,
+    });
+    expect(editScreen(found("about"), retrying)).toMatchObject({
+      canDelete: false,
     });
   });
 });
