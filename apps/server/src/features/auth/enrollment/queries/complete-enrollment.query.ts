@@ -1,6 +1,6 @@
 import { and, eq, gt } from "drizzle-orm";
 
-import { passkeyEnrollment } from "@/db/schema/passkey-enrollment";
+import { passkeyEnrollment } from "@/db/schema/auth/passkey-enrollment";
 import { lockAdminUser } from "@/features/auth/admin-user/queries/admin-user.query";
 import { deleteAllSessions } from "@/features/auth/current-session/queries/delete-all-sessions.query";
 import {

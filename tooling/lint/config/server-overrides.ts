@@ -122,7 +122,7 @@ export const SERVER_OVERRIDES: readonly OxlintOverride[] = [
       "**/apps/server/src/enroll.ts",
       "**/apps/server/src/app.ts",
       "**/apps/server/src/db/migrate.ts",
-      "**/apps/server/src/platform/parse-database-url.ts",
+      "**/apps/server/src/platform/startup/parse-database-url.ts",
       "**/apps/server/src/platform/test-database/**",
       "**/apps/server/src/test-client/**",
       "**/*.test.ts",

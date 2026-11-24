@@ -1,6 +1,6 @@
 import { eq, and, type SQL, lte, or, desc, notInArray, lt } from "drizzle-orm";
 
-import { session } from "@/db/schema/session";
+import { session } from "@/db/schema/auth/session";
 import {
   SESSION_ABSOLUTE_LIMIT_MS,
   SESSION_IDLE_LIMIT_MS,

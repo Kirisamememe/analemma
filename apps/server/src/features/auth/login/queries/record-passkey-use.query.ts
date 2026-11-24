@@ -1,6 +1,6 @@
 import { and, eq, sql } from "drizzle-orm";
 
-import { passkey } from "@/db/schema/passkey";
+import { passkey } from "@/db/schema/auth/passkey";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** ログインや再認証に使ったパスキーと、届いた値。 */

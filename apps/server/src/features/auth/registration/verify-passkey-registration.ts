@@ -11,7 +11,7 @@ import { PASSKEY_ALGORITHMS } from "@/features/auth/registration/passkey-policy"
 import { parseClientData } from "@/features/auth/webauthn/client-data/parse-client-data";
 import type { CoseAlgorithm } from "@/features/auth/webauthn/cose-key/cose-algorithm";
 import { verifyRegistration } from "@/features/auth/webauthn/verify-registration";
-import type { RelyingParty } from "@/platform/parse-relying-party";
+import type { RelyingParty } from "@/platform/startup/parse-relying-party";
 
 /** 検証できた、保存する前のパスキー。 */
 export type NewPasskey = {

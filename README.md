@@ -86,6 +86,13 @@ bun --cwd=apps/server run passkey:enroll
 | `bun run passkey:enroll`       | 管理者のパスキーを登録するための、1回きりで10分だけ使える登録用 URL を出す  |
 | `bun run test:prepare`         | `bun run test` が `bun test` の前に流すもの                                 |
 
+Dropbox につなぐときは、Dropbox の App Console(https://www.dropbox.com/developers/apps)でアプリを作り、app key と app secret を `apps/server/.env` の `DROPBOX_APP_KEY`・`DROPBOX_APP_SECRET` に書く。書かなければ、server は Dropbox につながない設定で起動する。
+
+- access type は App folder にする。後から変えられない。
+- Permissions で `account_info.read`・`files.metadata.read`・`files.content.read` を有効にする。
+- Settings の OAuth 2 の Redirect URIs に、`AUTH_ORIGIN` に、Dropbox から戻る管理画面の path(`/images/dropbox/callback`)を付けた URL(開発では `http://localhost:5173/images/dropbox/callback`)を足す。
+- 「Allow public clients」は有効にしない(server は app secret で認可する)。
+
 管理画面(Stilus)は、Vite の開発のサーバーで動かす。`/api` と `/media`(配信用の画像)は server へ流すので、server も起動しておく。ブラウザでは `http://localhost:5173` を開く(`127.0.0.1` ではパスキーが使えない)。
 
 ```bash

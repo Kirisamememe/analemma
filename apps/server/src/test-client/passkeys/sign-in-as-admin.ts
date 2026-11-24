@@ -2,9 +2,9 @@ import {
   type FakeAuthenticator,
   createFakeAuthenticator,
 } from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
-import { answerAuthentication } from "@/test-client/answer-authentication";
-import { answerRegistration } from "@/test-client/answer-registration";
 import type { TestBrowser, TestClient } from "@/test-client/create-test-client";
+import { answerAuthentication } from "@/test-client/passkeys/answer-authentication";
+import { answerRegistration } from "@/test-client/passkeys/answer-registration";
 
 /** テストで登録した、テスト用の認証器のパスキー。 */
 export type TestPasskey = {

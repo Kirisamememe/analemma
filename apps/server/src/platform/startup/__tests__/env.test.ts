@@ -311,3 +311,33 @@ describe("MEDIA_DIR", () => {
     );
   });
 });
+
+describe("DROPBOX_APP_KEY と DROPBOX_APP_SECRET", () => {
+  const SERVER = { ...AUTH, DATABASE_URL, MEDIA_DIR: "media" };
+
+  test("両方を書けば、Dropbox のアプリの app key と app secret として読むこと", () => {
+    expect(
+      readServerEnv({
+        ...SERVER,
+        DROPBOX_APP_KEY: "abc123",
+        DROPBOX_APP_SECRET: "def456",
+      }).dropbox,
+    ).toEqual({ appKey: "abc123", appSecret: "def456" });
+  });
+
+  test("両方を省けば、Dropbox につながない設定として起動できること", () => {
+    expect(readServerEnv(SERVER).dropbox).toBeUndefined();
+  });
+
+  test("片方だけのときと、英数字のほかを含むときは、起動しないこと", () => {
+    expect(
+      readError({ ...SERVER, DROPBOX_APP_KEY: "abc123" }, readServerEnv),
+    ).toContain("DROPBOX_APP_SECRET: DROPBOX_APP_KEY と DROPBOX_APP_SECRET は");
+    expect(
+      readError(
+        { ...SERVER, DROPBOX_APP_KEY: " abc", DROPBOX_APP_SECRET: "def" },
+        readServerEnv,
+      ),
+    ).toContain("DROPBOX_APP_KEY: App Console の値を英数字のまま書く");
+  });
+});

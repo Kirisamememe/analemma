@@ -1,7 +1,7 @@
 import { and, eq, ne } from "drizzle-orm";
 
-import { passkey } from "@/db/schema/passkey";
-import { session } from "@/db/schema/session";
+import { passkey } from "@/db/schema/auth/passkey";
+import { session } from "@/db/schema/auth/session";
 import {
   type Reauthentication,
   type ReauthenticationGone,

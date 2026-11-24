@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 
-import { adminUser } from "@/db/schema/admin-user";
+import { adminUser } from "@/db/schema/auth/admin-user";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** 管理者の行。 */

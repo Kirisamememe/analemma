@@ -1,4 +1,4 @@
-import { passkeyEnrollment } from "@/db/schema/passkey-enrollment";
+import { passkeyEnrollment } from "@/db/schema/auth/passkey-enrollment";
 import {
   ensureAdminUser,
   lockAdminUser,

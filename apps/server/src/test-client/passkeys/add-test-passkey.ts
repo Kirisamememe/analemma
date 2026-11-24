@@ -1,8 +1,8 @@
 import { createFakeAuthenticator } from "@/features/auth/webauthn/fake-authenticator/create-fake-authenticator";
-import { answerReauthentication } from "@/test-client/answer-authentication";
-import { answerRegistration } from "@/test-client/answer-registration";
 import type { TestBrowser } from "@/test-client/create-test-client";
-import type { TestPasskey } from "@/test-client/sign-in-as-admin";
+import { answerReauthentication } from "@/test-client/passkeys/answer-authentication";
+import { answerRegistration } from "@/test-client/passkeys/answer-registration";
+import type { TestPasskey } from "@/test-client/passkeys/sign-in-as-admin";
 
 /** 足すパスキーの名前と、確かめ直すのに使う、今のパスキー。 */
 export type TestPasskeyAddition = {
