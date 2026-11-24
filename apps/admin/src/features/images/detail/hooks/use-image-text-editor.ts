@@ -109,7 +109,7 @@ export const useImageTextEditor = (image: AdminImage, onClose: () => void) => {
       leaving.stay();
       setConfirmClose(false);
     },
-    /** 確かめの答えとして、入力を捨てて離れる。 */
+    /** 確かめに応じて、編集を閉じ、止めた移動を続ける。 */
     leave: (): void => {
       leaving.leave();
       close();
