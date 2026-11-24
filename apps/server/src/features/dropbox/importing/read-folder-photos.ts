@@ -58,7 +58,11 @@ export const readFolderPhotos = async (
 
   const listed = await session.api.listFiles(token, signal);
 
-  if (listed._tag === "Unauthorized") return { _tag: "ConnectionLost" };
+  if (listed._tag === "Unauthorized") {
+    await session.confirmLost();
+
+    return { _tag: "ConnectionLost" };
+  }
 
   const photos = selectFolderPhotos(listed.files);
 

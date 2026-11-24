@@ -4,30 +4,38 @@ import { dropboxImport } from "@/db/schema/dropbox";
 import type { DatabaseExecutor } from "@/platform/database";
 
 /** 取り込んだ写真の記録。 */
-export type ImportedPhoto = {
-  /** 作った画像の ID(画像を消していれば null)。 */
-  readonly imageId: string | null;
-  /** 取り込んだ日時。 */
-  readonly importedAt: Date;
-};
+export type ImportedPhoto = Readonly<
+  Pick<typeof dropboxImport.$inferSelect, "imageId" | "importedAt">
+>;
+
+const CHUNK = 1000; // SQL の引数の数の上限(65535)に収める
 
 /** content_hash ごとに、取り込んだ写真の記録を読む。 */
 export const findImportedPhotos = async (
   db: DatabaseExecutor,
   contentHashes: readonly string[],
 ): Promise<Map<string, ImportedPhoto>> => {
-  if (contentHashes.length === 0) return new Map();
+  const unique = [...new Set(contentHashes)];
 
-  const rows = await db
-    .select({
-      contentHash: dropboxImport.contentHash,
-      imageId: dropboxImport.imageId,
-      importedAt: dropboxImport.importedAt,
-    })
-    .from(dropboxImport)
-    .where(inArray(dropboxImport.contentHash, [...contentHashes]));
+  const chunks = Array.from(
+    { length: Math.ceil(unique.length / CHUNK) },
+    (_, index) => unique.slice(index * CHUNK, (index + 1) * CHUNK),
+  );
+
+  const rows = await Promise.all(
+    chunks.map(async (chunk) =>
+      db
+        .select({
+          contentHash: dropboxImport.contentHash,
+          imageId: dropboxImport.imageId,
+          importedAt: dropboxImport.importedAt,
+        })
+        .from(dropboxImport)
+        .where(inArray(dropboxImport.contentHash, chunk)),
+    ),
+  );
 
   return new Map(
-    rows.map(({ contentHash, ...imported }) => [contentHash, imported]),
+    rows.flat().map(({ contentHash, ...imported }) => [contentHash, imported]),
   );
 };

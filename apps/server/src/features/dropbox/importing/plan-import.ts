@@ -43,14 +43,26 @@ export const planImport = ({
     const photo = byId.get(id);
 
     if (photo === undefined) {
-      return { id, path: "", status: "not-found", imageId: null };
+      return {
+        id,
+        path: "",
+        status: "not-found",
+        imageId: null,
+        contentHash: null,
+      };
     }
 
-    const { path } = photo;
+    const { path, contentHash } = photo;
     const importedImageId = imported.get(photo.contentHash);
 
     if (importedImageId !== undefined) {
-      return { id, path, status: "already-added", imageId: importedImageId };
+      return {
+        id,
+        path,
+        status: "already-added",
+        imageId: importedImageId,
+        contentHash,
+      };
     }
 
     return {
@@ -58,6 +70,7 @@ export const planImport = ({
       path,
       status: photo.size > maxBytes ? "too-large" : "waiting",
       imageId: null,
+      contentHash,
     };
   };
 

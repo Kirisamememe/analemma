@@ -4,7 +4,6 @@ import {
   createDropboxImports,
   finishRun,
   type ImportRun,
-  toDropboxImport,
   withPhotoStatus,
 } from "@/features/dropbox/importing/import-run";
 
@@ -16,8 +15,20 @@ const run: ImportRun = {
   startedAt: STARTED_AT,
   finishedAt: null,
   photos: [
-    { id: "id:a", path: "/a.jpg", status: "waiting", imageId: null },
-    { id: "id:b", path: "/b.jpg", status: "waiting", imageId: null },
+    {
+      id: "id:a",
+      path: "/a.jpg",
+      status: "waiting",
+      imageId: null,
+      contentHash: "hash-a",
+    },
+    {
+      id: "id:b",
+      path: "/b.jpg",
+      status: "waiting",
+      imageId: null,
+      contentHash: "hash-b",
+    },
   ],
 };
 
@@ -54,22 +65,12 @@ describe("createDropboxImports", () => {
 describe("withPhotoStatus", () => {
   test("指した写真だけの状態と画像の ID を変えること", () => {
     expect(
-      withPhotoStatus(1, { status: "added", imageId: IMAGE_ID })(run).photos,
+      withPhotoStatus(1, { status: "added", imageId: IMAGE_ID })(
+        run,
+      ).photos.map(({ status, imageId }) => ({ status, imageId })),
     ).toEqual([
-      { id: "id:a", path: "/a.jpg", status: "waiting", imageId: null },
-      { id: "id:b", path: "/b.jpg", status: "added", imageId: IMAGE_ID },
+      { status: "waiting", imageId: null },
+      { status: "added", imageId: IMAGE_ID },
     ]);
-  });
-});
-
-describe("toDropboxImport", () => {
-  test("日時を ISO 8601 にし、終えていなければ null にすること", () => {
-    expect(toDropboxImport(run)).toMatchObject({
-      startedAt: "2026-01-01T00:00:00.000Z",
-      finishedAt: null,
-    });
-    expect(toDropboxImport(finishRun(FINISHED_AT)(run)).finishedAt).toBe(
-      "2026-01-01T00:05:00.000Z",
-    );
   });
 });

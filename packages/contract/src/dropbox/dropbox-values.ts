@@ -63,12 +63,13 @@ export const dropboxImportStatus = z
     "added",
     "already-added",
     "not-found",
+    "changed",
     "too-large",
     "unsupported",
     "failed",
   ])
   .describe(
-    "waiting は順番を待っている、importing は読んで変換している、added は画像を作った、already-added は同じ中身の写真を取り込み済み、not-found は Dropbox に無い、too-large は大きすぎる、unsupported は形式に対応していない、failed は想定外の失敗。",
+    "waiting は順番を待っている、importing は読んで変換している、added は画像を作った、already-added は同じ中身の写真を取り込み済み、not-found は始めたときの一覧か読もうとしたときに Dropbox に無い、changed は選んだ後に中身が変わった、too-large は大きすぎる、unsupported は形式に対応していない、failed は想定外の失敗。",
   );
 
 /** 1回の取り込みの進み具合。 */
@@ -84,7 +85,9 @@ export const dropboxImport = z.object({
         id: dropboxFileId,
         path: z
           .string()
-          .describe("App folder の中のパス。Dropbox に無ければ空の文字列。"),
+          .describe(
+            "始めたときの App folder の中のパス。そのときの一覧に無ければ空の文字列。",
+          ),
         status: dropboxImportStatus,
         imageId: imageId
           .nullable()

@@ -4,15 +4,9 @@ import type { DropboxImport } from "@analemma/contract";
 export type ImportStatus = DropboxImport["photos"][number]["status"];
 
 /** 取り込む写真1枚。 */
-export type ImportPhoto = {
-  /** Dropbox のファイルの ID。 */
-  readonly id: string;
-  /** App folder の中のパス(無ければ空の文字列)。 */
-  readonly path: string;
-  /** 写真の状態。 */
-  readonly status: ImportStatus;
-  /** 作った画像か、同じ中身で取り込み済みの画像の ID。 */
-  readonly imageId: string | null;
+export type ImportPhoto = Readonly<DropboxImport["photos"][number]> & {
+  /** 始めたときの一覧の content_hash(一覧に無ければ null)。 */
+  readonly contentHash: string | null;
 };
 
 /** 1回の取り込み。 */

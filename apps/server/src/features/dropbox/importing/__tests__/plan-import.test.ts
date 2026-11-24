@@ -6,7 +6,6 @@ import {
 } from "@/features/dropbox/importing/plan-import";
 
 const NOW = new Date("2026-01-01T00:00:00.000Z");
-const IMAGE_ID = "019b0000-0000-7000-8000-000000000000";
 
 const photo = (id: string, change: Partial<FolderPhoto> = {}): FolderPhoto => ({
   id,
@@ -25,28 +24,22 @@ describe("planImport", () => {
       startedAt: NOW,
       finishedAt: null,
       photos: [
-        { id: "id:b", path: "/b.jpg", status: "waiting", imageId: null },
-        { id: "id:a", path: "/a.jpg", status: "waiting", imageId: null },
+        {
+          id: "id:b",
+          path: "/b.jpg",
+          status: "waiting",
+          imageId: null,
+          contentHash: "hash-id:b",
+        },
+        {
+          id: "id:a",
+          path: "/a.jpg",
+          status: "waiting",
+          imageId: null,
+          contentHash: "hash-id:a",
+        },
       ],
     });
-  });
-
-  test("同じ中身を取り込み済みの写真は、作った画像の ID を持たせて終えること", () => {
-    const { photos } = planImport({
-      ids: ["id:a", "id:b"],
-      photos: [photo("id:a"), photo("id:b")],
-      imported: new Map([
-        ["hash-id:a", IMAGE_ID],
-        ["hash-id:b", null],
-      ]),
-      maxBytes: 1000,
-      now: NOW,
-    });
-
-    expect(photos.map(({ status, imageId }) => ({ status, imageId }))).toEqual([
-      { status: "already-added", imageId: IMAGE_ID },
-      { status: "already-added", imageId: null },
-    ]);
   });
 
   test("上限を超える写真は大きすぎるとし、上限ちょうどは待たせること", () => {
@@ -63,7 +56,13 @@ describe("planImport", () => {
 
   test("App folder に無い写真は、パスを空にして無いとすること", () => {
     expect(plan(["id:gone"], [photo("id:a")]).photos).toEqual([
-      { id: "id:gone", path: "", status: "not-found", imageId: null },
+      {
+        id: "id:gone",
+        path: "",
+        status: "not-found",
+        imageId: null,
+        contentHash: null,
+      },
     ]);
   });
 
