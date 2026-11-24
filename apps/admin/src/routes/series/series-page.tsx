@@ -1,14 +1,47 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useRef, useState } from "react";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
 import { QueryContent } from "@/components/query-content";
 import { seriesListQuery } from "@/features/series/queries/series-query";
+import { SeriesForm } from "@/features/series/series-form";
 import { useTranslate } from "@/i18n/use-translate";
 import { Center, Cluster, Stack, Text } from "@/ui/layout";
 import { EmptyState, ImageThumbnail, PageHeader } from "@/ui/patterns";
 import { Badge } from "@/ui/primitives/badge";
+import { Button } from "@/ui/primitives/button";
 import { ActionList, ActionListRow } from "@/ui/primitives/collections";
+import { Icon } from "@/ui/primitives/graphics";
+
+const CreateSeries = (): ReactNode => {
+  const t = useTranslate();
+  const [creating, setCreating] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+
+  return (
+    <>
+      <Button
+        ref={trigger}
+        size="card"
+        tone="dashed"
+        onPress={() => {
+          setCreating(true);
+        }}
+      >
+        <Icon name="plus" />
+        {t("series.new")}
+      </Button>
+      {creating && (
+        <SeriesForm
+          onClose={() => {
+            setCreating(false);
+            trigger.current?.focus();
+          }}
+        />
+      )}
+    </>
+  );
+};
 
 const SeriesRows = (): ReactNode => {
   const { api } = useAppContext();
@@ -60,6 +93,7 @@ export const SeriesPage = (): ReactNode => {
       <Stack gap={8}>
         <PageHeader title={t("series.title")} />
         <Stack gap={2}>
+          <CreateSeries />
           <SeriesRows />
         </Stack>
       </Stack>
