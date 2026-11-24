@@ -28,6 +28,7 @@ import * as routesLoginPage from "@/routes/auth/__stories__/login-page.stories";
 import * as routesDeployTokensPage from "@/routes/deploy-tokens/__stories__/deploy-tokens-page.stories";
 import * as routesFixedPageEditor from "@/routes/fixed-pages/__stories__/fixed-page-editor.stories";
 import * as routesFixedPagesPage from "@/routes/fixed-pages/__stories__/fixed-pages-page.stories";
+import * as routesDropboxImportPage from "@/routes/images/__stories__/dropbox-import-page.stories";
 import * as routesImageViewerPage from "@/routes/images/__stories__/image-viewer-page.stories";
 import * as routesImagesPage from "@/routes/images/__stories__/images-page.stories";
 import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
@@ -107,6 +108,8 @@ const MODULES = {
     routesFixedPagesPage,
   "routes/images/__stories__/image-viewer-page.stories.ts":
     routesImageViewerPage,
+  "routes/images/__stories__/dropbox-import-page.stories.ts":
+    routesDropboxImportPage,
   "routes/images/__stories__/images-page.stories.ts": routesImagesPage,
   "ui/layout/__stories__/app-shell.stories.tsx": layoutAppShell,
   "ui/layout/__stories__/center.stories.tsx": layoutCenter,
