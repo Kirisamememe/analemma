@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+import { DROPBOX_IMPORT_MAX_PHOTOS } from "@analemma/contract";
 
 import type { ConversionQueue } from "@/features/images/processing/conversion-queue";
 import {
@@ -309,6 +310,19 @@ describe("取り込み", () => {
 
     held.release();
     await disconnecting;
+  });
+
+  test("上限の枚数を最も長い ID で選んでも、本文の上限に収まり、始められること", async () => {
+    await using server = await prepare();
+
+    const run = await server.client.admin.dropbox.startImport({
+      photos: Array.from({ length: DROPBOX_IMPORT_MAX_PHOTOS }, (_, index) => ({
+        id: `id:${String(index).padStart(128, "0")}`,
+        contentHash: "0".repeat(64),
+      })),
+    });
+
+    expect(run.photos).toHaveLength(DROPBOX_IMPORT_MAX_PHOTOS);
   });
 
   test("server を止めるときは、取り込んでいる途中の1枚を終えてから止まり、残りの写真を読まないこと", async () => {
