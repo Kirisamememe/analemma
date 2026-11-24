@@ -198,16 +198,16 @@ export const createDropboxFiles = (
         ),
       );
 
-      if (file.size > maxBytes) {
-        await response.body?.cancel();
-
-        return { _tag: "TooLarge" };
-      }
-
       if (accept !== undefined && !accept(file)) {
         await response.body?.cancel();
 
         return { _tag: "Declined", file };
+      }
+
+      if (file.size > maxBytes) {
+        await response.body?.cancel();
+
+        return { _tag: "TooLarge" };
       }
 
       const bytes = new Uint8Array(await response.arrayBuffer());

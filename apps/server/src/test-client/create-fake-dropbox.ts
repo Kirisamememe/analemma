@@ -92,6 +92,20 @@ const toContentHash = async (bytes: Uint8Array): Promise<string> => {
 const listArgument = z.object({ cursor: z.string().optional() });
 const downloadArgument = z.object({ path: z.string() });
 
+const FIRST_MODIFIED = Date.parse("2026-01-01T00:00:00.000Z");
+const SECOND = 1000;
+
+const toHeaderSafeJson = (value: unknown): string =>
+  JSON.stringify(value).replaceAll(/[\u007F-\u{10FFFF}]/gv, (character) =>
+    character
+      .split("")
+      .map(
+        (unit) =>
+          `\\u${(unit.codePointAt(0) ?? 0).toString(16).padStart(4, "0")}`,
+      )
+      .join(""),
+  );
+
 const json = (body: unknown, status = 200): Response =>
   Response.json(body, { status });
 
@@ -227,7 +241,7 @@ export const createFakeDropbox = (): FakeDropbox => {
         return new Response(file.bytes, {
           headers: {
             "content-type": "application/octet-stream",
-            "dropbox-api-result": JSON.stringify(toMetadata(file)),
+            "dropbox-api-result": toHeaderSafeJson(toMetadata(file)),
           },
         });
       }
@@ -268,7 +282,7 @@ export const createFakeDropbox = (): FakeDropbox => {
         path,
         bytes,
         contentHash: await toContentHash(bytes),
-        modifiedAt: `2026-01-01T00:00:${String(nextId).padStart(2, "0")}Z`,
+        modifiedAt: new Date(FIRST_MODIFIED + nextId * SECOND).toISOString(),
       });
 
       return id;
