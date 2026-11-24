@@ -65,6 +65,29 @@ describe("useFailureToast", () => {
     ).toBeDefined();
   });
 
+  test("別の対象に移ってから戻っても、前にその対象で出した失敗の Toast を閉じられる", () => {
+    const { result, rerender } = renderHook(
+      (id: string) => useFailureToast(id),
+      { initialProps: "A", wrapper: withToast },
+    );
+
+    act(() => {
+      result.current.show("山の画像を公開できませんでした。");
+    });
+    rerender("B");
+    act(() => {
+      result.current.show("港の画像を公開できませんでした。");
+    });
+    rerender("A");
+    act(() => {
+      result.current.close();
+    });
+
+    expect(
+      screen.getAllByRole("alert").map((toast) => toast.textContent),
+    ).toEqual(["港の画像を公開できませんでした。"]);
+  });
+
   test("対象の id が替わっても、描き直しを増やさない", () => {
     let renders = 0;
 
