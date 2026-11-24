@@ -42,6 +42,7 @@ export const dropbox = {
     )
     .output(dropboxConnection),
   disconnect: adminAccess
+    .errors(NOT_CONFIGURED)
     .route({
       method: "POST",
       path: "/admin/dropbox/disconnect",

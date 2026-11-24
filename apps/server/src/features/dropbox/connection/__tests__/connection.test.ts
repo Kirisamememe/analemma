@@ -5,6 +5,9 @@ import {
   DROPBOX_REDIRECT_PATH,
 } from "@analemma/contract";
 
+import { dropboxConnection } from "@/db/schema/dropbox";
+import { openDatabase } from "@/platform/database";
+import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
 import {
   catchErrorCode,
   connectTestDropbox,
@@ -15,9 +18,26 @@ import {
   TEST_DROPBOX_APP,
   TEST_NOW,
   TEST_ORIGIN,
+  type TestClient,
 } from "@/test-client";
 
 const TEN_MINUTES_MS = 10 * 60 * 1000;
+
+const insertConnection = async (server: TestClient): Promise<void> => {
+  await using connection = openDatabase({
+    target: toTestDatabaseTarget(server.databaseName),
+    logger: { write: () => undefined },
+    max: 1,
+  });
+
+  await connection.db.insert(dropboxConnection).values({
+    accountId: "dbid:old",
+    accountName: "Old",
+    accountEmail: "old@example.com",
+    refreshToken: "refresh-old",
+    connectedAt: TEST_NOW,
+  });
+};
 
 describe("Dropbox のアプリの設定が無い server", () => {
   test("設定が無いことを返し、認可を始めないこと", async () => {
@@ -219,6 +239,17 @@ describe("切る", () => {
       status: "connected",
     });
     expect(server.dropbox.activeGrants()).toBe(1);
+  });
+
+  test("app key と app secret を外した server では、接続を残して、設定が無いと返すこと", async () => {
+    await using server = await createTestClient({ withoutDropbox: true });
+    await signInAsAdmin(server);
+    await insertConnection(server);
+
+    expect(await catchErrorCode(server.client.admin.dropbox.disconnect())).toBe(
+      "NOT_CONFIGURED",
+    );
+    expect(server.dropbox.requests).toEqual([]);
   });
 
   test("利用者が Dropbox の側で切った後も、接続を切れること", async () => {

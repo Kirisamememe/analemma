@@ -6,16 +6,19 @@ import { adminProcedures } from "@/procedures";
 
 /** Dropbox に預けた認可を取り消し、接続の行を消す procedure。 */
 export const disconnectDropbox = adminProcedures.dropbox.disconnect.handler(
-  async ({ context, signal }) => {
+  async ({ context, errors, signal }) => {
     const row = await readDropboxConnection(context.db);
 
     if (row === undefined) return;
 
     const { api } = context.dropbox;
-    const refreshed = await api?.refresh(row.refreshToken, signal);
 
-    if (refreshed?._tag === "Refreshed") {
-      await api?.revoke(refreshed.accessToken, signal);
+    if (api === undefined) throw errors.NOT_CONFIGURED();
+
+    const refreshed = await api.refresh(row.refreshToken, signal);
+
+    if (refreshed._tag === "Refreshed") {
+      await api.revoke(refreshed.accessToken, signal);
     }
 
     await deleteDropboxConnection(context.db, row);
