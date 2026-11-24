@@ -1,27 +1,20 @@
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { FixedPageContent } from "@analemma/contract";
-
 import { useAppContext } from "@/api/app-context";
-import { callApi } from "@/api/call-api";
 import { useApiQuery } from "@/api/server-state/server-state";
 import { QueryContent } from "@/components/query-content";
-import { storedContentCheck } from "@/features/fixed-pages/editor/create-editor-values";
 import { DeleteFixedPage } from "@/features/fixed-pages/editor/delete-fixed-page";
 import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor";
 import {
   fixedPageQueryKey,
   loadFixedPage,
 } from "@/features/fixed-pages/editor/queries/fixed-page-query";
+import { useKindDefinition } from "@/features/fixed-pages/hooks/use-kind-definition";
+import { useKinds } from "@/features/fixed-pages/hooks/use-kinds";
 import { KindRefreshNotice } from "@/features/fixed-pages/list/kind-refresh-notice";
-import {
-  KIND_STALE_TIME,
-  KINDS_QUERY_KEY,
-  kindQueryKey,
-  loadKinds,
-} from "@/features/fixed-pages/queries/fixed-pages-query";
+import { editScreen, loadStage } from "@/features/fixed-pages/logic/load-stage";
 import { KindGuide } from "@/features/fixed-pages/ui/kind-guide";
 import { Center, Cluster, Heading, Stack, Text } from "@/ui/layout";
 import {
@@ -86,48 +79,15 @@ const Titled = ({
   </Stack>
 );
 
-const useKind = (name: string | undefined, content?: FixedPageContent) => {
-  const { api } = useAppContext();
-  const fits = useMemo(() => storedContentCheck(content), [content]);
-
-  return useApiQuery({
-    key: kindQueryKey(name),
-    tabStaleTime: (kind) =>
-      kind?._tag === "Succeeded" && fits(kind.data.fields)
-        ? KIND_STALE_TIME
-        : 0,
-    load:
-      name === undefined
-        ? undefined
-        : async () => {
-            const result = await callApi(api.admin.kinds.get({ name }), [
-              "NOT_FOUND",
-            ]);
-
-            if (result._tag === "Succeeded" && !fits(result.data.fields)) {
-              throw new Error("種類の定義で保存済みの中身を編集できません");
-            }
-
-            return result;
-          },
-  });
-};
-
 type KindPickerProps = {
   /** 種類を選んだときに呼ぶ関数。 */
   onPick: () => void;
 };
 
 const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
-  const { api } = useAppContext();
   const { t } = useTranslation();
   const navigate = useNavigate();
-
-  const query = useApiQuery({
-    key: KINDS_QUERY_KEY,
-    tabStaleTime: KIND_STALE_TIME,
-    load: () => loadKinds(api),
-  });
+  const query = useKinds();
 
   return (
     <Stack gap={3}>
@@ -186,7 +146,7 @@ type NewPageEditorProps = {
 const NewPageEditor = ({ name, picked }: NewPageEditorProps): ReactNode => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const kind = useKind(name);
+  const kind = useKindDefinition(name);
 
   const choose = (): void => {
     void navigate({ to: "/fixed-pages/new", search: {} });
@@ -290,13 +250,15 @@ export const EditFixedPage = (): ReactNode => {
       ? query.data.data
       : undefined;
 
-  const kind = useKind(page?.kind, page?.content);
+  const kind = useKindDefinition(page?.kind, page?.content);
+  const screen = editScreen(loadStage(query), loadStage(kind));
 
   const onDeleted = (): void => {
     void navigate({ to: "/fixed-pages", ignoreBlocker: true });
   };
 
   if (
+    screen === "Editor" &&
     page !== undefined &&
     kind._tag === "Loaded" &&
     kind.data._tag === "Succeeded"
@@ -315,11 +277,11 @@ export const EditFixedPage = (): ReactNode => {
     );
   }
 
-  if (page === undefined || kind._tag === "Loading") {
+  if (page === undefined || screen === "Loading") {
     return (
       <Frame ready={false}>
         <Titled title={t("fixedPageEditor.edit")}>
-          {query._tag === "Failed" ? (
+          {query._tag === "Failed" && (
             <ErrorState
               isRetrying={query.isRetrying}
               layout="screen"
@@ -327,11 +289,11 @@ export const EditFixedPage = (): ReactNode => {
               onRetry={query.retry}
               title={t("fixedPageEditor.loadFailed")}
             />
-          ) : query._tag === "Loaded" && page === undefined ? (
-            <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
-          ) : (
-            <LoadingState layout="form" />
           )}
+          {screen === "PageGone" && (
+            <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
+          )}
+          {screen === "Loading" && <LoadingState layout="form" />}
         </Titled>
       </Frame>
     );

@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
+import { useKinds } from "../hooks/use-kinds";
 import { KindRefreshNotice } from "./kind-refresh-notice";
+import { fixedPagesView, kindLabels } from "./logic/list-view";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
@@ -8,10 +10,7 @@ import { FixedPageRow } from "@/features/fixed-pages/list/fixed-page-row";
 import { useReorderFixedPages } from "@/features/fixed-pages/list/hooks/use-reorder-fixed-pages";
 import {
   FIXED_PAGES_QUERY_KEY,
-  KIND_STALE_TIME,
-  KINDS_QUERY_KEY,
   loadFixedPages,
-  loadKinds,
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
@@ -42,30 +41,25 @@ export const FixedPagesSection = ({
     load: () => loadFixedPages(api),
   });
 
-  const kinds = useApiQuery({
-    key: KINDS_QUERY_KEY,
-    tabStaleTime: KIND_STALE_TIME,
-    load: () => loadKinds(api),
-  });
-
+  const kinds = useKinds();
   const kindsRetrying = kinds._tag === "Failed" && kinds.isRetrying;
 
   const rows =
     pages._tag === "Loaded" ? reordering.arrange(pages.data.pages) : [];
 
-  const showRows =
-    pages._tag === "Loaded" && kinds._tag !== "Loading" && !kindsRetrying;
+  const view = fixedPagesView({
+    pages: pages._tag,
+    kinds: kinds._tag,
+    kindsRetrying,
+    rows: rows.length,
+  });
 
-  const labels = new Map(
-    kinds._tag === "Loaded"
-      ? kinds.data.kinds.map(({ name, label }) => [name, label])
-      : [],
+  const labels = kindLabels(
+    kinds._tag === "Loaded" ? kinds.data.kinds : undefined,
   );
 
   const content = (): ReactNode => {
-    if (pages._tag === "Loading" || kinds._tag === "Loading") {
-      return <LoadingState layout="list" />;
-    }
+    if (view === "Loading") return <LoadingState layout="list" />;
 
     if (pages._tag === "Failed") {
       return (
@@ -83,9 +77,7 @@ export const FixedPagesSection = ({
       );
     }
 
-    if (kindsRetrying) return <LoadingState layout="list" />;
-
-    if (rows.length === 0) {
+    if (view === "Empty") {
       return (
         <EmptyState
           description={t("fixedPages.emptyDescription")}
@@ -121,7 +113,7 @@ export const FixedPagesSection = ({
         <Icon name="plus" />
         {t("fixedPages.create")}
       </Button>
-      {showRows && rows.length > 1 && (
+      {view === "Rows" && rows.length > 1 && (
         <Cluster align="center" gap={2} justify="between">
           <Text tone="muted" variant="caption">
             {t("fixedPages.reorderHint")}

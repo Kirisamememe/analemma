@@ -1,4 +1,7 @@
+import type { FieldDefinition } from "@analemma/contract";
+
 import type { ApiClient, ApiOutputs } from "@/api/api-types";
+import { callApi } from "@/api/call-api";
 
 /** 固定ページの一覧の、query のキー。 */
 export const FIXED_PAGES_QUERY_KEY = ["admin", "fixedPages", "list"] as const;
@@ -25,3 +28,21 @@ export const loadFixedPages = (api: ApiClient) => api.admin.fixedPages.list();
 
 /** 種類の一覧を読む。 */
 export const loadKinds = (api: ApiClient) => api.admin.kinds.list();
+
+/** 名前で種類の定義を読み、保存済みの中身を表せない定義なら失敗にする。 */
+export const loadKind = async (
+  api: ApiClient,
+  {
+    name,
+    fits,
+  }: Record<"name", string> &
+    Record<"fits", (fields: readonly FieldDefinition[]) => boolean>,
+) => {
+  const result = await callApi(api.admin.kinds.get({ name }), ["NOT_FOUND"]);
+
+  if (result._tag === "Succeeded" && !fits(result.data.fields)) {
+    throw new Error("種類の定義で保存済みの中身を編集できません");
+  }
+
+  return result;
+};
