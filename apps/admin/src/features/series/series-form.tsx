@@ -32,7 +32,13 @@ export const SeriesForm = (props: SeriesFormProps): ReactNode => {
         isOpen
         isPending={isPending}
         status={isPending ? "pending" : undefined}
-        title={t(isPending ? "series.saving" : "series.new")}
+        title={t(
+          isPending
+            ? "series.saving"
+            : props.series === undefined
+              ? "series.new"
+              : "series.edit",
+        )}
         onOpenChange={(open) => {
           if (!open) requestClose();
         }}
