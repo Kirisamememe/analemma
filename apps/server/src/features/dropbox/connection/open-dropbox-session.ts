@@ -12,7 +12,7 @@ export type DropboxSession = {
   /** 切れる前に作り直した access token(接続が切れたら undefined)。 */
   readonly accessToken: () => Promise<string | undefined>;
   /** API が token を断ったときに、認可が取り消されていれば接続の行を消す。 */
-  readonly confirmLost: () => Promise<void>;
+  readonly confirmLost: (signal?: AbortSignal) => Promise<void>;
 };
 
 /** 接続を開けた結果。 */
@@ -87,8 +87,8 @@ export const openDropboxSession = async (
 
         return current?.token;
       },
-      confirmLost: async () => {
-        current = await refresh();
+      confirmLost: async (abort) => {
+        current = await refresh(abort);
       },
     },
   };

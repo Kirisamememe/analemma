@@ -59,7 +59,7 @@ export const readFolderPhotos = async (
   const listed = await session.api.listFiles(token, signal);
 
   if (listed._tag === "Unauthorized") {
-    await session.confirmLost();
+    await session.confirmLost(signal);
 
     return { _tag: "ConnectionLost" };
   }

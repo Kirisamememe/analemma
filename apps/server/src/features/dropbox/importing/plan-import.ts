@@ -1,3 +1,5 @@
+import type { ContractInputs } from "@analemma/contract";
+
 import type {
   ImportPhoto,
   ImportRun,
@@ -16,12 +18,8 @@ export type FolderPhoto = {
 };
 
 /** 管理画面で選んだ写真。 */
-export type SelectedPhoto = {
-  /** Dropbox のファイルの ID。 */
-  readonly id: string;
-  /** 選んだときの content_hash。 */
-  readonly contentHash: string;
-};
+export type SelectedPhoto =
+  ContractInputs["admin"]["dropbox"]["startImport"]["photos"][number];
 
 /** 取り込みを決めるための材料。 */
 export type ImportPlanInput = {
