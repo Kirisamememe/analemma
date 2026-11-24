@@ -5,9 +5,9 @@ type Page = ApiOutputs["admin"]["fixedPages"]["get"];
 
 /** 編集の画面が、種類の定義の替わりと保存をまたいで保つもの。 */
 export type EditorHold = {
-  /** 入力を始めたときの項目(入力していなければ undefined)。 */
+  /** 入力を始めたときの項目。 */
   readonly edited?: Fields | undefined;
-  /** 削除を確かめ始めたときの項目(確かめていなければ undefined)。 */
+  /** 削除を確かめ始めたときの項目。 */
   readonly deleting?: Fields | undefined;
   /** 保存を送った時点のページと、保存できた後のページ。 */
   readonly acknowledged?:
@@ -20,11 +20,11 @@ export type EditorHold = {
     | undefined;
 };
 
-/** フォームに並べる項目(入力中と削除の確認中は、始めたときの項目を保つ)。 */
+/** フォームに並べる項目。 */
 export const fieldsInUse = (hold: EditorHold, latest: Fields): Fields =>
   hold.edited ?? hold.deleting ?? latest;
 
-/** 入力を始めたら今の項目を保ち、入力が無くなったら放す。 */
+/** 入力中に保つ項目を、入力の有無に合わせる。 */
 export const holdWhileEditing = (
   hold: EditorHold,
   { editing, latest }: Record<"editing", boolean> & Record<"latest", Fields>,
@@ -34,7 +34,7 @@ export const holdWhileEditing = (
   return edited === hold.edited ? hold : { ...hold, edited };
 };
 
-/** 削除を確かめ始めたら今の項目を保ち、閉じたら放す。 */
+/** 削除の確認中に保つ項目を、確認の有無に合わせる。 */
 export const holdWhileDeleting = (
   hold: EditorHold,
   { open, latest }: Record<"open", boolean> & Record<"latest", Fields>,
@@ -50,6 +50,6 @@ export const fieldsChangedSinceEditing = (
   latest: Fields,
 ): boolean => hold.edited !== undefined && hold.edited !== latest;
 
-/** 保存を送った時点のページを表示している間は、保存できた後のページを使う。 */
+/** フォームに渡すページ。 */
 export const pageInUse = (hold: EditorHold, page: Page): Page =>
   hold.acknowledged?.before === page ? hold.acknowledged.saved : page;

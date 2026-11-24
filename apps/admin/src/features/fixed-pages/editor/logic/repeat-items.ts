@@ -19,7 +19,7 @@ export type RepeatChange = {
   readonly focus: RepeatFocus;
 };
 
-/** 要素を1つ上か下へ動かし、端に着いたら同じ要素の反対の向きのボタンへ focus を移す。 */
+/** 要素を1つ上か下へ動かした後の ID の並びと、focus を移すボタンを返す。 */
 export const moveRepeatItem = (
   ids: readonly string[],
   { id, direction }: Record<"id", string> & Record<"direction", -1 | 1>,
@@ -39,7 +39,7 @@ export const moveRepeatItem = (
   };
 };
 
-/** 要素を外し、次の要素の削除のボタンへ、末尾なら追加のボタンへ focus を移す。 */
+/** 要素を外した後の ID の並びと、focus を移すボタンを返す。 */
 export const removeRepeatItem = (
   ids: readonly string[],
   id: string,
