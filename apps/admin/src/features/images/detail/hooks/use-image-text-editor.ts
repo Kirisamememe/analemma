@@ -99,7 +99,7 @@ export const useImageTextEditor = (image: AdminImage, onClose: () => void) => {
       checkAfterSubmit((value: string) =>
         isValidImageText(name, value) ? undefined : t(INVALID[name]),
       ),
-    /** 変更があれば確かめてから、無ければすぐに閉じる。 */
+    /** 編集を閉じるのを求める。 */
     requestClose: (): void => {
       if (changed()) setConfirmClose(true);
       else close();
@@ -109,7 +109,7 @@ export const useImageTextEditor = (image: AdminImage, onClose: () => void) => {
       leaving.stay();
       setConfirmClose(false);
     },
-    /** 確かめたうえで、入力を捨てて閉じるか、止めた移動を続ける。 */
+    /** 確かめの答えとして、入力を捨てて離れる。 */
     leave: (): void => {
       leaving.leave();
       close();
