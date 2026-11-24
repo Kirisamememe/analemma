@@ -20,7 +20,7 @@ export const startDropboxImport = adminProcedures.dropbox.startImport.handler(
     if (read._tag === "ConnectionLost") throw errors.CONNECTION_LOST();
 
     const run = planImport({
-      ids: input.ids,
+      selected: input.photos,
       photos: read.photos,
       imported: new Map(
         [...read.imported].map(([hash, { imageId }]) => [hash, imageId]),
@@ -29,6 +29,7 @@ export const startDropboxImport = adminProcedures.dropbox.startImport.handler(
       now: context.clock.now(),
     });
 
+    signal?.throwIfAborted();
     claim.begin(run);
 
     const { clock, conversions, db, dropbox, logger, storage } = context;

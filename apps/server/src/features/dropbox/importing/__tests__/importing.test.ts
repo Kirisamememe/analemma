@@ -53,6 +53,22 @@ const prepare = async (conversions?: ConversionQueue) => {
   return server;
 };
 
+/** 一覧で選んだときと同じ content_hash を添えて、取り込みを始める。 */
+const startImport = async (server: TestClient, ids: readonly string[]) => {
+  const { photos } = await server.client.admin.dropbox.photos();
+
+  const hashes = new Map(
+    photos.map(({ id, contentHash }) => [id, contentHash]),
+  );
+
+  return server.client.admin.dropbox.startImport({
+    photos: ids.map((id) => ({
+      id,
+      contentHash: hashes.get(id) ?? "0".repeat(64),
+    })),
+  });
+};
+
 const waitForImport = async (server: TestClient) => {
   for (;;) {
     const run = await server.client.admin.dropbox.getImport();
@@ -116,9 +132,7 @@ describe("取り込み", () => {
     await using server = await prepare();
     const id = await server.dropbox.put("/a.jpg", await readPhoto());
 
-    const started = await server.client.admin.dropbox.startImport({
-      ids: [id],
-    });
+    const started = await startImport(server, [id]);
 
     expect(started).toMatchObject({
       startedAt: TEST_NOW.toISOString(),
@@ -151,7 +165,7 @@ describe("取り込み", () => {
     const first = await server.dropbox.put("/a.jpg", bytes);
     const copy = await server.dropbox.put("/copy.jpg", bytes);
 
-    await server.client.admin.dropbox.startImport({ ids: [first, copy] });
+    await startImport(server, [first, copy]);
     const run = await waitForImport(server);
     const imageId = run?.photos[0]?.imageId ?? null;
 
@@ -162,7 +176,7 @@ describe("取り込み", () => {
       { status: "already-added", id: imageId },
     ]);
 
-    await server.client.admin.dropbox.startImport({ ids: [first] });
+    await startImport(server, [first]);
 
     expect((await waitForImport(server))?.photos[0]?.status).toBe(
       "already-added",
@@ -174,7 +188,7 @@ describe("取り込み", () => {
     await using server = await prepare();
     const id = await server.dropbox.put("/a.jpg", await readPhoto());
 
-    await server.client.admin.dropbox.startImport({ ids: [id] });
+    await startImport(server, [id]);
     const imageId = (await waitForImport(server))?.photos[0]?.imageId ?? "";
 
     await server.client.admin.images.delete({ id: imageId });
@@ -183,7 +197,7 @@ describe("取り込み", () => {
       (await server.client.admin.dropbox.photos()).photos[0]?.imported,
     ).toEqual({ imageId: null, importedAt: TEST_NOW.toISOString() });
 
-    await server.client.admin.dropbox.startImport({ ids: [id] });
+    await startImport(server, [id]);
 
     expect((await waitForImport(server))?.photos[0]).toMatchObject({
       status: "already-added",
@@ -198,9 +212,7 @@ describe("取り込み", () => {
     const good = await server.dropbox.put("/good.png", await readPhoto());
 
     server.dropbox.remove("/gone.jpg");
-    await server.client.admin.dropbox.startImport({
-      ids: [broken, "id:unknown", gone, good],
-    });
+    await startImport(server, [broken, "id:unknown", gone, good]);
 
     expect(
       (await waitForImport(server))?.photos.map(({ status }) => status),
@@ -212,13 +224,11 @@ describe("取り込み", () => {
     await using server = await prepare(conversions);
     const id = await server.dropbox.put("/a.jpg", await readPhoto());
 
-    await server.client.admin.dropbox.startImport({ ids: [id] });
+    await startImport(server, [id]);
 
-    expect(
-      await catchErrorCode(
-        server.client.admin.dropbox.startImport({ ids: [id] }),
-      ),
-    ).toBe("IMPORT_RUNNING");
+    expect(await catchErrorCode(startImport(server, [id]))).toBe(
+      "IMPORT_RUNNING",
+    );
     expect(await catchErrorCode(server.client.admin.dropbox.disconnect())).toBe(
       "IMPORT_RUNNING",
     );
@@ -239,7 +249,7 @@ describe("取り込み", () => {
       new Uint8Array([...bytes, 0]),
     );
 
-    await server.client.admin.dropbox.startImport({ ids: [first, second] });
+    await startImport(server, [first, second]);
     await reached;
     server.dropbox.unlink();
     open();
@@ -247,6 +257,20 @@ describe("取り込み", () => {
     expect(
       (await waitForImport(server))?.photos.map(({ status }) => status),
     ).toEqual(["added", "failed"]);
+  });
+
+  test("一覧で選んだ後、始めるまでに書き換わった写真は、取り込まずに変わったとすること", async () => {
+    await using server = await prepare();
+    const bytes = await readPhoto();
+    const id = await server.dropbox.put("/a.jpg", bytes);
+    const { photos } = await server.client.admin.dropbox.photos();
+
+    await server.dropbox.overwrite(id, new Uint8Array([...bytes, 1]));
+    await server.client.admin.dropbox.startImport({
+      photos: photos.map(({ contentHash }) => ({ id, contentHash })),
+    });
+
+    expect((await waitForImport(server))?.photos[0]?.status).toBe("changed");
   });
 
   test("選んだ後に中身が変わった写真は、取り込まずに変わったとすること", async () => {
@@ -260,7 +284,7 @@ describe("取り込み", () => {
       new Uint8Array([...bytes, 0]),
     );
 
-    await server.client.admin.dropbox.startImport({ ids: [first, second] });
+    await startImport(server, [first, second]);
     await reached;
     await server.dropbox.overwrite(second, new Uint8Array([...bytes, 1]));
     open();
@@ -278,11 +302,9 @@ describe("取り込み", () => {
 
     await held.reached;
 
-    expect(
-      await catchErrorCode(
-        server.client.admin.dropbox.startImport({ ids: [id] }),
-      ),
-    ).toBe("IMPORT_RUNNING");
+    expect(await catchErrorCode(startImport(server, [id]))).toBe(
+      "IMPORT_RUNNING",
+    );
 
     held.release();
     await disconnecting;

@@ -75,11 +75,18 @@ export const dropbox = {
     })
     .input(
       z.object({
-        ids: z
-          .array(dropboxFileId)
+        photos: z
+          .array(
+            z.object({
+              id: dropboxFileId,
+              contentHash: dropboxPhoto.shape.contentHash,
+            }),
+          )
           .min(1)
           .max(DROPBOX_IMPORT_MAX_PHOTOS)
-          .describe("取り込む写真の ID。この順に取り込む。"),
+          .describe(
+            "取り込む写真の ID と、一覧で選んだときの content_hash。この順に取り込む。",
+          ),
       }),
     )
     .output(dropboxImport),
