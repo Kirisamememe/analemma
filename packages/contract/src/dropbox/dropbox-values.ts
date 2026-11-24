@@ -5,6 +5,9 @@ import { imageId } from "../images/image-values";
 /** Dropbox の認可の画面から戻る、管理画面の path。 */
 export const DROPBOX_REDIRECT_PATH = "/images/dropbox/callback";
 
+/** 1回の取り込みで選べる写真の数の上限。 */
+export const DROPBOX_IMPORT_MAX_PHOTOS = 10_000;
+
 /** Dropbox のファイルの ID。 */
 export const dropboxFileId = z
   .string()
