@@ -15,10 +15,18 @@ export type FolderPhoto = {
   readonly contentHash: string;
 };
 
+/** 管理画面で選んだ写真。 */
+export type SelectedPhoto = {
+  /** Dropbox のファイルの ID。 */
+  readonly id: string;
+  /** 選んだときの content_hash。 */
+  readonly contentHash: string;
+};
+
 /** 取り込みを決めるための材料。 */
 export type ImportPlanInput = {
-  /** 選んだ写真の ID。 */
-  readonly ids: readonly string[];
+  /** 選んだ写真(選んだ順)。 */
+  readonly selected: readonly SelectedPhoto[];
   /** App folder にある写真。 */
   readonly photos: readonly FolderPhoto[];
   /** 取り込み済みの写真の content_hash と、作った画像の ID。 */
@@ -31,7 +39,7 @@ export type ImportPlanInput = {
 
 /** 選んだ写真ごとに、取り込むか、取り込まずに終えるかを決める。 */
 export const planImport = ({
-  ids,
+  selected,
   photos,
   imported,
   maxBytes,
@@ -39,7 +47,10 @@ export const planImport = ({
 }: ImportPlanInput): ImportRun => {
   const byId = new Map(photos.map((photo) => [photo.id, photo]));
 
-  const planPhoto = (id: string): ImportPhoto => {
+  const planPhoto = ({
+    id,
+    contentHash: chosen,
+  }: SelectedPhoto): ImportPhoto => {
     const photo = byId.get(id);
 
     if (photo === undefined) {
@@ -53,6 +64,11 @@ export const planImport = ({
     }
 
     const { path, contentHash } = photo;
+
+    if (contentHash !== chosen) {
+      return { id, path, status: "changed", imageId: null, contentHash };
+    }
+
     const importedImageId = imported.get(photo.contentHash);
 
     if (importedImageId !== undefined) {
@@ -77,6 +93,8 @@ export const planImport = ({
   return {
     startedAt: now,
     finishedAt: null,
-    photos: [...new Set(ids)].map((id) => planPhoto(id)),
+    photos: [
+      ...new Map(selected.map((choice) => [choice.id, choice])).values(),
+    ].map((choice) => planPhoto(choice)),
   };
 };

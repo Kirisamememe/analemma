@@ -16,59 +16,36 @@ const photo = (id: string, change: Partial<FolderPhoto> = {}): FolderPhoto => ({
 });
 
 const plan = (ids: string[], photos: FolderPhoto[]) =>
-  planImport({ ids, photos, imported: new Map(), maxBytes: 1000, now: NOW });
+  planImport({
+    selected: ids.map((id) => ({ id, contentHash: `hash-${id}` })),
+    photos,
+    imported: new Map(),
+    maxBytes: 1000,
+    now: NOW,
+  });
 
 describe("planImport", () => {
-  test("選んだ順に並べ、新しい写真を待たせること", () => {
-    expect(plan(["id:b", "id:a"], [photo("id:a"), photo("id:b")])).toEqual({
-      startedAt: NOW,
-      finishedAt: null,
-      photos: [
-        {
-          id: "id:b",
-          path: "/b.jpg",
-          status: "waiting",
-          imageId: null,
-          contentHash: "hash-id:b",
-        },
-        {
-          id: "id:a",
-          path: "/a.jpg",
-          status: "waiting",
-          imageId: null,
-          contentHash: "hash-id:a",
-        },
-      ],
-    });
-  });
-
-  test("上限を超える写真は大きすぎるとし、上限ちょうどは待たせること", () => {
+  test("選んだ順に、新しい写真を待たせ、大きすぎる・無い・変わった写真を読まずに終えること", () => {
     const { photos } = plan(
-      ["id:a", "id:b"],
-      [photo("id:a", { size: 1000 }), photo("id:b", { size: 1001 })],
+      ["id:b", "id:a", "id:big", "id:gone", "id:edited", "id:a"],
+      [
+        photo("id:a"),
+        photo("id:b", { size: 1000 }),
+        photo("id:big", { size: 1001 }),
+        photo("id:edited", { contentHash: "hash-new" }),
+      ],
     );
 
-    expect(photos.map(({ status }) => status)).toEqual([
-      "waiting",
-      "too-large",
+    expect(photos.map(({ id, status }) => `${id}:${status}`)).toEqual([
+      "id:b:waiting",
+      "id:a:waiting",
+      "id:big:too-large",
+      "id:gone:not-found",
+      "id:edited:changed",
     ]);
-  });
-
-  test("App folder に無い写真は、パスを空にして無いとすること", () => {
-    expect(plan(["id:gone"], [photo("id:a")]).photos).toEqual([
-      {
-        id: "id:gone",
-        path: "",
-        status: "not-found",
-        imageId: null,
-        contentHash: null,
-      },
-    ]);
-  });
-
-  test("同じ ID を重ねて選んでも、1枚として扱うこと", () => {
-    expect(
-      plan(["id:a", "id:a"], [photo("id:a")]).photos.map(({ id }) => id),
-    ).toEqual(["id:a"]);
+    expect(photos.find(({ id }) => id === "id:gone")).toMatchObject({
+      path: "",
+      contentHash: null,
+    });
   });
 });

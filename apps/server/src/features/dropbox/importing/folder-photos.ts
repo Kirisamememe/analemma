@@ -30,6 +30,7 @@ export const toDropboxPhoto = (
   path: file.path,
   size: file.size,
   modifiedAt: file.modifiedAt.toISOString(),
+  contentHash: file.contentHash,
   imported:
     imported === undefined
       ? null

@@ -44,6 +44,12 @@ export const dropboxPhoto = z.object({
   modifiedAt: z.iso
     .datetime({ offset: true })
     .describe("Dropbox でファイルが最後に変わった日時。"),
+  contentHash: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/v)
+    .describe(
+      "Dropbox の content_hash(取り込むときに、選んだときの中身を伝える)。",
+    ),
   imported: z
     .object({
       imageId: imageId
