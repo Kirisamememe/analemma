@@ -1,6 +1,7 @@
-import { useRouteContext } from "@tanstack/react-router";
-import { type ReactNode, useCallback } from "react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+
+import { useImageListPosition } from "./use-image-list-position";
 
 import { ImagesSection } from "@/components/images/images-section";
 import { Center, Stack } from "@/ui/layout";
@@ -12,43 +13,7 @@ const imageHref = (id: string): `/images/${string}` => `/images/${id}`;
 export const ImagesPage = (): ReactNode => {
   const { t } = useTranslation();
 
-  const position = useRouteContext({
-    from: "/signed-in/images",
-    select: (context) => context.imageListPosition,
-  });
-
-  const restorePosition = useCallback(
-    (root: HTMLDivElement | null) => {
-      if (root === null || position.current === undefined) return;
-
-      const { href, top } = position.current;
-
-      const frame = requestAnimationFrame(() => {
-        if (document.activeElement !== document.body) return;
-
-        const links = Array.from(
-          root.querySelectorAll<HTMLAnchorElement>('a[href^="/images/"]'),
-        );
-
-        const target =
-          links.find((link) => link.pathname === href) ??
-          links.find((link) => link.pathname < href) ??
-          links.at(-1);
-
-        if (target === undefined) return;
-
-        delete position.current;
-        target.focus({ preventScroll: true });
-        window.scrollTo({ top, behavior: "instant" });
-        target.scrollIntoView({ block: "nearest", behavior: "instant" });
-      });
-
-      return () => {
-        cancelAnimationFrame(frame);
-      };
-    },
-    [position],
-  );
+  const restorePosition = useImageListPosition();
 
   return (
     <Center width="page">
