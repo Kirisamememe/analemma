@@ -22,7 +22,7 @@ const measuredViewport = (measure: (element: HTMLDivElement) => void) => {
 };
 
 describe("ScrollView", () => {
-  test("内容が収まるとバーを隠し、はみ出す横の内容はキーで両端までスクロールする", () => {
+  test("内容が収まればバーを隠し、はみ出す横の内容はキーとホイールで移動できる", () => {
     let length = 180;
 
     const viewport = measuredViewport((element) => {
@@ -53,6 +53,12 @@ describe("ScrollView", () => {
     expect(bar.getAttribute("aria-valuenow")).toBe("100");
     fireEvent.keyDown(bar, { key: "Home" });
     expect(viewport.element().scrollLeft).toBe(0);
+    fireEvent.wheel(bar, { deltaX: 2, deltaMode: WheelEvent.DOM_DELTA_LINE });
+    expect(viewport.element().scrollLeft).toBe(80);
+    const shifted = new WheelEvent("wheel", { deltaY: 20 });
+    Object.defineProperty(shifted, "shiftKey", { value: true }); // happy-dom の WheelEvent は修飾キーを持たない
+    fireEvent(bar, shifted);
+    expect(viewport.element().scrollLeft).toBe(100);
     length = 100;
     fireEvent.scroll(viewport.element());
     expect(screen.queryByRole("scrollbar")).toBeNull();
