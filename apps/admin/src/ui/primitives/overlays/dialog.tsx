@@ -6,6 +6,10 @@ import {
   ModalOverlay,
 } from "react-aria-components";
 
+import { DialogFooter, type DialogFooterSlots } from "./dialog-footer";
+import { useDialogScrollInsets } from "./hooks/use-dialog-scroll-insets";
+import { overlayPanel } from "./overlay-panel-style";
+
 import { useTranslate } from "@/i18n/use-translate";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
@@ -21,15 +25,40 @@ const dialog = tv({
     ],
     modal: [
       "max-h-full w-full max-w-md overflow-y-auto rounded-surface p-6",
-      "dialog-panel-animation bg-surface text-fg shadow-overlay outline outline-fg/10",
+      "dialog-panel-animation",
+      overlayPanel(),
     ],
     body: "flex flex-col gap-4 outline-hidden",
-    title: "wrap-anywhere text-fg",
+    header: "contents",
+    content: "",
+    title: ["wrap-anywhere text-fg", typography({ role: "section" })],
     emblem: "grid size-12 place-items-center rounded-full",
     indicator: "*:stroke-2",
     close: "absolute inset-e-2 top-2",
   },
   variants: {
+    framed: {
+      true: {
+        modal: "flex flex-col overflow-hidden p-0",
+        body: "min-h-0 min-w-0 dialog-scroller gap-0 overflow-y-auto overscroll-y-contain",
+        header: [
+          "flex shrink-0 items-center justify-between gap-4",
+          "sticky top-0 z-sticky dialog-bar-backdrop px-panel pt-6 pb-3",
+        ],
+        content: "flex shrink-0 flex-col gap-4 py-4",
+      },
+    },
+    layout: {
+      wide: {
+        modal: "relative max-w-form",
+        header: "-top-3",
+        title: [typography({ role: "page" }), "dialog-title-animation"],
+        close: "static shrink-0",
+      },
+    },
+    width: {
+      page: { modal: "@container max-w-page" },
+    },
     status: {
       pending: {
         modal: "relative w-80 max-w-full p-2",
@@ -62,6 +91,12 @@ type DialogProps = {
   isDismissable?: boolean | undefined;
   /** Dialog の中身。 */
   children?: ReactNode;
+  /** 本文をスクロールしている間も下端に表示する内容。 */
+  footer?: DialogFooterSlots;
+  /** 見出しの隣に閉じる操作を置き、広い本文をパネルの縁まで使う配置。 */
+  layout?: "wide" | undefined;
+  /** 写真などを一覧する本文の最大幅。 */
+  width?: "page" | undefined;
   /** 処理中から成功に切り替わる中央の表示。 */
   status?: "pending" | "success" | undefined;
 };
@@ -75,19 +110,26 @@ export const Dialog = ({
   isPending = false,
   isDismissable = true,
   children,
+  footer,
   status,
+  layout,
+  width,
 }: DialogProps): ReactNode => {
   const t = useTranslate();
+  const framed = layout === "wide" || footer !== undefined;
+  const { attachHeader, attachFooter } = useDialogScrollInsets();
 
   const {
     overlay,
     modal,
     body,
+    header,
+    content,
     title: titleSlot,
     emblem,
     indicator,
     close,
-  } = dialog({ status });
+  } = dialog({ status, layout, framed, width });
 
   const panel = useCallback(
     (element: HTMLElement | null) => {
@@ -146,33 +188,46 @@ export const Dialog = ({
               </span>
             </span>
           )}
-          <Heading
-            className={titleSlot({
-              className: typography({ role: "section" }),
-            })}
-            slot="title"
-          >
-            <span aria-live={status === undefined ? undefined : "polite"}>
-              {title}
-            </span>
-          </Heading>
-          {status === "success" && (
-            <div className={close()}>
-              <Button
-                aria-label={t("ui.close")}
-                icon="x"
-                onPress={() => {
-                  onOpenChange(false);
-                }}
-                rounded="full"
-                size="sm"
-                tone="quiet"
-              />
-            </div>
+          <div className={header()} ref={framed ? attachHeader : undefined}>
+            <Heading className={titleSlot()} slot="title">
+              <span aria-live={status === undefined ? undefined : "polite"}>
+                {title}
+              </span>
+            </Heading>
+            {(status === "success" || layout === "wide") && (
+              <div className={close()}>
+                <Button
+                  aria-label={t("ui.close")}
+                  isDisabled={locked}
+                  icon="x"
+                  iconWeight={layout === "wide" ? "bold" : "regular"}
+                  onPress={() => {
+                    onOpenChange(false);
+                  }}
+                  rounded="full"
+                  size="sm"
+                  tone="quiet"
+                />
+              </div>
+            )}
+          </div>
+          {framed ? <div className={content()}>{children}</div> : children}
+          {footer && (
+            <DialogFooter
+              start={footer.start}
+              end={footer.end}
+              ref={attachFooter}
+            />
           )}
-          {children}
         </AriaDialog>
       </Modal>
     </ModalOverlay>
   );
 };
+
+/** Dialog の見出しと左右をそろえる欄。 */
+export const DialogSection = ({
+  children,
+}: Readonly<Record<"children", ReactNode>>): ReactNode => (
+  <div className="px-panel">{children}</div>
+);

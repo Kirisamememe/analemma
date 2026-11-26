@@ -3,7 +3,8 @@ import { type ReactNode, useState } from "react";
 
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Dialog } from "@/ui/primitives/overlays/dialog";
+import { TextArea } from "@/ui/primitives/form-fields";
+import { Dialog, DialogActions, DialogSection } from "@/ui/primitives/overlays";
 
 /** `DeleteDialog` に渡す値。 */
 type DeleteDialogProps = {
@@ -98,3 +99,57 @@ const statusStory = (status: "pending" | "success", title: string): Story => ({
 
 export const Saving = statusStory("pending", "固定ページを保存しています");
 export const Saved = statusStory("success", "固定ページを更新しました。");
+
+export const Wide: Story = {
+  /** 本文の幅を広く取った編集用の Dialog。 */
+  render: function EditDialog() {
+    const [open, setOpen] = useState(true);
+    const [description, setDescription] = useState("");
+
+    return (
+      <>
+        <Button
+          onPress={() => {
+            setOpen(true);
+          }}
+        >
+          説明を編集
+        </Button>
+        <Dialog
+          isOpen={open}
+          onOpenChange={setOpen}
+          title="説明を編集"
+          layout="wide"
+          footer={{
+            start: (
+              <Text tone="muted" variant="caption">
+                {description.length} 文字
+              </Text>
+            ),
+            end: (
+              <DialogActions>
+                <Button
+                  tone="primary"
+                  onPress={() => {
+                    setOpen(false);
+                  }}
+                >
+                  完了
+                </Button>
+              </DialogActions>
+            ),
+          }}
+        >
+          <DialogSection>
+            <TextArea
+              label="説明"
+              name="description"
+              value={description}
+              onChange={setDescription}
+            />
+          </DialogSection>
+        </Dialog>
+      </>
+    );
+  },
+};

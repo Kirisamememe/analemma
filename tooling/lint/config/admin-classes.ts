@@ -30,6 +30,7 @@ export const TEXT_PAIRS = [
   "sm/xl",
   "sm/2xl",
   "base/2xl",
+  "lg/2xl",
   "xl/3xl",
   "3xl/5xl",
 ] as const;
@@ -140,11 +141,11 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
       "outline-none の代わりに outline-hidden を使います(forced-colors で線が残る)。",
   },
   {
-    pattern: `${VARIANTS}-?(?:${SPACING_UTILITIES})-(?!(?:${SPACING.join("|")}|auto)$)`,
-    message: `余白は ${SPACING.join("・").replaceAll("\\", "")} の目盛りだけを使います。`,
+    pattern: `${VARIANTS}(?!(?:[pm]|scroll-p)[xy]-panel$)-?(?:${SPACING_UTILITIES})-(?!(?:${SPACING.join("|")}|auto)$)`,
+    message: `余白は ${SPACING.join("・").replaceAll("\\", "")} の目盛りを使います。パネルの両端には、padding・margin・scroll-padding の x・y に panel も使えます。`,
   },
   {
-    pattern: `${VARIANTS}(?:m|my|mt|mb|mbs|mbe)-(?!(?:0|auto)$)`,
+    pattern: `${VARIANTS}(?!my-panel$)(?:m|my|mt|mb|mbs|mbe)-(?!(?:0|auto)$)`,
     message: "上下の正の margin は使わず、親の gap で空けます。",
   },
   {

@@ -9,6 +9,7 @@ export const typography = tv({
       caption: "text-xs/lg font-normal",
       label: "text-sm/xl font-semibold",
       section: "text-base/2xl font-semibold",
+      dialog: "text-lg/2xl font-bold",
       page: "text-xl/3xl font-bold",
       display: "text-3xl/5xl font-bold",
     },

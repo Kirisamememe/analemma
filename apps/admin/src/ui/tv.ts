@@ -36,6 +36,7 @@ const MERGE_CONFIG: TWMergeConfig = {
       ],
       text: SCALE,
       leading: SCALE,
+      spacing: ["panel"],
       radius: ["xs", "control", "surface"],
       shadow: ["control", "overlay"],
       container: ["sm", "md", "lg", "form", "page"],

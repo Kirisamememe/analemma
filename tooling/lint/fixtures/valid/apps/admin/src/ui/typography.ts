@@ -7,6 +7,7 @@ export const text = tv({
       body: "text-sm/xl font-normal",
       caption: "text-xs/lg font-normal",
       label: "text-sm/xl font-semibold",
+      dialog: "text-lg/2xl font-bold",
       page: "text-xl/3xl font-bold",
     },
   },
