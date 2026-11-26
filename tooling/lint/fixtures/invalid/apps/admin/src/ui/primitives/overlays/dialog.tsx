@@ -4,5 +4,6 @@ export const Dialog = () => (
     <header className="sticky top-0 after:border-b" />
     <footer className="divide-y divide-line" />
     <aside className="outline-2 outline-line" />
+    <header className="outline outline-fg/10" />
   </article>
 );

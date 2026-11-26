@@ -48,8 +48,8 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     "border-t-transparent",
   ],
   "ui/primitives/overlays/toast.tsx": ["border", "border-transparent"],
-  "ui/primitives/overlays/dialog.tsx": ["outline", "outline-fg/10"],
-  "ui/primitives/overlays/list-box-popover.tsx": ["outline", "outline-fg/10"],
+  "ui/primitives/overlays/overlay-panel-style.ts": ["outline", "outline-fg/10"],
+  "ui/primitives/navigation/scroll-view.tsx": ["forced-colors:after:border-2"],
   "ui/primitives/navigation/nav-drawer.tsx": ["outline", "outline-fg/10"],
   "ui/primitives/collections/reorderable-list.tsx": [
     "after:outline",
