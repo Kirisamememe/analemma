@@ -64,6 +64,7 @@ import * as primitivesNavDrawer from "@/ui/primitives/navigation/__stories__/nav
 import * as primitivesNavItem from "@/ui/primitives/navigation/__stories__/nav-item.stories";
 import * as primitivesNavSelect from "@/ui/primitives/navigation/__stories__/nav-select.stories";
 import * as primitivesNavigationProgress from "@/ui/primitives/navigation/__stories__/navigation-progress.stories";
+import * as primitivesScrollView from "@/ui/primitives/navigation/__stories__/scroll-view.stories";
 import * as primitivesDialog from "@/ui/primitives/overlays/__stories__/dialog.stories";
 import * as primitivesFocusScope from "@/ui/primitives/overlays/__stories__/focus-scope.stories";
 import * as primitivesToast from "@/ui/primitives/overlays/__stories__/toast.stories";
@@ -71,6 +72,8 @@ import * as specimensColors from "@/ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "@/ui/specimens/__stories__/typography.stories";
 
 const MODULES = {
+  "ui/primitives/navigation/__stories__/scroll-view.stories.tsx":
+    primitivesScrollView,
   "components/forms/__stories__/form.stories.tsx": componentsForm,
   "components/forms/__stories__/form-fields.stories.tsx": componentsFormFields,
   "components/forms/__stories__/submitting.stories.tsx": componentsSubmitting,

@@ -9,6 +9,12 @@ declare module "react" {
     "--media-aspect"?: string;
     /** 写真の読み込み中に見せる色。 */
     "--media-color"?: string;
+    /** スクロールバーの長さに対するつまみの割合。 */
+    "--scroll-thumb-size"?: string;
+    /** つまみが動く範囲に対する現在の位置。 */
+    "--scroll-thumb-position"?: string;
+    /** 縦にスクロールする領域の高さの上限。 */
+    "--scroll-view-limit"?: string;
     /** 写真の焦点の横の位置。 */
     "--focal-x"?: string;
     /** 写真の焦点の縦の位置。 */

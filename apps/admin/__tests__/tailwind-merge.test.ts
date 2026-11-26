@@ -100,6 +100,7 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "nav-drawer-panel-animation": null,
   "toast-animation": null,
   "page-enter-animation": null,
+  "scroll-thumb-animation": null,
   "navigation-progress-animation": null,
   "navigation-progress-indicator-animation": null,
   "loading-state-animation": null,

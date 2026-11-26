@@ -35,6 +35,8 @@ export const Notice = ({ children, progress }: NoticeProps) => (
     <span className="m-auto mx-2 mt-0 mb-auto" />
     <span className="flex gap-x-3 gap-y-6" />
     <span className="px-panel" />
+    <span className="mx-panel scroll-px-panel" />
+    <span className="my-panel scroll-py-panel py-panel" />
     <span className="whitespace-pre-line" />
     <span className="bg-primary text-on-primary" />
     <span className="bg-danger-strong text-on-danger-strong" />
