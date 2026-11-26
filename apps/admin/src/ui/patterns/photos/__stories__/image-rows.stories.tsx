@@ -9,7 +9,7 @@ import {
 } from "@/ui/patterns/photos/image-rows";
 
 const meta = {
-  title: "features/images/ImageRows",
+  title: "patterns/photos/ImageRows",
   component: ImageRows,
   args: { label: "画像", children: null },
   decorators: [
