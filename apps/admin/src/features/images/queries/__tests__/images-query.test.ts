@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { loadImagesPage } from "../images-query";
+import { loadImagesPage, prependImage } from "../images-query";
 
 import { createFakeApi } from "@/testing/create-fake-api";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
@@ -23,5 +23,33 @@ describe("loadImagesPage", () => {
 
     expect(rest.images.map(({ title }) => title)).toEqual(["写真 51"]);
     expect(rest.nextCursor).toBeNull();
+  });
+});
+
+describe("prependImage", () => {
+  test("最初のページに、新しく足した順を保って足し、読んである画像は動かさない", async () => {
+    const server = createImageRoutes([{ title: "前から" }]);
+    const { api } = createFakeApi(server.routes);
+
+    const older = await api.admin.images.upload({
+      photo: new File(["x"], "older.jpg", { type: "image/jpeg" }),
+    });
+
+    const newer = await api.admin.images.upload({
+      photo: new File(["x"], "newer.jpg", { type: "image/jpeg" }),
+    });
+
+    const page = await loadImagesPage(api, undefined);
+
+    const withoutOlder = {
+      ...page,
+      images: page.images.filter(({ id }) => id !== older.id),
+    };
+
+    expect(prependImage(older)(page, 0)).toBe(page);
+    expect(
+      prependImage(older)(withoutOlder, 0).images.map(({ id }) => id),
+    ).toEqual(page.images.map(({ id }) => id));
+    expect(prependImage(newer)(page, 1)).toBe(page);
   });
 });

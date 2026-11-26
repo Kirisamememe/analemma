@@ -165,6 +165,23 @@ describe("createImageRoutes", () => {
     ]);
   });
 
+  test("送った写真は、MIME type か拡張子が写真なら先頭に足し、ほかは UNSUPPORTED_FORMAT で断る", async () => {
+    const { api } = setUp(1);
+
+    const photo = (name: string, type: string) =>
+      api.admin.images.upload({ photo: new File(["x"], name, { type }) });
+
+    const jpeg = await photo("a.jpg", "image/jpeg");
+    const heic = await photo("b.heic", "");
+
+    expect(
+      (await api.admin.images.list({})).images.map(({ id }) => id).slice(0, 2),
+    ).toEqual([heic.id, jpeg.id]);
+    expect((await safe(photo("c.bmp", "image/bmp"))).error).toMatchObject({
+      code: "UNSUPPORTED_FORMAT",
+    });
+  });
+
   test("replyNext で決めた応答を、次の1回だけ返す", async () => {
     const { api, server } = setUp();
 

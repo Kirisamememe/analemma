@@ -13,21 +13,21 @@ export type LeaveConfirmation = {
 
 /** 確かめが要るなら画面を離れるのを止め、確かめの状態を返す。 */
 export const useLeaveConfirmation = (
-  needsConfirmation: () => boolean,
+  needsConfirmation: (destination?: string) => boolean,
 ): LeaveConfirmation => {
   const pending = useRef<PromiseWithResolvers<boolean> | undefined>(undefined);
   const [asking, setAsking] = useState(false);
 
   useBlocker({
-    shouldBlockFn: () => {
-      if (!needsConfirmation()) return false;
+    shouldBlockFn: ({ next }) => {
+      if (!needsConfirmation(next.pathname)) return false;
 
       pending.current ??= Promise.withResolvers<boolean>();
       setAsking(true);
 
       return pending.current.promise;
     },
-    enableBeforeUnload: needsConfirmation,
+    enableBeforeUnload: () => needsConfirmation(),
   });
 
   const settle = (stay: boolean) => (): void => {

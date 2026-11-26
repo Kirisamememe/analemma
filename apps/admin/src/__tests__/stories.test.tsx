@@ -41,6 +41,7 @@ import * as patternsEmptyState from "@/ui/patterns/__stories__/empty-state.stori
 import * as patternsErrorState from "@/ui/patterns/__stories__/error-state.stories";
 import * as patternsLoadingState from "@/ui/patterns/__stories__/loading-state.stories";
 import * as patternsPageHeader from "@/ui/patterns/__stories__/page-header.stories";
+import * as patternsProgressList from "@/ui/patterns/__stories__/progress-list.stories";
 import * as patternsSideNav from "@/ui/patterns/__stories__/side-nav.stories";
 import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "@/ui/primitives/__stories__/button.stories";
@@ -124,6 +125,7 @@ const MODULES = {
   "ui/patterns/__stories__/error-state.stories.tsx": patternsErrorState,
   "ui/patterns/__stories__/loading-state.stories.ts": patternsLoadingState,
   "ui/patterns/__stories__/page-header.stories.tsx": patternsPageHeader,
+  "ui/patterns/__stories__/progress-list.stories.tsx": patternsProgressList,
   "ui/patterns/__stories__/side-nav.stories.tsx": patternsSideNav,
   "ui/primitives/__stories__/badge.stories.ts": primitivesBadge,
   "ui/primitives/__stories__/button.stories.tsx": primitivesButton,

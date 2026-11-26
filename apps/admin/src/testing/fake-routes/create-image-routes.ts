@@ -27,6 +27,7 @@ type ImagePath =
   | "admin/images/publish"
   | "admin/images/unpublish"
   | "admin/images/update"
+  | "admin/images/upload"
   | "admin/session/get";
 
 type ImageReplies = { [Path in ImagePath]: FakeReply<Path> };
@@ -55,8 +56,23 @@ const EMPTY = {
   iso: null,
 } satisfies Partial<FakeImage>;
 
+const PHOTO_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "image/heic",
+  "image/heif",
+]);
+
+const isPhoto = ({ name, type }: File): boolean =>
+  PHOTO_TYPES.has(type) || /\.(?:jpe?g|png|webp|avif|hei[cf])$/iv.test(name);
+
 /** 画像の procedure を、状態ごと真似る作り物の server の応答を作る。 */
-export const createImageRoutes = (seeds: readonly FakeImageSeed[] = []) => {
+export const createImageRoutes = (
+  seeds: readonly FakeImageSeed[] = [],
+  uploaded: FakeImageSeed = {},
+) => {
   let ticks = 0;
 
   const now = (): string => {
@@ -206,6 +222,17 @@ export const createImageRoutes = (seeds: readonly FakeImageSeed[] = []) => {
           publishedAt: null,
         })),
       ),
+      "admin/images/upload": handle("admin/images/upload", ({ photo }) => {
+        if (!isPhoto(photo)) {
+          return { error: "UNSUPPORTED_FORMAT" };
+        }
+
+        const image = create(uploaded);
+
+        images = [image, ...images];
+
+        return { output: image };
+      }),
       "admin/images/delete": handle("admin/images/delete", ({ id }) => {
         const image = findImage(id);
 

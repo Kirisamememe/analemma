@@ -234,7 +234,7 @@ export const ImagesSection = ({ imageHref }: ImagesSectionProps): ReactNode => {
             <ImagePage
               imageHref={imageHref}
               images={images}
-              key={first.id}
+              key={pageIndex === 0 ? "first" : first.id} // 送った写真を先頭に足しても、最初のページを作り直さない
               onFirstLink={focusResult}
               pageIndex={pageIndex}
             />
