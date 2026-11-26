@@ -97,6 +97,10 @@ export const en = {
   "ui.openNav": "Open navigation",
   "ui.closeNav": "Close navigation",
   "ui.close": "Close",
+  "ui.guide.withHint": "{{hint}} {{length}}",
+  "ui.guide.characterLimit": "Enter up to {{max}} characters.",
+  "ui.guide.characterMinimum": "Enter at least {{min}} characters.",
+  "ui.guide.characterRange": "Enter {{min}}–{{max}} characters.",
   "ui.required": "Required",
   "ui.errorState.description": "Check your connection, then try again.",
   "ui.errorState.failedAgain": "Still could not load.",
@@ -272,6 +276,9 @@ export const en = {
   "imageDetail.alt": "Alt text",
   "imageDetail.guide.alt":
     "Text that tells people who can’t see the photo what it shows.",
+  "imageDetail.titlePlaceholder": "Example: Morning mist on the lake",
+  "imageDetail.descriptionPlaceholder":
+    "Example: I waited by the lake at dawn for the mist to lift.",
   "imageDetail.edit": "Edit",
   "imageDetail.leavingWhileSaving": "Saving the image",
   "imageDetail.savingWillContinue":
@@ -291,7 +298,7 @@ export const en = {
   "imageDetail.invalidTitle":
     "Enter a title of up to 200 characters, without line breaks.",
   "imageDetail.invalidDescription":
-    "Enter a description of up to 10,000 characters.",
+    "Enter a description of up to 5,000 characters.",
   "imageDetail.invalidAlt":
     "Enter alt text of up to 1,000 characters, without line breaks.",
   "imageDetail.publish": "Publish",

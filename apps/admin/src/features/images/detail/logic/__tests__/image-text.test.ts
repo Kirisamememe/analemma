@@ -45,7 +45,8 @@ describe("isValidImageText", () => {
     expect(isValidImageText("title", "あ".repeat(200))).toBe(true);
     expect(isValidImageText("title", "あ".repeat(201))).toBe(false);
     expect(isValidImageText("alt", "あ".repeat(1001))).toBe(false);
-    expect(isValidImageText("description", "あ".repeat(10_001))).toBe(false);
+    expect(isValidImageText("description", "あ".repeat(5000))).toBe(true);
+    expect(isValidImageText("description", "あ".repeat(5001))).toBe(false);
   });
 });
 

@@ -13,7 +13,8 @@ type ImageTextName = keyof ImageText;
 /** 画像のフォームに並ぶ欄。 */
 export const imageTextFields = ["title", "description", "alt"] as const;
 
-const SCHEMAS = {
+/** 画像の入力欄の保存に使う contract の定義。 */
+export const imageTextSchemas = {
   title: imageTitle,
   description: imageDescription,
   alt: imageAlt,
@@ -47,7 +48,7 @@ export const toUpdateInput = (
 
 /** 欄の値が、空にするか、server が受け付ける値か。 */
 export const isValidImageText = (name: ImageTextName, value: string): boolean =>
-  toNullable(value) === null || SCHEMAS[name].safeParse(value).success;
+  toNullable(value) === null || imageTextSchemas[name].safeParse(value).success;
 
 /** 保存した値と今の値とで、書き換えで送る値が違うか。 */
 export const hasUnsavedChanges = (

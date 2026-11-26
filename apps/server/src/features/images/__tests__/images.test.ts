@@ -340,7 +340,7 @@ describe("画像の書き換え", () => {
     });
   });
 
-  test("無い ID は NOT_FOUND、空のタイトルや改行のある alt は BAD_REQUEST で断ること", async () => {
+  test("無い ID や不正な入力を断り、上限までの説明を保存して保持すること", async () => {
     await using server = await createTestClient();
 
     await signInAsAdmin(server);
@@ -361,9 +361,14 @@ describe("画像の書き換え", () => {
     expect(await update({ id: MISSING_ID })).toBe("NOT_FOUND");
     expect(await update({ title: "  " })).toBe("BAD_REQUEST");
     expect(await update({ alt: "雨に濡れた\n横断歩道" })).toBe("BAD_REQUEST");
-    expect(
-      await update({ description: "駅前で。\n傘を持っていなかった。" }),
-    ).toBe(SUCCEEDED);
+    const description = "雪".repeat(4998) + "\n山";
+    expect(await update({ description })).toBe(SUCCEEDED);
+    expect(await update({ description: description + "山" })).toBe(
+      "BAD_REQUEST",
+    );
+    expect((await server.client.admin.images.get({ id })).description).toBe(
+      description,
+    );
   });
 });
 

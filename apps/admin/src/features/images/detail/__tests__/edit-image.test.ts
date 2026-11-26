@@ -45,6 +45,30 @@ const confirmDiscard = async () =>
   );
 
 describe("EditImage", () => {
+  test("各欄に保存できる文字数を伝え、タイトルと説明には入力例を出す", async () => {
+    setup();
+    const editor = await openEditor();
+
+    const title = editor.getByRole("textbox", {
+      name: "タイトル",
+      description: "200文字まで",
+    });
+
+    const description = editor.getByRole("textbox", {
+      name: "説明",
+      description: "5,000文字まで",
+    });
+
+    expect(title.getAttribute("placeholder")).toBe("例：朝霧の湖");
+    expect(description.getAttribute("placeholder")).toContain("夜明けの湖畔");
+    expect(
+      editor.getByRole("textbox", {
+        name: "alt",
+        description: /写真を見られない人.*1,000文字まで/v,
+      }),
+    ).toBeDefined();
+  });
+
   test("別のタブで更新した説明を保持し、URL の ID が大文字でも編集したタイトルを表示する", async () => {
     const { server, image } = setup();
 
