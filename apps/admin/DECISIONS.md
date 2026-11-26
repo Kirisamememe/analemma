@@ -147,10 +147,11 @@ effect でないと書けない処理は、次のとおり。
 
 effect を使う hook の表は、次のとおり。
 
-| hook                     | 置き場所                                            | 処理                                                                                  |
-| ------------------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `useHtmlPreferences`     | `.storybook/use-html-preferences.ts`                | (4) ブラウザが描く前に html の `lang` と `data-theme` を story の値に合わせる         |
-| `useLoadingAnnouncement` | `src/ui/patterns/hooks/use-loading-announcement.ts` | (2) 空の通知欄を先に置き、150ms 続いた読み込みを伝える。欄が消えたら timer を止める。 |
+| hook                     | 置き場所                                             | 処理                                                                                               |
+| ------------------------ | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `usePhotoDrop`           | `src/features/images/upload/hooks/use-photo-drop.ts` | (1) 画像一覧とその Dialog でブラウザからファイルのドロップを受け取り、一覧を離れたら購読を解除する |
+| `useHtmlPreferences`     | `.storybook/use-html-preferences.ts`                 | (4) ブラウザが描く前に html の `lang` と `data-theme` を story の値に合わせる                      |
+| `useLoadingAnnouncement` | `src/ui/patterns/hooks/use-loading-announcement.ts`  | (2) 空の通知欄を先に置き、150ms 続いた読み込みを伝える。欄が消えたら timer を止める。              |
 
 表の hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` にも足す。どうしても避けられない呼び出しを表の hook の外に書く場合は、`// oxlint-disable-next-line project/no-effect-outside-allowed-hook -- 理由` で抑制する。
 

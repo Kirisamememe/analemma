@@ -94,6 +94,8 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "scheme-dark": "scheme-light",
   "scheme-light": "scheme-dark",
   "scheme-inverse": "scheme-dark",
+  "drop-target": null,
+  "page-drop-frame": null,
   "dialog-backdrop-animation": null,
   "dialog-panel-animation": null,
   "dialog-title-animation": null,
