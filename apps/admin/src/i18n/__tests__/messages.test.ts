@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
+import { endsWithGuidePeriod } from "../../../test-setup/field-guide";
+
 import { LOCALES } from "@/i18n/locales";
 import { en } from "@/i18n/messages/en";
 import { RESOURCES } from "@/i18n/resources";
@@ -33,6 +35,15 @@ describe.each(LOCALES)("%s の訳", (locale) => {
     expect(
       [...translation].filter(([, message]) =>
         BRACE.test(message.replaceAll(PLACEHOLDER, "")),
+      ),
+    ).toEqual([]);
+  });
+
+  test("CJK の入力ガイドの末尾に句点を付けない", () => {
+    expect(
+      [...translation].filter(
+        ([key, message]) =>
+          key.includes(".guide.") && endsWithGuidePeriod(locale, message),
       ),
     ).toEqual([]);
   });

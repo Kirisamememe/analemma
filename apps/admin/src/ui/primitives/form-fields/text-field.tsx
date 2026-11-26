@@ -19,6 +19,8 @@ export type TextFieldProps = {
   isRequired?: boolean | undefined;
   /** 読み取り専用か。 */
   isReadOnly?: boolean | undefined;
+  /** 空欄のときに表示する入力例。 */
+  placeholder?: string | undefined;
   /** 文字の数の上限。 */
   maxLength?: number | undefined;
   /** ブラウザの自動入力の種類。 */
@@ -48,6 +50,7 @@ export const TextField = ({
   isRequired = false,
   isReadOnly = false,
   maxLength,
+  placeholder,
   autoComplete,
   inputRef,
   defaultValue = "",
@@ -84,6 +87,7 @@ export const TextField = ({
       <TextInput
         autoComplete={autoComplete}
         maxLength={maxLength}
+        placeholder={placeholder}
         ref={inputRef}
       />
       {description !== undefined && (

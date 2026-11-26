@@ -25,6 +25,8 @@ export type TextAreaProps = {
   description?: string | undefined;
   /** 最初に入れておく値。 */
   defaultValue?: string;
+  /** 空欄のときに表示する入力例。 */
+  placeholder?: string | undefined;
   /** 文字の数の上限。 */
   maxLength?: number | undefined;
   /** 入力が要るか。 */
@@ -54,6 +56,7 @@ export const TextArea = ({
   description,
   defaultValue = "",
   maxLength,
+  placeholder,
   isRequired = false,
   isDisabled = false,
   isReadOnly = false,
@@ -97,6 +100,7 @@ export const TextArea = ({
           ],
         })}
         maxLength={maxLength}
+        placeholder={placeholder}
         rows={4}
       />
       {description !== undefined && (

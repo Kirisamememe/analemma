@@ -303,7 +303,7 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 
 - **画面の story の作り物の server の状態**:ログインと登録の story は、ログインの作り物とパスキーの作り物をつないだだけなので、ログインの状態とパスキーの一覧の状態が別々に動く(すべてのセッションからログアウトした後の再ログインや、登録した名前の一覧への反映が合わない)。story は画面を見るためのもので、流れのつながりは画面のテストが確かめる(Codex のレビューで見つかった)。
 - **secure context でない origin**:`main.tsx` は起動のときに `PublicKeyCredential` を読むので、`localhost` 以外の HTTP で開くと、描く前に止まる。管理画面は HTTPS と `localhost` でだけ使う(Codex のレビューで見つかった)。
-- **全部の story を描くテストが確かめないこと**:このテストは、story が誤り(throw と `console.error`)を出さずに描けることだけを確かめる。story が何も描かなくても、展示用の枠を数えて通り、一覧を読めない story は、知らせが出る前の、読み込み中の画面で通る。それぞれの状態は画面のテストが確かめ、部品の見た目は Storybook で見る。
+- **全部の story を描くテストが確かめないこと**:このテストでは、story が誤り(throw と `console.error`)を出さずに描けることと、表示された入力ガイドの末尾を確かめる。story が何も描かなくても、展示用の枠を数えて通り、一覧を読めない story は、知らせが出る前の、読み込み中の画面で通る。それぞれの状態は画面のテストが確かめ、部品の見た目は Storybook で見る。
 - **Storybook の狭い画面**:幅を決めた展示用の枠は、Storybook の画面が 544px より狭いと、横にはみ出す。Storybook はデスクトップのブラウザで見るので、受け入れる。
 - **開発のときの head の script**:開発のサーバーは、HTML を返すたびに、head の script を Vite の lib のビルドでまとめ直す(数十ミリ秒)。まとめた結果を使い回すと、`src/preferences/boot.ts` と、それが読むファイルを直したときに開発のサーバーを起動し直す必要がある。待ち時間が気になったら、依存が変わったときだけまとめ直す形にする。
 - **`localStorage` が使えない設定**:head の script は、`localStorage` を読めないと(ストレージを切った設定など)throw し、言語と配色を当てずに終わる。React は html の `lang` が無ければ英語にするので、画面は英語で出る。言語を切り替えたときも、`languageChanged` の event の中で `localStorage` に置けずに throw し、後に登録した listener(画面の描き直し)まで event が届かない。管理者が自分のブラウザで使うだけなので、受け入れる。

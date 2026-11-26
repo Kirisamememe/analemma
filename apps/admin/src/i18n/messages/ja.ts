@@ -31,8 +31,8 @@ export const ja = {
     "中身の項目は、種類の定義から作ります。接続を確かめてから、もう一度試してください。",
   "fixedPageEditor.slug": "slug",
   "fixedPageEditor.title": "タイトル",
-  "fixedPageEditor.slugHint":
-    "半角の英小文字と数字を使い、語の間はハイフン1つでつなげます。100文字までです。",
+  "fixedPageEditor.guide.slug":
+    "半角の英小文字と数字を使い、語の間はハイフン1つでつなげます。100文字までです",
   "fixedPageEditor.invalidSlug": "slug の文字と長さを確認してください。",
   "fixedPageEditor.invalidTitle":
     "タイトルは1〜200文字で、改行を使わずに入力してください。",
@@ -67,7 +67,7 @@ export const ja = {
     "この画面を離れると、保存していない変更は失われます。",
   "fixedPageEditor.stay": "編集を続ける",
   "fixedPageEditor.leave": "変更を破棄",
-  "fixedPageEditor.urlHint": "http:// か https:// で始まる URL を入力します。",
+  "fixedPageEditor.guide.url": "http:// か https:// で始まる URL を入力します",
   "fixedPageEditor.unboundIssue": "({{path}}:{{message}})",
   "fixedPageEditor.newDescription":
     "種類を選び、slug・タイトル・中身を入力します。",
@@ -116,7 +116,7 @@ export const ja = {
   "enroll.title": "パスキーを登録",
   "enroll.description": "この管理画面にログインするためのパスキーを作ります。",
   "enroll.name": "パスキーの名前",
-  "enroll.nameDescription": "パスキーを見分けるための名前(端末の名前など)。",
+  "enroll.guide.name": "パスキーを見分けるための名前(端末の名前など)",
   "enroll.submit": "パスキーを登録",
   "enroll.missingToken":
     "登録用 URL が不完全です。サーバーのコマンドで発行し直してください。",
@@ -185,8 +185,7 @@ export const ja = {
   "deployTokens.issueDescription":
     "発行の前に、登録済みのパスキーで本人確認をします。",
   "deployTokens.name": "トークンの名前",
-  "deployTokens.nameDescription":
-    "どこで使うかが分かる名前(本番のデプロイなど)。",
+  "deployTokens.guide.name": "どこで使うかが分かる名前(本番のデプロイなど)",
   "deployTokens.invalidName": "1〜64文字で、改行などを使わずに付けてください。",
   "deployTokens.cancel": "キャンセル",
   "deployTokens.issued": "「{{name}}」を発行しました。",
@@ -281,7 +280,7 @@ export const ja = {
   "imageDetail.title": "タイトル",
   "imageDetail.description": "説明",
   "imageDetail.alt": "alt",
-  "imageDetail.altHint": "写真を見られない人に、写っているものを伝える文。",
+  "imageDetail.guide.alt": "写真を見られない人に、写っているものを伝える文",
   "imageDetail.edit": "編集",
   "imageDetail.leavingWhileSaving": "画像を保存しています",
   "imageDetail.savingWillContinue":

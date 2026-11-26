@@ -5,6 +5,7 @@ import { readdir } from "node:fs/promises";
 import type { ComponentType } from "react";
 
 import preview from "../../.storybook/preview";
+import { findFieldGuidesWithPeriods } from "../../test-setup/field-guide";
 
 import * as componentsPasskeyNameField from "@/components/__stories__/passkey-name-field.stories";
 import * as componentsQueryContent from "@/components/__stories__/query-content.stories";
@@ -233,6 +234,12 @@ describe("story", () => {
           });
         });
 
+        expect(
+          findFieldGuidesWithPeriods(
+            document.body,
+            document.documentElement.lang,
+          ),
+        ).toEqual([]);
         expect(container.childElementCount).toBeGreaterThan(0);
         expect(errors).not.toHaveBeenCalled();
       } finally {

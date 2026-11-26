@@ -11,7 +11,8 @@ const meta = {
   args: {
     name: "body",
     label: "本文",
-    description: "公開するページの本文を入力してください。",
+    placeholder: "例：雨の日は窓を開けて、通りの音を聞く。",
+    description: "公開するページの本文を入力してください",
   },
 } satisfies Meta<typeof TextArea>;
 

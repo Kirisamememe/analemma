@@ -12,7 +12,7 @@ const meta = {
   args: {
     name: "season",
     label: "季節",
-    description: "公開サイトで使う季節を選びます。",
+    description: "公開サイトで使う季節を選びます",
     options: [
       { value: "spring", label: "春" },
       { value: "summer", label: "夏" },

@@ -16,6 +16,7 @@ type AppTextFieldProps = Pick<
   | "isRequired"
   | "label"
   | "maxLength"
+  | "placeholder"
 >;
 
 /** TanStack Form につないだ1行の入力欄。 */
@@ -27,6 +28,7 @@ export const AppTextField = ({
   isRequired,
   label,
   maxLength,
+  placeholder,
 }: AppTextFieldProps): ReactNode => {
   const field = useFieldContext<string | undefined>();
   const value = useSelector(field.store, (state) => state.value);
@@ -44,6 +46,7 @@ export const AppTextField = ({
       label={label}
       maxLength={maxLength}
       name={field.name}
+      placeholder={placeholder}
       onBlur={field.handleBlur}
       onChange={field.handleChange}
       validationBehavior="aria"

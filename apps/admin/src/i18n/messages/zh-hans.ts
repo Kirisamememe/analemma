@@ -31,8 +31,8 @@ export const zhHans = {
     "内容的字段根据类型定义生成。请检查网络连接，然后重试。",
   "fixedPageEditor.slug": "slug",
   "fixedPageEditor.title": "标题",
-  "fixedPageEditor.slugHint":
-    "最多 100 个字符，可用小写英文字母和数字，词之间可用一个连字符。",
+  "fixedPageEditor.guide.slug":
+    "最多 100 个字符，可用小写英文字母和数字，词之间可用一个连字符",
   "fixedPageEditor.invalidSlug": "请检查 slug 的字符和长度。",
   "fixedPageEditor.invalidTitle": "请输入 1 至 200 个字符的标题，不要换行。",
   "fixedPageEditor.slugTaken": "其他固定页面已在使用此 slug。",
@@ -63,7 +63,7 @@ export const zhHans = {
   "fixedPageEditor.leaveDescription": "离开此页面后，尚未保存的更改将会丢失。",
   "fixedPageEditor.stay": "继续编辑",
   "fixedPageEditor.leave": "放弃更改",
-  "fixedPageEditor.urlHint": "请输入以 http:// 或 https:// 开头的 URL。",
+  "fixedPageEditor.guide.url": "请输入以 http:// 或 https:// 开头的 URL",
   "fixedPageEditor.unboundIssue": "（{{path}}：{{message}}）",
   "fixedPageEditor.newDescription": "选择类型后，输入 slug、标题和内容。",
   "fixedPageEditor.kindOf": "类型：{{kind}}",
@@ -109,7 +109,7 @@ export const zhHans = {
   "enroll.title": "注册通行密钥",
   "enroll.description": "创建用于登录此管理后台的通行密钥。",
   "enroll.name": "通行密钥名称",
-  "enroll.nameDescription": "用于区分通行密钥的名称（例如设备名称）。",
+  "enroll.guide.name": "用于区分通行密钥的名称（例如设备名称）",
   "enroll.submit": "注册通行密钥",
   "enroll.missingToken": "注册链接不完整，请用服务器命令重新生成。",
   "enroll.invalid":
@@ -166,7 +166,7 @@ export const zhHans = {
   "deployTokens.issue": "签发令牌",
   "deployTokens.issueDescription": "签发前将用当前的通行密钥确认。",
   "deployTokens.name": "令牌名称",
-  "deployTokens.nameDescription": "能看出用途的名称（例如正式环境部署）。",
+  "deployTokens.guide.name": "能看出用途的名称（例如正式环境部署）",
   "deployTokens.invalidName": "请使用 1～64 个字符，不要包含换行等。",
   "deployTokens.cancel": "取消",
   "deployTokens.issued": "已签发“{{name}}”。",
@@ -251,7 +251,7 @@ export const zhHans = {
   "imageDetail.title": "标题",
   "imageDetail.description": "说明",
   "imageDetail.alt": "替代文本",
-  "imageDetail.altHint": "向看不到照片的人说明照片内容的文字。",
+  "imageDetail.guide.alt": "向看不到照片的人说明照片内容的文字",
   "imageDetail.edit": "编辑",
   "imageDetail.leavingWhileSaving": "正在保存图片",
   "imageDetail.savingWillContinue":

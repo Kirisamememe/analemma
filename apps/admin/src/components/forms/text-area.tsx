@@ -15,6 +15,7 @@ type AppTextAreaProps = Pick<
   | "isRequired"
   | "label"
   | "maxLength"
+  | "placeholder"
 >;
 
 /** TanStack Form につないだ長いテキストの入力欄。 */
@@ -34,6 +35,7 @@ export const AppTextArea = (props: AppTextAreaProps): ReactNode => {
       label={props.label}
       maxLength={props.maxLength}
       name={field.name}
+      placeholder={props.placeholder}
       onBlur={field.handleBlur}
       onChange={field.handleChange}
       validationBehavior="aria"

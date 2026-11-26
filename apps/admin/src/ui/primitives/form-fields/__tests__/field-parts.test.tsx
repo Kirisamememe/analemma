@@ -2,6 +2,8 @@ import { cleanup, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 import type { ReactElement } from "react";
 
+import { findFieldGuidesWithPeriods } from "../../../../../test-setup/field-guide";
+
 import { renderWithI18n } from "@/testing/render-with-i18n";
 import { Select } from "@/ui/primitives/form-fields/choices/select";
 import { DateField } from "@/ui/primitives/form-fields/date/date-field";
@@ -75,4 +77,32 @@ describe("入力欄のラベル", () => {
       screen.getByRole<HTMLInputElement>("textbox", { name: "名前" }).required,
     ).toBe(true);
   });
+});
+
+test("ガイドの末尾だけを調べ、同じ入力欄の入力例とエラーの句点を許す", () => {
+  renderWithI18n(
+    <TextField
+      name="title"
+      label="タイトル"
+      placeholder="朝霧の湖。"
+      description="200文字まで。"
+      errorMessage="長すぎます。"
+    />,
+    "ja",
+  );
+  expect(findFieldGuidesWithPeriods(document.body, "ja")).toEqual([
+    "200文字まで。",
+  ]);
+});
+
+test("英語のガイドではピリオドを許す", () => {
+  renderWithI18n(
+    <TextArea
+      name="description"
+      label="Description"
+      description="Enter up to 5,000 characters."
+    />,
+    "en",
+  );
+  expect(findFieldGuidesWithPeriods(document.body, "en")).toEqual([]);
 });

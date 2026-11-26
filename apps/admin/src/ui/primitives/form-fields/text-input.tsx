@@ -14,6 +14,8 @@ type TextInputProps = {
   "aria-label"?: string;
   /** ブラウザの自動入力の種類。 */
   autoComplete?: string | undefined;
+  /** 空欄のときに表示する入力例。 */
+  placeholder?: string | undefined;
   /** 文字の数の上限。 */
   maxLength?: number | undefined;
   /** 最初に入れておく値。 */
@@ -35,6 +37,7 @@ export const TextInput = ({
   "aria-label": ariaLabel,
   autoComplete,
   maxLength,
+  placeholder,
   defaultValue,
   value,
   onChange,
@@ -53,6 +56,7 @@ export const TextInput = ({
     defaultValue={defaultValue}
     id={id}
     maxLength={maxLength}
+    placeholder={placeholder ?? ""}
     name={name}
     onBlur={onBlur}
     ref={ref}

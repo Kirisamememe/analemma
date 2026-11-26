@@ -54,7 +54,7 @@ test("各型の入力、変更した slug とタイトルを送り、任意の�
   await user.type(
     screen.getByRole("textbox", {
       name: "リンク先",
-      description: "http:// か https:// で始まる URL を入力します。",
+      description: "http:// か https:// で始まる URL を入力します",
     }),
     "https://example.com",
   );
