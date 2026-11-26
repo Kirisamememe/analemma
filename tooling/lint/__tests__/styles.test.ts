@@ -77,6 +77,10 @@ describe("管理画面の部品の class", () => {
       [38, "on-danger-strong は text"],
       [39, "fg-muted は text"],
       [41, "余白は"],
+      [42, "余白は"],
+      [43, "余白は"],
+      [44, "余白は"],
+      [45, "余白は"],
     ];
 
     expect(diagnosticsOf({ file, rule: RESTRICTED }, expected)).toEqual(
