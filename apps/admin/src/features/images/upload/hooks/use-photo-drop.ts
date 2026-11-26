@@ -7,9 +7,10 @@ const carriesFiles = (data: DataTransfer | null): data is DataTransfer =>
 
 /** 画像の一覧と、その上に開いた Dialog のどこに落とした写真も受け取る。 */
 export const usePhotoDrop = (
+  target: HTMLElement | null,
   onFiles: (files: readonly File[]) => void,
 ): boolean => {
-  const [isDragging, setDragging] = useState(false);
+  const [dragged, setDragged] = useState<HTMLElement | null>(null);
   const receive = useEffectEvent(onFiles);
 
   useEffect(() => {
@@ -17,15 +18,27 @@ export const usePhotoDrop = (
 
     const reset = (): void => {
       depth = 0;
-      setDragging(false);
+      setDragged(null);
     };
+
+    const accepts = (event: DragEvent): boolean =>
+      target !== null &&
+      event.target instanceof Node &&
+      target.contains(event.target) &&
+      !target.closest("[inert], [aria-hidden=true]");
 
     const enter = (event: DragEvent): void => {
       if (!carriesFiles(event.dataTransfer)) return;
 
       event.preventDefault();
+
+      if (!accepts(event)) {
+        reset();
+        return;
+      }
+
       depth += 1;
-      setDragging(true);
+      setDragged(target);
     };
 
     const over = (event: DragEvent): void => {
@@ -34,13 +47,15 @@ export const usePhotoDrop = (
       if (!carriesFiles(dataTransfer)) return;
 
       event.preventDefault();
-      dataTransfer.dropEffect = "copy";
+      dataTransfer.dropEffect = accepts(event) ? "copy" : "none";
     };
 
-    const leave = (): void => {
+    const leave = (event: DragEvent): void => {
+      if (!accepts(event)) return;
+
       depth = Math.max(0, depth - 1);
 
-      if (depth === 0) setDragging(false);
+      if (depth === 0) setDragged(null);
     };
 
     const drop = (event: DragEvent): void => {
@@ -51,7 +66,7 @@ export const usePhotoDrop = (
 
       reset();
 
-      if (files.length > 0) receive(files);
+      if (accepts(event) && files.length > 0) receive(files);
     };
 
     const controller = new AbortController();
@@ -66,7 +81,7 @@ export const usePhotoDrop = (
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [target]);
 
-  return isDragging;
+  return target !== null && target === dragged;
 };

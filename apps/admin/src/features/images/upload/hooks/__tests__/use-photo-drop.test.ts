@@ -7,7 +7,7 @@ afterEach(cleanup);
 
 test("子要素に重ね直しても写真を落とせることを示し、画面を出ると消す", () => {
   const receive = mock<(files: readonly File[]) => void>();
-  const { result } = renderHook(() => usePhotoDrop(receive));
+  const { result } = renderHook(() => usePhotoDrop(document.body, receive));
   const child = document.createElement("span");
 
   document.body.append(child);
@@ -27,9 +27,12 @@ test("落とした写真をまとめて渡し、続けて落とした写真も�
   const first = mock<(files: readonly File[]) => void>();
   const next = mock<(files: readonly File[]) => void>();
 
-  const { result, rerender, unmount } = renderHook(usePhotoDrop, {
-    initialProps: first,
-  });
+  const { result, rerender, unmount } = renderHook(
+    (receive: typeof first) => usePhotoDrop(document.body, receive),
+    {
+      initialProps: first,
+    },
+  );
 
   const data = new DataTransfer();
   const a = new File(["a"], "a.jpg");
@@ -58,7 +61,7 @@ test("落とした写真をまとめて渡し、続けて落とした写真も�
 
 test("テキストを移す操作はブラウザに任せる", () => {
   const receive = mock<(files: readonly File[]) => void>();
-  const { result } = renderHook(() => usePhotoDrop(receive));
+  const { result } = renderHook(() => usePhotoDrop(document.body, receive));
   const data = new DataTransfer();
 
   data.setData("text/plain", "写真の説明");
@@ -69,4 +72,36 @@ test("テキストを移す操作はブラウザに任せる", () => {
   expect(fireEvent.drop(document.body, drag)).toBe(true);
   expect(result.current).toBe(false);
   expect(receive).not.toHaveBeenCalled();
+});
+
+test("写真をナビや Dialog の背景に落としても公開せず、ファイルへの移動も防ぐ", () => {
+  const main = document.createElement("main");
+  const panel = document.createElement("section");
+  const nav = document.createElement("nav");
+  document.body.append(main, panel, nav);
+  const receive = mock<(files: readonly File[]) => void>();
+  const { result, rerender } = renderHook(
+    (target: HTMLElement) => usePhotoDrop(target, receive),
+    { initialProps: main },
+  );
+  const data = new DataTransfer();
+  data.items.add(new File(["photo"], "private.jpg"));
+  const drag = { dataTransfer: data };
+  fireEvent.dragEnter(main, drag);
+  expect(result.current).toBe(true);
+  fireEvent.dragEnter(nav, drag);
+  expect(result.current).toBe(false);
+  expect(fireEvent.dragOver(nav, drag)).toBe(false);
+  expect(data.dropEffect).toBe("none");
+  expect(fireEvent.drop(nav, drag)).toBe(false);
+  rerender(panel);
+  fireEvent.drop(main, drag);
+  expect(receive).not.toHaveBeenCalled();
+  fireEvent.dragOver(panel, drag);
+  expect(data.dropEffect).toBe("copy");
+  fireEvent.drop(panel, drag);
+  expect(receive).toHaveBeenCalledTimes(1);
+  main.remove();
+  panel.remove();
+  nav.remove();
 });
