@@ -47,13 +47,20 @@ type SaveError = {
   readonly reason: keyof UploadMetadata | "failed" | "gone";
 };
 
+type SaveCallbacks = {
+  /** 画面を離れる前か。 */
+  readonly isActive: () => boolean;
+  /** すべての保存を終えた後の処理。 */
+  readonly onComplete: () => void;
+};
+
 const changed = (entry: Entry, field: keyof UploadMetadata): boolean =>
   entry.values[field].trim() !== entry.saved[field].trim();
 
 /** 送る写真ごとに入力を保ち、完了時に追加できた写真の変更を保存する。 */
 export const useUploadMetadata = (
   uploads: readonly PhotoUpload[],
-  onComplete: () => void,
+  { isActive, onComplete }: SaveCallbacks,
 ) => {
   const { api } = useAppContext();
   const { update, updatePages, refresh } = useApiCache();
@@ -73,12 +80,15 @@ export const useUploadMetadata = (
 
   const fail = (id: number, reason: SaveError["reason"]) => {
     pending.current = undefined;
-    setError({ id, reason });
+
+    if (isActive()) setError({ id, reason });
   };
 
   const saving = useApiMutation({
-    send: (item: Save) => saveUploadMetadata(api, item),
+    send: (item: Save) => saveUploadMetadata(api, { ...item, isActive }),
     onSuccess: async (result, item) => {
+      if (result._tag === "Stopped") return;
+
       const detail = imageQueryKey(item.imageId);
 
       if (result._tag === "NotFound") {
@@ -101,6 +111,8 @@ export const useUploadMetadata = (
         ),
         updatePages(IMAGES_QUERY_KEY, updateImagePage(item.imageId, apply)),
       ]);
+
+      if (!isActive()) return;
 
       setEntries((current) => {
         const entry = current.get(item.id);

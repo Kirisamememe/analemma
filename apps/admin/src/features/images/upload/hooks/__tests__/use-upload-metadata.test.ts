@@ -66,9 +66,13 @@ const setup = async () => {
 
   const done = mock(() => undefined);
 
-  const { result } = renderHook(() => useUploadMetadata(uploads, done), {
-    wrapper: withAppProviders(app),
-  });
+  const { result } = renderHook(
+    () =>
+      useUploadMetadata(uploads, { isActive: () => true, onComplete: done }),
+    {
+      wrapper: withAppProviders(app),
+    },
+  );
 
   return { first, second, result, updates, done, queryClient };
 };

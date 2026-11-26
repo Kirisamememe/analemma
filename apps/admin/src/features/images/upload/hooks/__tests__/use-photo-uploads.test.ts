@@ -1,6 +1,7 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
-import { afterEach, expect, test } from "bun:test";
+import { afterEach, expect, mock, test } from "bun:test";
 
+import { imageQueryKey } from "@/features/images/detail/queries/image-query";
 import { usePhotoUploads } from "@/features/images/upload/hooks/use-photo-uploads";
 import type { FakeRoutes } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
@@ -65,16 +66,16 @@ const holdUploads = () => {
   };
 };
 
-const render = async (routes: FakeRoutes) => {
+const render = async (routes: FakeRoutes, onComplete?: () => void) => {
   const app = createTestApp({ path: "/images", routes });
 
   await app.router.load();
 
-  const rendered = renderHook(() => usePhotoUploads(), {
+  const rendered = renderHook(() => usePhotoUploads(onComplete), {
     wrapper: withAppProviders(app),
   });
 
-  return { ...rendered, history: app.history };
+  return { ...rendered, history: app.history, queryClient: app.queryClient };
 };
 
 const statuses = (
@@ -221,4 +222,68 @@ test("送っている間の入力は送信後も残り、保存せずに画面�
     expect(result.current.uploads).toHaveLength(0);
   });
   expect(held.server.images()[0]?.title).toBe("朝の海");
+});
+
+test("保存中に離脱を確定したら、送信済みの写真をキャッシュに反映し、残りの変更を送らない", async () => {
+  const server = createImageRoutes();
+  const sent = Promise.withResolvers<string>();
+  const resume = Promise.withResolvers<undefined>();
+  const updates: string[] = [];
+  const done = mock(() => undefined);
+
+  const { result, history, queryClient } = await render(
+    {
+      ...server.routes,
+      "admin/images/update": async (input) => {
+        updates.push(input.id);
+        sent.resolve(input.id);
+        await resume.promise;
+
+        return server.routes["admin/images/update"](input);
+      },
+    },
+    done,
+  );
+
+  act(() => {
+    result.current.add([photo("a.jpg"), photo("b.jpg")]);
+  });
+  await waitFor(() => {
+    expect(statuses(result.current.uploads)).toEqual([
+      "a.jpg: added",
+      "b.jpg: added",
+    ]);
+  });
+  act(() => {
+    result.current.metadata.change(1, { title: "朝" });
+    result.current.metadata.change(2, { title: "夜" });
+  });
+  act(() => {
+    result.current.metadata.finish();
+  });
+  const firstId = await sent.promise;
+  const detail = imageQueryKey(firstId);
+  queryClient.setQueryDefaults(detail, { gcTime: Infinity });
+  queryClient.setQueryData(detail, {
+    _tag: "Succeeded",
+    data: server.images().find(({ id }) => id === firstId),
+  });
+  act(() => {
+    history.push("/pages");
+  });
+  await waitFor(() => {
+    expect(result.current.leaving._tag).toBe("Asking");
+  });
+  act(() => {
+    result.current.leaving.leave();
+  });
+  resume.resolve(undefined);
+  await waitFor(() => {
+    expect(queryClient.getQueryData(detail)).toMatchObject({
+      data: { title: "朝" },
+    });
+    expect(result.current.metadata.isSaving).toBe(false);
+  });
+  expect(updates).toEqual([firstId]);
+  expect(done).not.toHaveBeenCalled();
 });

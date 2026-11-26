@@ -40,9 +40,12 @@ export const usePhotoUploads = (onComplete?: () => void) => {
     setUploads(latest.current);
   }, []);
 
-  const metadata = useUploadMetadata(uploads, () => {
-    apply(clearFinished);
-    onComplete?.();
+  const metadata = useUploadMetadata(uploads, {
+    isActive: () => active.current,
+    onComplete: () => {
+      apply(clearFinished);
+      onComplete?.();
+    },
   });
 
   const leaving = useLeaveConfirmation((destination) => {
@@ -143,5 +146,19 @@ export const usePhotoUploads = (onComplete?: () => void) => {
     };
   }, []);
 
-  return { uploads, metadata, leaving, add, retry, clear, track };
+  const leave = () => {
+    if (leaving._tag === "Asking") active.current = false;
+
+    leaving.leave();
+  };
+
+  return {
+    uploads,
+    metadata,
+    leaving: { ...leaving, leave },
+    add,
+    retry,
+    clear,
+    track,
+  };
 };
