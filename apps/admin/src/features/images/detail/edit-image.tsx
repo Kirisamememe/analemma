@@ -3,6 +3,7 @@ import { type ReactNode, useCallback, useId, useRef, useState } from "react";
 import {
   hasUnsavedChanges,
   imageTextFields,
+  imageTextSchemas,
   isValidImageText,
   toImageText,
 } from "./logic/image-text";
@@ -23,11 +24,12 @@ import {
 } from "@/api/server-state/server-state";
 import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
 import { checkAfterSubmit, useAppForm } from "@/components/forms";
+import { createFieldGuide } from "@/components/forms/logic/field-guide";
 import {
   IMAGES_QUERY_KEY,
   updateImagePage,
 } from "@/features/images/queries/images-query";
-import { type MessageKey, useTranslate } from "@/i18n/use-translate";
+import { type MessageKey, useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
@@ -60,6 +62,7 @@ const EditImageDialog = ({
   onClose,
 }: EditImageDialogProps): ReactNode => {
   const t = useTranslate();
+  const guide = createFieldGuide(t, useLocale());
   const showToast = useShowToast();
   const failure = useFailureToast();
   const { refresh, update, updatePages } = useApiCache();
@@ -183,12 +186,23 @@ const EditImageDialog = ({
                     <field.TextArea
                       isReadOnly={saving.isPending}
                       label={t("imageDetail.description")}
+                      placeholder={t("imageDetail.descriptionPlaceholder")}
+                      description={guide(imageTextSchemas.description)}
                     />
                   ) : (
                     <field.TextField
                       autoComplete="off"
+                      placeholder={
+                        name === "title"
+                          ? t("imageDetail.titlePlaceholder")
+                          : undefined
+                      }
                       description={
-                        name === "alt" ? t("imageDetail.guide.alt") : undefined
+                        name === "alt"
+                          ? guide(imageTextSchemas.alt, {
+                              hint: t("imageDetail.guide.alt"),
+                            })
+                          : guide(imageTextSchemas.title)
                       }
                       isReadOnly={saving.isPending}
                       label={t(`imageDetail.${name}`)}

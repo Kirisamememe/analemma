@@ -99,6 +99,10 @@ export const ja = {
   "ui.openNav": "ナビを開く",
   "ui.closeNav": "ナビを閉じる",
   "ui.close": "閉じる",
+  "ui.guide.withHint": "{{hint}}（{{length}}）",
+  "ui.guide.characterLimit": "{{max}}文字まで",
+  "ui.guide.characterMinimum": "{{min}}文字以上",
+  "ui.guide.characterRange": "{{min}}〜{{max}}文字",
   "ui.required": "必須",
   "ui.errorState.description": "接続を確かめてから、もう一度試してください。",
   "ui.errorState.failedAgain": "まだ読み込めません。",
@@ -281,6 +285,9 @@ export const ja = {
   "imageDetail.description": "説明",
   "imageDetail.alt": "alt",
   "imageDetail.guide.alt": "写真を見られない人に、写っているものを伝える文",
+  "imageDetail.titlePlaceholder": "例：朝霧の湖",
+  "imageDetail.descriptionPlaceholder":
+    "例：夜明けの湖畔で、霧が晴れるのを待って撮影しました。",
   "imageDetail.edit": "編集",
   "imageDetail.leavingWhileSaving": "画像を保存しています",
   "imageDetail.savingWillContinue":
@@ -300,7 +307,7 @@ export const ja = {
     "画像を保存できませんでした。もう一度試してください。",
   "imageDetail.invalidTitle":
     "タイトルは200文字までで、改行を使わずに入力してください。",
-  "imageDetail.invalidDescription": "説明は1万文字までで入力してください。",
+  "imageDetail.invalidDescription": "説明は5,000文字までで入力してください。",
   "imageDetail.invalidAlt":
     "alt は1000文字までで、改行を使わずに入力してください。",
   "imageDetail.publish": "公開する",

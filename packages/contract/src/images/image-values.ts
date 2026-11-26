@@ -50,7 +50,7 @@ export const imageTitle = trimmedText(200, SINGLE_LINE).describe(
 );
 
 /** 画像の説明。 */
-export const imageDescription = trimmedText(10_000, MULTI_LINE).describe(
+export const imageDescription = trimmedText(5000, MULTI_LINE).describe(
   "画像の説明。",
 );
 
