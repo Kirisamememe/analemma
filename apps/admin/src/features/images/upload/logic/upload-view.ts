@@ -55,3 +55,52 @@ export const focusAfterRetry = ({
 
   return imageId === undefined ? "add-button" : "result";
 };
+
+/** 写真の転送と登録の全体を1行で伝えるための件数と表示。 */
+export const uploadNotice = (uploads: readonly PhotoUpload[]) => {
+  if (uploads.length === 0) return undefined;
+
+  const total = uploads.length;
+  const added = uploads.filter(({ status }) => status === "added").length;
+
+  const failed = uploads.filter(
+    ({ status }) =>
+      status === "failed" || status === "too-large" || status === "unsupported",
+  ).length;
+
+  const counts = { added, total, failed };
+
+  if (failed === total) {
+    return {
+      tone: "danger",
+      icon: "circle-alert",
+      key: "imageUpload.notice.allFailed",
+      counts,
+    } as const;
+  }
+
+  if (failed > 0) {
+    return {
+      tone: "warning",
+      icon: "circle-alert",
+      key: "imageUpload.notice.failed",
+      counts,
+    } as const;
+  }
+
+  if (added === total) {
+    return {
+      tone: "success",
+      icon: "circle-check",
+      key: "imageUpload.notice.done",
+      counts,
+    } as const;
+  }
+
+  return {
+    tone: "info",
+    icon: "arrow-up",
+    key: "imageUpload.notice.sending",
+    counts,
+  } as const;
+};

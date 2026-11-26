@@ -66,12 +66,17 @@ test("閉じても選んだ写真を保ち、別の写真に入力の誤りが�
 test("完了で保存できた写真を閉じ、失敗した写真の原稿は開き直して送り直せる", async () => {
   const server = createImageRoutes();
   const ready = Promise.withResolvers<undefined>();
+  const save = Promise.withResolvers<undefined>();
   let failed = false;
 
   const app = createTestApp({
     path: "/images",
     routes: {
       ...server.routes,
+      "admin/images/update": async (input) => {
+        await save.promise;
+        return server.routes["admin/images/update"](input);
+      },
       "admin/images/upload": async (input) => {
         if (input.photo.name === "lost.jpg" && !failed) {
           failed = true;
@@ -108,6 +113,16 @@ test("完了で保存できた写真を閉じ、失敗した写真の原稿は�
   act(() => {
     result.current.metadata.finish();
   });
+  await waitFor(() => {
+    expect(result.current.metadata.isSaving).toBe(true);
+  });
+  act(() => {
+    result.current.focus.retry(2);
+  });
+  expect(result.current.uploads.find(({ id }) => id === 2)?.status).toBe(
+    "failed",
+  );
+  save.resolve(undefined);
   await waitFor(() => {
     expect(result.current.isOpen).toBe(false);
   });
