@@ -29,7 +29,7 @@ export const en = {
     "The content fields come from the kind definition. Check your connection, then try again.",
   "fixedPageEditor.slug": "Slug",
   "fixedPageEditor.title": "Title",
-  "fixedPageEditor.slugHint":
+  "fixedPageEditor.guide.slug":
     "Use up to 100 lowercase letters and digits, with single hyphens between words.",
   "fixedPageEditor.invalidSlug": "Check the characters and length of the slug.",
   "fixedPageEditor.invalidTitle":
@@ -65,7 +65,7 @@ export const en = {
     "If you leave this page, your unsaved changes will be lost.",
   "fixedPageEditor.stay": "Keep editing",
   "fixedPageEditor.leave": "Discard changes",
-  "fixedPageEditor.urlHint": "Enter a URL starting with http:// or https://.",
+  "fixedPageEditor.guide.url": "Enter a URL starting with http:// or https://.",
   "fixedPageEditor.unboundIssue": "{{path}}: {{message}}",
   "fixedPageEditor.newDescription":
     "Choose a kind, then enter the slug, title, and content.",
@@ -113,7 +113,7 @@ export const en = {
   "enroll.title": "Register a passkey",
   "enroll.description": "Create a passkey to sign in to this admin panel.",
   "enroll.name": "Passkey name",
-  "enroll.nameDescription":
+  "enroll.guide.name":
     "A name to tell your passkeys apart, such as the device.",
   "enroll.submit": "Register the passkey",
   "enroll.missingToken":
@@ -178,7 +178,7 @@ export const en = {
   "deployTokens.issueDescription":
     "You will confirm with a current passkey before the token is issued.",
   "deployTokens.name": "Token name",
-  "deployTokens.nameDescription":
+  "deployTokens.guide.name":
     "A name that tells where it is used (such as Production deploy).",
   "deployTokens.invalidName": "Use 1 to 64 characters, without line breaks.",
   "deployTokens.cancel": "Cancel",
@@ -270,7 +270,7 @@ export const en = {
   "imageDetail.title": "Title",
   "imageDetail.description": "Description",
   "imageDetail.alt": "Alt text",
-  "imageDetail.altHint":
+  "imageDetail.guide.alt":
     "Text that tells people who can’t see the photo what it shows.",
   "imageDetail.edit": "Edit",
   "imageDetail.leavingWhileSaving": "Saving the image",

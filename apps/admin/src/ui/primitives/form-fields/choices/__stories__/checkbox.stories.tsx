@@ -12,7 +12,7 @@ const meta = {
   args: {
     name: "pinned",
     label: "先頭に表示する",
-    description: "一覧でこのページを先頭に表示します。",
+    description: "一覧でこのページを先頭に表示します",
   },
 } satisfies Meta<typeof Checkbox>;
 

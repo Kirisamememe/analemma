@@ -98,7 +98,7 @@ export const AddPasskeyDialog = ({
             {(field) => (
               <field.TextField
                 autoComplete="off"
-                description={t("enroll.nameDescription")}
+                description={t("enroll.guide.name")}
                 isRequired
                 label={t("enroll.name")}
               />

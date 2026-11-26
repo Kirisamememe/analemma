@@ -96,7 +96,7 @@ const IssueForm = ({
           {(field) => (
             <field.TextField
               autoComplete="off"
-              description={t("deployTokens.nameDescription")}
+              description={t("deployTokens.guide.name")}
               isRequired
               label={t("deployTokens.name")}
             />

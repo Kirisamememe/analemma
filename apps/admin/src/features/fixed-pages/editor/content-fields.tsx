@@ -95,7 +95,7 @@ const ContentFieldsContent = ({
             case "url":
               return (
                 <field.TextField
-                  description={t("fixedPageEditor.urlHint")}
+                  description={t("fixedPageEditor.guide.url")}
                   isRequired={required}
                   label={label}
                 />

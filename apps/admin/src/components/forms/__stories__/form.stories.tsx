@@ -40,7 +40,7 @@ const FormExample = (): ReactNode => {
             >
               {(field) => (
                 <field.TextField
-                  description="「お知らせ」は使用済みのタイトルです。"
+                  description="「お知らせ」は使用済みのタイトルです"
                   isRequired
                   label="タイトル"
                 />

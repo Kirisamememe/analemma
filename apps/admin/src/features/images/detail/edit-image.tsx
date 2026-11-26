@@ -188,7 +188,7 @@ const EditImageDialog = ({
                     <field.TextField
                       autoComplete="off"
                       description={
-                        name === "alt" ? t("imageDetail.altHint") : undefined
+                        name === "alt" ? t("imageDetail.guide.alt") : undefined
                       }
                       isReadOnly={saving.isPending}
                       label={t(`imageDetail.${name}`)}

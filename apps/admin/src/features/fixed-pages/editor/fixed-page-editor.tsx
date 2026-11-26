@@ -160,7 +160,7 @@ const EditorContent = ({
                       )}
                       description={
                         name === "slug"
-                          ? t("fixedPageEditor.slugHint")
+                          ? t("fixedPageEditor.guide.slug")
                           : undefined
                       }
                       inputRef={

@@ -51,7 +51,7 @@ const FormExample = (): ReactNode => {
             >
               {(field) => (
                 <field.DateField
-                  description="記事に表示する日付です。"
+                  description="記事に表示する日付です"
                   isRequired
                   label="公開日"
                 />
@@ -60,7 +60,7 @@ const FormExample = (): ReactNode => {
             <form.AppField name="pinned">
               {(field) => (
                 <field.Checkbox
-                  description="一覧でこのページを先頭に表示します。"
+                  description="一覧でこのページを先頭に表示します"
                   label="先頭に表示する"
                 />
               )}
@@ -68,7 +68,7 @@ const FormExample = (): ReactNode => {
             <form.AppField name="season">
               {(field) => (
                 <field.Select
-                  description="公開サイトで使う季節を選びます。"
+                  description="公開サイトで使う季節を選びます"
                   label="季節"
                   options={OPTIONS}
                 />

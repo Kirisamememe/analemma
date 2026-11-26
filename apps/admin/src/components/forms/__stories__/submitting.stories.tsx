@@ -70,7 +70,7 @@ const SubmittingForm = ({
             <form.AppField name="title">
               {(field) => (
                 <field.TextField
-                  description="保存を押すと、検証が終わるまで入力を止めます。"
+                  description="保存を押すと、検証が終わるまで入力を止めます"
                   label="タイトル"
                 />
               )}

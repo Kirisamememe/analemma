@@ -9,7 +9,8 @@ const meta = {
   args: {
     name: "name",
     label: "パスキーの名前",
-    description: "端末の名前など、パスキーを見分けられる名前。",
+    placeholder: "例：仕事用のノートPC",
+    description: "端末の名前など、パスキーを見分けられる名前",
   },
 } satisfies Meta<typeof TextField>;
 

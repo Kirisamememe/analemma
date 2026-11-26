@@ -11,7 +11,7 @@ const meta = {
   args: {
     name: "temperature",
     label: "気温 (°C)",
-    description: "小数と負の値も入力できます。",
+    description: "小数と負の値も入力できます",
   },
 } satisfies Meta<typeof NumberField>;
 

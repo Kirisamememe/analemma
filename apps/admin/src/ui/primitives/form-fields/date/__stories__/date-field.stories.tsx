@@ -13,7 +13,7 @@ const meta = {
   args: {
     name: "published",
     label: "公開日",
-    description: "記事に表示する日付です。",
+    description: "記事に表示する日付です",
   },
 } satisfies Meta<typeof DateField>;
 

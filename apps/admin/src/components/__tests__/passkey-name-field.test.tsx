@@ -12,7 +12,7 @@ describe("PasskeyNameField", () => {
 
     const field = screen.getByRole("textbox", {
       name: "パスキーの名前",
-      description: "パスキーを見分けるための名前(端末の名前など)。",
+      description: "パスキーを見分けるための名前(端末の名前など)",
     });
 
     expect(field.getAttribute("maxlength")).toBe("64");
