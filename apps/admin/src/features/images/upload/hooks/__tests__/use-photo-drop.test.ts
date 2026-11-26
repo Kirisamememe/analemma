@@ -91,13 +91,17 @@ test("写真をナビや Dialog の背景に落としても公開せず、ファ
   expect(result.current).toBe(true);
   fireEvent.dragEnter(nav, drag);
   expect(result.current).toBe(false);
-  expect(fireEvent.dragOver(nav, drag)).toBe(false);
+  const over = () =>
+    Object.assign(new Event("dragover", { bubbles: true, cancelable: true }), {
+      dataTransfer: data,
+    });
+  expect(fireEvent(nav, over())).toBe(false);
   expect(data.dropEffect).toBe("none");
   expect(fireEvent.drop(nav, drag)).toBe(false);
   rerender(panel);
   fireEvent.drop(main, drag);
   expect(receive).not.toHaveBeenCalled();
-  fireEvent.dragOver(panel, drag);
+  fireEvent(panel, over());
   expect(data.dropEffect).toBe("copy");
   fireEvent.drop(panel, drag);
   expect(receive).toHaveBeenCalledTimes(1);
