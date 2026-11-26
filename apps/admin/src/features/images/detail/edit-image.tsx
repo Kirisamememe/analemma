@@ -1,56 +1,20 @@
-import { type ReactNode, useCallback, useId, useRef, useState } from "react";
+import { type ReactNode, useId } from "react";
 
-import {
-  hasUnsavedChanges,
-  imageTextFields,
-  isValidImageText,
-  toImageText,
-} from "./logic/image-text";
-import { mergeImageChange } from "./logic/merge-image-change";
-import { saveImage } from "./queries/image-actions";
-import {
-  imageQueryKey,
-  loadImage,
-  type LoadedImage,
-} from "./queries/image-query";
+import { useImageTextEditor } from "./hooks/use-image-text-editor";
+import { useOpenImageEditor } from "./hooks/use-open-image-editor";
+import { imageTextFields } from "./logic/image-text";
+import type { AdminImage } from "./queries/image-query";
 
-import type { ApiOutputs } from "@/api/api-types";
-import { useAppContext } from "@/api/app-context";
-import {
-  useApiCache,
-  useApiMutation,
-  useIsApiMutationPending,
-} from "@/api/server-state/server-state";
-import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
-import { checkAfterSubmit, useAppForm } from "@/components/forms";
-import {
-  IMAGES_QUERY_KEY,
-  updateImagePage,
-} from "@/features/images/queries/images-query";
-import { type MessageKey, useTranslate } from "@/i18n/use-translate";
+import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
-import {
-  Dialog,
-  useFailureToast,
-  useShowToast,
-} from "@/ui/primitives/overlays";
-
-type Image = ApiOutputs["admin"]["images"]["get"];
-
-const saveKey = (id: string) => ["admin", "images", "update", id];
-
-const INVALID: Readonly<Record<"title" | "description" | "alt", MessageKey>> = {
-  title: "imageDetail.invalidTitle",
-  description: "imageDetail.invalidDescription",
-  alt: "imageDetail.invalidAlt",
-};
+import { Dialog } from "@/ui/primitives/overlays";
 
 /** 画像のタイトル・説明・alt を編集する Dialog に渡す値。 */
 type EditImageDialogProps = {
   /** 編集する画像。 */
-  image: Image;
+  image: AdminImage;
   /** 閉じる関数。 */
   onClose: () => void;
 };
@@ -60,118 +24,25 @@ const EditImageDialog = ({
   onClose,
 }: EditImageDialogProps): ReactNode => {
   const t = useTranslate();
-  const showToast = useShowToast();
-  const failure = useFailureToast();
-  const { refresh, update, updatePages } = useApiCache();
-  const { api } = useAppContext();
-
-  const [confirmClose, setConfirmClose] = useState(false);
-  const initial = toImageText(image);
   const descriptionId = useId();
 
-  const close = (): void => {
-    failure.close();
-    onClose();
-  };
+  const { form, isSaving, confirmation, check, requestClose, stay, leave } =
+    useImageTextEditor(image, onClose);
 
-  const saving = useApiMutation({
-    key: saveKey(image.id),
-    scope: `image:${image.id}`,
-    send: async (values: ReturnType<typeof toImageText>) => ({
-      id: image.id,
-      result: await saveImage(api, { id: image.id, values }),
-    }),
-    onSuccess: async ({ result, id }) => {
-      if (result._tag === "Saved") {
-        const apply = mergeImageChange(result.image, "text");
-        await Promise.all([
-          update<LoadedImage>(imageQueryKey(result.image.id), (current) =>
-            current._tag === "Succeeded"
-              ? { ...current, data: apply(current.data) }
-              : current,
-          ),
-          updatePages(
-            IMAGES_QUERY_KEY,
-            updateImagePage(result.image.id, apply),
-          ),
-        ]);
-        leaving.leave();
-        onClose();
-        showToast({ tone: "success", message: t("imageDetail.saved") });
-      } else {
-        failure.show(t("imageDetail.gone"));
-        leaving.leave();
-        onClose();
-        await Promise.all([
-          refresh(imageQueryKey(id)),
-          updatePages(IMAGES_QUERY_KEY, updateImagePage(id)),
-        ]);
-      }
-    },
-    onError: () => {
-      failure.show(t("imageDetail.saveFailed"));
-      void refresh(imageQueryKey(image.id), "active");
-      void refresh(IMAGES_QUERY_KEY, "active");
-    },
-  });
-
-  const form = useAppForm({
-    canSubmitWhenInvalid: true,
-    defaultValues: initial,
-    onSubmit: ({ value }) => {
-      failure.close();
-      saving.mutate(value);
-    },
-  });
-
-  const changed = (): boolean => hasUnsavedChanges(initial, form.state.values);
-
-  const leaving = useLeaveConfirmation(() => saving.isPending || changed());
-
-  const leavingWhileSaving = leaving._tag === "Asking" && saving.isPending;
-
-  const prompt = leavingWhileSaving
-    ? {
-        title: t("imageDetail.leavingWhileSaving"),
-        description: t("imageDetail.savingWillContinue"),
-        stay: t("imageDetail.waitForSave"),
-        leave: t("imageDetail.leaveDuringSave"),
-      }
-    : {
-        title: t("imageDetail.discardTitle"),
-        description: t("imageDetail.discardDescription"),
-        stay: t("imageDetail.continueEditing"),
-        leave: t("imageDetail.discard"),
-      };
-
-  const requestClose = (): void => {
-    if (changed()) setConfirmClose(true);
-    else close();
-  };
-
-  const stay = (): void => {
-    leaving.stay();
-
-    setConfirmClose(false);
-  };
-
-  const check = (name: keyof typeof INVALID) =>
-    checkAfterSubmit((value: string) =>
-      isValidImageText(name, value) ? undefined : t(INVALID[name]),
-    );
+  const { messages } = confirmation;
 
   return (
     <>
       <Dialog
         isOpen
-        isPending={saving.isPending}
+        isPending={isSaving}
         onOpenChange={(open) => {
           if (!open) requestClose();
         }}
         title={t("imageDetail.editTitle")}
       >
         <form.AppForm>
-          <form.Form isPending={saving.isPending}>
+          <form.Form isPending={isSaving}>
             {imageTextFields.map((name) => (
               <form.AppField
                 key={name}
@@ -181,7 +52,7 @@ const EditImageDialog = ({
                 {(field) =>
                   name === "description" ? (
                     <field.TextArea
-                      isReadOnly={saving.isPending}
+                      isReadOnly={isSaving}
                       label={t("imageDetail.description")}
                     />
                   ) : (
@@ -190,7 +61,7 @@ const EditImageDialog = ({
                       description={
                         name === "alt" ? t("imageDetail.altHint") : undefined
                       }
-                      isReadOnly={saving.isPending}
+                      isReadOnly={isSaving}
                       label={t(`imageDetail.${name}`)}
                     />
                   )
@@ -198,10 +69,10 @@ const EditImageDialog = ({
               </form.AppField>
             ))}
             <Cluster gap={2} justify="end">
-              <Button isDisabled={saving.isPending} onPress={requestClose}>
+              <Button isDisabled={isSaving} onPress={requestClose}>
                 {t("imageDetail.cancel")}
               </Button>
-              <Button isPending={saving.isPending} tone="primary" type="submit">
+              <Button isPending={isSaving} tone="primary" type="submit">
                 {t("imageDetail.save")}
               </Button>
             </Cluster>
@@ -209,27 +80,23 @@ const EditImageDialog = ({
         </form.AppForm>
       </Dialog>
       <Dialog
-        isOpen={confirmClose || leaving._tag === "Asking"}
+        isOpen={confirmation.isOpen}
         descriptionId={descriptionId}
-        title={prompt.title}
+        title={t(messages.title)}
         onOpenChange={(open) => {
           if (!open) stay();
         }}
       >
         <Text>
-          <span id={descriptionId}>{prompt.description}</span>
+          <span id={descriptionId}>{t(messages.description)}</span>
         </Text>
         <Cluster gap={2} justify="end">
-          <Button onPress={stay}>{prompt.stay}</Button>
+          <Button onPress={stay}>{t(messages.stay)}</Button>
           <Button
-            tone={leavingWhileSaving ? "secondary" : "danger"}
-            onPress={() => {
-              leaving.leave();
-
-              close();
-            }}
+            tone={confirmation.whileSaving ? "secondary" : "danger"}
+            onPress={leave}
           >
-            {prompt.leave}
+            {t(messages.leave)}
           </Button>
         </Cluster>
       </Dialog>
@@ -242,10 +109,8 @@ type EditImageProps = {
   /** 別の画像を取得していて操作できないか。 */
   isDisabled?: boolean;
   /** 編集する画像。 */
-  image: Image;
+  image: AdminImage;
 };
-
-type EditRequest = Pick<Image, "id">;
 
 /** 押すとタイトル・説明・alt を編集する Dialog を開く。 */
 export const EditImage = ({
@@ -253,73 +118,15 @@ export const EditImage = ({
   isDisabled = false,
 }: EditImageProps): ReactNode => {
   const t = useTranslate();
-  const { api } = useAppContext();
-  const { refresh } = useApiCache();
-  const failure = useFailureToast(image.id);
-  const [editing, setEditing] = useState<Image>();
-  const [openingId, setOpeningId] = useState<string>();
-  const request = useRef<EditRequest>(undefined);
-  const id = image.id;
-  const isSaving = useIsApiMutationPending(saveKey(id));
 
-  const attach = useCallback(
-    (button: HTMLButtonElement | null) => {
-      if (button === null || isDisabled || request.current?.id !== id) {
-        request.current = undefined;
-      }
-    },
-    [id, isDisabled],
+  const { editing, isPending, attach, open, close } = useOpenImageEditor(
+    image.id,
+    isDisabled,
   );
-
-  if (editing !== undefined && (isDisabled || editing.id !== id)) {
-    setEditing(undefined);
-  }
-
-  if (openingId !== undefined && (isDisabled || openingId !== id)) {
-    setOpeningId(undefined);
-  }
-
-  const opening = useApiMutation({
-    key: ["admin", "images", "edit", id],
-    scope: `image:${id}`,
-    send: (target: EditRequest) => loadImage(api, target.id),
-    onSuccess: async (result, target) => {
-      if (request.current !== target) return;
-
-      request.current = undefined;
-
-      if (result._tag === "Succeeded") setEditing(result.data);
-      else {
-        failure.show(t("imageDetail.gone"));
-        await refresh(imageQueryKey(target.id));
-      }
-    },
-    onError: (target) => {
-      if (request.current === target) {
-        request.current = undefined;
-        failure.show(t("imageDetail.loadFailed"));
-      }
-    },
-  });
 
   return (
     <>
-      <Button
-        size="sm-to-md"
-        isPending={
-          isSaving || (opening.isPending && !isDisabled && openingId === id)
-        }
-        ref={attach}
-        onPress={() => {
-          if (isDisabled) return;
-
-          failure.close();
-          const target = { id };
-          setOpeningId(id);
-          request.current = target;
-          opening.mutate(target);
-        }}
-      >
+      <Button size="sm-to-md" isPending={isPending} ref={attach} onPress={open}>
         <Icon name="pencil" />
         {t("imageDetail.edit")}
       </Button>
@@ -328,9 +135,7 @@ export const EditImage = ({
           key={editing.id}
           image={editing}
           onClose={() => {
-            setEditing((current) =>
-              current === editing ? undefined : current,
-            );
+            close(editing);
           }}
         />
       )}
