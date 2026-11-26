@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback } from "react";
+import { type ReactNode, type Ref, useCallback } from "react";
 import {
   Dialog as AriaDialog,
   Heading,
@@ -225,9 +225,19 @@ export const Dialog = ({
   );
 };
 
+type DialogSectionProps = {
+  /** 欄の中身。 */
+  children: ReactNode;
+  /** 描画した本文の欄を参照する。 */
+  ref?: Ref<HTMLDivElement>;
+};
+
 /** Dialog の見出しと左右をそろえる欄。 */
 export const DialogSection = ({
   children,
-}: Readonly<Record<"children", ReactNode>>): ReactNode => (
-  <div className="px-panel">{children}</div>
+  ref,
+}: DialogSectionProps): ReactNode => (
+  <div ref={ref} className="px-panel">
+    {children}
+  </div>
 );

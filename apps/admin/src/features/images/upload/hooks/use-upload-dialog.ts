@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 
 import { isUploading } from "../logic/photo-uploads";
+import { usePhotoDrop } from "./use-photo-drop";
 import { usePhotoUploads } from "./use-photo-uploads";
 import { useRetryFocus } from "./use-retry-focus";
 
@@ -15,6 +16,12 @@ const ERROR_MESSAGES = {
 export const useUploadDialog = () => {
   const [isOpen, setOpen] = useState(false);
   const [page, setPage] = useState<HTMLElement | null>(null);
+  const [panel, setPanel] = useState<HTMLElement | null>(null);
+
+  const attachPanel = useCallback((section: HTMLDivElement | null) => {
+    setPanel(section?.closest("[role=dialog]") ?? null);
+  }, []);
+
   const [selectedId, select] = useState<number>();
 
   const { uploads, add, retry, clear, track, leaving, metadata } =
@@ -47,6 +54,11 @@ export const useUploadDialog = () => {
     add(files);
   };
 
+  const isDragging = usePhotoDrop(
+    metadata.isSaving ? null : isOpen ? panel : page,
+    receive,
+  );
+
   const selected = uploads.find(({ id }) => id === selectedId) ?? uploads[0];
   const { error } = metadata;
   const problem = error && uploads.find(({ id }) => id === error.id);
@@ -58,9 +70,11 @@ export const useUploadDialog = () => {
     receive,
     page,
     attach,
+    attachPanel,
     focus,
     leaving,
     metadata,
+    isDragging: isDragging && !metadata.isSaving,
     select,
     selected,
     uploads,

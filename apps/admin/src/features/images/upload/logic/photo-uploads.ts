@@ -17,6 +17,8 @@ export type PhotoUpload = {
   readonly file: File;
   /** 送る写真の状態。 */
   readonly status: UploadStatus;
+  /** このファイルの送信済みの割合（%）。 */
+  readonly percent?: number;
   /** 足せたときの、画像の ID。 */
   readonly imageId?: string | undefined;
   /** 元の写真を表示できないときに使う配信用の URL。 */
@@ -74,7 +76,23 @@ export const withStatus =
   (id: number, status: UploadStatus) =>
   (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
     uploads.map((upload) =>
-      upload.id === id ? { ...upload, status } : upload,
+      upload.id === id
+        ? { ...upload, status, ...(status === "sending" && { percent: 0 }) }
+        : upload,
+    );
+
+/** 写真の送信済みの割合を更新する。 */
+export const withUploadProgress =
+  (id: number, fraction: number) =>
+  (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
+    uploads.map((upload) =>
+      upload.id === id && upload.status === "sending"
+        ? {
+            ...upload,
+            percent:
+              fraction === 1 ? 100 : Math.min(99, Math.round(fraction * 100)),
+          }
+        : upload,
     );
 
 /** 写真を足せたことにし、作った画像の ID を持たせる。 */

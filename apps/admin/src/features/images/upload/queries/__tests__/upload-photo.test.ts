@@ -9,14 +9,15 @@ describe("uploadPhoto", () => {
   test("写真から作った画像を返し、受けない形式は Unsupported にする", async () => {
     const { api } = createFakeApi(createImageRoutes([]).routes);
 
-    const added = await uploadPhoto(
-      api,
-      new File(["x"], "a.jpg", { type: "image/jpeg" }),
-    );
+    const added = await uploadPhoto(api, {
+      photo: new File(["x"], "a.jpg", { type: "image/jpeg" }),
+    });
 
     expect(added).toMatchObject({ _tag: "Added", image: { published: true } });
     expect(
-      await uploadPhoto(api, new File(["x"], "a.bmp", { type: "image/bmp" })),
+      await uploadPhoto(api, {
+        photo: new File(["x"], "a.bmp", { type: "image/bmp" }),
+      }),
     ).toEqual({ _tag: "Unsupported" });
   });
 
@@ -27,7 +28,9 @@ describe("uploadPhoto", () => {
     });
 
     expect(
-      await uploadPhoto(api, new File(["x"], "a.jpg", { type: "image/jpeg" })),
+      await uploadPhoto(api, {
+        photo: new File(["x"], "a.jpg", { type: "image/jpeg" }),
+      }),
     ).toMatchObject({
       _tag: "SessionExpired",
       error: { code: "UNAUTHORIZED" },

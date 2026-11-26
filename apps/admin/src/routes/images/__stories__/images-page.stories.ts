@@ -6,7 +6,7 @@ import {
   createImageRoutes,
   type FakeImageSeed,
 } from "@/testing/fake-routes/create-image-routes";
-import { SAMPLE_IMAGES as IMAGES } from "@/testing/sample-photos";
+import { SAMPLE_IMAGES as IMAGES, samplePhoto } from "@/testing/sample-photos";
 
 const MANY: readonly FakeImageSeed[] = Array.from(
   { length: 8 },
@@ -63,5 +63,24 @@ export const MoreFailed = withServer(() => {
       input.cursor === undefined
         ? routes["admin/images/list"](input)
         : failed(),
+  };
+});
+
+export const Uploading = withServer(() => {
+  const { routes } = createImageRoutes(IMAGES, {
+    deliveryImages: samplePhoto("blossom"),
+  });
+
+  return {
+    ...routes,
+    "admin/images/upload": async (input) => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1500);
+      });
+
+      return input.photo.name.includes("fail")
+        ? failed()
+        : routes["admin/images/upload"](input);
+    },
   };
 });

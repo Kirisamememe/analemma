@@ -1,15 +1,12 @@
 import { useRouteContext } from "@tanstack/react-router";
 import { type ReactNode, useCallback } from "react";
-import { useTranslation } from "react-i18next";
 
 import { ImagesSection } from "@/features/images/list/images-section";
+import { PhotoUploads } from "@/features/images/upload/photo-uploads";
 import { Center, Stack } from "@/ui/layout";
-import { PageHeader } from "@/ui/patterns";
 
 /** 画像を、写真の縦横比を保って並べる画面。 */
 export const ImagesPage = (): ReactNode => {
-  const { t } = useTranslation();
-
   const position = useRouteContext({
     from: "/signed-in/images",
     select: (context) => context.imageListPosition,
@@ -51,10 +48,7 @@ export const ImagesPage = (): ReactNode => {
   return (
     <Center width="page">
       <Stack gap={8}>
-        <PageHeader
-          description={t("images.description")}
-          title={t("images.title")}
-        />
+        <PhotoUploads imageHref={(id) => `/images/${id}`} />
         <div ref={restorePosition}>
           <ImagesSection imageHref={(id) => `/images/${id}`} />
         </div>

@@ -19,6 +19,7 @@ import {
   retryUpload,
   withAdded,
   withStatus,
+  withUploadProgress,
 } from "@/features/images/upload/logic/photo-uploads";
 import { uploadPhoto } from "@/features/images/upload/queries/upload-photo";
 
@@ -63,7 +64,12 @@ export const usePhotoUploads = (onComplete?: () => void) => {
 
   const sending = useApiMutation({
     send: async (upload: PhotoUpload) => {
-      const result = await uploadPhoto(api, upload.file);
+      const result = await uploadPhoto(api, {
+        photo: upload.file,
+        onUploadProgress: (fraction) => {
+          apply(withUploadProgress(upload.id, fraction));
+        },
+      });
 
       if (result._tag === "SessionExpired") {
         expired.current = true;
