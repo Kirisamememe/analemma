@@ -1,3 +1,5 @@
+import type { ApiOutputs } from "@/api/api-types";
+
 /** 送る写真1枚の状態。 */
 export type UploadStatus =
   | "waiting"
@@ -17,6 +19,8 @@ export type PhotoUpload = {
   readonly status: UploadStatus;
   /** 足せたときの、画像の ID。 */
   readonly imageId?: string | undefined;
+  /** 元の写真を表示できないときに使う配信用の URL。 */
+  readonly previewUrl?: string | undefined;
   /** 送れなかった後に、送り直したか。 */
   readonly retried?: boolean | undefined;
 };
@@ -67,10 +71,23 @@ export const withStatus =
 
 /** 写真を足せたことにし、作った画像の ID を持たせる。 */
 export const withAdded =
-  (id: number, imageId: string) =>
+  (
+    id: number,
+    image: Pick<
+      ApiOutputs["admin"]["images"]["upload"],
+      "id" | "deliveryImages"
+    >,
+  ) =>
   (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
     uploads.map((upload) =>
-      upload.id === id ? { ...upload, status: "added", imageId } : upload,
+      upload.id === id
+        ? {
+            ...upload,
+            status: "added",
+            imageId: image.id,
+            previewUrl: image.deliveryImages[0]?.url,
+          }
+        : upload,
     );
 
 /** 送れなかった写真を、送り直す写真として待たせる。 */

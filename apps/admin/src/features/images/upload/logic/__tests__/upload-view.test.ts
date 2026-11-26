@@ -31,7 +31,12 @@ describe("送る写真の一覧の見せ方", () => {
     const uploads = withStatus(
       2,
       "unsupported",
-    )(withAdded(1, "019b0000-0000-7000-8000-000000000001")(queued(3)));
+    )(
+      withAdded(1, {
+        id: "019b0000-0000-7000-8000-000000000001",
+        deliveryImages: [],
+      })(queued(3)),
+    );
 
     expect(countUploads(uploads)).toEqual({ added: 1, failed: 1, total: 3 });
     expect(summaryKind([])).toBe("none");
