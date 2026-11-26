@@ -239,6 +239,10 @@
 @utility dialog-scroller {
   scroll-padding-block: var(--dialog-header-height, 0px)
     var(--dialog-footer-height, 0px);
+
+  @variant short-viewport {
+    scroll-padding-block: 0;
+  }
 }
 
 @utility object-focal {

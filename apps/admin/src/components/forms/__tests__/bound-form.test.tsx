@@ -39,13 +39,19 @@ const required = ({ value }: Record<"value", unknown>) =>
   value === "" || value === null || value === false ? MISSING : undefined;
 
 type ExampleProps = {
+  /** フォーム外からの送信に使う ID。 */
+  formId?: string;
   /** 最初に入れておく値。 */
   defaultValues: Values;
   /** 送った値を受け取る関数。 */
   onSubmit?: (values: Values) => undefined;
 };
 
-const Example = ({ defaultValues, onSubmit }: ExampleProps): ReactNode => {
+const Example = ({
+  defaultValues,
+  onSubmit,
+  formId,
+}: ExampleProps): ReactNode => {
   const form = useAppForm({
     canSubmitWhenInvalid: true,
     defaultValues,
@@ -56,7 +62,7 @@ const Example = ({ defaultValues, onSubmit }: ExampleProps): ReactNode => {
 
   return (
     <form.AppForm>
-      <form.Form>
+      <form.Form id={formId}>
         <form.AppField name="title" validators={{ onSubmit: required }}>
           {(field) => <field.TextField isRequired label="タイトル" />}
         </form.AppField>
@@ -81,8 +87,13 @@ const Example = ({ defaultValues, onSubmit }: ExampleProps): ReactNode => {
         <form.AppField name="agreed" validators={{ onSubmit: required }}>
           {(field) => <field.Checkbox isRequired label="同意する" />}
         </form.AppField>
-        <Button type="submit">保存</Button>
+        {formId === undefined && <Button type="submit">保存</Button>}
       </form.Form>
+      {formId !== undefined && (
+        <Button form={formId} type="submit">
+          保存
+        </Button>
+      )}
     </form.AppForm>
   );
 };
@@ -174,5 +185,28 @@ describe("TanStack Form につないだフォーム", () => {
     await nextFrame();
 
     expect(document.activeElement).toBe(save);
+  });
+});
+
+test("フォーム外の保存ボタンでも誤りのある欄に戻り、修正した値を送れる", async () => {
+  const submit = mock((_values: Values) => undefined);
+  renderWithI18n(
+    <Example
+      defaultValues={{ ...FILLED, title: "" }}
+      formId="external-save"
+      onSubmit={submit}
+    />,
+  );
+  const save = screen.getByRole("button", { name: "保存" });
+  const title = screen.getByRole("textbox", { name: "タイトル" });
+  await userEvent.click(save);
+  await waitFor(() => {
+    expect(document.activeElement).toBe(title);
+  });
+  expect(submit).not.toHaveBeenCalled();
+  await userEvent.type(title, "お知らせ");
+  await userEvent.click(save);
+  await waitFor(() => {
+    expect(submit).toHaveBeenCalledWith(FILLED);
   });
 });

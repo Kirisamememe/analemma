@@ -6,7 +6,7 @@ const footer = tv({
   slots: {
     container: [
       "pointer-events-none sticky bottom-0 z-sticky flex w-full shrink-0 flex-wrap",
-      "items-center gap-4 px-panel pt-3 pb-6",
+      "items-center gap-4 px-panel pt-3 pb-6 short-viewport:static",
     ],
     slot: "pointer-events-auto flex min-w-0 flex-wrap items-center gap-2",
     actions: [

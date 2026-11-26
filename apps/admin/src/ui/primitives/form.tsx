@@ -8,6 +8,8 @@ const NO_ERRORS: Readonly<Record<string, string>> = {};
 
 /** フォームに渡す値。 */
 type FormProps = {
+  /** このフォームを送るボタンから参照する ID。 */
+  id?: string | undefined;
   /** 送ったときに、入力をまとめて受け取る関数。 */
   onSubmit: (data: FormData) => void;
   /** 送信中か(送信中は、Enter で送り直させない)。 */
@@ -22,6 +24,7 @@ type FormProps = {
 
 /** 入力欄をまとめて送るフォーム。 */
 export const Form = ({
+  id,
   onSubmit,
   isPending = false,
   validationErrors,
@@ -38,6 +41,8 @@ export const Form = ({
 
   return (
     <AriaForm
+      // oxlint-disable-next-line project/styling-boundary -- 外から参照する ID の指定が無いときは属性を省く。見た目の props は含まない。
+      {...(id === undefined ? {} : { id })}
       className="flex flex-col gap-4"
       onSubmit={submit}
       ref={ref}

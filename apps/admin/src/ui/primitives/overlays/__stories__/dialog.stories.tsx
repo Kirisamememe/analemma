@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useId, useState } from "react";
 
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
+import { Form } from "@/ui/primitives/form";
 import { TextArea } from "@/ui/primitives/form-fields";
 import { Dialog, DialogActions, DialogSection } from "@/ui/primitives/overlays";
 
@@ -105,6 +106,7 @@ export const Wide: Story = {
   render: function EditDialog() {
     const [open, setOpen] = useState(true);
     const [description, setDescription] = useState("");
+    const formId = useId();
 
     return (
       <>
@@ -128,12 +130,7 @@ export const Wide: Story = {
             ),
             end: (
               <DialogActions>
-                <Button
-                  tone="primary"
-                  onPress={() => {
-                    setOpen(false);
-                  }}
-                >
+                <Button form={formId} tone="primary" type="submit">
                   完了
                 </Button>
               </DialogActions>
@@ -141,12 +138,20 @@ export const Wide: Story = {
           }}
         >
           <DialogSection>
-            <TextArea
-              label="説明"
-              name="description"
-              value={description}
-              onChange={setDescription}
-            />
+            <Form
+              id={formId}
+              onSubmit={() => {
+                setOpen(false);
+              }}
+            >
+              <TextArea
+                isRequired
+                label="説明"
+                name="description"
+                value={description}
+                onChange={setDescription}
+              />
+            </Form>
           </DialogSection>
         </Dialog>
       </>

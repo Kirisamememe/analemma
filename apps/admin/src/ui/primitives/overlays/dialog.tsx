@@ -43,7 +43,7 @@ const dialog = tv({
         body: "min-h-0 min-w-0 dialog-scroller gap-0 overflow-y-auto overscroll-y-contain",
         header: [
           "flex shrink-0 items-center justify-between gap-4",
-          "sticky top-0 z-sticky dialog-bar-backdrop px-panel pt-6 pb-3",
+          "sticky top-0 z-sticky dialog-bar-backdrop px-panel pt-6 pb-3 short-viewport:static",
         ],
         content: "flex shrink-0 flex-col gap-4 py-4",
       },
