@@ -16,7 +16,7 @@ describe("Storybook の Vite の設定", () => {
           ? [plugin.name]
           : [],
       ),
-    ).toEqual(["keep"]);
+    ).toEqual(["keep", "check-story-names"]);
     expect(adapted.build).toEqual({
       target: BROWSER_TARGET,
       cssTarget: BROWSER_TARGET,
