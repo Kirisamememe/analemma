@@ -10,6 +10,8 @@ const link = tv({
   variants: {
     variant: {
       inline: "text-fg underline underline-offset-2 is-hovered:decoration-2",
+      forward:
+        "inline-flex min-w-0 items-center gap-1 text-fg is-hovered:underline",
       back: "inline-flex items-center gap-1 text-fg-muted transition is-hovered:text-fg",
       block: "group block rounded-control transition is-pressed:state-pressed",
     },
@@ -31,8 +33,8 @@ export type LinkProps = {
     /** 通常のクリックで同じタブに行き先を開く。 */
     open: () => void;
   };
-  /** 見た目(文の中のリンクか、前の画面へ戻るリンクか、写真と文字のような中身を包むリンクか)。 */
-  variant?: "inline" | "back" | "block";
+  /** 見た目(文の中のリンクか、前後の画面へ移るリンクか、写真と文字のような中身を包むリンクか)。 */
+  variant?: "inline" | "back" | "forward" | "block";
   /** リンクの中身(文言か、包む中身)。 */
   children: ReactNode;
   /** リンクの要素(focus を移すときに使う)。 */
@@ -90,6 +92,7 @@ export const Link = ({
         </span>
       )}
       {children}
+      {variant === "forward" && <Icon name="chevron-right" size="sm" />}
     </AriaLink>
   );
 };

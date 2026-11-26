@@ -30,7 +30,7 @@ export const useRetryFocus = ({ retry, clear }: RetryFocusOptions) => {
   }, [clear]);
 
   const restore = useCallback(
-    (row: HTMLLIElement | null, upload: PhotoUpload): void => {
+    (row: HTMLElement | null, upload: PhotoUpload): void => {
       const target = focusAfterRetry(upload);
 
       if (

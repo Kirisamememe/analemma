@@ -41,7 +41,7 @@ const button = tv({
         "max-md:after:absolute max-md:after:inset-x-0 max-md:after:-inset-y-2",
       ],
       row: "min-h-11 px-3 md:min-h-10",
-      card: "min-h-11 px-3 md:min-h-16",
+      card: "min-h-11 px-3 py-2 md:min-h-16",
     },
     iconOnly: {
       true: "aspect-square px-0",
