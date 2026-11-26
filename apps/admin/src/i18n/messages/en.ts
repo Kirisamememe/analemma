@@ -273,6 +273,11 @@ export const en = {
   "imageUpload.status.failed": "Could not upload",
   "imageUpload.retry": "Retry",
   "imageUpload.retryPhoto": "Retry {{name}}",
+  "imageUpload.leaveTitle": "Leave photo upload?",
+  "imageUpload.leaveDescription":
+    "Leaving discards queued photos and unsaved titles and descriptions. A photo already uploading will appear in the list when its upload finishes.",
+  "imageUpload.stay": "Stay on this page",
+  "imageUpload.leave": "Leave this page",
   "imageDetail.backToList": "Back to list",
   "imageDetail.untitled": "Untitled image",
   "imageDetail.loading": "Loading the image.",

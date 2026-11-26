@@ -114,5 +114,11 @@ export const isUploading = (uploads: readonly PhotoUpload[]): boolean =>
 /** 送り終えた写真の結果を閉じる。 */
 export const clearFinished = (
   uploads: readonly PhotoUpload[],
+  retained?: ReadonlySet<number>,
 ): readonly PhotoUpload[] =>
-  uploads.filter(({ status }) => status === "waiting" || status === "sending");
+  uploads.filter(
+    ({ id, status }) =>
+      status === "waiting" ||
+      status === "sending" ||
+      retained?.has(id) === true,
+  );

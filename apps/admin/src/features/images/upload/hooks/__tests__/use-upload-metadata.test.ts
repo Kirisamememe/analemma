@@ -141,5 +141,6 @@ test("追加できた写真の変更を保存し、途中で失敗したら入�
   });
   expect(updates).toEqual([first.id, second.id, second.id]);
   expect(result.current.draft(1)).toEqual({ title: "", description: "" });
-  expect(result.current.dirty).toBe(false);
+  expect(result.current.dirty).toBe(true);
+  expect(result.current.draft(4).title).toBe("送れなかった写真");
 });

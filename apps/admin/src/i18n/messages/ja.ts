@@ -283,6 +283,11 @@ export const ja = {
   "imageUpload.status.failed": "送れませんでした",
   "imageUpload.retry": "送り直す",
   "imageUpload.retryPhoto": "{{name}} を送り直す",
+  "imageUpload.leaveTitle": "写真の追加を終了しますか？",
+  "imageUpload.leaveDescription":
+    "画面を離れると、未送信の写真と、まだ保存していないタイトル・説明は失われます。送信中の写真は、送信が完了すると一覧に表示されます。",
+  "imageUpload.stay": "この画面に残る",
+  "imageUpload.leave": "画面を離れる",
   "imageDetail.backToList": "一覧へ",
   "imageDetail.untitled": "無題の画像",
   "imageDetail.loading": "画像を読み込んでいます。",

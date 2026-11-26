@@ -2,28 +2,6 @@ import type { PhotoUpload, UploadStatus } from "./photo-uploads";
 
 import type { ProgressTone } from "@/ui/patterns";
 
-/** 足せた写真と足せなかった写真の数と、選んだ写真の数。 */
-export type UploadCounts = {
-  /** 画像として足せた写真の数。 */
-  readonly added: number;
-  /** 大きすぎる・対応していない形式・送れなかった写真の数。 */
-  readonly failed: number;
-  /** 選んだ写真の数。 */
-  readonly total: number;
-};
-
-/** 足せた写真と足せなかった写真の数と、選んだ写真の数を数える。 */
-export const countUploads = (
-  uploads: readonly PhotoUpload[],
-): UploadCounts => ({
-  added: uploads.filter(({ status }) => status === "added").length,
-  failed: uploads.filter(
-    ({ status }) =>
-      status === "too-large" || status === "unsupported" || status === "failed",
-  ).length,
-  total: uploads.length,
-});
-
 const KILOBYTE = 1024;
 const MEGABYTE = KILOBYTE * KILOBYTE;
 
@@ -76,19 +54,4 @@ export const focusAfterRetry = ({
   if (status === "waiting" || status === "sending") return undefined;
 
   return imageId === undefined ? "add-button" : "result";
-};
-
-/** 送る写真の一覧の、読み上げる知らせの種類。 */
-export const summaryKind = (
-  uploads: readonly PhotoUpload[],
-): "none" | "progress" | "done" | "done-with-failures" => {
-  if (uploads.length === 0) return "none";
-
-  if (
-    uploads.some(({ status }) => status === "waiting" || status === "sending")
-  ) {
-    return "progress";
-  }
-
-  return countUploads(uploads).failed === 0 ? "done" : "done-with-failures";
 };

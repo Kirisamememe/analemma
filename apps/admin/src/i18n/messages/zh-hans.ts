@@ -254,6 +254,11 @@ export const zhHans = {
   "imageUpload.status.failed": "上传失败",
   "imageUpload.retry": "重新上传",
   "imageUpload.retryPhoto": "重新上传 {{name}}",
+  "imageUpload.leaveTitle": "要离开照片上传页面吗？",
+  "imageUpload.leaveDescription":
+    "离开后，尚未上传的照片和未保存的标题、说明将会丢失。正在上传的照片会在上传完成后显示在列表中。",
+  "imageUpload.stay": "留在此页面",
+  "imageUpload.leave": "离开此页面",
   "imageDetail.backToList": "返回列表",
   "imageDetail.untitled": "无标题图片",
   "imageDetail.loading": "正在加载图片。",
