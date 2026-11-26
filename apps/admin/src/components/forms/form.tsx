@@ -8,6 +8,8 @@ import { focusFirstInvalidField } from "@/ui/primitives/form-fields";
 
 /** TanStack Form につないだフォームに渡す値。 */
 type BoundFormProps = {
+  /** このフォームを送るボタンから参照する ID。 */
+  id?: string | undefined;
   /** `onSubmit` の後も続く、送っている操作があるか。 */
   isPending?: boolean | undefined;
   /** server が断った入力ごとの、誤りの知らせ。 */
@@ -18,6 +20,7 @@ type BoundFormProps = {
 
 /** TanStack Form で入力を確かめて送るフォーム。 */
 export const BoundForm = ({
+  id,
   isPending = false,
   validationErrors,
   children,
@@ -36,6 +39,7 @@ export const BoundForm = ({
 
   return (
     <Form
+      id={id}
       isPending={isPending || isSubmitting}
       onSubmit={() => {
         void submit();

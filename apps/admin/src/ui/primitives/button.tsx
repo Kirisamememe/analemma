@@ -90,6 +90,8 @@ type ButtonProps = ButtonContent & {
   iconWeight?: "regular" | "bold";
   /** 角の丸み。 */
   rounded?: "control" | "xs" | "full";
+  /** 送信先のフォームの ID。 */
+  form?: string | undefined;
   /** フォームを送るボタンか。 */
   type?: "button" | "submit";
   /** 送信中か(押せなくし、待っていることを示す)。 */
@@ -107,6 +109,7 @@ export const Button = ({
   tone = "secondary",
   size = "md",
   type = "button",
+  form,
   isPending = false,
   isDisabled = false,
   onPress,
@@ -118,7 +121,11 @@ export const Button = ({
   children,
 }: ButtonProps): ReactNode => {
   const { t } = useTranslation();
-  const labelling = ariaLabel === undefined ? {} : { "aria-label": ariaLabel };
+
+  const attributes = {
+    ...(ariaLabel === undefined ? {} : { "aria-label": ariaLabel }),
+    ...(form === undefined ? {} : { form }),
+  };
 
   const style = button({
     tone,
@@ -136,8 +143,8 @@ export const Button = ({
       onPress={() => onPress?.()}
       ref={ref}
       type={type}
-      // oxlint-disable-next-line project/styling-boundary -- アクセシブルな名前が無いときに属性を省く。見た目の props は含まない。
-      {...labelling}
+      // oxlint-disable-next-line project/styling-boundary -- 名前と送信先の指定が無いときは属性を省く。見た目の props は含まない。
+      {...attributes}
     >
       {isPending && (
         <ProgressBar

@@ -1,4 +1,5 @@
-export { Dialog } from "./dialog";
+export { Dialog, DialogSection } from "./dialog";
+export { DialogActions } from "./dialog-footer";
 export { FocusScope } from "./focus-scope";
 export { type ListBoxOption, ListBoxPopover } from "./list-box-popover";
 export { ToastProvider } from "./toast";

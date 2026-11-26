@@ -31,6 +31,28 @@
   }
 }
 
+@utility dialog-title-animation {
+  animation: condense-dialog-title auto linear both;
+  animation-timeline: scroll(nearest block);
+  animation-range: 0px 32px;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation-timing-function: steps(1, end);
+  }
+}
+
+@keyframes condense-dialog-title {
+  from {
+    font-size: var(--text-xl);
+    line-height: var(--leading-3xl);
+  }
+
+  to {
+    font-size: var(--text-lg);
+    line-height: var(--leading-2xl);
+  }
+}
+
 @utility dialog-panel-animation {
   --dialog-closed-scale: 0.97;
 

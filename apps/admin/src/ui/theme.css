@@ -31,6 +31,7 @@
   --*: initial;
 
   --spacing: 0.25rem;
+  --spacing-panel: --spacing(4);
   --spacing-nested-branch: calc(0.25rem + 1px);
   --spacing-nested-add: calc(0.5rem + 1px);
   --spacing-nested-heading: calc(0.625rem + 1px);
@@ -225,6 +226,25 @@
   height: var(--size-control);
 }
 
+@utility dialog-bar-backdrop {
+  background-color: color-mix(in oklab, var(--color-surface) 80%, transparent);
+  backdrop-filter: blur(12px);
+
+  @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+    background-color: var(--color-surface);
+    backdrop-filter: none;
+  }
+}
+
+@utility dialog-scroller {
+  scroll-padding-block: var(--dialog-header-height, 0px)
+    var(--dialog-footer-height, 0px);
+
+  @variant short-viewport {
+    scroll-padding-block: 0;
+  }
+}
+
 @utility object-focal {
   object-position: var(--focal-x, 50%) var(--focal-y, 50%);
 }
@@ -352,6 +372,10 @@
     line-break: strict;
     text-autospace: normal;
     -webkit-font-smoothing: antialiased;
+
+    @variant md {
+      --spacing-panel: --spacing(6);
+    }
   }
 
   :root:has([data-top-bar]) {
