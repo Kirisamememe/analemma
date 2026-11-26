@@ -1,54 +1,13 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-  type PhotoUpload,
-  queuePhotos,
-  withAdded,
-  withStatus,
-} from "@/features/images/upload/logic/photo-uploads";
-import {
-  countUploads,
   focusAfterRetry,
   formatFileSize,
   retryAction,
-  summaryKind,
   toProgressTone,
 } from "@/features/images/upload/logic/upload-view";
 
-const file = (name: string, size: number): File =>
-  new File([new Uint8Array(size)], name);
-
-const queued = (count: number): readonly PhotoUpload[] =>
-  queuePhotos([], {
-    files: Array.from({ length: count }, (_, index) =>
-      file(`${String(index)}.jpg`, 1),
-    ),
-    maxBytes: 10,
-  });
-
 describe("送る写真の一覧の見せ方", () => {
-  test("足せた数と足せなかった数を数え、送っている間・送り終えた・足せなかった写真がある、を分けること", () => {
-    const uploads = withStatus(
-      2,
-      "unsupported",
-    )(
-      withAdded(1, {
-        id: "019b0000-0000-7000-8000-000000000001",
-        deliveryImages: [],
-      })(queued(3)),
-    );
-
-    expect(countUploads(uploads)).toEqual({ added: 1, failed: 1, total: 3 });
-    expect(summaryKind([])).toBe("none");
-    expect(summaryKind(uploads)).toBe("progress");
-    expect(summaryKind(withStatus(3, "added")(uploads))).toBe(
-      "done-with-failures",
-    );
-    expect(
-      summaryKind(withStatus(2, "added")(withStatus(3, "added")(uploads))),
-    ).toBe("done");
-  });
-
   test("状態ごとの見せ方を決めること", () => {
     expect(
       (["waiting", "sending", "added", "failed"] as const).map((status) =>

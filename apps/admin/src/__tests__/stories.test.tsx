@@ -24,6 +24,7 @@ import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/ima
 import * as featuresImagesInfoList from "@/features/images/ui/__stories__/info-list.stories";
 import * as featuresImagesPhotoCarousel from "@/features/images/ui/upload/__stories__/photo-carousel.stories";
 import * as UploadFileInputStories from "@/features/images/upload/__stories__/upload-file-input.stories";
+import * as uploadLeaveDialog from "@/features/images/upload/__stories__/upload-leave-dialog.stories";
 import * as uploadPhotoFields from "@/features/images/upload/__stories__/upload-photo-fields.stories";
 import * as UploadPhotoStatusStories from "@/features/images/upload/__stories__/upload-photo-status.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
@@ -96,6 +97,8 @@ const MODULES = {
     featuresFixedPagesContentGroup,
   "features/images/upload/__stories__/upload-photo-fields.stories.tsx":
     uploadPhotoFields,
+  "features/images/upload/__stories__/upload-leave-dialog.stories.tsx":
+    uploadLeaveDialog,
   "features/images/detail/__stories__/image-detail.stories.tsx":
     featuresImagesImageDetail,
   "features/images/list/__stories__/images-section.stories.tsx":
