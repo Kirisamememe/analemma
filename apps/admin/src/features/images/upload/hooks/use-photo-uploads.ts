@@ -14,7 +14,7 @@ import {
   type PhotoUpload,
   clearFinished,
   hasUnsentPhotos,
-  nextWaiting,
+  nextUploads,
   queuePhotos,
   retryUpload,
   withAdded,
@@ -97,36 +97,30 @@ export const usePhotoUploads = (onComplete?: () => void) => {
   const { mutate } = sending;
 
   const sendNext = useCallback((): void => {
-    const next = nextWaiting(latest.current);
+    if (!active.current || expired.current) return;
 
-    if (!active.current || next === undefined) return;
-
-    apply(withStatus(next.id, "sending"));
-    mutate(next);
-  }, [apply, mutate]);
-
-  const sendIfIdle = useCallback((): void => {
-    if (!latest.current.some(({ status }) => status === "sending")) {
-      sendNext();
+    for (const next of nextUploads(latest.current)) {
+      apply(withStatus(next.id, "sending"));
+      mutate(next);
     }
-  }, [sendNext]);
+  }, [apply, mutate]);
 
   const add = useCallback(
     (files: readonly File[]): void => {
       apply((current) =>
         queuePhotos(current, { files, maxBytes: PHOTO_MAX_BYTES }),
       );
-      sendIfIdle();
+      sendNext();
     },
-    [apply, sendIfIdle],
+    [apply, sendNext],
   );
 
   const retry = useCallback(
     (id: number): void => {
       apply(retryUpload(id));
-      sendIfIdle();
+      sendNext();
     },
-    [apply, sendIfIdle],
+    [apply, sendNext],
   );
 
   const { reset } = metadata;

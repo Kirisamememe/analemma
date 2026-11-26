@@ -6,7 +6,7 @@ import {
   retryUpload,
   withAdded,
   isUploading,
-  nextWaiting,
+  nextUploads,
   queuePhotos,
   withStatus,
 } from "@/features/images/upload/logic/photo-uploads";
@@ -33,17 +33,21 @@ describe("送る写真の一覧", () => {
     ]);
   });
 
-  test("待っている写真を選んだ順に1枚ずつ返し、無くなったら返さないこと", () => {
+  test("空いた枠に合わせ、待機中の写真を選択順に2枚まで返すこと", () => {
     const uploads = queuePhotos([], {
-      files: [file("a.jpg", 1), file("b.jpg", 1)],
+      files: [file("a.jpg", 1), file("b.jpg", 1), file("c.jpg", 1)],
       maxBytes: 10,
     });
 
-    const sending = withStatus(1, "sending")(uploads);
+    const firstSending = withStatus(1, "sending")(uploads);
+    const bothSending = withStatus(2, "sending")(firstSending);
 
-    expect(nextWaiting(uploads)?.id).toBe(1);
-    expect(nextWaiting(sending)?.id).toBe(2);
-    expect(nextWaiting(withStatus(2, "added")(sending))).toBeUndefined();
+    expect(nextUploads(uploads).map(({ id }) => id)).toEqual([1, 2]);
+    expect(nextUploads(firstSending).map(({ id }) => id)).toEqual([2]);
+    expect(nextUploads(bothSending)).toEqual([]);
+    expect(
+      nextUploads(withStatus(2, "added")(bothSending)).map(({ id }) => id),
+    ).toEqual([3]);
   });
 
   test("待っているか送っている写真があるあいだだけ、送り終えていないとすること", () => {

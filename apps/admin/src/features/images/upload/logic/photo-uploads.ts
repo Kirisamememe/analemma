@@ -55,11 +55,19 @@ export const queuePhotos = (
   ];
 };
 
-/** 次に送る写真を返す。 */
-export const nextWaiting = (
+const MAX_IN_FLIGHT = 2;
+
+/** 送信中の写真と合わせて2枚まで、待機中の写真を選んだ順に返す。 */
+export const nextUploads = (
   uploads: readonly PhotoUpload[],
-): PhotoUpload | undefined =>
-  uploads.find(({ status }) => status === "waiting");
+): readonly PhotoUpload[] => {
+  const available =
+    MAX_IN_FLIGHT - uploads.filter(({ status }) => status === "sending").length;
+
+  return uploads
+    .filter(({ status }) => status === "waiting")
+    .slice(0, Math.max(0, available));
+};
 
 /** 写真の状態を変える。 */
 export const withStatus =
