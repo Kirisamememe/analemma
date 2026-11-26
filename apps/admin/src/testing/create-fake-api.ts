@@ -3,7 +3,7 @@ import { RPCHandler } from "@orpc/server/fetch";
 
 import { contract } from "@analemma/contract";
 
-import type { ApiClient } from "@/api/api-types";
+import type { ApiClient, UploadProgressCallback } from "@/api/api-types";
 import {
   type ApiClientOptions,
   createApiClient,
@@ -255,16 +255,26 @@ export type FakeApi = {
   readonly fetch: ApiClientOptions["fetch"];
 };
 
+/** 作り物の送信が進むごとに割合を通知する関数。 */
+export type FakeUploadProgress = (
+  report: UploadProgressCallback,
+) => void | Promise<void>;
+
 /** procedure ごとの応答を決めた、作り物の server につないだ client を作る。 */
-export const createFakeApi = (routes: FakeRoutes): FakeApi => {
+export const createFakeApi = (
+  routes: FakeRoutes,
+  uploadProgress?: FakeUploadProgress,
+): FakeApi => {
   const handler = new RPCHandler(createFakeRouter(routes));
   const calls: string[] = [];
 
   const replyBeforeInput = (path: string) =>
     isRoutePath(path) ? routes[path]?.replyBeforeInput?.() : undefined;
 
-  const fetch: ApiClientOptions["fetch"] = async (request) => {
+  const fetch: ApiClientOptions["fetch"] = async (request, init) => {
     calls.push(new URL(request.url).pathname.replace(/^\/api\//v, ""));
+
+    if (init.upload && uploadProgress) await uploadProgress(init.upload.report);
 
     const result = await handler.handle(request, {
       prefix: "/api",

@@ -167,6 +167,8 @@ effect を使う hook の表は、次のとおり。
 
 ## server の API の呼び方
 
+- 写真の転送中は、oRPC の client context に1回の送信の通知先を渡す。送信の割合を取得する場合だけ、認証の gate を通った後で XMLHttpRequest の upload progress を使う。oRPC が組み立てた FormData をそのまま送り、multipart の boundary は送信するブラウザに任せる。送信が100%に達しても画像の処理は続くため、API が応答するまで成功とは扱わない。
+
 - server の API は、contract の型を付けた oRPC の client(`src/api/create-api-client.ts`)で、同じ origin の `/api` に、oRPC のプロトコルで呼ぶ。応答の型を手で書かない。
 - server の状態は TanStack Query で持つ。query client(`src/api/create-query-client.ts`)は、取得と送信のどちらかがセッションの無いこと(`UNAUTHORIZED`)を返したら、持っている状態を消して、ログインの画面に、今のパスを持たせて移す。セッションの無い失敗は、やり直さない。
 - 画面に focus が戻っても、取り直さない(`refetchOnWindowFocus: false`)。パスキーの操作は OS の画面を開くので、ログインの最中に focus が出入りし、取り直すと、ログインの最中にほかの管理用 API を呼ぶことになる(「server の認証に合わせること」)。

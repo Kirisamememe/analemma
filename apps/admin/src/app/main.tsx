@@ -7,6 +7,7 @@ import { App } from "./app";
 import { createApp } from "./router";
 
 import { createApiClient } from "@/api/create-api-client";
+import { sendBrowserRequest } from "@/api/transport/send-browser-request";
 import {
   createAuthGate,
   gateAdminRequests,
@@ -51,9 +52,7 @@ const { router, queryClient } = createApp({
   history: createBrowserHistory(),
   api: createApiClient({
     origin: location.origin,
-    fetch: gateAdminRequests(gate, async (request, init) =>
-      fetch(request, init),
-    ),
+    fetch: gateAdminRequests(gate, sendBrowserRequest),
   }),
   authenticator: createAuthenticator(webAuthn),
   gate,
