@@ -68,9 +68,9 @@ const content = {
   rows: [{ portrait: imageId("港の灯り") }, { portrait: missing }],
 };
 
-const edit = (saved: FixedPageContent = content) => {
+const edit = (saved: FixedPageContent = content, definitions = fields) => {
   const server = createFixedPageRoutes({
-    kinds: [{ name: kind.name, label: kind.label, fields }],
+    kinds: [{ name: kind.name, label: kind.label, fields: definitions }],
     pages: [{ ...page, content: saved }],
   });
 
@@ -185,6 +185,34 @@ test.each(["group の未入力", "必須の誤り", "repeat の画像"])(
     await screen.findByRole("dialog", { name: "保存していない変更があります" });
   },
 );
+
+test("表紙の差し替えを取り消すと、次に開いたときも保存した表紙が選択される", async () => {
+  const saved = { cover: imageId("夕暮れの稜線") };
+
+  const server = edit(
+    saved,
+    fieldDefinitions.parse([{ type: "image", key: "cover", label: "表紙" }]),
+  );
+
+  const replace = await screen.findByRole("button", {
+    name: "差し替える（表紙）",
+  });
+
+  await userEvent.click(replace);
+  const ridge = { name: /夕暮れの稜線/v, checked: true };
+  await screen.findByRole("radio", ridge);
+  await userEvent.click(screen.getByRole("radio", { name: /細い路地/v }));
+  expect(
+    screen.getByRole("radio", { name: /細い路地/v, checked: true }),
+  ).toBeDefined();
+  await userEvent.click(button("キャンセル"));
+  await userEvent.click(replace);
+  await screen.findByRole("radio", ridge);
+  await userEvent.click(button("キャンセル"));
+  await save();
+  await screen.findByText("固定ページを更新しました。");
+  expect(server.pages()[0]?.content).toEqual(saved);
+});
 
 test("非公開と削除済みの画像を保って保存でき、取り替え・取り消し・取り外しを反映する", async () => {
   const saved = { ...content, profile: { portrait: missing } };
