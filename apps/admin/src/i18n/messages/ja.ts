@@ -257,6 +257,10 @@ export const ja = {
   "fixedPages.deleted": "「{{title}}」を削除しました。",
   "fixedPages.deleteFailed":
     "固定ページを削除できませんでした。もう一度試してください。",
+  "imagePicker.title": "画像を選ぶ",
+  "imagePicker.selected": "選択中の画像 {{count}} 枚",
+  "imagePicker.confirm": "選択を確定",
+  "imagePicker.included": "追加済み",
   "imageUpload.title": "写真を追加",
   "imageUpload.add": "写真を追加",
   "imageUpload.selectPhoto": "編集する写真",

@@ -247,6 +247,10 @@ export const en = {
   "fixedPages.deleted": "“{{title}}” was deleted.",
   "fixedPages.deleteFailed":
     "Could not delete the fixed page. Please try again.",
+  "imagePicker.title": "Choose images",
+  "imagePicker.selected": "Images selected: {{count}}",
+  "imagePicker.confirm": "Confirm selection",
+  "imagePicker.included": "Already added",
   "imageUpload.title": "Add photos",
   "imageUpload.add": "Add photos",
   "imageUpload.selectPhoto": "Photo to edit",
