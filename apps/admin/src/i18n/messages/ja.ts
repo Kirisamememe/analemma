@@ -258,8 +258,8 @@ export const ja = {
   "fixedPages.deleteFailed":
     "固定ページを削除できませんでした。もう一度試してください。",
   "fixedPageEditor.imageAction": "{{action}}（{{target}}）",
-  "fixedPageEditor.chooseImage": "画像を選ぶ",
-  "fixedPageEditor.replaceImage": "替える",
+  "fixedPageEditor.chooseImage": "画像一覧から選ぶ",
+  "fixedPageEditor.replaceImage": "差し替える",
   "fixedPageEditor.removeImage": "外す",
   "fixedPageEditor.missingImage": "画像がありません",
   "imagePicker.title": "画像を選ぶ",

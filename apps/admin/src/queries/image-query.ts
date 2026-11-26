@@ -5,8 +5,8 @@ import { callApi } from "@/api/call-api";
 export type AdminImage = ApiOutputs["admin"]["images"]["get"];
 
 /** 画像の、query のキー。 */
-export const imageQueryKey = (id: string) =>
-  ["admin", "images", "get", id.toLowerCase()] as const;
+export const imageQueryKey = (id: string | null) =>
+  ["admin", "images", "get", id?.toLowerCase() ?? null] as const;
 
 /** 画像を読む。 */
 export const loadImage = (api: ApiClient, id: string) =>

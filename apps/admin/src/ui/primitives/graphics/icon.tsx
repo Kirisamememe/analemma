@@ -1,5 +1,6 @@
 import {
   ArrowDown,
+  ArrowLeftRight,
   ArrowUp,
   Check,
   ChevronDown,
@@ -37,6 +38,7 @@ import { tv } from "@/ui/tv";
 
 const ICONS = {
   "arrow-down": ArrowDown,
+  "arrow-left-right": ArrowLeftRight,
   "arrow-up": ArrowUp,
   check: Check,
   "chevron-down": ChevronDown,

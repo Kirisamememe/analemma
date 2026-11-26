@@ -65,6 +65,7 @@ const SINGLE_NAME_GROUPS: readonly SingleNameGroup[] = [
     partner: "grid-cols-2",
   },
   { variable: "aspect", utility: "aspect", partner: "aspect-square" },
+  { variable: "blur", utility: "backdrop-blur", partner: "backdrop-blur-none" },
 ];
 
 const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
@@ -73,6 +74,8 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "h-control": "h-full",
   "h-control-sm": "h-full",
   "h-nav-bar": "h-full",
+  "max-h-field-photo": "max-h-80",
+  "photo-caption-background": "bg-none",
   "max-h-viewer-photo": "max-h-dvh",
   "min-h-nav-bar": "min-h-full",
   "top-toast": "top-0",

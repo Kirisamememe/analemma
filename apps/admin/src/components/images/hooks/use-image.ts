@@ -4,7 +4,7 @@ import { imageQueryKey, loadImage } from "@/queries/image-query";
 
 /** ID で画像を取得する。 */
 export const useImage = (
-  id: string,
+  id: string | null,
   { keepDataOnRefreshError = false } = {},
 ) => {
   const { api } = useAppContext();
@@ -12,6 +12,6 @@ export const useImage = (
   return useApiQuery({
     key: imageQueryKey(id),
     keepDataOnRefreshError,
-    load: () => loadImage(api, id),
+    load: id === null ? undefined : () => loadImage(api, id),
   });
 };

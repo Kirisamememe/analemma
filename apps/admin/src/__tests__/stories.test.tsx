@@ -17,6 +17,7 @@ import * as featuresDeployTokensCopyButton from "@/features/deploy-tokens/ui/__s
 import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
 import * as kindRefreshNotice from "@/features/fixed-pages/list/__stories__/kind-refresh-notice.stories";
 import * as featuresFixedPagesContentGroup from "@/features/fixed-pages/ui/__stories__/content-group.stories";
+import * as imageFieldPanel from "@/features/fixed-pages/ui/__stories__/image-field-panel.stories";
 import * as fixedPageKindGuide from "@/features/fixed-pages/ui/__stories__/kind-guide.stories";
 import * as featuresImagesImageDetail from "@/features/images/detail/__stories__/image-detail.stories";
 import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/image-viewer.stories";
@@ -82,6 +83,8 @@ import * as specimensTypography from "@/ui/specimens/__stories__/typography.stor
 const MODULES = {
   "ui/primitives/navigation/__stories__/scroll-view.stories.tsx":
     primitivesScrollView,
+  "features/fixed-pages/ui/__stories__/image-field-panel.stories.ts":
+    imageFieldPanel,
   "components/forms/__stories__/form.stories.tsx": componentsForm,
   "components/forms/__stories__/form-fields.stories.tsx": componentsFormFields,
   "components/forms/__stories__/submitting.stories.tsx": componentsSubmitting,

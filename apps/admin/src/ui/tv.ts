@@ -9,6 +9,7 @@ const SCALE = ["xs", "sm", "base", "lg", "xl", "2xl", "3xl", "4xl", "5xl"];
 const MERGE_CONFIG: TWMergeConfig = {
   extend: {
     theme: {
+      blur: ["media"],
       color: [
         "canvas",
         "surface",
@@ -45,7 +46,8 @@ const MERGE_CONFIG: TWMergeConfig = {
     },
     classGroups: {
       h: ["h-control", "h-control-sm", "h-nav-bar", "h-photo-preview"],
-      "max-h": ["max-h-viewer-photo"],
+      "bg-image": ["photo-caption-background"],
+      "max-h": ["max-h-field-photo", "max-h-viewer-photo"],
       "min-h": ["min-h-nav-bar"],
       top: ["top-toast"],
       size: [
