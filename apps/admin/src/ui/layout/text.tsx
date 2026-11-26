@@ -16,6 +16,8 @@ const tone = tv({
 
 /** Text に渡す値。 */
 type TextProps = {
+  /** このテキストを説明として参照する ID。 */
+  id?: string;
   /** 文字の役割。 */
   variant?: "body" | "body-long" | "caption" | "label";
   /** 文字の色の用途。 */
@@ -33,11 +35,13 @@ export const Text = ({
   variant = "body",
   tone: color = "default",
   as: Element = "p",
+  id,
   lang,
   children,
 }: TextProps): ReactNode => (
   <Element
     className={tone({ tone: color, className: typography({ role: variant }) })}
+    id={id}
     lang={lang}
   >
     {children}

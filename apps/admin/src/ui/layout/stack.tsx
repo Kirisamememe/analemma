@@ -33,7 +33,7 @@ type StackProps = {
   /** 子の横の揃え方。 */
   align?: "stretch" | "start" | "center";
   /** 箱にする要素。 */
-  as?: "div" | "section" | "ul" | "ol";
+  as?: "div" | "span" | "section" | "ul" | "ol";
   /** 並べる子。 */
   children: ReactNode;
 };
