@@ -1,6 +1,6 @@
 import { type PointerEvent, useRef, useState } from "react";
 
-import { toSwipe } from "../logic/swipe";
+import { isTap, toSwipe } from "../logic/swipe";
 
 type PhotoPointer = Pick<
   PointerEvent,
@@ -67,15 +67,16 @@ export const usePhotoGestures = (
       return;
     }
 
-    const dx = event.clientX - start.clientX;
-    const dy = event.clientY - start.clientY;
-    const duration = event.timeStamp - start.timeStamp;
-    const direction = toSwipe({ dx, dy, duration });
+    const stroke = {
+      dx: event.clientX - start.clientX,
+      dy: event.clientY - start.clientY,
+      duration: event.timeStamp - start.timeStamp,
+    };
+
+    const direction = toSwipe(stroke);
 
     if (direction !== undefined) onSwipe(direction);
-    else if (Math.hypot(dx, dy) <= 10 && duration < 500) {
-      setControlsVisible((visible) => !visible);
-    }
+    else if (isTap(stroke)) setControlsVisible((visible) => !visible);
   };
 
   return {

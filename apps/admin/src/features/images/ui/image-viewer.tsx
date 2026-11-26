@@ -2,13 +2,13 @@ import { type ReactNode, useRef } from "react";
 
 import { usePhotoGestures } from "./hooks/use-photo-gestures";
 import type { DeliveryImages } from "./logic/delivery-image";
+import { PhotoProgress } from "./photo-progress";
 import { ViewerPhoto } from "./viewer-photo";
 import { viewerStyle as style } from "./viewer-styles";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Text } from "@/ui/layout";
-import { LoadingStatus } from "@/ui/patterns";
-import { Icon, Spinner } from "@/ui/primitives/graphics";
+import { Icon } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 
@@ -114,23 +114,6 @@ const SideLink = ({
   </span>
 );
 
-type ProgressProps = {
-  /** 読み込み中の案内。 */
-  label: string;
-};
-
-const Progress = ({ label }: ProgressProps): ReactNode => {
-  return (
-    <>
-      <LoadingStatus label={label} />
-      <div aria-hidden="true" className={style.progress()}>
-        <Spinner />
-        <Text as="span">{label}</Text>
-      </div>
-    </>
-  );
-};
-
 /** 写真を大きく表示し、写真の情報を添える画面。 */
 export const ImageViewer = ({
   photoId,
@@ -192,10 +175,11 @@ export const ImageViewer = ({
               largest={pendingLargest}
               smallest={pendingSmallest}
               pending
-              onSettled={() => onSettled?.(pending.id)}
+              photoId={pending.id}
+              onSettled={onSettled}
             />
           )}
-        {waiting !== undefined && <Progress label={waiting} />}
+        {waiting !== undefined && <PhotoProgress label={waiting} place="top" />}
         {previous !== undefined && (
           <SideLink
             controlsVisible={controlsVisible}
