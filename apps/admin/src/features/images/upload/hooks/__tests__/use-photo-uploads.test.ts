@@ -2,8 +2,8 @@ import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, mock, test } from "bun:test";
 
 import { imageQueryKey } from "@/features/images/detail/queries/image-query";
-import { IMAGES_QUERY_KEY } from "@/features/images/queries/images-query";
 import { usePhotoUploads } from "@/features/images/upload/hooks/use-photo-uploads";
+import { IMAGES_QUERY_KEY } from "@/queries/images-query";
 import type { FakeRoutes } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";

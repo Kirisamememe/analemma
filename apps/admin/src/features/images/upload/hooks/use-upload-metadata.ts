@@ -9,10 +9,6 @@ import {
   type LoadedImage,
 } from "@/features/images/detail/queries/image-query";
 import {
-  IMAGES_QUERY_KEY,
-  updateImagePage,
-} from "@/features/images/queries/images-query";
-import {
   isUploading,
   type PhotoUpload,
 } from "@/features/images/upload/logic/photo-uploads";
@@ -20,6 +16,7 @@ import {
   saveUploadMetadata,
   type UploadMetadata,
 } from "@/features/images/upload/queries/save-upload-metadata";
+import { IMAGES_QUERY_KEY, updateImagePage } from "@/queries/images-query";
 
 const EMPTY = { title: "", description: "" };
 const FIELDS = ["title", "description"] as const;

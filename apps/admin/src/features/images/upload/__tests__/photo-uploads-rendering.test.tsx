@@ -10,7 +10,7 @@ import {
 import { afterEach, expect, test } from "bun:test";
 import { Profiler } from "react";
 
-import { ImagesSection } from "@/features/images/list/images-section";
+import { ImagesSection } from "@/components/images/images-section";
 import { PhotoUploads } from "@/features/images/upload/photo-uploads";
 import type { FakeReply, FakeRoutes } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";

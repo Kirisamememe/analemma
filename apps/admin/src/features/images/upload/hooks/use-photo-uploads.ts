@@ -5,10 +5,6 @@ import { PHOTO_MAX_BYTES } from "@analemma/contract";
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
-import {
-  IMAGES_QUERY_KEY,
-  prependImage,
-} from "@/features/images/queries/images-query";
 import { useUploadMetadata } from "@/features/images/upload/hooks/use-upload-metadata";
 import {
   type PhotoUpload,
@@ -22,6 +18,7 @@ import {
   withUploadProgress,
 } from "@/features/images/upload/logic/photo-uploads";
 import { uploadPhoto } from "@/features/images/upload/queries/upload-photo";
+import { IMAGES_QUERY_KEY, prependImage } from "@/queries/images-query";
 
 const LOGIN_PATH = "/login"; // セッションが切れたときに移る先。止めると、送れない画面に残る
 
