@@ -4,7 +4,7 @@ import {
   toImageText,
 } from "@/features/images/detail/logic/image-text";
 import { saveImage } from "@/features/images/detail/queries/image-actions";
-import { loadImage } from "@/features/images/detail/queries/image-query";
+import { loadImage } from "@/queries/image-query";
 
 /** 写真を送った後に入力するタイトルと説明。 */
 export type UploadMetadata = Pick<ImageText, "title" | "description">;
