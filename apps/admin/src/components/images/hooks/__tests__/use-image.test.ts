@@ -13,17 +13,20 @@ test("未選択の間は取得せず、画像を選んだときだけ取得す�
   const app = createTestApp({ path: "/", routes: server.routes });
   await app.router.load();
 
-  const initialProps: { id: string | null } = { id: null };
-
-  const { result, rerender } = renderHook(({ id }) => useImage(id), {
-    initialProps,
+  const { result, rerender } = renderHook<
+    ReturnType<typeof useImage>,
+    string | null
+  >((id) => useImage(id), {
+    initialProps: null,
     wrapper: withAppProviders(app),
   });
 
   expect(app.calls).not.toContain("admin/images/get");
-  rerender({ id: server.images()[0]?.id ?? "" });
-  await waitFor(() => expect(result.current._tag).toBe("Loaded"));
-  rerender({ id: null });
+  rerender(server.images()[0]?.id ?? "");
+  await waitFor(() => {
+    expect(result.current._tag).toBe("Loaded");
+  });
+  rerender(null);
   expect(app.calls.filter((path) => path === "admin/images/get")).toHaveLength(
     1,
   );
