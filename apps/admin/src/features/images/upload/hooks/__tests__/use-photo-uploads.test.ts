@@ -185,3 +185,40 @@ test("描き直しても、写真を足す・送り直す・閉じる関数は�
   expect(result.current.clear).toBe(clear);
   expect(result.current.track).toBe(track);
 });
+
+test("送っている間の入力は送信後も残り、保存せずに画面を離れる前に確かめる", async () => {
+  const held = holdUploads();
+  const { result, history } = await render(held.routes);
+
+  act(() => {
+    result.current.add([photo("a.jpg")]);
+  });
+  act(() => {
+    result.current.metadata.change(1, { title: "朝の海" });
+    result.current.metadata.finish();
+  });
+  expect(result.current.uploads).toHaveLength(1);
+  await held.answer();
+
+  await waitFor(() => {
+    expect(result.current.uploads[0]?.status).toBe("added");
+  });
+  act(() => {
+    history.push("/pages");
+  });
+  await waitFor(() => {
+    expect(result.current.leaving._tag).toBe("Asking");
+  });
+  act(() => {
+    result.current.leaving.stay();
+  });
+  expect(history.location.pathname).toBe("/images");
+  expect(result.current.metadata.draft(1).title).toBe("朝の海");
+  act(() => {
+    result.current.metadata.finish();
+  });
+  await waitFor(() => {
+    expect(result.current.uploads).toHaveLength(0);
+  });
+  expect(held.server.images()[0]?.title).toBe("朝の海");
+});

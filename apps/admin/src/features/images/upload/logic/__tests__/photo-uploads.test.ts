@@ -101,7 +101,10 @@ describe("送る写真の一覧", () => {
 describe("足せた写真と送り直し", () => {
   test("足せた写真に画像の ID を持たせ、送れなかった写真だけを送り直す写真として待たせること", () => {
     const uploads = [
-      withAdded(1, "019b0000-0000-7000-8000-000000000001"),
+      withAdded(1, {
+        id: "019b0000-0000-7000-8000-000000000001",
+        deliveryImages: [{ width: 640, height: 480, url: "/media/photo.avif" }],
+      }),
       withStatus(2, "failed"),
       withStatus(3, "unsupported"),
     ].reduce(
@@ -115,6 +118,7 @@ describe("足せた写真と送り直し", () => {
     expect(uploads[0]).toMatchObject({
       status: "added",
       imageId: "019b0000-0000-7000-8000-000000000001",
+      previewUrl: "/media/photo.avif",
     });
     expect(hasUnsentPhotos(uploads)).toBe(true);
 

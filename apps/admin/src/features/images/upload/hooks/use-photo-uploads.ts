@@ -9,6 +9,7 @@ import {
   IMAGES_QUERY_KEY,
   prependImage,
 } from "@/features/images/queries/images-query";
+import { useUploadMetadata } from "@/features/images/upload/hooks/use-upload-metadata";
 import {
   type PhotoUpload,
   clearFinished,
@@ -26,13 +27,23 @@ const LOGIN_PATH = "/login"; // セッションが切れたときに移る先。
 type Change = (current: readonly PhotoUpload[]) => readonly PhotoUpload[];
 
 /** 送る写真の一覧と、写真を足す・送り直す・結果を閉じる操作。 */
-export const usePhotoUploads = () => {
+export const usePhotoUploads = (onComplete?: () => void) => {
   const { api } = useAppContext();
   const { refresh, updatePages } = useApiCache();
   const [uploads, setUploads] = useState<readonly PhotoUpload[]>([]);
   const latest = useRef(uploads); // 送り終えたときに、次に送る写真を選ぶ
   const active = useRef(true); // 画面を離れたら、次の写真を送らない
   const expired = useRef(false); // セッションが切れたら、ログインの画面へ移るのを止めない
+
+  const apply = useCallback((change: Change): void => {
+    latest.current = change(latest.current);
+    setUploads(latest.current);
+  }, []);
+
+  const metadata = useUploadMetadata(uploads, () => {
+    apply(clearFinished);
+    onComplete?.();
+  });
 
   const leaving = useLeaveConfirmation((destination) => {
     if (destination === LOGIN_PATH) {
@@ -41,13 +52,11 @@ export const usePhotoUploads = () => {
       return false;
     }
 
-    return !expired.current && hasUnsentPhotos(latest.current);
+    return (
+      !expired.current &&
+      (hasUnsentPhotos(latest.current) || metadata.dirty || metadata.isSaving)
+    );
   });
-
-  const apply = useCallback((change: Change): void => {
-    latest.current = change(latest.current);
-    setUploads(latest.current);
-  }, []);
 
   const sending = useApiMutation({
     send: async (upload: PhotoUpload) => {
@@ -64,7 +73,7 @@ export const usePhotoUploads = () => {
     onSuccess: async (result, upload) => {
       apply(
         result._tag === "Added"
-          ? withAdded(upload.id, result.image.id)
+          ? withAdded(upload.id, result.image)
           : withStatus(upload.id, "unsupported"),
       );
       sendNext();
@@ -117,9 +126,12 @@ export const usePhotoUploads = () => {
     [apply, sendIfIdle],
   );
 
+  const { reset } = metadata;
+
   const clear = useCallback((): void => {
+    reset();
     apply(clearFinished);
-  }, [apply]);
+  }, [apply, reset]);
 
   const track = useCallback((element: HTMLElement | null) => {
     if (element === null) return;
@@ -131,5 +143,5 @@ export const usePhotoUploads = () => {
     };
   }, []);
 
-  return { uploads, leaving, add, retry, clear, track };
+  return { uploads, metadata, leaving, add, retry, clear, track };
 };
