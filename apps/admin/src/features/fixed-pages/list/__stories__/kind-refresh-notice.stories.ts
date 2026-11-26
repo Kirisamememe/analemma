@@ -8,7 +8,7 @@ const ready = { retry: fn<() => void>(), isRetrying: false };
 const retrying = { ...ready, isRetrying: true };
 
 const meta = {
-  title: "features/FixedPages/KindRefreshNotice",
+  title: "features/fixed-pages/KindRefreshNotice",
   component: KindRefreshNotice,
   args: { source: "list", refreshFailure: ready },
   parameters: { contentLang: null },
