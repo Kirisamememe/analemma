@@ -58,7 +58,7 @@ describe("ScrollView", () => {
     expect(screen.queryByRole("scrollbar")).toBeNull();
   });
 
-  test("つまみは押した位置を保ってドラッグし、線を押すとその位置へ移る", () => {
+  test("つまみは押した位置を保ってドラッグし、レールを押すとその位置へ移る", () => {
     const viewport = measuredViewport((element) => {
       Object.defineProperties(element, {
         scrollWidth: { value: 800 },
@@ -124,6 +124,10 @@ describe("ScrollView", () => {
     expect(bar.getAttribute("aria-orientation")).toBe("vertical");
     fireEvent.keyDown(bar, { key: "PageDown" });
     expect(viewport.element().scrollTop).toBe(200);
+    fireEvent.wheel(bar, { deltaY: 70 });
+    expect(viewport.element().scrollTop).toBe(270);
+    fireEvent.wheel(bar, { deltaMode: WheelEvent.DOM_DELTA_PAGE, deltaY: 1 });
+    expect(viewport.element().scrollTop).toBe(470);
     viewport.element().scrollTop = 400;
     fireEvent.scroll(viewport.element());
     expect(bar.getAttribute("aria-valuenow")).toBe("50");

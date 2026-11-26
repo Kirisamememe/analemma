@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ScrollView } from "../scroll-view";
 
 import { Cluster, Stack, Text } from "@/ui/layout";
-import { Badge } from "@/ui/primitives/badge";
+import { Button } from "@/ui/primitives/button";
 
 const months = Array.from(
   { length: 12 },
@@ -26,9 +26,9 @@ export const Horizontal: Story = {
     children: (
       <Cluster gap={4}>
         {months.map((month) => (
-          <Badge tone="neutral" key={month}>
+          <Button key={month} size="sm">
             {month}
-          </Badge>
+          </Button>
         ))}
       </Cluster>
     ),
@@ -47,6 +47,10 @@ export const Vertical: Story = {
       </Stack>
     ),
   },
+};
+
+export const DialogInset: Story = {
+  args: { ...Horizontal.args, inset: "dialog" },
 };
 
 export const Fits: Story = { args: { children: <Text>1月の写真</Text> } };

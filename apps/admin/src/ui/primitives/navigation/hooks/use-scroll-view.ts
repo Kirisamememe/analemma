@@ -9,6 +9,8 @@ import {
 /** スクロールの方向。 */
 export type ScrollOrientation = "horizontal" | "vertical";
 
+const LINE_STEP = 40;
+
 const AXES = {
   horizontal: {
     offset: "scrollLeft",
@@ -17,6 +19,7 @@ const AXES = {
     size: "width",
     start: "left",
     coordinate: "clientX",
+    delta: "deltaX",
     backward: "ArrowLeft",
     forward: "ArrowRight",
   },
@@ -27,6 +30,7 @@ const AXES = {
     size: "height",
     start: "top",
     coordinate: "clientY",
+    delta: "deltaY",
     backward: "ArrowUp",
     forward: "ArrowDown",
   },
@@ -93,6 +97,48 @@ export const useScrollView = (
     [measure, viewportRef],
   );
 
+  const attachTrack = useCallback(
+    (track: HTMLDivElement | null) => {
+      if (!track) return;
+
+      const onWheel = (event: WheelEvent): void => {
+        const element = viewport.current;
+
+        if (
+          !element ||
+          event.ctrlKey ||
+          (event.shiftKey && orientation === "vertical")
+        ) {
+          return;
+        }
+
+        const delta =
+          event.shiftKey && orientation === "horizontal"
+            ? event.deltaY || event.deltaX
+            : event[axis.delta];
+
+        if (delta === 0) return;
+
+        const unit =
+          event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+            ? element[axis.viewport]
+            : event.deltaMode === WheelEvent.DOM_DELTA_LINE
+              ? LINE_STEP
+              : 1;
+
+        event.preventDefault();
+        element[axis.offset] += delta * unit;
+      };
+
+      track.addEventListener("wheel", onWheel, { passive: false });
+
+      return () => {
+        track.removeEventListener("wheel", onWheel);
+      };
+    },
+    [axis, orientation],
+  );
+
   const scrollTo = (position: number): void => {
     const element = viewport.current;
 
@@ -155,8 +201,8 @@ export const useScrollView = (
     const page = element[axis.viewport];
 
     const targets: Partial<Record<string, number>> = {
-      [axis.backward]: offset - 40,
-      [axis.forward]: offset + 40,
+      [axis.backward]: offset - LINE_STEP,
+      [axis.forward]: offset + LINE_STEP,
       PageUp: offset - page,
       PageDown: offset + page,
       Home: 0,
@@ -173,6 +219,7 @@ export const useScrollView = (
 
   return {
     attach,
+    attachTrack,
     content,
     thumb,
     measure,

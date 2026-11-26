@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 
 const HIDE_DELAY = 5000;
 
-/** ポインタが領域を離れるまでと、その後5秒間、つまみを表示する。 */
+/** スクロールバーのつまみの表示状態を管理する。 */
 export const useScrollThumbVisibility = () => {
   const [visible, setVisible] = useState(false);
 

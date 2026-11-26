@@ -9,7 +9,7 @@ const scroll = tv({
   slots: {
     root: "flex min-h-0 min-w-0",
     viewport: "min-h-0 min-w-0 scrollbar-none",
-    content: "flow-root",
+    content: "flow-root scroll-focus-inset",
     track: [
       "relative shrink-0 touch-none rounded-xs select-none",
       "group scroll-thumb-animation outline-hidden",
@@ -98,6 +98,7 @@ export const ScrollView = ({
 
   const {
     attach,
+    attachTrack,
     content,
     thumb,
     measure,
@@ -128,6 +129,7 @@ export const ScrollView = ({
       {metrics.thumbFraction !== 1 && (
         <div
           role="scrollbar"
+          ref={attachTrack}
           aria-controls={id}
           aria-label={label}
           aria-orientation={orientation}

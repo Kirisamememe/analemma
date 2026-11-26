@@ -39,9 +39,9 @@ export const RestrictedClasses = () => (
     <span className="border-fg-muted" />
     <span className="bg-red-500" />
     <span className="gap-y-5" />
-    <span className="py-panel" />
-    <span className="mx-panel" />
-    <span className="scroll-px-panel" />
-    <span className="my-panel" />
+    <span className="gap-panel" />
+    <span className="ps-panel" />
+    <span className="mt-panel" />
+    <span className="scroll-my-panel" />
   </>
 );

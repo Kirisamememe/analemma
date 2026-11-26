@@ -291,9 +291,13 @@
   transition-delay: var(--transition-duration-normal);
 }
 
+@utility scroll-focus-inset {
+  --focus-ring-offset: -2px;
+}
+
 @utility focus-ring {
   outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 @utility focus-ring-inset {
