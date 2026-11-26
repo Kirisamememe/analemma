@@ -101,7 +101,7 @@ const statusStory = (status: "pending" | "success", title: string): Story => ({
 export const Saving = statusStory("pending", "固定ページを保存しています");
 export const Saved = statusStory("success", "固定ページを更新しました。");
 
-export const Wide: Story = {
+const editorStory = (width?: "page"): Story => ({
   /** 本文の幅を広く取った編集用の Dialog。 */
   render: function EditDialog() {
     const [open, setOpen] = useState(true);
@@ -122,6 +122,7 @@ export const Wide: Story = {
           onOpenChange={setOpen}
           title="説明を編集"
           layout="wide"
+          width={width}
           footer={{
             start: (
               <Text tone="muted" variant="caption">
@@ -157,4 +158,7 @@ export const Wide: Story = {
       </>
     );
   },
-};
+});
+
+export const Wide: Story = editorStory();
+export const PageWidth: Story = editorStory("page");
