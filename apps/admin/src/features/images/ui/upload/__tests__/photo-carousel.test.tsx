@@ -109,3 +109,25 @@ describe("送る写真のカルーセル", () => {
     expect(tile.getByText("プレビューなし")).toBeDefined();
   });
 });
+
+test("別の写真を選んでも転送中の2枚の進捗が読め、転送が終わった写真から消える", () => {
+  const transferring = photos.map((photo, index) => ({
+    ...photo,
+    progress:
+      index < 2
+        ? { label: photo.name, percent: index === 0 ? 64 : 28 }
+        : undefined,
+  }));
+  const view = renderWithI18n(<Editor uploads={transferring} />, "ja");
+  fireEvent.click(button("sea.jpg"));
+  expect(
+    screen.getByRole("progressbar", { name: "lake.jpg" }).getAttribute("value"),
+  ).toBe("64");
+  expect(
+    screen
+      .getByRole("progressbar", { name: "mountain.heic" })
+      .getAttribute("value"),
+  ).toBe("28");
+  view.rerender(<Editor uploads={photos} />);
+  expect(screen.queryByRole("progressbar")).toBeNull();
+});

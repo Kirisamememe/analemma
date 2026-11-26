@@ -57,3 +57,16 @@ const CarouselStory = (args: ComponentProps<typeof PhotoCarousel>) => {
 };
 
 export const Photos: Story = { render: CarouselStory };
+
+export const Transferring: Story = {
+  render: CarouselStory,
+  args: {
+    photos: photos.map((photo, index) => ({
+      ...photo,
+      progress:
+        index < 2
+          ? { label: photo.name, percent: index === 0 ? 64 : 28 }
+          : undefined,
+    })),
+  },
+};

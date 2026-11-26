@@ -13,7 +13,12 @@ import { typography } from "@/ui/typography";
 const style = tv({
   slots: {
     strip: "flex items-center gap-2 py-1",
-    tile: ["group h-photo-preview flex-none rounded-xs", "outline-hidden"],
+    frame: "relative flex-none",
+    overlay: [
+      "pointer-events-none absolute inset-0 grid place-items-center rounded-xs",
+      "bg-scrim/60 text-on-media",
+    ],
+    tile: ["group block h-photo-preview rounded-xs", "outline-hidden"],
     image:
       "block h-full w-auto max-w-none rounded-xs group-focus-visible:focus-ring-inset",
     missing: [
@@ -30,6 +35,13 @@ const style = tv({
   variants: { selected: { true: { tile: "focus-ring-current" } } },
 });
 
+type Transfer = {
+  /** 送信済みの割合（%）。 */
+  percent: number;
+  /** 転送中のファイルを特定できる名前。 */
+  label: string;
+};
+
 /** カルーセルに並べる写真。 */
 type CarouselPhoto = {
   /** 写真を見分ける番号。 */
@@ -38,6 +50,8 @@ type CarouselPhoto = {
   name: string;
   /** 写真のファイルか配信用の URL。 */
   source: File | string;
+  /** 送信中に写真の上で示す転送率。 */
+  progress?: Transfer | undefined;
   /** 元のファイルを表示できないときに使う配信用の URL。 */
   previewUrl?: string | undefined;
 };
@@ -75,6 +89,39 @@ const Preview = ({ photo, missing }: PreviewProps): ReactNode => {
     </span>
   );
 };
+
+const TransferProgress = ({ percent, label }: Transfer): ReactNode => (
+  <div className={style().overlay()}>
+    <progress
+      className="sr-only"
+      aria-label={label}
+      max={100}
+      value={percent}
+    />
+    <svg
+      aria-hidden="true"
+      className="size-8"
+      viewBox="0 0 32 32"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <circle cx={16} cy={16} r={13} opacity={0.28} />
+      {percent > 0 && (
+        <circle
+          cx={16}
+          cy={16}
+          r={13}
+          pathLength={100}
+          strokeDasharray="100 100"
+          strokeDashoffset={100 - percent}
+          strokeLinecap="round"
+          transform="rotate(-90 16 16)"
+        />
+      )}
+    </svg>
+  </div>
+);
 
 /** 写真と選択を受け取るカルーセル。 */
 type PhotoCarouselProps = {
@@ -135,22 +182,29 @@ export const PhotoCarousel = ({
       >
         <fieldset aria-label={label} className={style().strip()}>
           {photos.map((photo, photoIndex) => (
-            <button
-              aria-label={photo.name}
-              aria-pressed={photo.id === selectedId}
-              className={style({ selected: photo.id === selectedId }).tile()}
-              key={photo.id}
-              onClick={() => {
-                onSelect(photo.id);
-              }}
-              onKeyDown={move}
-              onLoadCapture={photoIndex <= index ? revealSelected : undefined}
-              ref={photo.id === selectedId ? attachSelected : undefined}
-              tabIndex={photo.id === selectedId ? 0 : -1}
-              type="button"
-            >
-              <Preview missing={missing} photo={photo} />
-            </button>
+            <div className={style().frame()} key={photo.id}>
+              <button
+                aria-label={photo.name}
+                aria-pressed={photo.id === selectedId}
+                className={style({ selected: photo.id === selectedId }).tile()}
+                onClick={() => {
+                  onSelect(photo.id);
+                }}
+                onKeyDown={move}
+                onLoadCapture={photoIndex <= index ? revealSelected : undefined}
+                ref={photo.id === selectedId ? attachSelected : undefined}
+                tabIndex={photo.id === selectedId ? 0 : -1}
+                type="button"
+              >
+                <Preview missing={missing} photo={photo} />
+              </button>
+              {photo.progress && (
+                <TransferProgress
+                  label={photo.progress.label}
+                  percent={photo.progress.percent}
+                />
+              )}
+            </div>
           ))}
         </fieldset>
       </ScrollView>
