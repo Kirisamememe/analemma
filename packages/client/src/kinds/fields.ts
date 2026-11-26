@@ -2,6 +2,9 @@ import { z } from "zod";
 
 import {
   type FieldDefinition,
+  type PublishedImageValue,
+  publishedImageValue,
+  imageId,
   booleanValue,
   dateValue,
   longTextValue,
@@ -61,6 +64,14 @@ export const date = defineScalar("date", dateValue);
 
 /** http か https の URL の項目。 */
 export const url = defineScalar("url", urlValue);
+
+/** 画像1枚の項目。 */
+export const image = defineScalar(
+  "image",
+  publishedImageValue.or(
+    imageId.transform((): PublishedImageValue => ({ available: false })),
+  ),
+);
 
 /** 選択肢の1つ。 */
 export type SelectOption<Value extends string> = {

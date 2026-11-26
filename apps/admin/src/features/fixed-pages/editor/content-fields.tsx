@@ -92,6 +92,8 @@ const ContentFieldsContent = ({
           switch (definition.type) {
             case "text":
               return <field.TextField label={label} isRequired={required} />;
+            case "image":
+              return null;
             case "url":
               return (
                 <field.TextField

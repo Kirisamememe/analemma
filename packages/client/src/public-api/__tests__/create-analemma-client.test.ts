@@ -3,12 +3,24 @@ import { RPCHandler } from "@orpc/server/fetch";
 import { describe, expect, expectTypeOf, test } from "bun:test";
 import { z } from "zod";
 
-import { contract } from "@analemma/contract";
+import {
+  contract,
+  type FixedPageContent,
+  type PublishedImageValue,
+} from "@analemma/contract";
 
 import { defineKind } from "../../kinds/define-kind";
-import { boolean, optional, text } from "../../kinds/fields";
+import {
+  boolean,
+  optional,
+  text,
+  image,
+  group,
+  repeat,
+} from "../../kinds/fields";
 import {
   type AnalemmaClient,
+  type PublishedImage,
   createAnalemmaClient,
 } from "../create-analemma-client";
 
@@ -31,13 +43,10 @@ const PAGE = {
   updatedAt: "2026-01-02T00:00:00.000Z",
 };
 
-/** テスト用の CMS に置く、公開している固定ページの中身。 */
-type FakeContent = Record<string, string | boolean>;
-
 const os = implement({ public: { fixedPages: contract.public.fixedPages } });
 
 const serveFakeCms = (
-  content: FakeContent,
+  content: FixedPageContent,
 ): ((request: Request) => Promise<Response>) => {
   const handler = new RPCHandler(
     os.router({
@@ -72,7 +81,7 @@ const serveFakeCms = (
   };
 };
 
-const clientFor = (content: FakeContent): AnalemmaClient =>
+const clientFor = (content: FixedPageContent): AnalemmaClient =>
   createAnalemmaClient({
     url: "http://127.0.0.1:8788",
     fetch: serveFakeCms(content),
@@ -100,6 +109,50 @@ describe("公開している固定ページを引く", () => {
     expectTypeOf(page?.content).toEqualTypeOf<
       z.output<typeof expected> | undefined
     >();
+  });
+
+  test("繰り返しの中の画像を、取得できたかで判別できる型で返すこと", async () => {
+    const kind = defineKind({
+      name: "about",
+      label: "自己紹介",
+      fields: {
+        album: group({
+          label: "アルバム",
+          fields: {
+            pages: repeat({
+              label: "ページ",
+              fields: { photo: optional(image({ label: "写真" })) },
+            }),
+          },
+        }),
+      },
+    });
+
+    const unavailable: PublishedImageValue = { available: false };
+    const content = { album: { pages: [{ photo: unavailable }, {}] } };
+    const page = await clientFor(content).fixedPages.get(kind, "about");
+    expect(page?.content).toEqual(content);
+    const photo = page?.content.album.pages[0]?.photo;
+    expectTypeOf(photo).toEqualTypeOf<PublishedImageValue | undefined>();
+
+    if (photo?.available === true) {
+      expectTypeOf(photo.image).toEqualTypeOf<PublishedImage>();
+    }
+  });
+
+  test("画像の項目を消した定義を送った後も、古い定義では画像を取得できないページとして読めること", async () => {
+    const kind = defineKind({
+      name: "about",
+      label: "自己紹介",
+      fields: { photo: image({ label: "写真" }) },
+    });
+
+    const page = await clientFor({ photo: crypto.randomUUID() }).fixedPages.get(
+      kind,
+      "about",
+    );
+
+    expect(page?.content.photo).toEqual({ available: false });
   });
 
   test("値の無い真偽値の項目は、項目の既定値を入れて返すこと", async () => {

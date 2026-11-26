@@ -39,7 +39,7 @@ export const publicFixedPages = {
     .output(
       publishedSummary.extend({
         content: fixedPageContent.describe(
-          "保存した中身(今の種類の定義に無いキーも含む)。",
+          "画像の項目を公開サイト向けの値にした中身。定義に無いキーも含む。",
         ),
       }),
     ),

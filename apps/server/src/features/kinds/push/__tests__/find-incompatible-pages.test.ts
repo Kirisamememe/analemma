@@ -37,3 +37,29 @@ test("送った定義に合わないページだけを、合わない場所と�
     },
   ]);
 });
+
+test("画像の項目の追加・必須への変更・削除・型の変更は、保存した値が新しい定義に合うかで決めること", () => {
+  const photo = { type: "image", key: "photo", label: "写真" } as const;
+
+  const pages = [
+    page("empty", {}),
+    page("photo", { photo: crypto.randomUUID() }),
+    page("text", { photo: "海" }),
+  ];
+
+  const incompatible = (fields: typeof profile.fields) =>
+    findIncompatiblePages({ definitions: [{ ...profile, fields }], pages }).map(
+      ({ id }) => id,
+    );
+
+  expect(incompatible([{ ...photo, optional: true }])).toEqual(["text"]);
+  expect(incompatible([{ ...photo, optional: false }])).toEqual([
+    "empty",
+    "text",
+  ]);
+  expect(incompatible([])).toEqual([]);
+  expect(incompatible([{ ...photo, type: "number", optional: true }])).toEqual([
+    "photo",
+    "text",
+  ]);
+});
