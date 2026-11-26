@@ -105,6 +105,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
               onSelect={select}
             >
               <UploadPhotoStatus
+                isSaving={metadata.isSaving}
                 upload={selected}
                 retry={retry}
                 restore={restore}

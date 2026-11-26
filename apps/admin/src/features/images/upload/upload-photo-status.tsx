@@ -19,6 +19,8 @@ import type { AppHref } from "@/ui/primitives/ui-provider";
 type UploadPhotoStatusProps = {
   /** 選択中の写真。 */
   upload: PhotoUpload;
+  /** 原稿の保存中は再送を止める。 */
+  isSaving?: boolean;
   /** 失敗した写真の送信を再開する操作。 */
   retry: (id: number) => void;
   /** 送り直した後に focus を戻す操作。 */
@@ -30,6 +32,7 @@ type UploadPhotoStatusProps = {
 /** 選択した写真の送信状態と、その写真に対する操作。 */
 export const UploadPhotoStatus = ({
   upload,
+  isSaving = false,
   retry,
   restore,
   imageHref,
@@ -65,6 +68,7 @@ export const UploadPhotoStatus = ({
         {action !== "none" && (
           <Button
             size="sm"
+            isDisabled={isSaving}
             isPending={action === "pending"}
             aria-label={t("imageUpload.retryPhoto", {
               name: upload.file.name,

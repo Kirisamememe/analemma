@@ -121,12 +121,16 @@ export const usePhotoUploads = (onComplete?: () => void) => {
     [apply, sendNext],
   );
 
+  const { isSaving } = metadata;
+
   const retry = useCallback(
     (id: number): void => {
+      if (isSaving) return;
+
       apply(retryUpload(id));
       sendNext();
     },
-    [apply, sendNext],
+    [apply, isSaving, sendNext],
   );
 
   const { reset } = metadata;
