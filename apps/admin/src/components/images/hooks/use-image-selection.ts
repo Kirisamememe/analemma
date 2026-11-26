@@ -17,6 +17,8 @@ export type PickerSelection = SelectionOptions & {
     | {
         /** 1枚を選ぶ。 */
         mode: "single";
+        /** 開いたときに選択されている画像。 */
+        initialImage?: ImageSummary | undefined;
         /** 選んだ画像を受け取る。 */
         onConfirm: (image: ImageSummary) => void;
       }
@@ -29,7 +31,7 @@ export type PickerSelection = SelectionOptions & {
   );
 
 const createSelectionStore = () => {
-  let selected: ImageSelection = new Map();
+  let selected: ImageSelection | undefined;
   const listeners = new Set<() => void>();
 
   return {
@@ -48,15 +50,20 @@ const createSelectionStore = () => {
 };
 
 /** 入力欄とフッターがそれぞれの選択状態を購読するための hook。 */
-export const useImageSelection = ({
-  mode,
-  onConfirm,
-  included,
-  missing,
-  isPending = false,
-}: PickerSelection) => {
+export const useImageSelection = (picker: PickerSelection) => {
+  const { mode, onConfirm, included, missing, isPending = false } = picker;
+
   const [store] = useState(createSelectionStore);
   const group = useId();
+  const initial = picker.mode === "single" ? picker.initialImage : undefined;
+
+  const read = useMemo(() => {
+    const fallback: ImageSelection = new Map(
+      initial ? [[initial.id, initial]] : [],
+    );
+
+    return () => store.read() ?? fallback;
+  }, [initial, store]);
 
   const options = useMemo(
     () => ({ mode, included, missing }),
@@ -65,19 +72,22 @@ export const useImageSelection = ({
 
   const change = useCallback(
     (image: ImageSummary, checked: boolean) => {
-      store.update(
-        changeSelection(store.read(), { ...options, image, checked }),
-      );
+      store.update(changeSelection(read(), { ...options, image, checked }));
     },
-    [store, options],
+    [store, read, options],
   );
 
   const available = useCallback(
-    () => availableImages(store.read(), options),
-    [store, options],
+    () => availableImages(read(), options),
+    [read, options],
   );
 
   const count = useCallback(() => available().length, [available]);
+
+  const summary = useCallback(() => {
+    const images = available();
+    return mode === "multiple" ? images.length : images[0];
+  }, [available, mode]);
 
   const confirm = useCallback(() => {
     const images = available();
@@ -86,12 +96,15 @@ export const useImageSelection = ({
     else if (images[0] !== undefined) onConfirm(images[0]);
   }, [mode, onConfirm, available]);
 
-  const source = useMemo(() => ({ store, group, mode }), [store, group, mode]);
+  const source = useMemo(
+    () => ({ read, subscribe: store.subscribe, group, mode }),
+    [read, store, group, mode],
+  );
 
   const conditions = useMemo(
     () => ({ included, missing, pending: isPending, change }),
     [included, missing, isPending, change],
   );
 
-  return { source, conditions, count, confirm };
+  return { source, conditions, count, summary, confirm };
 };

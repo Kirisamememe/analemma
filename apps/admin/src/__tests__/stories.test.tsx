@@ -48,6 +48,7 @@ import * as patternsLoadingState from "@/ui/patterns/__stories__/loading-state.s
 import * as patternsPageHeader from "@/ui/patterns/__stories__/page-header.stories";
 import * as patternsProgressList from "@/ui/patterns/__stories__/progress-list.stories";
 import * as patternsSideNav from "@/ui/patterns/__stories__/side-nav.stories";
+import * as imageRadio from "@/ui/patterns/photos/__stories__/image-radio.stories";
 import * as featuresImagesImageRows from "@/ui/patterns/photos/__stories__/image-rows.stories";
 import * as imageThumbnail from "@/ui/patterns/photos/__stories__/image-thumbnail.stories";
 import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
@@ -109,6 +110,7 @@ const MODULES = {
     featuresImagesSection,
   "features/images/ui/upload/__stories__/photo-carousel.stories.tsx":
     featuresImagesPhotoCarousel,
+  "ui/patterns/photos/__stories__/image-radio.stories.tsx": imageRadio,
   "ui/patterns/photos/__stories__/image-thumbnail.stories.ts": imageThumbnail,
   "ui/patterns/photos/__stories__/image-rows.stories.tsx":
     featuresImagesImageRows,

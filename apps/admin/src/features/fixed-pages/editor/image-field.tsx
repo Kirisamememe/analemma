@@ -69,7 +69,12 @@ export const ImageField = (props: ImageFieldProps): ReactNode => {
         onRemove={remove}
       />
       {open && (
-        <ImagePicker mode="single" onConfirm={confirm} onClose={close} />
+        <ImagePicker
+          mode="single"
+          initialImage={image}
+          onConfirm={confirm}
+          onClose={close}
+        />
       )}
     </>
   );

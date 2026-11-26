@@ -74,6 +74,8 @@ const More = ({ next, onLoad, retryRef }: MoreProps): ReactNode => {
 
 /** 画像の一覧に渡す値。 */
 type ImagesSectionProps = {
+  /** 1枚の選択用に写真全体を見せるか。 */
+  singleChoice?: boolean | undefined;
   /** 選べる画像が無いときの focus の戻り先。 */
   fallbackFocus?: RefObject<HTMLButtonElement | null>;
   /** 画像を見る画面への行き先を返す関数。 */
@@ -98,7 +100,7 @@ type ImagePageProps = ImagesSectionProps & {
 
 type GalleryImageProps = Pick<
   ImagesSectionProps,
-  "imageHref" | "renderChoice"
+  "imageHref" | "renderChoice" | "singleChoice"
 > & {
   /** 表示する画像。 */
   image: ImageSummary;
@@ -113,6 +115,7 @@ const GalleryImageContent = ({
   first,
   focusFirst,
   imageHref,
+  singleChoice,
   renderChoice,
 }: GalleryImageProps): ReactNode => {
   const t = useTranslate();
@@ -120,6 +123,7 @@ const GalleryImageContent = ({
 
   return (
     <ImageTile
+      singleChoice={singleChoice}
       alt={image.alt}
       badge={image.published ? undefined : t("images.unpublished")}
       date={
@@ -143,6 +147,7 @@ const GalleryImage = memo(GalleryImageContent);
 const PageTiles = ({
   images,
   imageHref,
+  singleChoice,
   renderChoice,
   pageIndex,
   onFirstLink,
@@ -164,6 +169,7 @@ const PageTiles = ({
       focusFirst={focusFirst}
       imageHref={imageHref}
       renderChoice={renderChoice}
+      singleChoice={singleChoice}
     />
   ));
 };
@@ -174,6 +180,7 @@ const ImagePage = memo(PageTiles);
 export const ImagesSection = ({
   fallbackFocus,
   imageHref,
+  singleChoice,
   renderChoice,
 }: ImagesSectionProps): ReactNode => {
   const t = useTranslate();
@@ -251,6 +258,7 @@ export const ImagesSection = ({
             <ImagePage
               imageHref={imageHref}
               renderChoice={renderChoice}
+              singleChoice={singleChoice}
               images={images}
               key={pageIndex === 0 ? "first" : first.id} // 送った写真を先頭に足しても、最初のページを作り直さない
               onFirstLink={focusResult}

@@ -235,6 +235,7 @@ export const zhHans = {
   "fixedPageEditor.removeImage": "移除",
   "fixedPageEditor.missingImage": "图片已不存在",
   "imagePicker.title": "选择图片",
+  "imagePicker.none": "未选择图片",
   "imagePicker.selected": "已选 {{count}} 张",
   "imagePicker.confirm": "确认选择",
   "imagePicker.included": "已添加",

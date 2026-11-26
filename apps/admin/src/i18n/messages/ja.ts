@@ -263,6 +263,7 @@ export const ja = {
   "fixedPageEditor.removeImage": "外す",
   "fixedPageEditor.missingImage": "画像がありません",
   "imagePicker.title": "画像を選ぶ",
+  "imagePicker.none": "未選択",
   "imagePicker.selected": "選択中の画像 {{count}} 枚",
   "imagePicker.confirm": "選択を確定",
   "imagePicker.included": "追加済み",
