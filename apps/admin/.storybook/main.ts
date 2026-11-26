@@ -2,8 +2,13 @@ import type { StorybookConfig } from "@storybook/react-vite";
 
 import { adaptViteConfig } from "./adapt-vite-config.ts";
 import { checkStoryCatalog, STORY_GLOB } from "./check-story-catalog.ts";
+import { withCheckedStoryIndex } from "./check-story-index.ts";
 
-const config: StorybookConfig = {
+const config: StorybookConfig & {
+  /** 開発サーバーが /index.json に使う preset。 */
+  storyIndexGenerator: typeof withCheckedStoryIndex;
+} = {
+  storyIndexGenerator: withCheckedStoryIndex,
   framework: "@storybook/react-vite",
   /** 検査した story をサイドバーの対象にする。 */
   stories: async () => {

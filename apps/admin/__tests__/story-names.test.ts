@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { checkStoryCatalog } from "../.storybook/check-story-catalog";
+import { withCheckedStoryIndex } from "../.storybook/check-story-index";
 import { checkStoryNames } from "../.storybook/story-names";
 
 const file = (
@@ -92,4 +93,36 @@ describe("Storybook のサイドバーの名前", () => {
       ]);
     }).toThrow("export 名");
   });
+});
+
+test("開発中の index は編集後の表記揺れを返さず、訂正後は再び返す", async () => {
+  const entry = {
+    type: "story",
+    subtype: "story",
+    id: "features-fixed-pages--default",
+    importPath: "./src/features/fixed-pages/list/__stories__/notice.stories.ts",
+    title: "features/fixed-pages/KindRefreshNotice",
+    exportName: "Default",
+    name: "Default",
+  } as const;
+
+  let title: string = entry.title;
+
+  const generator = withCheckedStoryIndex({
+    getIndex: () =>
+      Promise.resolve({
+        v: 5,
+        entries: { [entry.id]: { ...entry, title } },
+      }),
+  });
+
+  expect((await generator.getIndex()).entries[entry.id].title).toBe(
+    entry.title,
+  );
+  title = "features/FixedPages/KindRefreshNotice";
+  expect(generator.getIndex()).rejects.toThrow("fixed-pages");
+  title = entry.title;
+  expect((await generator.getIndex()).entries[entry.id].title).toBe(
+    entry.title,
+  );
 });
