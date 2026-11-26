@@ -271,7 +271,7 @@ export const createExternalApp = (
           defaultSrc: ["'none'"],
           scriptSrc: ["'self'", ...dist.scriptHashes],
           styleSrc: ["'self'", NONCE],
-          imgSrc: ["'self'"],
+          imgSrc: ["'self'", "blob:"],
           connectSrc: ["'self'"],
           baseUri: ["'none'"],
           formAction: ["'none'"],

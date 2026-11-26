@@ -107,6 +107,7 @@ describe("管理画面の静的ファイル", () => {
         ["script-src 'self'", ...hashes].join(" "),
       );
       expect(csp?.split("; ")).toContain(`style-src 'self' 'nonce-${nonce}'`);
+      expect(csp?.split("; ")).toContain("img-src 'self' blob:");
       expect(csp).toContain("frame-ancestors 'none'");
       expect(response.headers.get("x-frame-options")).toBe("DENY");
       expect(response.headers.get("permissions-policy")).toContain(

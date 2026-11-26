@@ -245,6 +245,14 @@
   }
 }
 
+@utility trim-cap-height {
+  text-box: trim-both cap alphabetic;
+}
+
+@utility h-photo-preview {
+  height: clamp(7rem, 29vw, 10.5rem);
+}
+
 @utility object-focal {
   object-position: var(--focal-x, 50%) var(--focal-y, 50%);
 }

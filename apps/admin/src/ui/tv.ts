@@ -44,7 +44,7 @@ const MERGE_CONFIG: TWMergeConfig = {
       animate: ["spin", "pulse"],
     },
     classGroups: {
-      h: ["h-control", "h-control-sm", "h-nav-bar"],
+      h: ["h-control", "h-control-sm", "h-nav-bar", "h-photo-preview"],
       "max-h": ["max-h-viewer-photo"],
       "min-h": ["min-h-nav-bar"],
       top: ["top-toast"],
