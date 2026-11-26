@@ -122,3 +122,30 @@ describe("createFakeApi", () => {
     expect(response.headers.get("Content-Type")).toMatch(/^text\/plain/v);
   });
 });
+
+test("写真の進み具合を作り物の送信から通知し、ほかの procedure では通知しない", async () => {
+  const progress: number[] = [];
+
+  const { api } = createFakeApi({}, (report) => {
+    report(0.42);
+  });
+
+  const context = {
+    onUploadProgress: (fraction: number) => progress.push(fraction),
+  };
+
+  const photo = new File(["photo"], "lake.jpg", { type: "image/jpeg" });
+
+  expect(
+    await api.admin.images
+      .upload({ photo }, { context })
+      .catch((error: unknown) => error),
+  ).toMatchObject({ code: "NOT_FOUND" });
+  expect(progress).toEqual([0.42]);
+  expect(
+    await api.admin.session
+      .get(undefined, { context })
+      .catch((error: unknown) => error),
+  ).toMatchObject({ code: "NOT_FOUND" });
+  expect(progress).toEqual([0.42]);
+});

@@ -10,7 +10,11 @@ import {
   gateAdminRequests,
 } from "@/features/auth/create-auth-gate";
 import type { Authenticator } from "@/features/auth/webauthn";
-import { type FakeRoutes, createFakeApi } from "@/testing/create-fake-api";
+import {
+  type FakeRoutes,
+  type FakeUploadProgress,
+  createFakeApi,
+} from "@/testing/create-fake-api";
 
 /** 組み立てる管理画面の条件。 */
 export type TestAppOptions = {
@@ -18,6 +22,8 @@ export type TestAppOptions = {
   readonly path: string;
   /** 作り物の server の応答。 */
   readonly routes: FakeRoutes;
+  /** 写真の送信中に作り物の進み具合を通知する。 */
+  readonly uploadProgress?: FakeUploadProgress | undefined;
   /** 作り物の認証器。 */
   readonly authenticator?: Authenticator;
   /** 画面の履歴(省くと、最初に開くパスから始まる memory の履歴)。 */
@@ -41,10 +47,11 @@ const NO_AUTHENTICATOR: Authenticator = {
 export const createTestApp = ({
   path,
   routes,
+  uploadProgress,
   authenticator = NO_AUTHENTICATOR,
   history = createMemoryHistory({ initialEntries: [path] }),
 }: TestAppOptions): TestApp => {
-  const { calls, fetch } = createFakeApi(routes);
+  const { calls, fetch } = createFakeApi(routes, uploadProgress);
   const gate = createAuthGate();
 
   const api = createApiClient({
