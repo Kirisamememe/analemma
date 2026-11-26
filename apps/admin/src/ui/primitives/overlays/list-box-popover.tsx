@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { ListBox, ListBoxItem, Popover } from "react-aria-components";
 
+import { overlayPanel } from "./overlay-panel-style";
+
 import { Icon, type IconName } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
@@ -9,7 +11,8 @@ const listBoxPopover = tv({
   slots: {
     popover: [
       "z-overlay w-(--trigger-width) overflow-y-auto overscroll-contain",
-      "rounded-control bg-surface text-fg shadow-overlay outline outline-fg/10",
+      "rounded-control",
+      overlayPanel(),
     ],
     heading: "px-3 pt-2 text-fg-muted",
     option: [
