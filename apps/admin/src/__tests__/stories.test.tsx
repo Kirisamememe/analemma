@@ -22,6 +22,7 @@ import * as featuresImagesSection from "@/features/images/list/__stories__/image
 import * as featuresImagesImageRows from "@/features/images/ui/__stories__/image-rows.stories";
 import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/image-viewer.stories";
 import * as featuresImagesInfoList from "@/features/images/ui/__stories__/info-list.stories";
+import * as uploadPhotoFields from "@/features/images/upload/__stories__/upload-photo-fields.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
 import * as routesEnrollPage from "@/routes/auth/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/auth/__stories__/login-page.stories";
@@ -89,6 +90,8 @@ const MODULES = {
     kindRefreshNotice,
   "features/fixed-pages/ui/__stories__/content-group.stories.tsx":
     featuresFixedPagesContentGroup,
+  "features/images/upload/__stories__/upload-photo-fields.stories.tsx":
+    uploadPhotoFields,
   "features/images/detail/__stories__/image-detail.stories.tsx":
     featuresImagesImageDetail,
   "features/images/list/__stories__/images-section.stories.tsx":
