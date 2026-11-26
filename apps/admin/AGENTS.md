@@ -1,6 +1,6 @@
 # admin(Stilus、管理画面)
 
-理由は同じフォルダの `DECISIONS.md` にある。デザインシステムの理由は `src/ui/DECISIONS.md` にある。
+理由は同じフォルダの `DECISIONS.md` にある。デザインシステムの理由は `src/ui/DECISIONS.md` にある。border と outline を使う前に、同文書の「枠と面の境界」を確認する。
 
 ## 構成
 

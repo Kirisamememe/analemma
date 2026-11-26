@@ -1,7 +1,7 @@
 import { tv } from "../tv";
 
 const swatch = tv({
-  base: "size-control rounded-control border",
+  base: "size-control rounded-control outline -outline-offset-1 outline-fg/10",
   variants: {
     color: {
       focus: "bg-focus",
