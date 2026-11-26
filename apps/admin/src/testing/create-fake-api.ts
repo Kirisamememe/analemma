@@ -24,7 +24,7 @@ type Reply<Output, Code extends string> =
     }
   | {
       /** contract に定義していない失敗の code。 */
-      readonly error: "INTERNAL_SERVER_ERROR";
+      readonly error: "INTERNAL_SERVER_ERROR" | "SERVICE_UNAVAILABLE";
       /** contract に定義した失敗か。 */
       readonly defined: false;
     };

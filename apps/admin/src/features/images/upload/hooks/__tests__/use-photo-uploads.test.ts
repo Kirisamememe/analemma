@@ -2,6 +2,7 @@ import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, mock, test } from "bun:test";
 
 import { imageQueryKey } from "@/features/images/detail/queries/image-query";
+import { IMAGES_QUERY_KEY } from "@/features/images/queries/images-query";
 import { usePhotoUploads } from "@/features/images/upload/hooks/use-photo-uploads";
 import type { FakeRoutes } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
@@ -13,57 +14,44 @@ afterEach(cleanup);
 const photo = (name: string): File =>
   new File(["x"], name, { type: name.endsWith(".bmp") ? "image/bmp" : "" });
 
-/** 次の応答の決め方。 */
-type Answer = {
-  /** 送れなかったことにするか。 */
-  readonly fail?: boolean;
-};
+type Outcome = "added" | "busy" | "expired";
 
-/** 写真を送る procedure を、テストから1回ずつ答えさせる作り物。 */
 const holdUploads = () => {
-  const server = createImageRoutes([]);
-  const upload = server.routes["admin/images/upload"];
-  const waiting: (() => void)[] = [];
-  let inFlight = 0;
+  const server = createImageRoutes();
+  const waiting = new Map<string, PromiseWithResolvers<Outcome>>();
   let mostInFlight = 0;
-  let failNext = false;
 
   const routes: FakeRoutes = {
     ...server.routes,
     "admin/images/upload": async (input) => {
-      inFlight += 1;
-      mostInFlight = Math.max(mostInFlight, inFlight);
+      const request = Promise.withResolvers<Outcome>();
 
-      const { promise, resolve } = Promise.withResolvers<undefined>();
+      waiting.set(input.photo.name, request);
+      mostInFlight = Math.max(mostInFlight, waiting.size);
+      const outcome = await request.promise;
+      waiting.delete(input.photo.name);
 
-      waiting.push(() => {
-        resolve(undefined);
-      });
-      await promise;
-      inFlight -= 1;
-
-      if (failNext) {
-        failNext = false;
-
-        return { error: "INTERNAL_SERVER_ERROR", defined: false } as const;
+      if (outcome === "busy") {
+        return { error: "SERVICE_UNAVAILABLE", defined: false } as const;
       }
 
-      return upload(input);
+      if (outcome === "expired") return { error: "UNAUTHORIZED" } as const;
+
+      return server.routes["admin/images/upload"](input);
     },
   };
 
-  return {
-    server,
-    routes,
-    answer: async (options: Answer = {}): Promise<void> => {
-      await waitFor(() => {
-        expect(waiting).toHaveLength(1);
-      });
-      failNext = options.fail === true;
-      waiting.shift()?.();
-    },
-    mostInFlight: () => mostInFlight,
+  const answer = async (
+    name: string,
+    outcome: Outcome = "added",
+  ): Promise<void> => {
+    await waitFor(() => {
+      expect(waiting.has(name)).toBe(true);
+    });
+    waiting.get(name)?.resolve(outcome);
   };
+
+  return { server, routes, answer, mostInFlight: () => mostInFlight };
 };
 
 const render = async (routes: FakeRoutes, onComplete?: () => void) => {
@@ -82,93 +70,129 @@ const statuses = (
   uploads: ReturnType<typeof usePhotoUploads>["uploads"],
 ): string[] => uploads.map(({ file, status }) => `${file.name}: ${status}`);
 
-test("選んだ写真を1枚ずつ送り、結果を写真ごとに示し、送れなかった写真だけを送り直せる", async () => {
+test("2枚ずつ送り、後に選んだ写真が先に応答しても空いた枠で続け、503 になった写真を送り直せる", async () => {
   const held = holdUploads();
   const { result } = await render(held.routes);
 
   act(() => {
     result.current.add([photo("a.heic"), photo("b.bmp"), photo("c.jpg")]);
+    result.current.add([photo("d.jpg")]);
   });
-
   expect(statuses(result.current.uploads)).toEqual([
     "a.heic: sending",
-    "b.bmp: waiting",
+    "b.bmp: sending",
     "c.jpg: waiting",
+    "d.jpg: waiting",
   ]);
 
-  await held.answer();
-  await held.answer();
-  await held.answer({ fail: true });
-
+  await held.answer("b.bmp");
+  await held.answer("c.jpg", "busy");
+  await waitFor(() => {
+    expect(statuses(result.current.uploads)).toEqual([
+      "a.heic: sending",
+      "b.bmp: unsupported",
+      "c.jpg: failed",
+      "d.jpg: sending",
+    ]);
+  });
+  act(() => {
+    result.current.retry(3);
+    result.current.retry(3);
+  });
+  expect(result.current.uploads[2]?.status).toBe("waiting");
+  await held.answer("d.jpg");
+  await held.answer("c.jpg");
+  await held.answer("a.heic");
   await waitFor(() => {
     expect(statuses(result.current.uploads)).toEqual([
       "a.heic: added",
       "b.bmp: unsupported",
-      "c.jpg: failed",
+      "c.jpg: added",
+      "d.jpg: added",
     ]);
   });
-  expect(held.mostInFlight()).toBe(1);
-
-  act(() => {
-    result.current.retry(3);
-  });
-  await held.answer();
-
-  await waitFor(() => {
-    expect(statuses(result.current.uploads)).toContain("c.jpg: added");
-  });
-  expect(held.server.images()).toHaveLength(2);
-
+  expect(held.mostInFlight()).toBe(2);
+  expect(held.server.images()).toHaveLength(3);
   act(() => {
     result.current.clear();
   });
   expect(result.current.uploads).toEqual([]);
 });
 
-test("画面を離れた後は、次の写真を送らない", async () => {
+test("先に登録した写真の応答が最後に届いても、一覧を server と同じ順に保つ", async () => {
+  const server = createImageRoutes();
+  const resume = Promise.withResolvers<undefined>();
+
+  const { result, queryClient } = await render({
+    ...server.routes,
+    "admin/images/upload": async (input) => {
+      const reply = server.routes["admin/images/upload"](input);
+
+      if (input.photo.name === "a.jpg") await resume.promise;
+
+      return reply;
+    },
+  });
+
+  queryClient.setQueryDefaults(IMAGES_QUERY_KEY, { gcTime: Infinity });
+  queryClient.setQueryData(IMAGES_QUERY_KEY, {
+    pageParams: [undefined],
+    pages: [{ images: [], nextCursor: null }],
+  });
+  act(() => {
+    result.current.add([photo("a.jpg"), photo("b.jpg")]);
+  });
+  await waitFor(() => {
+    expect(statuses(result.current.uploads)).toEqual([
+      "a.jpg: sending",
+      "b.jpg: added",
+    ]);
+  });
+  resume.resolve(undefined);
+  await waitFor(() => {
+    expect(queryClient.getQueryData(IMAGES_QUERY_KEY)).toMatchObject({
+      pages: [{ images: server.images() }],
+    });
+  });
+});
+
+test("画面を離れたら、送信済みの2枚が完了しても待機中の写真を送らない", async () => {
   const held = holdUploads();
   const { result } = await render(held.routes);
   const stopTracking = result.current.track(document.createElement("section"));
 
   act(() => {
-    result.current.add([photo("a.jpg"), photo("b.jpg")]);
+    result.current.add([photo("a.jpg"), photo("b.jpg"), photo("c.jpg")]);
   });
-
   stopTracking?.();
-  await held.answer();
-
+  await held.answer("b.jpg");
+  await held.answer("a.jpg");
   await waitFor(() => {
     expect(statuses(result.current.uploads)).toEqual([
       "a.jpg: added",
-      "b.jpg: waiting",
+      "b.jpg: added",
+      "c.jpg: waiting",
     ]);
   });
-  expect(held.server.images()).toHaveLength(1);
 });
 
-test("ログインの画面へ移るなら、確かめずに移り、次の写真を送らない", async () => {
+test("並行して送った写真の1枚が401なら、もう1枚の成功後も待機中の写真を送らない", async () => {
   const held = holdUploads();
   const { result, history } = await render(held.routes);
 
   act(() => {
-    result.current.add([photo("a.jpg"), photo("b.jpg")]);
+    result.current.add([photo("a.jpg"), photo("b.jpg"), photo("c.jpg")]);
   });
-
-  history.push("/login");
-
+  await held.answer("b.jpg", "expired");
   await waitFor(() => {
     expect(history.location.pathname).toBe("/login");
   });
-  expect(result.current.leaving._tag).toBe("Idle");
-
-  await held.answer();
-
+  await held.answer("a.jpg");
   await waitFor(() => {
-    expect(statuses(result.current.uploads)).toEqual([
-      "a.jpg: added",
-      "b.jpg: waiting",
-    ]);
+    expect(result.current.uploads[0]?.status).toBe("added");
   });
+  expect(result.current.leaving._tag).toBe("Idle");
+  expect(result.current.uploads[2]?.status).toBe("waiting");
 });
 
 test("描き直しても、写真を足す・送り直す・閉じる関数は変わらない", async () => {
@@ -199,7 +223,7 @@ test("送っている間の入力は送信後も残り、保存せずに画面�
     result.current.metadata.finish();
   });
   expect(result.current.uploads).toHaveLength(1);
-  await held.answer();
+  await held.answer("a.jpg");
 
   await waitFor(() => {
     expect(result.current.uploads[0]?.status).toBe("added");
