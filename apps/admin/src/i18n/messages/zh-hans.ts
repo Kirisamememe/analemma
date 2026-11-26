@@ -230,7 +230,7 @@ export const zhHans = {
   "fixedPages.deleted": "已删除“{{title}}”。",
   "fixedPages.deleteFailed": "无法删除固定页面，请重试。",
   "fixedPageEditor.imageAction": "{{action}}（{{target}}）",
-  "fixedPageEditor.chooseImage": "选择图片",
+  "fixedPageEditor.chooseImage": "从图库中选择",
   "fixedPageEditor.replaceImage": "更换",
   "fixedPageEditor.removeImage": "移除",
   "fixedPageEditor.missingImage": "图片已不存在",

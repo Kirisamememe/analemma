@@ -30,6 +30,7 @@
 @theme static {
   --*: initial;
 
+  --blur-media: 0.5rem;
   --spacing: 0.25rem;
   --spacing-panel: --spacing(4);
   --spacing-nested-branch: calc(0.25rem + 1px);
@@ -280,6 +281,19 @@
 
 @utility w-sidebar {
   width: var(--size-sidebar);
+}
+
+@utility photo-caption-background {
+  background-image: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in oklab, var(--color-scrim) 60%, transparent) 1rem,
+    color-mix(in oklab, var(--color-scrim) 80%, transparent)
+  );
+}
+
+@utility max-h-field-photo {
+  max-height: 50svh;
 }
 
 @utility max-h-viewer-photo {

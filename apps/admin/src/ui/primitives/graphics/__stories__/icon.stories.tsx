@@ -6,6 +6,7 @@ import { Icon, type IconName } from "@/ui/primitives/graphics/icon";
 
 const NAMES: readonly IconName[] = [
   "arrow-down",
+  "arrow-left-right",
   "arrow-up",
   "check",
   "chevron-down",

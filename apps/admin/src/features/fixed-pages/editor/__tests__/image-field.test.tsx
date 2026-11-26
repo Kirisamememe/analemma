@@ -141,7 +141,9 @@ test.each(["group の未入力", "必須の誤り", "repeat の画像"])(
     const target = scenario === "repeat の画像" ? "行 2" : "紹介";
     const section = within(screen.getByRole("group", { name: target }));
 
-    const action = scenario === "repeat の画像" ? "替える" : "画像を選ぶ";
+    const action =
+      scenario === "repeat の画像" ? "差し替える" : "画像一覧から選ぶ";
+
     const trigger = button(`${action}（${target} / 肖像）`);
 
     if (scenario === "必須の誤り") {
@@ -150,7 +152,7 @@ test.each(["group の未入力", "必須の誤り", "repeat の画像"])(
       await save();
       expect(section.getByText("必須")).toBeDefined();
       await section.findByRole("button", {
-        name: "画像を選ぶ（紹介 / 肖像）",
+        name: "画像一覧から選ぶ（紹介 / 肖像）",
         description: "入力してください。",
       });
       await waitFor(() => {
@@ -195,12 +197,15 @@ test("非公開と削除済みの画像を保って保存でき、取り替え�
   await screen.findByText("固定ページを更新しました。");
   expect(server.pages()[0]?.content).toEqual(saved);
   await userEvent.keyboard("{Escape}");
-  await pickRidge(button("替える（行 2 / 肖像）"), "キャンセル");
+  await pickRidge(button("差し替える（行 2 / 肖像）"), "キャンセル");
   expect(second.getByText("画像がありません")).toBeDefined();
-  await pickRidge(button("替える（行 2 / 肖像）"), "選択を確定");
+  await pickRidge(button("差し替える（行 2 / 肖像）"), "選択を確定");
   const image = await second.findByRole("img", { name: /夕日の残る空/v });
   expect(image.getAttribute("src")).toContain("dusk-ridge");
   await userEvent.click(button("外す（行 1 / 肖像）"));
+  expect(document.activeElement).toBe(
+    button("画像一覧から選ぶ（行 1 / 肖像）"),
+  );
   await save();
   await waitFor(() => {
     expect(server.pages()[0]?.content).toEqual({
@@ -258,12 +263,10 @@ test("画像の初回取得と再取得の失敗を欄で再試行し、最新�
   const retry = await screen.findByRole("button", { name: "もう一度試す" });
   expect(screen.queryByText("画像がありません")).toBeNull();
   await userEvent.tab();
-  await userEvent.tab();
-  await userEvent.tab();
   expect(document.activeElement).toBe(retry);
   await userEvent.keyboard("{Enter}");
   await screen.findByText("海");
-  expect(document.activeElement).toBe(button("替える（表紙）"));
+  expect(document.activeElement).toBe(button("差し替える（表紙）"));
   server.routes["admin/images/unpublish"]({ id });
   failNext();
   rerender(
@@ -284,5 +287,5 @@ test("画像の初回取得と再取得の失敗を欄で再試行し、最新�
   await waitFor(() => {
     expect(screen.getAllByText("非公開")).toHaveLength(2);
   });
-  expect(document.activeElement).toBe(button("替える（挿絵）"));
+  expect(document.activeElement).toBe(button("差し替える（挿絵）"));
 });

@@ -14,7 +14,9 @@ const library = createImageRoutes(SAMPLE_IMAGES);
 const [cover] = library.images();
 const privateCover = library.images().find((image) => !image.published);
 
-if (cover === undefined || privateCover === undefined) {
+const portrait = library.images().find((image) => image.title === "細い路地");
+
+if (!cover || !privateCover || !portrait) {
   throw new Error("見本の画像がありません");
 }
 
@@ -192,6 +194,10 @@ const imageArgs = (coverId?: string, optional = false) => ({
     return { ...library.routes, ...server.routes };
   },
 });
+
+export const SelectedImage: Story = { args: imageArgs(cover.id, true) };
+
+export const PortraitImage: Story = { args: imageArgs(portrait.id, true) };
 
 export const EmptyImage: Story = { args: imageArgs(undefined, true) };
 export const UnpublishedImage: Story = { args: imageArgs(privateCover.id) };
