@@ -2,6 +2,21 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { AppPreview } from "@/testing/app-preview";
 import type { FakeOutput, FakeRoutes } from "@/testing/create-fake-api";
+import { createFixedPageRoutes } from "@/testing/fake-routes/create-fixed-page-routes";
+import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
+import { SAMPLE_IMAGES } from "@/testing/sample-photos";
+
+// --------------------
+// 編集画面の見本のデータと作り物の server
+// --------------------
+
+const library = createImageRoutes(SAMPLE_IMAGES);
+const [cover] = library.images();
+const privateCover = library.images().find((image) => !image.published);
+
+if (cover === undefined || privateCover === undefined) {
+  throw new Error("見本の画像がありません");
+}
 
 const DATE = "2026-03-01T09:00:00.000Z";
 const PAGE_ID = "019a0000-0000-7000-8000-000000000001";
@@ -12,6 +27,7 @@ const ABOUT = {
   createdAt: DATE,
   updatedAt: DATE,
   fields: [
+    { key: "cover", type: "image", label: "表紙", optional: false },
     { key: "lead", type: "text", label: "リード文", optional: false },
     { key: "body", type: "longText", label: "本文", optional: false },
     { key: "website", type: "url", label: "Web サイト", optional: true },
@@ -65,6 +81,7 @@ const ABOUT = {
       optional: true,
       fields: [
         { key: "label", type: "text", label: "表示名", optional: false },
+        { key: "photo", type: "image", label: "写真", optional: true },
         { key: "url", type: "url", label: "URL", optional: false },
       ],
     },
@@ -84,6 +101,7 @@ const PAGE = {
   createdAt: DATE,
   updatedAt: DATE,
   content: {
+    cover: cover.id,
     lead: "写真と文章を置いている個人サイトです。",
     body: "撮った写真と、旅の記録を置いています。\n更新はゆっくりです。",
     website: "https://example.com",
@@ -99,7 +117,11 @@ const PAGE = {
       ],
     },
     links: [
-      { label: "写真", url: "https://example.com/photos" },
+      {
+        label: "写真",
+        url: "https://example.com/photos",
+        photo: privateCover.id,
+      },
       { label: "日記", url: "https://example.com/notes" },
       { label: "連絡先", url: "https://example.com/contact" },
     ],
@@ -107,6 +129,7 @@ const PAGE = {
 } satisfies FakeOutput<"admin/fixedPages/get">;
 
 const signedIn = {
+  ...library.routes,
   "admin/session/get": () => ({
     output: { expiresAt: "2026-03-02T09:00:00Z" },
   }),
@@ -146,6 +169,38 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Edit: Story = {};
+
+// --------------------
+// 画像の項目
+// --------------------
+
+const imageArgs = (coverId?: string, optional = false) => ({
+  /** 表紙を指定した状態で開き、保存時に定義で中身を確かめる server。 */
+  createRoutes: () => {
+    const { cover: _, ...rest } = PAGE.content;
+    const content = coverId === undefined ? rest : { ...rest, cover: coverId };
+
+    const fields = ABOUT.fields.map((field) =>
+      field.type === "image" ? { ...field, optional } : field,
+    );
+
+    const server = createFixedPageRoutes({
+      kinds: [{ name: ABOUT.name, label: ABOUT.label, fields }],
+      pages: [{ ...PAGE, content }],
+    });
+
+    return { ...library.routes, ...server.routes };
+  },
+});
+
+export const EmptyImage: Story = { args: imageArgs(undefined, true) };
+export const UnpublishedImage: Story = { args: imageArgs(privateCover.id) };
+export const MissingImage: Story = { args: imageArgs(PAGE_ID) };
+export const RequiredImageError: Story = { args: imageArgs() };
+
+// --------------------
+// 固定ページの作成・保存・削除
+// --------------------
 
 export const ChooseKind: Story = {
   args: { path: "/fixed-pages/new" },
@@ -267,6 +322,10 @@ export const DeleteFailed: Story = {
     }),
   },
 };
+
+// --------------------
+// 読み込みの失敗
+// --------------------
 
 export const KindLoadFailed: Story = {
   args: {

@@ -1,12 +1,12 @@
 import { mergeImageChange } from "../logic/merge-image-change";
-import {
-  type AdminImage,
-  IMAGE_NEIGHBORS_QUERY_KEY,
-  imageQueryKey,
-  type LoadedImage,
-} from "../queries/image-query";
+import { IMAGE_NEIGHBORS_QUERY_KEY } from "../queries/image-neighbors-query";
 
 import { useApiCache } from "@/api/server-state/server-state";
+import {
+  type AdminImage,
+  imageQueryKey,
+  type LoadedImage,
+} from "@/queries/image-query";
 import { IMAGES_QUERY_KEY, updateImagePage } from "@/queries/images-query";
 
 /** 画像を変えた応答を、写真を見る画面と一覧のキャッシュに当てる関数を返す。 */

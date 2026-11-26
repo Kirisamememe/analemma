@@ -5,10 +5,6 @@ import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { isValidImageText } from "@/features/images/detail/logic/image-text";
 import { mergeImageChange } from "@/features/images/detail/logic/merge-image-change";
 import {
-  imageQueryKey,
-  type LoadedImage,
-} from "@/features/images/detail/queries/image-query";
-import {
   isUploading,
   type PhotoUpload,
 } from "@/features/images/upload/logic/photo-uploads";
@@ -16,6 +12,7 @@ import {
   saveUploadMetadata,
   type UploadMetadata,
 } from "@/features/images/upload/queries/save-upload-metadata";
+import { imageQueryKey, type LoadedImage } from "@/queries/image-query";
 import { IMAGES_QUERY_KEY, updateImagePage } from "@/queries/images-query";
 
 const EMPTY = { title: "", description: "" };

@@ -16,6 +16,8 @@ type Submission = {
 type BoundIssue = {
   /** フォームの項目のキーと repeat の要素の ID の並び。 */
   readonly location: string[];
+  /** 画像の選択ボタンに出す誤りか。 */
+  readonly image?: true;
   /** この場所に結びつけた中身の issue。 */
   readonly issue: ContentIssue;
 };
@@ -23,7 +25,7 @@ type BoundIssue = {
 const findLocation = (
   submission: Submission,
   path: ContentIssue["path"],
-): string[] | undefined => {
+): Omit<BoundIssue, "issue"> | undefined => {
   let { fields, submitted } = submission;
   const location: string[] = [];
   let offset = 0;
@@ -37,7 +39,9 @@ const findLocation = (
     location.push(field.key);
     offset += 1;
 
-    if (offset === path.length) return location;
+    if (offset === path.length) {
+      return field.type === "image" ? { location, image: true } : { location };
+    }
 
     const value = submitted.values[field.key];
 
@@ -59,7 +63,7 @@ const findLocation = (
     fields = field.fields;
   }
 
-  return location.length > 0 ? location : undefined;
+  return location.length > 0 ? { location } : undefined;
 };
 
 /** 中身の issue を、送ったときのフォームの場所に結びつける。 */
@@ -76,7 +80,7 @@ export const bindContentIssues = (
     if (location === undefined) {
       unbound.push(issue);
     } else {
-      bound.push({ location, issue });
+      bound.push({ ...location, issue });
     }
   }
 

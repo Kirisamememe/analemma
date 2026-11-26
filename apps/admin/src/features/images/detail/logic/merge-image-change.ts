@@ -1,4 +1,4 @@
-import type { AdminImage } from "../queries/image-query";
+import type { AdminImage } from "@/queries/image-query";
 
 /** その操作が変えた欄と更新日時を、手元にある最新の画像に反映する。 */
 export const mergeImageChange =

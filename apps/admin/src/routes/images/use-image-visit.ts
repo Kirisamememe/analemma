@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import type { ApiOutputs } from "@/api/api-types";
-import { useViewerImage } from "@/features/images/detail/hooks/use-viewer-image";
+import { useImage } from "@/components/images/hooks/use-image";
 
 type Image = ApiOutputs["admin"]["images"]["get"];
 
@@ -16,7 +16,7 @@ type Visit = {
 
 /** URL と表示中の写真を照らし合わせ、次の写真の準備を待つ。 */
 export const useImageVisit = (id: string) => {
-  const query = useViewerImage(id);
+  const query = useImage(id, { keepDataOnRefreshError: true });
   const [visit, setVisit] = useState<Visit>({ id });
 
   const current =

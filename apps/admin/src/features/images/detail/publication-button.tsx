@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
 import { usePublication } from "./hooks/use-publication";
-import type { AdminImage } from "./queries/image-query";
 
 import { useTranslate } from "@/i18n/use-translate";
+import type { AdminImage } from "@/queries/image-query";
 import { Cluster } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Dialog } from "@/ui/primitives/overlays";

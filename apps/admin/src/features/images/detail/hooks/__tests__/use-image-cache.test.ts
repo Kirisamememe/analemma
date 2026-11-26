@@ -1,9 +1,9 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
-import { imageQueryKey, loadImage } from "../../queries/image-query";
 import { useImageCache } from "../use-image-cache";
 
+import { imageQueryKey, loadImage } from "@/queries/image-query";
 import { IMAGES_QUERY_KEY } from "@/queries/images-query";
 import { createFakeApi } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";

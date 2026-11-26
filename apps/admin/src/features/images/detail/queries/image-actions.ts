@@ -1,8 +1,8 @@
 import { type ImageText, toUpdateInput } from "../logic/image-text";
-import type { AdminImage } from "./image-query";
 
 import type { ApiClient } from "@/api/api-types";
 import { callApi } from "@/api/call-api";
+import type { AdminImage } from "@/queries/image-query";
 
 /** 書き換える画像と、フォームの値。 */
 export type ImageTextChange = {

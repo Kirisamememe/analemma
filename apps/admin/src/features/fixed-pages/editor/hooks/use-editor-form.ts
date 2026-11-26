@@ -6,6 +6,7 @@ import { createEditorValues } from "../create-editor-values";
 import {
   clearChangedErrors,
   type FieldErrors,
+  type RefusedSave,
   refusedSaveErrors,
 } from "../logic/editor-errors";
 import type { EditorValues } from "../logic/flat-content";
@@ -77,6 +78,7 @@ export const useEditorForm = (
   const sending = useRef(false);
   const failure = useFailureToast();
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [imageErrors, setImageErrors] = useState<RefusedSave["images"]>();
   const focusOnRender = useRef<FieldErrors>(undefined);
 
   const attachRoot = useCallback(
@@ -135,6 +137,8 @@ export const useEditorForm = (
 
       const refused = refusedSaveErrors(result, t);
 
+      setImageErrors(refused.images);
+
       focusOnRender.current = refused.fields;
       setErrors(refused.fields);
       failure.show(refused.message);
@@ -153,6 +157,7 @@ export const useEditorForm = (
       failure.close();
       setSaveStatus("pending");
       setErrors({});
+      setImageErrors(undefined);
       sending.current = true;
       onEditing?.(true);
       saving.mutate(value);
@@ -221,6 +226,7 @@ export const useEditorForm = (
     form,
     fields: base.fields,
     errors,
+    imageErrors,
     changed,
     check,
     root: observeInput,

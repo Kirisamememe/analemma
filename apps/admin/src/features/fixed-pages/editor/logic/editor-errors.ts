@@ -29,6 +29,8 @@ export type FieldErrors = Record<string, string>;
 export type RefusedSave = {
   /** slug・タイトルと、中身の場所ごとの知らせ。 */
   fields: FieldErrors;
+  /** 画像の項目に直接渡す知らせ。 */
+  images?: Readonly<Record<string, Pick<ContentIssue, "message">>>;
   /** 失敗の Toast に出す文。 */
   message: string;
 };
@@ -39,21 +41,25 @@ export const contentErrors = (
   t: ReturnType<typeof useTranslate>,
 ): RefusedSave => {
   const fields: FieldErrors = {};
+  const images: Record<string, Pick<ContentIssue, "message">> = {};
   const translate = (issue: ContentIssue) => t(issueMessage(issue.code));
 
-  for (const { location, issue } of issues.bound) {
+  for (const { location, image, issue } of issues.bound) {
     const name = "content." + location.join("/");
     const message = translate(issue);
-    const previous = fields[name];
+    const previous = image === true ? images[name]?.message : fields[name];
 
-    fields[name] =
-      previous === undefined || previous.includes(message)
-        ? message
-        : previous + " " + message;
+    if (previous?.includes(message) === true) continue;
+
+    const combined =
+      previous === undefined ? message : previous + " " + message;
+
+    if (image === true) images[name] = { message: combined };
+    else fields[name] = combined;
   }
 
   if (issues.unbound.length === 0 && issues.bound.length > 0) {
-    return { fields, message: t("fixedPageEditor.invalidContent") };
+    return { fields, images, message: t("fixedPageEditor.invalidContent") };
   }
 
   const messages = issues.unbound.map((issue) =>
@@ -65,6 +71,7 @@ export const contentErrors = (
 
   return {
     fields,
+    images,
     message: [t("fixedPageEditor.changedKind"), ...messages].join(" "),
   };
 };

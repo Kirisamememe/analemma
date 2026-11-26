@@ -91,8 +91,10 @@ const EditorContent = ({
   onDeleteOpen,
   fieldsChanged,
 }: EditorProps): ReactNode => {
+  const editor = useEditorForm(props, onEditing);
+
   const { form, fields, root, errors, changed, check, saving, leaving } =
-    useEditorForm(props, onEditing);
+    editor;
 
   const { kind, page } = props;
   const t = useTranslate();
@@ -176,6 +178,7 @@ const EditorContent = ({
               <ContentFields
                 form={form}
                 fields={fields}
+                imageErrors={editor.imageErrors}
                 prefix=""
                 errors={errors}
                 changed={changed}

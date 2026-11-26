@@ -30,7 +30,7 @@ type RepeatFieldProps = Pick<
   /** repeat の場所。 */
   path: string;
   /** 各要素の項目を描く関数。 */
-  children: (path: string) => ReactNode;
+  children: (path: string, label: string) => ReactNode;
 };
 
 /** repeat の1つの要素に渡す値。 */
@@ -54,7 +54,7 @@ type RepeatItemProps = {
   /** focus を移すボタンを覚える関数。 */
   remember: (focus: RepeatFocus) => (button: HTMLButtonElement | null) => void;
   /** 要素の項目を描く関数。 */
-  children: (path: string) => ReactNode;
+  children: (path: string, label: string) => ReactNode;
 };
 
 const RepeatItemContent = ({
@@ -72,6 +72,7 @@ const RepeatItemContent = ({
   const t = useTranslate();
   const item = path + "/" + id;
   const name = { label, position };
+  const itemLabel = t("fixedPageEditor.item", name);
 
   return (
     <Branch parent="repeat" target="item">
@@ -120,9 +121,9 @@ const RepeatItemContent = ({
         }
         error={error}
         kind="item"
-        label={t("fixedPageEditor.item", name)}
+        label={itemLabel}
       >
-        {children(item)}
+        {children(item, itemLabel)}
       </ContentGroup>
     </Branch>
   );
