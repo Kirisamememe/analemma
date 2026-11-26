@@ -80,10 +80,12 @@ test("写真をナビや Dialog の背景に落としても公開せず、ファ
   const nav = document.createElement("nav");
   document.body.append(main, panel, nav);
   const receive = mock<(files: readonly File[]) => void>();
+
   const { result, rerender } = renderHook(
     (target: HTMLElement) => usePhotoDrop(target, receive),
     { initialProps: main },
   );
+
   const data = new DataTransfer();
   data.items.add(new File(["photo"], "private.jpg"));
   const drag = { dataTransfer: data };
@@ -91,10 +93,12 @@ test("写真をナビや Dialog の背景に落としても公開せず、ファ
   expect(result.current).toBe(true);
   fireEvent.dragEnter(nav, drag);
   expect(result.current).toBe(false);
+
   const over = () =>
     Object.assign(new Event("dragover", { bubbles: true, cancelable: true }), {
       dataTransfer: data,
     });
+
   expect(fireEvent(nav, over())).toBe(false);
   expect(data.dropEffect).toBe("none");
   expect(fireEvent.drop(nav, drag)).toBe(false);
