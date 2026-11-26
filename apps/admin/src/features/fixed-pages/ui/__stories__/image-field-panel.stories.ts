@@ -13,6 +13,7 @@ const unpublished = images.find((photo) => !photo.published);
 const meta = {
   title: "features/fixed-pages/ImageFieldPanel",
   component: ImageFieldPanel,
+  parameters: { stage: "fill" },
   args: {
     label: "表紙",
     target: "表紙",
@@ -29,6 +30,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Empty: Story = {};
 export const Selected: Story = { args: { selected: true, image } };
+
+export const NoDeliveryImage: Story = {
+  args: { selected: true, image: image && { ...image, deliveryImages: [] } },
+};
 
 export const Unpublished: Story = {
   args: { selected: true, image: unpublished },

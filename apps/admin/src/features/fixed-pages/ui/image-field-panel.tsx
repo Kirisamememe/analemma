@@ -39,7 +39,10 @@ const preview = tv({
           "pointer-events-none opacity-0 group-has-focus-visible:pointer-events-auto group-has-focus-visible:opacity-100",
         ],
         controls: "justify-between p-2",
-        action: "rounded-full bg-scrim/60 text-on-media backdrop-blur-media",
+        action: [
+          "rounded-full bg-scrim/60 text-on-media backdrop-blur-media",
+          "has-focus-visible:bg-scrim/80 has-focus-visible:focus-ring-inset",
+        ],
         caption: [
           "w-full photo-caption-background px-3 pt-4 pb-2 text-on-media",
           "motion-safe:translate-y-1 motion-safe:transition-transform motion-safe:duration-normal motion-safe:ease-standard",
