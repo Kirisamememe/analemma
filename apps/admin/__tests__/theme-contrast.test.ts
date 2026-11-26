@@ -7,7 +7,7 @@ const theme = await readFile(
 );
 
 const FORCED_COLORS =
-  /@media \(forced-colors: active\) \{(?<block>[^@]*?)\n {2}\}/v;
+  /@media \(forced-colors: active\) \{\s*:root \{(?<block>[^\}]*)\}/v;
 
 const source = theme.replaceAll(/\/\*[\s\S]*?\*\//gv, "");
 const forcedColors = FORCED_COLORS.exec(source)?.groups?.["block"] ?? "";
