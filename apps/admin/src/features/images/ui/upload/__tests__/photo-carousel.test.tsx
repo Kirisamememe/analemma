@@ -118,6 +118,7 @@ test("別の写真を選んでも転送中の2枚の進捗が読め、転送が�
         ? { label: photo.name, percent: index === 0 ? 64 : 28 }
         : undefined,
   }));
+
   const view = renderWithI18n(<Editor uploads={transferring} />, "ja");
   fireEvent.click(button("sea.jpg"));
   expect(
