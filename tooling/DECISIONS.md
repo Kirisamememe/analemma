@@ -43,6 +43,7 @@
   - selectors は、プラグインの既定から、class と関係の無い変数の名前(`style`・`styles`・`classes`)を除き、名前が `ClassName` で終わる属性と変数(`contentClassName` など)と、`ui/tv.ts` の `merge` の呼び出しを足す。既定のままだと、`Intl.NumberFormat` に渡す `const style = "currency"` まで class として止めた。
   - theme.css の色にどれも使ってよい utility を決めてあることと、文字の役割の組が theme.css の目盛りの名前であることを、テスト(`tooling/lint/__tests__/styles.test.ts`)で確かめる。色を足したときに、決まりを書き忘れると落ちる。
   - Storybook の story(`__stories__`)は、`ui/` の中にあっても、画面のコードと同じ決まりで検査する。`ui/` の決まりは部品を作るためのもので、story は部品を組んで見せるだけなので、色や class を選ばせない。story で決まりから外れたくなったら、部品を足すことになる。
+  - パネルの両端の余白とスクロール領域の CSS 変数の用途は、`apps/admin/src/ui/DECISIONS.md` の「検査」に従う。
   - 余白の検査では、`gap-x`・`gap-y` もそれぞれ1つの utility として値を読む。`gap` の後をすべて値にすると、許可している `gap-x-3` でも `x-3` が目盛りに無いとして止まる。色の検査では `whitespace-*` を除く。これは空白をどう表示するかの class で、`whitespace-pre-line` の `line` は色の名前を指していない。
   - 色の見本(`ui/specimens/color-specimen.tsx`)だけ、色ごとに使える utility の決まりと、`line-strong` を `ui/primitives/` の外で止める決まりを外す。色の見本は、どの色も `bg-` で塗って並べる必要がある(`focus` や `line` は、ふだん `bg-` に使えない)。ほかの決まり(任意の値・不透明度・文字の役割など)は外さない。
   - story の import の決まりは、置いた層(primitives・layout)の決まりでなく、画面のコードと同じにする(React Aria Components を直に使えず、ほかの層の部品は使える)。story は描くだけなので、`require-sibling-test` も外す(全部の story を描くテストがある)。

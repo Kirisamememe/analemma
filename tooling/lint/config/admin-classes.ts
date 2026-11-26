@@ -74,6 +74,9 @@ export const READABLE_VARIABLES = [
   "--media-color",
   "--focal-x",
   "--focal-y",
+  "--scroll-thumb-size",
+  "--scroll-thumb-position",
+  "--scroll-view-limit",
 ] as const;
 
 /** 画面のコード(ui/ の外)が書いてよい class。 */
@@ -141,11 +144,11 @@ const UI_RESTRICTIONS: readonly Restriction[] = [
       "outline-none の代わりに outline-hidden を使います(forced-colors で線が残る)。",
   },
   {
-    pattern: `${VARIANTS}(?!px-panel$)-?(?:${SPACING_UTILITIES})-(?!(?:${SPACING.join("|")}|auto)$)`,
-    message: `余白は ${SPACING.join("・").replaceAll("\\", "")} の目盛りを使います。パネルの左右の padding には px-panel も使えます。`,
+    pattern: `${VARIANTS}(?!(?:[pm]|scroll-p)[xy]-panel$)-?(?:${SPACING_UTILITIES})-(?!(?:${SPACING.join("|")}|auto)$)`,
+    message: `余白は ${SPACING.join("・").replaceAll("\\", "")} の目盛りを使います。パネルの両端には、padding・margin・scroll-padding の x・y に panel も使えます。`,
   },
   {
-    pattern: `${VARIANTS}(?:m|my|mt|mb|mbs|mbe)-(?!(?:0|auto)$)`,
+    pattern: `${VARIANTS}(?!my-panel$)(?:m|my|mt|mb|mbs|mbe)-(?!(?:0|auto)$)`,
     message: "上下の正の margin は使わず、親の gap で空けます。",
   },
   {
