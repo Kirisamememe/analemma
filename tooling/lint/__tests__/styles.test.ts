@@ -120,6 +120,25 @@ describe("管理画面の部品の class", () => {
     ).toEqual(expected);
   });
 
+  test.each([
+    ["ui/primitives/overlays/dialog.tsx", [3, 3, 4, 5, 5, 6, 6]],
+    ["features/images/ui/upload/photo-drop-hint.tsx", [3, 3]],
+    ["ui/primitives/form-fields/choices/checkbox-input.tsx", [3]],
+  ] as const)(
+    "装飾の枠や許可した状態以外の線を %s で止めること",
+    (path, lines) => {
+      const result = lintFixture(`invalid/apps/admin/src/${path}`);
+      expect(
+        result.diagnostics
+          .filter(({ message }) =>
+            message.startsWith("枠は用途を決めた共通部品"),
+          )
+          .map(({ line }) => line)
+          .toSorted((a, b) => a - b),
+      ).toEqual([...lines]);
+    },
+  );
+
   test("theme.css に無い class に診断を出すこと", () => {
     expect(ruleIdsOf(lintFixture(file))).toContain(
       "better-tailwindcss(no-unknown-classes)",

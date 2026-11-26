@@ -53,9 +53,18 @@
 - dark の `surface-sunken` は、`surface` と別の段(neutral-950)にする。同じ色だと、dark のサイドバーで、今いる場所が見分けられない。
 - light の `fg-muted` は neutral-600 にする(ユーザーが決めた)。neutral-500 では、`surface-muted` の上の文字が約 4.35:1 で、4.5:1 に届かなかった。`fg` と `fg-muted` の文字が、どの面の上でも light と dark で 4.5:1 に届くことを、コントラストのテストで確かめる。
 - light の `focus` は neutral-500 にする。白に対して 3:1 に届く。
-- 線の色は2つ。区切りの線やカードの枠は `line`(light で neutral-300、dark で neutral-700)、入力を受ける部品(入力欄・Checkbox・Radio・Switch・Select など)の枠は `line-strong`(light で neutral-400、dark で neutral-600)で描く。どちらの値も、ユーザーが決めた。文字の色の `fg-muted` を枠に流用しない(役割を混ぜない。ユーザーが決めた)。
+- 枠を使える条件は下の「枠と面の境界」に従う。領域の境界は `line`(light で neutral-300、dark で neutral-700)、入力を受ける部品(入力欄・Checkbox・Radio・Switch・Select など)の枠は `line-strong`(light で neutral-400、dark で neutral-600)で描く。どちらの値も、ユーザーが決めた。文字の色の `fg-muted` を枠に流用しない(役割を混ぜない。ユーザーが決めた)。
 - `line-strong` は、入力を受ける部品の専用にする(ユーザーが決めた)。入力を受ける部品は React Aria Components を包むので、どれも `primitives/` にある。`line-strong` の class を書けるのは `primitives/` だけで、patterns・layout・`features/*/ui/` では書けない(lint で止まる)。
 - border の色は、`theme.css` の base の層(`@layer base`)で `line` を既定にする。線を引くときは幅の class(`border`・`border-s`・`border-b` など)だけを書き、`border-line` は書かない。色の class を書くのは、`line` のほかの色(`line-strong`・意味の色・`transparent` など)にするときと、`tv` の variant や状態の variant(`is-*:`)でほかの色にした線を `line` に戻すときだけにする(ユーザーが決めた)。既定と同じ class が並ぶと、どこで色を変えているのかが読み取りにくい。
+
+### 枠と面の境界
+
+- **線を消すと、何が分からなくなるか。** 入力できる範囲、ドロップ先の広さ、どの領域が空かといった情報を輪郭そのもので伝えるときに border を使う。線の内外が既知の単色で、枠・面・文字を一組として light と dark の両方で決められることが条件。写真、透ける面、スクロールで変わる背景に直接置く枠は、この条件を満たさない。
+- **入力欄・操作領域・状態表示**。入力欄は `line-strong` と不透明な面を組にする。破線の Button は選択・ドロップできる範囲を示す。EmptyState の破線は中身が置かれる範囲、ErrorState の実線は取得に失敗した範囲を示す。Notice と枠付き Badge は単色の面に置き、状態を示す枠・薄い塗り・文字の色相をそろえる。
+- **浮いた面**。Dialog・Popover には `bg-surface shadow-overlay outline outline-fg/10` を使う。写真に重ねる案内にも、この面と縁を使う。写真や本文が背後を通っても、縁の色が周囲になじむ。Dialog の固定ヘッダーとフッターは背景のぼかしで本文との重なりを示す。境目を強めるための border や区切り線は引かない。
+- **単色の領域を分ける線**。ナビと本文、画像ビューアの上部バーと表示領域、写真の表示領域と情報パネルは、隣り合う単色の領域の境界に接する辺だけに `line` を使う。
+- **線が図形や状態を表す場合**。固定ページの枝線は項目の親子関係、Spinner の円弧は処理中を表す。フォーカスの輪郭には `focus-ring` を使う。forced-colors でも必要な状態が識別できるかを確かめる。
+- lint は部品ごとに、許可した辺・状態・色の class だけを通す(`tooling/lint/config/admin-borders.ts`)。新しい用途を足す際は、線が伝える情報と、内外の面が単色になる根拠を確かめる。背景の実際の組み合わせと色の調和は、その部品を置いた Story で確認する。
 
 ## light と dark
 

@@ -1,6 +1,8 @@
 import { getDefaultSelectors } from "eslint-plugin-better-tailwindcss/api/defaults";
 import type { AllowWarnDeny, OxlintOverride } from "oxlint";
 
+import { BORDER_CLASSES, borderRestriction } from "./admin-borders.ts";
+
 /** `no-restricted-classes` で止める class の形。 */
 type Restriction = {
   /** class に当てる正規表現。 */
@@ -215,6 +217,19 @@ const restrictClasses = (
   restrict: readonly Restriction[],
 ): [AllowWarnDeny, RestrictOptions] => ["error", { restrict }];
 
+const uiClassRestrictions = (file: string): readonly Restriction[] => [
+  ...UI_RESTRICTIONS,
+  ...(file === "ui/specimens/color-specimen.tsx"
+    ? []
+    : COLOR_USAGE_RESTRICTIONS),
+  TYPOGRAPHY_OUTSIDE_ROLES,
+  ...(file.startsWith("ui/primitives/") ||
+  file === "ui/specimens/color-specimen.tsx"
+    ? []
+    : [LINE_STRONG_OUTSIDE_PRIMITIVES]),
+  borderRestriction(BORDER_CLASSES[file]),
+];
+
 const ADMIN_SOURCES = ["ts", "tsx", "mts", "cts", "js", "jsx", "mjs", "cjs"];
 
 /** 管理画面の、Tailwind CSS の class の検査(後に書いたものが勝つ)。 */
@@ -246,12 +261,9 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
   {
     files: ["**/apps/admin/src/ui/**", "**/apps/admin/src/features/*/ui/**"],
     rules: {
-      "better-tailwindcss/no-restricted-classes": restrictClasses([
-        ...UI_RESTRICTIONS,
-        ...COLOR_USAGE_RESTRICTIONS,
-        TYPOGRAPHY_OUTSIDE_ROLES,
-        LINE_STRONG_OUTSIDE_PRIMITIVES,
-      ]),
+      "better-tailwindcss/no-restricted-classes": restrictClasses(
+        uiClassRestrictions("ui/"),
+      ),
       "project/styling-boundary": ["error", { area: "ui" }],
       "project/max-classes-per-string": ["error", { max: 8 }],
     },
@@ -259,22 +271,19 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
   {
     files: ["**/apps/admin/src/ui/primitives/**"],
     rules: {
-      "better-tailwindcss/no-restricted-classes": restrictClasses([
-        ...UI_RESTRICTIONS,
-        ...COLOR_USAGE_RESTRICTIONS,
-        TYPOGRAPHY_OUTSIDE_ROLES,
-      ]),
+      "better-tailwindcss/no-restricted-classes": restrictClasses(
+        uiClassRestrictions("ui/primitives/"),
+      ),
     },
   },
-  {
-    files: ["**/apps/admin/src/ui/specimens/color-specimen.tsx"],
+  ...Object.keys(BORDER_CLASSES).map((file) => ({
+    files: [`**/apps/admin/src/${file}`],
     rules: {
-      "better-tailwindcss/no-restricted-classes": restrictClasses([
-        ...UI_RESTRICTIONS,
-        TYPOGRAPHY_OUTSIDE_ROLES,
-      ]),
+      "better-tailwindcss/no-restricted-classes": restrictClasses(
+        uiClassRestrictions(file),
+      ),
     },
-  },
+  })),
   {
     files: ["**/apps/admin/src/ui/typography.ts"],
     rules: {
@@ -283,6 +292,7 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
         ...COLOR_USAGE_RESTRICTIONS,
         UNLISTED_TEXT_PAIR,
         LINE_STRONG_OUTSIDE_PRIMITIVES,
+        borderRestriction(),
       ]),
     },
   },

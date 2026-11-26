@@ -24,7 +24,7 @@ type NoticeProps = {
 /** 画面の中に知らせを出す部品。 */
 export const Notice = ({ children, progress }: NoticeProps) => (
   <div
-    className="flex gap-2 rounded-control border border-danger bg-danger/10 px-3 py-1.5"
+    className="flex gap-2 rounded-control bg-danger/10 px-3 py-1.5"
     style={{ "--progress": progress }}
   >
     <span className="text-danger focus-ring is-hovered:state-hover" />
@@ -40,9 +40,8 @@ export const Notice = ({ children, progress }: NoticeProps) => (
     <span className="whitespace-pre-line" />
     <span className="bg-primary text-on-primary" />
     <span className="bg-danger-strong text-on-danger-strong" />
-    <span className="rounded-surface bg-surface outline -outline-offset-1 outline-fg/10" />
-    <span className="outline-hidden is-focused:focus-ring is-invalid:outline-danger" />
-    <span className="border-x-line bg-scrim/40 text-on-media" />
+    <span className="outline-hidden is-focused:focus-ring" />
+    <span className="bg-scrim/40 text-on-media" />
     <span className={item({ isSelected: true })} />
     <span className={({ isSelected }: ItemState) => item({ isSelected })} />
     {children}
