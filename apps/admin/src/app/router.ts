@@ -15,7 +15,7 @@ import {
 } from "@/features/auth/logic/login-search";
 import type { Authenticator } from "@/features/auth/webauthn";
 import { FIXED_PAGE_KINDS_KEY } from "@/features/fixed-pages/queries/fixed-pages-query";
-import { IMAGES_QUERY_KEY } from "@/features/images/queries/images-query";
+import { IMAGES_QUERY_KEY } from "@/queries/images-query";
 import { EnrollPage } from "@/routes/auth/enroll-page";
 import { LoginPage } from "@/routes/auth/login-page";
 import { DeployTokensPage } from "@/routes/deploy-tokens/deploy-tokens-page";

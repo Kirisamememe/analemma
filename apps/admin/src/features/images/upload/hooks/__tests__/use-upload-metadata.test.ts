@@ -4,8 +4,8 @@ import { afterEach, expect, mock, test } from "bun:test";
 import { useUploadMetadata } from "../use-upload-metadata";
 
 import { imageQueryKey } from "@/features/images/detail/queries/image-query";
-import { IMAGES_QUERY_KEY } from "@/features/images/queries/images-query";
 import type { PhotoUpload } from "@/features/images/upload/logic/photo-uploads";
+import { IMAGES_QUERY_KEY } from "@/queries/images-query";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";

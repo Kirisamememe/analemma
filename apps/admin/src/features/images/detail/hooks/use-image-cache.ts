@@ -7,10 +7,7 @@ import {
 } from "../queries/image-query";
 
 import { useApiCache } from "@/api/server-state/server-state";
-import {
-  IMAGES_QUERY_KEY,
-  updateImagePage,
-} from "@/features/images/queries/images-query";
+import { IMAGES_QUERY_KEY, updateImagePage } from "@/queries/images-query";
 
 /** 画像を変えた応答を、写真を見る画面と一覧のキャッシュに当てる関数を返す。 */
 export const useImageCache = () => {

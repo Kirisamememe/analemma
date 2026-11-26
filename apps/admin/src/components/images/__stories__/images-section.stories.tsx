@@ -65,7 +65,7 @@ const Example = ({ state }: Record<"state", State>): ReactNode => {
 };
 
 const meta = {
-  title: "features/images/ImagesSection",
+  title: "components/images/ImagesSection",
   component: Example,
   args: { state: "more" },
   argTypes: { state: { control: false } },
