@@ -229,6 +229,7 @@ export const zhHans = {
   "fixedPages.cancel": "取消",
   "fixedPages.deleted": "已删除“{{title}}”。",
   "fixedPages.deleteFailed": "无法删除固定页面，请重试。",
+  "imageUpload.dropHere": "松开即可上传并公开照片",
   "images.title": "图片",
   "images.description": "兼作摄影作品的图片，按添加时间从新到旧排列。",
   "images.loading": "正在加载图片。",

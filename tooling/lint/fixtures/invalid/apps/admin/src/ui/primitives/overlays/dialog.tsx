@@ -5,5 +5,6 @@ export const Dialog = () => (
     <footer className="divide-y divide-line" />
     <aside className="outline-2 outline-line" />
     <header className="outline outline-fg/10" />
+    <footer className="drop-target" />
   </article>
 );

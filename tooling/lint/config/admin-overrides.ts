@@ -10,7 +10,11 @@ import {
   type RestrictedApis,
 } from "./restricted-apis.ts";
 
-const ADMIN_EFFECT_HOOKS = ["useHtmlPreferences", "useLoadingAnnouncement"];
+const ADMIN_EFFECT_HOOKS = [
+  "useHtmlPreferences",
+  "usePhotoDrop",
+  "useLoadingAnnouncement",
+];
 
 /** ほかの層を import させないパスの形。 */
 const layerPatterns = (layers: readonly string[], message: string) => [

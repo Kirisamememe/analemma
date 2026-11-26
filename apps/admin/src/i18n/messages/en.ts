@@ -247,6 +247,7 @@ export const en = {
   "fixedPages.deleted": "“{{title}}” was deleted.",
   "fixedPages.deleteFailed":
     "Could not delete the fixed page. Please try again.",
+  "imageUpload.dropHere": "Drop photos to upload and publish",
   "images.title": "Images",
   "images.description": "Photos that double as works, newest first.",
   "images.loading": "Loading images.",

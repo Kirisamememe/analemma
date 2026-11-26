@@ -8,7 +8,7 @@ const shell = tv({
   slots: {
     screen: "min-h-dvh bg-canvas text-fg",
     frame: "contents",
-    main: "@container py-8",
+    main: "@container relative py-8",
   },
   variants: {
     withNav: {

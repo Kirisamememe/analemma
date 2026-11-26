@@ -257,6 +257,7 @@ export const ja = {
   "fixedPages.deleted": "「{{title}}」を削除しました。",
   "fixedPages.deleteFailed":
     "固定ページを削除できませんでした。もう一度試してください。",
+  "imageUpload.dropHere": "ドロップすると写真をアップロードして公開します",
   "images.title": "画像",
   "images.description": "写真作品を兼ねる画像。新しく足した順に並びます。",
   "images.loading": "画像を読み込んでいます。",
