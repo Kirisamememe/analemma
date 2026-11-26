@@ -1,0 +1,297 @@
+{
+  "type": "diff",
+  "version": "10",
+  "dialect": "postgres",
+  "id": "02490fe1-7b21-494e-b34c-e9972fc3067a",
+  "prevIds": [
+    "41c3f281-9f9a-49cc-8010-2719d834e7da"
+  ],
+  "footprints": [
+    {
+      "statementType": "rename_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "series"
+      ],
+      "writes": [
+        "s|tbl|public.series",
+        "n|tbl|public.series",
+        "n|rel|public.series",
+        "n|type|public.series",
+        "s|tbl|public.collection",
+        "n|tbl|public.collection",
+        "n|rel|public.collection",
+        "n|type|public.collection"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "rename_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "series_image"
+      ],
+      "writes": [
+        "s|tbl|public.series_image",
+        "n|tbl|public.series_image",
+        "n|rel|public.series_image",
+        "n|type|public.series_image",
+        "s|tbl|public.collection_image",
+        "n|tbl|public.collection_image",
+        "n|rel|public.collection_image",
+        "n|type|public.collection_image"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "rename_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "collection_image",
+        "series_id"
+      ],
+      "writes": [
+        "s|col|public.collection_image.series_id",
+        "n|col|public.collection_image.series_id",
+        "s|col|public.collection_image.collection_id",
+        "n|col|public.collection_image.collection_id"
+      ],
+      "reads": [
+        "n|tbl|public.collection_image",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "rename_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "collection_image",
+        "series_image_position_idx"
+      ],
+      "writes": [
+        "s|idx|public.series_image_position_idx",
+        "n|idx|public.series_image_position_idx",
+        "n|rel|public.series_image_position_idx",
+        "s|idx|public.collection_image_position_idx",
+        "n|idx|public.collection_image_position_idx",
+        "n|rel|public.collection_image_position_idx"
+      ],
+      "reads": [
+        "e|tbl|public.collection_image",
+        "n|sch|public",
+        "e|col|public.collection_image.collection_id",
+        "e|col|public.collection_image.position"
+      ]
+    },
+    {
+      "statementType": "rename_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "collection_image",
+        "series_image_image_idx"
+      ],
+      "writes": [
+        "s|idx|public.series_image_image_idx",
+        "n|idx|public.series_image_image_idx",
+        "n|rel|public.series_image_image_idx",
+        "s|idx|public.collection_image_image_idx",
+        "n|idx|public.collection_image_image_idx",
+        "n|rel|public.collection_image_image_idx"
+      ],
+      "reads": [
+        "e|tbl|public.collection_image",
+        "n|sch|public",
+        "e|col|public.collection_image.image_id"
+      ]
+    },
+    {
+      "statementType": "rename_constraint",
+      "statementTarget": [
+        "table",
+        "public",
+        "collection_image"
+      ],
+      "writes": [
+        "s|fk|public.collection_image.series_image_series_id_series_id_fkey",
+        "n|fk|public.collection_image.series_image_series_id_series_id_fkey",
+        "n|con|public.collection_image.series_image_series_id_series_id_fkey",
+        "s|fk|public.collection_image.collection_image_collection_id_collection_id_fkey",
+        "n|fk|public.collection_image.collection_image_collection_id_collection_id_fkey",
+        "n|con|public.collection_image.collection_image_collection_id_collection_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.collection_image",
+        "n|sch|public",
+        "e|col|public.collection_image.collection_id"
+      ]
+    },
+    {
+      "statementType": "rename_constraint",
+      "statementTarget": [
+        "table",
+        "public",
+        "collection_image"
+      ],
+      "writes": [
+        "s|fk|public.collection_image.series_image_image_id_image_id_fkey",
+        "n|fk|public.collection_image.series_image_image_id_image_id_fkey",
+        "n|con|public.collection_image.series_image_image_id_image_id_fkey",
+        "s|fk|public.collection_image.collection_image_image_id_image_id_fkey",
+        "n|fk|public.collection_image.collection_image_image_id_image_id_fkey",
+        "n|con|public.collection_image.collection_image_image_id_image_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.collection_image",
+        "n|sch|public",
+        "e|col|public.collection_image.image_id"
+      ]
+    },
+    {
+      "statementType": "rename_constraint",
+      "statementTarget": [
+        "table",
+        "public",
+        "collection"
+      ],
+      "writes": [
+        "s|pk|public.collection",
+        "n|pk|public.collection",
+        "n|con|public.collection.series_pkey",
+        "n|rel|public.series_pkey",
+        "n|con|public.collection.collection_pkey",
+        "n|rel|public.collection_pkey"
+      ],
+      "reads": [
+        "n|tbl|public.collection",
+        "n|sch|public",
+        "e|col|public.collection.id"
+      ]
+    },
+    {
+      "statementType": "rename_constraint",
+      "statementTarget": [
+        "table",
+        "public",
+        "collection_image"
+      ],
+      "writes": [
+        "s|pk|public.collection_image",
+        "n|pk|public.collection_image",
+        "n|con|public.collection_image.series_image_pkey",
+        "n|rel|public.series_image_pkey",
+        "n|con|public.collection_image.collection_image_pkey",
+        "n|rel|public.collection_image_pkey"
+      ],
+      "reads": [
+        "n|tbl|public.collection_image",
+        "n|sch|public",
+        "e|col|public.collection_image.collection_id",
+        "e|col|public.collection_image.image_id"
+      ]
+    },
+    {
+      "statementType": "rename_constraint",
+      "statementTarget": [
+        "table",
+        "public",
+        "collection"
+      ],
+      "writes": [
+        "s|uq|public.collection.series_slug_key",
+        "n|uq|public.collection.series_slug_key",
+        "n|con|public.collection.series_slug_key",
+        "n|rel|public.series_slug_key",
+        "s|uq|public.collection.collection_slug_key",
+        "n|uq|public.collection.collection_slug_key",
+        "n|con|public.collection.collection_slug_key",
+        "n|rel|public.collection_slug_key"
+      ],
+      "reads": [
+        "n|tbl|public.collection",
+        "n|sch|public",
+        "e|col|public.collection.slug"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"series\"]",
+      "set": {
+        "name": "collection"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"series_image\"]",
+      "set": {
+        "name": "collection_image"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "columns\u0000[\"public\",\"collection_image\",\"series_id\"]",
+      "set": {
+        "name": "collection_id"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "uniques\u0000[\"public\",\"collection\",\"series_slug_key\"]",
+      "set": {
+        "name": "collection_slug_key"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "indexes\u0000[\"public\",\"series_image_position_idx\"]",
+      "set": {
+        "name": "collection_image_position_idx"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "indexes\u0000[\"public\",\"series_image_image_idx\"]",
+      "set": {
+        "name": "collection_image_image_idx"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "pks\u0000[\"public\",\"collection\",\"series_pkey\"]",
+      "set": {
+        "name": "collection_pkey"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "pks\u0000[\"public\",\"collection_image\",\"series_image_pkey\"]",
+      "set": {
+        "name": "collection_image_pkey"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "fks\u0000[\"public\",\"collection_image\",\"series_image_series_id_series_id_fkey\"]",
+      "set": {
+        "name": "collection_image_collection_id_collection_id_fkey"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "fks\u0000[\"public\",\"collection_image\",\"series_image_image_id_image_id_fkey\"]",
+      "set": {
+        "name": "collection_image_image_id_image_id_fkey"
+      }
+    }
+  ]
+}

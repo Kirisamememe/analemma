@@ -15,7 +15,7 @@
 - `src/platform/startup/`:server やコマンドが起動時に使うもの。環境変数の検証(`env.ts`。DB の接続先と、管理画面の origin と RP ID を読む `parse-database-url.ts`・`parse-relying-party.ts`)、2つのポートを待ち受ける順(`choose-first-listener.ts`)、`ADMIN_DIST_DIR` に指定した管理画面のビルドの読み込みと、CSP に使う script の hash(`load-admin-dist.ts`)。
 - `src/db/schema/`:全テーブルの Drizzle の定義。ログインとパスキーの表は `auth/` に分ける。drizzle-kit は `drizzle.config.ts` の glob で、下のフォルダも読む。
 - `src/db/migrate.ts`:migration を適用するコマンド(`bun run db:migrate`)。server の起動とは別に流す。
-- `src/db/migrations/`:drizzle-kit(`bun run db:generate`)が書き出す migration。
+- `src/db/migrations/`:drizzle-kit(`bun run db:generate`)が書き出す migration。表や列を改名するときは、制約と index の名前もそろえる(手順と理由は `DECISIONS.md` の「migration」)。
 - `src/platform/test-database/`:テストの DB。`bun test` の前にテンプレートの DB を用意するスクリプトと、テストごとに DB を作る関数。このフォルダと `src/db/` のテストは、仕組みそのものを確かめるので DB を直接読む。
 - `src/procedures.ts`:アクセス区分ごとの base(`publicProcedures`・`authProcedures`・`deployProcedures`・`adminProcedures`)。contract の `public`・`auth`・`deploy`・`admin` に対応する。
 - `src/router.ts`:全 feature の procedure を束ねる。
@@ -55,7 +55,7 @@
 
 - 古い slug で来たときに、新しい slug を返すか(301 で転送するため)。
 - ビジネスイベントを同じプロセスのメモリで配るか、トランザクションの中でテーブルに書いてから配るか(outbox)。
-- 固定ページ・画像・シリーズのほかのコンテンツ(記事など)の削除を、論理削除にするか、物理削除にするか(それぞれのフェーズで決める。固定ページ・画像・シリーズは物理削除に決めた)。
+- 固定ページ・画像・コレクションのほかのコンテンツ(記事など)の削除を、論理削除にするか、物理削除にするか(それぞれのフェーズで決める。固定ページ・画像・コレクションは物理削除に決めた)。
 - server を1プロセスで動かし続けるか。challenge をプロセスのメモリに置いているので、今は1プロセスが前提(本番の置き場所と一緒に決める)。
 - ログインと登録の、IP ごとの回数の制限(本番の置き場所と一緒に決める)。
 - 監査の記録の残し方(今は logger に書くだけ)。

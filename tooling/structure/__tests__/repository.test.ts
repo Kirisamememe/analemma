@@ -233,6 +233,8 @@ test("用語集で探す表記が、別の概念を指す正しい文を落と�
     "消印と札幌と改札",
     "Codex のレビューで指摘された箇所",
     "安定版が出たら、Debian 版の image に上げる",
+    "レンズの「EF シリーズ」の名前を EXIF から読む",
+    "シリアライズした値とシリアル番号",
   ];
 
   const prose = sentences.map((text, index) => ({ text, line: index + 1 }));

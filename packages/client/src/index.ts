@@ -25,11 +25,11 @@ export {
 export {
   type AnalemmaClient,
   type AnalemmaClientOptions,
+  type CollectionSummary,
   type FixedPage,
   type FixedPageFilter,
   type FixedPageSummary,
+  type PublishedCollection,
   type PublishedImage,
-  type PublishedSeries,
-  type SeriesSummary,
   createAnalemmaClient,
 } from "./public-api/create-analemma-client";

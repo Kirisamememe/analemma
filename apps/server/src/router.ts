@@ -22,6 +22,20 @@ import {
   renamePasskey,
 } from "@/features/auth/passkeys";
 import {
+  getPublishedCollection,
+  listPublishedCollections,
+  getCollection,
+  listCollections,
+  createCollection,
+  updateCollection,
+  deleteCollection,
+  publishCollection,
+  unpublishCollection,
+  addCollectionImages,
+  removeCollectionImages,
+  reorderCollectionImages,
+} from "@/features/collections";
+import {
   issueDeployToken,
   listDeployTokens,
   revokeDeployToken,
@@ -61,20 +75,6 @@ import {
 } from "@/features/images";
 import { getKind, listKinds, pushKinds } from "@/features/kinds";
 import {
-  getPublishedSeries,
-  listPublishedSeries,
-  getSeries,
-  listSeries,
-  createSeries,
-  updateSeries,
-  deleteSeries,
-  publishSeries,
-  unpublishSeries,
-  addSeriesImages,
-  removeSeriesImages,
-  reorderSeriesImages,
-} from "@/features/series";
-import {
   adminProcedures,
   authProcedures,
   deployProcedures,
@@ -85,6 +85,18 @@ export const router = implement(contract)
   .$context<RequestContext>()
   .router({
     admin: adminProcedures.router({
+      collections: {
+        get: getCollection,
+        list: listCollections,
+        create: createCollection,
+        update: updateCollection,
+        delete: deleteCollection,
+        publish: publishCollection,
+        unpublish: unpublishCollection,
+        addImages: addCollectionImages,
+        removeImages: removeCollectionImages,
+        reorder: reorderCollectionImages,
+      },
       deployTokens: {
         list: listDeployTokens,
         issue: issueDeployToken,
@@ -127,18 +139,6 @@ export const router = implement(contract)
         rename: renamePasskey,
         delete: deletePasskey,
       },
-      series: {
-        get: getSeries,
-        list: listSeries,
-        create: createSeries,
-        update: updateSeries,
-        delete: deleteSeries,
-        publish: publishSeries,
-        unpublish: unpublishSeries,
-        addImages: addSeriesImages,
-        removeImages: removeSeriesImages,
-        reorder: reorderSeriesImages,
-      },
       session: {
         get: getSession,
         reauthenticationOptions: getReauthenticationOptions,
@@ -152,12 +152,15 @@ export const router = implement(contract)
     }),
     deploy: deployProcedures.router({ kinds: { push: pushKinds } }),
     public: {
+      collections: {
+        get: getPublishedCollection,
+        list: listPublishedCollections,
+      },
       fixedPages: {
         list: listPublishedFixedPages,
         get: getPublishedFixedPage,
       },
       health: { get: getHealth },
       images: { get: getPublishedImage },
-      series: { get: getPublishedSeries, list: listPublishedSeries },
     },
   });
