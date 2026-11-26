@@ -51,7 +51,7 @@ type SaveCallbacks = {
   /** 画面を離れる前か。 */
   readonly isActive: () => boolean;
   /** すべての保存を終えた後の処理。 */
-  readonly onComplete: () => void;
+  readonly onComplete: (retained: ReadonlySet<number>) => void;
 };
 
 const changed = (entry: Entry, field: keyof UploadMetadata): boolean =>
@@ -73,9 +73,23 @@ export const useUploadMetadata = (
     setError(undefined);
   }, []);
 
+  const hasChanges = (id: number): boolean => {
+    const entry = entries.get(id);
+    return entry !== undefined && FIELDS.some((field) => changed(entry, field));
+  };
+
   const complete = () => {
-    reset();
-    onComplete();
+    const retained = new Set(
+      uploads
+        .filter(({ id, status }) => status !== "added" && hasChanges(id))
+        .map(({ id }) => id),
+    );
+
+    setEntries(
+      (current) => new Map([...current].filter(([id]) => retained.has(id))),
+    );
+    setError(undefined);
+    onComplete(retained);
   };
 
   const fail = (id: number, reason: SaveError["reason"]) => {
@@ -188,22 +202,12 @@ export const useUploadMetadata = (
     });
   };
 
-  const dirty = uploads.some(({ id, status }) => {
-    const entry = entries.get(id);
-
-    return (
-      status !== "too-large" &&
-      status !== "unsupported" &&
-      entry !== undefined &&
-      FIELDS.some((field) => changed(entry, field))
-    );
-  });
-
   return {
     draft: (id: number) => entries.get(id)?.values ?? EMPTY,
     change,
     finish,
-    dirty,
+    hasChanges,
+    dirty: uploads.some(({ id }) => hasChanges(id)),
     error,
     isSaving: saving.isPending,
     reset,
