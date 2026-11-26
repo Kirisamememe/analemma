@@ -7,6 +7,7 @@ const STATE_BORDER_COLORS = [
 
 /** 部品ごとに許可する border と outline の class。 */
 export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
+  "features/images/ui/upload/photo-drop-hint.tsx": ["drop-target"],
   "ui/primitives/form-fields/field-control.ts": [
     "border",
     "border-line-strong",
@@ -85,7 +86,7 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
 
 /** 枠を描く class を、用途の決まった部品と状態に限る検査。 */
 export const borderRestriction = (allowed: readonly string[] = []) => ({
-  pattern: `^(?!(?:${allowed.join("|")})$)(?:[^:]+:)*(?:border(?!(?:-spacing(?:-|$)|-collapse$|-separate$))|divide|-?outline(?!-hidden$|-none$))(?:-|$)`,
+  pattern: `^(?!(?:${allowed.join("|")})$)(?:[^:]+:)*(?:border(?!(?:-spacing(?:-|$)|-collapse$|-separate$))|divide|drop-target|-?outline(?!-hidden$|-none$))(?:-|$)`,
   message:
     "枠は用途を決めた共通部品で描きます。入力欄・Button の枠、Dialog の縁、focus-ring を使います。",
 });

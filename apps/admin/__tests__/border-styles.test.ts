@@ -40,6 +40,26 @@ const violations = (source: string, file: string): string[] => {
 
       const rule = decl.parent;
 
+      if (owner === "drop-target" && rule instanceof AtRule) {
+        if (
+          rule.name === "utility" &&
+          ((decl.prop === "outline" &&
+            decl.value === "4px solid var(--color-info)") ||
+            (decl.prop === "outline-offset" && decl.value === "-4px"))
+        ) {
+          return;
+        }
+
+        if (
+          rule.name === "media" &&
+          rule.params === "(forced-colors: active)" &&
+          decl.prop === "outline-color" &&
+          decl.value === "Highlight"
+        ) {
+          return;
+        }
+      }
+
       if (
         decl.prop === "border-color" &&
         decl.value === "var(--color-line)" &&
@@ -58,7 +78,7 @@ const violations = (source: string, file: string): string[] => {
   root.walkAtRules("apply", (rule) => {
     for (const token of rule.params.split(/\s+/v)) {
       if (
-        /(?:^|:)!?(?:border(?!-spacing|-separate|-collapse)|divide|-?outline(?!-hidden))(?:-|!|$)/v.test(
+        /(?:^|:)!?(?:border(?!-spacing|-separate|-collapse)|divide|drop-target|-?outline(?!-hidden))(?:-|!|$)/v.test(
           token,
         )
       ) {
@@ -94,4 +114,13 @@ test("新しい utility や @apply に書いた装飾の線も検出する", () 
     `${THEME}:1 border-inline-start`,
     `${THEME}:1 @apply md:divide-y`,
   ]);
+});
+
+test("ドロップ先に装飾の border や別の輪郭を足すと検出する", () => {
+  expect(
+    violations(
+      "@utility drop-target { border: 1px solid; outline-color: Highlight; }",
+      THEME,
+    ),
+  ).toEqual([`${THEME}:1 border`, `${THEME}:1 outline-color`]);
 });
