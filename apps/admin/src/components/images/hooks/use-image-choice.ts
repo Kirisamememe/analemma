@@ -21,14 +21,12 @@ export const useImageChoice = (image: ImageSummary) => {
     throw new Error("ImageChoice requires an ImagePicker");
   }
 
-  const { store, group, mode } = source;
+  const { read, subscribe, group, mode } = source;
   const { pending, change } = conditions;
   const included = conditions.included?.has(image.id) === true;
   const missing = conditions.missing?.has(image.id) === true;
 
-  const selected = useSyncExternalStore(store.subscribe, () =>
-    store.read().has(image.id),
-  );
+  const selected = useSyncExternalStore(subscribe, () => read().has(image.id));
 
   const onChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {

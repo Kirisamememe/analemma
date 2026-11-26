@@ -39,6 +39,13 @@ const rows = tv({
     badge: "flex max-w-full min-w-0 wrap-anywhere",
   },
   variants: {
+    selectable: {
+      true: {
+        photo: "object-contain",
+        shade: "group-hover:opacity-100",
+        title: "group-has-checked:text-success",
+      },
+    },
     isUntitled: {
       true: { title: "text-fg-muted" },
     },
@@ -69,6 +76,8 @@ export const ImageRows = ({
 
 /** 写真のタイルに渡す値。 */
 type ImageTileProps = {
+  /** 1枚の選択用に写真全体を見せるか。 */
+  singleChoice?: boolean | undefined;
   /** 開く画面。 */
   href?: AppHref | undefined;
   /** 写真を選ぶ入力欄。 */
@@ -94,6 +103,7 @@ type ImageTileProps = {
 /** 写真と、タイトル・バッジ・日付を出し、押すと開くタイル。 */
 export const ImageTile = ({
   href,
+  singleChoice = false,
   choice,
   images,
   title,
@@ -104,9 +114,17 @@ export const ImageTile = ({
   date,
   linkRef,
 }: ImageTileProps): ReactNode => {
-  const aspect = toTileAspect(images);
   const [smallest] = images;
-  const style = rows({ isUntitled: title === null });
+
+  const aspect =
+    singleChoice && smallest
+      ? smallest.width / smallest.height
+      : toTileAspect(images);
+
+  const style = rows({
+    isUntitled: title === null,
+    selectable: singleChoice,
+  });
 
   const content = (
     <span className={style.body()}>
@@ -159,7 +177,7 @@ export const ImageTile = ({
   return (
     <li className={style.item()} style={{ "--media-aspect": String(aspect) }}>
       {href === undefined ? (
-        <label className="flex cursor-pointer flex-col gap-2 rounded-control has-focus-visible:focus-ring">
+        <label className="group relative flex cursor-pointer flex-col gap-2 rounded-control has-focus-visible:focus-ring">
           {content}
           {choice}
         </label>

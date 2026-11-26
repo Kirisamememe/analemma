@@ -10,3 +10,4 @@ export { PageHeader } from "./page-header";
 export { ProgressList, ProgressRow, type ProgressTone } from "./progress-list";
 export { SideNav } from "./side-nav";
 export { ImageThumbnail } from "./photos/image-thumbnail";
+export { ImageRadio, ImageSelectionStatus } from "./photos/image-radio";

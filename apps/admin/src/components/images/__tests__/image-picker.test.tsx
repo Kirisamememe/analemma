@@ -31,7 +31,7 @@ test("1枚を選ぶ場合は選び直した画像だけを確定する", async (
   );
   await userEvent.click(await screen.findByRole("radio", { name: /湖/v }));
   await userEvent.click(screen.getByRole("radio", { name: /海.*非公開/v }));
-  expect(screen.getByText("選択中の画像 1 枚")).toBeDefined();
+  expect(screen.getByRole("status").textContent).toBe("海");
   await userEvent.click(screen.getByRole("button", { name: "選択を確定" }));
   expect(confirm).toHaveBeenCalledWith(server.images()[1]);
 });
@@ -123,3 +123,67 @@ test("最後のページがすべて追加済みなら、直前の選べる写�
     screen.getByRole("checkbox", { name: /写真 50$/v }).matches(":focus"),
   ).toBe(true);
 });
+
+test("現在の表紙を選んだ状態で開き、選び直しても取り消せば確定しない", async () => {
+  const close = mock((): void => undefined);
+  const confirm = mock((_value: unknown): void => undefined);
+  render(
+    <ImagePicker
+      initialImage={server.images()[1]}
+      mode="single"
+      onClose={close}
+      onConfirm={confirm}
+    />,
+    await setup(),
+  );
+
+  const current = await screen.findByRole("radio", {
+    name: /海/v,
+    checked: true,
+  });
+
+  current.focus();
+  await userEvent.keyboard("{ArrowRight}");
+  const next = screen.getByRole("radio", { name: /山/v, checked: true });
+  expect(document.activeElement).toBe(next);
+  await userEvent.keyboard("{Escape}");
+  expect(close).toHaveBeenCalledTimes(1);
+  expect(confirm).not.toHaveBeenCalled();
+});
+
+test.each([
+  { selectedFirst: false, expectedTitle: "海" },
+  { selectedFirst: true, expectedTitle: "山" },
+])(
+  "現在の表紙を読み込む間に選び直したかに応じて「$expectedTitle」を確定する",
+  async ({ selectedFirst, expectedTitle }) => {
+    const confirm = mock((_value: unknown): void => undefined);
+    const close = mock((): void => undefined);
+
+    const { rerender } = render(
+      <ImagePicker mode="single" onClose={close} onConfirm={confirm} />,
+      await setup(),
+    );
+
+    const replacement = await screen.findByRole("radio", { name: /山/v });
+
+    if (selectedFirst) await userEvent.click(replacement);
+
+    rerender(
+      <ImagePicker
+        initialImage={server.images()[1]}
+        mode="single"
+        onClose={close}
+        onConfirm={confirm}
+      />,
+    );
+    expect(screen.getByRole("status").textContent).toBe(expectedTitle);
+    expect(screen.getByRole("radio", { checked: true })).toBe(
+      screen.getByRole("radio", { name: selectedFirst ? /山/v : /海/v }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "選択を確定" }));
+    expect(confirm).toHaveBeenCalledWith(
+      server.images().find(({ title }) => title === expectedTitle),
+    );
+  },
+);

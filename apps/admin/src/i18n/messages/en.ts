@@ -253,6 +253,7 @@ export const en = {
   "fixedPageEditor.removeImage": "Remove",
   "fixedPageEditor.missingImage": "Image no longer exists",
   "imagePicker.title": "Choose images",
+  "imagePicker.none": "No image selected",
   "imagePicker.selected": "Images selected: {{count}}",
   "imagePicker.confirm": "Confirm selection",
   "imagePicker.included": "Already added",

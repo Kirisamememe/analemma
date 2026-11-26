@@ -7,6 +7,7 @@ import { ImagePicker } from "../image-picker";
 import { ImagesSection } from "../images-section";
 
 import { useTranslate } from "@/i18n/use-translate";
+import type { ImageSummary } from "@/queries/images-query";
 import type { FakeReply } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
@@ -16,10 +17,18 @@ import { Button } from "@/ui/primitives/button";
 
 const MANY = Array.from({ length: 5 }, () => SAMPLE_IMAGES).flat();
 
-const List = ({ state }: Record<"state", State>): ReactNode => {
+type ListProps = {
+  /** Story の状態。 */
+  state: State;
+  /** 選び直す写真。 */
+  initial?: ImageSummary | undefined;
+};
+
+const List = ({ state, initial }: ListProps): ReactNode => {
   const t = useTranslate();
   const [open, setOpen] = useState(true);
-  const [count, setCount] = useState(0);
+  const [image, setImage] = useState(initial);
+  const [count, setCount] = useState(initial === undefined ? 0 : 1);
 
   const ready = useRouterState({
     select: (router) => router.matches.length > 0,
@@ -27,7 +36,10 @@ const List = ({ state }: Record<"state", State>): ReactNode => {
 
   if (
     ready &&
-    (state === "single" || state === "multiple" || state === "pending")
+    (state === "single" ||
+      state === "selected" ||
+      state === "multiple" ||
+      state === "pending")
   ) {
     const close = (): void => {
       setOpen(false);
@@ -44,11 +56,13 @@ const List = ({ state }: Record<"state", State>): ReactNode => {
         </Button>
         <output>{t("imagePicker.selected", { count })}</output>
         {open &&
-          (state === "single" ? (
+          (state === "single" || state === "selected" ? (
             <ImagePicker
               mode="single"
+              initialImage={image}
               onClose={close}
-              onConfirm={() => {
+              onConfirm={(chosen) => {
+                setImage(chosen);
                 setCount(1);
                 close();
               }}
@@ -74,6 +88,7 @@ const List = ({ state }: Record<"state", State>): ReactNode => {
 
 type State =
   | "pending"
+  | "selected"
   | "single"
   | "multiple"
   | "more"
@@ -84,7 +99,7 @@ type State =
 
 const Example = ({ state }: Record<"state", State>): ReactNode => {
   const [app] = useState(() => {
-    const { routes } = createImageRoutes(state === "empty" ? [] : MANY);
+    const { routes, images } = createImageRoutes(state === "empty" ? [] : MANY);
     const list = routes["admin/images/list"];
 
     const preview = createTestApp({
@@ -111,14 +126,17 @@ const Example = ({ state }: Record<"state", State>): ReactNode => {
 
     void preview.router.load();
 
-    return preview;
+    return {
+      ...preview,
+      initial: state === "selected" ? images()[0] : undefined,
+    };
   });
 
   return (
     <AppShell>
       <QueryClientProvider client={app.queryClient}>
         <RouterContextProvider router={app.router}>
-          <List state={state} />
+          <List state={state} initial={app.initial} />
         </RouterContextProvider>
       </QueryClientProvider>
     </AppShell>
@@ -146,3 +164,5 @@ export const LoadFailed: Story = { args: { state: "loadFailed" } };
 export const Pending: Story = { args: { state: "pending" } };
 export const Single: Story = { args: { state: "single" } };
 export const Multiple: Story = { args: { state: "multiple" } };
+
+export const SingleSelected: Story = { args: { state: "selected" } };
