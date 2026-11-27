@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 
 import { detectImageFormat } from "@/platform/images/detect-image-format";
 import {
@@ -161,6 +161,31 @@ describe("受け取った写真の変換", () => {
     expect(server.logs.filter(({ level }) => level === "error")).toMatchObject([
       { message: "受け取った写真を変換できなかった" },
     ]);
+  });
+
+  test("原本を置き場所から読めなかった写真は、変換を終えられなかった状態にし、原本を消すこと", async () => {
+    const held = holdFirstConversion();
+    await using server = await createTestClient({
+      conversions: held.conversions,
+    });
+    await signInAsAdmin(server);
+
+    const { id } = await server.client.admin.images.upload({
+      photo: await photo("high-iso.jpg"),
+    });
+
+    const read = spyOn(server.pending, "read").mockRejectedValue(
+      new Error("置き場所を読めない"),
+    );
+
+    held.release();
+
+    expect(await converted(server, id)).toMatchObject({
+      status: "interrupted",
+      deliveryImages: [],
+    });
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(await server.storage.read(`pending/${id}.bin`)).toBeUndefined();
   });
 
   test("変換の順番を待つ処理が失敗した写真は、変換を終えられなかった状態にすること", async () => {
