@@ -27,11 +27,11 @@ import { FixedPagesPage } from "@/routes/fixed-pages/fixed-pages-page";
 import { HomePage } from "@/routes/home-page";
 import { ImageViewerPage } from "@/routes/images/image-viewer-page";
 import { ImagesPage } from "@/routes/images/images-page";
+import { RootLayout } from "@/routes/layout/root-layout";
+import { SignedInLayout } from "@/routes/layout/signed-in-layout";
 import { NotFoundPage } from "@/routes/not-found-page";
-import { RootLayout } from "@/routes/root-layout";
 import { SecurityPage } from "@/routes/security-page";
 import { SessionErrorPage } from "@/routes/session-error-page";
-import { SignedInLayout } from "@/routes/signed-in-layout";
 
 /** 画面が使う、server と認証器の窓口。 */
 export type AppContext = {

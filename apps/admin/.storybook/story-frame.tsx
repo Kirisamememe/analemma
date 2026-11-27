@@ -13,7 +13,6 @@ import { createI18n } from "@/i18n/create-i18n";
 import type { Locale } from "@/i18n/locales";
 import type { Theme } from "@/preferences/theme";
 import { UiProvider } from "@/ui/primitives/ui-provider";
-import { StoryStage } from "@/ui/specimens/story-stage";
 
 const createStoryRouter = () =>
   createRouter({
@@ -52,19 +51,3 @@ export const StoryFrame = ({
     </I18nextProvider>
   );
 };
-
-/** `Staged` に渡す値。 */
-type StagedProps = {
-  /** 展示用の枠の幅(無ければ枠を付けない)。 */
-  width: "fit" | "fill" | undefined;
-  /** story の中身。 */
-  children: ReactNode;
-};
-
-/** story を、展示用の枠に入れて見せる部品。 */
-export const Staged = ({ width, children }: StagedProps): ReactNode =>
-  width === undefined ? (
-    children
-  ) : (
-    <StoryStage width={width}>{children}</StoryStage>
-  );
