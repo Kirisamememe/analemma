@@ -21,7 +21,7 @@ type IssuedTokenContentProps = {
   onClose: () => void;
 };
 
-/** 発行したトークンの値を1回だけ見せ、コピーと閉じる操作を並べる。 */
+/** 発行したトークンの値と、コピーと閉じる操作。 */
 export const IssuedTokenContent = ({
   issued,
   onClose,
