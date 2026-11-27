@@ -19,11 +19,9 @@ import { IMAGES_QUERY_KEY } from "@/queries/images-query";
 import { EnrollPage } from "@/routes/auth/enroll-page";
 import { LoginPage } from "@/routes/auth/login-page";
 import { DeployTokensPage } from "@/routes/deploy-tokens/deploy-tokens-page";
-import {
-  EditFixedPage,
-  NewFixedPage,
-} from "@/routes/fixed-pages/fixed-page-routes";
+import { EditFixedPage } from "@/routes/fixed-pages/edit-fixed-page";
 import { FixedPagesPage } from "@/routes/fixed-pages/fixed-pages-page";
+import { NewFixedPage } from "@/routes/fixed-pages/new-fixed-page";
 import { HomePage } from "@/routes/home-page";
 import { ImageViewerPage } from "@/routes/images/image-viewer-page";
 import { ImagesPage } from "@/routes/images/images-page";

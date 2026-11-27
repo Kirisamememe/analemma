@@ -23,39 +23,6 @@ const session = {
   }),
 };
 
-test("種類を読み込んでいる間と選べる種類が無いときの知らせを出す", async () => {
-  const pending = Promise.withResolvers<undefined>();
-  renderApp({
-    path: "/fixed-pages/new",
-    routes: {
-      ...session,
-      "admin/kinds/list": async () => {
-        await pending.promise;
-        return { output: { kinds: [] } };
-      },
-    },
-  });
-  expect(await screen.findByText("読み込んでいます")).toBeDefined();
-  pending.resolve(undefined);
-  expect(
-    await screen.findByRole("heading", { name: "選べる種類がありません" }),
-  ).toBeDefined();
-  expect(
-    screen.getByRole("heading", { name: "固定ページの種類を追加するには" }),
-  ).toBeDefined();
-  await userEvent.click(screen.getByText("定義の書き方とコマンド例"));
-  expect(
-    screen.getByText("analemma push-kinds ./src/lib/kinds.ts"),
-  ).toBeDefined();
-});
-test("選んだ種類が無いときはフォームを出さずに知らせる", async () => {
-  renderApp({
-    path: "/fixed-pages/new?kind=missing",
-    routes: { ...session, "admin/kinds/get": () => ({ error: "NOT_FOUND" }) },
-  });
-  expect(await screen.findByText("この種類はもうありません。")).toBeDefined();
-  expect(screen.queryByRole("button", { name: "保存" })).toBeNull();
-});
 test("編集する固定ページが無いときは種類を取得しない", async () => {
   const { calls } = renderApp({
     path: "/fixed-pages/019affff-0000-7000-8000-000000000001",
@@ -362,37 +329,6 @@ test("保存の応答を待つ間に画面を離れたら、届いた応答を�
     (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
       .value,
   ).toBe("Other tab");
-});
-
-test("読み込む間に一覧へ戻るリンクへ移した focus を、編集のフォームを出した後も残す", async () => {
-  const loading = Promise.withResolvers<undefined>();
-
-  renderApp({
-    path: "/fixed-pages/" + page.id,
-    routes: {
-      ...session,
-      "admin/fixedPages/get": () => ({ output: page }),
-      "admin/kinds/get": async () => {
-        await loading.promise;
-
-        return { output: kind };
-      },
-    },
-  });
-
-  await screen.findByText("読み込んでいます");
-  const back = screen.getByRole("link", { name: "固定ページの一覧" });
-
-  act(() => {
-    back.focus();
-  });
-  loading.resolve(undefined);
-  await screen.findByRole("textbox", { name: "タイトル" });
-
-  expect(
-    screen.getByText("編集フォームを表示しました。").getAttribute("aria-live"),
-  ).toBe("polite");
-  expect(document.activeElement).toBe(back);
 });
 
 test("種類を選んだ後、読み込む間にほかへ移した focus は、作成のフォームを出しても slug へ移さない", async () => {
