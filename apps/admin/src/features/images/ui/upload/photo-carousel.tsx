@@ -6,14 +6,13 @@ import { usePhotoPreview } from "./hooks/use-photo-preview";
 import { Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
-import { ScrollView } from "@/ui/primitives/navigation";
+import { ScrollView, SnapItem } from "@/ui/primitives/navigation";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
 const style = tv({
   slots: {
     strip: "flex items-center gap-2 py-1",
-    frame: "relative flex-none",
     overlay: [
       "pointer-events-none absolute inset-0 grid place-items-center rounded-xs",
       "bg-scrim/60 text-on-media",
@@ -168,9 +167,9 @@ export const PhotoCarousel = ({
     index,
     selectedPhoto,
     attachRail,
+    attachFrame,
     attachSelected,
     move,
-    revealSelected,
     previous: selectPrevious,
     next: selectNext,
   } = selection;
@@ -181,13 +180,14 @@ export const PhotoCarousel = ({
     <figure>
       <ScrollView
         inset="modal"
+        snap={photos.length > 1}
         label={label}
         orientation="horizontal"
         viewportRef={attachRail}
       >
         <fieldset aria-label={label} className={style().strip()}>
-          {photos.map((photo, photoIndex) => (
-            <div className={style().frame()} key={photo.id}>
+          {photos.map((photo) => (
+            <SnapItem key={photo.id} ref={attachFrame(photo.id)}>
               <button
                 aria-label={photo.name}
                 aria-pressed={photo.id === selectedId}
@@ -196,7 +196,6 @@ export const PhotoCarousel = ({
                   onSelect(photo.id);
                 }}
                 onKeyDown={move}
-                onLoadCapture={photoIndex <= index ? revealSelected : undefined}
                 ref={photo.id === selectedId ? attachSelected : undefined}
                 tabIndex={photo.id === selectedId ? 0 : -1}
                 type="button"
@@ -208,7 +207,7 @@ export const PhotoCarousel = ({
                 />
               </button>
               {photo.overlay}
-            </div>
+            </SnapItem>
           ))}
         </fieldset>
       </ScrollView>

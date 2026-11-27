@@ -1,4 +1,4 @@
-import type { CodexReviewer } from "./perspectives";
+import type { AgyReviewer, CodexReviewer } from "./perspectives";
 
 /** Cursor のモデルを選ぶための材料。 */
 type CursorModelChoice = {
@@ -47,7 +47,7 @@ export type ReviewPaths = {
 /** コマンドを組み立てる材料。 */
 type CommandRequest = {
   /** レビューを流すものとモデル。 */
-  readonly reviewer: CodexReviewer | CursorCall;
+  readonly reviewer: CodexReviewer | CursorCall | AgyReviewer;
   /** 外の CLI に渡す場所。 */
   readonly paths: ReviewPaths;
 };
@@ -60,14 +60,39 @@ export type ReviewCommand = {
   readonly args: readonly string[];
   /** 結果を、CLI がファイルに書くか、標準出力に出すか。 */
   readonly output: "file" | "stdout";
+  /** CLI を流すフォルダ(引数で渡せない CLI だけ)。 */
+  readonly cwd?: string;
+  /** prompt を標準入力でなく引数で渡す CLI の、prompt の前に付ける文字列。 */
+  readonly promptFlag?: string;
 };
+
+const buildAgyCommand = (
+  { model }: AgyReviewer,
+  paths: ReviewPaths,
+): ReviewCommand => ({
+  command: "agy",
+  args: [
+    "--sandbox",
+    "--add-dir",
+    paths.context,
+    "--model",
+    model,
+    "--output-format",
+    "text",
+  ],
+  output: "stdout",
+  cwd: paths.tree,
+  promptFlag: "--print=",
+});
 
 /** 観点に割り当てたモデルを、読み取り専用で呼ぶコマンドを組み立てる。 */
 export const buildReviewCommand = ({
   paths,
   reviewer,
-}: CommandRequest): ReviewCommand =>
-  reviewer.runner === "codex"
+}: CommandRequest): ReviewCommand => {
+  if (reviewer.runner === "agy") return buildAgyCommand(reviewer, paths);
+
+  return reviewer.runner === "codex"
     ? {
         command: "codex",
         args: [
@@ -105,3 +130,4 @@ export const buildReviewCommand = ({
         ],
         output: "stdout",
       };
+};

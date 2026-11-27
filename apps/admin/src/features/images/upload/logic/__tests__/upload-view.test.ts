@@ -35,8 +35,8 @@ describe("送る写真の一覧の見せ方", () => {
     expect(retryAction({ status: "replacing" })).toBe("pending");
     expect(toProgressTone("replacing")).toBe("neutral");
     expect(toStatusLabel("replacing")).toBe("imageUpload.status.waiting");
-    expect(toStatusLabel("interrupted")).toBe("images.interrupted");
-    expect(toStatusLabel("unreadable")).toBe("images.unreadable");
+    expect(toStatusLabel("interrupted")).toBe("imageUpload.status.interrupted");
+    expect(toStatusLabel("unreadable")).toBe("imageUpload.status.unreadable");
     expect(toStatusLabel("converting")).toBe("imageUpload.status.converting");
     expect(retryAction({ status: "unreadable" })).toBe("none");
     expect(retryAction({ status: "converting" })).toBe("none");

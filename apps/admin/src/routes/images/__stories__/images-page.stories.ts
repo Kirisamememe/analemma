@@ -7,6 +7,7 @@ import {
   createImageRoutes,
   type FakeImageSeed,
 } from "@/testing/fake-routes/create-image-routes";
+import { failedReply, pendingReply } from "@/testing/fake-routes/fake-replies";
 import {
   SAMPLE_IMAGES as IMAGES,
   type SamplePhotoName,
@@ -61,15 +62,12 @@ export const Empty = withServer(() => createImageRoutes([]).routes);
 export const Loading = withServer(() => ({
   ...createImageRoutes(IMAGES).routes,
   "admin/images/list": async () =>
-    Promise.withResolvers<FakeReply<"admin/images/list">>().promise,
+    pendingReply<FakeReply<"admin/images/list">>(),
 }));
-
-const failed = () =>
-  ({ error: "INTERNAL_SERVER_ERROR", defined: false }) as const;
 
 export const LoadFailed = withServer(() => ({
   ...createImageRoutes(IMAGES).routes,
-  "admin/images/list": failed,
+  "admin/images/list": failedReply,
 }));
 
 export const MoreFailed = withServer(() => {
@@ -80,7 +78,7 @@ export const MoreFailed = withServer(() => {
     "admin/images/list": (input) =>
       input.cursor === undefined
         ? routes["admin/images/list"](input)
-        : failed(),
+        : failedReply(),
   };
 });
 
@@ -97,7 +95,7 @@ export const Uploading = withServer(() => {
       });
 
       return input.photo.name.includes("fail")
-        ? failed()
+        ? failedReply()
         : routes["admin/images/upload"](input);
     },
   };
@@ -173,11 +171,10 @@ const uploadStory = ({
             (sample) => input.photo.name === `${sample}.jpg`,
           );
 
-          if (name !== undefined && failOnce.delete(name)) return failed();
+          if (name !== undefined && failOnce.delete(name)) return failedReply();
 
           if (name !== undefined && pending.includes(name)) {
-            return Promise.withResolvers<FakeReply<"admin/images/upload">>()
-              .promise;
+            return pendingReply<FakeReply<"admin/images/upload">>();
           }
 
           const reply = routes["admin/images/upload"](input);

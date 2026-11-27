@@ -46,6 +46,7 @@ const scroll = tv({
       },
     },
     inset: { none: {}, modal: {} },
+    snap: { true: { viewport: "snap-rail", content: "snap-rail-strip" } },
   },
   compoundVariants: [
     {
@@ -77,6 +78,8 @@ type ScrollViewProps = {
   label: string;
   /** スクロール方向の両端の余白。 */
   inset?: "none" | "modal";
+  /** 中身の要素を、領域の左端に1つずつ止めるか(横方向だけ)。 */
+  snap?: boolean;
   /** 縦方向の領域の高さの上限(px)。 */
   maxHeight?: number;
   /** スクロールする要素を受け取る関数。 */
@@ -90,6 +93,7 @@ export const ScrollView = ({
   orientation,
   label,
   inset = "none",
+  snap = false,
   maxHeight,
   viewportRef,
   children,
@@ -110,7 +114,7 @@ export const ScrollView = ({
   } = useScrollView(orientation, viewportRef);
 
   const { attach: attachRegion, visible } = useScrollThumbVisibility();
-  const style = scroll({ orientation, inset });
+  const style = scroll({ orientation, inset, snap });
 
   return (
     <div

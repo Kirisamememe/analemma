@@ -37,13 +37,13 @@ test("送り直した写真の名前・状態・リンクを切り替え、消�
   view.rerender(
     <Status upload={{ ...photo, status: "sending", retried: true }} />,
   );
-  expect(screen.getByText("アップロード中")).toBeDefined();
+  expect(screen.getByText("送信中")).toBeDefined();
   expect(screen.queryByRole("link")).toBeNull();
   view.rerender(
     <Status upload={{ ...photo, status: "added", imageId: "lake" }} />,
   );
   const link = screen.getByRole("link", { name: /lake\.jpg.*写真を見る/v });
   expect(link.getAttribute("href")).toBe("/images/lake");
-  expect(screen.getByText("アップロード済み")).toBeDefined();
+  expect(screen.getByText("追加済み")).toBeDefined();
   expect(document.activeElement).toBe(link);
 });

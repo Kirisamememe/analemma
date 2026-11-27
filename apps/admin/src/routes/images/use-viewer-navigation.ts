@@ -12,6 +12,12 @@ type PendingFocus = {
   side: PhotoSide;
 };
 
+/** 画面に出ている、focus を戻せる先。 */
+type FocusTargets = Record<PhotoSide, boolean> & {
+  /** 「もう一度試す」のボタンが出ているか。 */
+  retry: boolean;
+};
+
 /** キーボードで開いた写真で、同じ向きのリンクへ focus を戻す。 */
 export const useViewerNavigation = (
   back: RefObject<HTMLAnchorElement | null>,
@@ -44,7 +50,7 @@ export const useViewerNavigation = (
           },
         };
 
-  const restore = (id: string) => {
+  const restore = (id: string, shown: FocusTargets) => {
     const move = pending.current;
 
     if (move?.id !== id) return;
@@ -57,15 +63,18 @@ export const useViewerNavigation = (
       return;
     }
 
-    if (retryRef.current !== null) {
-      retryRef.current.focus();
+    if (shown.retry) {
+      retryRef.current?.focus();
       return;
     }
 
     pending.current = undefined;
 
-    const opposite = move.side === "previous" ? next : previous;
-    (links[move.side].current ?? opposite.current ?? back.current)?.focus();
+    const opposite = move.side === "previous" ? "next" : "previous";
+    const sides = [move.side, opposite] as const;
+    const side = sides.find((candidate) => shown[candidate]);
+
+    (side === undefined ? back.current : links[side].current)?.focus();
   };
 
   const retry = (id: string, again: () => void) => {

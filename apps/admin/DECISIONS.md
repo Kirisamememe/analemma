@@ -14,10 +14,20 @@
 | route          | TanStack Router                                              | path params と search params に型が付く。                                                                                              |
 | server の状態  | TanStack Query                                               | 取得・再取得・送信中の状態を、画面ごとに書かずに済む。                                                                                 |
 | ビルド         | Vite 8                                                       | SPA の静的ファイルを作るだけなら、設定が一番少ない。                                                                                   |
+| memo 化        | React Compiler(`babel-plugin-react-compiler`)                | ユーザーが決めた。理由は「React Compiler」。                                                                                           |
 | 見た目         | Tailwind CSS v4 + tailwind-variants                          | 理由は `src/ui/DECISIONS.md`。                                                                                                         |
 | 部品の振る舞い | React Aria Components                                        | キーボードの操作・focus・ARIA を、部品ごとに自分で書かずに済む。shadcn/ui は使わない(ユーザーが決めた。見た目は自分たちの規則で持つ)。 |
 | テストの DOM   | happy-dom(`@happy-dom/global-registrator`)と Testing Library | Bun の公式の案内にある組み合わせ。                                                                                                     |
 | i18n           | i18next 27 + react-i18next                                   | ユーザーが決めた。理由は「i18n」。                                                                                                     |
+
+## React Compiler
+
+- 部品と hook の memo 化は、React Compiler に任せる(ユーザーが決めた)。handler や値を props に渡すたびに `useCallback`・`useMemo`・`memo` を手で書かなくても、関係の無い再レンダリングを減らせる。lint の React Compiler の診断(`tooling/DECISIONS.md` の「React の書き方をそろえるルール」)が、コンパイラの扱えない書き方を止める。
+- ビルドには、React の公式の `babel-plugin-react-compiler` を、`@rolldown/plugin-babel` と `@vitejs/plugin-react` の `reactCompilerPreset` で入れる。`@vitejs/plugin-react` の `compiler` の指定(Rust に移植したコンパイラ)は、experimental の間は使わない。
+- Storybook は同じ Vite の設定を読むので、story も同じ変換を通る。Bun のテストは Vite を通らないので、変換していないコードを確かめる(コンパイラは振る舞いを変えない前提)。
+- どこを再レンダリングしないかは、今までどおり設計で決め、「再レンダリングの期待」に書いてテストで守る。コンパイラは、state の置き場所や購読の範囲までは決めない。
+- 手で memo 化を書くのは、次の2つだけにする。(1)「再レンダリングの期待」に書いて、テストで守る境界(`memo` と、そこへ渡す handler の `useCallback`)。Bun のテストは Vite を通らず、コンパイラの変換が掛からないので、テストで守る約束は、手で書いた memo 化で成り立たせる。(2) ref の callback や effect の依存のように、identity が振る舞いを決める所。それ以外(計算が重いだけの値、props に渡すだけの handler)には書かず、コンパイラに任せる。今ある `useCallback`・`useMemo`・`memo` は、そのまま残してよい(コンパイラは手で書いた memo 化を保つ)。
+- ref の callback が、再レンダリングのたびに呼び直されることに頼らない。コンパイラは inline の callback も memo 化するので、callback が読む値が変わらない再レンダリングでは、React は呼び直さない。描いた後に毎回確かめたい処理(写真のビューアで、再試行の後に focus を戻す処理)は、結果を決める値(何が出ているか)を callback に渡して読ませ、その値が変わったときに呼び直されるようにする。Bun のテストは変換していないコードを確かめるので、この違いを検出できない(TODO: テストにも同じ変換を通すかを、ユーザーと決める)。
 
 ## import の別名
 
@@ -135,7 +145,7 @@ effect でないと書けない処理は、次のとおり。
 | ---------------------------------- | ------------------------------------------------------- |
 | DOM の要素に結びつく準備と後片付け | cleanup を返す ref callback                             |
 | 外の store の値の読み取り          | `useSyncExternalStore`                                  |
-| props や state から計算できる値    | 描くときに計算し、重ければ `useMemo`                    |
+| props や state から計算できる値    | 描くときに計算する(memo 化は React Compiler に任せる)   |
 | 操作がきっかけの処理               | event handler や mutation の `onSuccess`                |
 | 子の state を作り直す              | `key`                                                   |
 | データの読み込み                   | 画面の中で TanStack Query を使う                        |
@@ -288,7 +298,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - Storybook の Vite は `vite.config.ts` を読むが、`build` は `target` しか引き継がず、`server` は上書きする(10.6.8 の配布物で確かめた)。`viteFinal` で `build.target` と `build.cssTarget` を `vite.config.ts` と同じ `BROWSER_TARGET` に入れ直す。入れないと、`storybook build` で `light-dark()` が書き換えられ、`scheme-dark` が効かなくなる(`src/ui/DECISIONS.md` の「light と dark」)。開発のサーバーの port・`strictPort`・`/api` の proxy は Storybook が上書きするので、ぶつからない。
 - head に script を書き込む plugin は、Storybook では外す(`withoutVitePlugins`)。言語と配色はツールバーで選ぶ(既定は light と日本語)。story を包む枠(`.storybook/story-frame.tsx`)は、ツールバーの言語で i18next の instance を作り、React Aria Components の `I18nProvider` もその言語を読む。言語が変わったら `useMemo` で新しい instance を作り、Provider の値を差し替えるので、story の state は残る。`useHtmlPreferences` は、ブラウザが描く前に html の `lang` に story に見える文の言語を、`data-theme` に配色を入れる。
 - 部品の story の見本の文は日本語なので、html の `lang` を `ja` にする(`parameters.contentLang`)。ツールバーの言語を `lang` にすると、zh-Hans で、かなが中国語の字体で描かれた(ユーザーが見つけた)。画面の story は訳を出すので、`contentLang: null` にして、ツールバーの言語を `lang` にする(`contentLang` を書かないと、既定の `ja` を引き継ぐ)。文字の見本は、見本の文ごとに `lang` を付ける。言語を付けないと、日本語の字体に無い簡体字だけが別の字体に替わり、1つの文の中で字体が混ざった。
-- 部品の story は、既定で、Storybook の真ん中に置いた展示用の枠(`src/ui/specimens/story-stage.tsx`。面の色と、地の上に重ねる半透明の線)の中に描く(`parameters.stage`)。小さい部品は枠を中身の大きさにし、幅で見え方が変わる部品(`Notice`・入力欄・`Form`・`Text`・`Stack` など)は決めた幅(`w-lg`)にする。画面全体の story(画面・`AppShell`・`Center`)と色・文字の見本は、枠を付けない。枠も寄せも無いと、小さい部品が左上の隅に集まって見えにくかった(ユーザーの指摘)。
+- 部品の story は、既定で、Storybook の真ん中に置いた展示用の枠(`src/ui/specimens/story-stage.tsx`。面の色と、地の上に重ねる半透明の線)の中に描く(`parameters.stage`)。小さい部品は枠を中身の大きさにし、幅で見え方が変わる部品(`Notice`・入力欄・`Form`・`Text`・`Stack` など)は決めた幅(`w-story-stage`。32rem か、画面の幅から左右の余白を引いた幅の、小さい方)にする。狭い画面では、枠の中の余白も詰める。Storybook を SP の幅にしても、部品を実際の幅で見られるようにするため(ユーザーの指摘。固定の 32rem では、375px の画面で枠が横にはみ出した)。画面全体の story(画面・`AppShell`・`Center`)と色・文字の見本は、枠を付けない。枠も寄せも無いと、小さい部品が左上の隅に集まって見えにくかった(ユーザーの指摘)。
 - 枠は TanStack Router の route を描かず、`Link` が読む router だけを `RouterContextProvider` で渡す(router は枠ごとに作り、story のあいだで履歴を持ち越さない)。route を描くと、route の境界が story の想定外の失敗を受け止め、Storybook にもテストにも上がらない。
 - a11y は `@storybook/addon-a11y` の panel で見る(コントラストを含む)。Vitest を入れていないので、a11y の誤りで落とすテストにはしない。
 - 全部の story を `composeStories` で happy-dom の上に描き、想定外の失敗も `console.error` も出さないことを、テスト(`src/__tests__/stories.test.tsx`)で確かめる。ツールバーの値が html の `lang`・`data-theme` と部品の訳に届くことと、`viteFinal` が `cssTarget` を入れて head の script の plugin を外すことも、テストで確かめる。CI では Storybook を起動もビルドもしないので、壊れた story に気づけるのはこのテストだけ。手間は、story のファイルを足すたびに import を1行足すことで、足し忘れると、一覧と `__stories__` のファイルを比べるテストで落ちる。happy-dom は配置を計算しないので、見た目(並び・中心・余白)は Storybook をブラウザで開いて測る(セルフレビューの観点)。
@@ -326,7 +336,6 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 - **画面の story の作り物の server の状態**:ログインと登録の story は、ログインの作り物とパスキーの作り物をつないだだけなので、ログインの状態とパスキーの一覧の状態が別々に動く(すべてのセッションからログアウトした後の再ログインや、登録した名前の一覧への反映が合わない)。story は画面を見るためのもので、流れのつながりは画面のテストが確かめる(Codex のレビューで見つかった)。
 - **secure context でない origin**:`main.tsx` は起動のときに `PublicKeyCredential` を読むので、`localhost` 以外の HTTP で開くと、描く前に止まる。管理画面は HTTPS と `localhost` でだけ使う(Codex のレビューで見つかった)。
 - **全部の story を描くテストが確かめないこと**:このテストでは、story が誤り(throw と `console.error`)を出さずに描けることと、表示された入力ガイドの末尾を確かめる。story が何も描かなくても、展示用の枠を数えて通り、一覧を読めない story は、知らせが出る前の、読み込み中の画面で通る。それぞれの状態は画面のテストが確かめ、部品の見た目は Storybook で見る。
-- **Storybook の狭い画面**:幅を決めた展示用の枠は、Storybook の画面が 544px より狭いと、横にはみ出す。Storybook はデスクトップのブラウザで見るので、受け入れる。
 - **開発のときの head の script**:開発のサーバーは、HTML を返すたびに、head の script を Vite の lib のビルドでまとめ直す(数十ミリ秒)。まとめた結果を使い回すと、`src/preferences/boot.ts` と、それが読むファイルを直したときに開発のサーバーを起動し直す必要がある。待ち時間が気になったら、依存が変わったときだけまとめ直す形にする。
 - **`localStorage` が使えない設定**:head の script は、`localStorage` を読めないと(ストレージを切った設定など)throw し、言語と配色を当てずに終わる。React は html の `lang` が無ければ英語にするので、画面は英語で出る。言語を切り替えたときも、`languageChanged` の event の中で `localStorage` に置けずに throw し、後に登録した listener(画面の描き直し)まで event が届かない。管理者が自分のブラウザで使うだけなので、受け入れる。
 - **言語の切り替えのつなぎ**:`main.tsx` が `syncLocale` を呼ぶことは、テストで確かめていない(Codex のレビューで挙がった)。`main.tsx` は、ほかのつなぎ(認証の gate・認証器など)と同じく、入口として確かめない。`syncLocale` と、切り替えで画面の訳と React Aria Components が出す文言が変わることは、それぞれのテストで確かめている。

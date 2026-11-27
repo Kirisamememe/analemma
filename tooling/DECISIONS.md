@@ -62,7 +62,7 @@
   - 深さ:`jsx-max-depth` は 6。今の最大が 6 で、5 にすると14か所、4 にすると37か所が当たる。深い JSX は部品に分ける合図なので、下げるかはユーザーと決める。
   - 文言:`jsx-no-literals` を管理画面の `.tsx` に掛け、訳を通さない文言を JSX に直接書けなくする。JSX の子と、文言を受け取る属性(`aria-label`・`alt`・`title`・`label`・`placeholder` など。`TRANSLATED_ATTRIBUTES`)を見る。空の `alt` は通す。story・テスト・`src/testing/` では外す。
   - React Compiler の診断:`invariant`・`syntax`・`todo`・`unsupported-syntax`・`rule-suppression`。コンパイラが扱えない書き方を止める。
-  - 足さなかったもの:`react-perf` の4つ(JSX の props に、その場で作った関数・オブジェクト・配列・JSX を渡さない)は、製品のコードで168か所が当たり、どの handler も `useCallback` で包むことになる。再レンダリングは、フォルダごとの「再レンダリングの期待」とそのテストで確かめる。`hook-use-state` は、setter を使わない `const [store] = useState(create)`(1回だけ作る値)も止めるので足さない。`jsx-handler-names` は、handler の名前を `handle…` に限り、hook が返す操作の名前(`retry`・`finish`)と合わない。`jsx-props-no-spreading` と `forbid-*` は、`project/styling-boundary` が同じことをより狭く止めている。class の中身のルール(`no-set-state` など)は、class を書けないので要らない。
+  - 足さなかったもの:`react-perf` の4つ(JSX の props に、その場で作った関数・オブジェクト・配列・JSX を渡さない)は、React Compiler が memo 化するので要らない(`apps/admin/DECISIONS.md` の「React Compiler」)。`hook-use-state` は、setter を使わない `const [store] = useState(create)`(1回だけ作る値)も止めるので足さない。`jsx-handler-names` は、handler の名前を `handle…` に限り、hook が返す操作の名前(`retry`・`finish`)と合わない。`jsx-props-no-spreading` と `forbid-*` は、`project/styling-boundary` が同じことをより狭く止めている。class の中身のルール(`no-set-state` など)は、class を書けないので要らない。
   - fixture で確かめるのは、書き方・誤り・深さ・文言の11個。React Compiler の診断と、`jsx-pascal-case`・`jsx-filename-extension` は fixture を置いていない。
 - **1ファイルに component を1つ**(`react/no-multi-comp`。ユーザーが決めた):`restriction` の category は有効にしていないので、名前を書いて足す。export しない補助の component も数える。`max-exported-functions` は、コードが200行以下のファイルを数えないので、`.tsx` に component を幾つでも並べられた。管理画面のフォルダを、片付けの済んだ順に `SINGLE_COMPONENT_FILES`(`tooling/lint/config/admin-overrides.ts`)に足し、最後は管理画面の全体に掛ける。story とテストは、見せるためや確かめるための包む component を同じファイルに書くので外す。
   - `typescript/return-await`(`in-try-catch`):`try`・`finally` の中と `await using` の後で、`await` を省いた `return` に診断を出す。省くと、返した処理が終わる前に後始末が走り、使っている最中の接続が閉じる。Postgres の用意で実際にこの誤りがあった。型は同じ `Promise` なので型検査では止まらない。ほかの場所の `return` には診断を出さない。テストでも外さない(テストで出るのも同じ誤り)。型付きのルールなので fixture では確かめられない。
@@ -296,9 +296,10 @@ GitHub Actions の workflow を、`.github/workflows/` に2つ置く。job の�
 - **差分とコミットのメッセージ**:書き出した中身には git の履歴が無いので、差分(`git diff base...head`)とコミットのメッセージを、別のファイルにして渡す。Cursor の ask モードは shell を使えないので、どのみち差分はファイルで渡す必要がある。
 - **割り切ったこと**:レビューするコミットの全 `DECISIONS.md` から「## 割り切ったこと」の節を集め、prompt に書き込む。ファイルの場所を渡すだけより、確実に読ませられる。コードのブロックの中の、見出しの形の行では区切らない。
 - **読み取り専用**:Codex は `-s read-only`、Cursor は `--mode ask` で呼ぶ(ask は書き込みも shell も断る。確かめた)。コマンドの組み立てを純粋関数にし、読み取り専用で呼ぶことをテストで確かめる。外の CLI を実際に呼ぶ部分はテストしない。
-- **モデルの選び方**:レビューは Codex CLI で流し、観点ごとのモデルは `perspectives.ts` とテストに記す。使えないときはユーザーに聞く。
-- **UI/UX とアクセシビリティのモデル**:Codex で流す(ユーザーが決めた)。Cursor の Gemini 4 Neon は、月の上限に当たると結果を返さなかった。モデルと reasoning effort は、ビジネスロジックと同じ `gpt-6.2-sol`・`xhigh` にした(エージェントが決めた)。この観点も、画面を描かずに、状態の移り変わり・フォーカスの移り方・accessible name を、部品と hook をまたいでコードから読み取るので、ビジネスロジックと同じ深さで読むモデルが要る。
-- **言葉と規約のレビュー**:言葉は Terra、規約はビジネスロジックと同じ Sol に任せる。複数の PR を並行して進めるときの、レビューの待ち時間を短くするため。
+- **モデルの選び方**:観点ごとのモデルは `perspectives.ts` とテストに記す。ビジネスロジックは Antigravity の CLI(`agy`)の Gemini 4 Neon(high)、言葉は同じ CLI の Gemini 4 Hydrogen(high)、ほかの観点は Codex CLI で流す(ユーザーが決めた。言葉は、自然言語に強いモデルに任せる)。使えないときはユーザーに聞く。
+- **`agy` の呼び方**:書き込みや実行を承認しない既定のモードに `--sandbox` を付け、レビューするコミットの中身を書き出したフォルダで流す。`--mode plan` は、答えの代わりに計画のファイルを作るので使わない。prompt は標準入力で受け取らないので、`--print=` の引数で渡す。
+- **UI/UX とアクセシビリティのモデル**:Codex で流す(ユーザーが決めた)。Cursor の Gemini 4 Neon は、月の上限に当たると結果を返さなかった。モデルと reasoning effort は、`gpt-6.2-sol`・`xhigh` にした(エージェントが決めた)。この観点は、画面を描かずに、状態の移り変わり・フォーカスの移り方・accessible name を、部品と hook をまたいでコードから読み取るので、深く読むモデルが要る。
+- **規約のレビュー**:Codex の Sol に任せる。言葉とビジネスロジックは、上の「モデルの選び方」のとおり Gemini に任せる。
 - **つながりと一貫性のモデル**:Codex にした(エージェントが決めた)。フェーズ全体の差分と、リポジトリ中の文書を読み合わせるので、子のブランチのビジネスロジックとセキュリティと同じく、深く読むモデルを使う。
 - **古い base のブランチ**:`--base` に渡した手元のブランチが、origin の同じ名前のブランチより古い(その祖先にある)ときは、流さずに止め、`git fetch` してから `origin/<ブランチ>` を渡すよう伝える。古い base と比べると、base に入ったほかの PR の変更まで差分に入り、費用がかさみ、範囲の外の指摘も出る。origin の方に黙って替えると、prompt に書く base の名前と、比べたコミットが食い違う。手元の方が新しいときと、分かれたときは、手元のまま比べる。stack で、まだ push していないコミットを持つ手元のブランチに積むときに要る。
 - **`--head` にコミットを許す**:手元のブランチの名前に加え、`git rev-parse` で1つのコミットに解決できる名前も渡せる(ユーザーが決めた)。両方に当てはまる名前はブランチとして扱う。直したコミットだけを見る2回目のレビューや、PR の先端のコミットをレビューするときに、手で材料をそろえる手間を省ける。コミットを渡したときも今のブランチのフォルダを使う(ユーザーが決めた)。これでブランチごとの回数がそろう。detached HEAD から流すときは、手元のブランチを渡す。

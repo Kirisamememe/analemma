@@ -11,7 +11,7 @@ describe("観点とモデルの割り当て", () => {
     expect(PERSPECTIVES.map(({ id, reviewer }) => ({ id, reviewer }))).toEqual([
       {
         id: "logic",
-        reviewer: { runner: "codex", model: "gpt-6.2-sol", effort: "xhigh" },
+        reviewer: { runner: "agy", model: "gemini-4-neon-high" },
       },
       {
         id: "security",
@@ -27,7 +27,7 @@ describe("観点とモデルの割り当て", () => {
       },
       {
         id: "wording",
-        reviewer: { runner: "codex", model: "gpt-6.1-terra", effort: "high" },
+        reviewer: { runner: "agy", model: "gemini-4-hydrogen-high" },
       },
       {
         id: "coherence",

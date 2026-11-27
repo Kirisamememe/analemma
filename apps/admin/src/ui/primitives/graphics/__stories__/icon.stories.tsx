@@ -16,6 +16,7 @@ const NAMES: readonly IconName[] = [
   "circle-alert",
   "circle-check",
   "cloud-alert",
+  "cloud-upload",
   "file-text",
   "grip-vertical",
   "house",

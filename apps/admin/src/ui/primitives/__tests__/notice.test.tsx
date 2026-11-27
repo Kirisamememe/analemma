@@ -23,4 +23,14 @@ describe("Notice", () => {
       expect(screen.queryByRole("alert")).toBeNull();
     },
   );
+
+  test("アイコンを添えても、読み上げる中身は文言だけにする", () => {
+    render(
+      <Notice icon="circle-check" tone="success">
+        保存しました
+      </Notice>,
+    );
+
+    expect(screen.getByRole("status").textContent).toBe("保存しました");
+  });
 });

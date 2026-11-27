@@ -75,6 +75,13 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
     query._tag !== "Loading" &&
     (shown === undefined || canMove || query._tag === "Failed");
 
+  const targets = {
+    retry:
+      query._tag === "Failed" || (failure !== undefined && shown !== undefined),
+    previous: shown !== undefined && neighbors?.previous !== undefined,
+    next: shown !== undefined && neighbors?.next !== undefined,
+  }; // 変わると、focus を戻し直す
+
   const waiting = () => {
     if (query._tag === "Failed") return undefined;
 
@@ -106,7 +113,7 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
   return (
     <ViewerVisit
       ref={(element) => {
-        if (element !== null && ready) navigation.restore(id);
+        if (element !== null && ready) navigation.restore(id, targets);
       }}
     >
       {shown !== undefined && (

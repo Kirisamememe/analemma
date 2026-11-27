@@ -4,6 +4,7 @@ import { AppPreview } from "@/testing/app-preview";
 import type { FakeOutput, FakeRoutes } from "@/testing/create-fake-api";
 import { createFixedPageRoutes } from "@/testing/fake-routes/create-fixed-page-routes";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
+import { failedReply } from "@/testing/fake-routes/fake-replies";
 import { SAMPLE_IMAGES } from "@/testing/sample-photos";
 
 // --------------------
@@ -311,10 +312,7 @@ export const SaveFailed: Story = {
     /** 保存すると想定外の失敗を返す server。 */
     createRoutes: () => ({
       ...signedIn,
-      "admin/fixedPages/update": () => ({
-        error: "INTERNAL_SERVER_ERROR",
-        defined: false,
-      }),
+      "admin/fixedPages/update": failedReply,
     }),
   },
 };
@@ -324,10 +322,7 @@ export const DeleteFailed: Story = {
     /** 削除すると想定外の失敗を返す server。 */
     createRoutes: () => ({
       ...signedIn,
-      "admin/fixedPages/delete": () => ({
-        error: "INTERNAL_SERVER_ERROR",
-        defined: false,
-      }),
+      "admin/fixedPages/delete": failedReply,
     }),
   },
 };
@@ -341,10 +336,7 @@ export const KindLoadFailed: Story = {
     /** 固定ページを取得でき、種類の取得だけが失敗する server。 */
     createRoutes: () => ({
       ...signedIn,
-      "admin/kinds/get": () => ({
-        error: "INTERNAL_SERVER_ERROR",
-        defined: false,
-      }),
+      "admin/kinds/get": failedReply,
     }),
   },
 };
@@ -354,10 +346,7 @@ export const PageLoadFailed: Story = {
     /** 固定ページを取得できない server。 */
     createRoutes: () => ({
       ...signedIn,
-      "admin/fixedPages/get": () => ({
-        error: "INTERNAL_SERVER_ERROR",
-        defined: false,
-      }),
+      "admin/fixedPages/get": failedReply,
     }),
   },
 };
@@ -368,10 +357,7 @@ export const KindsLoadFailed: Story = {
     /** 選べる種類の一覧を取得できない server。 */
     createRoutes: () => ({
       ...signedIn,
-      "admin/kinds/list": () => ({
-        error: "INTERNAL_SERVER_ERROR",
-        defined: false,
-      }),
+      "admin/kinds/list": failedReply,
     }),
   },
 };
@@ -382,10 +368,7 @@ export const NewKindLoadFailed: Story = {
     /** 選んだ種類の定義を取得できない server。 */
     createRoutes: () => ({
       ...signedIn,
-      "admin/kinds/get": () => ({
-        error: "INTERNAL_SERVER_ERROR",
-        defined: false,
-      }),
+      "admin/kinds/get": failedReply,
     }),
   },
 };

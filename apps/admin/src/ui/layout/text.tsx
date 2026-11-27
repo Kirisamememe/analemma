@@ -4,8 +4,8 @@ import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
 const tone = tv({
-  base: "wrap-anywhere",
   variants: {
+    truncate: { true: "truncate", false: "wrap-anywhere" },
     tone: {
       default: "",
       muted: "text-fg-muted",
@@ -24,6 +24,8 @@ type TextProps = {
   tone?: "default" | "muted" | "danger";
   /** 文字を包む要素。 */
   as?: "p" | "span" | "div";
+  /** 1行に収め、入りきらない分を省略するか。 */
+  truncate?: boolean;
   /** 中身の言語(画面と違うときだけ)。 */
   lang?: string;
   /** テキストの中身。 */
@@ -37,10 +39,15 @@ export const Text = ({
   as: Element = "p",
   id,
   lang,
+  truncate = false,
   children,
 }: TextProps): ReactNode => (
   <Element
-    className={tone({ tone: color, className: typography({ role: variant }) })}
+    className={tone({
+      tone: color,
+      truncate,
+      className: typography({ role: variant }),
+    })}
     id={id}
     lang={lang}
   >

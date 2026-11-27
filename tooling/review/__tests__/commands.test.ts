@@ -105,4 +105,27 @@ describe("レビューのコマンドを組み立てること", () => {
       output: "stdout",
     });
   });
+
+  test("Antigravity は、書き込みを承認しない既定のモードと sandbox で、コミットの中身のフォルダから流し、prompt を引数で渡して、結果を標準出力に出すこと", () => {
+    expect(
+      buildReviewCommand({
+        reviewer: { runner: "agy", model: "gemini-4-hydrogen-high" },
+        paths: PATHS,
+      }),
+    ).toEqual({
+      command: "agy",
+      args: [
+        "--sandbox",
+        "--add-dir",
+        PATHS.context,
+        "--model",
+        "gemini-4-hydrogen-high",
+        "--output-format",
+        "text",
+      ],
+      output: "stdout",
+      cwd: PATHS.tree,
+      promptFlag: "--print=",
+    });
+  });
 });

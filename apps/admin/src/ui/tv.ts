@@ -58,7 +58,7 @@ const MERGE_CONFIG: TWMergeConfig = {
         "size-icon-xl",
         "size-control",
       ],
-      w: ["w-sidebar"],
+      w: ["w-sidebar", "w-story-stage"],
       "object-position": ["object-focal"],
       z: [{ z: ["sticky", "overlay", "toast"] }],
       "grid-cols": [{ "grid-cols": ["thumbnails"] }],

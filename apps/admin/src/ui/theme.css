@@ -295,12 +295,25 @@
   text-box: trim-both cap alphabetic;
 }
 
+@utility snap-rail {
+  container-type: inline-size;
+  scroll-snap-type: x mandatory;
+}
+
+@utility snap-rail-strip {
+  padding-inline-end: 100cqi;
+}
+
 @utility h-photo-preview {
   height: clamp(7rem, 29vw, 10.5rem);
 }
 
 @utility object-focal {
   object-position: var(--focal-x, 50%) var(--focal-y, 50%);
+}
+
+@utility w-story-stage {
+  width: min(32rem, calc(100dvw - 2rem));
 }
 
 @utility w-sidebar {

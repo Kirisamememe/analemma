@@ -5,12 +5,12 @@ import { tv } from "@/ui/tv";
 const stage = tv({
   base: [
     "flex max-w-full flex-col gap-4",
-    "rounded-surface bg-surface p-8 edge-outer",
+    "rounded-surface bg-surface p-4 edge-outer md:p-8",
   ],
   variants: {
     width: {
       fit: "items-center",
-      fill: "w-lg items-stretch",
+      fill: "w-story-stage items-stretch",
     },
   },
 });

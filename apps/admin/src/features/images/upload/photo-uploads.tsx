@@ -3,7 +3,6 @@ import { type ReactNode, useCallback, useSyncExternalStore } from "react";
 import { useUploadConversions } from "./hooks/use-upload-conversions";
 import { useUploadDialog } from "./hooks/use-upload-dialog";
 import type { PhotoUpload } from "./logic/photo-uploads";
-import { uploadNotice } from "./logic/upload-view";
 import { UploadCarousel } from "./upload-carousel";
 import { UploadFileInput } from "./upload-file-input";
 import { UploadLeaveDialog } from "./upload-leave-dialog";
@@ -11,12 +10,12 @@ import { UploadPhotoFields } from "./upload-photo-fields";
 import { UploadPhotoStatus } from "./upload-photo-status";
 
 import { PhotoDropHint } from "@/features/images/ui/upload/photo-drop-hint";
+import { UploadNotice } from "@/features/images/ui/upload/upload-notice";
 import { useTranslate } from "@/i18n/use-translate";
-import { Cluster, Stack, Text } from "@/ui/layout";
+import { Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
-import { Notice } from "@/ui/primitives/notice";
 import { Modal, ModalActions, ModalSection } from "@/ui/primitives/overlays";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 
@@ -80,8 +79,6 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
     focus: { addButton },
   } = dialog;
 
-  const notice = uploadNotice(dialog.uploads);
-
   return (
     <div ref={attach}>
       <UploadConversions uploads={dialog.uploads} onSettled={dialog.settle} />
@@ -125,14 +122,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
               onFiles={dialog.receive}
               isDisabled={dialog.metadata.isSaving}
             />
-            {notice && (
-              <Notice tone={notice.tone}>
-                <Cluster gap={2}>
-                  <Icon name={notice.icon} />
-                  <Text>{t(notice.key, notice.counts)}</Text>
-                </Cluster>
-              </Notice>
-            )}
+            <UploadNotice uploads={dialog.uploads} />
           </Stack>
         </ModalSection>
         {dialog.selected && (

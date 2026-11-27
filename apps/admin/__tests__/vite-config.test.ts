@@ -21,6 +21,8 @@ type Built = {
   readonly html: string;
   /** CSS のファイルをつないだ中身。 */
   readonly css: string;
+  /** JS の chunk をつないだ中身。 */
+  readonly js: string;
 };
 
 const buildAdmin = async (): Promise<Built> => {
@@ -46,7 +48,11 @@ const buildAdmin = async (): Promise<Built> => {
       )
       .join("\n");
 
-  return { html: sourceOf(/^index\.html$/v), css: sourceOf(/\.css$/v) };
+  const js = files
+    .flatMap((file) => (file.type === "chunk" ? [file.code] : []))
+    .join("\n");
+
+  return { html: sourceOf(/^index\.html$/v), css: sourceOf(/\.css$/v), js };
 };
 
 /** head の script を流す、作り物のブラウザ。 */
@@ -87,11 +93,19 @@ const runBootScript = (
 
 let built: Built;
 
+const BUILD_TIMEOUT_MS = 60_000; // コンパイラの変換を含むビルドは、遅い環境では hook の既定の5秒を超える
+
 beforeAll(async () => {
   built = await buildAdmin();
-});
+}, BUILD_TIMEOUT_MS);
 
 describe("本番のビルド", () => {
+  test("部品と hook を、React Compiler のキャッシュを使う形に変換すること", () => {
+    expect(built.js.split("react.memo_cache_sentinel").length).toBeGreaterThan(
+      10,
+    );
+  });
+
   test("CSS の light-dark() を、Lightning CSS の変数に書き換えない", () => {
     expect(built.css).toContain("light-dark(");
     expect(built.css).not.toContain("--lightningcss-");

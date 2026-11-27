@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AppPreview } from "@/testing/app-preview";
 import type { FakeReply, FakeRoutes } from "@/testing/create-fake-api";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
+import { failedReply, pendingReply } from "@/testing/fake-routes/fake-replies";
 import { SAMPLE_IMAGES } from "@/testing/sample-photos";
 
 const IDS = createImageRoutes(SAMPLE_IMAGES)
@@ -92,25 +93,21 @@ const withReplies = (overrides: FakeRoutes): Story => ({
   },
 });
 
-const failed = () =>
-  ({ error: "INTERNAL_SERVER_ERROR", defined: false }) as const;
-
 export const Loading = withReplies({
-  "admin/images/get": async () =>
-    Promise.withResolvers<FakeReply<"admin/images/get">>().promise,
+  "admin/images/get": async () => pendingReply<FakeReply<"admin/images/get">>(),
 });
 
-export const LoadFailed = withReplies({ "admin/images/get": failed });
+export const LoadFailed = withReplies({ "admin/images/get": failedReply });
 
 export const NeighborsFailed = withReplies({
-  "admin/images/neighbors": failed,
+  "admin/images/neighbors": failedReply,
 });
 
 export const Gone = atPath("/images/019b0000-0000-7000-8000-0000000000ff");
 
 export const Saving = withReplies({
   "admin/images/update": async () =>
-    Promise.withResolvers<FakeReply<"admin/images/update">>().promise,
+    pendingReply<FakeReply<"admin/images/update">>(),
 });
 
-export const SaveFailed = withReplies({ "admin/images/update": failed });
+export const SaveFailed = withReplies({ "admin/images/update": failedReply });

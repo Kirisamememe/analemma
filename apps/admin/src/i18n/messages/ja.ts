@@ -1,7 +1,11 @@
+// oxlint-disable project/max-code-lines -- 訳は、言語ごとに1ファイルに置く(見比べて抜けを見つけるため。ユーザーが決めた)
 import type { Translation } from "@/i18n/translation";
 
 /** 日本語の訳。 */
 export const ja = {
+  // ---------------------------------------------
+  // 写真の画面と、固定ページの編集
+  // ---------------------------------------------
   "imageViewer.info": "写真の情報",
   "imageViewer.loading": "写真を読み込んでいます。",
   "imageViewer.loadFailed": "写真を読み込めませんでした",
@@ -76,6 +80,9 @@ export const ja = {
   "fixedPageEditor.editReady": "編集フォームを表示しました。",
   "fixedPageEditor.formReady": "作成フォームを表示しました。",
   "fixedPageEditor.chooseAgain": "種類を選び直す",
+  // ---------------------------------------------
+  // 共通の部品と、画面の枠
+  // ---------------------------------------------
   "app.name": "Stilus",
   "home.title": "ホーム",
   "navigation.main": "メイン",
@@ -109,6 +116,9 @@ export const ja = {
   "ui.errorState.failedAgain": "まだ読み込めません。",
   "ui.errorState.retryLater": "時間をおいて試してください。",
   "ui.errorState.retry": "もう一度試す",
+  // ---------------------------------------------
+  // ログインとセキュリティ
+  // ---------------------------------------------
   "login.title": "Stilus にログイン",
   "login.description": "この管理画面に登録したパスキーを使います。",
   "login.submit": "パスキーでログイン",
@@ -182,6 +192,9 @@ export const ja = {
   "sessions.logOutAllFailed":
     "ログアウトできませんでした。もう一度試してください。",
   "passkeys.renamed": "パスキーの名前を変更しました。",
+  // ---------------------------------------------
+  // デプロイ用のトークン
+  // ---------------------------------------------
   "deployTokens.title": "デプロイ用のトークン",
   "deployTokens.description":
     "公開サイトのデプロイで、種類の定義を送るときに使うトークン。トークンの値は、発行した直後に一度だけ表示します。",
@@ -221,6 +234,9 @@ export const ja = {
   "deployTokens.notFound": "このトークンはもうありません。",
   "deployTokens.failed":
     "操作できませんでした。時間をおいて、もう一度試してください。",
+  // ---------------------------------------------
+  // 固定ページ
+  // ---------------------------------------------
   "fixedPages.title": "固定ページ",
   "fixedPages.description": "About など、公開サイトに置くページ。",
   "fixedPages.loadFailed": "固定ページを読み込めませんでした",
@@ -263,6 +279,9 @@ export const ja = {
   "fixedPageEditor.replaceImage": "差し替える",
   "fixedPageEditor.removeImage": "外す",
   "fixedPageEditor.missingImage": "画像がありません",
+  // ---------------------------------------------
+  // 画像
+  // ---------------------------------------------
   "imagePicker.title": "画像を選ぶ",
   "imagePicker.none": "未選択",
   "imagePicker.selected": "選択中の画像 {{count}} 枚",
@@ -277,6 +296,13 @@ export const ja = {
   "imageUpload.position": "{{current}} / {{total}}",
   "imageUpload.editPhoto": "編集する写真を表示",
   "imageUpload.finish": "完了",
+  "imageUpload.notice.converting":
+    "{{count}}枚を変換中。閉じても変換は続きます",
+  "imageUpload.notice.unreadable":
+    "{{count}}枚は読み取れませんでした。別のファイルを追加してください",
+  "imageUpload.notice.retryable": "{{count}}枚は送り直せます",
+  "imageUpload.notice.rejected":
+    "{{count}}枚は、形式か大きさが対応していません",
   "imageUpload.notice.allFailed": "{{total}}枚すべて失敗",
   "imageUpload.notice.sending": "{{total}}枚中{{added}}枚完了",
   "imageUpload.notice.done": "{{total}}枚アップロード完了",
@@ -309,16 +335,16 @@ export const ja = {
   "imageUpload.showPhoto": "写真を見る",
   "imageUpload.guide.file":
     "選択またはドロップですぐにアップロードして公開（JPEG・PNG・WebP・AVIF・HEIC、1枚 {{limit}} まで）",
-  "imageUpload.status.waiting": "アップロード待ち",
-  "imageUpload.status.sending": "アップロード中",
-  "imageUpload.status.added": "アップロード済み",
+  "imageUpload.status.waiting": "待機中",
+  "imageUpload.status.sending": "送信中",
+  "imageUpload.status.added": "追加済み",
   "imageUpload.status.converting": "変換中",
-  "imageUpload.convertingHint": "閉じても変換は続きます",
-  "imageUpload.unreadableHint": "別のファイルを追加してください",
   "imageUpload.retryFailed": "前の画像を消せず、送り直せませんでした",
-  "imageUpload.status.too-large": "{{limit}} を超えています",
-  "imageUpload.status.unsupported": "対応していない形式です",
-  "imageUpload.status.failed": "送れませんでした",
+  "imageUpload.status.too-large": "サイズ超過",
+  "imageUpload.status.unsupported": "非対応の形式",
+  "imageUpload.status.failed": "送信失敗",
+  "imageUpload.status.interrupted": "変換失敗",
+  "imageUpload.status.unreadable": "読み取り不可",
   "imageUpload.problem": "{{name}} · {{message}}",
   "imageUpload.retry": "送り直す",
   "imageUpload.retryPhoto": "{{name}} を送り直す",

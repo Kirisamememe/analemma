@@ -122,7 +122,7 @@ describe("管理画面の部品の class", () => {
 
   test.each([
     ["ui/primitives/overlays/dialog.tsx", [3, 3, 4, 5, 5, 6, 6, 7, 7, 8]],
-    ["ui/primitives/navigation/scroll-view.tsx", [4]],
+    ["ui/primitives/navigation/scroll/scroll-view.tsx", [4]],
     ["ui/patterns/photos/image-radio.tsx", [4]],
     ["features/images/ui/upload/photo-drop-hint.tsx", [3, 3, 4, 4, 4]],
     ["ui/primitives/form-fields/choices/checkbox-control.tsx", [3]],
