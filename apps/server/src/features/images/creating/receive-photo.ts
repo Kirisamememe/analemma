@@ -16,7 +16,10 @@ export const receivePhoto = async (
   let stored = false;
   await using rollback = new AsyncDisposableStack();
   rollback.defer(async () => {
-    if (!stored) await deleteImage(db, row.id);
+    if (stored) return;
+
+    await pending.discard(row.id);
+    await deleteImage(db, row.id);
   });
 
   await pending.put(row.id, bytes);

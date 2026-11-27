@@ -12,6 +12,8 @@ export type PendingPhotos = {
   readonly read: (imageId: string) => Promise<Uint8Array | undefined>;
   /** 画像の原本を消す。 */
   readonly discard: (imageId: string) => Promise<void>;
+  /** 渡した画像のほかの原本を、置き場所から消す。 */
+  readonly sweep: (keep: ReadonlySet<string>) => Promise<void>;
   /** リクエストの外で進める変換を覚える。 */
   readonly track: (work: Promise<void>) => void;
   /** 覚えている変換がすべて終わるのを待つ。 */
@@ -25,7 +27,9 @@ export type PendingPhotos = {
 /** 新しい写真を受け取らなくなる、置いてある原本の合計(bytes)。 */
 export const PENDING_PHOTOS_LIMIT = 1024 * 1024 * 1024;
 
-const toKey = (imageId: string): string => `pending/${imageId}.bin`;
+const FOLDER = "pending";
+
+const toKey = (imageId: string): string => `${FOLDER}/${imageId}.bin`;
 
 /** 配信用の画像の置き場所の中に、変換を待つ原本の置き場所を作る。 */
 export const createPendingPhotos = (
@@ -68,6 +72,12 @@ export const createPendingPhotos = (
     discard: async (imageId) => {
       await storage.remove([toKey(imageId)]);
       sizes.delete(imageId);
+    },
+    sweep: async (keep) => {
+      const kept = new Set([...keep].map((imageId) => toKey(imageId)));
+      const keys = await storage.list(FOLDER);
+
+      await storage.remove(keys.filter((key) => !kept.has(key)));
     },
     track: (work) => {
       works.add(work);

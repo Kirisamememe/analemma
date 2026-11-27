@@ -5,11 +5,15 @@ import {
 } from "@/features/images/creating/queries/pending-image.query";
 import { startPendingConversion } from "@/features/images/creating/run-pending-conversion";
 
-/** 止まる前に受け取って変換を終えていない画像を、原本があれば変換し直し、無ければ変換失敗にする。 */
+/** 止まる前に受け取った画像の変換を続け、変換を待つ画像の無い原本を消す。 */
 export const resumePendingImages = async (
   context: AppContext,
 ): Promise<void> => {
-  for (const imageId of await listPendingImageIds(context.db)) {
+  const imageIds = await listPendingImageIds(context.db);
+
+  await context.pending.sweep(new Set(imageIds));
+
+  for (const imageId of imageIds) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- 受け取った順に並べる
     if (await context.pending.restore(imageId)) {
       startPendingConversion(context, imageId);

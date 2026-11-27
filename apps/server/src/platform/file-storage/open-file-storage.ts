@@ -1,4 +1,4 @@
-import { rm, stat } from "node:fs/promises";
+import { readdir, rm, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 /** 名前を付けたファイルを書き、読み、消す置き場所。 */
@@ -9,8 +9,11 @@ export type FileStorage = {
   readonly read: (key: string) => Promise<Blob | undefined>;
   /** 名前のファイルを消す。 */
   readonly remove: (keys: readonly string[]) => Promise<void>;
+  /** 置き場所の直下のフォルダにある、ファイルの名前を読む。 */
+  readonly list: (folder: string) => Promise<string[]>;
 };
 
+const FOLDER = /^[0-9a-z_\-]+$/v;
 const FILE_KEY = /^[0-9a-z_\-]+(?:\/[0-9a-z_\-]+)*\.[0-9a-z]+$/v;
 
 const toPath = (root: string, key: string): string => {
@@ -21,6 +24,12 @@ const toPath = (root: string, key: string): string => {
   }
 
   return join(root, key);
+};
+
+const isDirectory = async (path: string): Promise<boolean> => {
+  const stats = await stat(path, { throwIfNoEntry: false });
+
+  return stats?.isDirectory() === true;
 };
 
 /** フォルダを、ファイルの置き場所として開く。 */
@@ -46,6 +55,21 @@ export const openFileStorage = async (
       const paths = keys.map((key) => toPath(root, key));
 
       await Promise.all(paths.map(async (path) => rm(path, { force: true })));
+    },
+    list: async (folder) => {
+      if (!FOLDER.test(folder)) {
+        throw new Error(
+          `置き場所のフォルダの名前に使えない: ${JSON.stringify(folder)}`,
+        );
+      }
+
+      const path = join(root, folder);
+
+      if (!(await isDirectory(path))) return [];
+
+      const names = await readdir(path);
+
+      return names.map((name) => `${folder}/${name}`);
     },
   };
 };

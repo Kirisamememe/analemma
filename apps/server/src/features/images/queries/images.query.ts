@@ -31,6 +31,18 @@ export const findImage = async (
   return row;
 };
 
+/** 画像の行を lock し、先に書き始めたトランザクションが終わるのを待つ。 */
+export const lockImage = async (
+  tx: DatabaseExecutor,
+  id: string,
+): Promise<void> => {
+  await tx
+    .select({ id: image.id })
+    .from(image)
+    .where(eq(image.id, id))
+    .for("update");
+};
+
 /** 画像の行を、新しく足した順に読む。 */
 export const listImages = async (
   db: DatabaseExecutor,

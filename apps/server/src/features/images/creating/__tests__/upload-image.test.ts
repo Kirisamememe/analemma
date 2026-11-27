@@ -185,7 +185,7 @@ describe("受け取った写真の変換", () => {
     expect(server.logs.filter(({ level }) => level === "error")).toEqual([]);
   });
 
-  test("止まる前に受け取った画像を、起動のときに変換し直し、原本の無い画像は変換失敗にすること", async () => {
+  test("止まる前に受け取った画像を、起動のときに変換し直し、原本の無い画像は変換失敗にして、画像の無い原本を消すこと", async () => {
     const held = holdFirstConversion();
     await using server = await createTestClient({
       conversions: held.conversions,
@@ -196,7 +196,10 @@ describe("受け取った写真の変換", () => {
     const kept = await images.upload({ photo: await photo("high-iso.jpg") });
     const lost = await images.upload({ photo: await photo("wide-red.jpg") });
 
+    const orphan = `pending/${crypto.randomUUID()}.bin`;
+
     await server.storage.remove([`pending/${lost.id}.bin`]);
+    await server.storage.write(orphan, new Uint8Array(8));
 
     const restarting = server.restart();
 
@@ -209,5 +212,6 @@ describe("受け取った写真の変換", () => {
     expect(await images.get({ id: lost.id })).toMatchObject({
       status: "failed",
     });
+    expect(await server.storage.read(orphan)).toBeUndefined();
   });
 });
