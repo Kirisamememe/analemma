@@ -2,8 +2,8 @@ import type { AppContext } from "@/context";
 import {
   insertImage,
   insertDeliveryImages,
-  wasRegistrationAborted,
 } from "@/features/images/creating/queries/image-registration.query";
+import { storeDeliveryImages } from "@/features/images/creating/store-delivery-images";
 import { createDeliveryImages } from "@/features/images/processing/create-delivery-images";
 import { readShotInfo } from "@/features/images/processing/read-shot-info";
 import { toAdminImage } from "@/features/images/to-image";
@@ -31,55 +31,26 @@ export const createImage = async (
   if (delivery._tag === "UnsupportedFormat") return delivery;
 
   const shot = await readShotInfo(bytes);
-  const written: string[] = [];
-  let transactionId: string | undefined;
-  let registered = false;
-  await using rollback = new AsyncDisposableStack();
-  rollback.defer(async () => {
-    if (registered || written.length === 0) return;
 
-    if (
-      transactionId !== undefined &&
-      !(await wasRegistrationAborted(db, transactionId))
-    ) {
-      return;
-    }
+  const image = await storeDeliveryImages(
+    { db, storage },
+    {
+      images: delivery.images,
+      register: async (tx, files) => {
+        const row = await insertImage(tx, { shot, now: clock.now() });
+        const rows = files.map((file) => ({ imageId: row.id, ...file }));
 
-    await storage.remove(written);
-  });
+        await insertDeliveryImages(tx, rows);
 
-  const prefix = crypto.randomUUID();
+        return {
+          transactionId: row.transactionId,
+          value: toAdminImage(row, rows),
+        };
+      },
+    },
+  );
 
-  const files = delivery.images.map(({ width, height, avif }) => ({
-    width,
-    height,
-    avif,
-    fileKey: `${prefix}-${width}.avif`,
-  }));
+  if (image === undefined) throw new Error("登録した画像がありません");
 
-  for (const file of files) {
-    written.push(file.fileKey);
-    // oxlint-disable-next-line eslint/no-await-in-loop -- 失敗した書き込みの後始末より後に別のファイルを作らない
-    await storage.write(file.fileKey, file.avif);
-  }
-
-  const result = await db.transaction(async (tx) => {
-    const row = await insertImage(tx, { shot, now: clock.now() });
-    transactionId = row.transactionId;
-
-    const rows = files.map(({ width, height, fileKey }) => ({
-      imageId: row.id,
-      width,
-      height,
-      fileKey,
-    }));
-
-    await insertDeliveryImages(tx, rows);
-
-    return toAdminImage(row, rows);
-  });
-
-  registered = true;
-
-  return { _tag: "Created", image: result } as const;
+  return { _tag: "Created", image } as const;
 };

@@ -1,11 +1,5 @@
 import { describe, expect, test } from "bun:test";
 
-import { PHOTO_MAX_BYTES } from "@analemma/contract";
-
-import {
-  type ConversionQueue,
-  createConversionQueue,
-} from "@/features/images/processing/conversion-queue";
 import { detectImageFormat } from "@/platform/images/detect-image-format";
 import {
   catchErrorCode,
@@ -13,111 +7,12 @@ import {
   SUCCEEDED,
   signInAsAdmin,
   TEST_NOW,
-  TEST_ORIGIN,
-  type TestClient,
 } from "@/test-client";
-
-const FIXTURES = {
-  "wide-red.jpg": "../../processing/__tests__/wide-red.jpg",
-  "high-iso.jpg": "../../processing/__tests__/high-iso.jpg",
-  "red.bmp": "../../processing/__tests__/red.bmp",
-  "rotated-with-gps.heic":
-    "../../../../platform/images/__tests__/rotated-with-gps.heic",
-};
-
-const photo = async (name: keyof typeof FIXTURES, type = "") => {
-  const response = await fetch(new URL(FIXTURES[name], import.meta.url));
-
-  return new File([await response.arrayBuffer()], name, { type });
-};
-
-const MEGABYTE = 1024 * 1024;
-
-/** テストで送る、写真の本文の大きさと Cookie。 */
-type UploadBody = {
-  /** 本文の bytes の数。 */
-  readonly size: number;
-  /** Content-Length に書く値。 */
-  readonly contentLength?: number;
-  /** ログインしたブラウザの Cookie を付けるか。 */
-  readonly cookie: boolean;
-  /** `/api/admin/` の後ろのパス。 */
-  readonly path?: string;
-};
-
-const uploadRequest = (
-  server: TestClient,
-  { size, contentLength = size, cookie, path = "images/upload" }: UploadBody,
-): Request =>
-  new Request(`${TEST_ORIGIN}/api/admin/${path}`, {
-    method: "POST",
-    headers: {
-      origin: TEST_ORIGIN,
-      "sec-fetch-site": "same-origin",
-      "content-type": "multipart/form-data; boundary=photo",
-      "content-length": String(contentLength),
-      ...(cookie && { cookie: server.cookie() }),
-    },
-    body: new Uint8Array(size),
-  });
-
-/** 送った写真の数が届くのを待つ、テストの関数。 */
-type QueuedWaiter = {
-  /** 待つ数。 */
-  readonly count: number;
-  /** 届いたら呼ぶ関数。 */
-  readonly resolve: () => void;
-};
-
-const holdFirstConversion = () => {
-  const queue = createConversionQueue();
-  const gate = Promise.withResolvers<undefined>();
-  const waiters: QueuedWaiter[] = [];
-  let queued = 0;
-  let converted = 0;
-
-  const conversions: ConversionQueue = {
-    run: async <T>(
-      convert: () => Promise<T>,
-      signal?: AbortSignal,
-    ): Promise<T> => {
-      queued += 1;
-      const order = queued;
-
-      for (const waiter of waiters.filter(({ count }) => count <= queued)) {
-        waiter.resolve();
-      }
-
-      return queue.run(async () => {
-        if (order === 1) await gate.promise;
-
-        converted += 1;
-
-        return convert();
-      }, signal);
-    },
-  };
-
-  return {
-    conversions,
-    queued: async (count: number): Promise<void> => {
-      if (queued >= count) return;
-
-      const { promise, resolve } = Promise.withResolvers<undefined>();
-      waiters.push({
-        count,
-        resolve: () => {
-          resolve(undefined);
-        },
-      });
-      await promise;
-    },
-    release: () => {
-      gate.resolve(undefined);
-    },
-    converted: () => converted,
-  };
-};
+import {
+  holdFirstConversion,
+  photo,
+  uploadRequest,
+} from "@/test-client/photo-uploads";
 
 describe("写真を送って画像を作る", () => {
   test("JPEG から、撮影の情報と配信用の画像を持つ公開の画像を作り、一覧の先頭に出すこと", async () => {
@@ -286,84 +181,5 @@ describe("写真を送って画像を作る", () => {
     });
 
     expect(kept).toEqual(["/api/admin/images/upload"]);
-  });
-});
-
-describe("写真を送る本文の大きさ", () => {
-  test("セッションが無いと、ほかの API と同じ 1 MB を超える本文を 413 で断ること", async () => {
-    await using server = await createTestClient();
-
-    const response = await server.app.fetch(
-      uploadRequest(server, { size: 2 * MEGABYTE, cookie: false }),
-    );
-
-    expect(response.status).toBe(413);
-  });
-
-  test("ログイン中なら 1 MB を超える写真も受け、中身の形式を確かめること", async () => {
-    await using server = await createTestClient();
-    await signInAsAdmin(server);
-
-    const large = new File([new Uint8Array(2 * MEGABYTE)], "large.jpg");
-
-    expect(
-      await catchErrorCode(server.client.admin.images.upload({ photo: large })),
-    ).toBe("UNSUPPORTED_FORMAT");
-  });
-
-  test("ログイン中でも、写真を送る procedure のほかには、ファイルを含む本文にも 1 MB の上限を掛けること", async () => {
-    await using server = await createTestClient();
-    await signInAsAdmin(server);
-
-    const response = await server.app.fetch(
-      uploadRequest(server, {
-        size: 2 * MEGABYTE,
-        cookie: true,
-        path: "fixedPages/update",
-      }),
-    );
-
-    expect(response.status).toBe(413);
-  });
-
-  test("ログイン中でも、写真の上限にほかの API の上限を足した大きさを超える本文は、読まずに 413 で断ること", async () => {
-    await using server = await createTestClient();
-    await signInAsAdmin(server);
-
-    const response = await server.app.fetch(
-      uploadRequest(server, {
-        size: 16,
-        contentLength: PHOTO_MAX_BYTES + MEGABYTE + 1,
-        cookie: true,
-      }),
-    );
-
-    expect(response.status).toBe(413);
-  });
-
-  test("本文の上限を決めるためのセッションの確認に失敗したら、500 にしてログに書くこと", async () => {
-    let failing = false;
-
-    await using server = await createTestClient({
-      clock: {
-        now: () => {
-          if (failing) throw new Error("時刻を読めない");
-
-          return TEST_NOW;
-        },
-      },
-    });
-    await signInAsAdmin(server);
-    failing = true;
-
-    const response = await server.app.fetch(
-      uploadRequest(server, { size: 16, cookie: true }),
-    );
-
-    expect(response.status).toBe(500);
-    expect(server.logs.at(-1)).toMatchObject({
-      level: "error",
-      message: "HTTP の処理で想定外の失敗が起きた",
-    });
   });
 });
