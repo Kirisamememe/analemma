@@ -54,9 +54,7 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     "border-t-transparent",
   ],
   "ui/primitives/overlays/toast.tsx": ["border", "border-transparent"],
-  "ui/primitives/overlays/overlay-panel-style.ts": ["outline", "outline-fg/10"],
   "ui/primitives/navigation/scroll-view.tsx": ["forced-colors:after:border-2"],
-  "ui/primitives/navigation/nav-drawer.tsx": ["outline", "outline-fg/10"],
   "ui/primitives/collections/reorderable-list.tsx": [
     "after:outline",
     "after:outline-fg/10",
@@ -70,18 +68,13 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     "forced-colors:after:outline-line",
     "is-hovered:after:outline-fg/20",
   ],
-  "ui/patterns/side-nav.tsx": ["after:border-b"],
-  "ui/layout/media-layout.ts": ["border-t", "md:border-t-0", "md:border-l"],
-  "ui/layout/app-shell.tsx": ["md:outline", "md:outline-fg/10"],
   "features/images/ui/viewer-styles.ts": [
-    "border-b",
     "outline",
     "outline-fg/20",
     "group-focus-visible:outline-2",
     "group-focus-visible:-outline-offset-2",
     "group-focus-visible:outline-current",
   ],
-  "ui/specimens/story-stage.tsx": ["outline", "outline-fg/10"],
   "ui/specimens/color-specimen.tsx": [
     "outline",
     "-outline-offset-1",
@@ -93,5 +86,5 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
 export const borderRestriction = (allowed: readonly string[] = []) => ({
   pattern: `^(?!(?:${allowed.join("|")})$)(?:[^:]+:)*(?:border(?!(?:-spacing(?:-|$)|-collapse$|-separate$))|divide|drop-target|-?outline(?!-hidden$|-none$))(?:-|$)`,
   message:
-    "枠は用途を決めた共通部品で描きます。入力欄・Button の枠、Dialog の縁、focus-ring を使います。",
+    "線は、写真や色の面と色が喧嘩しないように描きます。領域の区切りは separator-t・separator-b・separator-s・separator-e、浮いた面の縁は edge-outer を使います。border と outline の class を書けるのは、許可した部品だけです(apps/admin/src/ui/DECISIONS.md の「枠と面の境界」)。",
 });

@@ -256,6 +256,30 @@
   }
 }
 
+@utility edge-outer {
+  outline: 1px solid color-mix(in oklab, var(--color-fg) 10%, transparent);
+}
+
+@utility separator-t {
+  border: 0 solid color-mix(in oklab, var(--color-fg) 18%, transparent);
+  border-block-start-width: 1px;
+}
+
+@utility separator-b {
+  border: 0 solid color-mix(in oklab, var(--color-fg) 18%, transparent);
+  border-block-end-width: 1px;
+}
+
+@utility separator-s {
+  border: 0 solid color-mix(in oklab, var(--color-fg) 18%, transparent);
+  border-inline-start-width: 1px;
+}
+
+@utility separator-e {
+  border: 0 solid color-mix(in oklab, var(--color-fg) 18%, transparent);
+  border-inline-end-width: 1px;
+}
+
 @utility page-drop-frame {
   position: sticky;
   top: var(--viewport-top-inset, 0px);

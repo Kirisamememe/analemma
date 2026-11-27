@@ -15,7 +15,7 @@ const shell = tv({
       true: {
         screen: "flex flex-col bg-surface-sunken md:flex-row",
         frame: "flex min-w-0 grow flex-col md:p-2 md:pl-0",
-        main: "grow bg-surface px-2 md:rounded-surface md:px-4 md:shadow-control md:outline md:outline-fg/10",
+        main: "grow bg-surface px-2 md:rounded-surface md:px-4 md:shadow-control md:edge-outer",
       },
     },
   },

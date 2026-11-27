@@ -133,7 +133,7 @@ describe("管理画面の部品の class", () => {
       expect(
         result.diagnostics
           .filter(({ message }) =>
-            message.startsWith("枠は用途を決めた共通部品"),
+            message.startsWith("線は、写真や色の面と色が喧嘩しない"),
           )
           .map(({ line }) => line)
           .toSorted((a, b) => a - b),

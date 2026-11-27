@@ -27,7 +27,7 @@ const drawer = tv({
     ],
     panel: [
       "h-full w-sidebar max-w-full overflow-y-auto",
-      "nav-drawer-panel-animation rounded-e-surface bg-surface-sunken text-fg shadow-overlay outline outline-fg/10",
+      "nav-drawer-panel-animation rounded-e-surface bg-surface-sunken text-fg shadow-overlay edge-outer",
     ],
   },
 });

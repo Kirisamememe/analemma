@@ -67,6 +67,7 @@ const MERGE_CONFIG: TWMergeConfig = {
       duration: [{ duration: ["fast", "normal"] }],
       translate: ["state-pressed"],
       "focus-ring": ["focus-ring", "focus-ring-inset", "focus-ring-current"],
+      separator: ["separator-t", "separator-b", "separator-s", "separator-e"],
       "color-scheme": ["scheme-dark", "scheme-light", "scheme-inverse"],
     },
   },
