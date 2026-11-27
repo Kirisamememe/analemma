@@ -1,17 +1,8 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
-import {
-  memo,
-  type ReactNode,
-  type RefObject,
-  use,
-  useRef,
-  useState,
-} from "react";
+import { type ReactNode, type RefObject, use, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { ImageViewerActions } from "./image-viewer-actions";
 import { ImageViewerContext } from "./image-viewer-context";
-import { useImageVisit } from "./use-image-visit";
 import { useViewerNavigation } from "./use-viewer-navigation";
 
 import {
@@ -19,20 +10,20 @@ import {
   useImageNeighbors,
 } from "@/features/images/detail/hooks/use-image-neighbors";
 import { ImageDetail } from "@/features/images/detail/image-detail";
-import { ViewerFrame } from "@/features/images/ui/viewer/viewer-frame";
 import { ViewerMessage } from "@/features/images/ui/viewer/viewer-message";
 import { ViewerVisit } from "@/features/images/ui/viewer/viewer-visit";
-import { Heading, PageTransition, Text } from "@/ui/layout";
+import { Heading } from "@/ui/layout";
 import { ErrorState, LoadingState } from "@/ui/patterns";
-import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
 
+/** 一覧へ戻るリンクを受け取る部品に渡す値。 */
 type BackProps = {
   /** 一覧へ戻るリンク。 */
   back: RefObject<HTMLAnchorElement | null>;
 };
 
-const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
+/** 表示中の写真と情報、前後へのリンク、読み込みと失敗の知らせ。 */
+export const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
   const state = use(ImageViewerContext);
 
   const id = useParams({
@@ -162,50 +153,5 @@ const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
         </ViewerMessage>
       )}
     </ViewerVisit>
-  );
-};
-
-const ViewerBack = ({ back }: BackProps): ReactNode => {
-  const { t } = useTranslation();
-
-  return (
-    <Text variant="caption">
-      <Link ref={back} href="/images" variant="back">
-        {t("imageDetail.backToList")}
-      </Link>
-    </Text>
-  );
-};
-
-/** 写真の切り替えをまたいで、ビューアの帯と一覧へのリンクを保つ。 */
-const ViewerScreenContent = (): ReactNode => {
-  const back = useRef<HTMLAnchorElement>(null);
-  return (
-    <PageTransition>
-      <ViewerFrame
-        back={<ViewerBack back={back} />}
-        actions={<ImageViewerActions />}
-      >
-        <PhotoVisitContent back={back} />
-      </ViewerFrame>
-    </PageTransition>
-  );
-};
-
-const ViewerScreen = memo(ViewerScreenContent);
-
-/** ナビの外に置く写真のビューア。 */
-export const ImageViewerPage = (): ReactNode => {
-  const id = useParams({
-    from: "/images/$id",
-    select: (params) => params.id.toLowerCase(),
-  });
-
-  const state = useImageVisit(id);
-
-  return (
-    <ImageViewerContext value={state}>
-      <ViewerScreen />
-    </ImageViewerContext>
   );
 };
