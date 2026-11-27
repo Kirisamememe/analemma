@@ -134,6 +134,19 @@ describe("受け取られた写真の変換", () => {
     const imageId = "019b0000-0000-7000-8000-000000000001";
     const other = queuePhotos([], { files: [file("d.jpg", 1)], maxBytes: 10 });
 
+    const replacing = withRetryStarted(
+      1,
+      true,
+    )(
+      withAdded(1, {
+        id: "019b0000-0000-7000-8000-000000000009",
+        status: "interrupted",
+        deliveryImages: [],
+      })(other),
+    );
+
+    expect(replacing[0]?.status).toBe("replacing");
+    expect(isReplacing(replacing, { id: 1, imageId })).toBe(false);
     expect(isReplacing(other, { id: 1, imageId })).toBe(false);
     expect(
       isReplacing(received(1, "processing")(other), { id: 1, imageId }),

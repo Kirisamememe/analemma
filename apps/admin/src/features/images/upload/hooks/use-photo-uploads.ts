@@ -226,6 +226,8 @@ export const usePhotoUploads = ({
 
       const failed = latest.current.find((upload) => upload.id === id);
 
+      if (failed?.status === "replacing") return; // 前の画像を消し終えるまで、もう一度は送らない
+
       if (failed?.status === "interrupted" && failed.imageId !== undefined) {
         apply(withRetryStarted(id, true));
         removeFailed({ id, imageId: failed.imageId }); // 変換できなかった画像を消してから、同じ写真を送り直す

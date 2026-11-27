@@ -405,6 +405,7 @@ test("変換を終えられなかった写真は、前の画像を消してか�
   }));
   act(() => {
     result.current.retry(1);
+    result.current.retry(1);
   });
   expect(statuses(result.current.uploads)).toEqual(["a.jpg: replacing"]);
   await waitFor(() => {
