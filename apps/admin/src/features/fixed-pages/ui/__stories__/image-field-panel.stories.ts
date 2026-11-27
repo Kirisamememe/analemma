@@ -39,6 +39,29 @@ export const Unpublished: Story = {
   args: { selected: true, image: unpublished },
 };
 
+const unconverted = image && { ...image, deliveryImages: [] };
+
+export const Converting: Story = {
+  args: {
+    selected: true,
+    image: unconverted && { ...unconverted, status: "processing" },
+  },
+};
+
+export const Unreadable: Story = {
+  args: {
+    selected: true,
+    image: unconverted && { ...unconverted, status: "unreadable" },
+  },
+};
+
+export const Interrupted: Story = {
+  args: {
+    selected: true,
+    image: unconverted && { ...unconverted, status: "interrupted" },
+  },
+};
+
 const panorama = images.find((photo) => photo.title === "海霧のパノラマ");
 
 export const Panorama: Story = {

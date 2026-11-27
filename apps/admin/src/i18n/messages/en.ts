@@ -1,3 +1,4 @@
+// oxlint-disable project/max-code-lines -- 訳は、言語ごとに1ファイルに置く(見比べて抜けを見つけるため。ユーザーが決めた)
 /** 英語の訳で、ほかの言語のキーと引数の出どころ。 */
 export const en = {
   // ---------------------------------------------
@@ -307,6 +308,8 @@ export const en = {
   "images.emptyTitle": "No images yet",
   "images.emptyDescription":
     "Images you upload or import from Dropbox will be listed here.",
+  "images.announceConverted": "“{{title}}” finished converting.",
+  "images.announceUnconverted": "“{{title}}” could not be converted.",
   "images.untitled": "Untitled",
   "images.unpublished": "Unpublished",
   "images.noDeliveryImage": "No image to show yet",
