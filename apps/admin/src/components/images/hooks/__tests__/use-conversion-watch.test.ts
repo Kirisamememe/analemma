@@ -92,3 +92,76 @@ test("いちばん先に受け取った変換中の画像だけを取り直し�
   await Bun.sleep(POLL_MS * 4);
   expect(gets()).toHaveLength(settled);
 });
+
+test("最初の取得に失敗しても取り直し続け、通信が戻ったら変換の結果を一覧に当てる", async () => {
+  const { server, app, pages, gets, listed } = await setUp([
+    { title: "新", status: "processing" },
+  ]);
+
+  const [converting] = server.images();
+  let failing = true;
+  const get = server.routes["admin/images/get"];
+
+  server.routes["admin/images/get"] = Object.assign(
+    (input: Parameters<typeof get>[0]) =>
+      failing
+        ? ({ error: "INTERNAL_SERVER_ERROR", defined: false } as const)
+        : get(input),
+    { replyBeforeInput: get.replyBeforeInput },
+  );
+
+  app.queryClient.setDefaultOptions({
+    queries: { ...app.queryClient.getDefaultOptions().queries, retry: false },
+  });
+  renderHook(
+    () => {
+      useConversionWatch(pages(), POLL_MS);
+    },
+    { wrapper: withAppProviders(app) },
+  );
+  await waitFor(() => {
+    expect(gets().length).toBeGreaterThan(2);
+  });
+  server.convert(converting?.id ?? "", { status: "published" });
+  failing = false;
+
+  await waitFor(() => {
+    expect(listed().map(({ status }) => status)).toEqual(["published"]);
+  });
+});
+
+test("取り直した画像が無くなっていたら、一覧から外して、次の変換中の画像へ進む", async () => {
+  const { server, app, pages, listed } = await setUp([
+    { title: "後", status: "processing" },
+    { title: "先", status: "processing" },
+  ]);
+
+  const [later, earlier] = server.images();
+
+  server.routes["admin/images/delete"]({ id: earlier?.id ?? "" });
+
+  const { rerender } = renderHook(
+    (current: ReturnType<typeof pages>) => {
+      useConversionWatch(current, POLL_MS);
+    },
+    {
+      initialProps: [
+        {
+          images: [later, earlier].flatMap((image) => image ?? []),
+          nextCursor: null,
+        },
+      ],
+      wrapper: withAppProviders(app),
+    },
+  );
+
+  await waitFor(() => {
+    expect(listed().map(({ id }) => id)).toEqual([later?.id ?? ""]);
+  });
+
+  rerender([{ images: later === undefined ? [] : [later], nextCursor: null }]);
+  server.convert(later?.id ?? "", { status: "published" });
+  await waitFor(() => {
+    expect(listed().map(({ status }) => status)).toEqual(["published"]);
+  });
+});

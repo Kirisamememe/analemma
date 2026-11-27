@@ -93,3 +93,19 @@ export const WaitingForNext: Story = {
   args: { waiting: "写真を読み込んでいます。" },
   parameters: { waitingForNext: true },
 };
+
+export const Converting: Story = {
+  args: {
+    images: [],
+    isPending: true,
+    missing: "表示用の画像を作っています",
+  },
+};
+
+export const ConversionFailed: Story = {
+  args: {
+    images: [],
+    missing:
+      "写真を読み取れませんでした。ファイルが壊れているか、対応していない形式です。削除して、別のファイルを追加してください。",
+  },
+};

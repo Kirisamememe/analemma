@@ -61,9 +61,11 @@ const ImageInfoContent = ({
       <Stack gap={2}>
         <Heading level={1}>{name}</Heading>
         <Cluster align="center" gap={2}>
-          <Badge tone={isPublished ? "success" : status.tone}>
-            {t(status.badge ?? "imageDetail.published")}
-          </Badge>
+          <output>
+            <Badge tone={isPublished ? "success" : status.tone}>
+              {t(status.badge ?? "imageDetail.published")}
+            </Badge>
+          </output>
           <Text as="span" tone="muted" variant="caption">
             {t("imageDetail.added", {
               date: formatDateTime(locale, image.createdAt),

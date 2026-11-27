@@ -50,6 +50,8 @@ const renderSection = async (
   render(<ImagesSection imageHref={imageHref} />, {
     wrapper: withAppProviders(app),
   });
+
+  return app;
 };
 
 describe("ImagesSection", () => {
@@ -76,8 +78,7 @@ describe("ImagesSection", () => {
 
     const rendered = mock((_id: string): "/fixed-pages" => "/fixed-pages");
 
-    await renderSection(server.routes, rendered);
-
+    const app = await renderSection(server.routes, rendered);
     const names = await linkNames();
 
     expect(names[0]).toBe("表示用の画像を作っています新しい写真変換中");
@@ -86,6 +87,14 @@ describe("ImagesSection", () => {
 
     const [converting] = server.images();
     const before = rendered.mock.calls.length;
+
+    await waitFor(
+      () => {
+        expect(app.calls).toContain("admin/images/get");
+      },
+      { timeout: 4000 },
+    );
+    expect(rendered.mock.calls).toHaveLength(before);
 
     server.convert(converting?.id ?? "", {
       status: "published",

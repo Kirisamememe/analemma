@@ -1,9 +1,11 @@
+import { ORPCError } from "@orpc/client";
 import { describe, expect, test } from "bun:test";
 
 import {
   findNextConverting,
   loadImagesPage,
   prependImage,
+  settleListedImage,
 } from "../images-query";
 
 import { createFakeApi } from "@/testing/create-fake-api";
@@ -78,5 +80,68 @@ describe("findNextConverting", () => {
       null,
     );
     expect(findNextConverting([])).toBe(null);
+  });
+});
+
+const listedImages = () => {
+  const server = createImageRoutes([
+    { title: "保存したタイトル", status: "processing" },
+    { title: "港" },
+  ]);
+
+  const [converting, harbor] = server.images();
+
+  if (converting === undefined || harbor === undefined) {
+    throw new Error("画像が2枚必要です");
+  }
+
+  const page = { images: [converting, harbor], nextCursor: null };
+
+  return { converting, harbor, page };
+};
+
+describe("settleListedImage", () => {
+  test("変換中のままなら、一覧を書き換えない", () => {
+    const { converting } = listedImages();
+
+    expect(
+      settleListedImage(converting.id, { _tag: "Succeeded", data: converting }),
+    ).toBeUndefined();
+  });
+
+  test("変換を終えていたら、その画像の状態と配信用の画像だけを差し替え、一覧にあるタイトルを保つ", () => {
+    const { converting, harbor, page } = listedImages();
+
+    const settle = settleListedImage(converting.id, {
+      _tag: "Succeeded",
+      data: {
+        ...converting,
+        title: null,
+        status: "published",
+        publishedAt: harbor.publishedAt,
+        deliveryImages: [{ width: 640, height: 480, url: "/media/a/640.avif" }],
+      },
+    });
+
+    const settled = settle?.(page);
+
+    expect(settled?.images[0]).toMatchObject({
+      title: "保存したタイトル",
+      status: "published",
+      deliveryImages: [{ width: 640 }],
+    });
+    expect(settled?.images[1]).toBe(harbor);
+  });
+
+  test("画像が無くなっていたら、一覧から外す", () => {
+    const { converting, harbor, page } = listedImages();
+
+    const settle = settleListedImage(converting.id, {
+      _tag: "Failed",
+      code: "NOT_FOUND",
+      error: new ORPCError("NOT_FOUND"),
+    });
+
+    expect(settle?.(page).images).toEqual([harbor]);
   });
 });

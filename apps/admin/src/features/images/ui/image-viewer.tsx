@@ -171,10 +171,10 @@ export const ImageViewer = ({
         onPointerCancel={handlers.onPointerCancel}
       >
         {smallest === undefined || largest === undefined ? (
-          <div className={style.missing()}>
+          <output className={style.missing()}>
             {isPending ? <Spinner /> : <Icon name="image-off" size="xl" />}
             <Text as="span">{missing}</Text>
-          </div>
+          </output>
         ) : (
           <ViewerPhoto
             alt={alt}
