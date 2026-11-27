@@ -64,19 +64,22 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
   const t = useTranslate();
 
   const dialog = useUploadDialog();
+
+  const {
+    attach,
+    attachPanel,
+    focus: { addButton },
+  } = dialog;
+
   const notice = uploadNotice(dialog.uploads);
 
   return (
-    <div ref={dialog.attach}>
+    <div ref={attach}>
       <PageHeader
         title={t("images.title")}
         description={t("images.description")}
         actions={
-          <Button
-            tone="primary"
-            ref={dialog.focus.addButton}
-            onPress={dialog.open}
-          >
+          <Button tone="primary" ref={addButton} onPress={dialog.open}>
             <Icon name="plus" />
             {t("imageUpload.add")}
           </Button>
@@ -107,7 +110,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
         }}
       >
         {dialog.isDragging && <PhotoDropHint />}
-        <DialogSection ref={dialog.attachPanel}>
+        <DialogSection ref={attachPanel}>
           <Stack gap={3}>
             <UploadFileInput
               onFiles={dialog.receive}
