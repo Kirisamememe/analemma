@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
-import { useUploadConversions } from "./hooks/use-upload-conversions";
 import { useUploadDialog } from "./hooks/use-upload-dialog";
 import { SelectedPhoto } from "./selected-photo/selected-photo";
+import { UploadConversions } from "./upload-conversions";
 import { UploadFileInput } from "./upload-file-input";
 import { UploadLeaveDialog } from "./upload-leave-dialog";
 
@@ -19,14 +19,6 @@ import type { AppHref } from "@/ui/primitives/ui-provider";
 type PhotoUploadsProps = {
   /** 画像を見る画面への行き先を返す関数。 */
   imageHref: (id: string) => AppHref;
-};
-
-type ConversionsProps = Parameters<typeof useUploadConversions>[0];
-
-const UploadConversions = (props: ConversionsProps): ReactNode => {
-  useUploadConversions(props);
-
-  return null;
 };
 
 /** 画像一覧の見出しと、写真を追加する Dialog。 */

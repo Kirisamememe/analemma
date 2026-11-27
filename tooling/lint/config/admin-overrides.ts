@@ -83,16 +83,9 @@ const FEATURE_UI_JSX_DEPTH = 5; // feature の見た目を組む部品
 const COMPOSED_JSX_DEPTH = 4; // 部品を組むだけの場所
 
 const SINGLE_COMPONENT_FILES = [
-  "**/apps/admin/src/ui/**/*.tsx",
+  "**/apps/admin/src/**/*.tsx",
   "**/apps/admin/.storybook/**/*.tsx",
-  "**/apps/admin/src/features/deploy-tokens/**/*.tsx",
-  "**/apps/admin/src/features/fixed-pages/**/*.tsx",
-  "**/apps/admin/src/features/images/ui/**/*.tsx",
-  "**/apps/admin/src/components/images/**/*.tsx",
-  "**/apps/admin/src/routes/layout/**/*.tsx",
-  "**/apps/admin/src/routes/fixed-pages/**/*.tsx",
-  "**/apps/admin/src/routes/images/**/*.tsx",
-]; // 片付けの済んだフォルダから足していく
+];
 
 /** 管理画面の境界を守る設定(後に書いたものが勝つ)。 */
 export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
@@ -161,6 +154,7 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
             "features/deploy-tokens/issue/copy-text.ts",
             "features/fixed-pages/content-form.ts",
             "features/fixed-pages/editor/create-editor-values.ts",
+            "features/images/upload/upload-conversions.ts",
             "features/images/upload/upload-value.ts",
             "ui/primitives/form-fields/focus-first-invalid-field.ts",
           ],
@@ -196,7 +190,7 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   },
   {
     files: ["**/apps/admin/src/testing/**"],
-    rules: { "react/jsx-no-literals": "off" },
+    rules: { "react/jsx-no-literals": "off", "react/no-multi-comp": "off" },
   },
   {
     files: ["**/apps/admin/src/**/*.tsx"],
