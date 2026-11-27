@@ -67,6 +67,42 @@ describe("ImagesSection", () => {
     ).toBeDefined();
   });
 
+  test("変換中と変換できなかった画像を見分けて出し、変換を終えたら、その画像のタイルだけを描き直す", async () => {
+    const server = createImageRoutes([
+      { title: "新しい写真", status: "processing" },
+      { title: "壊れた写真", status: "unreadable" },
+      { title: "夕暮れの稜線", deliveryImages },
+    ]);
+
+    const rendered = mock((_id: string): "/fixed-pages" => "/fixed-pages");
+
+    await renderSection(server.routes, rendered);
+
+    const names = await linkNames();
+
+    expect(names[0]).toBe("表示用の画像を作っています新しい写真変換中");
+    expect(names[1]).toMatch(
+      /^写真を読み取れませんでした.*壊れた写真変換失敗$/v,
+    );
+    expect(names[2]).toBe("夕暮れの稜線");
+
+    const [converting] = server.images();
+    const before = rendered.mock.calls.length;
+
+    server.convert(converting?.id ?? "", {
+      status: "published",
+      deliveryImages,
+    });
+    await waitFor(
+      async () => {
+        expect((await linkNames())[0]).toBe("新しい写真");
+      },
+      { timeout: 4000 },
+    );
+
+    expect(rendered.mock.calls.slice(before)).toEqual([[converting?.id ?? ""]]);
+  });
+
   test("画像が無ければ、中身の無い欄を出す", async () => {
     await renderSection(createImageRoutes([]).routes);
 

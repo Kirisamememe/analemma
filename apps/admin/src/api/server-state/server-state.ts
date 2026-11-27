@@ -18,6 +18,8 @@ type QueryOptions<Data> = {
   readonly load: (() => Promise<Data>) | undefined;
   /** タブ内で取得結果を使い回す期間(ミリ秒)。 */
   readonly tabStaleTime?: number | ((data: Data | undefined) => number);
+  /** 取得済みのデータから、取り直す間隔(ミリ秒)か、取り直さないことを決める関数。 */
+  readonly pollEvery?: (data: Data | undefined) => number | false;
 };
 
 /** 失敗した取得をやり直す操作と状態。 */
@@ -100,10 +102,14 @@ export const useApiQuery = <Data>({
   load,
   keepDataOnRefreshError,
   tabStaleTime,
+  pollEvery,
 }: QueryOptions<Data>): ApiQueryResult<Data> => {
   const query = useQuery<Data>({
     queryKey: key,
     queryFn: load ?? skipToken,
+    ...(pollEvery !== undefined && {
+      refetchInterval: (polled) => pollEvery(polled.state.data),
+    }),
     ...(load === undefined || tabStaleTime === undefined
       ? {}
       : {

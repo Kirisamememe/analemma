@@ -286,6 +286,13 @@ export const en = {
   "images.untitled": "Untitled",
   "images.unpublished": "Unpublished",
   "images.noDeliveryImage": "No image to show yet",
+  "images.converting": "Converting",
+  "images.conversionFailed": "Conversion failed",
+  "images.convertingImage": "Creating the display image",
+  "images.unreadable":
+    "This photo could not be read. The file is damaged or in an unsupported format. Delete it and add another file.",
+  "images.interrupted":
+    "A server problem stopped the conversion. Delete it and add the photo again.",
   "images.loadMore": "Load more",
   "imageUpload.choose": "Choose photos",
   "imageUpload.showPhoto": "View photo",

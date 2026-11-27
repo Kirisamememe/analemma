@@ -10,7 +10,7 @@ import {
 
 import { Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
-import { Icon } from "@/ui/primitives/graphics";
+import { Icon, Spinner } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 
@@ -56,6 +56,10 @@ type ImageTileProps = {
   missing: string;
   /** タイトルの横に添えるバッジの文言(無ければ出さない)。 */
   badge?: string | undefined;
+  /** バッジの色の用途。 */
+  badgeTone?: "neutral" | "info" | "danger" | undefined;
+  /** 配信用の画像ができるのを待っているか。 */
+  isPending?: boolean | undefined;
   /** タイトルの下に出す日付(無ければ出さない)。 */
   date?: string | undefined;
   /** 開くリンクの要素(focus を移すときに使う)。 */
@@ -73,6 +77,8 @@ export const ImageTile = ({
   untitled,
   missing,
   badge,
+  badgeTone = "neutral",
+  isPending = false,
   date,
   linkRef,
 }: ImageTileProps): ReactNode => {
@@ -93,7 +99,7 @@ export const ImageTile = ({
       <span className={style.frame()}>
         {smallest === undefined ? (
           <span className={style.missing()}>
-            <Icon name="image-off" size="lg" />
+            {isPending ? <Spinner /> : <Icon name="image-off" size="lg" />}
             <Text as="span" variant="caption">
               {missing}
             </Text>
@@ -123,7 +129,7 @@ export const ImageTile = ({
           </span>
           {badge !== undefined && (
             <span className={style.badge()}>
-              <Badge tone="neutral">{badge}</Badge>
+              <Badge tone={badgeTone}>{badge}</Badge>
             </span>
           )}
         </span>

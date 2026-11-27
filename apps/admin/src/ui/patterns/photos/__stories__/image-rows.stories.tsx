@@ -90,3 +90,36 @@ export const UnpublishedPortrait: Story = {
     ),
   },
 };
+
+export const Converting: Story = {
+  args: {
+    children: (
+      <ImageTile
+        badge="変換中"
+        badgeTone="info"
+        href="/"
+        images={[]}
+        isPending
+        missing="表示用の画像を作っています"
+        title={null}
+        untitled="無題"
+      />
+    ),
+  },
+};
+
+export const ConversionFailed: Story = {
+  args: {
+    children: (
+      <ImageTile
+        badge="変換失敗"
+        badgeTone="danger"
+        href="/"
+        images={[]}
+        missing="写真を読み取れませんでした。ファイルが壊れているか、対応していない形式です。削除して、別のファイルを追加してください。"
+        title={null}
+        untitled="無題"
+      />
+    ),
+  },
+};

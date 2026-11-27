@@ -43,3 +43,17 @@ export const prependImage =
       images: page.images.toSpliced(at < 0 ? page.images.length : at, 0, image),
     };
   };
+
+/** 読み込んだ画像のうち、次に変換を終える、いちばん先に受け取った変換中の画像の ID を返す。 */
+export const findNextConverting = (
+  pages: readonly Record<
+    "images",
+    readonly Pick<ImageSummary, "id" | "status">[]
+  >[],
+): string | null => {
+  const ids = pages.flatMap(({ images }) =>
+    images.flatMap(({ id, status }) => (status === "processing" ? [id] : [])),
+  );
+
+  return ids.toSorted().at(0) ?? null;
+};

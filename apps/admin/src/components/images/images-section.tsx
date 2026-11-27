@@ -1,6 +1,8 @@
 import { memo, type ReactNode, type RefObject, useCallback } from "react";
 
+import { useConversionWatch } from "./hooks/use-conversion-watch";
 import { useImagePageFocus } from "./hooks/use-image-page-focus";
+import { toImageStatusView } from "./logic/image-status";
 
 import { useAppContext } from "@/api/app-context";
 import {
@@ -120,12 +122,15 @@ const GalleryImageContent = ({
 }: GalleryImageProps): ReactNode => {
   const t = useTranslate();
   const locale = useLocale();
+  const status = toImageStatusView(image.status);
 
   return (
     <ImageTile
       singleChoice={singleChoice}
       alt={image.alt}
-      badge={image.status === "published" ? undefined : t("images.unpublished")}
+      badge={status.badge === undefined ? undefined : t(status.badge)}
+      badgeTone={status.tone}
+      isPending={status.isPending}
       date={
         image.takenAt === null
           ? undefined
@@ -135,7 +140,7 @@ const GalleryImageContent = ({
       choice={renderChoice?.(image, focusFirst)}
       images={image.deliveryImages}
       linkRef={first ? focusFirst : undefined}
-      missing={t("images.noDeliveryImage")}
+      missing={t(status.missing)}
       title={image.title}
       untitled={t("images.untitled")}
     />
@@ -143,6 +148,17 @@ const GalleryImageContent = ({
 };
 
 const GalleryImage = memo(GalleryImageContent);
+
+type ConversionWatchProps = {
+  /** 読み込んだ画像のページ。 */
+  pages: Parameters<typeof useConversionWatch>[0];
+};
+
+const ConversionWatch = ({ pages }: ConversionWatchProps): ReactNode => {
+  useConversionWatch(pages);
+
+  return null;
+};
 
 const PageTiles = ({
   images,
@@ -238,6 +254,7 @@ export const ImagesSection = ({
 
   return (
     <Stack gap={8}>
+      <ConversionWatch pages={query.pages} />
       <ImageRows
         label={t("images.title")}
         listRef={(list) => {

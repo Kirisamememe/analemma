@@ -14,6 +14,8 @@ export type FakeImageSeed = Partial<
 > & {
   /** 画像を公開しているか。 */
   readonly published?: boolean;
+  /** 変換を終えていない画像の状態。 */
+  readonly status?: Exclude<FakeImage["status"], "published" | "unpublished">;
 };
 
 type ImagePath =
@@ -82,6 +84,7 @@ export const createImageRoutes = (
 
   const create = ({
     published = true,
+    status,
     deliveryImages = [],
     ...seed
   }: FakeImageSeed): FakeImage => {
@@ -93,8 +96,8 @@ export const createImageRoutes = (
       ...EMPTY,
       ...seed,
       id: `019b0000-0000-7000-8000-${String(created).padStart(12, "0")}`,
-      status: published ? "published" : "unpublished",
-      publishedAt: published ? moment : null,
+      status: status ?? (published ? "published" : "unpublished"),
+      publishedAt: status === undefined && published ? moment : null,
       deliveryImages: deliveryImages.toSorted((a, b) => a.width - b.width),
       createdAt: moment,
       updatedAt: moment,
@@ -243,6 +246,22 @@ export const createImageRoutes = (
       }),
     } satisfies FakeRoutes,
     images: (): readonly FakeImage[] => images,
+    /** 変換を待つ画像を、変換を終えた状態にする。 */
+    convert: (
+      id: string,
+      change: Pick<FakeImage, "status"> &
+        Partial<Pick<FakeImage, "deliveryImages">>,
+    ): void => {
+      const image = findImage(id);
+
+      if (image === undefined) return;
+
+      replaceImage({
+        ...image,
+        ...change,
+        publishedAt: change.status === "published" ? now() : null,
+      });
+    },
     replyNext: <Path extends ImagePath>(
       path: Path,
       reply: NonNullable<ReplyOverrides[Path]>,

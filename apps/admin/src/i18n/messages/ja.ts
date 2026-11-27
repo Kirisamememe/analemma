@@ -295,6 +295,13 @@ export const ja = {
   "images.untitled": "無題",
   "images.unpublished": "非公開",
   "images.noDeliveryImage": "表示用の画像がまだありません",
+  "images.converting": "変換中",
+  "images.conversionFailed": "変換失敗",
+  "images.convertingImage": "表示用の画像を作っています",
+  "images.unreadable":
+    "写真を読み取れませんでした。ファイルが壊れているか、対応していない形式です。削除して、別のファイルを追加してください。",
+  "images.interrupted":
+    "サーバーの問題で変換できませんでした。削除して、もう一度追加してください。",
   "images.loadMore": "さらに読み込む",
   "imageUpload.choose": "写真を選ぶ",
   "imageUpload.showPhoto": "写真を見る",
