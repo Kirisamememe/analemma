@@ -24,7 +24,7 @@ type TooltipProps = {
 
 /** アイコンだけの操作に添える、操作の名前の吹き出し。 */
 export const Tooltip = ({ label, children }: TooltipProps): ReactNode => (
-  <TooltipTrigger closeDelay={0} delay={400}>
+  <TooltipTrigger closeDelay={300} delay={400}>
     {children}
     <AriaTooltip className={tooltip()} offset={6}>
       {label}
