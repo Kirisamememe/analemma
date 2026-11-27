@@ -143,16 +143,13 @@ describe("受け取った写真の変換", () => {
   });
 
   test("読めずに変換できなかった写真は、読めない写真の状態にし、原本を消して、ログに書くこと", async () => {
-    await using server = await createTestClient({
-      conversions: {
-        run: () => Promise.reject(new Error("壊れた写真")),
-      },
-    });
-
+    await using server = await createTestClient();
     await signInAsAdmin(server);
 
     const images = server.client.admin.images;
-    const { id } = await images.upload({ photo: await photo("high-iso.jpg") });
+    const whole = await photo("high-iso.jpg");
+    const broken = new File([await whole.slice(0, 200).arrayBuffer()], "a.jpg");
+    const { id } = await images.upload({ photo: broken });
 
     expect(await converted(server, id)).toMatchObject({
       status: "unreadable",
@@ -164,6 +161,25 @@ describe("受け取った写真の変換", () => {
     expect(server.logs.filter(({ level }) => level === "error")).toMatchObject([
       { message: "受け取った写真を変換できなかった" },
     ]);
+  });
+
+  test("変換の順番を待つ処理が失敗した写真は、変換を終えられなかった状態にすること", async () => {
+    await using server = await createTestClient({
+      conversions: {
+        run: () => Promise.reject(new Error("キューの失敗")),
+      },
+    });
+
+    await signInAsAdmin(server);
+
+    const { id } = await server.client.admin.images.upload({
+      photo: await photo("high-iso.jpg"),
+    });
+
+    expect(await converted(server, id)).toMatchObject({
+      status: "interrupted",
+      deliveryImages: [],
+    });
   });
 
   test("変換を待つ間に消した画像は、変換の順番が来ても戻さず、原本を残さないこと", async () => {

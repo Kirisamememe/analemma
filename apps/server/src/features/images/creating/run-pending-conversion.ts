@@ -1,12 +1,10 @@
 import type { AppContext } from "@/context";
-import {
-  createPendingDelivery,
-  publishPendingImage,
-} from "@/features/images/creating/convert-pending-image";
+import { publishPendingImage } from "@/features/images/creating/convert-pending-image";
 import {
   type ConversionFailure,
   markFailed,
 } from "@/features/images/creating/queries/pending-image.query";
+import { createDeliveryImages } from "@/features/images/processing/create-delivery-images";
 
 /** 変換できなかった画像と、その理由。 */
 type Failure = {
@@ -34,23 +32,42 @@ const fail = async (
   } catch (cause) {
     context.logger.write({
       level: "error",
-      message: "変換できなかった写真の状態を書けなかった",
+      message: "変換できなかった写真の後始末に失敗した",
       details: { imageId, error: cause },
     });
   }
 };
 
-const convert = async (context: AppContext, imageId: string) => {
+const readOriginal = async (context: AppContext, imageId: string) => {
   try {
-    return await createPendingDelivery(context, imageId);
+    return await context.pending.read(imageId);
   } catch (error) {
-    await fail(context, { imageId, failure: "unreadable", error });
+    await fail(context, { imageId, failure: "interrupted", error });
 
-    return "stopped";
+    return "failed";
   }
 };
 
-const run = async (context: AppContext, imageId: string): Promise<void> => {
+const convert = async (context: AppContext, imageId: string) =>
+  context.conversions.run(async () => {
+    if (context.pending.isStopping()) return "stopped";
+
+    const bytes = await readOriginal(context, imageId);
+
+    if (bytes === "failed") return "stopped";
+
+    if (bytes === undefined) return "original-missing";
+
+    try {
+      return await createDeliveryImages(bytes);
+    } catch (error) {
+      await fail(context, { imageId, failure: "unreadable", error });
+
+      return "stopped";
+    }
+  });
+
+const process = async (context: AppContext, imageId: string): Promise<void> => {
   const delivery = await convert(context, imageId);
 
   if (delivery === "stopped") return;
@@ -78,6 +95,14 @@ const run = async (context: AppContext, imageId: string): Promise<void> => {
       message: "受け取った写真の変換を終えた",
       details: { imageId, outcome },
     });
+  } catch (error) {
+    await fail(context, { imageId, failure: "interrupted", error });
+  }
+};
+
+const run = async (context: AppContext, imageId: string): Promise<void> => {
+  try {
+    await process(context, imageId);
   } catch (error) {
     await fail(context, { imageId, failure: "interrupted", error });
   }
