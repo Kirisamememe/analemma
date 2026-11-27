@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
-import type { PhotoUpload } from "./logic/photo-uploads";
+import type { PhotoUpload } from "../logic/photo-uploads";
 import {
   retryAction,
   toProgressTone,
   toStatusLabel,
-} from "./logic/upload-view";
+} from "../logic/upload-view";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";

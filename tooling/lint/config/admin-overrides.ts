@@ -78,6 +78,9 @@ const TRANSLATED_ATTRIBUTES = [
   "untitled",
 ]; // 利用者に見えるか、読み上げられる文言を受け取る属性
 
+const MARKUP_JSX_DEPTH = 6; // 見た目の class を書ける場所
+const COMPOSED_JSX_DEPTH = 5; // 部品を組むだけの場所
+
 const SINGLE_COMPONENT_FILES = ["**/apps/admin/src/ui/**/*.tsx"]; // 片付けの済んだフォルダから足していく
 
 /** 管理画面の境界を守る設定(後に書いたものが勝つ)。 */
@@ -183,6 +186,20 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   {
     files: ["**/apps/admin/src/testing/**"],
     rules: { "react/jsx-no-literals": "off" },
+  },
+  {
+    files: ["**/apps/admin/src/**/*.tsx"],
+    rules: { "react/jsx-max-depth": ["error", { max: COMPOSED_JSX_DEPTH }] },
+  },
+  {
+    files: [
+      "**/apps/admin/src/ui/**/*.tsx",
+      "**/apps/admin/src/features/*/ui/**/*.tsx",
+      "**/apps/admin/src/**/__stories__/**",
+      "**/apps/admin/src/**/__tests__/**",
+      "**/apps/admin/src/testing/**",
+    ],
+    rules: { "react/jsx-max-depth": ["error", { max: MARKUP_JSX_DEPTH }] },
   },
   {
     files: [

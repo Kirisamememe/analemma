@@ -2,8 +2,8 @@ import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, mock, test } from "bun:test";
 
-import { useRetryFocus } from "../hooks/use-retry-focus";
-import type { PhotoUpload } from "../logic/photo-uploads";
+import { useRetryFocus } from "../../hooks/use-retry-focus";
+import type { PhotoUpload } from "../../logic/photo-uploads";
 import { UploadPhotoStatus } from "../upload-photo-status";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";

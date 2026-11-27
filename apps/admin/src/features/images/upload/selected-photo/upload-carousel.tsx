@@ -1,6 +1,6 @@
 import { memo, type ReactNode, useSyncExternalStore } from "react";
 
-import type { UploadValue } from "./upload-value";
+import type { UploadValue } from "../upload-value";
 
 import {
   PhotoCarousel,

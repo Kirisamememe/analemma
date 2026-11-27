@@ -148,3 +148,13 @@ test("文言を受け取る属性に直接書いた文言を止め、class や�
     literalsIn("valid/apps/admin/src/ui/patterns/one-component.tsx"),
   ).toEqual([]);
 });
+
+const tooDeepIn = (file: string): number =>
+  lintFixture(
+    `invalid/apps/admin/src/features/depth/${file}`,
+  ).diagnostics.filter(({ code }) => code === "react(jsx-max-depth)").length;
+
+test("JSX の深さは、部品を組むだけの場所では5段まで、見た目の class を書ける場所では6段までにすること", () => {
+  expect(tooDeepIn("six-deep.tsx")).toBe(1);
+  expect(tooDeepIn("ui/six-deep.tsx")).toBe(0);
+});

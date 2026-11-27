@@ -1,18 +1,15 @@
-import { type ReactNode, useCallback, useSyncExternalStore } from "react";
+import type { ReactNode } from "react";
 
 import { useUploadConversions } from "./hooks/use-upload-conversions";
 import { useUploadDialog } from "./hooks/use-upload-dialog";
-import type { PhotoUpload } from "./logic/photo-uploads";
-import { UploadCarousel } from "./upload-carousel";
+import { SelectedPhoto } from "./selected-photo/selected-photo";
 import { UploadFileInput } from "./upload-file-input";
 import { UploadLeaveDialog } from "./upload-leave-dialog";
-import { UploadPhotoFields } from "./upload-photo-fields";
-import { UploadPhotoStatus } from "./upload-photo-status";
 
 import { PhotoDropHint } from "@/features/images/ui/upload/photo-drop-hint";
 import { UploadNotice } from "@/features/images/ui/upload/upload-notice";
 import { useTranslate } from "@/i18n/use-translate";
-import { Stack, Text } from "@/ui/layout";
+import { Stack } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
@@ -22,41 +19,6 @@ import type { AppHref } from "@/ui/primitives/ui-provider";
 type PhotoUploadsProps = {
   /** 画像を見る画面への行き先を返す関数。 */
   imageHref: (id: string) => AppHref;
-};
-
-type SelectedFieldsProps = {
-  /** 入力中の写真。 */
-  upload: PhotoUpload;
-  /** 原稿を読み書きする先。 */
-  metadata: ReturnType<typeof useUploadDialog>["metadata"];
-};
-
-const SelectedFields = ({ upload, metadata }: SelectedFieldsProps) => {
-  const values = useSyncExternalStore(metadata.subscribe, () =>
-    metadata.draft(upload.id),
-  );
-
-  const onChange = useCallback(
-    (changes: Parameters<typeof metadata.change>[1]) => {
-      metadata.change(upload.id, changes);
-    },
-    [metadata, upload.id],
-  );
-
-  if (
-    (upload.status === "too-large" || upload.status === "unsupported") &&
-    !metadata.hasChanges(upload.id)
-  ) {
-    return null;
-  }
-
-  return (
-    <UploadPhotoFields
-      values={values}
-      isReadOnly={metadata.isSaving}
-      onChange={onChange}
-    />
-  );
 };
 
 type ConversionsProps = Parameters<typeof useUploadConversions>[0];
@@ -126,44 +88,11 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
           </Stack>
         </ModalSection>
         {dialog.selected && (
-          <>
-            <UploadCarousel
-              uploads={dialog.uploads}
-              selectedId={dialog.selected.id}
-              onSelect={dialog.select}
-            >
-              <UploadPhotoStatus
-                isSaving={dialog.metadata.isSaving}
-                upload={dialog.selected}
-                retry={dialog.focus.retry}
-                restore={dialog.focus.restore}
-                imageHref={imageHref}
-              />
-            </UploadCarousel>
-            <ModalSection>
-              <Stack gap={4}>
-                <SelectedFields
-                  upload={dialog.selected}
-                  metadata={dialog.metadata}
-                />
-                {dialog.problem && (
-                  <div role="alert">
-                    <Text tone="danger">
-                      {t("imageUpload.problem", {
-                        name: dialog.problem.name,
-                        message: t(dialog.problem.message),
-                      })}
-                    </Text>
-                    {dialog.problem.show && (
-                      <Button onPress={dialog.problem.show}>
-                        {t("imageUpload.editPhoto")}
-                      </Button>
-                    )}
-                  </div>
-                )}
-              </Stack>
-            </ModalSection>
-          </>
+          <SelectedPhoto
+            dialog={dialog}
+            imageHref={imageHref}
+            selected={dialog.selected}
+          />
         )}
       </Modal>
       <UploadLeaveDialog leaving={dialog.leaving} />

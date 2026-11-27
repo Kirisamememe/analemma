@@ -59,7 +59,7 @@
 - **React の書き方をそろえるルール**(ユーザーが決めた。厳しめに):`restriction` と `style` の category は有効にしていないので、React のルールを名前で足す。
   - 書き方:`function-component-definition`(arrow function)・`prefer-function-component`(class で書かない)・`jsx-boolean-value`・`jsx-curly-brace-presence`・`jsx-fragments`・`jsx-pascal-case`・`self-closing-comp`・`jsx-filename-extension`(`.tsx` だけ)。
   - 誤りを防ぐ:`no-unknown-property`・`no-clone-element`・`no-react-children`(`Children` と `cloneElement` は、子の形に頼る壊れやすい部品を作る)。
-  - 深さ:`jsx-max-depth` は 6。今の最大が 6 で、5 にすると14か所、4 にすると37か所が当たる。深い JSX は部品に分ける合図なので、下げるかはユーザーと決める。
+  - 深さ:`jsx-max-depth` は、見た目の class を書ける場所(`ui/` と `features/*/ui/`。story とテストも)では 6、部品を組むだけの場所(ほかの `features/`・`components/`・`routes/`)では 5 にする(ユーザーが決めた。`ui/` は緩め、features は厳しめに)。部品を組む場所で深くなるのは、画面のファイルに行やフォームをべた書きしているときで、名前の付いた部品に分ける合図になる。4 にすると、画像の編集の Dialog(フォームのライブラリの包みだけで3段を使う)がさらに当たるので、そのフォームを hook と部品に分けるときに下げる。
   - 文言:`jsx-no-literals` を管理画面の `.tsx` に掛け、訳を通さない文言を JSX に直接書けなくする。JSX の子と、文言を受け取る属性(`aria-label`・`alt`・`title`・`label`・`placeholder` など。`TRANSLATED_ATTRIBUTES`)を見る。空の `alt` は通す。story・テスト・`src/testing/` では外す。
   - React Compiler の診断:`invariant`・`syntax`・`todo`・`unsupported-syntax`・`rule-suppression`。コンパイラが扱えない書き方を止める。
   - 足さなかったもの:`react-perf` の4つ(JSX の props に、その場で作った関数・オブジェクト・配列・JSX を渡さない)は、React Compiler が memo 化するので要らない(`apps/admin/DECISIONS.md` の「React Compiler」)。`hook-use-state` は、setter を使わない `const [store] = useState(create)`(1回だけ作る値)も止めるので足さない。`jsx-handler-names` は、handler の名前を `handle…` に限り、hook が返す操作の名前(`retry`・`finish`)と合わない。`jsx-props-no-spreading` と `forbid-*` は、`project/styling-boundary` が同じことをより狭く止めている。class の中身のルール(`no-set-state` など)は、class を書けないので要らない。

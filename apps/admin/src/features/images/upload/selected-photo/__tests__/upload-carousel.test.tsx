@@ -2,9 +2,9 @@ import { act, cleanup, screen } from "@testing-library/react";
 import { afterEach, expect, spyOn, test } from "bun:test";
 import { useState } from "react";
 
-import type { PhotoUpload } from "../logic/photo-uploads";
+import type { PhotoUpload } from "../../logic/photo-uploads";
+import { createUploadValue } from "../../upload-value";
 import { UploadCarousel } from "../upload-carousel";
-import { createUploadValue } from "../upload-value";
 
 import * as previews from "@/features/images/ui/upload/hooks/use-photo-preview";
 import * as carousel from "@/features/images/ui/upload/photo-carousel";
