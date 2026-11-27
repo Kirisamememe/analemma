@@ -2,6 +2,8 @@ import { useCallback, useRef, useState } from "react";
 
 import { PHOTO_MAX_BYTES } from "@analemma/contract";
 
+import { createUploadValue } from "../upload-value";
+
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
@@ -15,10 +17,14 @@ import {
   retryUpload,
   withAdded,
   withStatus,
-  withUploadProgress,
 } from "@/features/images/upload/logic/photo-uploads";
 import { uploadPhoto } from "@/features/images/upload/queries/upload-photo";
 import { IMAGES_QUERY_KEY, prependImage } from "@/queries/images-query";
+
+type Transfer = PhotoUpload & {
+  /** この送信試行で受け取った転送率を記録する。 */
+  readonly progress: ReturnType<typeof createUploadValue<number>>;
+};
 
 const LOGIN_PATH = "/login"; // セッションが切れたときに移る先。止めると、送れない画面に残る
 
@@ -55,16 +61,20 @@ export const usePhotoUploads = (onComplete?: () => void) => {
 
     return (
       !expired.current &&
-      (hasUnsentPhotos(latest.current) || metadata.dirty || metadata.isSaving)
+      (hasUnsentPhotos(latest.current) ||
+        metadata.isDirty() ||
+        metadata.isSaving)
     );
   });
 
   const sending = useApiMutation({
-    send: async (upload: PhotoUpload) => {
+    send: async (upload: Transfer) => {
       const result = await uploadPhoto(api, {
         photo: upload.file,
         onUploadProgress: (fraction) => {
-          apply(withUploadProgress(upload.id, fraction));
+          upload.progress.set(
+            fraction === 1 ? 100 : Math.min(99, Math.round(fraction * 100)),
+          );
         },
       });
 
@@ -103,8 +113,16 @@ export const usePhotoUploads = (onComplete?: () => void) => {
     if (!active.current || expired.current) return;
 
     for (const next of nextUploads(latest.current)) {
-      apply(withStatus(next.id, "sending"));
-      mutate(next);
+      const transfer: Transfer = {
+        ...next,
+        status: "sending",
+        progress: createUploadValue(0),
+      };
+
+      apply((current) =>
+        current.map((upload) => (upload.id === next.id ? transfer : upload)),
+      );
+      mutate(transfer);
     }
   }, [apply, mutate]);
 

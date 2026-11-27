@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 
 import { imageDescription, imageTitle } from "@analemma/contract";
 
@@ -19,39 +19,58 @@ type UploadPhotoFieldsProps = {
   onChange: (changes: Partial<Values>) => void;
 };
 
+type FieldProps = Pick<UploadPhotoFieldsProps, "isReadOnly" | "onChange"> & {
+  /** 入力する欄の名前。 */
+  name: keyof Values;
+  /** この欄の入力値。 */
+  value: string;
+};
+
+const PhotoFieldContent = ({
+  name,
+  value,
+  isReadOnly,
+  onChange,
+}: FieldProps) => {
+  const t = useTranslate();
+  const guide = createFieldGuide(t, useLocale());
+  const Field = name === "title" ? TextField : TextArea;
+
+  return (
+    <Field
+      name={name}
+      label={t(`imageDetail.${name}`)}
+      description={guide(name === "title" ? imageTitle : imageDescription)}
+      placeholder={t(`imageDetail.${name}Placeholder`)}
+      value={value}
+      isReadOnly={isReadOnly}
+      onChange={(next) => {
+        onChange({ [name]: next });
+      }}
+    />
+  );
+};
+
+const PhotoField = memo(PhotoFieldContent);
+
 /** 選択した写真のタイトルと説明の入力欄。 */
 export const UploadPhotoFields = ({
   values,
   isReadOnly,
   onChange,
-}: UploadPhotoFieldsProps): ReactNode => {
-  const t = useTranslate();
-  const guide = createFieldGuide(t, useLocale());
-
-  return (
-    <Stack gap={3}>
-      <TextField
-        name="title"
-        label={t("imageDetail.title")}
-        description={guide(imageTitle)}
-        placeholder={t("imageDetail.titlePlaceholder")}
-        value={values.title}
-        isReadOnly={isReadOnly}
-        onChange={(value) => {
-          onChange({ title: value });
-        }}
-      />
-      <TextArea
-        name="description"
-        label={t("imageDetail.description")}
-        description={guide(imageDescription)}
-        placeholder={t("imageDetail.descriptionPlaceholder")}
-        value={values.description}
-        isReadOnly={isReadOnly}
-        onChange={(value) => {
-          onChange({ description: value });
-        }}
-      />
-    </Stack>
-  );
-};
+}: UploadPhotoFieldsProps): ReactNode => (
+  <Stack gap={3}>
+    <PhotoField
+      name="title"
+      value={values.title}
+      isReadOnly={isReadOnly}
+      onChange={onChange}
+    />
+    <PhotoField
+      name="description"
+      value={values.description}
+      isReadOnly={isReadOnly}
+      onChange={onChange}
+    />
+  </Stack>
+);

@@ -32,7 +32,6 @@ test("閉じても選んだ写真を保ち、別の写真に入力の誤りが�
   expect(result.current.isUploading).toBe(true);
   await waitFor(() => {
     expect(result.current.isUploading).toBe(false);
-    expect(result.current.canEditSelected).toBe(true);
   });
   act(() => {
     result.current.metadata.change(1, { title: "写".repeat(201) });
@@ -135,7 +134,7 @@ test("完了で保存できた写真を閉じ、失敗した写真の原稿は�
   act(() => {
     result.current.select(3);
   });
-  expect(result.current.canEditSelected).toBe(true);
+  expect(result.current.metadata.hasChanges(3)).toBe(true);
   expect(result.current.metadata.draft(3).title).toBe("形式を確認する前の原稿");
   act(() => {
     result.current.focus.retry(2);

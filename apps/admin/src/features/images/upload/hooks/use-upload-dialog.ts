@@ -79,10 +79,6 @@ export const useUploadDialog = () => {
     selected,
     uploads,
     isUploading: isUploading(uploads),
-    canEditSelected:
-      selected !== undefined &&
-      ((selected.status !== "too-large" && selected.status !== "unsupported") ||
-        metadata.hasChanges(selected.id)),
     problem: error &&
       problem && {
         name: problem.file.name,

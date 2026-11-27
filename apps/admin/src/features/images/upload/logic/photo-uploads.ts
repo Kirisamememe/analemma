@@ -1,3 +1,5 @@
+import type { UploadValue } from "../upload-value";
+
 import type { ApiOutputs } from "@/api/api-types";
 
 /** 送る写真1枚の状態。 */
@@ -18,7 +20,7 @@ export type PhotoUpload = {
   /** 送る写真の状態。 */
   readonly status: UploadStatus;
   /** このファイルの送信済みの割合（%）。 */
-  readonly percent?: number;
+  readonly progress?: UploadValue<number> | undefined;
   /** 足せたときの、画像の ID。 */
   readonly imageId?: string | undefined;
   /** 元の写真を表示できないときに使う配信用の URL。 */
@@ -76,23 +78,7 @@ export const withStatus =
   (id: number, status: UploadStatus) =>
   (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
     uploads.map((upload) =>
-      upload.id === id
-        ? { ...upload, status, ...(status === "sending" && { percent: 0 }) }
-        : upload,
-    );
-
-/** 写真の送信済みの割合を更新する。 */
-export const withUploadProgress =
-  (id: number, fraction: number) =>
-  (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
-    uploads.map((upload) =>
-      upload.id === id && upload.status === "sending"
-        ? {
-            ...upload,
-            percent:
-              fraction === 1 ? 100 : Math.min(99, Math.round(fraction * 100)),
-          }
-        : upload,
+      upload.id === id ? { ...upload, status, progress: undefined } : upload,
     );
 
 /** 写真を足せたことにし、作った画像の ID を持たせる。 */
@@ -110,6 +96,7 @@ export const withAdded =
         ? {
             ...upload,
             status: "added",
+            progress: undefined,
             imageId: image.id,
             previewUrl: image.deliveryImages[0]?.url,
           }

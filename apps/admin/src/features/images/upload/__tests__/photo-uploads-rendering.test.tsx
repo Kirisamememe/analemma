@@ -7,15 +7,19 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import { afterEach, expect, test } from "bun:test";
+import { afterEach, expect, spyOn, test } from "bun:test";
 import { Profiler } from "react";
 
+import * as carousel from "../upload-carousel";
+
 import { ImagesSection } from "@/components/images/images-section";
+import * as controls from "@/features/images/upload/hooks/use-upload-dialog";
 import { PhotoUploads } from "@/features/images/upload/photo-uploads";
 import type { FakeReply, FakeRoutes } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";
+import * as formFields from "@/ui/primitives/form-fields";
 
 afterEach(cleanup);
 
@@ -111,4 +115,41 @@ test("選択していない写真が送信に失敗しても入力欄を保ち�
   await screen.findByText("3枚中2枚完了・1枚失敗");
   expect(document.activeElement).toBe(title);
   expect(listCommits).toHaveLength(committed);
+});
+
+test("原稿に1文字入力してもDialog全体を描き直さず、次に選んだ写真とは別々の値を保つ", async () => {
+  const held = holdUploads();
+  const app = createTestApp({ path: "/images", routes: held.routes });
+  await app.router.load();
+
+  using dialog = spyOn(controls, "useUploadDialog");
+  using rail = spyOn(carousel, "UploadCarousel");
+  using description = spyOn(formFields, "TextArea");
+  render(
+    <main>
+      <PhotoUploads imageHref={(id) => `/images/${id}`} />
+    </main>,
+    {
+      wrapper: withAppProviders(app),
+    },
+  );
+  await dropPhotos("a.jpg", "b.jpg");
+  await waitFor(() => {
+    expect(screen.getAllByRole("progressbar")).toHaveLength(2);
+  });
+  const field = screen.getByRole("textbox", { name: "タイトル" });
+  expect(description).toHaveBeenCalled();
+  expect(rail).toHaveBeenCalled();
+  dialog.mockClear();
+  rail.mockClear();
+  description.mockClear();
+  fireEvent.change(field, { target: { value: "山" } });
+  expect(screen.getByDisplayValue("山")).toBe(field);
+  expect(dialog).not.toHaveBeenCalled();
+  expect(rail).not.toHaveBeenCalled();
+  expect(description).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "b.jpg" }));
+  expect(screen.queryByDisplayValue("山")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "a.jpg" }));
+  expect(screen.getByDisplayValue("山")).toBe(field);
 });
