@@ -50,7 +50,7 @@ type CarouselPhoto = {
   name: string;
   /** 写真のファイルか配信用の URL。 */
   source: File | string;
-  /** 送信中に写真の上で示す転送率。 */
+  /** 写真の上に重ねる内容。 */
   overlay?: ReactNode;
   /** 元のファイルを表示できないときに使う配信用の URL。 */
   previewUrl?: string | undefined;
