@@ -22,6 +22,6 @@ export const settledSince = (
     ),
   );
 
-/** 変換を終えた画像が、表示用の画像を作れたかを返す。 */
+/** 変換を終えた画像が、配信用の画像を作れたかを返す。 */
 export const isConverted = ({ status }: Pick<Listed, "status">): boolean =>
   status === "published" || status === "unpublished";

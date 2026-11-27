@@ -8,6 +8,8 @@ import { findNextConverting } from "@/queries/images-query";
 
 type Pages = readonly ApiOutputs["admin"]["images"]["list"][];
 
+const NONE: ReturnType<typeof settledSince> = [];
+
 const sameIds = (a: ReadonlySet<string>, b: ReadonlySet<string>): boolean =>
   a.size === b.size && [...a].every((id) => b.has(id));
 
@@ -15,14 +17,14 @@ const sameIds = (a: ReadonlySet<string>, b: ReadonlySet<string>): boolean =>
 export const useConversionWatch = (pages: Pages, pollMs?: number) => {
   const converting = convertingIds(pages);
   const [watched, setWatched] = useState(converting);
-  const [settled, setSettled] = useState(() => settledSince(watched, pages));
+  const [result, setResult] = useState({ round: 0, settled: NONE });
 
   if (!sameIds(watched, converting)) {
-    const done = settledSince(watched, pages);
+    const settled = settledSince(watched, pages);
 
     setWatched(converting);
 
-    if (done.length > 0) setSettled(done);
+    if (settled.length > 0) setResult({ round: result.round + 1, settled });
   }
 
   useImage(findNextConverting(pages), {
@@ -30,5 +32,5 @@ export const useConversionWatch = (pages: Pages, pollMs?: number) => {
     ...(pollMs !== undefined && { pollMs }),
   });
 
-  return { isWatching: converting.size > 0, settled };
+  return { isWatching: converting.size > 0, ...result };
 };

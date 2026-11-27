@@ -4,9 +4,16 @@ import type { ReactNode } from "react";
 type AnnouncementProps = {
   /** 伝える文言(無ければ何も伝えない)。 */
   children: ReactNode;
+  /** 何回目の知らせか(同じ文言を続けて伝えるときに替える)。 */
+  revision?: number;
 };
 
 /** 画面には出さず、変わるたびに読み上げに伝える知らせ。 */
-export const Announcement = ({ children }: AnnouncementProps): ReactNode => (
-  <output className="sr-only">{children}</output>
+export const Announcement = ({
+  children,
+  revision = 0,
+}: AnnouncementProps): ReactNode => (
+  <output className="sr-only">
+    <span key={revision}>{children}</span>
+  </output>
 );

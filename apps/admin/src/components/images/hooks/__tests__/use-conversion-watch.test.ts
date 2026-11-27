@@ -179,7 +179,11 @@ test("変換を終えた画像を返し、次に変換を終える画像が出�
     { wrapper: withAppProviders(app) },
   );
 
-  expect(result.current).toEqual({ isWatching: true, settled: [] });
+  expect(result.current).toEqual({
+    isWatching: true,
+    round: 0,
+    settled: [],
+  });
 
   server.convert(converting?.id ?? "", { status: "unpublished" });
   rerender();
@@ -189,6 +193,7 @@ test("変換を終えた画像を返し、次に変換を終える画像が出�
   ).toEqual([["港", "unpublished"]]);
 
   expect(result.current.isWatching).toBe(false);
+  expect(result.current.round).toBe(1);
 
   rerender();
   expect(result.current.settled).toHaveLength(1);

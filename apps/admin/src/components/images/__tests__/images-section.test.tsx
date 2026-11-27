@@ -134,6 +134,33 @@ describe("ImagesSection", () => {
     await announced("「新しい写真」の変換が終わりました");
   }, 15_000);
 
+  test("同じ文言になる画像が続けて変換を終えても、そのたびに知らせを作り直す", async () => {
+    const server = createImageRoutes([
+      { status: "processing" },
+      { status: "processing" },
+    ]);
+
+    await renderSection(server.routes);
+    await linkNames();
+
+    const [newer, older] = server.images();
+
+    server.convert(older?.id ?? "", { status: "published", deliveryImages });
+
+    const first = await announced("「無題」の変換が終わりました");
+
+    server.convert(newer?.id ?? "", { status: "published", deliveryImages });
+    await waitFor(
+      () => {
+        expect(first.isConnected).toBe(false);
+      },
+      { timeout: 4000 },
+    );
+    expect(screen.getByRole("status").textContent).toBe(
+      "「無題」の変換が終わりました",
+    );
+  }, 15_000);
+
   test("画像が無ければ、中身の無い欄を出す", async () => {
     await renderSection(createImageRoutes([]).routes);
 

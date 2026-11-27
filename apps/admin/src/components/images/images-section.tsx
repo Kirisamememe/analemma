@@ -158,12 +158,12 @@ type ConversionWatchProps = {
 
 const ConversionWatch = ({ pages }: ConversionWatchProps): ReactNode => {
   const t = useTranslate();
-  const { isWatching, settled } = useConversionWatch(pages);
+  const { isWatching, settled, round } = useConversionWatch(pages);
 
   if (!isWatching && settled.length === 0) return null;
 
   return (
-    <Announcement>
+    <Announcement revision={round}>
       {settled
         .map((image) =>
           t(
