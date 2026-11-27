@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+import { REPEAT_MAX_ITEMS } from "../content-values";
 import { fieldDefinitions } from "../field-definition";
 import { kindDefinition } from "../kind-definition";
 import { toContentSchema } from "../to-content-schema";
@@ -58,6 +59,11 @@ const fullContent = {
   links: [{ url: "http://example.org" }],
 };
 
+const links = (count: number) => ({
+  headline: "a",
+  links: Array.from({ length: count }, () => ({ url: "http://example.org" })),
+});
+
 const issuesOf = (value: unknown): string[] =>
   keep.safeParse(value).error?.issues.map(({ path }) => path.join(".")) ?? [];
 
@@ -72,6 +78,12 @@ describe("中身の検査", () => {
       headline: "a",
       open: true,
     });
+  });
+
+  test("repeat の要素は100件まで受け付け、101件は断ること", () => {
+    expect(keep.safeParse(links(REPEAT_MAX_ITEMS)).success).toBe(true);
+    expect(issuesOf(links(REPEAT_MAX_ITEMS + 1))).toEqual(["links"]);
+    expect(REPEAT_MAX_ITEMS).toBe(100);
   });
 
   test("値の無い真偽値の項目は、項目の既定値として読むこと", () => {

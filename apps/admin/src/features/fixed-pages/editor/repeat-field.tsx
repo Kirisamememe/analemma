@@ -1,12 +1,13 @@
 import { memo, type ReactNode, useCallback, useRef } from "react";
 
-import type { FieldDefinition } from "@analemma/contract";
+import { type FieldDefinition, REPEAT_MAX_ITEMS } from "@analemma/contract";
 
 import { createContentForm } from "../content-form";
 import { Branch, ContentGroup } from "../ui/content-group";
 import type { ContentFieldsProps } from "./content-fields";
 import { flattenContent } from "./logic/flat-content";
 import {
+  addRepeatItem,
   moveRepeatItem,
   removeRepeatItem,
   type RepeatChange,
@@ -185,6 +186,7 @@ export const RepeatField = ({
     <form.Field name={name}>
       {(field) => {
         const ids = field.state.value;
+        const isFull = ids.length >= REPEAT_MAX_ITEMS;
 
         return (
           <>
@@ -204,13 +206,26 @@ export const RepeatField = ({
                 {children}
               </RepeatItem>
             ))}
-            <Branch parent="repeat" target="add" isLast>
+            <Branch
+              parent="repeat"
+              target="add"
+              isLast
+              note={
+                isFull
+                  ? t("fixedPageEditor.addLimit", { limit: REPEAT_MAX_ITEMS })
+                  : undefined
+              }
+            >
               <Button
                 ref={remember("add")}
                 size="sm"
                 tone="secondary"
+                isDisabled={isFull}
                 onPress={() => {
                   const id = crypto.randomUUID();
+                  const change = addRepeatItem(ids, id);
+
+                  if (change === undefined) return;
 
                   const added = flattenContent(
                     createContentForm(definition.fields),
@@ -225,8 +240,7 @@ export const RepeatField = ({
                     form.setFieldValue(`items.${key}`, value);
                   }
 
-                  field.handleChange([...ids, id]);
-                  changed("content." + path);
+                  apply(change);
                 }}
               >
                 <Icon name="plus" size="md" weight="bold" />

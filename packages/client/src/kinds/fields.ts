@@ -9,6 +9,7 @@ import {
   dateValue,
   longTextValue,
   numberValue,
+  REPEAT_MAX_ITEMS,
   textValue,
   urlValue,
 } from "@analemma/contract";
@@ -134,7 +135,7 @@ export const repeat = <const Shape extends FieldShape>({
 }: NestedOptions<Shape>) => {
   const shape = { ...fields };
 
-  return registerField(z.array(z.object(shape)), {
+  return registerField(z.array(z.object(shape)).max(REPEAT_MAX_ITEMS), {
     type: "repeat",
     label,
     optional: false,

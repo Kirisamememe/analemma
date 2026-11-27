@@ -69,6 +69,8 @@ type BranchProps = {
   target?: "heading" | "item" | "add" | undefined;
   /** 親の最後の子か。 */
   isLast?: boolean;
+  /** 追加のボタンの下に出して、読み上げにも知らせる補足。 */
+  note?: string | undefined;
   /** 線の横に置く中身。 */
   children: ReactNode;
 };
@@ -78,6 +80,7 @@ export const Branch = ({
   parent,
   target,
   isLast = false,
+  note,
   children,
 }: BranchProps): ReactNode => (
   <div>
@@ -88,6 +91,17 @@ export const Branch = ({
       {target === "add" && <NestLine shape="elbowToAdd" />}
       {children}
     </div>
+    {target === "add" && (
+      <output className="block">
+        {note !== undefined && (
+          <span className="block ps-3 pt-1.5 @max-3xs/nested-form:ps-1">
+            <Text as="span" tone="muted" variant="caption">
+              {note}
+            </Text>
+          </span>
+        )}
+      </output>
+    )}
   </div>
 );
 

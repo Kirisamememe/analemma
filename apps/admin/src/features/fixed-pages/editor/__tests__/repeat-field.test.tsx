@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { Profiler, type ProfilerOnRenderCallback, type ReactNode } from "react";
 
@@ -36,12 +36,16 @@ const probe = (path: string): ReactNode => (
   </Profiler>
 );
 
-const Repeat = (): ReactNode => {
+const Repeat = ({ count }: Record<"count", number>): ReactNode => {
   const { form, errors, changed } = useEditorForm({
     kind: { ...kind, fields: [definition] },
     page: {
       ...page,
-      content: { items: [{ text: "1" }, { text: "2" }, { text: "3" }] },
+      content: {
+        items: Array.from({ length: count }, (_, index) => ({
+          text: String(index + 1),
+        })),
+      },
     },
     onSaved: () => undefined,
     onDeleted: () => undefined,
@@ -60,14 +64,14 @@ const Repeat = (): ReactNode => {
   );
 };
 
-const setUp = async () => {
+const setUp = async (count = 3) => {
   const app = createTestApp({ path: "/enroll", routes: {} });
   await app.router.load();
   const Providers = withAppProviders(app);
 
   render(
     <Providers>
-      <Repeat />
+      <Repeat count={count} />
     </Providers>,
   );
 
@@ -108,4 +112,30 @@ test("要素を下へ動かすと、入れ替わった2つだけを描き直す"
   expect(count(first)).toBe(1);
   expect(count(second)).toBe(1);
   expect(count(third)).toBe(0);
+});
+
+test("100件目を足すと、追加のボタンを無効にして上限を伝え、足した要素のボタンへ focus を移す", async () => {
+  await setUp(99);
+  const add = screen.getByRole("button", { name: "項目を追加" });
+
+  expect(add).toHaveProperty("disabled", false);
+  expect(screen.getByRole("status").textContent).toBe("");
+  act(() => {
+    add.click();
+  });
+
+  expect(add).toHaveProperty("disabled", true);
+  expect(screen.getByRole("status").textContent).toBe(
+    "追加できるのは100件までです",
+  );
+  await waitFor(() => {
+    expect(document.activeElement?.getAttribute("aria-label")).toBe(
+      "項目 100 を上へ",
+    );
+  });
+  act(() => {
+    screen.getByRole("button", { name: "項目 100 を削除" }).click();
+  });
+  expect(add).toHaveProperty("disabled", false);
+  expect(screen.getByRole("status").textContent).toBe("");
 });

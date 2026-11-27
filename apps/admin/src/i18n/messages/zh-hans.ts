@@ -57,6 +57,7 @@ export const zhHans = {
   "fixedPageEditor.down": "下移{{label}}第 {{position}} 项",
   "fixedPageEditor.remove": "删除{{label}}第 {{position}} 项",
   "fixedPageEditor.add": "添加{{label}}",
+  "fixedPageEditor.addLimit": "最多可添加{{limit}}项",
   "fixedPageEditor.backToList": "固定页面列表",
   "fixedPageEditor.delete": "删除固定页面",
   "fixedPageEditor.leaveTitle": "有尚未保存的更改",

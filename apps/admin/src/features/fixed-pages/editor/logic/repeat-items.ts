@@ -1,3 +1,5 @@
+import { REPEAT_MAX_ITEMS } from "@analemma/contract";
+
 /** repeat の要素の帯に置くボタン。 */
 type ItemButton = "up" | "down" | "remove";
 
@@ -17,6 +19,21 @@ export type RepeatChange = {
   readonly ids: string[];
   /** focus を移すボタン。 */
   readonly focus: RepeatFocus;
+};
+
+/** 要素を末尾に足した後の ID の並びと、focus を移すボタンを返す。 */
+export const addRepeatItem = (
+  ids: readonly string[],
+  id: string,
+): RepeatChange | undefined => {
+  if (ids.length >= REPEAT_MAX_ITEMS) return undefined;
+
+  const next = [...ids, id];
+
+  return {
+    ids: next,
+    focus: next.length < REPEAT_MAX_ITEMS ? "add" : { id, button: "up" },
+  };
 };
 
 /** 要素を1つ上か下へ動かした後の ID の並びと、focus を移すボタンを返す。 */

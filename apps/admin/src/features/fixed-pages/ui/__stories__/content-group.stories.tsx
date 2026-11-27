@@ -35,7 +35,7 @@ const actions = (label: string) => (
   </>
 );
 
-const accounts = (error?: string) => (
+const accounts = (error?: string, limit?: string) => (
   <ContentGroup kind="repeat" label="アカウント" error={undefined} inGroup>
     <Branch parent="repeat" target="item">
       <ContentGroup
@@ -47,8 +47,8 @@ const accounts = (error?: string) => (
         <TextField name="service" label="サービス" defaultValue="日記" />
       </ContentGroup>
     </Branch>
-    <Branch parent="repeat" target="add" isLast>
-      <Button size="sm">
+    <Branch parent="repeat" target="add" isLast note={limit}>
+      <Button isDisabled={limit !== undefined} size="sm" tone="secondary">
         <Icon name="plus" weight="bold" />
         アカウントを追加
       </Button>
@@ -111,6 +111,21 @@ export const Invalid: Story = {
         </Branch>
         <Branch parent="group" target="heading" isLast>
           {accounts("値を確認してください。")}
+        </Branch>
+      </>
+    ),
+  },
+};
+
+export const Full: Story = {
+  args: {
+    children: (
+      <>
+        <Branch parent="group">
+          <TextField name="name" label="名前" defaultValue="Aoi" />
+        </Branch>
+        <Branch parent="group" target="heading" isLast>
+          {accounts(undefined, "追加できるのは100件までです")}
         </Branch>
       </>
     ),

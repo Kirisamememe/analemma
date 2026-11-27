@@ -1,12 +1,36 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  addRepeatItem,
   moveRepeatItem,
   removeRepeatItem,
   repeatFocusKey,
 } from "../repeat-items";
 
 const IDS = ["a", "b", "c"];
+
+const ids = (count: number): string[] =>
+  Array.from({ length: count }, (_, index) => String(index));
+
+describe("addRepeatItem", () => {
+  test("末尾に足し、追加のボタンに focus を残す", () => {
+    expect(addRepeatItem(IDS, "d")).toEqual({
+      ids: ["a", "b", "c", "d"],
+      focus: "add",
+    });
+  });
+
+  test("100件目を足すと追加のボタンは使えなくなるので、足した要素のボタンへ移す", () => {
+    expect(addRepeatItem(ids(99), "last")?.focus).toEqual({
+      id: "last",
+      button: "up",
+    });
+  });
+
+  test("100件あれば足さない", () => {
+    expect(addRepeatItem(ids(100), "more")).toBeUndefined();
+  });
+});
 
 describe("moveRepeatItem", () => {
   test("動かした要素の、押した向きのボタンに focus を残す", () => {

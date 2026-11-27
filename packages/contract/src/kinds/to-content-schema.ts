@@ -6,6 +6,7 @@ import {
   dateValue,
   longTextValue,
   numberValue,
+  REPEAT_MAX_ITEMS,
   textValue,
   urlValue,
 } from "./content-values";
@@ -46,7 +47,9 @@ const toValueSchema = (
     case "group":
       return toContentSchema({ fields: field.fields, unknownKeys });
     case "repeat":
-      return z.array(toContentSchema({ fields: field.fields, unknownKeys }));
+      return z
+        .array(toContentSchema({ fields: field.fields, unknownKeys }))
+        .max(REPEAT_MAX_ITEMS);
   }
 };
 
