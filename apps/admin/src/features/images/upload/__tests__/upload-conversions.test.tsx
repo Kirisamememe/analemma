@@ -17,6 +17,7 @@ test("取り直しの最初の応答が届いても、取り直しが失敗し�
   const [image] = server.images();
   const first = Promise.withResolvers<undefined>();
   let replies: "waiting" | "failing" = "waiting";
+  let failed = 0;
 
   const app = createTestApp({
     path: "/",
@@ -24,6 +25,8 @@ test("取り直しの最初の応答が届いても、取り直しが失敗し�
       ...server.routes,
       "admin/images/get": (input) => {
         if (replies === "failing") {
+          failed += 1;
+
           return { error: "INTERNAL_SERVER_ERROR", defined: false };
         }
 
@@ -71,13 +74,15 @@ test("取り直しの最初の応答が届いても、取り直しが失敗し�
 
   const rendered = renders;
 
-  await act(async () => {
+  act(() => {
     first.resolve(undefined);
-    await Bun.sleep(POLL_MS * 2);
+  });
+  await waitFor(() => {
+    expect(gets().length).toBeGreaterThanOrEqual(2);
   });
   replies = "failing";
   await waitFor(() => {
-    expect(gets().length).toBeGreaterThan(4);
+    expect(failed).toBeGreaterThanOrEqual(3);
   });
 
   expect(renders).toBe(rendered);
