@@ -19,6 +19,8 @@ test("左右に補足と操作を置けて、どちらも空なら landmark に�
   rerender(<ModalFooter start={action} end="保存済み" />);
   expect(screen.getByText("保存済み")).toBeDefined();
   expect(screen.getByRole("button", { name: "保存" })).toBeDefined();
+  rerender(<ModalFooter start={[null, false]} end={[]} />);
+  expect(screen.queryByRole("contentinfo")).toBeNull();
   rerender(<ModalFooter start={null} end={false} />);
   expect(screen.queryByRole("contentinfo")).toBeNull();
 });

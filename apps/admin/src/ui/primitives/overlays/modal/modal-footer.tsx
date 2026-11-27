@@ -32,7 +32,9 @@ type ModalFooterProps = ModalFooterSlots & {
 };
 
 const isRendered = (node: ReactNode): boolean =>
-  node !== null && node !== undefined && typeof node !== "boolean";
+  Array.isArray(node)
+    ? node.some((child: ReactNode) => isRendered(child))
+    : node !== null && node !== undefined && typeof node !== "boolean";
 
 /** 左右を独立して使える、モーダルの下端の帯。 */
 export const ModalFooter = ({

@@ -59,15 +59,23 @@ const inDirectory = (
 });
 
 const TRANSLATED_ATTRIBUTES = [
+  "actionLabel",
+  "actionName",
   "alt",
   "aria-description",
   "aria-label",
+  "badge",
   "description",
+  "detail",
+  "drawerLabel",
   "errorMessage",
+  "failedTitle",
   "heading",
   "label",
+  "missing",
   "placeholder",
   "title",
+  "untitled",
 ]; // 利用者に見えるか、読み上げられる文言を受け取る属性
 
 const SINGLE_COMPONENT_FILES = ["**/apps/admin/src/ui/**/*.tsx"]; // 片付けの済んだフォルダから足していく
