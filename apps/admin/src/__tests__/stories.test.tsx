@@ -20,10 +20,10 @@ import * as featuresFixedPagesContentGroup from "@/features/fixed-pages/ui/__sto
 import * as imageFieldPanel from "@/features/fixed-pages/ui/__stories__/image-field-panel.stories";
 import * as fixedPageKindGuide from "@/features/fixed-pages/ui/__stories__/kind-guide.stories";
 import * as featuresImagesImageDetail from "@/features/images/detail/__stories__/image-detail.stories";
-import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/image-viewer.stories";
 import * as featuresImagesInfoList from "@/features/images/ui/__stories__/info-list.stories";
 import * as featuresImagesPhotoCarousel from "@/features/images/ui/upload/__stories__/photo-carousel.stories";
 import * as featuresImagesUploadNotice from "@/features/images/ui/upload/__stories__/upload-notice.stories";
+import * as featuresImagesImageViewer from "@/features/images/ui/viewer/__stories__/image-viewer.stories";
 import * as UploadFileInputStories from "@/features/images/upload/__stories__/upload-file-input.stories";
 import * as uploadLeaveDialog from "@/features/images/upload/__stories__/upload-leave-dialog.stories";
 import * as uploadPhotoFields from "@/features/images/upload/selected-photo/__stories__/upload-photo-fields.stories";
@@ -35,8 +35,8 @@ import * as routesLoginPage from "@/routes/auth/__stories__/login-page.stories";
 import * as routesDeployTokensPage from "@/routes/deploy-tokens/__stories__/deploy-tokens-page.stories";
 import * as routesFixedPageEditor from "@/routes/fixed-pages/__stories__/fixed-page-editor.stories";
 import * as routesFixedPagesPage from "@/routes/fixed-pages/__stories__/fixed-pages-page.stories";
-import * as routesImageViewerPage from "@/routes/images/__stories__/image-viewer-page.stories";
 import * as routesImagesPage from "@/routes/images/__stories__/images-page.stories";
+import * as routesImageViewerPage from "@/routes/images/viewer/__stories__/image-viewer-page.stories";
 import * as layoutAppShell from "@/ui/layout/__stories__/app-shell.stories";
 import * as layoutCenter from "@/ui/layout/__stories__/center.stories";
 import * as layoutCluster from "@/ui/layout/__stories__/cluster.stories";
@@ -122,7 +122,7 @@ const MODULES = {
   "ui/patterns/photos/__stories__/image-thumbnail.stories.ts": imageThumbnail,
   "ui/patterns/photos/__stories__/image-rows.stories.tsx":
     featuresImagesImageRows,
-  "features/images/ui/__stories__/image-viewer.stories.tsx":
+  "features/images/ui/viewer/__stories__/image-viewer.stories.tsx":
     featuresImagesImageViewer,
   "features/images/ui/__stories__/info-list.stories.ts": featuresImagesInfoList,
   "features/images/upload/__stories__/upload-file-input.stories.ts":
@@ -140,7 +140,7 @@ const MODULES = {
     routesFixedPageEditor,
   "routes/fixed-pages/__stories__/fixed-pages-page.stories.ts":
     routesFixedPagesPage,
-  "routes/images/__stories__/image-viewer-page.stories.ts":
+  "routes/images/viewer/__stories__/image-viewer-page.stories.ts":
     routesImageViewerPage,
   "routes/images/__stories__/images-page.stories.ts": routesImagesPage,
   "ui/layout/__stories__/app-shell.stories.tsx": layoutAppShell,

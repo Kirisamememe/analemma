@@ -1,15 +1,15 @@
 import { type ReactNode, useRef } from "react";
 
-import { usePhotoGestures } from "./hooks/use-photo-gestures";
+import { usePhotoGestures } from "../hooks/use-photo-gestures";
+import { SideLink } from "./side-link";
 import { ViewerPhoto } from "./viewer-photo";
+import { ViewerProgress } from "./viewer-progress";
 import { viewerStyle as style } from "./viewer-styles";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Text } from "@/ui/layout";
-import { LoadingStatus } from "@/ui/patterns";
 import type { DeliveryImages } from "@/ui/patterns/photos/logic/delivery-image";
 import { Icon, Spinner } from "@/ui/primitives/graphics";
-import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 
 /** 前後の画像へ移るリンク。 */
@@ -64,73 +64,6 @@ type ImageViewerProps = {
   onSwipe: (direction: "previous" | "next") => void;
   /** 情報の欄の中身。 */
   children: ReactNode;
-};
-
-/** 写真の左右に重ねる、前後の画像へのリンクに渡す値。 */
-type SideLinkProps = {
-  /** 移る先。 */
-  neighbor: Neighbor;
-  /** 表示している写真からこの向きに移る。 */
-  onMove: () => void;
-  /** 向きのアイコン。 */
-  icon: "chevron-left" | "chevron-right";
-  /** 置く側。 */
-  place: "previous" | "next";
-  /** タップで矢印を表示しているか。 */
-  controlsVisible: boolean;
-};
-
-const SideLink = ({
-  neighbor: { href, label, attach, onKeyboardNavigate, disabled },
-  onMove,
-  icon,
-  place,
-  controlsVisible,
-}: SideLinkProps): ReactNode => (
-  <span
-    className={style.side({ controlsVisible, className: style[place]() })}
-    onClickCapture={(event) => {
-      if (
-        disabled !== true &&
-        event.detail === 0 &&
-        !event.altKey &&
-        !event.ctrlKey &&
-        !event.metaKey &&
-        !event.shiftKey
-      ) {
-        onKeyboardNavigate?.();
-      }
-    }}
-  >
-    <Link
-      href={href}
-      variant="block"
-      ref={attach}
-      navigation={{ disabled: disabled ?? false, open: onMove }}
-    >
-      <span className={style.control()}>
-        <Icon name={icon} size="lg" />
-        <span className="sr-only">{label}</span>
-      </span>
-    </Link>
-  </span>
-);
-
-type ProgressProps = {
-  /** 読み込み中の案内。 */
-  label: string;
-};
-
-const Progress = ({ label }: ProgressProps): ReactNode => {
-  return (
-    <>
-      <LoadingStatus label={label} />
-      <div aria-hidden="true" className={style.progress()}>
-        <Spinner />
-        <Text as="span">{label}</Text>
-      </div>
-    </>
-  );
 };
 
 /** 写真を大きく表示し、写真の情報を添える画面。 */
@@ -198,7 +131,7 @@ export const ImageViewer = ({
               onSettled={() => onSettled?.(pending.id)}
             />
           )}
-        {waiting !== undefined && <Progress label={waiting} />}
+        {waiting !== undefined && <ViewerProgress label={waiting} />}
         {previous !== undefined && (
           <SideLink
             controlsVisible={controlsVisible}

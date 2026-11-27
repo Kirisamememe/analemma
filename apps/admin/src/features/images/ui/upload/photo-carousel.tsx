@@ -1,45 +1,12 @@
-import { memo, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
+import { carouselStyle } from "./carousel-styles";
 import { useCarouselSelection } from "./hooks/use-carousel-selection";
-import { usePhotoPreview } from "./hooks/use-photo-preview";
+import { PhotoPreview } from "./photo-preview";
 
 import { Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Icon } from "@/ui/primitives/graphics";
 import { ScrollView, SnapItem } from "@/ui/primitives/navigation";
-import { tv } from "@/ui/tv";
-import { typography } from "@/ui/typography";
-
-const style = tv({
-  slots: {
-    strip: "flex items-center gap-2 py-1",
-    overlay: [
-      "pointer-events-none absolute inset-0 grid place-items-center rounded-xs",
-      "bg-scrim/60 text-on-media",
-    ],
-    tile: ["group block h-photo-preview rounded-xs", "outline-hidden"],
-    image:
-      "block h-full w-auto max-w-none rounded-xs group-focus-visible:focus-ring-inset",
-    missing: [
-      "flex aspect-photo h-full items-center justify-center gap-2",
-      "rounded-xs bg-surface-muted px-2 group-focus-visible:focus-ring-inset",
-    ],
-    details: "flex items-center justify-between gap-3 px-panel",
-    controls: "flex shrink-0 items-center rounded-full bg-surface-muted",
-    count: [
-      "min-w-10 text-center tabular-nums trim-cap-height",
-      typography({ role: "label" }),
-    ],
-  },
-  variants: { selected: { true: { tile: "focus-ring-current" } } },
-});
-
-type Transfer = {
-  /** 送信済みの割合（%）。 */
-  percent: number;
-  /** 転送中のファイルを特定できる名前。 */
-  label: string;
-};
 
 /** カルーセルに並べる写真。 */
 type CarouselPhoto = {
@@ -54,78 +21,6 @@ type CarouselPhoto = {
   /** 元のファイルを表示できないときに使う配信用の URL。 */
   previewUrl?: string | undefined;
 };
-
-type PreviewProps = Pick<CarouselPhoto, "source" | "previewUrl"> & {
-  /** プレビューの代わりに出す文言。 */
-  missing: string;
-};
-
-const PreviewContent = ({
-  source,
-  previewUrl,
-  missing,
-}: PreviewProps): ReactNode => {
-  const preview = usePhotoPreview(source, previewUrl);
-
-  if (preview) {
-    const { attach, key, onError, src } = preview;
-    return (
-      <img
-        alt=""
-        className={style().image()}
-        key={key}
-        onError={onError}
-        ref={attach}
-        src={src}
-      />
-    );
-  }
-
-  return (
-    <span className={style().missing()}>
-      <Icon name="image-off" />
-      <Text as="span" variant="caption">
-        {missing}
-      </Text>
-    </span>
-  );
-};
-
-const Preview = memo(PreviewContent);
-
-/** 写真の上に送信済みの割合を示す。 */
-export const TransferProgress = ({ percent, label }: Transfer): ReactNode => (
-  <div className={style().overlay()}>
-    <progress
-      className="sr-only"
-      aria-label={label}
-      max={100}
-      value={percent}
-    />
-    <svg
-      aria-hidden="true"
-      className="size-8"
-      viewBox="0 0 32 32"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <circle cx={16} cy={16} r={13} opacity={0.28} />
-      {percent > 0 && (
-        <circle
-          cx={16}
-          cy={16}
-          r={13}
-          pathLength={100}
-          strokeDasharray="100 100"
-          strokeDashoffset={100 - percent}
-          strokeLinecap="round"
-          transform="rotate(-90 16 16)"
-        />
-      )}
-    </svg>
-  </div>
-);
 
 /** 写真と選択を受け取るカルーセル。 */
 type PhotoCarouselProps = {
@@ -185,13 +80,15 @@ export const PhotoCarousel = ({
         orientation="horizontal"
         viewportRef={attachRail}
       >
-        <fieldset aria-label={label} className={style().strip()}>
+        <fieldset aria-label={label} className={carouselStyle().strip()}>
           {photos.map((photo) => (
             <SnapItem key={photo.id} ref={attachFrame(photo.id)}>
               <button
                 aria-label={photo.name}
                 aria-pressed={photo.id === selectedId}
-                className={style({ selected: photo.id === selectedId }).tile()}
+                className={carouselStyle({
+                  selected: photo.id === selectedId,
+                }).tile()}
                 onClick={() => {
                   onSelect(photo.id);
                 }}
@@ -200,7 +97,7 @@ export const PhotoCarousel = ({
                 tabIndex={photo.id === selectedId ? 0 : -1}
                 type="button"
               >
-                <Preview
+                <PhotoPreview
                   missing={missing}
                   source={photo.source}
                   previewUrl={photo.previewUrl}
@@ -211,11 +108,11 @@ export const PhotoCarousel = ({
           ))}
         </fieldset>
       </ScrollView>
-      <figcaption className={style().details()}>
+      <figcaption className={carouselStyle().details()}>
         <div className="min-w-0">
           {children ?? <Text variant="label">{selectedPhoto.name}</Text>}
         </div>
-        <div className={style().controls()}>
+        <div className={carouselStyle().controls()}>
           <Button
             aria-label={previous}
             size="sm"
@@ -225,7 +122,7 @@ export const PhotoCarousel = ({
             isDisabled={index === 0}
             onPress={selectPrevious}
           />
-          <span className={style().count()}>
+          <span className={carouselStyle().count()}>
             {position(index + 1, photos.length)}
           </span>
           <Button

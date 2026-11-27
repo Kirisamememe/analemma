@@ -2,10 +2,8 @@ import { memo, type ReactNode, useSyncExternalStore } from "react";
 
 import type { UploadValue } from "../upload-value";
 
-import {
-  PhotoCarousel,
-  TransferProgress,
-} from "@/features/images/ui/upload/photo-carousel";
+import { PhotoCarousel } from "@/features/images/ui/upload/photo-carousel";
+import { TransferProgress } from "@/features/images/ui/upload/transfer-progress";
 import type { PhotoUpload } from "@/features/images/upload/logic/photo-uploads";
 import { useTranslate } from "@/i18n/use-translate";
 

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { ImageDetail } from "../image-detail";
 
-import { ViewerFrame } from "@/features/images/ui/viewer-frame";
+import { ViewerFrame } from "@/features/images/ui/viewer/viewer-frame";
 import {
   createImageRoutes,
   type FakeImageSeed,

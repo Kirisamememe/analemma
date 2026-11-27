@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { ImageViewer } from "@/features/images/ui/image-viewer";
+import { ImageViewer } from "@/features/images/ui/viewer/image-viewer";
 import { renderWithI18n } from "@/testing/render-with-i18n";
 
 afterEach(cleanup);

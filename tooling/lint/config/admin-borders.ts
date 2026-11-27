@@ -70,7 +70,7 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     "forced-colors:after:outline-line",
     "is-hovered:after:outline-fg/20",
   ],
-  "features/images/ui/viewer-styles.ts": [
+  "features/images/ui/viewer/viewer-styles.ts": [
     "outline",
     "outline-fg/20",
     "group-focus-visible:outline-2",
