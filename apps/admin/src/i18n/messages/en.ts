@@ -58,6 +58,7 @@ export const en = {
   "fixedPageEditor.down": "Move {{label}} {{position}} down",
   "fixedPageEditor.remove": "Remove {{label}} {{position}}",
   "fixedPageEditor.add": "Add {{label}}",
+  "fixedPageEditor.addLimit": "You can add up to {{limit}}.",
   "fixedPageEditor.backToList": "Fixed pages",
   "fixedPageEditor.delete": "Delete fixed page",
   "fixedPageEditor.leaveTitle": "You have unsaved changes",

@@ -60,6 +60,7 @@ export const ja = {
   "fixedPageEditor.down": "{{label}} {{position}} を下へ",
   "fixedPageEditor.remove": "{{label}} {{position}} を削除",
   "fixedPageEditor.add": "{{label}}を追加",
+  "fixedPageEditor.addLimit": "追加できるのは{{limit}}件までです。",
   "fixedPageEditor.backToList": "固定ページの一覧",
   "fixedPageEditor.delete": "固定ページを削除",
   "fixedPageEditor.leaveTitle": "保存していない変更があります",
