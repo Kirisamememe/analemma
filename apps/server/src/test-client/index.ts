@@ -26,6 +26,11 @@ export {
 } from "@/test-client/create-test-client";
 export { listProcedurePaths } from "@/test-client/list-procedure-paths";
 export {
+  holdFirstConversion,
+  photo,
+  uploadRequest,
+} from "@/test-client/photo-uploads";
+export {
   issueTestDeployToken,
   prepareTestKinds,
 } from "@/test-client/prepare-test-kinds";

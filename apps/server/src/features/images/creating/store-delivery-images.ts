@@ -32,7 +32,7 @@ export type DeliveryRegistration<T> = {
   ) => Promise<Registered<T> | undefined>;
 };
 
-/** 配信用の画像のファイルを書いてから DB に登録し、登録が確定しなければ書いたファイルを消す。 */
+/** 配信用の画像のファイルを置き場所に書き、DB に登録する。 */
 export const storeDeliveryImages = async <T>(
   { db, storage }: Pick<AppContext, "db" | "storage">,
   { images, register }: DeliveryRegistration<T>,

@@ -4,15 +4,13 @@ import { detectImageFormat } from "@/platform/images/detect-image-format";
 import {
   catchErrorCode,
   createTestClient,
+  holdFirstConversion,
+  photo,
   SUCCEEDED,
   signInAsAdmin,
   TEST_NOW,
-} from "@/test-client";
-import {
-  holdFirstConversion,
-  photo,
   uploadRequest,
-} from "@/test-client/photo-uploads";
+} from "@/test-client";
 
 describe("写真を送って画像を作る", () => {
   test("JPEG から、撮影の情報と配信用の画像を持つ公開の画像を作り、一覧の先頭に出すこと", async () => {

@@ -7,8 +7,8 @@ import {
   createTestClient,
   signInAsAdmin,
   TEST_NOW,
+  uploadRequest,
 } from "@/test-client";
-import { uploadRequest } from "@/test-client/photo-uploads";
 
 const MEGABYTE = 1024 * 1024;
 
