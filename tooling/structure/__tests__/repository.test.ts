@@ -4,6 +4,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import config from "../../../oxlint.config";
+import { findMissingRerenderExpectations } from "../admin/rerender-expectations";
+import { findStrayStoryFiles } from "../admin/story-files";
 import {
   DIRECTORY_ENTRY_LIMIT,
   findBadDirectories,
@@ -21,7 +23,6 @@ import {
   SOFT_LIMIT_RULE,
   checkSourceFile,
 } from "../source-file";
-import { findStrayStoryFiles } from "../story-files";
 import { findTestOnlyImports } from "../test-only-imports";
 
 const repoRoot = join(import.meta.dirname, "../../..");
@@ -138,6 +139,25 @@ test("テストの外のファイルが、テストだけのフォルダから i
         text: readFileSync(join(repoRoot, path), "utf8"),
       }).map((target) => `${path}: ${target}`),
     ),
+  ).toEqual([]);
+});
+
+const ADMIN = "apps/admin/";
+
+const readAdmin = (candidates: readonly string[]) =>
+  candidates
+    .filter((path) => path.startsWith(ADMIN))
+    .map((path) => ({
+      path,
+      text: readFileSync(join(repoRoot, path), "utf8"),
+    }));
+
+test("管理画面の state を持つ feature・部品・画面が、再レンダリングの期待を書いていること", () => {
+  expect(
+    findMissingRerenderExpectations({
+      sources: readAdmin(sourcePaths),
+      documents: readAdmin(paths.filter((path) => DECISIONS_FILE.test(path))),
+    }),
   ).toEqual([]);
 });
 

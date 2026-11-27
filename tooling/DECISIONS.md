@@ -202,6 +202,16 @@ lint のルールは、書いているときにすぐ気づくための早めの
 - 同じ理由で、migration のフォルダは oxfmt の整形からも外す(`.oxfmtrc.json` の `ignorePatterns`)。drizzle-kit が書く `snapshot.json` の配列の折り返しが oxfmt と違い、`bun run check` の整形の確認で落ちた(使い捨ての migration で確かめた)。生成物を整形し直すと、生成し直すたびに差分が出る。SQL と JSON は Oxlint の対象ではないので、lint の設定は変えない。
 - 並べ替えでは `localeCompare` を使わない。テストを書いている途中で、`localeCompare` が実行環境のロケールで順番を変え、テストの期待と食い違った。文字コードの順で並べる。
 
+## 再レンダリングの期待の検査
+
+`tooling/structure/admin/` のテストが、管理画面の state を持つフォルダ(`src/features/`・`src/components/`・`src/routes/` の直下のフォルダ)に、「再レンダリングの期待」の見出しと中身があるかを確かめる(決まりと理由は `apps/admin/DECISIONS.md` の「再レンダリングの期待」)。
+
+- state を持つかは、製品のコード(`__tests__` と `__stories__` の外)が `react` から `useState`・`useReducer`・`useSyncExternalStore` を import しているかで決める。フォルダの全ファイルを見るので、lint ではなくこのテストで確かめる。
+- TanStack Form の値や TanStack Query の結果だけを持つフォルダは、対象にしない。どちらもライブラリが購読の範囲を絞り、state の置き場所を書き手が選ばない。
+- フォルダに `DECISIONS.md` があれば、その見出しの下に1行でも書いてあるかを見る。無ければ、`apps/admin/DECISIONS.md` の見出しの下に、フォルダのパス(`src/features/passkeys/` の形)があるかを見る。
+- 確かめるのは、書いてあるかまで。期待が妥当か、テストが期待を守っているかは、レビューで見る。
+- 管理画面だけに掛かる検査(この検査と、`__stories__` に置くファイルの検査)は、`tooling/structure/admin/` にまとめる。
+
 ## コミットのときの検査
 
 コミットのときに、git の hook(`tooling/git-hooks/`)が、`bun run check` では確かめられないものを確かめる。
