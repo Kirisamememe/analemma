@@ -125,7 +125,7 @@ export const Full: Story = {
           <TextField name="name" label="名前" defaultValue="Aoi" />
         </Branch>
         <Branch parent="group" target="heading" isLast>
-          {accounts(undefined, "追加できるのは100件までです。")}
+          {accounts(undefined, "追加できるのは100件までです")}
         </Branch>
       </>
     ),

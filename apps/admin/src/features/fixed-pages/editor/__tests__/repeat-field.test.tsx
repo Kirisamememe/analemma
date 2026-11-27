@@ -119,13 +119,13 @@ test("100件目を足すと、追加のボタンを無効にして上限を伝�
   const add = screen.getByRole("button", { name: "項目を追加" });
 
   expect(add).toHaveProperty("disabled", false);
-  expect(screen.queryByText("追加できるのは100件までです。")).toBeNull();
+  expect(screen.queryByText("追加できるのは100件までです")).toBeNull();
   act(() => {
     add.click();
   });
 
   expect(add).toHaveProperty("disabled", true);
-  expect(screen.getByText("追加できるのは100件までです。")).toBeDefined();
+  expect(screen.getByText("追加できるのは100件までです")).toBeDefined();
   await waitFor(() => {
     expect(document.activeElement?.getAttribute("aria-label")).toBe(
       "項目 100 を上へ",
