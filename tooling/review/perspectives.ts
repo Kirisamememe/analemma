@@ -16,8 +16,16 @@ export type CursorReviewer = {
   readonly models: readonly string[];
 };
 
+/** Antigravity の CLI(`agy`)で流すレビュー。 */
+export type AgyReviewer = {
+  /** レビューを流すもの。 */
+  readonly runner: "agy";
+  /** モデルの ID(reasoning effort を含む)。 */
+  readonly model: string;
+};
+
 /** レビューを流すものとモデル。 */
-export type Reviewer = CodexReviewer | CursorReviewer;
+export type Reviewer = CodexReviewer | CursorReviewer | AgyReviewer;
 
 /** レビューの観点。 */
 export type Perspective = {
@@ -44,7 +52,7 @@ export const PERSPECTIVES: readonly Perspective[] = [
   {
     id: "logic",
     label: "ビジネスロジック",
-    reviewer: SOL,
+    reviewer: { runner: "agy", model: "gemini-4-neon-high" },
     maxRounds: CHILD_BRANCH_ROUNDS,
   },
   {
@@ -68,7 +76,7 @@ export const PERSPECTIVES: readonly Perspective[] = [
   {
     id: "wording",
     label: "言葉",
-    reviewer: { runner: "codex", model: "gpt-6.1-terra", effort: "high" },
+    reviewer: { runner: "agy", model: "gemini-4-hydrogen-high" },
     maxRounds: CHILD_BRANCH_ROUNDS,
   },
   {

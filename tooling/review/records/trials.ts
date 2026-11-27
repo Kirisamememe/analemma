@@ -26,7 +26,7 @@ export type TrialRecord = {
   /** 同じ回の中での試行の番号。 */
   readonly trial: number;
   /** レビューを流したもの。 */
-  readonly runner: "codex" | "cursor";
+  readonly runner: "codex" | "cursor" | "agy";
   /** 実際に使ったモデルの ID。 */
   readonly model: string;
   /** Codex の reasoning effort。 */

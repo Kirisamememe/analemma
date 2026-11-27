@@ -32,7 +32,11 @@ const MAX_BUFFER = 256 * 1024 * 1024;
 const USAGE =
   "使い方:bun run review -- --perspective <観点> --base <比べる元のブランチ> [--head <レビューするブランチの名前かコミット>] [--full]";
 
-const RUNNER_NAMES = { codex: "Codex", cursor: "Cursor" } as const;
+const RUNNER_NAMES = {
+  codex: "Codex",
+  cursor: "Cursor",
+  agy: "Antigravity",
+} as const;
 
 const execute = (command: string, args: readonly string[]) =>
   spawnSync(command, args, {

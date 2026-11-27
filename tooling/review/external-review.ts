@@ -7,7 +7,11 @@ import {
   type CursorCall,
   type ReviewPaths,
 } from "./commands";
-import type { CodexReviewer, CursorReviewer } from "./perspectives";
+import type {
+  AgyReviewer,
+  CodexReviewer,
+  CursorReviewer,
+} from "./perspectives";
 import { readVerdict } from "./records/results";
 import type { TrialEnd } from "./records/trials";
 
@@ -20,17 +24,24 @@ type Invocation = {
   /** 引数。 */
   readonly args: readonly string[];
   /** 標準入力に渡す文字列。 */
-  readonly input?: string;
+  readonly input?: string | undefined;
+  /** 流すフォルダ。 */
+  readonly cwd?: string | undefined;
 };
 
-const execute = ({ args, command, input }: Invocation) =>
-  spawnSync(command, args, { encoding: "utf8", maxBuffer: MAX_BUFFER, input });
+const execute = ({ args, command, cwd, input }: Invocation) =>
+  spawnSync(command, args, {
+    cwd,
+    encoding: "utf8",
+    maxBuffer: MAX_BUFFER,
+    input,
+  });
 
 /** 観点に割り当てたモデルのうち、使えるものを選ぶ。 */
 export const chooseReviewer = (
-  reviewer: CodexReviewer | CursorReviewer,
-): CodexReviewer | CursorCall | string => {
-  if (reviewer.runner === "codex") {
+  reviewer: CodexReviewer | CursorReviewer | AgyReviewer,
+): CodexReviewer | CursorCall | AgyReviewer | string => {
+  if (reviewer.runner !== "cursor") {
     return reviewer;
   }
 
@@ -53,7 +64,7 @@ export const chooseReviewer = (
 /** 外の CLI で流すレビュー。 */
 type ExternalReview = {
   /** レビューを流すものとモデル。 */
-  readonly reviewer: CodexReviewer | CursorCall;
+  readonly reviewer: CodexReviewer | CursorCall | AgyReviewer;
   /** 外の CLI に渡す場所。 */
   readonly paths: ReviewPaths;
   /** 外の CLI の出力を書くファイル。 */
@@ -74,7 +85,15 @@ export const runExternalReview = ({
   reviewer,
 }: ExternalReview): Pick<TrialEnd, "reason" | "exitStatus"> => {
   const command = buildReviewCommand({ reviewer, paths });
-  const executed = execute({ ...command, input: prompt });
+
+  const executed = execute(
+    command.promptFlag === undefined
+      ? { ...command, input: prompt }
+      : {
+          ...command,
+          args: [...command.args, `${command.promptFlag}${prompt}`],
+        },
+  );
 
   if (executed.error !== undefined) {
     writeFileSync(log, executed.error.message);
