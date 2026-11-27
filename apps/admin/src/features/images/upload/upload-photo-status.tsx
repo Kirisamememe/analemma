@@ -1,16 +1,13 @@
 import type { ReactNode } from "react";
 
-import { PHOTO_MAX_BYTES } from "@analemma/contract";
-
 import type { PhotoUpload } from "./logic/photo-uploads";
 import {
-  formatFileSize,
   retryAction,
   toProgressTone,
   toStatusLabel,
 } from "./logic/upload-view";
 
-import { useLocale, useTranslate } from "@/i18n/use-translate";
+import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
@@ -40,7 +37,6 @@ export const UploadPhotoStatus = ({
   imageHref,
 }: UploadPhotoStatusProps): ReactNode => {
   const t = useTranslate();
-  const locale = useLocale();
   const action = retryAction(upload);
 
   return (
@@ -49,34 +45,26 @@ export const UploadPhotoStatus = ({
         restore(element, upload);
       }}
     >
-      <Cluster align="center" gap={2}>
+      <Cluster align="center" gap={2} wrap={false}>
         {upload.imageId ? (
           <Link variant="forward" href={imageHref(upload.imageId)}>
-            <Text as="span" variant="label">
+            <Text as="span" truncate variant="label">
               {upload.file.name}
             </Text>
             <span className="sr-only">{t("imageUpload.showPhoto")}</span>
           </Link>
         ) : (
-          <Text variant="label">{upload.file.name}</Text>
+          <div className="min-w-0">
+            <Text truncate variant="label">
+              {upload.file.name}
+            </Text>
+          </div>
         )}
-        <Badge variant="soft" tone={toProgressTone(upload.status)}>
-          {upload.status === "too-large"
-            ? t("imageUpload.status.too-large", {
-                limit: formatFileSize(locale, PHOTO_MAX_BYTES),
-              })
-            : t(toStatusLabel(upload.status))}
-        </Badge>
-        {upload.status === "converting" && (
-          <Text as="span" tone="muted" variant="caption">
-            {t("imageUpload.convertingHint")}
-          </Text>
-        )}
-        {upload.status === "unreadable" && (
-          <Text as="span" tone="muted" variant="caption">
-            {t("imageUpload.unreadableHint")}
-          </Text>
-        )}
+        <div className="shrink-0">
+          <Badge variant="soft" tone={toProgressTone(upload.status)}>
+            {t(toStatusLabel(upload.status))}
+          </Badge>
+        </div>
         {action !== "none" && (
           <Tooltip label={t("imageUpload.retry")}>
             <Button

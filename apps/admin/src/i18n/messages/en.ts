@@ -1,5 +1,8 @@
 /** 英語の訳で、ほかの言語のキーと引数の出どころ。 */
 export const en = {
+  // ---------------------------------------------
+  // 写真の画面と、固定ページの編集
+  // ---------------------------------------------
   "imageViewer.info": "Photo information",
   "imageViewer.loading": "Loading photo…",
   "imageViewer.loadFailed": "Could not load the photo",
@@ -74,6 +77,9 @@ export const en = {
   "fixedPageEditor.editReady": "The edit form is ready.",
   "fixedPageEditor.formReady": "The new page form is ready.",
   "fixedPageEditor.chooseAgain": "Choose another kind",
+  // ---------------------------------------------
+  // 共通の部品と、画面の枠
+  // ---------------------------------------------
   "app.name": "Stilus",
   "home.title": "Home",
   "navigation.main": "Main",
@@ -107,6 +113,9 @@ export const en = {
   "ui.errorState.failedAgain": "Still could not load.",
   "ui.errorState.retryLater": "Wait a moment, then try again.",
   "ui.errorState.retry": "Try again",
+  // ---------------------------------------------
+  // ログインとセキュリティ
+  // ---------------------------------------------
   "login.title": "Sign in to Stilus",
   "login.description": "Use a passkey you registered for this admin panel.",
   "login.submit": "Sign in with a passkey",
@@ -175,6 +184,9 @@ export const en = {
   "sessions.logOutAllTitle": "Sign out everywhere?",
   "sessions.logOutAllFailed": "Could not sign out. Please try again.",
   "passkeys.renamed": "The passkey was renamed.",
+  // ---------------------------------------------
+  // デプロイ用のトークン
+  // ---------------------------------------------
   "deployTokens.title": "Deploy tokens",
   "deployTokens.description":
     "Your site's deploy uses these tokens to send kind definitions. A token is shown only once, right after it is issued.",
@@ -214,6 +226,9 @@ export const en = {
     "Could not confirm with a current passkey.",
   "deployTokens.notFound": "This token no longer exists.",
   "deployTokens.failed": "Something went wrong. Please try again later.",
+  // ---------------------------------------------
+  // 固定ページ
+  // ---------------------------------------------
   "fixedPages.title": "Fixed pages",
   "fixedPages.description": "Pages such as About on the public site.",
   "fixedPages.loadFailed": "Could not load fixed pages",
@@ -253,6 +268,9 @@ export const en = {
   "fixedPageEditor.replaceImage": "Replace",
   "fixedPageEditor.removeImage": "Remove",
   "fixedPageEditor.missingImage": "Image no longer exists",
+  // ---------------------------------------------
+  // 画像
+  // ---------------------------------------------
   "imagePicker.title": "Choose images",
   "imagePicker.none": "No image selected",
   "imagePicker.selected": "Images selected: {{count}}",
@@ -267,6 +285,12 @@ export const en = {
   "imageUpload.position": "{{current}} / {{total}}",
   "imageUpload.editPhoto": "Show photo to edit",
   "imageUpload.finish": "Done",
+  "imageUpload.notice.converting":
+    "Converting: {{count}}. Conversion continues after you close this.",
+  "imageUpload.notice.unreadable":
+    "Unreadable: {{count}}. Add different files.",
+  "imageUpload.notice.retryable": "Can be sent again: {{count}}.",
+  "imageUpload.notice.rejected": "Unsupported format or size: {{count}}.",
   "imageUpload.notice.allFailed": "All {{total}} failed",
   "imageUpload.notice.sending": "{{added}} of {{total}} uploaded",
   "imageUpload.notice.done": "{{total}} uploaded",
@@ -300,17 +324,17 @@ export const en = {
   "imageUpload.showPhoto": "View photo",
   "imageUpload.guide.file":
     "Select or drop photos to publish immediately. Use JPEG, PNG, WebP, AVIF or HEIC, up to {{limit}} each.",
-  "imageUpload.status.waiting": "Queued for upload",
+  "imageUpload.status.waiting": "Queued",
   "imageUpload.status.sending": "Uploading",
-  "imageUpload.status.added": "Uploaded",
+  "imageUpload.status.added": "Added",
   "imageUpload.status.converting": "Converting",
-  "imageUpload.convertingHint": "Conversion continues after you close this.",
-  "imageUpload.unreadableHint": "Add a different file.",
   "imageUpload.retryFailed":
     "Could not delete the failed image, so the photo was not sent again.",
-  "imageUpload.status.too-large": "Larger than {{limit}}",
-  "imageUpload.status.unsupported": "Unsupported format",
-  "imageUpload.status.failed": "Could not upload",
+  "imageUpload.status.too-large": "Too large",
+  "imageUpload.status.unsupported": "Unsupported",
+  "imageUpload.status.failed": "Not sent",
+  "imageUpload.status.interrupted": "Not converted",
+  "imageUpload.status.unreadable": "Unreadable",
   "imageUpload.problem": "{{name}}: {{message}}",
   "imageUpload.retry": "Retry",
   "imageUpload.retryPhoto": "Retry {{name}}",

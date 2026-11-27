@@ -23,6 +23,7 @@ import * as featuresImagesImageDetail from "@/features/images/detail/__stories__
 import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/image-viewer.stories";
 import * as featuresImagesInfoList from "@/features/images/ui/__stories__/info-list.stories";
 import * as featuresImagesPhotoCarousel from "@/features/images/ui/upload/__stories__/photo-carousel.stories";
+import * as featuresImagesUploadNotice from "@/features/images/ui/upload/__stories__/upload-notice.stories";
 import * as UploadFileInputStories from "@/features/images/upload/__stories__/upload-file-input.stories";
 import * as uploadLeaveDialog from "@/features/images/upload/__stories__/upload-leave-dialog.stories";
 import * as uploadPhotoFields from "@/features/images/upload/__stories__/upload-photo-fields.stories";
@@ -112,6 +113,8 @@ const MODULES = {
     featuresImagesImageDetail,
   "components/images/__stories__/images-section.stories.tsx":
     featuresImagesSection,
+  "features/images/ui/upload/__stories__/upload-notice.stories.ts":
+    featuresImagesUploadNotice,
   "features/images/ui/upload/__stories__/photo-carousel.stories.tsx":
     featuresImagesPhotoCarousel,
   "ui/patterns/photos/__stories__/image-radio.stories.tsx": imageRadio,

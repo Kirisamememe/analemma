@@ -37,17 +37,10 @@ export const toProgressTone = (status: UploadStatus): ProgressTone =>
   TONES[status];
 
 /** 写真の状態を伝える文言のキーを返す。 */
-export const toStatusLabel = (
-  status: Exclude<UploadStatus, "too-large">,
-): MessageKey => {
-  if (status === "unreadable") return "images.unreadable";
-
-  if (status === "interrupted") return "images.interrupted";
-
-  if (status === "replacing") return "imageUpload.status.waiting";
-
-  return `imageUpload.status.${status}`;
-};
+export const toStatusLabel = (status: UploadStatus): MessageKey =>
+  status === "replacing"
+    ? "imageUpload.status.waiting"
+    : `imageUpload.status.${status}`;
 
 /** 写真の行の送り直しの操作(出さない・押せる・送っている最中)。 */
 export const retryAction = ({
@@ -76,52 +69,4 @@ export const focusAfterRetry = ({
   }
 
   return imageId === undefined ? "add-button" : "result";
-};
-
-/** 写真の転送と登録の全体を1行で伝えるための件数と表示。 */
-export const uploadNotice = (uploads: readonly PhotoUpload[]) => {
-  if (uploads.length === 0) return undefined;
-
-  const total = uploads.length;
-  const added = uploads.filter(({ status }) => status === "added").length;
-
-  const failed = uploads.filter(
-    ({ status }) => TONES[status] === "danger",
-  ).length;
-
-  const counts = { added, total, failed };
-
-  if (failed === total) {
-    return {
-      tone: "danger",
-      icon: "circle-alert",
-      key: "imageUpload.notice.allFailed",
-      counts,
-    } as const;
-  }
-
-  if (failed > 0) {
-    return {
-      tone: "warning",
-      icon: "circle-alert",
-      key: "imageUpload.notice.failed",
-      counts,
-    } as const;
-  }
-
-  if (added === total) {
-    return {
-      tone: "success",
-      icon: "circle-check",
-      key: "imageUpload.notice.done",
-      counts,
-    } as const;
-  }
-
-  return {
-    tone: "info",
-    icon: "arrow-up",
-    key: "imageUpload.notice.sending",
-    counts,
-  } as const;
 };

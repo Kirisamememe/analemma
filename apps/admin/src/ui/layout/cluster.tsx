@@ -4,8 +4,9 @@ import type { Space } from "@/ui/layout/space";
 import { tv } from "@/ui/tv";
 
 const cluster = tv({
-  base: "flex flex-wrap",
+  base: "flex",
   variants: {
+    wrap: { true: "flex-wrap", false: "min-w-0 flex-nowrap" },
     gap: {
       0: "gap-0",
       0.5: "gap-0.5",
@@ -39,16 +40,19 @@ type ClusterProps = {
   justify?: "start" | "end" | "between";
   /** 子の縦の揃え方。 */
   align?: "center" | "start" | "baseline";
+  /** 入りきらない子を折り返すか。 */
+  wrap?: boolean;
   /** 並べる子。 */
   children: ReactNode;
 };
 
-/** 子を横に並べ、入りきらなければ折り返す箱。 */
+/** 子を横に並べる箱。 */
 export const Cluster = ({
   gap = 2,
   justify = "start",
   align = "center",
+  wrap = true,
   children,
 }: ClusterProps): ReactNode => (
-  <div className={cluster({ gap, justify, align })}>{children}</div>
+  <div className={cluster({ gap, justify, align, wrap })}>{children}</div>
 );

@@ -81,7 +81,7 @@ test("待機中の写真を選んでも、送信率は転送中の写真にだ�
   await dropPhotos("first.jpg", "second.jpg", "third.jpg");
   const dialog = within(await uploadsRegion());
   await userEvent.click(dialog.getByRole("button", { name: "third.jpg" }));
-  expect(dialog.getByText("アップロード待ち")).toBeDefined();
+  expect(dialog.getByText("待機中")).toBeDefined();
 
   const progress = async (name: string, percent: string) => {
     const ring = await dialog.findByRole("progressbar", {
@@ -112,7 +112,7 @@ test("画像一覧に落とした写真の形式と結果を確かめ、完了�
   renderApp({ path: "/images", routes: server.routes });
   await dropPhotos("dusk.jpg", "scan.bmp");
   const uploads = await uploadsRegion();
-  await within(uploads).findByText("アップロード済み");
+  await within(uploads).findByText("追加済み");
   expect(
     within(uploads)
       .getByRole("link", { name: /写真を見る/v })
@@ -121,7 +121,7 @@ test("画像一覧に落とした写真の形式と結果を確かめ、完了�
   await userEvent.click(
     within(uploads).getByRole("button", { name: "scan.bmp" }),
   );
-  expect(within(uploads).getByText("対応していない形式です")).toBeDefined();
+  expect(within(uploads).getByText("非対応の形式")).toBeDefined();
   await userEvent.click(within(uploads).getByRole("button", { name: "完了" }));
   await waitFor(() => {
     expect(document.activeElement).toBe(
@@ -265,14 +265,16 @@ test("送れなかった写真があると完了の前に確かめ、戻ると�
   ).toBeNull();
 });
 
-test("受け取られた写真は変換中と出して完了を押せ、変換を終えるとアップロード済みに変わる", async () => {
+test("受け取られた写真は変換中と出して完了を押せ、変換を終えると追加済みに変わる", async () => {
   const server = createImageRoutes([], { status: "processing" });
   renderApp({ path: "/images", routes: server.routes });
   await dropPhotos("dusk.jpg");
   const uploads = within(await uploadsRegion());
 
   expect(await uploads.findByText("変換中")).toBeDefined();
-  expect(uploads.getByText("閉じても変換は続きます")).toBeDefined();
+  expect(
+    uploads.getByText("1枚を変換中。閉じても変換は続きます"),
+  ).toBeDefined();
   expect(uploads.getByText("1枚中0枚完了")).toBeDefined();
   expect(uploads.getByRole("button", { name: "完了" })).toHaveProperty(
     "disabled",
@@ -282,7 +284,7 @@ test("受け取られた写真は変換中と出して完了を押せ、変換�
   server.convert(server.images()[0]?.id ?? "", { status: "published" });
 
   expect(
-    await uploads.findByText("アップロード済み", undefined, { timeout: 4000 }),
+    await uploads.findByText("追加済み", undefined, { timeout: 4000 }),
   ).toBeDefined();
   expect(uploads.getByText("1枚アップロード完了")).toBeDefined();
 }, 10_000);
@@ -299,7 +301,7 @@ test("server の都合で変換を終えられなかった写真は送り直せ�
 
   server.convert(failed?.id ?? "", { status: "interrupted" });
   expect(
-    await uploads.findByText("変換できませんでした", undefined, {
+    await uploads.findByText("変換失敗", undefined, {
       timeout: 4000,
     }),
   ).toBeDefined();
@@ -318,7 +320,7 @@ test("写真を送っている間に Dialog を閉じて画面を離れようと
   const held = holdUploads();
   renderApp({ path: "/images", routes: held.routes });
   await dropPhotos("dusk.jpg");
-  expect(await screen.findByText("アップロード中")).toBeDefined();
+  expect(await screen.findByText("送信中")).toBeDefined();
   const upload = await uploadsRegion();
 
   await userEvent.click(within(upload).getByRole("button", { name: "閉じる" }));

@@ -34,3 +34,12 @@ export const LongText: Story = {
       "この登録用 URL は、もう使えません。期限が切れたか、すでに使われた可能性があります。サーバーのコマンドで発行し直してください。",
   },
 };
+
+export const WithIcon: Story = {
+  args: {
+    tone: "warning",
+    icon: "circle-alert",
+    children:
+      "5枚中4枚完了・1枚失敗。読み取れなかった写真は、別のファイルを追加してください。変換できなかった写真は、送り直せます。",
+  },
+};

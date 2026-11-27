@@ -43,3 +43,12 @@ export const LongWord: Story = {
       "passkey-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijkl",
   },
 };
+
+export const Truncated: Story = {
+  args: {
+    truncate: true,
+    variant: "label",
+    children:
+      "passkey-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz.jpg",
+  },
+};
