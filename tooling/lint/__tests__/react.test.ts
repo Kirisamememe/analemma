@@ -84,3 +84,20 @@ describe("React の import", () => {
     },
   );
 });
+
+const multipleComponentsIn = (file: string): number =>
+  lintFixture(`invalid/apps/admin/src/ui/patterns/${file}`).diagnostics.filter(
+    ({ code }) => code === "react(no-multi-comp)",
+  ).length;
+
+describe("1ファイルに component を1つ", () => {
+  test("ルールを掛けたフォルダの .tsx に、export しない補助の component があれば診断を出すこと", () => {
+    expect(multipleComponentsIn("two-components.tsx")).toBe(1);
+  });
+
+  test("story には、同じファイルに component が2つあっても診断を出さないこと", () => {
+    expect(multipleComponentsIn("__stories__/two-components.stories.tsx")).toBe(
+      0,
+    );
+  });
+});

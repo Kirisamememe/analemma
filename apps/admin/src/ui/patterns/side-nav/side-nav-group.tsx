@@ -25,7 +25,7 @@ export type SideNavGroupProps = {
   readonly onPress?: (() => void) | undefined;
 };
 
-/** 見出しを付けた、ナビのリンクのまとまり。 */
+/** ナビのリンクのまとまり。 */
 export const SideNavGroup = ({
   heading,
   items,
