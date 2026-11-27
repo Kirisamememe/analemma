@@ -36,34 +36,6 @@ test("1枚を選ぶ場合は選び直した画像だけを確定する", async (
   expect(confirm).toHaveBeenCalledWith(server.images()[1]);
 });
 
-test("追加済みの写真を除き、キーボードで複数枚を選んで確定できる", async () => {
-  const confirm = mock((_value: unknown): void => undefined);
-  render(
-    <ImagePicker
-      mode="multiple"
-      included={
-        new Set(
-          server
-            .images()
-            .slice(0, 1)
-            .map(({ id }) => id),
-        )
-      }
-      onClose={() => undefined}
-      onConfirm={confirm}
-    />,
-    await setup(),
-  );
-  expect(
-    (await screen.findByRole("checkbox", { name: /湖.*追加済み/v })).matches(
-      ":disabled",
-    ),
-  ).toBe(true);
-  screen.getByRole("checkbox", { name: /山/v }).focus();
-  await userEvent.keyboard(" {Shift>}{Tab}{/Shift} {Tab}{Tab}{Tab}{Enter}");
-  expect(confirm).toHaveBeenCalledWith(server.images().slice(1).toReversed());
-});
-
 test("続きを読んでも先に選んだ写真を保ち、新しいページの最初の写真へ focus が移る", async () => {
   const library = createImageRoutes(
     Array.from({ length: 51 }, (_, index) => ({

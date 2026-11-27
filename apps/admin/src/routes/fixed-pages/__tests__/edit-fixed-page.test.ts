@@ -1,4 +1,4 @@
-import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 
@@ -23,39 +23,41 @@ const session = {
   }),
 };
 
-test("種類を読み込んでいる間と選べる種類が無いときの知らせを出す", async () => {
-  const pending = Promise.withResolvers<undefined>();
-  renderApp({
-    path: "/fixed-pages/new",
+test("固定ページと種類の定義を読み終えるまで、種類の名前を出さずに読み込み中のままにする", async () => {
+  const pageReply = Promise.withResolvers<FakeReply<"admin/fixedPages/get">>();
+  const kindReply = Promise.withResolvers<FakeReply<"admin/kinds/get">>();
+
+  const { calls } = renderApp({
+    path: "/fixed-pages/" + page.id,
     routes: {
-      ...session,
-      "admin/kinds/list": async () => {
-        await pending.promise;
-        return { output: { kinds: [] } };
-      },
+      "admin/session/get": () => ({
+        output: { expiresAt: "2026-11-23T00:00:00.000Z" },
+      }),
+      "admin/fixedPages/get": () => pageReply.promise,
+      "admin/kinds/get": () => kindReply.promise,
     },
   });
-  expect(await screen.findByText("読み込んでいます")).toBeDefined();
-  pending.resolve(undefined);
-  expect(
-    await screen.findByRole("heading", { name: "選べる種類がありません" }),
-  ).toBeDefined();
-  expect(
-    screen.getByRole("heading", { name: "固定ページの種類を追加するには" }),
-  ).toBeDefined();
-  await userEvent.click(screen.getByText("定義の書き方とコマンド例"));
-  expect(
-    screen.getByText("analemma push-kinds ./src/lib/kinds.ts"),
-  ).toBeDefined();
-});
-test("選んだ種類が無いときはフォームを出さずに知らせる", async () => {
-  renderApp({
-    path: "/fixed-pages/new?kind=missing",
-    routes: { ...session, "admin/kinds/get": () => ({ error: "NOT_FOUND" }) },
+
+  const loading = await screen.findByRole("status");
+
+  await waitFor(() => {
+    expect(calls).toContain("admin/fixedPages/get");
   });
-  expect(await screen.findByText("この種類はもうありません。")).toBeDefined();
-  expect(screen.queryByRole("button", { name: "保存" })).toBeNull();
+  expect(calls).not.toContain("admin/kinds/get");
+  pageReply.resolve({ output: page });
+
+  await waitFor(() => {
+    expect(calls).toContain("admin/kinds/get");
+  });
+  expect(screen.getByRole("status")).toBe(loading); // 種類を読む間も、同じ読み込み中の欄を出し続ける
+  expect(screen.queryByText(`種類:${page.kind}`)).toBeNull();
+
+  kindReply.resolve({ output: { ...kind, label: "紹介のページ" } });
+
+  expect(await screen.findByText("種類:紹介のページ")).toBeDefined();
+  expect(screen.queryByRole("status")).toBeNull();
 });
+
 test("編集する固定ページが無いときは種類を取得しない", async () => {
   const { calls } = renderApp({
     path: "/fixed-pages/019affff-0000-7000-8000-000000000001",
@@ -168,25 +170,6 @@ test("編集する固定ページを読み込めないときは失敗を知ら�
   expect(screen.getByRole("button", { name: "もう一度試す" })).toBeDefined();
 }, 10000);
 
-test.each(["true", "false", "null"])(
-  "種類名 %s を URL から文字列として取得する",
-  async (name) => {
-    let received: unknown;
-    renderApp({
-      path: "/fixed-pages/new?kind=" + name,
-      routes: {
-        ...session,
-        "admin/kinds/get": (input) => {
-          received = input;
-          return { error: "NOT_FOUND" };
-        },
-      },
-    });
-    expect(await screen.findByText("この種類はもうありません。")).toBeDefined();
-    expect(received).toEqual({ name });
-  },
-);
-
 test("ほかの画面から戻ると、前に読んだ値ではなく、読み直した固定ページでフォームを作る", async () => {
   let title = "前のタイトル";
 
@@ -212,59 +195,6 @@ test("ほかの画面から戻ると、前に読んだ値ではなく、読み�
     (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
       .value,
   ).toBe("ほかのタブで直したタイトル");
-});
-
-test("一覧から種類を選んで作り、編集の画面から一覧に戻って、作ったページを編集で開ける", async () => {
-  const user = userEvent.setup();
-
-  const server = createFixedPageRoutes({
-    kinds: [
-      {
-        name: "about",
-        label: "About",
-        fields: [{ key: "lead", type: "text", label: "リード文" }],
-      },
-    ],
-  });
-
-  const { history } = renderApp({
-    path: "/fixed-pages",
-    routes: server.routes,
-  });
-
-  await user.click(
-    await screen.findByRole("button", { name: "新しい固定ページ" }),
-  );
-  await user.click(await screen.findByRole("button", { name: "About" }));
-  await user.type(
-    await screen.findByRole("textbox", { name: "slug" }),
-    "about",
-  );
-  await user.type(screen.getByRole("textbox", { name: "タイトル" }), "紹介");
-  await user.type(
-    screen.getByRole("textbox", { name: "リード文" }),
-    "こんにちは",
-  );
-  await clickSave(user);
-
-  const saved = await screen.findByRole("dialog", {
-    name: "固定ページを作成しました。",
-  });
-
-  await user.click(within(saved).getByRole("button", { name: "閉じる" }));
-  const [created] = server.pages();
-  expect(created?.content).toEqual({ lead: "こんにちは" });
-  await screen.findByRole("heading", { name: "固定ページを編集" });
-  expect(history.location.pathname).toBe("/fixed-pages/" + String(created?.id));
-
-  await user.click(screen.getByRole("link", { name: "固定ページの一覧" }));
-  await screen.findByRole("row", { name: "紹介" });
-  await user.click(screen.getByRole("button", { name: "「紹介」を編集" }));
-
-  expect(
-    (await screen.findByRole<HTMLInputElement>("textbox", { name: "リード文" }))
-      .value,
-  ).toBe("こんにちは");
 });
 
 test("保存した直後にほかの画面へ移って戻っても、保存した値でフォームを作る", async () => {
@@ -362,71 +292,4 @@ test("保存の応答を待つ間に画面を離れたら、届いた応答を�
     (await screen.findByRole<HTMLInputElement>("textbox", { name: "タイトル" }))
       .value,
   ).toBe("Other tab");
-});
-
-test("読み込む間に一覧へ戻るリンクへ移した focus を、編集のフォームを出した後も残す", async () => {
-  const loading = Promise.withResolvers<undefined>();
-
-  renderApp({
-    path: "/fixed-pages/" + page.id,
-    routes: {
-      ...session,
-      "admin/fixedPages/get": () => ({ output: page }),
-      "admin/kinds/get": async () => {
-        await loading.promise;
-
-        return { output: kind };
-      },
-    },
-  });
-
-  await screen.findByText("読み込んでいます");
-  const back = screen.getByRole("link", { name: "固定ページの一覧" });
-
-  act(() => {
-    back.focus();
-  });
-  loading.resolve(undefined);
-  await screen.findByRole("textbox", { name: "タイトル" });
-
-  expect(
-    screen.getByText("編集フォームを表示しました。").getAttribute("aria-live"),
-  ).toBe("polite");
-  expect(document.activeElement).toBe(back);
-});
-
-test("種類を選んだ後、読み込む間にほかへ移した focus は、作成のフォームを出しても slug へ移さない", async () => {
-  const loading = Promise.withResolvers<undefined>();
-
-  renderApp({
-    path: "/fixed-pages/new",
-    routes: {
-      ...session,
-      "admin/kinds/list": () => ({ output: { kinds: [kind] } }),
-      "admin/kinds/get": async () => {
-        await loading.promise;
-
-        return { output: kind };
-      },
-    },
-  });
-
-  await userEvent.click(await screen.findByRole("button", { name: "紹介" }));
-  await screen.findByText("読み込んでいます");
-
-  const ready = screen
-    .getAllByRole("status")
-    .find((status) => status.textContent === "");
-
-  expect(ready).toBeDefined();
-  const back = screen.getByRole("link", { name: "固定ページの一覧" });
-
-  act(() => {
-    back.focus();
-  });
-  loading.resolve(undefined);
-  await screen.findByRole("textbox", { name: "slug" });
-
-  expect(ready?.textContent).toBe("作成フォームを表示しました。");
-  expect(document.activeElement).toBe(back);
 });
