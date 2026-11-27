@@ -28,6 +28,7 @@ const TONES = {
   unsupported: "danger",
   unreadable: "danger",
   interrupted: "danger",
+  replacing: "neutral",
   failed: "danger",
 } as const satisfies Record<UploadStatus, ProgressTone>;
 
@@ -43,6 +44,8 @@ export const toStatusLabel = (
 
   if (status === "interrupted") return "images.interrupted";
 
+  if (status === "replacing") return "imageUpload.status.waiting";
+
   return `imageUpload.status.${status}`;
 };
 
@@ -51,9 +54,9 @@ export const retryAction = ({
   status,
   retried,
 }: Pick<PhotoUpload, "status" | "retried">): "none" | "ready" | "pending" => {
-  if (status === "interrupted") return retried === true ? "pending" : "ready";
+  if (status === "interrupted" || status === "failed") return "ready";
 
-  if (status === "failed") return "ready";
+  if (status === "replacing") return "pending";
 
   return retried === true && (status === "waiting" || status === "sending")
     ? "pending"
@@ -68,7 +71,9 @@ export const focusAfterRetry = ({
   | "result"
   | "add-button"
   | undefined => {
-  if (status === "waiting" || status === "sending") return undefined;
+  if (status === "waiting" || status === "sending" || status === "replacing") {
+    return undefined;
+  }
 
   return imageId === undefined ? "add-button" : "result";
 };

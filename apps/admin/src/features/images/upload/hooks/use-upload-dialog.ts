@@ -24,13 +24,22 @@ export const useUploadDialog = () => {
 
   const [selectedId, select] = useState<number>();
 
-  const { uploads, add, retry, clear, track, leaving, metadata, settle } =
-    usePhotoUploads({
-      onComplete: () => {
-        setOpen(false);
-        select(undefined);
-      },
-    });
+  const {
+    uploads,
+    add,
+    retry,
+    clear,
+    closeFailure,
+    track,
+    leaving,
+    metadata,
+    settle,
+  } = usePhotoUploads({
+    onComplete: () => {
+      setOpen(false);
+      select(undefined);
+    },
+  });
 
   const focus = useRetryFocus({ retry, clear });
 
@@ -81,7 +90,11 @@ export const useUploadDialog = () => {
   return {
     isOpen,
     open,
-    setOpen,
+    setOpen: (next: boolean): void => {
+      if (!next) closeFailure();
+
+      setOpen(next);
+    },
     receive,
     page,
     attach,

@@ -11,6 +11,12 @@ import { deleteImage } from "@/features/images/queries/delete-image";
 import { useUploadMetadata } from "@/features/images/upload/hooks/use-upload-metadata";
 import {
   type ConversionResult,
+  isReplacing,
+  withAdded,
+  withConverted,
+  withRetryStarted,
+} from "@/features/images/upload/logic/photo-conversions";
+import {
   type PhotoUpload,
   clearFinished,
   deferUpload,
@@ -18,9 +24,6 @@ import {
   nextUploads,
   queuePhotos,
   retryUpload,
-  withAdded,
-  withConverted,
-  withRetryStarted,
   withStatus,
 } from "@/features/images/upload/logic/photo-uploads";
 import { uploadPhoto } from "@/features/images/upload/queries/upload-photo";
@@ -57,7 +60,7 @@ export const usePhotoUploads = ({
 }: PhotoUploadsOptions = {}) => {
   const { api } = useAppContext();
   const t = useTranslate();
-  const { show: showFailure } = useFailureToast();
+  const { show: showFailure, close: closeFailure } = useFailureToast();
   const { refresh, updatePages } = useApiCache();
   const [uploads, setUploads] = useState<readonly PhotoUpload[]>([]);
   const latest = useRef(uploads); // 送り終えたときに、次に送る写真を選ぶ
@@ -73,6 +76,7 @@ export const usePhotoUploads = ({
   const metadata = useUploadMetadata(uploads, {
     isActive: () => active.current,
     onComplete: () => {
+      closeFailure();
       apply(clearFinished);
       onComplete?.();
     },
@@ -203,9 +207,10 @@ export const usePhotoUploads = ({
   const { mutate: removeFailed } = useApiMutation({
     send: ({ imageId }: Pick<ConversionResult, "id" | "imageId">) =>
       deleteImage(api, imageId),
-    onSuccess: async (_removed, { id, imageId }) => {
-      await updatePages(IMAGES_QUERY_KEY, updateImagePage(imageId));
-      resend(id);
+    onSuccess: async (_removed, replaced) => {
+      await updatePages(IMAGES_QUERY_KEY, updateImagePage(replaced.imageId));
+
+      if (isReplacing(latest.current, replaced)) resend(replaced.id);
     },
     onError: ({ id }) => {
       apply(withRetryStarted(id, false));
@@ -216,6 +221,8 @@ export const usePhotoUploads = ({
   const retry = useCallback(
     (id: number): void => {
       if (isSaving) return;
+
+      closeFailure();
 
       const failed = latest.current.find((upload) => upload.id === id);
 
@@ -228,7 +235,7 @@ export const usePhotoUploads = ({
 
       resend(id);
     },
-    [apply, isSaving, removeFailed, resend],
+    [apply, closeFailure, isSaving, removeFailed, resend],
   );
 
   const settle = useCallback(
@@ -241,9 +248,10 @@ export const usePhotoUploads = ({
   const { reset } = metadata;
 
   const clear = useCallback((): void => {
+    closeFailure();
     reset();
     apply(clearFinished);
-  }, [apply, reset]);
+  }, [apply, closeFailure, reset]);
 
   const track = useCallback((element: HTMLElement | null) => {
     if (element === null) return;
@@ -271,6 +279,7 @@ export const usePhotoUploads = ({
     retry,
     settle,
     clear,
+    closeFailure,
     track,
   };
 };

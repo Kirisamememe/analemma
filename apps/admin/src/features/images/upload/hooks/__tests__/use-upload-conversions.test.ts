@@ -4,9 +4,11 @@ import { afterEach, expect, mock, test } from "bun:test";
 import { useUploadConversions } from "@/features/images/upload/hooks/use-upload-conversions";
 import {
   type ConversionResult,
+  withAdded,
+} from "@/features/images/upload/logic/photo-conversions";
+import {
   type PhotoUpload,
   queuePhotos,
-  withAdded,
 } from "@/features/images/upload/logic/photo-uploads";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";

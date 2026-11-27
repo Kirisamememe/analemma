@@ -31,9 +31,10 @@ describe("送る写真の一覧の見せ方", () => {
       ),
     ).toEqual(["info", "danger", "danger"]);
     expect(retryAction({ status: "interrupted" })).toBe("ready");
-    expect(retryAction({ status: "interrupted", retried: true })).toBe(
-      "pending",
-    );
+    expect(retryAction({ status: "interrupted", retried: true })).toBe("ready");
+    expect(retryAction({ status: "replacing" })).toBe("pending");
+    expect(toProgressTone("replacing")).toBe("neutral");
+    expect(toStatusLabel("replacing")).toBe("imageUpload.status.waiting");
     expect(toStatusLabel("interrupted")).toBe("images.interrupted");
     expect(toStatusLabel("unreadable")).toBe("images.unreadable");
     expect(toStatusLabel("converting")).toBe("imageUpload.status.converting");
@@ -43,6 +44,7 @@ describe("送る写真の一覧の見せ方", () => {
 
   test("送り直しが済んだら、足せた写真は結果へ、ほかは追加のボタンへ focus を引き継ぐこと", () => {
     expect(focusAfterRetry({ status: "sending" })).toBeUndefined();
+    expect(focusAfterRetry({ status: "replacing" })).toBeUndefined();
     expect(focusAfterRetry({ status: "added", imageId: "x" })).toBe("result");
     expect(focusAfterRetry({ status: "unsupported" })).toBe("add-button");
   });

@@ -2,9 +2,9 @@ import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiQuery } from "@/api/server-state/server-state";
 import {
   type ConversionResult,
-  type PhotoUpload,
   nextConverting,
-} from "@/features/images/upload/logic/photo-uploads";
+} from "@/features/images/upload/logic/photo-conversions";
+import type { PhotoUpload } from "@/features/images/upload/logic/photo-uploads";
 import { uploadConversionKey } from "@/features/images/upload/queries/upload-photo";
 import { isConverting, loadImage } from "@/queries/image-query";
 import {
