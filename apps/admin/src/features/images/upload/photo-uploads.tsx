@@ -101,7 +101,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
                 tone="primary"
                 isPending={dialog.metadata.isSaving}
                 isDisabled={dialog.isUploading}
-                onPress={dialog.metadata.finish}
+                onPress={dialog.finish}
               >
                 {t("imageUpload.finish")}
               </Button>
@@ -165,6 +165,10 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
         )}
       </Dialog>
       <UploadLeaveDialog leaving={dialog.leaving} />
+      <UploadLeaveDialog
+        leaving={dialog.discarding}
+        discarded={dialog.discarding.count}
+      />
     </div>
   );
 };

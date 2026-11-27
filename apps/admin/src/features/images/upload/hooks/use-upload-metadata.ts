@@ -47,7 +47,7 @@ type SaveCallbacks = {
   /** 画面を離れる前か。 */
   readonly isActive: () => boolean;
   /** すべての保存を終えた後の処理。 */
-  readonly onComplete: (retained: ReadonlySet<number>) => void;
+  readonly onComplete: () => void;
 };
 
 const changed = (entry: Entry, field: keyof UploadMetadata): boolean =>
@@ -79,17 +79,9 @@ export const useUploadMetadata = (
   };
 
   const complete = () => {
-    const retained = new Set(
-      uploads
-        .filter(({ id, status }) => status !== "added" && hasChanges(id))
-        .map(({ id }) => id),
-    );
-
-    entries.set(
-      new Map([...entries.read()].filter(([id]) => retained.has(id))),
-    );
+    entries.set(new Map());
     setError(undefined);
-    onComplete(retained);
+    onComplete();
   };
 
   const fail = (id: number, reason: SaveError["reason"]) => {

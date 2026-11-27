@@ -303,6 +303,11 @@ export const en = {
     "Leaving discards queued photos and unsaved titles and descriptions. A photo already uploading will appear in the list when its upload finishes.",
   "imageUpload.stay": "Stay on this page",
   "imageUpload.leave": "Leave this page",
+  "imageUpload.discardTitle": "Discard photos that were not added?",
+  "imageUpload.discardDescription":
+    "Photos that were not added: {{count}}. If you finish now, you can no longer retry them, and anything you entered for them is lost.",
+  "imageUpload.keep": "Go back",
+  "imageUpload.discard": "Discard and finish",
   "imageDetail.backToList": "Back to list",
   "imageDetail.untitled": "Untitled image",
   "imageDetail.loading": "Loading the image.",

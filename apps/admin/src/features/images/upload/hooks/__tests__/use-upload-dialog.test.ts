@@ -62,7 +62,7 @@ test("閉じても選んだ写真を保ち、別の写真に入力の誤りが�
   expect(result.current.selected).toBeUndefined();
 });
 
-test("完了で保存できた写真を閉じ、失敗した写真の原稿は開き直して送り直せる", async () => {
+test("追加できなかった写真があれば完了の前に確かめ、戻れば原稿を保ち、破棄を選んだら保存できた写真だけを残す", async () => {
   const server = createImageRoutes();
   const ready = Promise.withResolvers<undefined>();
   const save = Promise.withResolvers<undefined>();
@@ -110,7 +110,22 @@ test("完了で保存できた写真を閉じ、失敗した写真の原稿は�
     expect(result.current.isUploading).toBe(false);
   });
   act(() => {
-    result.current.metadata.finish();
+    result.current.finish();
+  });
+  expect(result.current.discarding).toMatchObject({ _tag: "Asking", count: 2 });
+  expect(result.current.metadata.isSaving).toBe(false);
+  act(() => {
+    result.current.discarding.stay();
+  });
+  expect(result.current.discarding._tag).toBe("Idle");
+  expect(result.current.isOpen).toBe(true);
+  expect(result.current.metadata.draft(2).description).toBe("撮影メモ");
+  expect(result.current.metadata.draft(3).title).toBe("形式を確認する前の原稿");
+  act(() => {
+    result.current.finish();
+  });
+  act(() => {
+    result.current.discarding.leave();
   });
   await waitFor(() => {
     expect(result.current.metadata.isSaving).toBe(true);
@@ -126,37 +141,6 @@ test("完了で保存できた写真を閉じ、失敗した写真の原稿は�
     expect(result.current.isOpen).toBe(false);
   });
   expect(server.images().map(({ title }) => title)).toEqual(["朝"]);
-  expect(result.current.uploads.map(({ id }) => id)).toEqual([2, 3]);
-  act(() => {
-    result.current.open();
-  });
-  expect(result.current.metadata.draft(2).description).toBe("撮影メモ");
-  act(() => {
-    result.current.select(3);
-  });
-  expect(result.current.metadata.hasChanges(3)).toBe(true);
-  expect(result.current.metadata.draft(3).title).toBe("形式を確認する前の原稿");
-  act(() => {
-    result.current.focus.retry(2);
-  });
-  await waitFor(() => {
-    expect(result.current.isUploading).toBe(false);
-  });
-  act(() => {
-    result.current.metadata.finish();
-  });
-  await waitFor(() => {
-    expect(result.current.isOpen).toBe(false);
-  });
-  expect(server.images().map(({ description }) => description)).toEqual([
-    "撮影メモ",
-    null,
-  ]);
-  expect(result.current.uploads.map(({ id }) => id)).toEqual([3]);
-  act(() => {
-    app.history.push("/pages");
-  });
-  await waitFor(() => {
-    expect(result.current.leaving._tag).toBe("Asking");
-  });
+  expect(result.current.uploads).toEqual([]);
+  expect(result.current.metadata.isDirty()).toBe(false);
 });

@@ -218,6 +218,53 @@ test("写真を追加で落としても入力中の写真と説明を保ち、�
   ]);
 });
 
+test("送れなかった写真があると完了の前に確かめ、戻ると入力を保ち、破棄して完了を選ぶと片付ける", async () => {
+  const held = holdUploads();
+  renderApp({ path: "/images", routes: held.routes });
+  await dropPhotos("dusk.jpg", "lost.jpg");
+  const uploads = await uploadsRegion();
+  await held.answer();
+  await held.answer({ error: "INTERNAL_SERVER_ERROR", defined: false });
+  await within(uploads).findByText("2枚中1枚完了・1枚失敗");
+  await userEvent.click(
+    within(uploads).getByRole("button", { name: "lost.jpg" }),
+  );
+  await userEvent.type(
+    within(uploads).getByRole("textbox", { name: "タイトル" }),
+    "夜",
+  );
+  await userEvent.click(within(uploads).getByRole("button", { name: "完了" }));
+
+  const confirmation = await screen.findByRole("dialog", {
+    name: "追加できなかった写真を破棄しますか？",
+    description: /追加できなかった写真が1枚あります/v,
+  });
+
+  await userEvent.click(
+    within(confirmation).getByRole("button", { name: "戻る" }),
+  );
+  await waitFor(() => {
+    expect(screen.getAllByRole("dialog")).toHaveLength(1);
+  });
+  expect(
+    within(await uploadsRegion()).getByRole("textbox", { name: "タイトル" }),
+  ).toHaveProperty("value", "夜");
+  await userEvent.click(
+    within(await uploadsRegion()).getByRole("button", { name: "完了" }),
+  );
+  await userEvent.click(
+    await screen.findByRole("button", { name: "破棄して完了" }),
+  );
+  await waitFor(() => {
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+  expect(held.server.images()).toHaveLength(1);
+  await userEvent.click(screen.getByRole("button", { name: "写真を追加" }));
+  expect(
+    within(await uploadsRegion()).queryByRole("button", { name: "lost.jpg" }),
+  ).toBeNull();
+});
+
 test("写真を送っている間に Dialog を閉じて画面を離れようとすると確かめ、残ると同じ写真を再び開ける", async () => {
   const held = holdUploads();
   renderApp({ path: "/images", routes: held.routes });

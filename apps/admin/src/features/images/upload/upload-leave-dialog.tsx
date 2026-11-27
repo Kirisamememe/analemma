@@ -6,12 +6,33 @@ import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Dialog } from "@/ui/primitives/overlays";
 
-/** 未送信の写真や入力がある画面を離れる前に確かめる。 */
+type UploadLeaveDialogProps = {
+  /** 確かめの状態と、残る・続ける操作。 */
+  leaving: LeaveConfirmation;
+  /** 「完了」で破棄する、追加できなかった写真の枚数。 */
+  discarded?: number | undefined;
+};
+
+const LEAVE = {
+  title: "imageUpload.leaveTitle",
+  stay: "imageUpload.stay",
+  leave: "imageUpload.leave",
+} as const;
+
+const DISCARD = {
+  title: "imageUpload.discardTitle",
+  stay: "imageUpload.keep",
+  leave: "imageUpload.discard",
+} as const;
+
+/** 未送信の写真や入力を残して画面を離れる前と、追加できなかった写真を残して完了する前に確かめる。 */
 export const UploadLeaveDialog = ({
   leaving,
-}: Record<"leaving", LeaveConfirmation>): ReactNode => {
+  discarded,
+}: UploadLeaveDialogProps): ReactNode => {
   const t = useTranslate();
   const descriptionId = useId();
+  const keys = discarded === undefined ? LEAVE : DISCARD;
 
   return (
     <Dialog
@@ -20,14 +41,20 @@ export const UploadLeaveDialog = ({
       onOpenChange={(open) => {
         if (!open) leaving.stay();
       }}
-      title={t("imageUpload.leaveTitle")}
+      title={t(keys.title)}
     >
       <Text>
-        <span id={descriptionId}>{t("imageUpload.leaveDescription")}</span>
+        <span id={descriptionId}>
+          {discarded === undefined
+            ? t("imageUpload.leaveDescription")
+            : t("imageUpload.discardDescription", { count: discarded })}
+        </span>
       </Text>
       <Cluster gap={2} justify="end">
-        <Button onPress={leaving.stay}>{t("imageUpload.stay")}</Button>
-        <Button onPress={leaving.leave}>{t("imageUpload.leave")}</Button>
+        <Button onPress={leaving.stay}>{t(keys.stay)}</Button>
+        <Button tone="danger" onPress={leaving.leave}>
+          {t(keys.leave)}
+        </Button>
       </Cluster>
     </Dialog>
   );
