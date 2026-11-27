@@ -27,6 +27,7 @@
 
 - `features/`・`components/`・`ui/` では、hook を `hooks/`、純粋な関数を `logic/`、server の API を呼ぶ処理(読み込み・書き込み・query のキー)を feature の中の `queries/` に、使う部品の近くに置く。複数の feature が使う処理は `src/queries/` に置く。純粋な関数でも server の API を呼ぶ処理でもない `.ts`(ブラウザの API を呼ぶ、呼び出しのあいだ状態を持つ、渡された関数で外に書き込む、`crypto.randomUUID()` で値を作る、など)は、今の場所に置き、lint の設定の `effectfulModules` に足す(lint で止まる)。今はログインの gate・WebAuthn のブラウザでの処理・クリップボードへの書き込み・固定ページのフォームの最初の値を作る処理。
 - ロジックはできる限り `.ts` に置き、同じフォルダの `__tests__` に `.test.ts` を置いてテストする。`.tsx` にはマークアップと、それをロジックにつなぐコードを置く。
+- `.tsx` には、component を1つだけ書く。export しない補助の component も、別のファイルにする。片付けの済んだフォルダから lint で止める(掛けたフォルダは `tooling/lint/config/admin-overrides.ts` の `SINGLE_COMPONENT_FILES`)。story とテストは対象にしない。
 - `.tsx` は、JSX の要素か fragment を書くファイルだけにする。JSX を書かない hook・context・テスト・story は `.ts` にする(lint で止まる)。
 - `.ts` で React の値を import できるのは、hook のファイル(`use-*.ts`。export する関数は1つだけで、名前は `use` で始まる)と、context のファイル(`*-context.ts`。値として export するのは `createContext` の結果だけで、少なくとも1つは export する)だけ。lint はこの import の条件を検査し、`src/` の hook には隣のテストも求める。
 - ロジックに切り出しにくい表示の出し分けは、同じフォルダの `__tests__` のコンポーネントのテストで確かめる。要素は role・label・text など利用者に見えるもので探し、利用者に見える結果を確かめる。マークアップの作りをなぞるテストは書かない。
