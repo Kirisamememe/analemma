@@ -8,7 +8,7 @@ import { ModalActions } from "@/ui/primitives/overlays";
 
 type Selection = ReturnType<typeof useImageSelection>;
 
-/** 選択を確定する操作に渡す値。 */
+/** 選択の取り消しと確定の操作に渡す値。 */
 type SelectionActionsProps = Pick<Selection, "confirm" | "count"> &
   Pick<Selection["source"], "subscribe"> & {
     /** キャンセルボタンへの参照。 */

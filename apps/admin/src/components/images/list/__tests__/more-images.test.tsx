@@ -1,6 +1,6 @@
 import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, expect, mock, test } from "bun:test";
+import { afterEach, expect, test } from "bun:test";
 
 import { MoreImages } from "../more-images";
 
@@ -45,13 +45,20 @@ test("続きがあれば、押すと読み始めを知らせてから続きを�
 });
 
 test("続きを読めなければ知らせ、もう一度試すと、読み始めを知らせてから取り直す", async () => {
-  const retry = mock(ignore);
-  const onLoad = mock(ignore);
+  const calls: string[] = [];
 
   renderWithI18n(
     <MoreImages
-      next={{ _tag: "Failed", isRetrying: false, retry }}
-      onLoad={onLoad}
+      next={{
+        _tag: "Failed",
+        isRetrying: false,
+        retry: () => {
+          calls.push("retry");
+        },
+      }}
+      onLoad={() => {
+        calls.push("onLoad");
+      }}
       retryRef={ignore}
     />,
     "ja",
@@ -63,6 +70,5 @@ test("続きを読めなければ知らせ、もう一度試すと、読み始�
 
   await userEvent.click(screen.getByRole("button", { name: "もう一度試す" }));
 
-  expect(onLoad).toHaveBeenCalledTimes(1);
-  expect(retry).toHaveBeenCalledTimes(1);
+  expect(calls).toEqual(["onLoad", "retry"]);
 });
