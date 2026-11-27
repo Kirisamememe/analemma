@@ -14,14 +14,14 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     "is-invalid:border-danger",
     "not-forced-colors:is-invalid:outline-danger",
   ],
-  "ui/primitives/form-fields/choices/checkbox-input.tsx": [
+  "ui/primitives/form-fields/choices/checkbox-control.tsx": [
     "border",
     "border-line-strong",
     "group-is-selected:border-primary",
     "group-is-invalid:border-danger",
     "not-forced-colors:group-is-invalid:outline-danger",
   ],
-  "ui/primitives/form-fields/number-field.tsx": ["border-s"],
+  "ui/primitives/form-fields/number/step-button.tsx": ["border-s"],
   "ui/primitives/button.tsx": [
     "border",
     "border-transparent",

@@ -61,6 +61,7 @@ const inDirectory = (
 const SINGLE_COMPONENT_FILES = [
   "**/apps/admin/src/ui/patterns/**/*.tsx",
   "**/apps/admin/src/ui/primitives/overlays/**/*.tsx",
+  "**/apps/admin/src/ui/primitives/form-fields/**/*.tsx",
 ]; // 片付けの済んだフォルダから足していく
 
 /** 管理画面の境界を守る設定(後に書いたものが勝つ)。 */

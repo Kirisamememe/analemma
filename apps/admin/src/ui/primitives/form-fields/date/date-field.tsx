@@ -1,14 +1,13 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { type DateInputProps, DateRoot, DateSegments } from "./date-input";
+import { type DateInputProps, DateRoot } from "./date-root";
+import { DateSegments } from "./date-segments";
 import { useDateDraft } from "./hooks/use-date-draft";
 
-import {
-  FieldDescription,
-  FieldErrorMessage,
-  FieldLabel,
-} from "@/ui/primitives/form-fields/field-parts";
+import { FieldDescription } from "@/ui/primitives/form-fields/parts/field-description";
+import { FieldErrorMessage } from "@/ui/primitives/form-fields/parts/field-error-message";
+import { FieldLabel } from "@/ui/primitives/form-fields/parts/field-label";
 
 /** ラベル付きの日付の入力欄に渡す値。 */
 export type DateFieldProps = Omit<

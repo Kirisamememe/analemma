@@ -3,7 +3,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
 import { focusFirstInvalidField } from "@/ui/primitives/form-fields/focus-first-invalid-field";
-import { NumberField } from "@/ui/primitives/form-fields/number-field";
+import { NumberField } from "@/ui/primitives/form-fields/number/number-field";
 import { TextField } from "@/ui/primitives/form-fields/text-field";
 
 afterEach(cleanup);

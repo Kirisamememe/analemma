@@ -125,7 +125,7 @@ describe("管理画面の部品の class", () => {
     ["ui/primitives/navigation/scroll-view.tsx", [4]],
     ["ui/patterns/photos/image-radio.tsx", [4]],
     ["features/images/ui/upload/photo-drop-hint.tsx", [3, 3, 4, 4, 4]],
-    ["ui/primitives/form-fields/choices/checkbox-input.tsx", [3]],
+    ["ui/primitives/form-fields/choices/checkbox-control.tsx", [3]],
     ["ui/layout/media-layout.ts", [2, 2, 5, 9, 9]],
   ] as const)(
     "装飾の枠や許可した状態以外の線を %s で止めること",

@@ -2,12 +2,12 @@ import { cleanup, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 import type { ReactElement } from "react";
 
-import { findFieldGuidesWithPeriods } from "../../../../../test-setup/field-guide";
+import { findFieldGuidesWithPeriods } from "../../../../../../test-setup/field-guide";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
 import { Select } from "@/ui/primitives/form-fields/choices/select";
 import { DateField } from "@/ui/primitives/form-fields/date/date-field";
-import { NumberField } from "@/ui/primitives/form-fields/number-field";
+import { NumberField } from "@/ui/primitives/form-fields/number/number-field";
 import { TextArea } from "@/ui/primitives/form-fields/text-area";
 import { TextField } from "@/ui/primitives/form-fields/text-field";
 

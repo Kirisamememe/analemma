@@ -1,16 +1,11 @@
 import type { ReactNode } from "react";
 
-import {
-  SelectControl,
-  type SelectInputProps,
-  SelectRoot,
-} from "./select-input";
+import { SelectControl } from "./select-control";
+import { type SelectInputProps, SelectRoot } from "./select-root";
 
-import {
-  FieldDescription,
-  FieldErrorMessage,
-  FieldLabel,
-} from "@/ui/primitives/form-fields/field-parts";
+import { FieldDescription } from "@/ui/primitives/form-fields/parts/field-description";
+import { FieldErrorMessage } from "@/ui/primitives/form-fields/parts/field-error-message";
+import { FieldLabel } from "@/ui/primitives/form-fields/parts/field-label";
 
 /** ラベル付きの Select に渡す値。 */
 export type SelectProps = Omit<

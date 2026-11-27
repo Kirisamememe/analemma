@@ -57,13 +57,13 @@ import * as primitivesForm from "@/ui/primitives/__stories__/form.stories";
 import * as primitivesNotice from "@/ui/primitives/__stories__/notice.stories";
 import * as collectionsActionList from "@/ui/primitives/collections/__stories__/action-list.stories";
 import * as primitivesReorderableList from "@/ui/primitives/collections/__stories__/reorderable-list.stories";
-import * as primitivesNumberField from "@/ui/primitives/form-fields/__stories__/number-field.stories";
 import * as primitivesTextArea from "@/ui/primitives/form-fields/__stories__/text-area.stories";
 import * as primitivesTextField from "@/ui/primitives/form-fields/__stories__/text-field.stories";
 import * as primitivesTextInput from "@/ui/primitives/form-fields/__stories__/text-input.stories";
 import * as primitivesCheckbox from "@/ui/primitives/form-fields/choices/__stories__/checkbox.stories";
 import * as primitivesSelect from "@/ui/primitives/form-fields/choices/__stories__/select.stories";
 import * as primitivesDateField from "@/ui/primitives/form-fields/date/__stories__/date-field.stories";
+import * as primitivesNumberField from "@/ui/primitives/form-fields/number/__stories__/number-field.stories";
 import * as primitivesAppMark from "@/ui/primitives/graphics/__stories__/app-mark.stories";
 import * as primitivesIcon from "@/ui/primitives/graphics/__stories__/icon.stories";
 import * as primitivesSkeleton from "@/ui/primitives/graphics/__stories__/skeleton.stories";
@@ -167,7 +167,7 @@ const MODULES = {
     primitivesSelect,
   "ui/primitives/form-fields/date/__stories__/date-field.stories.tsx":
     primitivesDateField,
-  "ui/primitives/form-fields/__stories__/number-field.stories.tsx":
+  "ui/primitives/form-fields/number/__stories__/number-field.stories.tsx":
     primitivesNumberField,
   "ui/primitives/form-fields/__stories__/text-area.stories.tsx":
     primitivesTextArea,

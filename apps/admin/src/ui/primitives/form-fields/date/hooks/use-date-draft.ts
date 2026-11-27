@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import type { DateInputProps } from "../date-input";
+import type { DateInputProps } from "../date-root";
 
 type DateDraftOptions = Pick<DateInputProps, "value" | "onBlur" | "onChange">;
 
