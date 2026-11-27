@@ -210,6 +210,7 @@
 
 ## 割り切ったこと
 
+- **Modal の中の Tooltip に pointer を移すと閉じる**。React Aria Components は、Modal を開いている間、その外に描いた要素を `inert` にする。Tooltip は Modal の外に描かれるので、ボタンから吹き出しへ pointer を移しても hover を受け取れず、300ms 後に閉じる(Modal の外では、吹き出しの上でも開いたまま)。吹き出しはボタンの 6px 上に出る1〜2語で、ボタンに pointer を置いている間は読める。読み上げの名前は `aria-label` が持つ。直すには、吹き出しを描く先を Modal の中へ移す仕組みが要るので、受け入れる。
 - **後から出す `status` の知らせ**:`Notice` の `status`(発行したトークンを一度だけ表示するときの注意など)は、中身と一緒に描くので、スクリーンリーダーによっては読まれない(live region は、中身を変える前からあるものが確実に読まれる)。`Notice` はその場に残す知らせで、スクリーンリーダーへの割り込みは要らないので受け入れる。急ぎの誤りは `alert` で読まれる。
 - **層の検査が見ない import**:層の境界の lint は、import 文の名前だけを見る。`import("react-aria-components").LinkProps` のような型の中の import と、ほかの層を通した再 export は見ない。どちらも今のコードに無く、追うには依存の木を解く検査が要る。
 - **検査が見ない class の渡し方**:JSX の属性と、`tv`・`merge` などの呼び出しの中の文字列だけを検査する。DOM を直に触る `element.classList.add()` や `element.style`、`className` に渡した、`tv` で作っていない関数の戻り値は見ない。写真の帯の高さは計測結果を渡すため、ルート要素の `style` に CSS 変数を設定する。参照先まで追う検査は、作る手間に見合わない。
