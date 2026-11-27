@@ -5,6 +5,7 @@ import {
   formatFileSize,
   retryAction,
   toProgressTone,
+  toStatusLabel,
 } from "@/features/images/upload/logic/upload-view";
 
 describe("送る写真の一覧の見せ方", () => {
@@ -30,6 +31,12 @@ describe("送る写真の一覧の見せ方", () => {
       ),
     ).toEqual(["info", "danger", "danger"]);
     expect(retryAction({ status: "interrupted" })).toBe("ready");
+    expect(retryAction({ status: "interrupted", retried: true })).toBe(
+      "pending",
+    );
+    expect(toStatusLabel("interrupted")).toBe("images.interrupted");
+    expect(toStatusLabel("unreadable")).toBe("images.unreadable");
+    expect(toStatusLabel("converting")).toBe("imageUpload.status.converting");
     expect(retryAction({ status: "unreadable" })).toBe("none");
     expect(retryAction({ status: "converting" })).toBe("none");
   });

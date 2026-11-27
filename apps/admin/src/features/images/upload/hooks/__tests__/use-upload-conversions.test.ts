@@ -3,11 +3,11 @@ import { afterEach, expect, mock, test } from "bun:test";
 
 import { useUploadConversions } from "@/features/images/upload/hooks/use-upload-conversions";
 import {
+  type ConversionResult,
   type PhotoUpload,
   queuePhotos,
   withAdded,
 } from "@/features/images/upload/logic/photo-uploads";
-import type { AdminImage } from "@/queries/image-query";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";
@@ -38,7 +38,7 @@ const setUp = async () => {
   });
 
   const uploads = withAdded(2, later)(withAdded(1, earlier)(queued));
-  const onSettled = mock((_id: number, _image: AdminImage | undefined) => {});
+  const onSettled = mock((_result: ConversionResult) => {});
   const gets = () => app.calls.filter((path) => path === "admin/images/get");
 
   return { server, app, earlier, later, uploads, onSettled, gets };
@@ -78,8 +78,7 @@ test("いちばん先に受け取られた変換中の写真を取り直し、�
     expect(onSettled).toHaveBeenCalled();
   });
   expect(onSettled.mock.calls[0]).toMatchObject([
-    1,
-    { id: earlier.id, status: "published" },
+    { id: 1, imageId: earlier.id, image: { status: "published" } },
   ]);
 });
 
@@ -92,5 +91,7 @@ test("取り直した画像が無くなっていたら、画像の無い結果�
   await waitFor(() => {
     expect(onSettled).toHaveBeenCalled();
   });
-  expect(onSettled.mock.calls[0]).toEqual([1, undefined]);
+  expect(onSettled.mock.calls[0]).toEqual([
+    { id: 1, imageId: earlier.id, image: undefined },
+  ]);
 });

@@ -7,9 +7,10 @@ import { createUploadValue } from "../upload-value";
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
-import { deleteImage } from "@/features/images/detail/queries/image-actions";
+import { deleteImage } from "@/features/images/queries/delete-image";
 import { useUploadMetadata } from "@/features/images/upload/hooks/use-upload-metadata";
 import {
+  type ConversionResult,
   type PhotoUpload,
   clearFinished,
   deferUpload,
@@ -18,16 +19,18 @@ import {
   queuePhotos,
   retryUpload,
   withAdded,
-  withLostImage,
+  withConverted,
+  withRetryStarted,
   withStatus,
 } from "@/features/images/upload/logic/photo-uploads";
 import { uploadPhoto } from "@/features/images/upload/queries/upload-photo";
-import type { AdminImage } from "@/queries/image-query";
+import { useTranslate } from "@/i18n/use-translate";
 import {
   IMAGES_QUERY_KEY,
   prependImage,
   updateImagePage,
 } from "@/queries/images-query";
+import { useFailureToast } from "@/ui/primitives/overlays";
 
 type Transfer = PhotoUpload & {
   /** この送信試行で受け取った転送率を記録する。 */
@@ -53,6 +56,8 @@ export const usePhotoUploads = ({
   busyWait = BUSY_WAIT,
 }: PhotoUploadsOptions = {}) => {
   const { api } = useAppContext();
+  const t = useTranslate();
+  const { show: showFailure } = useFailureToast();
   const { refresh, updatePages } = useApiCache();
   const [uploads, setUploads] = useState<readonly PhotoUpload[]>([]);
   const latest = useRef(uploads); // 送り終えたときに、次に送る写真を選ぶ
@@ -184,10 +189,28 @@ export const usePhotoUploads = ({
 
   const { isSaving } = metadata;
 
+  const { forgetSaved } = metadata;
+
+  const resend = useCallback(
+    (id: number): void => {
+      forgetSaved(id); // 新しい画像には、前の画像に保存できた値も保存し直す
+      apply(retryUpload(id));
+      sendNext();
+    },
+    [apply, forgetSaved, sendNext],
+  );
+
   const { mutate: removeFailed } = useApiMutation({
-    send: (imageId: string) => deleteImage(api, imageId),
-    onSuccess: (_removed, imageId) =>
-      updatePages(IMAGES_QUERY_KEY, updateImagePage(imageId)),
+    send: ({ imageId }: Pick<ConversionResult, "id" | "imageId">) =>
+      deleteImage(api, imageId),
+    onSuccess: async (_removed, { id, imageId }) => {
+      await updatePages(IMAGES_QUERY_KEY, updateImagePage(imageId));
+      resend(id);
+    },
+    onError: ({ id }) => {
+      apply(withRetryStarted(id, false));
+      showFailure(t("imageUpload.retryFailed"));
+    },
   });
 
   const retry = useCallback(
@@ -197,18 +220,20 @@ export const usePhotoUploads = ({
       const failed = latest.current.find((upload) => upload.id === id);
 
       if (failed?.status === "interrupted" && failed.imageId !== undefined) {
-        removeFailed(failed.imageId); // 変換できなかった画像を残さず、同じ写真から作り直す
+        apply(withRetryStarted(id, true));
+        removeFailed({ id, imageId: failed.imageId }); // 変換できなかった画像を消してから、同じ写真を送り直す
+
+        return;
       }
 
-      apply(retryUpload(id));
-      sendNext();
+      resend(id);
     },
-    [apply, isSaving, removeFailed, sendNext],
+    [apply, isSaving, removeFailed, resend],
   );
 
   const settle = useCallback(
-    (id: number, image: AdminImage | undefined): void => {
-      apply(image === undefined ? withLostImage(id) : withAdded(id, image));
+    (result: ConversionResult): void => {
+      apply(withConverted(result));
     },
     [apply],
   );

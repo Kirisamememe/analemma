@@ -91,7 +91,7 @@ export const useUploadDialog = () => {
     finish,
     discarding: {
       _tag: isDiscarding ? "Asking" : "Idle",
-      count: discarded,
+      count: Math.max(discarded, countDiscarded(uploads, metadata.hasChanges)),
       stay: () => {
         setDiscarding(false);
       },

@@ -120,13 +120,46 @@ export const withAdded =
         : upload,
     );
 
-/** 変換を待つ間に画像が無くなった写真を、送り直せる状態にする。 */
-export const withLostImage =
-  (id: number) =>
+/** 取り直した変換の結果と、それを待っていた写真。 */
+export type ConversionResult = {
+  /** 一覧の中で写真を見分ける番号。 */
+  readonly id: number;
+  /** 結果を待っていた画像の ID。 */
+  readonly imageId: string;
+  /** 取り直した画像(無くなっていたら undefined)。 */
+  readonly image:
+    | Pick<ApiOutputs["admin"]["images"]["get"], "status" | "deliveryImages">
+    | undefined;
+};
+
+/** 同じ画像の変換の結果を今も待っている写真にだけ、取り直した結果を当てる。 */
+export const withConverted =
+  ({ id, imageId, image }: ConversionResult) =>
+  (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
+    uploads.map((upload) => {
+      const isWaiting =
+        upload.id === id &&
+        upload.imageId === imageId &&
+        upload.status === "converting";
+
+      if (!isWaiting) return upload;
+
+      return image === undefined
+        ? { ...upload, status: "interrupted", imageId: undefined }
+        : {
+            ...upload,
+            status: STATUS_OF_IMAGE[image.status],
+            previewUrl: image.deliveryImages[0]?.url,
+          };
+    });
+
+/** 変換を終えられなかった写真に、送り直しの準備を始めたか取りやめたかを持たせる。 */
+export const withRetryStarted =
+  (id: number, started: boolean) =>
   (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
     uploads.map((upload) =>
-      upload.id === id
-        ? { ...upload, status: "interrupted", imageId: undefined }
+      upload.id === id && upload.status === "interrupted"
+        ? { ...upload, retried: started }
         : upload,
     );
 

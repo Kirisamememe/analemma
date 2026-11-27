@@ -1,5 +1,6 @@
 import type { PhotoUpload, UploadStatus } from "./photo-uploads";
 
+import type { MessageKey } from "@/i18n/use-translate";
 import type { ProgressTone } from "@/ui/patterns";
 
 const KILOBYTE = 1024;
@@ -34,12 +35,25 @@ const TONES = {
 export const toProgressTone = (status: UploadStatus): ProgressTone =>
   TONES[status];
 
+/** 写真の状態を伝える文言のキーを返す。 */
+export const toStatusLabel = (
+  status: Exclude<UploadStatus, "too-large">,
+): MessageKey => {
+  if (status === "unreadable") return "images.unreadable";
+
+  if (status === "interrupted") return "images.interrupted";
+
+  return `imageUpload.status.${status}`;
+};
+
 /** 写真の行の送り直しの操作(出さない・押せる・送っている最中)。 */
 export const retryAction = ({
   status,
   retried,
 }: Pick<PhotoUpload, "status" | "retried">): "none" | "ready" | "pending" => {
-  if (status === "failed" || status === "interrupted") return "ready";
+  if (status === "interrupted") return retried === true ? "pending" : "ready";
+
+  if (status === "failed") return "ready";
 
   return retried === true && (status === "waiting" || status === "sending")
     ? "pending"

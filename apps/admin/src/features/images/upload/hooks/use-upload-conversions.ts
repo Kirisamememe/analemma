@@ -1,14 +1,12 @@
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiQuery } from "@/api/server-state/server-state";
 import {
+  type ConversionResult,
   type PhotoUpload,
   nextConverting,
 } from "@/features/images/upload/logic/photo-uploads";
-import {
-  type AdminImage,
-  isConverting,
-  loadImage,
-} from "@/queries/image-query";
+import { uploadConversionKey } from "@/features/images/upload/queries/upload-photo";
+import { isConverting, loadImage } from "@/queries/image-query";
 import {
   IMAGE_PICKER_KEY,
   IMAGES_QUERY_KEY,
@@ -21,8 +19,8 @@ const CONVERSION_POLL_MS = 2000;
 type UploadConversions = {
   /** 送る写真の一覧。 */
   readonly uploads: readonly PhotoUpload[];
-  /** 変換の結果(無くなっていたら undefined)を、写真に当てる関数。 */
-  readonly onSettled: (id: number, image: AdminImage | undefined) => void;
+  /** 取り直した変換の結果を、写真に当てる関数。 */
+  readonly onSettled: (result: ConversionResult) => void;
   /** 変換中の画像を取り直す間隔(ms)。 */
   readonly pollMs?: number;
 };
@@ -38,7 +36,7 @@ export const useUploadConversions = ({
   const next = nextConverting(uploads);
 
   useApiQuery({
-    key: ["admin", "images", "upload-conversion", next?.imageId ?? null],
+    key: uploadConversionKey(next?.imageId ?? null),
     pollEvery: () => pollMs,
     load:
       next === undefined
@@ -54,9 +52,12 @@ export const useUploadConversions = ({
               ]);
             }
 
-            if (loaded._tag === "Failed") onSettled(next.id, undefined);
-            else if (!isConverting(loaded.data)) {
-              onSettled(next.id, loaded.data);
+            const { id, imageId } = next;
+
+            if (loaded._tag === "Failed") {
+              onSettled({ id, imageId, image: undefined });
+            } else if (!isConverting(loaded.data)) {
+              onSettled({ id, imageId, image: loaded.data });
             }
 
             return loaded;

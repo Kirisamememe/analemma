@@ -7,6 +7,7 @@ import {
   formatFileSize,
   retryAction,
   toProgressTone,
+  toStatusLabel,
 } from "./logic/upload-view";
 
 import { useLocale, useTranslate } from "@/i18n/use-translate";
@@ -63,11 +64,16 @@ export const UploadPhotoStatus = ({
             ? t("imageUpload.status.too-large", {
                 limit: formatFileSize(locale, PHOTO_MAX_BYTES),
               })
-            : t(`imageUpload.status.${upload.status}`)}
+            : t(toStatusLabel(upload.status))}
         </Badge>
         {upload.status === "converting" && (
           <Text as="span" tone="muted" variant="caption">
             {t("imageUpload.convertingHint")}
+          </Text>
+        )}
+        {upload.status === "unreadable" && (
+          <Text as="span" tone="muted" variant="caption">
+            {t("imageUpload.unreadableHint")}
           </Text>
         )}
         {action !== "none" && (

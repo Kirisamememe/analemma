@@ -304,9 +304,10 @@ export const en = {
   "imageUpload.status.sending": "Uploading",
   "imageUpload.status.added": "Uploaded",
   "imageUpload.status.converting": "Converting",
-  "imageUpload.status.unreadable": "This photo could not be read",
-  "imageUpload.status.interrupted": "A server problem stopped the conversion",
   "imageUpload.convertingHint": "Conversion continues after you close this.",
+  "imageUpload.unreadableHint": "Add a different file.",
+  "imageUpload.retryFailed":
+    "Could not delete the failed image, so the photo was not sent again.",
   "imageUpload.status.too-large": "Larger than {{limit}}",
   "imageUpload.status.unsupported": "Unsupported format",
   "imageUpload.status.failed": "Could not upload",

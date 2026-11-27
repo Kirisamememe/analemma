@@ -39,3 +39,7 @@ export const uploadPhoto = async (api: ApiClient, request: PhotoRequest) => {
     ? ({ _tag: "SessionExpired", error: result.error } as const)
     : ({ _tag: "Unsupported" } as const);
 };
+
+/** 送った写真の変換の結果を取り直す、query のキー。 */
+export const uploadConversionKey = (imageId: string | null) =>
+  ["admin", "images", "upload-conversion", imageId] as const;

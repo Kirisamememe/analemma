@@ -7,7 +7,8 @@ import {
   hasUnsentPhotos,
   retryUpload,
   withAdded,
-  withLostImage,
+  withConverted,
+  withRetryStarted,
   isUploading,
   nextConverting,
   nextUploads,
@@ -281,13 +282,53 @@ describe("受け取られた写真の変換", () => {
     expect(hasUnsentPhotos(failed.slice(1, 2))).toBe(false);
   });
 
-  test("変換を待つ間に画像が無くなった写真は、送り直せる状態にすること", () => {
-    const lost = withLostImage(1)(received(1, "processing")(queued));
+  test("取り直した結果は、同じ画像を今も待っている写真にだけ当て、無くなった画像は送り直せる状態にすること", () => {
+    const waiting = received(1, "processing")(queued);
+    const imageId = waiting[0]?.imageId ?? "";
 
-    expect(lost[0]).toMatchObject({
-      status: "interrupted",
-      imageId: undefined,
+    const converted = withConverted({
+      id: 1,
+      imageId,
+      image: {
+        status: "published",
+        deliveryImages: [{ width: 640, height: 480, url: "/media/a.avif" }],
+      },
+    })(waiting);
+
+    expect(converted[0]).toMatchObject({
+      status: "added",
+      imageId,
+      previewUrl: "/media/a.avif",
     });
+    expect(
+      withConverted({ id: 1, imageId, image: undefined })(waiting)[0],
+    ).toMatchObject({ status: "interrupted", imageId: undefined });
+
+    const other = { id: 1, imageId: "019b0000-0000-7000-8000-0000000000ff" };
+
+    expect(
+      withConverted({
+        ...other,
+        image: { status: "published", deliveryImages: [] },
+      })(waiting),
+    ).toEqual(waiting);
+    expect(
+      withConverted({ id: 1, imageId, image: undefined })(converted),
+    ).toEqual(converted);
+  });
+
+  test("送り直しの準備を始めた写真は待ちの表示にし、取りやめたら押せる状態に戻すこと", () => {
+    const interrupted = withAdded(1, {
+      id: "019b0000-0000-7000-8000-000000000001",
+      status: "interrupted",
+      deliveryImages: [],
+    })(queued);
+
+    const started = withRetryStarted(1, true)(interrupted);
+
+    expect(started[0]).toMatchObject({ status: "interrupted", retried: true });
+    expect(withRetryStarted(1, false)(started)[0]?.retried).toBe(false);
+    expect(withRetryStarted(2, true)(interrupted)).toEqual(interrupted);
   });
 
   test("変換中の写真は、追加できなかった写真に数えず、変換を終えられなかった写真は数えること", () => {

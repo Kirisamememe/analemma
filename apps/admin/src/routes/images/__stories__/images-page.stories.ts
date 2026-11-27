@@ -42,6 +42,19 @@ const withServer = (createRoutes: () => FakeRoutes): Story => ({
 });
 
 export const SeveralImages: Story = {};
+
+/** 変換中の画像と、変換できなかった画像が並ぶ一覧。 */
+export const ConvertingImages = withServer(() => {
+  const [first, second, third, ...rest] = IMAGES;
+
+  return createImageRoutes([
+    { ...first, status: "processing", deliveryImages: [] },
+    { ...second, status: "unreadable", deliveryImages: [] },
+    { ...third, status: "interrupted", deliveryImages: [] },
+    ...rest,
+  ]).routes;
+});
+
 export const ManyImages = withServer(() => createImageRoutes(MANY).routes);
 export const Empty = withServer(() => createImageRoutes([]).routes);
 
@@ -127,11 +140,17 @@ type UploadExample = {
   pending?: readonly SamplePhotoName[];
   /** 初回の送信が失敗する写真。 */
   failures?: readonly SamplePhotoName[];
+  /** 受け取った後、変換を終えない写真。 */
+  converting?: readonly SamplePhotoName[];
+  /** 変換できなかった写真と、その状態。 */
+  unconverted?: Partial<Record<SamplePhotoName, "unreadable" | "interrupted">>;
 };
 
 const uploadStory = ({
   pending = [],
   failures = [],
+  converting = [],
+  unconverted = {},
 }: UploadExample = {}): Story => ({
   args: {
     ...(pending.length > 0 && {
@@ -139,11 +158,13 @@ const uploadStory = ({
         report(0.64);
       },
     }),
-    /** 選んだ写真と同じ配信用の画像を、一覧と詳細にも返す。 */
+    /** 写真を変換中の画像として受け取り、変換の結果を一覧と詳細に返す server。 */
     createRoutes: () => {
       const failOnce = new Set(failures);
-      const uploaded: FakeImageSeed = {};
-      const { routes } = createImageRoutes(IMAGES, uploaded);
+
+      const { routes, convert } = createImageRoutes(IMAGES, {
+        status: "processing",
+      });
 
       return {
         ...routes,
@@ -159,9 +180,22 @@ const uploadStory = ({
               .promise;
           }
 
-          uploaded.deliveryImages = name === undefined ? [] : samplePhoto(name);
+          const reply = routes["admin/images/upload"](input);
 
-          return routes["admin/images/upload"](input);
+          if (name === undefined || !("output" in reply)) return reply;
+
+          if (!converting.includes(name)) {
+            const failure = unconverted[name];
+
+            convert(
+              reply.output.id,
+              failure === undefined
+                ? { status: "published", deliveryImages: samplePhoto(name) }
+                : { status: failure },
+            );
+          }
+
+          return reply;
         },
       };
     },
@@ -193,7 +227,10 @@ const uploadStory = ({
       await within(list.ownerDocument.body).findByRole("dialog"),
     );
 
-    const selected = pending[0] ?? failures[0];
+    const unconvertedName = UPLOAD_SAMPLES.find((name) => name in unconverted);
+
+    const selected =
+      pending[0] ?? failures[0] ?? unconvertedName ?? converting[0];
 
     if (selected) {
       dialog.getByRole("button", { name: `${selected}.jpg` }).click();
@@ -237,3 +274,15 @@ export const UploadPartiallyFailed = uploadStory({
 });
 
 export const UploadAllFailed = uploadStory({ failures: UPLOAD_SAMPLES });
+
+export const UploadConverting = uploadStory({
+  converting: ["dunes", "night-harbor"],
+});
+
+export const UploadUnreadable = uploadStory({
+  unconverted: { "morning-lake": "unreadable" },
+});
+
+export const UploadInterrupted = uploadStory({
+  unconverted: { "sea-mist": "interrupted" },
+});
