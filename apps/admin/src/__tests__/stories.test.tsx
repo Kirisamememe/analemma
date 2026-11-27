@@ -75,7 +75,7 @@ import * as primitivesNavDrawer from "@/ui/primitives/navigation/__stories__/nav
 import * as primitivesNavItem from "@/ui/primitives/navigation/__stories__/nav-item.stories";
 import * as primitivesNavSelect from "@/ui/primitives/navigation/__stories__/nav-select.stories";
 import * as primitivesNavigationProgress from "@/ui/primitives/navigation/__stories__/navigation-progress.stories";
-import * as primitivesScrollView from "@/ui/primitives/navigation/__stories__/scroll-view.stories";
+import * as primitivesScrollView from "@/ui/primitives/navigation/scroll/__stories__/scroll-view.stories";
 import * as primitivesFocusScope from "@/ui/primitives/overlays/__stories__/focus-scope.stories";
 import * as primitivesOverlayLayer from "@/ui/primitives/overlays/__stories__/overlay-layer.stories";
 import * as primitivesTooltip from "@/ui/primitives/overlays/__stories__/tooltip.stories";
@@ -87,7 +87,7 @@ import * as specimensColors from "@/ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "@/ui/specimens/__stories__/typography.stories";
 
 const MODULES = {
-  "ui/primitives/navigation/__stories__/scroll-view.stories.tsx":
+  "ui/primitives/navigation/scroll/__stories__/scroll-view.stories.tsx":
     primitivesScrollView,
   "features/fixed-pages/ui/__stories__/image-field-panel.stories.ts":
     imageFieldPanel,

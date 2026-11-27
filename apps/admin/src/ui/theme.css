@@ -295,6 +295,15 @@
   text-box: trim-both cap alphabetic;
 }
 
+@utility snap-rail {
+  container-type: inline-size;
+  scroll-snap-type: x mandatory;
+}
+
+@utility snap-rail-strip {
+  padding-inline-end: 100cqi;
+}
+
 @utility h-photo-preview {
   height: clamp(7rem, 29vw, 10.5rem);
 }

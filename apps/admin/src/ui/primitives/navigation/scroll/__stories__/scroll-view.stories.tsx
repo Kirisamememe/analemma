@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { ScrollView } from "../scroll-view";
+import { SnapItem } from "../snap-item";
 
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
@@ -45,6 +46,21 @@ export const Vertical: Story = {
           <Text key={month}>{month}</Text>
         ))}
       </Stack>
+    ),
+  },
+};
+
+export const Snap: Story = {
+  args: {
+    snap: true,
+    children: (
+      <Cluster gap={4} wrap={false}>
+        {months.map((month) => (
+          <SnapItem key={month}>
+            <Button size="sm">{month}</Button>
+          </SnapItem>
+        ))}
+      </Cluster>
     ),
   },
 };
