@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useSyncExternalStore } from "react";
 
+import { useUploadConversions } from "./hooks/use-upload-conversions";
 import { useUploadDialog } from "./hooks/use-upload-dialog";
 import type { PhotoUpload } from "./logic/photo-uploads";
 import { uploadNotice } from "./logic/upload-view";
@@ -59,6 +60,14 @@ const SelectedFields = ({ upload, metadata }: SelectedFieldsProps) => {
   );
 };
 
+type ConversionsProps = Parameters<typeof useUploadConversions>[0];
+
+const UploadConversions = (props: ConversionsProps): ReactNode => {
+  useUploadConversions(props);
+
+  return null;
+};
+
 /** 画像一覧の見出しと、写真を追加する Dialog。 */
 export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
   const t = useTranslate();
@@ -75,6 +84,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
 
   return (
     <div ref={attach}>
+      <UploadConversions uploads={dialog.uploads} onSettled={dialog.settle} />
       <PageHeader
         title={t("images.title")}
         description={t("images.description")}

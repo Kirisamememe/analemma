@@ -65,6 +65,11 @@ export const UploadPhotoStatus = ({
               })
             : t(`imageUpload.status.${upload.status}`)}
         </Badge>
+        {upload.status === "converting" && (
+          <Text as="span" tone="muted" variant="caption">
+            {t("imageUpload.convertingHint")}
+          </Text>
+        )}
         {action !== "none" && (
           <Button
             size="sm"

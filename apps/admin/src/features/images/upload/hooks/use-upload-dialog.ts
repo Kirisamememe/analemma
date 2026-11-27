@@ -24,7 +24,7 @@ export const useUploadDialog = () => {
 
   const [selectedId, select] = useState<number>();
 
-  const { uploads, add, retry, clear, track, leaving, metadata } =
+  const { uploads, add, retry, clear, track, leaving, metadata, settle } =
     usePhotoUploads({
       onComplete: () => {
         setOpen(false);
@@ -104,6 +104,7 @@ export const useUploadDialog = () => {
     isDragging: isDragging && !metadata.isSaving,
     select,
     selected,
+    settle,
     uploads,
     isUploading: isUploading(uploads),
     problem: error &&

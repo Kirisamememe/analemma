@@ -7,7 +7,9 @@ import {
   hasUnsentPhotos,
   retryUpload,
   withAdded,
+  withLostImage,
   isUploading,
+  nextConverting,
   nextUploads,
   queuePhotos,
   withStatus,
@@ -190,6 +192,7 @@ describe("足せた写真と送り直し", () => {
     const uploads = [
       withAdded(1, {
         id: "019b0000-0000-7000-8000-000000000001",
+        status: "published",
         deliveryImages: [{ width: 640, height: 480, url: "/media/photo.avif" }],
       }),
       withStatus(2, "failed"),
@@ -219,5 +222,84 @@ describe("足せた写真と送り直し", () => {
       ["unsupported", false],
     ]);
     expect(hasUnsentPhotos(withStatus(2, "added")(retried))).toBe(false);
+  });
+});
+
+const received = (id: number, status: "processing" | "published") =>
+  withAdded(id, {
+    id: `019b0000-0000-7000-8000-00000000000${String(id)}`,
+    status,
+    deliveryImages:
+      status === "published"
+        ? [{ width: 640, height: 480, url: "/media/photo.avif" }]
+        : [],
+  });
+
+describe("受け取られた写真の変換", () => {
+  const queued = queuePhotos([], {
+    files: [file("a.jpg", 1), file("b.jpg", 1), file("c.jpg", 1)],
+    maxBytes: 10,
+  });
+
+  test("受け取られた写真は、画像が変換中なら変換中に、変換を終えていれば足せた写真にすること", () => {
+    const uploads = received(2, "published")(received(1, "processing")(queued));
+
+    expect(statuses(uploads)).toEqual(["converting", "added", "waiting"]);
+    expect(uploads[0]?.previewUrl).toBeUndefined();
+    expect(uploads[1]?.previewUrl).toBe("/media/photo.avif");
+  });
+
+  test("変換の結果を待つ写真のうち、いちばん先に受け取られた写真を選ぶこと", () => {
+    const uploads = received(
+      1,
+      "processing",
+    )(received(3, "processing")(received(2, "published")(queued)));
+
+    expect(nextConverting(uploads)?.id).toBe(1);
+    expect(nextConverting(queued)).toBeUndefined();
+  });
+
+  test("変換を終えられなかった写真は、画像の ID を外して送り直せ、読めなかった写真は送り直せないこと", () => {
+    const failed = [
+      withAdded(1, {
+        id: "019b0000-0000-7000-8000-000000000001",
+        status: "interrupted",
+        deliveryImages: [],
+      }),
+      withAdded(2, {
+        id: "019b0000-0000-7000-8000-000000000002",
+        status: "unreadable",
+        deliveryImages: [],
+      }),
+    ].reduce((current, change) => change(current), queued);
+
+    const retried = retryUpload(2)(retryUpload(1)(failed));
+
+    expect(statuses(retried)).toEqual(["waiting", "unreadable", "waiting"]);
+    expect(retried[0]).toMatchObject({ retried: true, imageId: undefined });
+    expect(hasUnsentPhotos(failed.slice(0, 2))).toBe(true);
+    expect(hasUnsentPhotos(failed.slice(1, 2))).toBe(false);
+  });
+
+  test("変換を待つ間に画像が無くなった写真は、送り直せる状態にすること", () => {
+    const lost = withLostImage(1)(received(1, "processing")(queued));
+
+    expect(lost[0]).toMatchObject({
+      status: "interrupted",
+      imageId: undefined,
+    });
+  });
+
+  test("変換中の写真は、追加できなかった写真に数えず、変換を終えられなかった写真は数えること", () => {
+    const converting = received(1, "processing")(queued).slice(0, 1);
+
+    const interrupted = withAdded(1, {
+      id: "019b0000-0000-7000-8000-000000000001",
+      status: "interrupted",
+      deliveryImages: [],
+    })(queued).slice(0, 1);
+
+    expect(countDiscarded(converting, () => true)).toBe(0);
+    expect(countDiscarded(interrupted, () => false)).toBe(1);
   });
 });

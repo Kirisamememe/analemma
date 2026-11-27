@@ -21,9 +21,12 @@ export const formatFileSize = (locale: string, bytes: number): string =>
 const TONES = {
   waiting: "neutral",
   sending: "info",
+  converting: "info",
   added: "success",
   "too-large": "danger",
   unsupported: "danger",
+  unreadable: "danger",
+  interrupted: "danger",
   failed: "danger",
 } as const satisfies Record<UploadStatus, ProgressTone>;
 
@@ -36,7 +39,7 @@ export const retryAction = ({
   status,
   retried,
 }: Pick<PhotoUpload, "status" | "retried">): "none" | "ready" | "pending" => {
-  if (status === "failed") return "ready";
+  if (status === "failed" || status === "interrupted") return "ready";
 
   return retried === true && (status === "waiting" || status === "sending")
     ? "pending"
@@ -64,8 +67,7 @@ export const uploadNotice = (uploads: readonly PhotoUpload[]) => {
   const added = uploads.filter(({ status }) => status === "added").length;
 
   const failed = uploads.filter(
-    ({ status }) =>
-      status === "failed" || status === "too-large" || status === "unsupported",
+    ({ status }) => TONES[status] === "danger",
   ).length;
 
   const counts = { added, total, failed };

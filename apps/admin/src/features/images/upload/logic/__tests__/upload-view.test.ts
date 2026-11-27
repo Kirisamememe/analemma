@@ -23,6 +23,17 @@ describe("送る写真の一覧の見せ方", () => {
     expect(retryAction({ status: "sending" })).toBe("none");
   });
 
+  test("変換中は進んでいる見せ方に、変換できなかった写真は失敗の見せ方にし、server の都合の失敗だけ送り直せること", () => {
+    expect(
+      (["converting", "unreadable", "interrupted"] as const).map((status) =>
+        toProgressTone(status),
+      ),
+    ).toEqual(["info", "danger", "danger"]);
+    expect(retryAction({ status: "interrupted" })).toBe("ready");
+    expect(retryAction({ status: "unreadable" })).toBe("none");
+    expect(retryAction({ status: "converting" })).toBe("none");
+  });
+
   test("送り直しが済んだら、足せた写真は結果へ、ほかは追加のボタンへ focus を引き継ぐこと", () => {
     expect(focusAfterRetry({ status: "sending" })).toBeUndefined();
     expect(focusAfterRetry({ status: "added", imageId: "x" })).toBe("result");

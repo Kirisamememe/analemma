@@ -197,3 +197,34 @@ test("転送率の通知が届いても、Dialog とカルーセルを再レン�
   expect(dialog).not.toHaveBeenCalled();
   expect(rail).not.toHaveBeenCalled();
 });
+
+test("変換の結果を取り直している間は、Dialog もカルーセルも描き直さない", async () => {
+  const server = createImageRoutes([], { status: "processing" });
+  const app = createTestApp({ path: "/images", routes: server.routes });
+
+  await app.router.load();
+
+  using dialog = spyOn(controls, "useUploadDialog");
+  using rail = spyOn(carousel, "UploadCarousel");
+  render(
+    <main>
+      <PhotoUploads imageHref={(id) => `/images/${id}`} />
+    </main>,
+    { wrapper: withAppProviders(app) },
+  );
+
+  await dropPhotos("a.jpg");
+  await screen.findByText("変換中");
+
+  const gets = () => app.calls.filter((path) => path === "admin/images/get");
+  const rendered = [dialog.mock.calls.length, rail.mock.calls.length];
+
+  await waitFor(
+    () => {
+      expect(gets().length).toBeGreaterThan(1);
+    },
+    { timeout: 4000 },
+  );
+
+  expect([dialog.mock.calls.length, rail.mock.calls.length]).toEqual(rendered);
+}, 10_000);

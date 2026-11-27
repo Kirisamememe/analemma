@@ -7,6 +7,7 @@ import { createUploadValue } from "../upload-value";
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
+import { deleteImage } from "@/features/images/detail/queries/image-actions";
 import { useUploadMetadata } from "@/features/images/upload/hooks/use-upload-metadata";
 import {
   type PhotoUpload,
@@ -17,10 +18,16 @@ import {
   queuePhotos,
   retryUpload,
   withAdded,
+  withLostImage,
   withStatus,
 } from "@/features/images/upload/logic/photo-uploads";
 import { uploadPhoto } from "@/features/images/upload/queries/upload-photo";
-import { IMAGES_QUERY_KEY, prependImage } from "@/queries/images-query";
+import type { AdminImage } from "@/queries/image-query";
+import {
+  IMAGES_QUERY_KEY,
+  prependImage,
+  updateImagePage,
+} from "@/queries/images-query";
 
 type Transfer = PhotoUpload & {
   /** この送信試行で受け取った転送率を記録する。 */
@@ -177,14 +184,33 @@ export const usePhotoUploads = ({
 
   const { isSaving } = metadata;
 
+  const { mutate: removeFailed } = useApiMutation({
+    send: (imageId: string) => deleteImage(api, imageId),
+    onSuccess: (_removed, imageId) =>
+      updatePages(IMAGES_QUERY_KEY, updateImagePage(imageId)),
+  });
+
   const retry = useCallback(
     (id: number): void => {
       if (isSaving) return;
 
+      const failed = latest.current.find((upload) => upload.id === id);
+
+      if (failed?.status === "interrupted" && failed.imageId !== undefined) {
+        removeFailed(failed.imageId); // 変換できなかった画像を残さず、同じ写真から作り直す
+      }
+
       apply(retryUpload(id));
       sendNext();
     },
-    [apply, isSaving, sendNext],
+    [apply, isSaving, removeFailed, sendNext],
+  );
+
+  const settle = useCallback(
+    (id: number, image: AdminImage | undefined): void => {
+      apply(image === undefined ? withLostImage(id) : withAdded(id, image));
+    },
+    [apply],
   );
 
   const { reset } = metadata;
@@ -218,6 +244,7 @@ export const usePhotoUploads = ({
     leaving: { ...leaving, leave },
     add,
     retry,
+    settle,
     clear,
     track,
   };

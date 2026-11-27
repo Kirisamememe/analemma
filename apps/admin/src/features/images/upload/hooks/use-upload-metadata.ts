@@ -151,7 +151,9 @@ export const useUploadMetadata = (
     for (const { id, imageId, status } of uploads) {
       const entry = entries.read().get(id);
 
-      if (entry === undefined || status !== "added" || imageId === undefined) {
+      const isRegistered = status === "added" || status === "converting";
+
+      if (entry === undefined || !isRegistered || imageId === undefined) {
         continue;
       }
 
