@@ -9,9 +9,10 @@ const pressable = tv({
 });
 
 /** class を、8個までの文字列に分けて書いた部品。 */
-export const SplitClasses = () => (
+export const SplitClasses = ({ label }: Readonly<Record<"label", string>>) => (
   <button
-    aria-label="押す と 左 から ナビ が 出て 中 の リンク を 選べる"
+    aria-label={label}
+    data-note="押す と 左 から ナビ が 出て 中 の リンク を 選べる"
     className={pressable({
       className: ["is-hovered:state-hover", "is-focus-shown:focus-ring"],
     })}

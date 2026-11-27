@@ -311,6 +311,7 @@ export const en = {
   "imageUpload.status.too-large": "Larger than {{limit}}",
   "imageUpload.status.unsupported": "Unsupported format",
   "imageUpload.status.failed": "Could not upload",
+  "imageUpload.problem": "{{name}}: {{message}}",
   "imageUpload.retry": "Retry",
   "imageUpload.retryPhoto": "Retry {{name}}",
   "imageUpload.leaveTitle": "Leave photo upload?",

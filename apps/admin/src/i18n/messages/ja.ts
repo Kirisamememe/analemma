@@ -319,6 +319,7 @@ export const ja = {
   "imageUpload.status.too-large": "{{limit}} を超えています",
   "imageUpload.status.unsupported": "対応していない形式です",
   "imageUpload.status.failed": "送れませんでした",
+  "imageUpload.problem": "{{name}} · {{message}}",
   "imageUpload.retry": "送り直す",
   "imageUpload.retryPhoto": "{{name}} を送り直す",
   "imageUpload.leaveTitle": "写真の追加を終了しますか？",

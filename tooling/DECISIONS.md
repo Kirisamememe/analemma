@@ -60,7 +60,7 @@
   - 書き方:`function-component-definition`(arrow function)・`prefer-function-component`(class で書かない)・`jsx-boolean-value`・`jsx-curly-brace-presence`・`jsx-fragments`・`jsx-pascal-case`・`self-closing-comp`・`jsx-filename-extension`(`.tsx` だけ)。
   - 誤りを防ぐ:`no-unknown-property`・`no-clone-element`・`no-react-children`(`Children` と `cloneElement` は、子の形に頼る壊れやすい部品を作る)。
   - 深さ:`jsx-max-depth` は 6。今の最大が 6 で、5 にすると14か所、4 にすると37か所が当たる。深い JSX は部品に分ける合図なので、下げるかはユーザーと決める。
-  - 文言:`jsx-no-literals` を管理画面の `.tsx` に掛け、訳を通さない文言を JSX に直接書けなくする。story・テスト・`src/testing/` では外す。
+  - 文言:`jsx-no-literals` を管理画面の `.tsx` に掛け、訳を通さない文言を JSX に直接書けなくする。JSX の子と、文言を受け取る属性(`aria-label`・`alt`・`title`・`label`・`placeholder` など。`TRANSLATED_ATTRIBUTES`)を見る。空の `alt` は通す。story・テスト・`src/testing/` では外す。
   - React Compiler の診断:`invariant`・`syntax`・`todo`・`unsupported-syntax`・`rule-suppression`。コンパイラが扱えない書き方を止める。
   - 足さなかったもの:`react-perf` の4つ(JSX の props に、その場で作った関数・オブジェクト・配列・JSX を渡さない)は、製品のコードで168か所が当たり、どの handler も `useCallback` で包むことになる。再レンダリングは、フォルダごとの「再レンダリングの期待」とそのテストで確かめる。`hook-use-state` は、setter を使わない `const [store] = useState(create)`(1回だけ作る値)も止めるので足さない。`jsx-handler-names` は、handler の名前を `handle…` に限り、hook が返す操作の名前(`retry`・`finish`)と合わない。`jsx-props-no-spreading` と `forbid-*` は、`project/styling-boundary` が同じことをより狭く止めている。class の中身のルール(`no-set-state` など)は、class を書けないので要らない。
   - fixture で確かめるのは、書き方・誤り・深さ・文言の11個。React Compiler の診断と、`jsx-pascal-case`・`jsx-filename-extension` は fixture を置いていない。

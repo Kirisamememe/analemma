@@ -58,6 +58,18 @@ const inDirectory = (
   rules: restrictApis(adminApis(apis)),
 });
 
+const TRANSLATED_ATTRIBUTES = [
+  "alt",
+  "aria-description",
+  "aria-label",
+  "description",
+  "errorMessage",
+  "heading",
+  "label",
+  "placeholder",
+  "title",
+]; // 利用者に見えるか、読み上げられる文言を受け取る属性
+
 const SINGLE_COMPONENT_FILES = ["**/apps/admin/src/ui/**/*.tsx"]; // 片付けの済んだフォルダから足していく
 
 /** 管理画面の境界を守る設定(後に書いたものが勝つ)。 */
@@ -153,7 +165,12 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   },
   {
     files: ["**/apps/admin/src/**/*.tsx"],
-    rules: { "react/jsx-no-literals": "error" },
+    rules: {
+      "react/jsx-no-literals": [
+        "error",
+        { allowedStrings: [""], restrictedAttributes: TRANSLATED_ATTRIBUTES },
+      ],
+    },
   },
   {
     files: ["**/apps/admin/src/testing/**"],

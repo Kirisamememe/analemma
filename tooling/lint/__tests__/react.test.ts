@@ -134,3 +134,17 @@ test("React の書き方をそろえるルールが、当たる書き方ごと�
     ].filter((rule) => !codes.has(`react(${rule})`)),
   ).toEqual([]);
 });
+
+const literalsIn = (file: string): readonly number[] =>
+  lintFixture(file)
+    .diagnostics.filter(({ code }) => code === "react(jsx-no-literals)")
+    .map(({ line }) => line);
+
+test("文言を受け取る属性に直接書いた文言を止め、class や空の alt は止めないこと", () => {
+  expect(
+    literalsIn("invalid/apps/admin/src/ui/patterns/strict-react.tsx"),
+  ).toEqual([31, 32]);
+  expect(
+    literalsIn("valid/apps/admin/src/ui/patterns/one-component.tsx"),
+  ).toEqual([]);
+});

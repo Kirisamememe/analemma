@@ -159,7 +159,10 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
                 {dialog.problem && (
                   <div role="alert">
                     <Text tone="danger">
-                      {`${dialog.problem.name} · ${t(dialog.problem.message)}`}
+                      {t("imageUpload.problem", {
+                        name: dialog.problem.name,
+                        message: t(dialog.problem.message),
+                      })}
                     </Text>
                     {dialog.problem.show && (
                       <Button onPress={dialog.problem.show}>

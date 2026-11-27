@@ -291,6 +291,7 @@ export const zhHans = {
   "imageUpload.status.too-large": "超过 {{limit}}",
   "imageUpload.status.unsupported": "不支持的格式",
   "imageUpload.status.failed": "上传失败",
+  "imageUpload.problem": "{{name}} · {{message}}",
   "imageUpload.retry": "重新上传",
   "imageUpload.retryPhoto": "重新上传 {{name}}",
   "imageUpload.leaveTitle": "要离开照片上传页面吗？",

@@ -29,6 +29,7 @@ export function Loose({ children, icon }: LooseProps): ReactNode {
       <input disabled={true} />
       <span>{"波括弧で包んだ文言"}</span>
       <span>直接書いた文言</span>
+      <img alt="直接書いた alt" className="block" src="/a.avif" />
       {Children.count(children)}
       {cloneElement(icon)}
       <ul>
