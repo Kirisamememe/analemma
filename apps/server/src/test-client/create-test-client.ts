@@ -85,8 +85,10 @@ export type TestClient = AsyncDisposable &
     readonly dropbox: FakeDropbox;
     /** 変換を待つ原本の置き場所と、リクエストの外で進める変換の見張り。 */
     readonly pending: PendingPhotos;
-    /** 進めている変換を止め、起動し直したときと同じに、変換を待つ画像を拾い直す。 */
-    readonly restart: () => Promise<void>;
+    /** server を止めるときと同じに、新しい変換を始めさせず、進めている変換を待つ。 */
+    readonly stop: () => Promise<void>;
+    /** 起動し直したときと同じに、変換を待つ画像を拾い直す。 */
+    readonly resume: () => Promise<void>;
     /** 同じアプリにつないだ、別のブラウザを開く。 */
     readonly openBrowser: (cookie?: string) => TestBrowser;
     /** コマンドと同じやり方で、1回きりの登録用 URL を出す。 */
@@ -212,8 +214,10 @@ export const createTestClient = async (
     get pending() {
       return context.pending;
     },
-    restart: async () => {
+    stop: async () => {
       await context.pending.stop();
+    },
+    resume: async () => {
       context.pending = createPendingPhotos(storage, options.pendingLimit);
       await resumePendingImages(context);
     },
