@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { AppShell, Center, Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns/page-header";
-import { SideNav } from "@/ui/patterns/side-nav";
+import { SideNav } from "@/ui/patterns/side-nav/side-nav";
 import { NavButton, NavSelect } from "@/ui/primitives/navigation";
 
 const meta = {

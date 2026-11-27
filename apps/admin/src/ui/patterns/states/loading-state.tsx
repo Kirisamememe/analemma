@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+
+import { LoadingStatus } from "./loading-status";
 
 import { mediaLayout } from "@/ui/layout/media-layout";
-import { useLoadingAnnouncement } from "@/ui/patterns/hooks/use-loading-announcement";
 import { Skeleton } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 
@@ -17,24 +17,6 @@ const loading = tv({
     field: "flex flex-col gap-1.5",
   },
 });
-
-/** 読み込み中の通知に渡す値。 */
-type LoadingStatusProps = {
-  /** 読み込んでいる内容を伝える文言。 */
-  label?: string | undefined;
-};
-
-/** 読み込み中であることを伝える通知欄。 */
-export const LoadingStatus = ({ label }: LoadingStatusProps): ReactNode => {
-  const { t } = useTranslation();
-  const ready = useLoadingAnnouncement();
-
-  return (
-    <output className="sr-only forced-colors:not-sr-only">
-      {ready && (label ?? t("ui.loading"))}
-    </output>
-  );
-};
 
 /** 読み込み中の欄に渡す値。 */
 type LoadingStateProps =

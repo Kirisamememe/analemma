@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
-import { ErrorState } from "@/ui/patterns/error-state";
+import { ErrorState } from "@/ui/patterns/states/error-state";
 
 afterEach(cleanup);
 

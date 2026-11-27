@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { EmptyState } from "@/ui/patterns/empty-state";
+import { EmptyState } from "@/ui/patterns/states/empty-state";
 
 afterEach(cleanup);
 

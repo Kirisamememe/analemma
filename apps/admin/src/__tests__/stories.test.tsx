@@ -42,15 +42,15 @@ import * as layoutHeading from "@/ui/layout/__stories__/heading.stories";
 import * as layoutPageTransition from "@/ui/layout/__stories__/page-transition.stories";
 import * as layoutStack from "@/ui/layout/__stories__/stack.stories";
 import * as layoutText from "@/ui/layout/__stories__/text.stories";
-import * as patternsEmptyState from "@/ui/patterns/__stories__/empty-state.stories";
-import * as patternsErrorState from "@/ui/patterns/__stories__/error-state.stories";
-import * as patternsLoadingState from "@/ui/patterns/__stories__/loading-state.stories";
 import * as patternsPageHeader from "@/ui/patterns/__stories__/page-header.stories";
-import * as patternsProgressList from "@/ui/patterns/__stories__/progress-list.stories";
-import * as patternsSideNav from "@/ui/patterns/__stories__/side-nav.stories";
 import * as imageRadio from "@/ui/patterns/photos/__stories__/image-radio.stories";
 import * as featuresImagesImageRows from "@/ui/patterns/photos/__stories__/image-rows.stories";
 import * as imageThumbnail from "@/ui/patterns/photos/__stories__/image-thumbnail.stories";
+import * as patternsProgressList from "@/ui/patterns/progress/__stories__/progress-list.stories";
+import * as patternsSideNav from "@/ui/patterns/side-nav/__stories__/side-nav.stories";
+import * as patternsEmptyState from "@/ui/patterns/states/__stories__/empty-state.stories";
+import * as patternsErrorState from "@/ui/patterns/states/__stories__/error-state.stories";
+import * as patternsLoadingState from "@/ui/patterns/states/__stories__/loading-state.stories";
 import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "@/ui/primitives/__stories__/button.stories";
 import * as primitivesForm from "@/ui/primitives/__stories__/form.stories";
@@ -147,12 +147,14 @@ const MODULES = {
     collectionsActionList,
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.ts": layoutText,
-  "ui/patterns/__stories__/empty-state.stories.tsx": patternsEmptyState,
-  "ui/patterns/__stories__/error-state.stories.tsx": patternsErrorState,
-  "ui/patterns/__stories__/loading-state.stories.ts": patternsLoadingState,
+  "ui/patterns/states/__stories__/empty-state.stories.tsx": patternsEmptyState,
+  "ui/patterns/states/__stories__/error-state.stories.tsx": patternsErrorState,
+  "ui/patterns/states/__stories__/loading-state.stories.ts":
+    patternsLoadingState,
   "ui/patterns/__stories__/page-header.stories.tsx": patternsPageHeader,
-  "ui/patterns/__stories__/progress-list.stories.tsx": patternsProgressList,
-  "ui/patterns/__stories__/side-nav.stories.tsx": patternsSideNav,
+  "ui/patterns/progress/__stories__/progress-list.stories.tsx":
+    patternsProgressList,
+  "ui/patterns/side-nav/__stories__/side-nav.stories.tsx": patternsSideNav,
   "ui/primitives/__stories__/badge.stories.ts": primitivesBadge,
   "ui/primitives/__stories__/button.stories.tsx": primitivesButton,
   "ui/primitives/__stories__/form.stories.tsx": primitivesForm,

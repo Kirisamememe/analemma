@@ -2,7 +2,7 @@ import type { ReactNode, Ref } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Heading, Stack, Text } from "@/ui/layout";
-import { useFailedRetries } from "@/ui/patterns/hooks/use-failed-retries";
+import { useFailedRetries } from "@/ui/patterns/states/hooks/use-failed-retries";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";

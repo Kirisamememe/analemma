@@ -58,6 +58,11 @@ const inDirectory = (
   rules: restrictApis(adminApis(apis)),
 });
 
+const SINGLE_COMPONENT_FILES = [
+  "**/apps/admin/src/ui/patterns/**/*.tsx",
+  "**/apps/admin/src/ui/primitives/overlays/**/*.tsx",
+]; // 片付けの済んだフォルダから足していく
+
 /** 管理画面の境界を守る設定(後に書いたものが勝つ)。 */
 export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   { files: ["apps/admin/**"], env: { browser: true } },
@@ -146,6 +151,10 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     },
   },
   {
+    files: SINGLE_COMPONENT_FILES,
+    rules: { "react/no-multi-comp": "error" },
+  },
+  {
     files: [
       "**/apps/admin/src/features/**/*.ts",
       "**/apps/admin/src/features/**/*.tsx",
@@ -163,18 +172,24 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   }),
   {
     files: ["**/apps/admin/src/**/__stories__/**"],
-    rules: { "project/require-sibling-test": "off" },
+    rules: {
+      "project/require-sibling-test": "off",
+      "react/no-multi-comp": "off",
+    },
   },
   {
     files: [
       "**/apps/admin/src/**/__tests__/*.ts",
       "**/apps/admin/src/**/__tests__/*.tsx",
     ],
-    rules: restrictApis({
-      imports: {
-        patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
-      },
-      globals: [],
-    }),
+    rules: {
+      ...restrictApis({
+        imports: {
+          patterns: [...VARIANT_LIBRARY_PATTERNS, ...UI_LIBRARY_PATTERNS],
+        },
+        globals: [],
+      }),
+      "react/no-multi-comp": "off",
+    },
   },
 ];

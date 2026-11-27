@@ -56,6 +56,7 @@
   - 管理画面の `.ts` で React の値を import できるのは、hook のファイルと context のファイルだけ(`no-react-in-logic`)。こうすると、ロジックを React なしでテストできる。拡張子は JSX の有無で決めるので(`require-jsx-in-tsx`)、JSX を書かない hook や context も `.ts` に置く。
   - `console`(ログは context で渡す logger を使う)、`process.env`(環境変数は起動時に検証する1か所だけで読む)、引数のプロパティの書き換えを禁止する。
 - **足したルール**:`no-unnecessary-condition`(要らない `?.` や条件)、`no-abusive-eslint-disable`(ルールを指定しない抑制)、React の `only-export-components`・`no-danger`・`button-has-type`。
+- **1ファイルに component を1つ**(`react/no-multi-comp`。ユーザーが決めた):`restriction` の category は有効にしていないので、名前を書いて足す。export しない補助の component も数える。`max-exported-functions` は、コードが200行以下のファイルを数えないので、`.tsx` に component を幾つでも並べられた。管理画面のフォルダを、片付けの済んだ順に `SINGLE_COMPONENT_FILES`(`tooling/lint/config/admin-overrides.ts`)に足し、最後は管理画面の全体に掛ける。story とテストは、見せるためや確かめるための包む component を同じファイルに書くので外す。
   - `typescript/return-await`(`in-try-catch`):`try`・`finally` の中と `await using` の後で、`await` を省いた `return` に診断を出す。省くと、返した処理が終わる前に後始末が走り、使っている最中の接続が閉じる。Postgres の用意で実際にこの誤りがあった。型は同じ `Promise` なので型検査では止まらない。ほかの場所の `return` には診断を出さない。テストでも外さない(テストで出るのも同じ誤り)。型付きのルールなので fixture では確かめられない。
 - **変えた設定**
   - `no-underscore-dangle`:`_tag` だけ許す。想定内の失敗を `_tag` 付きの判別共用体で表すため。

@@ -3,17 +3,10 @@ import type { ReactNode, Ref } from "react";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
-import { ActionList, ActionListRow } from "@/ui/primitives/collections";
+import { ActionListRow } from "@/ui/primitives/collections";
 import { Spinner } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
-
-/** 1件ずつ進める作業の一覧(写真を送る・取り込むなど)。 */
-export const ProgressList = ({
-  children,
-}: Record<"children", ReactNode>): ReactNode => (
-  <ActionList>{children}</ActionList>
-);
 
 /** 作業の1件の、状態の見せ方。 */
 export type ProgressTone = "neutral" | "info" | "success" | "danger";

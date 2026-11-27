@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { type ReactNode, useState } from "react";
 
-import { ErrorState } from "@/ui/patterns/error-state";
+import { ErrorState } from "@/ui/patterns/states/error-state";
 
 const RETRY_MILLISECONDS = 1500;
 

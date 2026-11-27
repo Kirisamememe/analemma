@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
-import { ProgressList, ProgressRow } from "@/ui/patterns/progress-list";
+import { ProgressList } from "@/ui/patterns/progress/progress-list";
+import { ProgressRow } from "@/ui/patterns/progress/progress-row";
 
 const meta = {
   title: "patterns/ProgressList",

@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useId, useState } from "react";
 
-import { ImageRadio, ImageSelectionStatus } from "../image-radio";
-import { ImageRows, ImageTile } from "../image-rows";
+import { ImageRadio } from "../image-radio";
+import { ImageRows } from "../image-rows";
+import { ImageSelectionStatus } from "../image-selection-status";
+import { ImageTile } from "../image-tile";
 
 import { samplePhoto } from "@/testing/sample-photos";
 import { Stack } from "@/ui/layout";

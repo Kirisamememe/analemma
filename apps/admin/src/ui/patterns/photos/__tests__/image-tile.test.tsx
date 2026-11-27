@@ -2,8 +2,8 @@ import { cleanup, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
-import { ImageRows, ImageTile } from "@/ui/patterns/photos/image-rows";
-import { ImageRowsPlaceholder } from "@/ui/patterns/photos/image-rows-placeholder";
+import { ImageRows } from "@/ui/patterns/photos/image-rows";
+import { ImageTile } from "@/ui/patterns/photos/image-tile";
 
 afterEach(cleanup);
 
@@ -89,15 +89,5 @@ describe("ImageTile", () => {
         "表示用の画像がまだありません",
       ),
     ).toBeDefined();
-  });
-});
-
-describe("ImageRowsPlaceholder", () => {
-  test("読み込みが続くと知らせ、灰色の枠は読み上げない", async () => {
-    renderWithI18n(<ImageRowsPlaceholder label="画像を読み込んでいます。" />);
-
-    expect(screen.getByRole("status").textContent).toBe("");
-    expect(await screen.findByText("画像を読み込んでいます。")).toBeDefined();
-    expect(screen.queryByRole("list")).toBeNull();
   });
 });

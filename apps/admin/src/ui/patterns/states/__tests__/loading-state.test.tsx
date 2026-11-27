@@ -2,7 +2,7 @@ import { cleanup, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
-import { LoadingState } from "@/ui/patterns/loading-state";
+import { LoadingState } from "@/ui/patterns/states/loading-state";
 
 afterEach(cleanup);
 

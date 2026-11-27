@@ -2,8 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { samplePhoto } from "@/testing/sample-photos";
 import { AppShell } from "@/ui/layout";
-import { ImageRows, ImageTile } from "@/ui/patterns/photos/image-rows";
+import { ImageRows } from "@/ui/patterns/photos/image-rows";
 import { ImageRowsPlaceholder } from "@/ui/patterns/photos/image-rows-placeholder";
+import { ImageTile } from "@/ui/patterns/photos/image-tile";
 
 const meta = {
   title: "patterns/photos/ImageRows",

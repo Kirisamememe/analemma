@@ -3,11 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
-import { ProgressList, ProgressRow } from "@/ui/patterns/progress-list";
+import { ProgressList } from "@/ui/patterns/progress/progress-list";
+import { ProgressRow } from "@/ui/patterns/progress/progress-row";
 
 afterEach(cleanup);
 
-describe("ProgressList", () => {
+describe("ProgressRow", () => {
   test("終わった行は名前から開け、操作のある行は ID を渡して操作を呼ぶ", async () => {
     const onAction = mock((_id: number) => undefined);
 
