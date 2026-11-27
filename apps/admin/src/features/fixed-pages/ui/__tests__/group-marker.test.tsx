@@ -9,7 +9,7 @@ test.each([
   { kind: "group", inGroup: true },
   { kind: "repeat", inGroup: false },
 ] as const)(
-  "$kind の印は飾りなので、親の group の中($inGroup)でも、読み上げの対象に何も足さない",
+  "$kind の印は飾りなので、親の group の中かどうか($inGroup)によらず、読み上げの対象に何も足さない",
   ({ kind, inGroup }) => {
     const { container } = render(
       <GroupMarker kind={kind} inGroup={inGroup} invalid={false} />,
