@@ -32,7 +32,7 @@ export type EditImageDialogProps = {
   onClose: () => void;
 };
 
-/** 画像のタイトル・説明・alt の入力と保存、保存していない変更を残して閉じるときの確かめを持つ。 */
+/** 画像のタイトル・説明・alt の入力と保存と、閉じる前と離れる前の確かめを持つ。 */
 export const useEditImage = ({ image, onClose }: EditImageDialogProps) => {
   const t = useTranslate();
   const showToast = useShowToast();
@@ -137,5 +137,5 @@ export const useEditImage = ({ image, onClose }: EditImageDialogProps) => {
   };
 };
 
-/** 画像の文言を編集するフォームと、その操作。 */
+/** 画像のタイトル・説明・alt のフォームと、閉じる前と離れる前の確かめの状態と操作。 */
 export type ImageEditor = ReturnType<typeof useEditImage>;

@@ -6,7 +6,7 @@ import type { ImageEditor } from "./hooks/use-edit-image";
 import { createFieldGuide } from "@/components/forms/logic/field-guide";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 
-/** 画像の文言の欄に渡す値。 */
+/** タイトル・説明・alt の欄に渡す値。 */
 type ImageTextFieldsProps = Pick<ImageEditor, "form" | "check" | "isSaving">;
 
 /** 画像のタイトル・説明・alt の欄。 */

@@ -7,7 +7,7 @@ import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Dialog } from "@/ui/primitives/overlays";
 
-/** 閉じる前の確かめに渡す値。 */
+/** 閉じる前と離れる前の確かめに渡す値。 */
 type DiscardDialogProps = Pick<
   ImageEditor,
   "confirmation" | "stay" | "discard"

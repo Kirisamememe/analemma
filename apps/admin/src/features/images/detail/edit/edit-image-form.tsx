@@ -7,7 +7,7 @@ import { useTranslate } from "@/i18n/use-translate";
 import { Cluster } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 
-/** 画像の文言のフォームに渡す値。 */
+/** タイトル・説明・alt のフォームに渡す値。 */
 type EditImageFormProps = Pick<
   ImageEditor,
   "form" | "check" | "isSaving" | "requestClose"
