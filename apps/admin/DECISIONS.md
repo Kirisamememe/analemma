@@ -14,10 +14,19 @@
 | route          | TanStack Router                                              | path params と search params に型が付く。                                                                                              |
 | server の状態  | TanStack Query                                               | 取得・再取得・送信中の状態を、画面ごとに書かずに済む。                                                                                 |
 | ビルド         | Vite 8                                                       | SPA の静的ファイルを作るだけなら、設定が一番少ない。                                                                                   |
+| memo 化        | React Compiler(`babel-plugin-react-compiler`)                | ユーザーが決めた。理由は「React Compiler」。                                                                                           |
 | 見た目         | Tailwind CSS v4 + tailwind-variants                          | 理由は `src/ui/DECISIONS.md`。                                                                                                         |
 | 部品の振る舞い | React Aria Components                                        | キーボードの操作・focus・ARIA を、部品ごとに自分で書かずに済む。shadcn/ui は使わない(ユーザーが決めた。見た目は自分たちの規則で持つ)。 |
 | テストの DOM   | happy-dom(`@happy-dom/global-registrator`)と Testing Library | Bun の公式の案内にある組み合わせ。                                                                                                     |
 | i18n           | i18next 27 + react-i18next                                   | ユーザーが決めた。理由は「i18n」。                                                                                                     |
+
+## React Compiler
+
+- 部品と hook の memo 化は、React Compiler に任せる(ユーザーが決めた)。handler や値を props に渡すたびに `useCallback`・`useMemo`・`memo` を手で書かなくても、関係の無い再レンダリングを減らせる。lint の React Compiler の診断(`tooling/DECISIONS.md` の「React の書き方をそろえるルール」)が、コンパイラの扱えない書き方を止める。
+- ビルドには、React の公式の `babel-plugin-react-compiler` を、`@rolldown/plugin-babel` と `@vitejs/plugin-react` の `reactCompilerPreset` で入れる。`@vitejs/plugin-react` の `compiler` の指定(Rust に移植したコンパイラ)は、experimental の間は使わない。
+- Storybook は同じ Vite の設定を読むので、story も同じ変換を通る。Bun のテストは Vite を通らないので、変換していないコードを確かめる(コンパイラは振る舞いを変えない前提)。
+- どこを再レンダリングしないかは、今までどおり設計で決め、「再レンダリングの期待」に書いてテストで守る。コンパイラは、state の置き場所や購読の範囲までは決めない。
+- 今ある `useCallback`・`useMemo`・`memo` は、そのまま残してよい(コンパイラは手で書いた memo 化を保つ)。新しく書くコードでは、ref の callback のように identity が意味を持つ所だけに書く。
 
 ## import の別名
 
