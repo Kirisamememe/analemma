@@ -36,7 +36,7 @@ type Change = (current: readonly PhotoUpload[]) => readonly PhotoUpload[];
 type PhotoUploadsOptions = {
   /** 入力の保存が済んだときに呼ぶ関数。 */
   readonly onComplete?: () => void;
-  /** server の受付が埋まっていたときに、次に送るまで待つ時間(ms)。 */
+  /** server の受付が埋まっていた後、2枚で送るのを控える時間(ms)。 */
   readonly busyWait?: number;
 };
 
