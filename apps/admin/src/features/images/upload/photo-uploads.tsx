@@ -21,19 +21,13 @@ type PhotoUploadsProps = {
   imageHref: (id: string) => AppHref;
 };
 
-type ConversionsProps = Parameters<typeof useUploadConversions>[0];
-
-const UploadConversions = (props: ConversionsProps): ReactNode => {
-  useUploadConversions(props);
-
-  return null;
-};
-
 /** 画像一覧の見出しと、写真を追加する Dialog。 */
 export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
   const t = useTranslate();
 
   const dialog = useUploadDialog();
+
+  useUploadConversions({ uploads: dialog.uploads, onSettled: dialog.settle });
 
   const {
     attach,
@@ -43,7 +37,6 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
 
   return (
     <div ref={attach}>
-      <UploadConversions uploads={dialog.uploads} onSettled={dialog.settle} />
       <PageHeader
         title={t("images.title")}
         description={t("images.description")}

@@ -31,7 +31,7 @@ const open = (seed: FakeImageSeed) => {
   return image;
 };
 
-describe("ImageDetail", () => {
+describe("ImageInfo", () => {
   test("タイトル・公開状態・説明・alt・撮影の情報を、情報の欄に出す", async () => {
     const image = open({
       title: "夕暮れの稜線",

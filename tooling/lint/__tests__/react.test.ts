@@ -102,7 +102,19 @@ describe("1ファイルに component を1つ", () => {
     },
   );
 
+  test.each(["features/pages", "routes", "components"])(
+    "管理画面の %s の .tsx にも、補助の component があれば診断を出すこと",
+    (folder) => {
+      expect(
+        multipleComponentsIn(
+          `invalid/apps/admin/src/${folder}/two-components.tsx`,
+        ),
+      ).toBe(1);
+    },
+  );
+
   test.each([
+    "invalid/apps/admin/src/testing/two-wrappers.tsx",
     "invalid/apps/admin/src/ui/patterns/__stories__/two-components.stories.tsx",
     "valid/apps/admin/src/ui/patterns/__tests__/one-component.test.tsx",
     "valid/apps/admin/src/ui/patterns/one-component.tsx",
