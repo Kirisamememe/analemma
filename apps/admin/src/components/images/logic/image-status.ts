@@ -9,6 +9,8 @@ export type ImageStatusView = {
   readonly tone: "neutral" | "info" | "danger";
   /** 配信用の画像が無いときに、写真の場所に出す文言。 */
   readonly missing: MessageKey;
+  /** 写真の画面で、写真の場所に出す、次にすることまで書いた文言。 */
+  readonly detail: MessageKey;
   /** 配信用の画像ができるのを待っているか。 */
   readonly isPending: boolean;
 };
@@ -23,6 +25,7 @@ export const toImageStatusView = (
         badge: "images.converting",
         tone: "info",
         missing: "images.convertingImage",
+        detail: "images.convertingImage",
         isPending: true,
       };
     case "unreadable":
@@ -30,6 +33,7 @@ export const toImageStatusView = (
         badge: "images.conversionFailed",
         tone: "danger",
         missing: "images.unreadable",
+        detail: "images.unreadableDetail",
         isPending: false,
       };
     case "interrupted":
@@ -37,6 +41,7 @@ export const toImageStatusView = (
         badge: "images.conversionFailed",
         tone: "danger",
         missing: "images.interrupted",
+        detail: "images.interruptedDetail",
         isPending: false,
       };
     case "unpublished":
@@ -44,6 +49,7 @@ export const toImageStatusView = (
         badge: "images.unpublished",
         tone: "neutral",
         missing: "images.noDeliveryImage",
+        detail: "images.noDeliveryImage",
         isPending: false,
       };
     case "published":
@@ -51,6 +57,7 @@ export const toImageStatusView = (
         badge: undefined,
         tone: "neutral",
         missing: "images.noDeliveryImage",
+        detail: "images.noDeliveryImage",
         isPending: false,
       };
   }

@@ -116,7 +116,7 @@ export const ConversionFailed: Story = {
         badgeTone="danger"
         href="/"
         images={[]}
-        missing="写真を読み取れませんでした。ファイルが壊れているか、対応していない形式です。削除して、別のファイルを追加してください。"
+        missing="写真を読み取れませんでした"
         title={null}
         untitled="無題"
       />

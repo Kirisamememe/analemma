@@ -130,7 +130,7 @@ export const ImageDetail = ({
       onSettled={onSettled}
       images={image.deliveryImages}
       isPending={status.isPending}
-      missing={t(status.missing)}
+      missing={t(status.detail)}
       next={next}
       onSwipe={(side) => {
         const target = side === "previous" ? previous : next;
