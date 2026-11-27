@@ -8,6 +8,7 @@ import {
   createDeployTokenRoutes,
   type FakeDeployTokenSeed,
 } from "@/testing/fake-routes/create-deploy-token-routes";
+import { failedReply, pendingReply } from "@/testing/fake-routes/fake-replies";
 
 const TOKENS: readonly FakeDeployTokenSeed[] = [
   { name: "本番のデプロイ", lastUsedAt: "2026-02-03T04:05:00.000Z" },
@@ -15,15 +16,12 @@ const TOKENS: readonly FakeDeployTokenSeed[] = [
   { name: "手元の確認", lastUsedAt: null },
 ];
 
-const waitForever = <Value>(): Promise<Value> =>
-  Promise.withResolvers<Value>().promise;
-
 /** 再認証の OS の画面を開いたまま、答えない認証器。 */
 const WAITING_AUTHENTICATOR: Authenticator = {
   /** 再認証を待ったままにする。 */
-  authenticate: () => waitForever(),
+  authenticate: () => pendingReply(),
   /** パスキーの作成を待ったままにする。 */
-  register: () => waitForever(),
+  register: () => pendingReply(),
 };
 
 const meta = {
@@ -76,7 +74,7 @@ export const Loading: Story = {
     createRoutes: () => ({
       ...createDeployTokenRoutes(TOKENS).routes,
       "admin/deployTokens/list": async () =>
-        waitForever<FakeReply<"admin/deployTokens/list">>(),
+        pendingReply<FakeReply<"admin/deployTokens/list">>(),
     }),
   },
 };
@@ -86,10 +84,7 @@ export const LoadFailed: Story = {
     /** トークンの一覧を読めない server。 */
     createRoutes: () => ({
       ...createDeployTokenRoutes(TOKENS).routes,
-      "admin/deployTokens/list": () => ({
-        error: "INTERNAL_SERVER_ERROR",
-        defined: false,
-      }),
+      "admin/deployTokens/list": failedReply,
     }),
   },
 };
@@ -126,7 +121,7 @@ export const WaitingForRevoke: Story = {
     createRoutes: () => ({
       ...createDeployTokenRoutes(TOKENS).routes,
       "admin/deployTokens/revoke": async () =>
-        waitForever<FakeReply<"admin/deployTokens/revoke">>(),
+        pendingReply<FakeReply<"admin/deployTokens/revoke">>(),
     }),
   },
 };

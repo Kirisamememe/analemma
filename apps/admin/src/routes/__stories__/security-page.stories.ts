@@ -7,6 +7,7 @@ import {
   createPasskeyRoutes,
   type FakePasskeySeed,
 } from "@/testing/fake-routes/create-passkey-routes";
+import { failedReply, pendingReply } from "@/testing/fake-routes/fake-replies";
 
 const PASSKEYS: readonly FakePasskeySeed[] = [
   { name: "MacBook Air", backedUp: true },
@@ -65,7 +66,7 @@ export const Loading: Story = {
     createRoutes: () => ({
       ...createPasskeyRoutes(PASSKEYS).routes,
       "admin/passkeys/list": async () =>
-        Promise.withResolvers<FakeReply<"admin/passkeys/list">>().promise,
+        pendingReply<FakeReply<"admin/passkeys/list">>(),
     }),
   },
 };
@@ -75,10 +76,7 @@ export const LoadFailed: Story = {
     /** パスキーの一覧を読めない server。 */
     createRoutes: () => ({
       ...createPasskeyRoutes(PASSKEYS).routes,
-      "admin/passkeys/list": () => ({
-        error: "INTERNAL_SERVER_ERROR",
-        defined: false,
-      }),
+      "admin/passkeys/list": failedReply,
     }),
   },
 };

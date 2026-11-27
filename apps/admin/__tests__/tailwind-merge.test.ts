@@ -116,6 +116,7 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "scroll-focus-inset": null,
   "snap-rail": null,
   "snap-rail-strip": null,
+  "w-story-stage": "w-full",
   "navigation-progress-animation": null,
   "navigation-progress-indicator-animation": null,
   "loading-state-animation": null,

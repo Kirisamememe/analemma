@@ -11,6 +11,7 @@ import type { ImageSummary } from "@/queries/images-query";
 import type { FakeReply } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
+import { failedReply, pendingReply } from "@/testing/fake-routes/fake-replies";
 import { SAMPLE_IMAGES } from "@/testing/sample-photos";
 import { AppShell } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
@@ -108,15 +109,14 @@ const Example = ({ state }: Record<"state", State>): ReactNode => {
         ...routes,
         "admin/images/list": (input) => {
           if (state === "loading") {
-            return Promise.withResolvers<FakeReply<"admin/images/list">>()
-              .promise;
+            return pendingReply<FakeReply<"admin/images/list">>();
           }
 
           if (
             state === "loadFailed" ||
             (state === "moreFailed" && input.cursor !== undefined)
           ) {
-            return { error: "INTERNAL_SERVER_ERROR", defined: false };
+            return failedReply();
           }
 
           return list(input);

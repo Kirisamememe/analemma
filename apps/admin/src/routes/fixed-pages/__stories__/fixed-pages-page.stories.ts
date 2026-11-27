@@ -6,6 +6,7 @@ import {
   createFixedPageRoutes,
   type FakeFixedPageSeed,
 } from "@/testing/fake-routes/create-fixed-page-routes";
+import { failedReply, pendingReply } from "@/testing/fake-routes/fake-replies";
 
 const KINDS = [
   { name: "page", label: "基本のページ", fields: [] },
@@ -76,7 +77,7 @@ export const Loading: Story = {
     createRoutes: () => ({
       ...createFixedPageRoutes(STATE).routes,
       "admin/fixedPages/list": async () =>
-        Promise.withResolvers<FakeReply<"admin/fixedPages/list">>().promise,
+        pendingReply<FakeReply<"admin/fixedPages/list">>(),
     }),
   },
 };
@@ -86,10 +87,7 @@ export const LoadFailed: Story = {
     /** 固定ページの一覧を読めない server。 */
     createRoutes: () => ({
       ...createFixedPageRoutes(STATE).routes,
-      "admin/fixedPages/list": () => ({
-        error: "INTERNAL_SERVER_ERROR",
-        defined: false,
-      }),
+      "admin/fixedPages/list": failedReply,
     }),
   },
 };
@@ -100,7 +98,7 @@ export const SavingOrder: Story = {
     createRoutes: () => ({
       ...createFixedPageRoutes(STATE).routes,
       "admin/fixedPages/reorder": async () =>
-        Promise.withResolvers<FakeReply<"admin/fixedPages/reorder">>().promise,
+        pendingReply<FakeReply<"admin/fixedPages/reorder">>(),
     }),
   },
 };

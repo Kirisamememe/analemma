@@ -312,6 +312,10 @@
   object-position: var(--focal-x, 50%) var(--focal-y, 50%);
 }
 
+@utility w-story-stage {
+  width: min(32rem, calc(100dvw - 2rem));
+}
+
 @utility w-sidebar {
   width: var(--size-sidebar);
 }
