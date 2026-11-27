@@ -25,9 +25,11 @@ export const useUploadDialog = () => {
   const [selectedId, select] = useState<number>();
 
   const { uploads, add, retry, clear, track, leaving, metadata } =
-    usePhotoUploads(() => {
-      setOpen(false);
-      select(undefined);
+    usePhotoUploads({
+      onComplete: () => {
+        setOpen(false);
+        select(undefined);
+      },
     });
 
   const focus = useRetryFocus({ retry, clear });

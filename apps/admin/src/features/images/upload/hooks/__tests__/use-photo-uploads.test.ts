@@ -14,7 +14,7 @@ afterEach(cleanup);
 const photo = (name: string): File =>
   new File(["x"], name, { type: name.endsWith(".bmp") ? "image/bmp" : "" });
 
-type Outcome = "added" | "busy" | "expired";
+type Outcome = "added" | "busy" | "expired" | "lost";
 
 const holdUploads = () => {
   const server = createImageRoutes();
@@ -35,6 +35,10 @@ const holdUploads = () => {
         return { error: "SERVICE_UNAVAILABLE", defined: false } as const;
       }
 
+      if (outcome === "lost") {
+        return { error: "INTERNAL_SERVER_ERROR", defined: false } as const;
+      }
+
       if (outcome === "expired") return { error: "UNAUTHORIZED" } as const;
 
       return server.routes["admin/images/upload"](input);
@@ -51,15 +55,23 @@ const holdUploads = () => {
     waiting.get(name)?.resolve(outcome);
   };
 
-  return { server, routes, answer, mostInFlight: () => mostInFlight };
+  return {
+    server,
+    routes,
+    answer,
+    inFlight: () => [...waiting.keys()],
+    mostInFlight: () => mostInFlight,
+  };
 };
 
-const render = async (routes: FakeRoutes, onComplete?: () => void) => {
+type Options = NonNullable<Parameters<typeof usePhotoUploads>[0]>;
+
+const render = async (routes: FakeRoutes, options?: Options) => {
   const app = createTestApp({ path: "/images", routes });
 
   await app.router.load();
 
-  const rendered = renderHook(() => usePhotoUploads(onComplete), {
+  const rendered = renderHook(() => usePhotoUploads(options), {
     wrapper: withAppProviders(app),
   });
 
@@ -70,7 +82,7 @@ const statuses = (
   uploads: ReturnType<typeof usePhotoUploads>["uploads"],
 ): string[] => uploads.map(({ file, status }) => `${file.name}: ${status}`);
 
-test("2枚ずつ送り、後に選んだ写真が先に応答しても空いた枠で続け、503 になった写真を送り直せる", async () => {
+test("2枚ずつ送り、後に選んだ写真が先に応答しても空いた枠で続け、送れなかった写真を送り直せる", async () => {
   const held = holdUploads();
   const { result } = await render(held.routes);
 
@@ -86,7 +98,7 @@ test("2枚ずつ送り、後に選んだ写真が先に応答しても空いた�
   ]);
 
   await held.answer("b.bmp");
-  await held.answer("c.jpg", "busy");
+  await held.answer("c.jpg", "lost");
   await waitFor(() => {
     expect(statuses(result.current.uploads)).toEqual([
       "a.heic: sending",
@@ -117,6 +129,53 @@ test("2枚ずつ送り、後に選んだ写真が先に応答しても空いた�
     result.current.clear();
   });
   expect(result.current.uploads).toEqual([]);
+});
+
+test("server の受付が埋まっていた写真は失敗にせず、待ちの写真を止めて、待ち時間の後に送り直す", async () => {
+  const held = holdUploads();
+  const { result } = await render(held.routes, { busyWait: 300 });
+
+  const inFlight = async (names: string[]): Promise<void> => {
+    await waitFor(() => {
+      expect(held.inFlight()).toEqual(names);
+    });
+    await act(async () => {
+      await Bun.sleep(30);
+    });
+    expect(held.inFlight()).toEqual(names);
+  };
+
+  act(() => {
+    result.current.add([photo("a.jpg"), photo("b.jpg"), photo("c.jpg")]);
+  });
+  await held.answer("b.jpg", "busy");
+  await inFlight(["a.jpg"]);
+  expect(statuses(result.current.uploads)).toEqual([
+    "a.jpg: sending",
+    "b.jpg: waiting",
+    "c.jpg: waiting",
+  ]);
+
+  await held.answer("a.jpg");
+  await held.answer("b.jpg", "busy");
+  await inFlight([]);
+  expect(statuses(result.current.uploads)).toEqual([
+    "a.jpg: added",
+    "b.jpg: waiting",
+    "c.jpg: waiting",
+  ]);
+
+  await inFlight(["b.jpg", "c.jpg"]);
+  await held.answer("b.jpg");
+  await held.answer("c.jpg");
+  await waitFor(() => {
+    expect(statuses(result.current.uploads)).toEqual([
+      "a.jpg: added",
+      "b.jpg: added",
+      "c.jpg: added",
+    ]);
+  });
+  expect(held.server.images()).toHaveLength(3);
 });
 
 test("先に登録した写真の応答が最後に届いても、一覧を server と同じ順に保つ", async () => {
@@ -266,7 +325,7 @@ test("保存中に離脱を確定したら、送信済みの写真をキャッ�
         return server.routes["admin/images/update"](input);
       },
     },
-    done,
+    { onComplete: done },
   );
 
   act(() => {

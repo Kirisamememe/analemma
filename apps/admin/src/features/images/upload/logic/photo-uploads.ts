@@ -27,6 +27,8 @@ export type PhotoUpload = {
   readonly previewUrl?: string | undefined;
   /** 送れなかった後に、送り直したか。 */
   readonly retried?: boolean | undefined;
+  /** server の受付が埋まっていて、待たされた回数。 */
+  readonly deferrals?: number | undefined;
 };
 
 /** 送る写真の一覧に足すファイルと、1枚の大きさの上限。 */
@@ -60,13 +62,15 @@ export const queuePhotos = (
 };
 
 const MAX_IN_FLIGHT = 2;
+const MAX_DEFERRALS = 12; // 待ち時間と合わせて約2分。server が1枚の変換を待つ時間と同じ
 
-/** 送信中の写真と合わせて2枚まで、待機中の写真を選んだ順に返す。 */
+/** 送信中の写真と合わせて上限(省くと2枚)まで、待機中の写真を選んだ順に返す。 */
 export const nextUploads = (
   uploads: readonly PhotoUpload[],
+  limit: number = MAX_IN_FLIGHT,
 ): readonly PhotoUpload[] => {
   const available =
-    MAX_IN_FLIGHT - uploads.filter(({ status }) => status === "sending").length;
+    limit - uploads.filter(({ status }) => status === "sending").length;
 
   return uploads
     .filter(({ status }) => status === "waiting")
@@ -102,6 +106,25 @@ export const withAdded =
           }
         : upload,
     );
+
+/** server の受付が埋まっていた写真を待機に戻し、待たされ続けたら送れなかったことにする。 */
+export const deferUpload =
+  (id: number) =>
+  (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
+    uploads.map((upload) => {
+      if (upload.id !== id) return upload;
+
+      const deferrals = (upload.deferrals ?? 0) + 1;
+
+      return deferrals < MAX_DEFERRALS
+        ? { ...upload, status: "waiting", progress: undefined, deferrals }
+        : {
+            ...upload,
+            status: "failed",
+            progress: undefined,
+            deferrals: undefined,
+          };
+    });
 
 /** 送れなかった写真を、送り直す写真として待たせる。 */
 export const retryUpload =

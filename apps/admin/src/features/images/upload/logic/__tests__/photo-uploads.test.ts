@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   clearFinished,
+  deferUpload,
   hasUnsentPhotos,
   retryUpload,
   withAdded,
@@ -13,6 +14,14 @@ import {
 
 const file = (name: string, size: number): File =>
   new File([new Uint8Array(size)], name);
+
+type Uploads = ReturnType<typeof queuePhotos>;
+
+const defer = (current: Uploads, times: number): Uploads =>
+  times === 0 ? current : defer(deferUpload(1)(current), times - 1);
+
+const statuses = (current: Uploads): string[] =>
+  current.map(({ status }) => status);
 
 describe("送る写真の一覧", () => {
   test("選んだ順に後ろへ足し、上限を超える写真は大きすぎる、空のファイルは対応していない形式として送らないこと", () => {
@@ -48,6 +57,36 @@ describe("送る写真の一覧", () => {
     expect(
       nextUploads(withStatus(2, "added")(bothSending)).map(({ id }) => id),
     ).toEqual([3]);
+  });
+
+  test("上限を1枚に絞ると、送信中の写真があるあいだは次を返さないこと", () => {
+    const uploads = queuePhotos([], {
+      files: [file("a.jpg", 1), file("b.jpg", 1)],
+      maxBytes: 10,
+    });
+
+    expect(nextUploads(uploads, 1).map(({ id }) => id)).toEqual([1]);
+    expect(nextUploads(withStatus(1, "sending")(uploads), 1)).toEqual([]);
+  });
+
+  test("受付が埋まっていた写真を待機に戻し、12回続いたら送れなかったことにすること", () => {
+    const uploads = withStatus(
+      1,
+      "sending",
+    )(
+      queuePhotos([], {
+        files: [file("a.jpg", 1), file("b.jpg", 1)],
+        maxBytes: 10,
+      }),
+    );
+
+    expect(statuses(defer(uploads, 1))).toEqual(["waiting", "waiting"]);
+    expect(statuses(defer(uploads, 11))).toEqual(["waiting", "waiting"]);
+    expect(statuses(defer(uploads, 12))).toEqual(["failed", "waiting"]);
+    expect(statuses(defer(retryUpload(1)(defer(uploads, 12)), 11))).toEqual([
+      "waiting",
+      "waiting",
+    ]);
   });
 
   test("待っているか送っている写真があるあいだだけ、送り終えていないとすること", () => {
