@@ -93,9 +93,11 @@ const runBootScript = (
 
 let built: Built;
 
+const BUILD_TIMEOUT_MS = 60_000; // コンパイラの変換を含むビルドは、遅い環境では hook の既定の5秒を超える
+
 beforeAll(async () => {
   built = await buildAdmin();
-});
+}, BUILD_TIMEOUT_MS);
 
 describe("本番のビルド", () => {
   test("部品と hook を、React Compiler のキャッシュを使う形に変換すること", () => {
