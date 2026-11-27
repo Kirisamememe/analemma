@@ -12,7 +12,7 @@ import { ModalSection } from "@/ui/primitives/overlays";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 
 type SelectedPhotoProps = {
-  /** 写真を追加するモーダルの状態と操作。 */
+  /** 写真を追加する Dialog の状態と操作。 */
   dialog: ReturnType<typeof useUploadDialog>;
   /** 選択中の写真。 */
   selected: PhotoUpload;
