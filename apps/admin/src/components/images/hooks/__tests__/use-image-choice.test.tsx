@@ -45,7 +45,7 @@ test("1枚を選択・解除すると、その写真の選択状態と枚数が�
       />
     </Profiler>
   ));
-  using dialog = spyOn(overlays, "Dialog");
+  using dialog = spyOn(overlays, "Modal");
 
   const { rerender } = render(
     <ImagePicker

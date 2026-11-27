@@ -10,8 +10,6 @@ afterEach(cleanup);
 
 /** 開いた状態から始める Dialog に渡す値。 */
 type OpenDialogProps = {
-  /** 幅の広い配置を使うか。 */
-  wide?: boolean;
   /** 送信中か。 */
   isPending: boolean;
   /** backdrop の押下で閉じるか。 */
@@ -21,7 +19,6 @@ type OpenDialogProps = {
 const OpenDialog = ({
   isPending,
   isDismissable,
-  wide,
 }: OpenDialogProps): ReactNode => {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -30,7 +27,6 @@ const OpenDialog = ({
       isDismissable={isDismissable}
       isOpen={isOpen}
       isPending={isPending}
-      layout={wide === true ? "wide" : undefined}
       onOpenChange={setIsOpen}
       title="削除の確認"
     >
@@ -47,21 +43,6 @@ describe("Dialog", () => {
     await userEvent.click(document.body);
 
     expect(screen.getByRole("dialog", { name: "削除の確認" })).toBeDefined();
-  });
-
-  test("広い Dialog は見出しを名前に持ち、送信中を除いて閉じるボタンで閉じられる", async () => {
-    const { rerender } = renderWithI18n(<OpenDialog isPending wide />, "ja");
-
-    const close = await screen.findByRole("button", { name: "閉じる" });
-    await userEvent.click(close);
-    expect(screen.getByRole("dialog", { name: "削除の確認" })).toBeDefined();
-    expect(
-      screen.getByRole("heading", { name: "削除の確認", level: 2 }),
-    ).toBeDefined();
-
-    rerender(<OpenDialog isPending={false} wide />);
-    await userEvent.click(close);
-    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   test("送信中でなければ、Escape で閉じる", async () => {

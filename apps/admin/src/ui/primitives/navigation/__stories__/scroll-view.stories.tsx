@@ -50,7 +50,7 @@ export const Vertical: Story = {
 };
 
 export const DialogInset: Story = {
-  args: { ...Horizontal.args, inset: "dialog" },
+  args: { ...Horizontal.args, inset: "modal" },
 };
 
 export const Fits: Story = { args: { children: <Text>1月の写真</Text> } };

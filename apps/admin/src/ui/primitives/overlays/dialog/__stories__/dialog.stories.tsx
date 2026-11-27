@@ -1,11 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { type ReactNode, useId, useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { Cluster, Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
-import { TextArea } from "@/ui/primitives/form-fields";
-import { Dialog, DialogActions, DialogSection } from "@/ui/primitives/overlays";
+import { Dialog } from "@/ui/primitives/overlays";
 
 /** `DeleteDialog` に渡す値。 */
 type DeleteDialogProps = {
@@ -82,83 +80,3 @@ export const LongName: Story = {
     name: "passkey-0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijkl",
   },
 };
-
-const statusStory = (status: "pending" | "success", title: string): Story => ({
-  /** 保存中か成功時の表示を開く。 */
-  render: function StatusDialog() {
-    const [open, setOpen] = useState(true);
-    return (
-      <Dialog
-        isOpen={open}
-        onOpenChange={setOpen}
-        status={status}
-        title={title}
-      />
-    );
-  },
-});
-
-export const Saving = statusStory("pending", "固定ページを保存しています");
-export const Saved = statusStory("success", "固定ページを更新しました。");
-
-const editorStory = (width?: "page"): Story => ({
-  /** 本文の幅を広く取った編集用の Dialog。 */
-  render: function EditDialog() {
-    const [open, setOpen] = useState(true);
-    const [description, setDescription] = useState("");
-    const formId = useId();
-
-    return (
-      <>
-        <Button
-          onPress={() => {
-            setOpen(true);
-          }}
-        >
-          説明を編集
-        </Button>
-        <Dialog
-          isOpen={open}
-          onOpenChange={setOpen}
-          title="説明を編集"
-          layout="wide"
-          width={width}
-          footer={{
-            start: (
-              <Text tone="muted" variant="caption">
-                {description.length} 文字
-              </Text>
-            ),
-            end: (
-              <DialogActions>
-                <Button form={formId} tone="primary" type="submit">
-                  完了
-                </Button>
-              </DialogActions>
-            ),
-          }}
-        >
-          <DialogSection>
-            <Form
-              id={formId}
-              onSubmit={() => {
-                setOpen(false);
-              }}
-            >
-              <TextArea
-                isRequired
-                label="説明"
-                name="description"
-                value={description}
-                onChange={setDescription}
-              />
-            </Form>
-          </DialogSection>
-        </Dialog>
-      </>
-    );
-  },
-});
-
-export const Wide: Story = editorStory();
-export const PageWidth: Story = editorStory("page");

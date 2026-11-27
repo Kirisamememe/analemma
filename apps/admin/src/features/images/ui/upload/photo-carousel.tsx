@@ -180,7 +180,7 @@ export const PhotoCarousel = ({
   return (
     <figure>
       <ScrollView
-        inset="dialog"
+        inset="modal"
         label={label}
         orientation="horizontal"
         viewportRef={attachRail}

@@ -17,7 +17,7 @@ import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
 import { Notice } from "@/ui/primitives/notice";
-import { Dialog, DialogActions, DialogSection } from "@/ui/primitives/overlays";
+import { Modal, ModalActions, ModalSection } from "@/ui/primitives/overlays";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 
 type PhotoUploadsProps = {
@@ -98,15 +98,14 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
       {dialog.isDragging && !dialog.isOpen && dialog.page && (
         <PhotoDropHint page={dialog.page} />
       )}
-      <Dialog
-        layout="wide"
+      <Modal
         isOpen={dialog.isOpen}
         onOpenChange={dialog.setOpen}
         isPending={dialog.metadata.isSaving}
         title={t("imageUpload.title")}
         footer={{
           end: dialog.selected && (
-            <DialogActions>
+            <ModalActions>
               <Button
                 tone="primary"
                 isPending={dialog.metadata.isSaving}
@@ -115,12 +114,12 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
               >
                 {t("imageUpload.finish")}
               </Button>
-            </DialogActions>
+            </ModalActions>
           ),
         }}
       >
         {dialog.isDragging && <PhotoDropHint />}
-        <DialogSection ref={attachPanel}>
+        <ModalSection ref={attachPanel}>
           <Stack gap={3}>
             <UploadFileInput
               onFiles={dialog.receive}
@@ -135,7 +134,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
               </Notice>
             )}
           </Stack>
-        </DialogSection>
+        </ModalSection>
         {dialog.selected && (
           <>
             <UploadCarousel
@@ -151,7 +150,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
                 imageHref={imageHref}
               />
             </UploadCarousel>
-            <DialogSection>
+            <ModalSection>
               <Stack gap={4}>
                 <SelectedFields
                   upload={dialog.selected}
@@ -170,10 +169,10 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
                   </div>
                 )}
               </Stack>
-            </DialogSection>
+            </ModalSection>
           </>
         )}
-      </Dialog>
+      </Modal>
       <UploadLeaveDialog leaving={dialog.leaving} />
       <UploadLeaveDialog
         leaving={dialog.discarding}

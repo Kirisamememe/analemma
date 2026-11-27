@@ -1,5 +1,8 @@
-export { Dialog, DialogSection } from "./dialog/dialog";
-export { DialogActions } from "./dialog-footer";
+export { Dialog } from "./dialog/dialog";
+export { StatusDialog } from "./dialog/status-dialog";
+export { Modal } from "./modal/modal";
+export { ModalActions } from "./modal/modal-actions";
+export { ModalSection } from "./modal/modal-section";
 export { FocusScope } from "./focus-scope";
 export { type ListBoxOption, ListBoxPopover } from "./list-box-popover";
 export { OverlayLayer } from "./overlay-layer";

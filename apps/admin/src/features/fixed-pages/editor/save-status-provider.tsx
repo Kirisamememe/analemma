@@ -6,7 +6,7 @@ import {
 } from "./hooks/save-status-context";
 
 import { useTranslate } from "@/i18n/use-translate";
-import { Dialog } from "@/ui/primitives/overlays";
+import { StatusDialog } from "@/ui/primitives/overlays";
 
 type SaveStatusProviderProps = {
   /** 固定ページの作成・編集画面を見分けるパスと検索条件。 */
@@ -35,7 +35,7 @@ export const SaveStatusProvider = ({
     <SaveStatusContext value={setStatus}>
       <div inert={status !== undefined}>{children}</div>
       {status !== undefined && (
-        <Dialog
+        <StatusDialog
           isOpen
           title={t(
             status === "pending"

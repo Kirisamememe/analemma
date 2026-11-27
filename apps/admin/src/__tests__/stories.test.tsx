@@ -78,6 +78,8 @@ import * as primitivesFocusScope from "@/ui/primitives/overlays/__stories__/focu
 import * as primitivesOverlayLayer from "@/ui/primitives/overlays/__stories__/overlay-layer.stories";
 import * as primitivesTooltip from "@/ui/primitives/overlays/__stories__/tooltip.stories";
 import * as primitivesDialog from "@/ui/primitives/overlays/dialog/__stories__/dialog.stories";
+import * as primitivesStatusDialog from "@/ui/primitives/overlays/dialog/__stories__/status-dialog.stories";
+import * as primitivesModal from "@/ui/primitives/overlays/modal/__stories__/modal.stories";
 import * as primitivesToast from "@/ui/primitives/overlays/toast/__stories__/toast.stories";
 import * as specimensColors from "@/ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "@/ui/specimens/__stories__/typography.stories";
@@ -186,6 +188,9 @@ const MODULES = {
     primitivesNavigationProgress,
   "ui/primitives/overlays/dialog/__stories__/dialog.stories.tsx":
     primitivesDialog,
+  "ui/primitives/overlays/dialog/__stories__/status-dialog.stories.tsx":
+    primitivesStatusDialog,
+  "ui/primitives/overlays/modal/__stories__/modal.stories.tsx": primitivesModal,
   "ui/primitives/overlays/__stories__/focus-scope.stories.tsx":
     primitivesFocusScope,
   "ui/primitives/overlays/__stories__/overlay-layer.stories.tsx":

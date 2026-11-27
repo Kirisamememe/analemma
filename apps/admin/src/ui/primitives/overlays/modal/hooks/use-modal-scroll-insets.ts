@@ -2,7 +2,7 @@ import { useCallback } from "react";
 
 const observe = (
   bar: HTMLElement | null,
-  property: "--dialog-header-height" | "--dialog-footer-height",
+  property: "--modal-header-height" | "--modal-footer-height",
 ) => {
   const dialog = bar?.parentElement;
 
@@ -23,14 +23,14 @@ const observe = (
 };
 
 /** 固定した見出しとフッターの実寸にスクロール先の余白を合わせる。 */
-export const useDialogScrollInsets = () => {
+export const useModalScrollInsets = () => {
   const attachHeader = useCallback(
-    (bar: HTMLElement | null) => observe(bar, "--dialog-header-height"),
+    (bar: HTMLElement | null) => observe(bar, "--modal-header-height"),
     [],
   );
 
   const attachFooter = useCallback(
-    (bar: HTMLElement | null) => observe(bar, "--dialog-footer-height"),
+    (bar: HTMLElement | null) => observe(bar, "--modal-footer-height"),
     [],
   );
 
