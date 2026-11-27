@@ -1,0 +1,109 @@
+{
+  "type": "diff",
+  "version": "10",
+  "dialect": "postgres",
+  "id": "28844136-b8d9-47c3-81fd-56a22e980888",
+  "prevIds": [
+    "41c3f281-9f9a-49cc-8010-2719d834e7da"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "image_status"
+      ],
+      "writes": [
+        "s|enum|public.image_status",
+        "n|enum|public.image_status",
+        "e|enum|public.image_status",
+        "n|type|public.image_status"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "image",
+        "status"
+      ],
+      "writes": [
+        "s|col|public.image.status",
+        "n|col|public.image.status",
+        "e|col|public.image.status"
+      ],
+      "reads": [
+        "n|tbl|public.image",
+        "n|sch|public",
+        "n|enum|public.image_status"
+      ]
+    },
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "image"
+      ],
+      "writes": [
+        "s|ck|public.image.image_published_at_check",
+        "n|ck|public.image.image_published_at_check",
+        "e|ck|public.image.image_published_at_check",
+        "n|con|public.image.image_published_at_check"
+      ],
+      "reads": [
+        "n|tbl|public.image",
+        "n|sch|public",
+        "n|col|public.image.status",
+        "n|col|public.image.published_at"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "image_status",
+        "values": [
+          "processing",
+          "failed",
+          "unpublished",
+          "published"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "image",
+        "name": "status",
+        "type": "image_status",
+        "typeSchema": "public",
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "image",
+        "name": "image_published_at_check",
+        "value": "(\"status\" = 'published') = (\"published_at\" is not null)",
+        "entityType": "checks"
+      }
+    }
+  ]
+}

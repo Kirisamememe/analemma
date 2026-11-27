@@ -12,7 +12,10 @@ import { SAMPLE_IMAGES } from "@/testing/sample-photos";
 
 const library = createImageRoutes(SAMPLE_IMAGES);
 const [cover] = library.images();
-const privateCover = library.images().find((image) => !image.published);
+
+const privateCover = library
+  .images()
+  .find((image) => image.status !== "published");
 
 const portrait = library.images().find((image) => image.title === "細い路地");
 

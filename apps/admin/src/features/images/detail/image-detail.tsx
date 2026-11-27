@@ -46,6 +46,7 @@ const ImageInfoContent = ({
   const t = useTranslate();
   const locale = useLocale();
   const name = image.title ?? t("imageDetail.untitled");
+  const isPublished = image.status === "published";
   const shot = toShotInfo(image, { locale, t });
 
   const texts = [
@@ -58,11 +59,9 @@ const ImageInfoContent = ({
       <Stack gap={2}>
         <Heading level={1}>{name}</Heading>
         <Cluster align="center" gap={2}>
-          <Badge tone={image.published ? "success" : "neutral"}>
+          <Badge tone={isPublished ? "success" : "neutral"}>
             {t(
-              image.published
-                ? "imageDetail.published"
-                : "imageDetail.unpublished",
+              isPublished ? "imageDetail.published" : "imageDetail.unpublished",
             )}
           </Badge>
           <Text as="span" tone="muted" variant="caption">

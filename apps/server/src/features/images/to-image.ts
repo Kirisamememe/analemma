@@ -2,10 +2,9 @@ import type { ContractOutputs } from "@analemma/contract";
 
 import { toDeliveryImagePath } from "@/features/images/delivery/delivery-image-path";
 import type { DeliveryImageRow } from "@/features/images/queries/delivery-images.query";
-import {
-  type findNeighborIds,
-  type ImageRow,
-  isPublished,
+import type {
+  findNeighborIds,
+  ImageRow,
 } from "@/features/images/queries/images.query";
 
 /** 管理画面に返す画像。 */
@@ -83,7 +82,7 @@ export const toAdminImage = (
 ): AdminImage => ({
   ...toImageDetails(row),
   deliveryImages: toDeliveryImages(deliveryImages),
-  published: isPublished(row),
+  status: row.status,
   publishedAt: row.publishedAt?.toISOString() ?? null,
   createdAt: row.createdAt.toISOString(),
   updatedAt: row.updatedAt.toISOString(),

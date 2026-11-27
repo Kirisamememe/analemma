@@ -117,9 +117,19 @@ export const publishedImageValue = z.discriminatedUnion("available", [
 /** 公開サイトが取得できたかを判別できる、画像の項目の値。 */
 export type PublishedImageValue = z.output<typeof publishedImageValue>;
 
+/** 画像の状態。 */
+export const imageStatus = z
+  .enum(["processing", "failed", "unpublished", "published"])
+  .describe(
+    "画像の状態。processing は変換中、failed は変換失敗、unpublished は非公開、published は公開。",
+  );
+
+/** 画像の状態の型。 */
+export type ImageStatus = z.output<typeof imageStatus>;
+
 /** 管理画面に返す画像。 */
 export const adminImage = imageDetails.extend({
-  published: z.boolean().describe("公開しているか。"),
+  status: imageStatus,
   publishedAt: z.iso
     .datetime({ offset: true })
     .nullable()

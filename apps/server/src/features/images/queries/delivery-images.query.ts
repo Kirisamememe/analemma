@@ -21,17 +21,17 @@ export const listDeliveryImages = async (
         .from(deliveryImage)
         .where(inArray(deliveryImage.imageId, [...imageIds]));
 
-/** 配信用の画像のファイルの名前と、その画像を公開した日時。 */
+/** 配信用の画像のファイルの名前と、その画像の状態。 */
 export type DeliveryImageFile = Pick<DeliveryImageRow, "fileKey"> &
-  Pick<ImageRow, "publishedAt">;
+  Pick<ImageRow, "status">;
 
-/** 画像の ID と幅で、配信用の画像のファイルの名前と、画像を公開した日時を引く。 */
+/** 画像の ID と幅で、配信用の画像のファイルの名前と、画像の状態を引く。 */
 export const findDeliveryImageFile = async (
   db: DatabaseExecutor,
   { imageId, width }: DeliveryImageTarget,
 ): Promise<DeliveryImageFile | undefined> => {
   const [row] = await db
-    .select({ fileKey: deliveryImage.fileKey, publishedAt: image.publishedAt })
+    .select({ fileKey: deliveryImage.fileKey, status: image.status })
     .from(deliveryImage)
     .innerJoin(image, eq(image.id, deliveryImage.imageId))
     .where(

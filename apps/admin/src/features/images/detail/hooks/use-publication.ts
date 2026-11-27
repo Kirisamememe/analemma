@@ -10,7 +10,7 @@ import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
 
 /** 画像の公開と非公開を切り替える操作を持つ。 */
 export const usePublication = (
-  image: Pick<AdminImage, "id" | "published">,
+  image: Pick<AdminImage, "id" | "status">,
   isDisabled: boolean,
 ) => {
   const t = useTranslate();
@@ -37,9 +37,10 @@ export const usePublication = (
       } else {
         await cache.applyChange(result.data, "publication");
 
-        const message = result.data.published
-          ? "imageDetail.publishDone"
-          : "imageDetail.unpublishDone";
+        const message =
+          result.data.status === "published"
+            ? "imageDetail.publishDone"
+            : "imageDetail.unpublishDone";
 
         showToast({ tone: "success", message: t(message) });
       }
@@ -65,7 +66,7 @@ export const usePublication = (
     toggle: (): void => {
       if (isDisabled) return;
 
-      if (image.published) dialog.open();
+      if (image.status === "published") dialog.open();
       else send(true);
     },
     /** 確かめたうえで非公開にする。 */

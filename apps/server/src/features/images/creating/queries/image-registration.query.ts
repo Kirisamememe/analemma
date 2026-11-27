@@ -22,6 +22,7 @@ export const insertImage = async (
     .insert(image)
     .values({
       ...shot,
+      status: "published",
       publishedAt: now,
       createdAt: now,
       updatedAt: now,

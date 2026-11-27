@@ -22,6 +22,7 @@ const image = {
   fNumber: null,
   exposureTime: null,
   iso: null,
+  status: "published" as const,
   publishedAt: date,
   createdAt: date,
   updatedAt: date,

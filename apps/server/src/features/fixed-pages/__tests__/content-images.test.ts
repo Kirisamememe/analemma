@@ -133,8 +133,8 @@ test("公開 API は画像を配信用の絶対 URL と一緒に返し、必須�
   const second = crypto.randomUUID();
   const dates = { createdAt: TEST_NOW, updatedAt: TEST_NOW };
   await connection.db.insert(image).values([
-    { id, ...dates },
-    { id: second, ...dates, publishedAt: TEST_NOW },
+    { id, ...dates, status: "unpublished" },
+    { id: second, ...dates, status: "published", publishedAt: TEST_NOW },
   ]);
   await connection.db.insert(deliveryImage).values({
     imageId: id,

@@ -40,7 +40,7 @@ test("非公開の画像は、確かめずにその場で公開し、詳細の�
   expect(result.current.isConfirming).toBe(false);
   await waitFor(() => {
     expect(app.queryClient.getQueryData(imageQueryKey(image.id))).toMatchObject(
-      { data: { published: true } },
+      { data: { status: "published" } },
     );
   });
 });
@@ -59,5 +59,5 @@ test("公開している画像は、確かめを開き、確かめてから非�
   await waitFor(() => {
     expect(result.current.isConfirming).toBe(false);
   });
-  expect(server.images()[0]?.published).toBe(false);
+  expect(server.images()[0]?.status).toBe("unpublished");
 });

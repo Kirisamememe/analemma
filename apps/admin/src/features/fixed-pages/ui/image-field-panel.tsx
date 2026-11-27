@@ -163,7 +163,7 @@ export const ImageFieldPanel = ({
       <div className="line-clamp-2 min-w-0" title={name}>
         <Text variant="label">{name}</Text>
       </div>
-      {!image.published && (
+      {image.status !== "published" && (
         <Badge tone="neutral" variant="soft">
           {t("images.unpublished")}
         </Badge>

@@ -35,11 +35,11 @@ describe("setPublication", () => {
 
     expect(await setPublication(api, { id, published: false })).toMatchObject({
       _tag: "Succeeded",
-      data: { published: false },
+      data: { status: "unpublished" },
     });
     expect(await setPublication(api, { id, published: true })).toMatchObject({
       _tag: "Succeeded",
-      data: { published: true },
+      data: { status: "published" },
     });
     expect(
       await setPublication(api, { id: MISSING_ID, published: true }),

@@ -23,6 +23,7 @@ export const PublicationButton = ({
 }: PublicationButtonProps): ReactNode => {
   const t = useTranslate();
   const publication = usePublication(image, isDisabled);
+  const isPublished = image.status === "published";
 
   return (
     <>
@@ -30,9 +31,9 @@ export const PublicationButton = ({
         size="sm-to-md"
         isPending={publication.isPending && !publication.isConfirming}
         onPress={publication.toggle}
-        tone={image.published ? "secondary" : "primary"}
+        tone={isPublished ? "secondary" : "primary"}
       >
-        {t(image.published ? "imageDetail.unpublish" : "imageDetail.publish")}
+        {t(isPublished ? "imageDetail.unpublish" : "imageDetail.publish")}
       </Button>
       <Dialog
         isOpen={publication.isConfirming}

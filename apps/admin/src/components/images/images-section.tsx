@@ -125,7 +125,7 @@ const GalleryImageContent = ({
     <ImageTile
       singleChoice={singleChoice}
       alt={image.alt}
-      badge={image.published ? undefined : t("images.unpublished")}
+      badge={image.status === "published" ? undefined : t("images.unpublished")}
       date={
         image.takenAt === null
           ? undefined

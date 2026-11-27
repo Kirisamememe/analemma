@@ -11,7 +11,7 @@ test("公開と本文の応答が前後しても、双方の変更と新しい�
 
   const published = {
     ...original,
-    published: true,
+    status: "published" as const,
     publishedAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
   };
@@ -25,7 +25,7 @@ test("公開と本文の応答が前後しても、双方の変更と新しい�
 
   const expected = {
     ...edited,
-    published: published.published,
+    status: published.status,
     publishedAt: published.publishedAt,
   };
 

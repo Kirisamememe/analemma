@@ -72,7 +72,7 @@ describe("表示中の画像への操作", () => {
     );
     await screen.findByRole("dialog");
     await act(async () => {
-      response.resolve({ output: { ...first, published: true } });
+      response.resolve({ output: { ...first, status: "published" } });
       await response.promise;
     });
     await userEvent.click(
@@ -81,7 +81,7 @@ describe("表示中の画像への操作", () => {
       }),
     );
     await screen.findByRole("button", { name: "公開する" });
-    expect(server.images()[0]?.published).toBe(false);
+    expect(server.images()[0]?.status).toBe("unpublished");
   });
 
   test("削除の応答を待つ間に写真を往復しても、削除をもう一度送れない", async () => {
@@ -178,7 +178,7 @@ describe("表示中の画像への操作", () => {
     await screen.findByRole("button", { name: "公開する" });
     expect(server.images()[1]).toMatchObject({
       id: second.id,
-      published: false,
+      status: "unpublished",
       title: "湖",
     });
     await userEvent.click(remove);

@@ -133,7 +133,7 @@ describe("写真を送って画像を作る", () => {
       description: null,
       alt: null,
       iso: 102_400,
-      published: true,
+      status: "published",
       publishedAt: TEST_NOW.toISOString(),
     });
     expect((await server.client.admin.images.list({})).images).toEqual([image]);

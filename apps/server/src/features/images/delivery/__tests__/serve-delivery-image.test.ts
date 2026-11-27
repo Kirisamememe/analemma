@@ -40,6 +40,7 @@ const insertDeliveredImage = async (
   const [row] = await connection.db
     .insert(image)
     .values({
+      status: published ? "published" : "unpublished",
       publishedAt: published ? TEST_NOW : null,
       createdAt: TEST_NOW,
       updatedAt: TEST_NOW,

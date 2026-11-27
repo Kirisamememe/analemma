@@ -276,7 +276,7 @@ describe("ImageViewerPage", () => {
       within(dialog).getByRole("button", { name: "キャンセル" }),
     );
     expect(calls).not.toContain("admin/images/unpublish");
-    expect(server.images()[0]?.published).toBe(true);
+    expect(server.images()[0]?.status).toBe("published");
     await userEvent.click(screen.getByRole("button", { name: "非公開にする" }));
     await userEvent.click(
       within(await screen.findByRole("dialog")).getByRole("button", {
@@ -288,7 +288,7 @@ describe("ImageViewerPage", () => {
       within(screen.getByRole("complementary")).getByText("非公開"),
     ).toBeDefined();
     expect(screen.getByRole("button", { name: "公開する" })).toBeDefined();
-    expect(server.images()[0]?.published).toBe(false);
+    expect(server.images()[0]?.status).toBe("unpublished");
   });
 
   test("読み込んだ最後の写真を削除すると、一覧に戻って削除を知らせ、続きを読める", async () => {

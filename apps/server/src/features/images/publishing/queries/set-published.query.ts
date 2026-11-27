@@ -21,11 +21,14 @@ export const setPublished = async (
 ): Promise<ImageRow | undefined> => {
   const [row] = await db
     .update(image)
-    .set({
-      publishedAt: published
-        ? sql`coalesce(${image.publishedAt}, ${now})`
-        : null,
-    })
+    .set(
+      published
+        ? {
+            status: "published",
+            publishedAt: sql`coalesce(${image.publishedAt}, ${now})`,
+          }
+        : { status: "unpublished", publishedAt: null },
+    )
     .where(eq(image.id, id))
     .returning();
 
