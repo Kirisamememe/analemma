@@ -1,24 +1,21 @@
 import type { ReactNode } from "react";
 
+import { KindExample } from "./kind-example";
+
 import { useTranslate } from "@/i18n/use-translate";
 import { Heading, Stack, Text } from "@/ui/layout";
 import { Icon } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
-
-const PUSH_KINDS_COMMAND = "analemma push-kinds ./src/lib/kinds.ts";
 
 const guide = tv({
   slots: {
     panel: "rounded-surface bg-info/10 p-4",
     title: "flex items-start gap-2",
     icon: "inline-flex h-6 shrink-0 items-center text-info",
-    summary:
-      "w-fit cursor-pointer rounded-control text-info outline-hidden focus-visible:focus-ring",
-    instructions: "pt-2",
   },
 });
 
-const { panel, title, icon, summary, instructions } = guide();
+const { panel, title, icon } = guide();
 
 /** 固定ページの種類を公開サイトから追加する方法。 */
 export const KindGuide = (): ReactNode => {
@@ -34,25 +31,7 @@ export const KindGuide = (): ReactNode => {
           <Heading level={2}>{t("fixedPageEditor.addKindTitle")}</Heading>
         </div>
         <Text>{t("fixedPageEditor.addKindSummary")}</Text>
-        <details>
-          <summary className={summary()}>
-            <Text as="span" variant="label">
-              {t("fixedPageEditor.addKindExample")}
-            </Text>
-          </summary>
-          <div className={instructions()}>
-            <Stack gap={2}>
-              <Text tone="muted">{t("fixedPageEditor.defineKind")}</Text>
-              <Text tone="muted">{t("fixedPageEditor.deployKind")}</Text>
-              <Text>
-                <code>{PUSH_KINDS_COMMAND}</code>
-              </Text>
-              <Text tone="muted">
-                {t("fixedPageEditor.refreshAfterDeploy")}
-              </Text>
-            </Stack>
-          </div>
-        </details>
+        <KindExample />
       </Stack>
     </aside>
   );
