@@ -14,7 +14,7 @@ import { Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Notice } from "@/ui/primitives/notice";
 
-/** 編集のフォームの全体に渡す値。 */
+/** 作成と編集のフォームの全体に渡す値。 */
 type EditorContentProps = {
   /** 編集する固定ページと種類。 */
   pageProps: FixedPageEditorProps;
@@ -84,5 +84,5 @@ const Content = ({
   );
 };
 
-/** 見出し・知らせ・欄と、離れる前の確かめを並べた、編集のフォームの全体。 */
+/** 見出し・知らせ・欄と、離れる前の確かめを並べた、作成と編集のフォームの全体。 */
 export const EditorContent = memo(Content);

@@ -25,7 +25,7 @@ test("追加のボタンへの枝には、補足を読み上げに伝える欄�
   expect(screen.getByRole("status").textContent).toBe("");
 });
 
-test("見出しや要素への枝には、補足の欄を置かない", () => {
+test("要素への枝には、補足の欄を置かない", () => {
   render(
     <Branch parent="group" target="item">
       <p>名前</p>
