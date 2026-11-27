@@ -14,6 +14,7 @@ const show = (): void => undefined;
 const meta = {
   title: "features/images/UploadProblem",
   component: UploadProblem,
+  parameters: { contentLang: null },
   args: { problem },
 } satisfies Meta<typeof UploadProblem>;
 
