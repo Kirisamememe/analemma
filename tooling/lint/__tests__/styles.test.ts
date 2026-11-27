@@ -126,6 +126,7 @@ describe("管理画面の部品の class", () => {
     ["ui/patterns/photos/image-radio.tsx", [4]],
     ["features/images/ui/upload/photo-drop-hint.tsx", [3, 3, 4, 4, 4]],
     ["ui/primitives/form-fields/choices/checkbox-input.tsx", [3]],
+    ["ui/layout/media-layout.ts", [2, 2, 5, 9, 9]],
   ] as const)(
     "装飾の枠や許可した状態以外の線を %s で止めること",
     (path, lines) => {
@@ -133,7 +134,7 @@ describe("管理画面の部品の class", () => {
       expect(
         result.diagnostics
           .filter(({ message }) =>
-            message.startsWith("枠は用途を決めた共通部品"),
+            message.startsWith("線は、写真や色の面と色が喧嘩しない"),
           )
           .map(({ line }) => line)
           .toSorted((a, b) => a - b),

@@ -18,7 +18,7 @@ const sideNav = tv({
     topBar: [
       "sticky top-0 z-sticky h-nav-bar shrink-0 items-center gap-2",
       "bg-surface-sunken px-3",
-      "after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:border-b",
+      "after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:separator-b",
       "flex md:hidden",
     ],
   },

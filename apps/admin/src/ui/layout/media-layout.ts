@@ -7,8 +7,8 @@ export const mediaLayout = tv({
     stage:
       "relative flex items-center justify-center md:min-h-0 md:min-w-0 md:grow md:p-6",
     panel: [
-      "flex flex-col gap-6 border-t bg-surface p-6",
-      "md:w-88 md:shrink-0 md:overflow-y-auto md:border-t-0 md:border-l",
+      "flex flex-col gap-6 separator-t bg-surface p-6",
+      "md:w-88 md:shrink-0 md:overflow-y-auto md:separator-s",
     ],
   },
 })();

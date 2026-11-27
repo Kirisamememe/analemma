@@ -12,6 +12,32 @@ const OUTLINE_UTILITIES = new Set([
   "focus-ring-current",
 ]);
 
+const SEPARATOR_COLOR = "color-mix(in oklab, var(--color-fg) 18%, transparent)";
+
+const EDGE_UTILITIES: Readonly<
+  Record<string, Readonly<Record<string, string>>>
+> = {
+  "edge-outer": {
+    outline: "1px solid color-mix(in oklab, var(--color-fg) 10%, transparent)",
+  },
+  "separator-t": {
+    border: `0 solid ${SEPARATOR_COLOR}`,
+    "border-block-start-width": "1px",
+  },
+  "separator-b": {
+    border: `0 solid ${SEPARATOR_COLOR}`,
+    "border-block-end-width": "1px",
+  },
+  "separator-s": {
+    border: `0 solid ${SEPARATOR_COLOR}`,
+    "border-inline-start-width": "1px",
+  },
+  "separator-e": {
+    border: `0 solid ${SEPARATOR_COLOR}`,
+    "border-inline-end-width": "1px",
+  },
+};
+
 const utilityOf = (node: ChildNode): string | undefined => {
   const parent = node.parent;
 
@@ -39,6 +65,15 @@ const violations = (source: string, file: string): string[] => {
       }
 
       const rule = decl.parent;
+
+      if (
+        owner !== undefined &&
+        rule instanceof AtRule &&
+        rule.name === "utility" &&
+        EDGE_UTILITIES[owner]?.[decl.prop] === decl.value
+      ) {
+        return;
+      }
 
       if (owner === "drop-target" && rule instanceof AtRule) {
         if (
@@ -123,4 +158,13 @@ test("ドロップ先に装飾の border や別の輪郭を足すと検出する
       THEME,
     ),
   ).toEqual([`${THEME}:1 border`, `${THEME}:1 outline-color`]);
+});
+
+test("区切りや縁の utility に、決めた色と幅のほかの線を足すと検出する", () => {
+  expect(
+    violations(
+      "@utility separator-b { border: 0 solid var(--color-line); border-block-end-width: 1px; outline: 1px solid; }",
+      THEME,
+    ),
+  ).toEqual([`${THEME}:1 border`, `${THEME}:1 outline`]);
 });

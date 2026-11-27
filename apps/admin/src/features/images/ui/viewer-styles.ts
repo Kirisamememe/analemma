@@ -8,7 +8,7 @@ const viewer = tv({
       "sticky top-0 z-sticky short-viewport:static",
       "flex min-h-nav-bar shrink-0 flex-wrap items-center justify-between",
       "gap-x-3 gap-y-2 py-2",
-      "border-b bg-surface px-4 @max-xs:px-1.5",
+      "separator-b bg-surface px-4 @max-xs:px-1.5",
     ],
     actions: [
       "ml-auto flex max-w-full flex-wrap items-center justify-end",
