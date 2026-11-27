@@ -116,7 +116,7 @@ export const ConversionFailed: Story = {
         badgeTone="danger"
         href="/"
         images={[]}
-        missing="写真を読み取れませんでした"
+        missing="読み取れませんでした"
         title={null}
         untitled="無題"
       />

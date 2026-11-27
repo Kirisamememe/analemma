@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 
-import { useShowToast } from "@/ui/primitives/overlays/hooks/use-show-toast";
+import { useShowToast } from "@/ui/primitives/overlays/toast/hooks/use-show-toast";
 
 /** 対象の id ごとに、失敗の Toast を出す関数と、最後に出したものを閉じる関数を返す。 */
 export const useFailureToast = (id?: string) => {

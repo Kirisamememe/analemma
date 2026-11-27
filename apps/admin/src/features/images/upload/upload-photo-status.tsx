@@ -15,6 +15,7 @@ import { Cluster, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
 import { Link } from "@/ui/primitives/navigation";
+import { Tooltip } from "@/ui/primitives/overlays";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 
 type UploadPhotoStatusProps = {
@@ -77,19 +78,21 @@ export const UploadPhotoStatus = ({
           </Text>
         )}
         {action !== "none" && (
-          <Button
-            size="sm"
-            isDisabled={isSaving}
-            isPending={action === "pending"}
-            aria-label={t("imageUpload.retryPhoto", {
-              name: upload.file.name,
-            })}
-            onPress={() => {
-              retry(upload.id);
-            }}
-          >
-            {t("imageUpload.retry")}
-          </Button>
+          <Tooltip label={t("imageUpload.retry")}>
+            <Button
+              size="sm"
+              tone="quiet"
+              icon="rotate-cw"
+              isDisabled={isSaving}
+              isPending={action === "pending"}
+              aria-label={t("imageUpload.retryPhoto", {
+                name: upload.file.name,
+              })}
+              onPress={() => {
+                retry(upload.id);
+              }}
+            />
+          </Tooltip>
         )}
       </Cluster>
     </div>

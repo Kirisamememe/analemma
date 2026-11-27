@@ -14,7 +14,7 @@ import { Icon } from "@/ui/primitives/graphics";
 import {
   ShowToastContext,
   type ToastMessage,
-} from "@/ui/primitives/overlays/toast-context";
+} from "@/ui/primitives/overlays/toast/toast-context";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 

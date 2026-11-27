@@ -82,7 +82,7 @@ describe("ImagesSection", () => {
     const names = await linkNames();
 
     expect(names[0]).toBe("表示用の画像を作っています新しい写真変換中");
-    expect(names[1]).toBe("写真を読み取れませんでした壊れた写真変換失敗");
+    expect(names[1]).toBe("読み取れませんでした壊れた写真変換失敗");
     expect(names[2]).toBe("夕暮れの稜線");
 
     const [converting] = server.images();

@@ -289,10 +289,10 @@ export const en = {
   "images.converting": "Converting",
   "images.conversionFailed": "Conversion failed",
   "images.convertingImage": "Creating the display image",
-  "images.unreadable": "This photo could not be read",
+  "images.unreadable": "Unreadable photo",
   "images.unreadableDetail":
     "This photo could not be read. The file is damaged or in an unsupported format. Delete it and add another file.",
-  "images.interrupted": "A server problem stopped the conversion",
+  "images.interrupted": "Conversion interrupted",
   "images.interruptedDetail":
     "A server problem stopped the conversion. Delete it and add the photo again.",
   "images.loadMore": "Load more",

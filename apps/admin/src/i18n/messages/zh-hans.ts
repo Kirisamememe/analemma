@@ -270,10 +270,10 @@ export const zhHans = {
   "images.converting": "转换中",
   "images.conversionFailed": "转换失败",
   "images.convertingImage": "正在生成显示用图片",
-  "images.unreadable": "无法读取这张照片",
+  "images.unreadable": "无法读取",
   "images.unreadableDetail":
     "无法读取这张照片。文件已损坏，或格式不受支持。请删除后添加其他文件。",
-  "images.interrupted": "服务器出现问题，未能完成转换",
+  "images.interrupted": "转换中断",
   "images.interruptedDetail":
     "服务器出现问题，未能完成转换。请删除后重新添加。",
   "images.loadMore": "加载更多",

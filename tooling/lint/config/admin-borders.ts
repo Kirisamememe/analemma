@@ -53,7 +53,7 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     "border-current",
     "border-t-transparent",
   ],
-  "ui/primitives/overlays/toast.tsx": ["border", "border-transparent"],
+  "ui/primitives/overlays/toast/toast.tsx": ["border", "border-transparent"],
   "ui/primitives/navigation/scroll-view.tsx": ["forced-colors:after:border-2"],
   "ui/primitives/collections/reorderable-list.tsx": [
     "after:outline",

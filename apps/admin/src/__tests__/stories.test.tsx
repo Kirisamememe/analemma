@@ -77,7 +77,8 @@ import * as primitivesScrollView from "@/ui/primitives/navigation/__stories__/sc
 import * as primitivesDialog from "@/ui/primitives/overlays/__stories__/dialog.stories";
 import * as primitivesFocusScope from "@/ui/primitives/overlays/__stories__/focus-scope.stories";
 import * as primitivesOverlayLayer from "@/ui/primitives/overlays/__stories__/overlay-layer.stories";
-import * as primitivesToast from "@/ui/primitives/overlays/__stories__/toast.stories";
+import * as primitivesTooltip from "@/ui/primitives/overlays/__stories__/tooltip.stories";
+import * as primitivesToast from "@/ui/primitives/overlays/toast/__stories__/toast.stories";
 import * as specimensColors from "@/ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "@/ui/specimens/__stories__/typography.stories";
 
@@ -188,7 +189,8 @@ const MODULES = {
     primitivesFocusScope,
   "ui/primitives/overlays/__stories__/overlay-layer.stories.tsx":
     primitivesOverlayLayer,
-  "ui/primitives/overlays/__stories__/toast.stories.tsx": primitivesToast,
+  "ui/primitives/overlays/toast/__stories__/toast.stories.tsx": primitivesToast,
+  "ui/primitives/overlays/__stories__/tooltip.stories.tsx": primitivesTooltip,
   "ui/specimens/__stories__/colors.stories.ts": specimensColors,
   "ui/specimens/__stories__/typography.stories.ts": specimensTypography,
 };

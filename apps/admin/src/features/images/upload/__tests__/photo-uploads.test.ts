@@ -299,13 +299,9 @@ test("server の都合で変換を終えられなかった写真は送り直せ�
 
   server.convert(failed?.id ?? "", { status: "interrupted" });
   expect(
-    await uploads.findByText(
-      "サーバーの問題で変換できませんでした",
-      undefined,
-      {
-        timeout: 4000,
-      },
-    ),
+    await uploads.findByText("変換できませんでした", undefined, {
+      timeout: 4000,
+    }),
   ).toBeDefined();
 
   await userEvent.click(

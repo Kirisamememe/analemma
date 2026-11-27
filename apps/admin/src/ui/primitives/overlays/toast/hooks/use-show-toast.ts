@@ -3,7 +3,7 @@ import { useContext } from "react";
 import {
   type ShowToast,
   ShowToastContext,
-} from "@/ui/primitives/overlays/toast-context";
+} from "@/ui/primitives/overlays/toast/toast-context";
 
 /** Toast を出す関数を返す hook。 */
 export const useShowToast = (): ShowToast => {
