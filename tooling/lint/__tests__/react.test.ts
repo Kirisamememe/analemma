@@ -110,3 +110,27 @@ describe("1ファイルに component を1つ", () => {
     expect(multipleComponentsIn(file)).toBe(0);
   });
 });
+
+test("React の書き方をそろえるルールが、当たる書き方ごとに診断を出すこと", () => {
+  const { diagnostics } = lintFixture(
+    "invalid/apps/admin/src/ui/patterns/strict-react.tsx",
+  );
+
+  const codes = new Set(diagnostics.map(({ code }) => code));
+
+  expect(
+    [
+      "function-component-definition",
+      "jsx-boolean-value",
+      "jsx-curly-brace-presence",
+      "jsx-fragments",
+      "jsx-max-depth",
+      "jsx-no-literals",
+      "no-clone-element",
+      "no-react-children",
+      "no-unknown-property",
+      "prefer-function-component",
+      "self-closing-comp",
+    ].filter((rule) => !codes.has(`react(${rule})`)),
+  ).toEqual([]);
+});

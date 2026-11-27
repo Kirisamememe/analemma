@@ -1,4 +1,4 @@
-import { Children, type ReactNode, type Ref } from "react";
+import type { ReactNode, Ref } from "react";
 
 import { tv } from "@/ui/tv";
 
@@ -31,16 +31,18 @@ type ModalFooterProps = ModalFooterSlots & {
   ref?: Ref<HTMLDivElement>;
 };
 
+const isRendered = (node: ReactNode): boolean =>
+  node !== null && node !== undefined && typeof node !== "boolean";
+
 /** 左右を独立して使える、モーダルの下端の帯。 */
 export const ModalFooter = ({
   start,
   end,
   ref,
 }: ModalFooterProps): ReactNode => {
-  const left = Children.toArray(start);
-  const right = Children.toArray(end);
-
-  const isFilled = left.length > 0 || right.length > 0;
+  const hasStart = isRendered(start);
+  const hasEnd = isRendered(end);
+  const isFilled = hasStart || hasEnd;
   const { container, slot } = footer({ isFilled });
 
   return (
@@ -49,10 +51,8 @@ export const ModalFooter = ({
       ref={ref}
       role={isFilled ? "contentinfo" : undefined}
     >
-      {left.length > 0 && <div className={slot()}>{left}</div>}
-      {right.length > 0 && (
-        <div className={slot({ className: "ms-auto" })}>{right}</div>
-      )}
+      {hasStart && <div className={slot()}>{start}</div>}
+      {hasEnd && <div className={slot({ className: "ms-auto" })}>{end}</div>}
     </div>
   );
 };

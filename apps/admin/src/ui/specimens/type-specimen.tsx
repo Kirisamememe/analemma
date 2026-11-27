@@ -28,7 +28,7 @@ export const TypeSpecimen = ({
       <div className="flex flex-col gap-1" key={role}>
         <dt>
           <Text tone="muted" variant="caption">
-            {role}({typography({ role })})
+            {`${role}(${typography({ role })})`}
           </Text>
         </dt>
         <dd className={typography({ role })} lang={lang}>

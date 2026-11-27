@@ -152,6 +152,14 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     rules: { "react/no-multi-comp": "error" },
   },
   {
+    files: ["**/apps/admin/src/**/*.tsx"],
+    rules: { "react/jsx-no-literals": "error" },
+  },
+  {
+    files: ["**/apps/admin/src/testing/**"],
+    rules: { "react/jsx-no-literals": "off" },
+  },
+  {
     files: [
       "**/apps/admin/src/features/**/*.ts",
       "**/apps/admin/src/features/**/*.tsx",
@@ -171,6 +179,7 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     files: ["**/apps/admin/src/**/__stories__/**"],
     rules: {
       "project/require-sibling-test": "off",
+      "react/jsx-no-literals": "off",
       "react/no-multi-comp": "off",
     },
   },
@@ -186,6 +195,7 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
         },
         globals: [],
       }),
+      "react/jsx-no-literals": "off",
       "react/no-multi-comp": "off",
     },
   },
