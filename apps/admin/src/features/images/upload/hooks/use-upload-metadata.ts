@@ -73,6 +73,18 @@ export const useUploadMetadata = (
     setError(undefined);
   }, [entries]);
 
+  const forgetSaved = useCallback(
+    (id: number) => {
+      const current = entries.read();
+      const entry = current.get(id);
+
+      if (entry) {
+        entries.set(new Map(current).set(id, { ...entry, saved: EMPTY }));
+      }
+    },
+    [entries],
+  );
+
   const hasChanges = (id: number): boolean => {
     const entry = entries.read().get(id);
     return entry !== undefined && FIELDS.some((field) => changed(entry, field));
@@ -151,7 +163,9 @@ export const useUploadMetadata = (
     for (const { id, imageId, status } of uploads) {
       const entry = entries.read().get(id);
 
-      if (entry === undefined || status !== "added" || imageId === undefined) {
+      const isRegistered = status === "added" || status === "converting";
+
+      if (entry === undefined || !isRegistered || imageId === undefined) {
         continue;
       }
 
@@ -203,6 +217,7 @@ export const useUploadMetadata = (
     draft: (id: number) => entries.read().get(id)?.values ?? EMPTY,
     change,
     finish,
+    forgetSaved,
     hasChanges,
     isDirty: () => uploads.some(({ id }) => hasChanges(id)),
     error,

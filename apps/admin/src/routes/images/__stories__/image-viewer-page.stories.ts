@@ -65,6 +65,24 @@ export const Portrait = atPath(pathOf(1));
 export const Unpublished = atPath(pathOf(6));
 export const NoDeliveryImage = atPath(pathOf(7));
 
+const withStatus = (
+  status: "processing" | "unreadable" | "interrupted",
+): Story => ({
+  args: {
+    path: pathOf(7),
+    createRoutes: () =>
+      createImageRoutes(
+        SAMPLE_IMAGES.map((seed, index) =>
+          index === 7 ? { ...seed, status } : seed,
+        ),
+      ).routes,
+  },
+});
+
+export const Converting = withStatus("processing");
+export const Unreadable = withStatus("unreadable");
+export const Interrupted = withStatus("interrupted");
+
 const withReplies = (overrides: FakeRoutes): Story => ({
   args: {
     createRoutes: () => ({

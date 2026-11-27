@@ -38,7 +38,3 @@ export const setPublication = (
       : api.admin.images.unpublish({ id }),
     ["NOT_FOUND"],
   );
-
-/** 画像を削除する。 */
-export const deleteImage = (api: ApiClient, id: string) =>
-  callApi(api.admin.images.delete({ id }), ["NOT_FOUND"]);

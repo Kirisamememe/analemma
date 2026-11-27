@@ -14,14 +14,14 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     "is-invalid:border-danger",
     "not-forced-colors:is-invalid:outline-danger",
   ],
-  "ui/primitives/form-fields/choices/checkbox-input.tsx": [
+  "ui/primitives/form-fields/choices/checkbox-control.tsx": [
     "border",
     "border-line-strong",
     "group-is-selected:border-primary",
     "group-is-invalid:border-danger",
     "not-forced-colors:group-is-invalid:outline-danger",
   ],
-  "ui/primitives/form-fields/number-field.tsx": ["border-s"],
+  "ui/primitives/form-fields/number/step-button.tsx": ["border-s"],
   "ui/primitives/button.tsx": [
     "border",
     "border-transparent",
@@ -40,8 +40,8 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     "border-current",
     "forced-colors:outline",
   ],
-  "ui/patterns/empty-state.tsx": ["border", "border-dashed"],
-  "ui/patterns/error-state.tsx": ["border"],
+  "ui/patterns/states/empty-state.tsx": ["border", "border-dashed"],
+  "ui/patterns/states/error-state.tsx": ["border"],
   "features/fixed-pages/ui/content-group.tsx": [
     "border-2",
     "border-s-2",
@@ -53,7 +53,7 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     "border-current",
     "border-t-transparent",
   ],
-  "ui/primitives/overlays/toast.tsx": ["border", "border-transparent"],
+  "ui/primitives/overlays/toast/toast.tsx": ["border", "border-transparent"],
   "ui/primitives/navigation/scroll-view.tsx": ["forced-colors:after:border-2"],
   "ui/primitives/collections/reorderable-list.tsx": [
     "after:outline",

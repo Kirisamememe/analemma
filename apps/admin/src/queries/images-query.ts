@@ -1,4 +1,5 @@
 import type { ApiClient, ApiOutputs } from "@/api/api-types";
+import type { LoadedImage } from "@/queries/image-query";
 
 /** 画像の一覧の、query のキー。 */
 export const IMAGES_QUERY_KEY = ["admin", "images", "list"] as const;
@@ -43,3 +44,32 @@ export const prependImage =
       images: page.images.toSpliced(at < 0 ? page.images.length : at, 0, image),
     };
   };
+
+/** 読み込んだ変換中の画像のうち、いちばん先に受け取った画像の ID を返す。 */
+export const findNextConverting = (
+  pages: readonly Record<
+    "images",
+    readonly Pick<ImageSummary, "id" | "status">[]
+  >[],
+): string | null => {
+  const ids = pages.flatMap(({ images }) =>
+    images.flatMap(({ id, status }) => (status === "processing" ? [id] : [])),
+  );
+
+  return ids.toSorted().at(0) ?? null;
+};
+
+/** 取り直した変換中の画像の結果から、読み込んだ一覧のその画像を書き換える関数を作る。 */
+export const settleListedImage = (id: string, loaded: LoadedImage) => {
+  if (loaded._tag === "Failed") return updateImagePage(id);
+
+  const { status, publishedAt, deliveryImages } = loaded.data;
+
+  return status === "processing"
+    ? undefined
+    : updateImagePage(id, (listed) =>
+        listed.status === "processing"
+          ? { ...listed, status, publishedAt, deliveryImages }
+          : listed,
+      );
+};

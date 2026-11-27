@@ -55,3 +55,33 @@ export const Failed: Story = {
 export const Retrying: Story = {
   args: { upload: { ...photo, status: "sending", retried: true } },
 };
+
+export const Converting: Story = {
+  args: {
+    upload: {
+      ...photo,
+      status: "converting",
+      imageId: "014627ab-cbae-4e41-ae26-048237da5a65",
+    },
+  },
+};
+
+export const Unreadable: Story = {
+  args: {
+    upload: {
+      ...photo,
+      status: "unreadable",
+      imageId: "014627ab-cbae-4e41-ae26-048237da5a65",
+    },
+  },
+};
+
+export const Interrupted: Story = {
+  args: {
+    upload: {
+      ...photo,
+      status: "interrupted",
+      imageId: "014627ab-cbae-4e41-ae26-048237da5a65",
+    },
+  },
+};

@@ -2,7 +2,9 @@ import type { ReactNode, Ref } from "react";
 import { TextField as AriaTextField } from "react-aria-components";
 
 import { fieldRoot } from "./field-control";
-import { FieldDescription, FieldErrorMessage, FieldLabel } from "./field-parts";
+import { FieldDescription } from "./parts/field-description";
+import { FieldErrorMessage } from "./parts/field-error-message";
+import { FieldLabel } from "./parts/field-label";
 import { TextInput } from "./text-input";
 
 /** 1行の入力欄に渡す値。 */

@@ -54,6 +54,8 @@ type ImageViewerProps = {
   alt: string;
   /** 配信用の画像が無いときに出す文言。 */
   missing: string;
+  /** 配信用の画像ができるのを待っているか。 */
+  isPending?: boolean | undefined;
   /** 前の画像へのリンク。 */
   previous?: Neighbor | undefined;
   /** 次の画像へのリンク。 */
@@ -141,6 +143,7 @@ export const ImageViewer = ({
   images,
   alt,
   missing,
+  isPending = false,
   previous,
   next,
   onSwipe,
@@ -168,10 +171,10 @@ export const ImageViewer = ({
         onPointerCancel={handlers.onPointerCancel}
       >
         {smallest === undefined || largest === undefined ? (
-          <div className={style.missing()}>
-            <Icon name="image-off" size="xl" />
+          <output className={style.missing()}>
+            {isPending ? <Spinner /> : <Icon name="image-off" size="xl" />}
             <Text as="span">{missing}</Text>
-          </div>
+          </output>
         ) : (
           <ViewerPhoto
             alt={alt}

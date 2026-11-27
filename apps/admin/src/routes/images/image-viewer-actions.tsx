@@ -9,6 +9,7 @@ import { DeleteImage } from "@/features/images/detail/delete-image";
 import { EditImage } from "@/features/images/detail/edit-image";
 import { PublicationButton } from "@/features/images/detail/publication-button";
 import { ViewerActions } from "@/features/images/ui/viewer-visit";
+import { isConverted } from "@/queries/image-query";
 
 type Image = ApiOutputs["admin"]["images"]["get"];
 
@@ -52,7 +53,9 @@ const ImageActionButtonsContent = ({
   return (
     <ViewerActions disabled={isDisabled}>
       <EditImage image={image} isDisabled={isDisabled} />
-      <PublicationButton image={image} isDisabled={isDisabled} />
+      {isConverted(image) && (
+        <PublicationButton image={image} isDisabled={isDisabled} />
+      )}
       <DeleteImage
         id={image.id}
         name={name}

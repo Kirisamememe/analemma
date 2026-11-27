@@ -7,6 +7,7 @@ import {
   formatFileSize,
   retryAction,
   toProgressTone,
+  toStatusLabel,
 } from "./logic/upload-view";
 
 import { useLocale, useTranslate } from "@/i18n/use-translate";
@@ -14,6 +15,7 @@ import { Cluster, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
 import { Link } from "@/ui/primitives/navigation";
+import { Tooltip } from "@/ui/primitives/overlays";
 import type { AppHref } from "@/ui/primitives/ui-provider";
 
 type UploadPhotoStatusProps = {
@@ -63,22 +65,34 @@ export const UploadPhotoStatus = ({
             ? t("imageUpload.status.too-large", {
                 limit: formatFileSize(locale, PHOTO_MAX_BYTES),
               })
-            : t(`imageUpload.status.${upload.status}`)}
+            : t(toStatusLabel(upload.status))}
         </Badge>
+        {upload.status === "converting" && (
+          <Text as="span" tone="muted" variant="caption">
+            {t("imageUpload.convertingHint")}
+          </Text>
+        )}
+        {upload.status === "unreadable" && (
+          <Text as="span" tone="muted" variant="caption">
+            {t("imageUpload.unreadableHint")}
+          </Text>
+        )}
         {action !== "none" && (
-          <Button
-            size="sm"
-            isDisabled={isSaving}
-            isPending={action === "pending"}
-            aria-label={t("imageUpload.retryPhoto", {
-              name: upload.file.name,
-            })}
-            onPress={() => {
-              retry(upload.id);
-            }}
-          >
-            {t("imageUpload.retry")}
-          </Button>
+          <Tooltip label={t("imageUpload.retry")}>
+            <Button
+              size="sm"
+              tone="quiet"
+              icon="rotate-cw"
+              isDisabled={isSaving}
+              isPending={action === "pending"}
+              aria-label={t("imageUpload.retryPhoto", {
+                name: upload.file.name,
+              })}
+              onPress={() => {
+                retry(upload.id);
+              }}
+            />
+          </Tooltip>
         )}
       </Cluster>
     </div>

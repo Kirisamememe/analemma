@@ -31,8 +31,8 @@
   }
 }
 
-@utility dialog-title-animation {
-  animation: condense-dialog-title auto linear both;
+@utility modal-title-animation {
+  animation: condense-modal-title auto linear both;
   animation-timeline: scroll(nearest block);
   animation-range: 0px 32px;
 
@@ -41,7 +41,7 @@
   }
 }
 
-@keyframes condense-dialog-title {
+@keyframes condense-modal-title {
   from {
     font-size: var(--text-xl);
     line-height: var(--leading-3xl);

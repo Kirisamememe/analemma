@@ -1,8 +1,12 @@
-export { Dialog, DialogSection } from "./dialog";
-export { DialogActions } from "./dialog-footer";
+export { Dialog } from "./dialog/dialog";
+export { StatusDialog } from "./dialog/status-dialog";
+export { Modal } from "./modal/modal";
+export { ModalActions } from "./modal/modal-actions";
+export { ModalSection } from "./modal/modal-section";
 export { FocusScope } from "./focus-scope";
 export { type ListBoxOption, ListBoxPopover } from "./list-box-popover";
 export { OverlayLayer } from "./overlay-layer";
-export { ToastProvider } from "./toast";
-export { useFailureToast } from "./hooks/use-failure-toast";
-export { useShowToast } from "./hooks/use-show-toast";
+export { ToastProvider } from "./toast/toast";
+export { Tooltip } from "./tooltip";
+export { useFailureToast } from "./toast/hooks/use-failure-toast";
+export { useShowToast } from "./toast/hooks/use-show-toast";

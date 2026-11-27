@@ -3,7 +3,7 @@ import { type ReactNode, useState } from "react";
 
 import { Stack } from "@/ui/layout";
 import type { IconName } from "@/ui/primitives/graphics";
-import { NavButton } from "@/ui/primitives/navigation/nav-item";
+import { NavButton } from "@/ui/primitives/navigation/nav-button";
 import {
   NavSelect,
   type NavSelectOption,

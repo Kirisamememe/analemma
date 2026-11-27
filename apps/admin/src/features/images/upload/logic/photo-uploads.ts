@@ -1,14 +1,16 @@
 import type { UploadValue } from "../upload-value";
 
-import type { ApiOutputs } from "@/api/api-types";
-
 /** 送る写真1枚の状態。 */
 export type UploadStatus =
   | "waiting"
   | "sending"
+  | "converting"
   | "added"
   | "too-large"
   | "unsupported"
+  | "unreadable"
+  | "interrupted"
+  | "replacing"
   | "failed";
 
 /** 管理画面から送る写真1枚。 */
@@ -84,28 +86,6 @@ export const withStatus =
       upload.id === id ? { ...upload, status, progress: undefined } : upload,
     );
 
-/** 写真を足せたことにし、作った画像の ID を持たせる。 */
-export const withAdded =
-  (
-    id: number,
-    image: Pick<
-      ApiOutputs["admin"]["images"]["upload"],
-      "id" | "deliveryImages"
-    >,
-  ) =>
-  (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
-    uploads.map((upload) =>
-      upload.id === id
-        ? {
-            ...upload,
-            status: "added",
-            progress: undefined,
-            imageId: image.id,
-            previewUrl: image.deliveryImages[0]?.url,
-          }
-        : upload,
-    );
-
 /** server の受付が埋まっていた写真の状態を変える。 */
 export const deferUpload =
   (id: number) =>
@@ -130,8 +110,17 @@ export const retryUpload =
   (id: number) =>
   (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
     uploads.map((upload) =>
-      upload.id === id && upload.status === "failed"
-        ? { ...upload, status: "waiting", retried: true, deferrals: undefined }
+      upload.id === id &&
+      (upload.status === "failed" ||
+        upload.status === "interrupted" ||
+        upload.status === "replacing")
+        ? {
+            ...upload,
+            status: "waiting",
+            retried: true,
+            deferrals: undefined,
+            imageId: undefined,
+          }
         : upload,
     );
 
@@ -139,22 +128,32 @@ export const retryUpload =
 export const hasUnsentPhotos = (uploads: readonly PhotoUpload[]): boolean =>
   uploads.some(
     ({ status }) =>
-      status === "waiting" || status === "sending" || status === "failed",
+      status === "waiting" ||
+      status === "sending" ||
+      status === "failed" ||
+      status === "interrupted" ||
+      status === "replacing",
   );
 
 /** まだ送り終えていない写真があるか。 */
 export const isUploading = (uploads: readonly PhotoUpload[]): boolean =>
-  uploads.some(({ status }) => status === "waiting" || status === "sending");
+  uploads.some(
+    ({ status }) =>
+      status === "waiting" || status === "sending" || status === "replacing",
+  );
 
 /** 「完了」の前に確かめる、破棄する写真の枚数。 */
 export const countDiscarded = (
   uploads: readonly PhotoUpload[],
   hasChanges: (id: number) => boolean,
 ): number => {
-  const discarded = uploads.filter(({ status }) => status !== "added");
+  const discarded = uploads.filter(
+    ({ status }) => status !== "added" && status !== "converting",
+  );
 
   return discarded.some(
-    ({ id, status }) => status === "failed" || hasChanges(id),
+    ({ id, status }) =>
+      status === "failed" || status === "interrupted" || hasChanges(id),
   )
     ? discarded.length
     : 0;
@@ -164,4 +163,7 @@ export const countDiscarded = (
 export const clearFinished = (
   uploads: readonly PhotoUpload[],
 ): readonly PhotoUpload[] =>
-  uploads.filter(({ status }) => status === "waiting" || status === "sending");
+  uploads.filter(
+    ({ status }) =>
+      status === "waiting" || status === "sending" || status === "replacing",
+  );

@@ -7,7 +7,15 @@ import { createUploadValue } from "../upload-value";
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { useLeaveConfirmation } from "@/api/use-leave-confirmation";
+import { deleteImage } from "@/features/images/queries/delete-image";
 import { useUploadMetadata } from "@/features/images/upload/hooks/use-upload-metadata";
+import {
+  type ConversionResult,
+  isReplacing,
+  withAdded,
+  withConverted,
+  withRetryStarted,
+} from "@/features/images/upload/logic/photo-conversions";
 import {
   type PhotoUpload,
   clearFinished,
@@ -16,11 +24,16 @@ import {
   nextUploads,
   queuePhotos,
   retryUpload,
-  withAdded,
   withStatus,
 } from "@/features/images/upload/logic/photo-uploads";
 import { uploadPhoto } from "@/features/images/upload/queries/upload-photo";
-import { IMAGES_QUERY_KEY, prependImage } from "@/queries/images-query";
+import { useTranslate } from "@/i18n/use-translate";
+import {
+  IMAGES_QUERY_KEY,
+  prependImage,
+  updateImagePage,
+} from "@/queries/images-query";
+import { useFailureToast } from "@/ui/primitives/overlays";
 
 type Transfer = PhotoUpload & {
   /** この送信試行で受け取った転送率を記録する。 */
@@ -46,6 +59,8 @@ export const usePhotoUploads = ({
   busyWait = BUSY_WAIT,
 }: PhotoUploadsOptions = {}) => {
   const { api } = useAppContext();
+  const t = useTranslate();
+  const { show: showFailure, close: closeFailure } = useFailureToast();
   const { refresh, updatePages } = useApiCache();
   const [uploads, setUploads] = useState<readonly PhotoUpload[]>([]);
   const latest = useRef(uploads); // 送り終えたときに、次に送る写真を選ぶ
@@ -61,6 +76,7 @@ export const usePhotoUploads = ({
   const metadata = useUploadMetadata(uploads, {
     isActive: () => active.current,
     onComplete: () => {
+      closeFailure();
       apply(clearFinished);
       onComplete?.();
     },
@@ -177,22 +193,67 @@ export const usePhotoUploads = ({
 
   const { isSaving } = metadata;
 
+  const { forgetSaved } = metadata;
+
+  const resend = useCallback(
+    (id: number): void => {
+      forgetSaved(id); // 新しい画像には、前の画像に保存できた値も保存し直す
+      apply(retryUpload(id));
+      sendNext();
+    },
+    [apply, forgetSaved, sendNext],
+  );
+
+  const { mutate: removeFailed } = useApiMutation({
+    send: ({ imageId }: Pick<ConversionResult, "id" | "imageId">) =>
+      deleteImage(api, imageId),
+    onSuccess: async (_removed, replaced) => {
+      await updatePages(IMAGES_QUERY_KEY, updateImagePage(replaced.imageId));
+
+      if (isReplacing(latest.current, replaced)) resend(replaced.id);
+    },
+    onError: ({ id }) => {
+      apply(withRetryStarted(id, false));
+      showFailure(t("imageUpload.retryFailed"));
+    },
+  });
+
   const retry = useCallback(
     (id: number): void => {
       if (isSaving) return;
 
-      apply(retryUpload(id));
-      sendNext();
+      closeFailure();
+
+      const failed = latest.current.find((upload) => upload.id === id);
+
+      if (failed?.status === "replacing") return; // 前の画像を消し終えるまで、もう一度は送らない
+
+      if (failed?.status === "interrupted" && failed.imageId !== undefined) {
+        apply(withRetryStarted(id, true));
+        removeFailed({ id, imageId: failed.imageId }); // 変換できなかった画像を消してから、同じ写真を送り直す
+
+        return;
+      }
+
+      resend(id);
     },
-    [apply, isSaving, sendNext],
+    [apply, closeFailure, isSaving, removeFailed, resend],
+  );
+
+  const settle = useCallback(
+    (result: ConversionResult): void => {
+      apply(withConverted(result));
+    },
+    [apply],
   );
 
   const { reset } = metadata;
 
   const clear = useCallback((): void => {
+    closeFailure();
     reset();
     apply(clearFinished);
-  }, [apply, reset]);
+  }, [apply, closeFailure, reset]);
 
   const track = useCallback((element: HTMLElement | null) => {
     if (element === null) return;
@@ -218,7 +279,9 @@ export const usePhotoUploads = ({
     leaving: { ...leaving, leave },
     add,
     retry,
+    settle,
     clear,
+    closeFailure,
     track,
   };
 };

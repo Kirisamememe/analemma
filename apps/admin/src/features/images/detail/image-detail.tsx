@@ -3,6 +3,7 @@ import { memo, type ReactNode } from "react";
 import { toShotInfo } from "./logic/shot-info";
 
 import type { ApiOutputs } from "@/api/api-types";
+import { toImageStatusView } from "@/components/images/logic/image-status";
 import { ImageViewer, type Neighbor } from "@/features/images/ui/image-viewer";
 import { InfoList } from "@/features/images/ui/info-list";
 import { formatDateTime } from "@/i18n/format-date-time";
@@ -47,6 +48,7 @@ const ImageInfoContent = ({
   const locale = useLocale();
   const name = image.title ?? t("imageDetail.untitled");
   const isPublished = image.status === "published";
+  const status = toImageStatusView(image.status);
   const shot = toShotInfo(image, { locale, t });
 
   const texts = [
@@ -59,11 +61,11 @@ const ImageInfoContent = ({
       <Stack gap={2}>
         <Heading level={1}>{name}</Heading>
         <Cluster align="center" gap={2}>
-          <Badge tone={isPublished ? "success" : "neutral"}>
-            {t(
-              isPublished ? "imageDetail.published" : "imageDetail.unpublished",
-            )}
-          </Badge>
+          <output>
+            <Badge tone={isPublished ? "success" : status.tone}>
+              {t(status.badge ?? "imageDetail.published")}
+            </Badge>
+          </output>
           <Text as="span" tone="muted" variant="caption">
             {t("imageDetail.added", {
               date: formatDateTime(locale, image.createdAt),
@@ -107,6 +109,7 @@ export const ImageDetail = ({
   onMove,
 }: ImageDetailProps): ReactNode => {
   const t = useTranslate();
+  const status = toImageStatusView(image.status);
 
   const altFor = (photo: Image) =>
     photo.alt ?? photo.title ?? t("imageDetail.untitled");
@@ -128,7 +131,8 @@ export const ImageDetail = ({
       waiting={waiting}
       onSettled={onSettled}
       images={image.deliveryImages}
-      missing={t("images.noDeliveryImage")}
+      isPending={status.isPending}
+      missing={t(status.detail)}
       next={next}
       onSwipe={(side) => {
         const target = side === "previous" ? previous : next;

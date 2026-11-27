@@ -28,7 +28,7 @@ const viewer = tv({
     ],
     missing: [
       "flex aspect-photo w-full flex-col items-center justify-center gap-2",
-      "text-fg-muted md:w-auto md:max-w-md",
+      "px-12 text-center text-fg-muted md:w-auto md:max-w-md",
     ],
     side: [
       "absolute inset-y-0 flex items-center px-3",

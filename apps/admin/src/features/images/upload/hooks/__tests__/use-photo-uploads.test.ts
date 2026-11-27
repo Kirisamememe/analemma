@@ -376,3 +376,49 @@ test("保存中に離脱を確定したら、送信済みの写真をキャッ�
   expect(updates).toEqual([firstId]);
   expect(done).not.toHaveBeenCalled();
 });
+
+test("変換を終えられなかった写真は、前の画像を消してから送り直し、消せなければ押せる状態に戻して、もう一度送り直せる", async () => {
+  const server = createImageRoutes([], { status: "processing" });
+  const { result } = await render(server.routes);
+
+  act(() => {
+    result.current.add([photo("a.jpg")]);
+  });
+  await waitFor(() => {
+    expect(statuses(result.current.uploads)).toEqual(["a.jpg: converting"]);
+  });
+
+  const [first] = server.images();
+
+  if (first === undefined) throw new Error("画像が登録されていません");
+
+  act(() => {
+    result.current.settle({
+      id: 1,
+      imageId: first.id,
+      image: { ...first, status: "interrupted" },
+    });
+  });
+  server.replyNext("admin/images/delete", () => ({
+    error: "INTERNAL_SERVER_ERROR",
+    defined: false,
+  }));
+  act(() => {
+    result.current.retry(1);
+    result.current.retry(1);
+  });
+  expect(statuses(result.current.uploads)).toEqual(["a.jpg: replacing"]);
+  await waitFor(() => {
+    expect(statuses(result.current.uploads)).toEqual(["a.jpg: interrupted"]);
+  });
+  expect(server.images()).toEqual([first]);
+
+  act(() => {
+    result.current.retry(1);
+  });
+  await waitFor(() => {
+    expect(statuses(result.current.uploads)).toEqual(["a.jpg: converting"]);
+  });
+  expect(server.images().map(({ id }) => id)).not.toContain(first.id);
+  expect(server.images()).toHaveLength(1);
+});

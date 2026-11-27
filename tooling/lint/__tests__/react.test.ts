@@ -84,3 +84,67 @@ describe("React の import", () => {
     },
   );
 });
+
+const multipleComponentsIn = (file: string): number =>
+  lintFixture(file).diagnostics.filter(
+    ({ code }) => code === "react(no-multi-comp)",
+  ).length;
+
+describe("1ファイルに component を1つ", () => {
+  test.each(["patterns", "primitives/overlays", "layout"])(
+    "ルールを掛けた ui/%s の .tsx に、export しない補助の component があれば診断を出すこと",
+    (folder) => {
+      expect(
+        multipleComponentsIn(
+          `invalid/apps/admin/src/ui/${folder}/two-components.tsx`,
+        ),
+      ).toBe(1);
+    },
+  );
+
+  test.each([
+    "invalid/apps/admin/src/ui/patterns/__stories__/two-components.stories.tsx",
+    "valid/apps/admin/src/ui/patterns/__tests__/one-component.test.tsx",
+    "valid/apps/admin/src/ui/patterns/one-component.tsx",
+  ])("%s には診断を出さないこと", (file) => {
+    expect(multipleComponentsIn(file)).toBe(0);
+  });
+});
+
+test("React の書き方をそろえるルールが、当たる書き方ごとに診断を出すこと", () => {
+  const { diagnostics } = lintFixture(
+    "invalid/apps/admin/src/ui/patterns/strict-react.tsx",
+  );
+
+  const codes = new Set(diagnostics.map(({ code }) => code));
+
+  expect(
+    [
+      "function-component-definition",
+      "jsx-boolean-value",
+      "jsx-curly-brace-presence",
+      "jsx-fragments",
+      "jsx-max-depth",
+      "jsx-no-literals",
+      "no-clone-element",
+      "no-react-children",
+      "no-unknown-property",
+      "prefer-function-component",
+      "self-closing-comp",
+    ].filter((rule) => !codes.has(`react(${rule})`)),
+  ).toEqual([]);
+});
+
+const literalsIn = (file: string): readonly number[] =>
+  lintFixture(file)
+    .diagnostics.filter(({ code }) => code === "react(jsx-no-literals)")
+    .map(({ line }) => line);
+
+test("文言を受け取る属性に直接書いた文言を止め、class や空の alt は止めないこと", () => {
+  expect(
+    literalsIn("invalid/apps/admin/src/ui/patterns/strict-react.tsx"),
+  ).toEqual([31, 32]);
+  expect(
+    literalsIn("valid/apps/admin/src/ui/patterns/one-component.tsx"),
+  ).toEqual([]);
+});

@@ -1,10 +1,10 @@
-import { deleteImage } from "../queries/image-actions";
 import { useImageCache } from "./use-image-cache";
 import { useImageDialog } from "./use-image-dialog";
 
 import { useAppContext } from "@/api/app-context";
 import { useIsApiMutationPending } from "@/api/server-state/pending-state";
 import { useApiMutation } from "@/api/server-state/server-state";
+import { deleteImage } from "@/features/images/queries/delete-image";
 import { useTranslate } from "@/i18n/use-translate";
 import { useFailureToast, useShowToast } from "@/ui/primitives/overlays";
 

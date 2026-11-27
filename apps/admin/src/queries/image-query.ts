@@ -14,3 +14,11 @@ export const loadImage = (api: ApiClient, id: string) =>
 
 /** 画像を読んだ結果。 */
 export type LoadedImage = Awaited<ReturnType<typeof loadImage>>;
+
+/** 画像の変換が終わるのを待っているか。 */
+export const isConverting = (image: Pick<AdminImage, "status">): boolean =>
+  image.status === "processing";
+
+/** 画像の変換を終えて、公開か非公開にできるか。 */
+export const isConverted = (image: Pick<AdminImage, "status">): boolean =>
+  image.status === "published" || image.status === "unpublished";

@@ -45,12 +45,12 @@ const scroll = tv({
         ],
       },
     },
-    inset: { none: {}, dialog: {} },
+    inset: { none: {}, modal: {} },
   },
   compoundVariants: [
     {
       orientation: "horizontal",
-      inset: "dialog",
+      inset: "modal",
       class: {
         content: "px-panel",
         viewport: "scroll-px-panel",
@@ -59,7 +59,7 @@ const scroll = tv({
     },
     {
       orientation: "vertical",
-      inset: "dialog",
+      inset: "modal",
       class: {
         content: "py-panel",
         viewport: "scroll-py-panel",
@@ -76,7 +76,7 @@ type ScrollViewProps = {
   /** スクロールバーのアクセシブルな名前。 */
   label: string;
   /** スクロール方向の両端の余白。 */
-  inset?: "none" | "dialog";
+  inset?: "none" | "modal";
   /** 縦方向の領域の高さの上限(px)。 */
   maxHeight?: number;
   /** スクロールする要素を受け取る関数。 */

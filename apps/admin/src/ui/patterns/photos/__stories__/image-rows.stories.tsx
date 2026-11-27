@@ -2,8 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { samplePhoto } from "@/testing/sample-photos";
 import { AppShell } from "@/ui/layout";
-import { ImageRows, ImageTile } from "@/ui/patterns/photos/image-rows";
+import { ImageRows } from "@/ui/patterns/photos/image-rows";
 import { ImageRowsPlaceholder } from "@/ui/patterns/photos/image-rows-placeholder";
+import { ImageTile } from "@/ui/patterns/photos/image-tile";
 
 const meta = {
   title: "patterns/photos/ImageRows",
@@ -85,6 +86,39 @@ export const UnpublishedPortrait: Story = {
         images={samplePhoto("snow-path")}
         missing="表示用の画像がまだありません"
         title="雪の参道"
+        untitled="無題"
+      />
+    ),
+  },
+};
+
+export const Converting: Story = {
+  args: {
+    children: (
+      <ImageTile
+        badge="変換中"
+        badgeTone="info"
+        href="/"
+        images={[]}
+        isPending
+        missing="表示用の画像を作っています"
+        title={null}
+        untitled="無題"
+      />
+    ),
+  },
+};
+
+export const ConversionFailed: Story = {
+  args: {
+    children: (
+      <ImageTile
+        badge="変換失敗"
+        badgeTone="danger"
+        href="/"
+        images={[]}
+        missing="読み取れませんでした"
+        title={null}
         untitled="無題"
       />
     ),

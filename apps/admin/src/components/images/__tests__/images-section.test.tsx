@@ -50,6 +50,8 @@ const renderSection = async (
   render(<ImagesSection imageHref={imageHref} />, {
     wrapper: withAppProviders(app),
   });
+
+  return app;
 };
 
 describe("ImagesSection", () => {
@@ -65,6 +67,47 @@ describe("ImagesSection", () => {
     expect(
       screen.getByRole("link", { name: "霧に包まれた湖 無題" }),
     ).toBeDefined();
+  });
+
+  test("変換中と変換できなかった画像を見分けて出し、変換を終えたら、その画像のタイルだけを描き直す", async () => {
+    const server = createImageRoutes([
+      { title: "新しい写真", status: "processing" },
+      { title: "壊れた写真", status: "unreadable" },
+      { title: "夕暮れの稜線", deliveryImages },
+    ]);
+
+    const rendered = mock((_id: string): "/fixed-pages" => "/fixed-pages");
+
+    const app = await renderSection(server.routes, rendered);
+    const names = await linkNames();
+
+    expect(names[0]).toBe("表示用の画像を作っています新しい写真変換中");
+    expect(names[1]).toBe("読み取れませんでした壊れた写真変換失敗");
+    expect(names[2]).toBe("夕暮れの稜線");
+
+    const [converting] = server.images();
+    const before = rendered.mock.calls.length;
+
+    await waitFor(
+      () => {
+        expect(app.calls).toContain("admin/images/get");
+      },
+      { timeout: 4000 },
+    );
+    expect(rendered.mock.calls).toHaveLength(before);
+
+    server.convert(converting?.id ?? "", {
+      status: "published",
+      deliveryImages,
+    });
+    await waitFor(
+      async () => {
+        expect((await linkNames())[0]).toBe("新しい写真");
+      },
+      { timeout: 4000 },
+    );
+
+    expect(rendered.mock.calls.slice(before)).toEqual([[converting?.id ?? ""]]);
   });
 
   test("画像が無ければ、中身の無い欄を出す", async () => {

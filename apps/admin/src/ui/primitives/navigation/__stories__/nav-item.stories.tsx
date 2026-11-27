@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Stack } from "@/ui/layout";
-import { NavButton, NavLink } from "@/ui/primitives/navigation/nav-item";
+import { NavButton } from "@/ui/primitives/navigation/nav-button";
+import { NavLink } from "@/ui/primitives/navigation/nav-link";
 
 const meta = {
   title: "primitives/NavItem",

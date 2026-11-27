@@ -56,6 +56,15 @@
   - 管理画面の `.ts` で React の値を import できるのは、hook のファイルと context のファイルだけ(`no-react-in-logic`)。こうすると、ロジックを React なしでテストできる。拡張子は JSX の有無で決めるので(`require-jsx-in-tsx`)、JSX を書かない hook や context も `.ts` に置く。
   - `console`(ログは context で渡す logger を使う)、`process.env`(環境変数は起動時に検証する1か所だけで読む)、引数のプロパティの書き換えを禁止する。
 - **足したルール**:`no-unnecessary-condition`(要らない `?.` や条件)、`no-abusive-eslint-disable`(ルールを指定しない抑制)、React の `only-export-components`・`no-danger`・`button-has-type`。
+- **React の書き方をそろえるルール**(ユーザーが決めた。厳しめに):`restriction` と `style` の category は有効にしていないので、React のルールを名前で足す。
+  - 書き方:`function-component-definition`(arrow function)・`prefer-function-component`(class で書かない)・`jsx-boolean-value`・`jsx-curly-brace-presence`・`jsx-fragments`・`jsx-pascal-case`・`self-closing-comp`・`jsx-filename-extension`(`.tsx` だけ)。
+  - 誤りを防ぐ:`no-unknown-property`・`no-clone-element`・`no-react-children`(`Children` と `cloneElement` は、子の形に頼る壊れやすい部品を作る)。
+  - 深さ:`jsx-max-depth` は 6。今の最大が 6 で、5 にすると14か所、4 にすると37か所が当たる。深い JSX は部品に分ける合図なので、下げるかはユーザーと決める。
+  - 文言:`jsx-no-literals` を管理画面の `.tsx` に掛け、訳を通さない文言を JSX に直接書けなくする。JSX の子と、文言を受け取る属性(`aria-label`・`alt`・`title`・`label`・`placeholder` など。`TRANSLATED_ATTRIBUTES`)を見る。空の `alt` は通す。story・テスト・`src/testing/` では外す。
+  - React Compiler の診断:`invariant`・`syntax`・`todo`・`unsupported-syntax`・`rule-suppression`。コンパイラが扱えない書き方を止める。
+  - 足さなかったもの:`react-perf` の4つ(JSX の props に、その場で作った関数・オブジェクト・配列・JSX を渡さない)は、製品のコードで168か所が当たり、どの handler も `useCallback` で包むことになる。再レンダリングは、フォルダごとの「再レンダリングの期待」とそのテストで確かめる。`hook-use-state` は、setter を使わない `const [store] = useState(create)`(1回だけ作る値)も止めるので足さない。`jsx-handler-names` は、handler の名前を `handle…` に限り、hook が返す操作の名前(`retry`・`finish`)と合わない。`jsx-props-no-spreading` と `forbid-*` は、`project/styling-boundary` が同じことをより狭く止めている。class の中身のルール(`no-set-state` など)は、class を書けないので要らない。
+  - fixture で確かめるのは、書き方・誤り・深さ・文言の11個。React Compiler の診断と、`jsx-pascal-case`・`jsx-filename-extension` は fixture を置いていない。
+- **1ファイルに component を1つ**(`react/no-multi-comp`。ユーザーが決めた):`restriction` の category は有効にしていないので、名前を書いて足す。export しない補助の component も数える。`max-exported-functions` は、コードが200行以下のファイルを数えないので、`.tsx` に component を幾つでも並べられた。管理画面のフォルダを、片付けの済んだ順に `SINGLE_COMPONENT_FILES`(`tooling/lint/config/admin-overrides.ts`)に足し、最後は管理画面の全体に掛ける。story とテストは、見せるためや確かめるための包む component を同じファイルに書くので外す。
   - `typescript/return-await`(`in-try-catch`):`try`・`finally` の中と `await using` の後で、`await` を省いた `return` に診断を出す。省くと、返した処理が終わる前に後始末が走り、使っている最中の接続が閉じる。Postgres の用意で実際にこの誤りがあった。型は同じ `Promise` なので型検査では止まらない。ほかの場所の `return` には診断を出さない。テストでも外さない(テストで出るのも同じ誤り)。型付きのルールなので fixture では確かめられない。
 - **変えた設定**
   - `no-underscore-dangle`:`_tag` だけ許す。想定内の失敗を `_tag` 付きの判別共用体で表すため。

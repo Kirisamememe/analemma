@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
 
+import { withAdded } from "@/features/images/upload/logic/photo-conversions";
 import {
   clearFinished,
   countDiscarded,
   deferUpload,
   hasUnsentPhotos,
   retryUpload,
-  withAdded,
   isUploading,
   nextUploads,
   queuePhotos,
@@ -190,6 +190,7 @@ describe("足せた写真と送り直し", () => {
     const uploads = [
       withAdded(1, {
         id: "019b0000-0000-7000-8000-000000000001",
+        status: "published",
         deliveryImages: [{ width: 640, height: 480, url: "/media/photo.avif" }],
       }),
       withStatus(2, "failed"),

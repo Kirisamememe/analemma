@@ -2,13 +2,14 @@ import type { ReactNode, Ref } from "react";
 
 import { usePhotoOverlay } from "./hooks/use-photo-overlay";
 
+import { toImageStatusView } from "@/components/images/logic/image-status";
 import { useTranslate } from "@/i18n/use-translate";
 import type { ImageSummary } from "@/queries/images-query";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { toSrcSet } from "@/ui/patterns/photos/logic/delivery-image";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
-import { Icon } from "@/ui/primitives/graphics";
+import { Icon, Spinner } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 
 const preview = tv({
@@ -158,14 +159,16 @@ export const ImageFieldPanel = ({
     </div>
   );
 
+  const view = image && toImageStatusView(image.status);
+
   const caption = image && (
     <div className={style.caption()}>
       <div className="line-clamp-2 min-w-0" title={name}>
         <Text variant="label">{name}</Text>
       </div>
-      {image.status !== "published" && (
-        <Badge tone="neutral" variant="soft">
-          {t("images.unpublished")}
+      {view?.badge !== undefined && (
+        <Badge tone={view.tone} variant="soft">
+          {t(view.badge)}
         </Badge>
       )}
     </div>
@@ -211,11 +214,11 @@ export const ImageFieldPanel = ({
               width={photo.width}
             />
           )}
-          {image && !photo && (
+          {view && !photo && (
             <Cluster>
-              <Icon name="image-off" />
+              {view.isPending ? <Spinner /> : <Icon name="image-off" />}
               <Text variant="caption" tone="muted">
-                {t("images.noDeliveryImage")}
+                {t(view.missing)}
               </Text>
             </Cluster>
           )}

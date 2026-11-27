@@ -1,15 +1,10 @@
 import type { ReactNode } from "react";
 
-import {
-  CheckboxControl,
-  type CheckboxInputProps,
-  CheckboxRoot,
-} from "./checkbox-input";
+import { CheckboxControl } from "./checkbox-control";
+import { type CheckboxInputProps, CheckboxRoot } from "./checkbox-root";
 
-import {
-  FieldDescription,
-  FieldErrorMessage,
-} from "@/ui/primitives/form-fields/field-parts";
+import { FieldDescription } from "@/ui/primitives/form-fields/parts/field-description";
+import { FieldErrorMessage } from "@/ui/primitives/form-fields/parts/field-error-message";
 
 /** ラベル付きの Checkbox に渡す値。 */
 export type CheckboxProps = Omit<

@@ -1,5 +1,6 @@
 import type { PhotoUpload, UploadStatus } from "./photo-uploads";
 
+import type { MessageKey } from "@/i18n/use-translate";
 import type { ProgressTone } from "@/ui/patterns";
 
 const KILOBYTE = 1024;
@@ -21,9 +22,13 @@ export const formatFileSize = (locale: string, bytes: number): string =>
 const TONES = {
   waiting: "neutral",
   sending: "info",
+  converting: "info",
   added: "success",
   "too-large": "danger",
   unsupported: "danger",
+  unreadable: "danger",
+  interrupted: "danger",
+  replacing: "neutral",
   failed: "danger",
 } as const satisfies Record<UploadStatus, ProgressTone>;
 
@@ -31,12 +36,27 @@ const TONES = {
 export const toProgressTone = (status: UploadStatus): ProgressTone =>
   TONES[status];
 
+/** 写真の状態を伝える文言のキーを返す。 */
+export const toStatusLabel = (
+  status: Exclude<UploadStatus, "too-large">,
+): MessageKey => {
+  if (status === "unreadable") return "images.unreadable";
+
+  if (status === "interrupted") return "images.interrupted";
+
+  if (status === "replacing") return "imageUpload.status.waiting";
+
+  return `imageUpload.status.${status}`;
+};
+
 /** 写真の行の送り直しの操作(出さない・押せる・送っている最中)。 */
 export const retryAction = ({
   status,
   retried,
 }: Pick<PhotoUpload, "status" | "retried">): "none" | "ready" | "pending" => {
-  if (status === "failed") return "ready";
+  if (status === "interrupted" || status === "failed") return "ready";
+
+  if (status === "replacing") return "pending";
 
   return retried === true && (status === "waiting" || status === "sending")
     ? "pending"
@@ -51,7 +71,9 @@ export const focusAfterRetry = ({
   | "result"
   | "add-button"
   | undefined => {
-  if (status === "waiting" || status === "sending") return undefined;
+  if (status === "waiting" || status === "sending" || status === "replacing") {
+    return undefined;
+  }
 
   return imageId === undefined ? "add-button" : "result";
 };
@@ -64,8 +86,7 @@ export const uploadNotice = (uploads: readonly PhotoUpload[]) => {
   const added = uploads.filter(({ status }) => status === "added").length;
 
   const failed = uploads.filter(
-    ({ status }) =>
-      status === "failed" || status === "too-large" || status === "unsupported",
+    ({ status }) => TONES[status] === "danger",
   ).length;
 
   const counts = { added, total, failed };

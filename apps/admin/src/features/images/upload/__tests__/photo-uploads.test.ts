@@ -265,6 +265,55 @@ test("送れなかった写真があると完了の前に確かめ、戻ると�
   ).toBeNull();
 });
 
+test("受け取られた写真は変換中と出して完了を押せ、変換を終えるとアップロード済みに変わる", async () => {
+  const server = createImageRoutes([], { status: "processing" });
+  renderApp({ path: "/images", routes: server.routes });
+  await dropPhotos("dusk.jpg");
+  const uploads = within(await uploadsRegion());
+
+  expect(await uploads.findByText("変換中")).toBeDefined();
+  expect(uploads.getByText("閉じても変換は続きます")).toBeDefined();
+  expect(uploads.getByText("1枚中0枚完了")).toBeDefined();
+  expect(uploads.getByRole("button", { name: "完了" })).toHaveProperty(
+    "disabled",
+    false,
+  );
+
+  server.convert(server.images()[0]?.id ?? "", { status: "published" });
+
+  expect(
+    await uploads.findByText("アップロード済み", undefined, { timeout: 4000 }),
+  ).toBeDefined();
+  expect(uploads.getByText("1枚アップロード完了")).toBeDefined();
+}, 10_000);
+
+test("server の都合で変換を終えられなかった写真は送り直せ、変換できなかった画像を残さない", async () => {
+  const server = createImageRoutes([], { status: "processing" });
+  renderApp({ path: "/images", routes: server.routes });
+  await dropPhotos("lake.jpg");
+  const uploads = within(await uploadsRegion());
+
+  await uploads.findByText("変換中");
+
+  const [failed] = server.images();
+
+  server.convert(failed?.id ?? "", { status: "interrupted" });
+  expect(
+    await uploads.findByText("変換できませんでした", undefined, {
+      timeout: 4000,
+    }),
+  ).toBeDefined();
+
+  await userEvent.click(
+    uploads.getByRole("button", { name: "lake.jpg を送り直す" }),
+  );
+  expect(await uploads.findByText("変換中")).toBeDefined();
+  await waitFor(() => {
+    expect(server.images().map(({ id }) => id)).not.toContain(failed?.id);
+  });
+  expect(server.images()).toHaveLength(1);
+}, 10_000);
+
 test("写真を送っている間に Dialog を閉じて画面を離れようとすると確かめ、残ると同じ写真を再び開ける", async () => {
   const held = holdUploads();
   renderApp({ path: "/images", routes: held.routes });

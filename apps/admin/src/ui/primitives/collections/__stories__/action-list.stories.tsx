@@ -2,10 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Text } from "@/ui/layout/text";
 import { Button } from "@/ui/primitives/button";
-import {
-  ActionList,
-  ActionListRow,
-} from "@/ui/primitives/collections/action-list";
+import { ActionList } from "@/ui/primitives/collections/action-list";
+import { ActionListRow } from "@/ui/primitives/collections/action-list-row";
 
 const rows = (card: boolean) =>
   ["MacBook Air", "iPhone"].map((name) => (

@@ -50,12 +50,12 @@ const ContentFieldsContent = ({
     const name = `content.${path}` as const;
 
     if ("fields" in definition) {
-      const nested = (parent: string, label = definition.label) => (
+      const nested = (parent: string, label?: string) => (
         <ContentFields
           fields={definition.fields}
           prefix={parent + "/"}
           imageErrors={imageErrors}
-          parentLabel={target(label)}
+          parentLabel={target(label ?? definition.label)}
           form={form}
           errors={errors}
           changed={changed}

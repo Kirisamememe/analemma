@@ -42,28 +42,29 @@ import * as layoutHeading from "@/ui/layout/__stories__/heading.stories";
 import * as layoutPageTransition from "@/ui/layout/__stories__/page-transition.stories";
 import * as layoutStack from "@/ui/layout/__stories__/stack.stories";
 import * as layoutText from "@/ui/layout/__stories__/text.stories";
-import * as patternsEmptyState from "@/ui/patterns/__stories__/empty-state.stories";
-import * as patternsErrorState from "@/ui/patterns/__stories__/error-state.stories";
-import * as patternsLoadingState from "@/ui/patterns/__stories__/loading-state.stories";
 import * as patternsPageHeader from "@/ui/patterns/__stories__/page-header.stories";
-import * as patternsProgressList from "@/ui/patterns/__stories__/progress-list.stories";
-import * as patternsSideNav from "@/ui/patterns/__stories__/side-nav.stories";
 import * as imageRadio from "@/ui/patterns/photos/__stories__/image-radio.stories";
 import * as featuresImagesImageRows from "@/ui/patterns/photos/__stories__/image-rows.stories";
 import * as imageThumbnail from "@/ui/patterns/photos/__stories__/image-thumbnail.stories";
+import * as patternsProgressList from "@/ui/patterns/progress/__stories__/progress-list.stories";
+import * as patternsSideNav from "@/ui/patterns/side-nav/__stories__/side-nav.stories";
+import * as patternsEmptyState from "@/ui/patterns/states/__stories__/empty-state.stories";
+import * as patternsErrorState from "@/ui/patterns/states/__stories__/error-state.stories";
+import * as patternsLoadingState from "@/ui/patterns/states/__stories__/loading-state.stories";
 import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "@/ui/primitives/__stories__/button.stories";
 import * as primitivesForm from "@/ui/primitives/__stories__/form.stories";
 import * as primitivesNotice from "@/ui/primitives/__stories__/notice.stories";
 import * as collectionsActionList from "@/ui/primitives/collections/__stories__/action-list.stories";
+import * as collectionsFileDropButton from "@/ui/primitives/collections/__stories__/file-drop-button.stories";
 import * as primitivesReorderableList from "@/ui/primitives/collections/__stories__/reorderable-list.stories";
-import * as primitivesNumberField from "@/ui/primitives/form-fields/__stories__/number-field.stories";
 import * as primitivesTextArea from "@/ui/primitives/form-fields/__stories__/text-area.stories";
 import * as primitivesTextField from "@/ui/primitives/form-fields/__stories__/text-field.stories";
 import * as primitivesTextInput from "@/ui/primitives/form-fields/__stories__/text-input.stories";
 import * as primitivesCheckbox from "@/ui/primitives/form-fields/choices/__stories__/checkbox.stories";
 import * as primitivesSelect from "@/ui/primitives/form-fields/choices/__stories__/select.stories";
 import * as primitivesDateField from "@/ui/primitives/form-fields/date/__stories__/date-field.stories";
+import * as primitivesNumberField from "@/ui/primitives/form-fields/number/__stories__/number-field.stories";
 import * as primitivesAppMark from "@/ui/primitives/graphics/__stories__/app-mark.stories";
 import * as primitivesIcon from "@/ui/primitives/graphics/__stories__/icon.stories";
 import * as primitivesSkeleton from "@/ui/primitives/graphics/__stories__/skeleton.stories";
@@ -74,10 +75,13 @@ import * as primitivesNavItem from "@/ui/primitives/navigation/__stories__/nav-i
 import * as primitivesNavSelect from "@/ui/primitives/navigation/__stories__/nav-select.stories";
 import * as primitivesNavigationProgress from "@/ui/primitives/navigation/__stories__/navigation-progress.stories";
 import * as primitivesScrollView from "@/ui/primitives/navigation/__stories__/scroll-view.stories";
-import * as primitivesDialog from "@/ui/primitives/overlays/__stories__/dialog.stories";
 import * as primitivesFocusScope from "@/ui/primitives/overlays/__stories__/focus-scope.stories";
 import * as primitivesOverlayLayer from "@/ui/primitives/overlays/__stories__/overlay-layer.stories";
-import * as primitivesToast from "@/ui/primitives/overlays/__stories__/toast.stories";
+import * as primitivesTooltip from "@/ui/primitives/overlays/__stories__/tooltip.stories";
+import * as primitivesDialog from "@/ui/primitives/overlays/dialog/__stories__/dialog.stories";
+import * as primitivesStatusDialog from "@/ui/primitives/overlays/dialog/__stories__/status-dialog.stories";
+import * as primitivesModal from "@/ui/primitives/overlays/modal/__stories__/modal.stories";
+import * as primitivesToast from "@/ui/primitives/overlays/toast/__stories__/toast.stories";
 import * as specimensColors from "@/ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "@/ui/specimens/__stories__/typography.stories";
 
@@ -142,14 +146,18 @@ const MODULES = {
     fixedPageKindGuide,
   "ui/primitives/collections/__stories__/action-list.stories.tsx":
     collectionsActionList,
+  "ui/primitives/collections/__stories__/file-drop-button.stories.tsx":
+    collectionsFileDropButton,
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.ts": layoutText,
-  "ui/patterns/__stories__/empty-state.stories.tsx": patternsEmptyState,
-  "ui/patterns/__stories__/error-state.stories.tsx": patternsErrorState,
-  "ui/patterns/__stories__/loading-state.stories.ts": patternsLoadingState,
+  "ui/patterns/states/__stories__/empty-state.stories.tsx": patternsEmptyState,
+  "ui/patterns/states/__stories__/error-state.stories.tsx": patternsErrorState,
+  "ui/patterns/states/__stories__/loading-state.stories.ts":
+    patternsLoadingState,
   "ui/patterns/__stories__/page-header.stories.tsx": patternsPageHeader,
-  "ui/patterns/__stories__/progress-list.stories.tsx": patternsProgressList,
-  "ui/patterns/__stories__/side-nav.stories.tsx": patternsSideNav,
+  "ui/patterns/progress/__stories__/progress-list.stories.tsx":
+    patternsProgressList,
+  "ui/patterns/side-nav/__stories__/side-nav.stories.tsx": patternsSideNav,
   "ui/primitives/__stories__/badge.stories.ts": primitivesBadge,
   "ui/primitives/__stories__/button.stories.tsx": primitivesButton,
   "ui/primitives/__stories__/form.stories.tsx": primitivesForm,
@@ -162,7 +170,7 @@ const MODULES = {
     primitivesSelect,
   "ui/primitives/form-fields/date/__stories__/date-field.stories.tsx":
     primitivesDateField,
-  "ui/primitives/form-fields/__stories__/number-field.stories.tsx":
+  "ui/primitives/form-fields/number/__stories__/number-field.stories.tsx":
     primitivesNumberField,
   "ui/primitives/form-fields/__stories__/text-area.stories.tsx":
     primitivesTextArea,
@@ -183,12 +191,17 @@ const MODULES = {
     primitivesNavSelect,
   "ui/primitives/navigation/__stories__/navigation-progress.stories.ts":
     primitivesNavigationProgress,
-  "ui/primitives/overlays/__stories__/dialog.stories.tsx": primitivesDialog,
+  "ui/primitives/overlays/dialog/__stories__/dialog.stories.tsx":
+    primitivesDialog,
+  "ui/primitives/overlays/dialog/__stories__/status-dialog.stories.tsx":
+    primitivesStatusDialog,
+  "ui/primitives/overlays/modal/__stories__/modal.stories.tsx": primitivesModal,
   "ui/primitives/overlays/__stories__/focus-scope.stories.tsx":
     primitivesFocusScope,
   "ui/primitives/overlays/__stories__/overlay-layer.stories.tsx":
     primitivesOverlayLayer,
-  "ui/primitives/overlays/__stories__/toast.stories.tsx": primitivesToast,
+  "ui/primitives/overlays/toast/__stories__/toast.stories.tsx": primitivesToast,
+  "ui/primitives/overlays/__stories__/tooltip.stories.tsx": primitivesTooltip,
   "ui/specimens/__stories__/colors.stories.ts": specimensColors,
   "ui/specimens/__stories__/typography.stories.ts": specimensTypography,
 };

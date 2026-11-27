@@ -21,7 +21,7 @@ import { useTranslate } from "@/i18n/use-translate";
 import type { ImageSummary } from "@/queries/images-query";
 import { ImageRadio, ImageSelectionStatus } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
-import { Dialog, DialogActions, DialogSection } from "@/ui/primitives/overlays";
+import { Modal, ModalActions, ModalSection } from "@/ui/primitives/overlays";
 
 type ImagePickerProps = PickerSelection & {
   /** 選択を取り消す。 */
@@ -97,7 +97,7 @@ const SelectionActions = ({
   const selected = useSyncExternalStore(subscribe, count);
 
   return (
-    <DialogActions>
+    <ModalActions>
       <Button tone="quiet" isDisabled={pending} ref={cancel} onPress={onClose}>
         {t("imageDetail.cancel")}
       </Button>
@@ -109,7 +109,7 @@ const SelectionActions = ({
       >
         {t("imagePicker.confirm")}
       </Button>
-    </DialogActions>
+    </ModalActions>
   );
 };
 
@@ -149,10 +149,9 @@ export const ImagePicker = (props: ImagePickerProps): ReactNode => {
   );
 
   return (
-    <Dialog
+    <Modal
       isPending={isPending}
       isOpen
-      layout="wide"
       width="page"
       footer={{
         start: <SelectionStatus selection={selection} />,
@@ -172,15 +171,15 @@ export const ImagePicker = (props: ImagePickerProps): ReactNode => {
     >
       <SelectionSourceContext value={source}>
         <ChoiceConditionsContext value={conditions}>
-          <DialogSection>
+          <ModalSection>
             <ImagesSection
               singleChoice={source.mode === "single"}
               fallbackFocus={cancel}
               renderChoice={renderChoice}
             />
-          </DialogSection>
+          </ModalSection>
         </ChoiceConditionsContext>
       </SelectionSourceContext>
-    </Dialog>
+    </Modal>
   );
 };

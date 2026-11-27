@@ -227,7 +227,7 @@
   height: var(--size-control);
 }
 
-@utility dialog-bar-backdrop {
+@utility modal-bar-backdrop {
   background-color: color-mix(in oklab, var(--color-surface) 80%, transparent);
   backdrop-filter: blur(12px);
 
@@ -237,9 +237,9 @@
   }
 }
 
-@utility dialog-scroller {
-  scroll-padding-block: var(--dialog-header-height, 0px)
-    var(--dialog-footer-height, 0px);
+@utility modal-scroller {
+  scroll-padding-block: var(--modal-header-height, 0px)
+    var(--modal-footer-height, 0px);
 
   @variant short-viewport {
     scroll-padding-block: 0;

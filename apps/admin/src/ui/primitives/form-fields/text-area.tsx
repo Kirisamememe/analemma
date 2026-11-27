@@ -8,11 +8,9 @@ import {
   fieldControl,
   fieldRoot,
 } from "@/ui/primitives/form-fields/field-control";
-import {
-  FieldDescription,
-  FieldErrorMessage,
-  FieldLabel,
-} from "@/ui/primitives/form-fields/field-parts";
+import { FieldDescription } from "@/ui/primitives/form-fields/parts/field-description";
+import { FieldErrorMessage } from "@/ui/primitives/form-fields/parts/field-error-message";
+import { FieldLabel } from "@/ui/primitives/form-fields/parts/field-label";
 import { typography } from "@/ui/typography";
 
 /** 長いテキストの入力欄に渡す値。 */
