@@ -153,3 +153,47 @@ test("原稿に1文字入力してもDialog全体を描き直さず、次に選�
   fireEvent.click(screen.getByRole("button", { name: "a.jpg" }));
   expect(screen.getByDisplayValue("山")).toBe(field);
 });
+
+test("転送率の通知が届いても、Dialog とカルーセルを再レンダリングしない", async () => {
+  const held = holdUploads();
+  const reports: ((fraction: number) => void)[] = [];
+
+  const app = createTestApp({
+    path: "/images",
+    routes: held.routes,
+    uploadProgress: (report) => {
+      reports.push(report);
+    },
+  });
+
+  await app.router.load();
+
+  using dialog = spyOn(controls, "useUploadDialog");
+  using rail = spyOn(carousel, "UploadCarousel");
+  render(
+    <main>
+      <PhotoUploads imageHref={(id) => `/images/${id}`} />
+    </main>,
+    { wrapper: withAppProviders(app) },
+  );
+  await dropPhotos("a.jpg", "b.jpg");
+  await waitFor(() => {
+    expect(screen.getAllByRole("progressbar")).toHaveLength(2);
+    expect(reports).toHaveLength(2);
+  });
+
+  const ring = screen.getByRole("progressbar", {
+    name: "「a.jpg」をアップロード中",
+  });
+
+  expect(dialog).toHaveBeenCalled();
+  expect(rail).toHaveBeenCalled();
+  dialog.mockClear();
+  rail.mockClear();
+  act(() => {
+    reports[0]?.(0.5);
+  });
+  expect(ring.getAttribute("value")).toBe("50");
+  expect(dialog).not.toHaveBeenCalled();
+  expect(rail).not.toHaveBeenCalled();
+});

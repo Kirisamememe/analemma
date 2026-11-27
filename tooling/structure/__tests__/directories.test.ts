@@ -3,12 +3,12 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import drizzleConfig from "../../../apps/server/drizzle.config";
+import { findStrayStoryFiles } from "../admin/story-files";
 import {
   GENERATED_DIRECTORIES,
   findBadDirectories,
   findCrowdedDirectories,
 } from "../directories";
-import { findStrayStoryFiles } from "../story-files";
 
 describe("中身が多すぎるフォルダ", () => {
   test("上限を超えたフォルダだけを、中身の数と一緒に返すこと", () => {
