@@ -25,7 +25,7 @@ const API_METHODS = new Set(["GET", "POST"]);
 const FILE_CONTENT_TYPE = "multipart/form-data"; // oRPC がファイルを読む本文の形
 const PHOTO_UPLOAD_PROCEDURE = "admin/images/upload";
 const PHOTO_BODY_LIMIT = PHOTO_MAX_BYTES + API_BODY_LIMIT; // 写真の外の部分は、ほかの API と同じ上限に収める
-const MAX_PHOTO_UPLOADS = 2; // 変換している1枚と、次に変換する1枚
+const MAX_PHOTO_UPLOADS = 2; // 本文をメモリに読む写真の数
 const PHOTO_RETRY_AFTER_SECONDS = 10;
 
 const limitApiBody = bodyLimit({ maxSize: API_BODY_LIMIT });
@@ -33,12 +33,6 @@ const limitPhotoBody = bodyLimit({ maxSize: PHOTO_BODY_LIMIT });
 
 const PERMISSIONS_POLICY =
   "publickey-credentials-create=(self), publickey-credentials-get=(self)";
-
-/** 外部用のポートを待ち受ける実行環境が、アプリに渡す処理。 */
-export type ExternalListener = {
-  /** 写真の変換を待つリクエストの接続を、何も送り受けしなくても長く保つ関数。 */
-  readonly keepAlive: (request: Request) => void;
-};
 
 /** 外部用のポートで受ける procedure。 */
 export const externalRouter = { admin: router.admin, auth: router.auth };
@@ -128,10 +122,7 @@ const isPhotoUpload = async (request: Request): Promise<boolean> => {
   );
 };
 
-const limitExternalBody = (
-  context: AppContext,
-  listener: ExternalListener | undefined,
-): MiddlewareHandler => {
+const limitExternalBody = (context: AppContext): MiddlewareHandler => {
   let photoUploads = 0;
 
   return async (c, next) => {
@@ -142,7 +133,7 @@ const limitExternalBody = (
       return limitApiBody(c, next);
     }
 
-    if (photoUploads >= MAX_PHOTO_UPLOADS) {
+    if (photoUploads >= MAX_PHOTO_UPLOADS || context.pending.isFull()) {
       return c.body(null, 503, {
         "Retry-After": String(PHOTO_RETRY_AFTER_SECONDS),
       });
@@ -153,7 +144,6 @@ const limitExternalBody = (
     slot.defer(() => {
       photoUploads -= 1;
     });
-    listener?.keepAlive(c.req.raw);
 
     return await limitPhotoBody(c, next);
   };
@@ -246,18 +236,16 @@ const mountAdminDist = (app: Hono, dist: AdminDist): void => {
   app.all("*", (c) => c.body(null, 405, { Allow: STATIC_METHODS }));
 };
 
-/** 外部用のポートのアプリに渡す、管理画面のビルドと実行環境の処理。 */
+/** 外部用のポートのアプリに渡す、管理画面のビルド。 */
 export type ExternalAppOptions = {
   /** 配信する管理画面のビルド。 */
   readonly dist?: AdminDist | undefined;
-  /** 外部用のポートを待ち受ける実行環境が、アプリに渡す処理。 */
-  readonly listener?: ExternalListener | undefined;
 };
 
 /** 管理用 API・認証用 API・配信用の画像と管理画面を、外部用のポートで配信するアプリを作る。 */
 export const createExternalApp = (
   context: AppContext,
-  { dist, listener }: ExternalAppOptions = {},
+  { dist }: ExternalAppOptions = {},
 ): Hono => {
   const app = new Hono();
 
@@ -291,7 +279,7 @@ export const createExternalApp = (
     app,
     context,
     procedures: externalRouter,
-    limitBody: limitExternalBody(context, listener),
+    limitBody: limitExternalBody(context),
   });
   mountDeliveryImages(app, context);
 

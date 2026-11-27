@@ -1,7 +1,7 @@
 import { Outlet, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
-import { useIsLoadingFirstData } from "@/api/server-state/server-state";
+import { useIsLoadingFirstData } from "@/api/server-state/pending-state";
 import { NavigationProgress } from "@/ui/primitives/navigation";
 import { UiProvider } from "@/ui/primitives/ui-provider";
 

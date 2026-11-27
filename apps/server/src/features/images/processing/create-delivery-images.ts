@@ -41,6 +41,13 @@ export const chooseWidths = (largestWidth: number): readonly number[] => [
   ...SMALLER_WIDTHS.filter((width) => width < largestWidth),
 ];
 
+/** 受ける形式の写真かを、bytes の中身で見分ける。 */
+export const isAcceptedPhoto = async (bytes: Uint8Array): Promise<boolean> => {
+  const format = await detectImageFormat(bytes);
+
+  return format !== undefined && ACCEPTED_FORMATS.has(format);
+};
+
 /** 受けた写真の bytes から、配信用の画像(AVIF)を幅の段ごとに作る。 */
 export const createDeliveryImages = async (
   bytes: Uint8Array,

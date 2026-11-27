@@ -119,9 +119,9 @@ export type PublishedImageValue = z.output<typeof publishedImageValue>;
 
 /** 画像の状態。 */
 export const imageStatus = z
-  .enum(["processing", "failed", "unpublished", "published"])
+  .enum(["processing", "unreadable", "interrupted", "unpublished", "published"])
   .describe(
-    "画像の状態。processing は変換中、failed は変換失敗、unpublished は非公開、published は公開。",
+    "画像の状態。processing は変換中、unreadable は写真を読めずに変換できなかった、interrupted は server の都合で変換を終えられなかった、unpublished は非公開、published は公開。",
   );
 
 /** 画像の状態の型。 */

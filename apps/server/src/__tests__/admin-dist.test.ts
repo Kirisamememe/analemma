@@ -8,6 +8,7 @@ import { join, relative } from "node:path";
 import { createExternalApp, createInternalApp } from "@/app";
 import { createChallengeStore } from "@/features/auth/challenge/create-challenge-store";
 import { createDropboxContext } from "@/features/dropbox/dropbox-context";
+import { createPendingPhotos } from "@/features/images/creating/pending-photos";
 import { createConversionQueue } from "@/features/images/processing/conversion-queue";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
@@ -34,14 +35,17 @@ const database = openDatabase({ target: env.database, logger: stdoutLogger });
 
 const root = await mkdtemp(join(tmpdir(), "analemma-admin-dist-"));
 
+const storage = await openFileStorage(root);
+
 const context = {
   db: database.db,
   relyingParty: env.relyingParty,
   logger: stdoutLogger,
   clock: systemClock,
-  storage: await openFileStorage(root),
+  storage,
   challenges: createChallengeStore({ capacity: 1, lifetimeMs: 1000 }),
   conversions: createConversionQueue(),
+  pending: createPendingPhotos(storage),
   dropbox: createDropboxContext(undefined),
 };
 

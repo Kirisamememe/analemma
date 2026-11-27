@@ -1,0 +1,49 @@
+{
+  "type": "diff",
+  "version": "10",
+  "dialect": "postgres",
+  "id": "d557b810-f772-42a1-bec7-b55111ed16b0",
+  "prevIds": [
+    "28844136-b8d9-47c3-81fd-56a22e980888"
+  ],
+  "footprints": [
+    {
+      "statementType": "recreate_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "image_status"
+      ],
+      "writes": [
+        "s|enum|public.image_status",
+        "n|enum|public.image_status",
+        "e|enum|public.image_status",
+        "n|type|public.image_status",
+        "s|colprop|public.image.status.type",
+        "s|colprop|public.image.status.default"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|tbl|public.image",
+        "n|sch|public",
+        "n|col|public.image.status"
+      ],
+      "sqlHash": "cb3d27586476a1ed"
+    }
+  ],
+  "deltas": [
+    {
+      "op": "alter",
+      "key": "enums\u0000[\"public\",\"image_status\"]",
+      "set": {
+        "values": [
+          "processing",
+          "unreadable",
+          "interrupted",
+          "unpublished",
+          "published"
+        ]
+      }
+    }
+  ]
+}

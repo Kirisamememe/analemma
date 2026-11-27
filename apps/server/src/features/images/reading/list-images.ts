@@ -5,29 +5,33 @@ import { adminProcedures } from "@/procedures";
 
 /** 公開しているかによらず、画像を新しく足した順に、1ページずつ返す procedure。 */
 export const listImages = adminProcedures.images.list.handler(
-  async ({ context, input }) => {
-    const rows = await listImageRows(context.db, {
-      before: input.cursor,
-      limit: input.limit + 1,
-    });
+  async ({ context, input }) =>
+    context.db.transaction(
+      async (tx) => {
+        const rows = await listImageRows(tx, {
+          before: input.cursor,
+          limit: input.limit + 1,
+        });
 
-    const page = rows.slice(0, input.limit);
-    const last = page.at(-1);
+        const page = rows.slice(0, input.limit);
+        const last = page.at(-1);
 
-    const deliveryImages = Map.groupBy(
-      await listDeliveryImages(
-        context.db,
-        page.map(({ id }) => id),
-      ),
-      ({ imageId }) => imageId,
-    );
+        const deliveryImages = Map.groupBy(
+          await listDeliveryImages(
+            tx,
+            page.map(({ id }) => id),
+          ),
+          ({ imageId }) => imageId,
+        );
 
-    return {
-      images: page.map((row) =>
-        toAdminImage(row, deliveryImages.get(row.id) ?? []),
-      ),
-      nextCursor:
-        rows.length > input.limit && last !== undefined ? last.id : null,
-    };
-  },
+        return {
+          images: page.map((row) =>
+            toAdminImage(row, deliveryImages.get(row.id) ?? []),
+          ),
+          nextCursor:
+            rows.length > input.limit && last !== undefined ? last.id : null,
+        };
+      },
+      { isolationLevel: "repeatable read", accessMode: "read only" },
+    ),
 );

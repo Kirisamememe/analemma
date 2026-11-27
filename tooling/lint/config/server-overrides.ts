@@ -124,6 +124,7 @@ export const SERVER_OVERRIDES: readonly OxlintOverride[] = [
       "**/apps/server/src/db/migrate.ts",
       "**/apps/server/src/platform/startup/parse-database-url.ts",
       "**/apps/server/src/features/dropbox/importing/run-dropbox-import.ts",
+      "**/apps/server/src/features/images/creating/run-pending-conversion.ts",
       "**/apps/server/src/platform/test-database/**",
       "**/apps/server/src/test-client/**",
       "**/*.test.ts",

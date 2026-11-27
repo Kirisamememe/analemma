@@ -9,10 +9,10 @@ import { join } from "node:path";
 import {
   createExternalApp,
   createInternalApp,
-  type ExternalListener,
   type externalRouter,
   type internalRouter,
 } from "@/app";
+import type { AppContext } from "@/context";
 import {
   CHALLENGE_CAPACITY,
   CHALLENGE_LIFETIME_MS,
@@ -20,6 +20,11 @@ import {
 } from "@/features/auth/challenge/create-challenge-store";
 import { issueEnrollment } from "@/features/auth/enrollment/issue-enrollment";
 import { createDropboxContext } from "@/features/dropbox/dropbox-context";
+import {
+  type PendingPhotos,
+  createPendingPhotos,
+} from "@/features/images/creating/pending-photos";
+import { resumePendingImages } from "@/features/images/creating/resume-pending-images";
 import {
   type ConversionQueue,
   createConversionQueue,
@@ -49,8 +54,8 @@ export type TestClientOptions = {
   readonly conversions?: ConversionQueue;
   /** Dropbox のアプリの設定が無い server にするか。 */
   readonly withoutDropbox?: boolean;
-  /** 外部用のポートを待ち受ける実行環境が、アプリに渡す処理。 */
-  readonly listener?: ExternalListener;
+  /** 新しい写真を受け取らなくなる、置いてある原本の合計(bytes)。 */
+  readonly pendingLimit?: number;
 };
 
 /** それぞれ自分の Cookie を持つ、テストのブラウザ。 */
@@ -78,6 +83,12 @@ export type TestClient = AsyncDisposable &
     readonly storage: FileStorage;
     /** アプリがつなぐ、作り物の Dropbox。 */
     readonly dropbox: FakeDropbox;
+    /** 変換を待つ原本の置き場所と、リクエストの外で進める変換の見張り。 */
+    readonly pending: PendingPhotos;
+    /** server を止めるときと同じに、新しい変換を始めさせず、進めている変換を待つ。 */
+    readonly stop: () => Promise<void>;
+    /** 起動し直したときと同じに、変換を待つ画像を拾い直す。 */
+    readonly resume: () => Promise<void>;
     /** 同じアプリにつないだ、別のブラウザを開く。 */
     readonly openBrowser: (cookie?: string) => TestBrowser;
     /** コマンドと同じやり方で、1回きりの登録用 URL を出す。 */
@@ -120,7 +131,7 @@ export const createTestClient = async (
   const storage = await openFileStorage(mediaDirectory);
   const dropbox = createFakeDropbox();
 
-  const context = {
+  const context: { -readonly [Key in keyof AppContext]: AppContext[Key] } = {
     clock,
     db: database.db,
     logger,
@@ -131,6 +142,7 @@ export const createTestClient = async (
       lifetimeMs: CHALLENGE_LIFETIME_MS,
     }),
     conversions: options.conversions ?? createConversionQueue(),
+    pending: createPendingPhotos(storage, options.pendingLimit),
     dropbox: createDropboxContext(
       options.withoutDropbox === true
         ? undefined
@@ -142,7 +154,11 @@ export const createTestClient = async (
     await context.dropbox.imports.stop();
   });
 
-  const app = createExternalApp(context, { listener: options.listener });
+  stack.defer(async () => {
+    await context.pending.stop();
+  });
+
+  const app = createExternalApp(context);
   const internalApp = createInternalApp(context);
 
   const openBrowser = (seed = ""): TestBrowser => {
@@ -195,6 +211,16 @@ export const createTestClient = async (
     databaseName: database.name,
     storage,
     dropbox,
+    get pending() {
+      return context.pending;
+    },
+    stop: async () => {
+      await context.pending.stop();
+    },
+    resume: async () => {
+      context.pending = createPendingPhotos(storage, options.pendingLimit);
+      await resumePendingImages(context);
+    },
     openBrowser,
     issueEnrollmentUrl: async () =>
       (
