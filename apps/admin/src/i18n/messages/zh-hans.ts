@@ -284,6 +284,11 @@ export const zhHans = {
     "离开后，尚未上传的照片和未保存的标题、说明将会丢失。正在上传的照片会在上传完成后显示在列表中。",
   "imageUpload.stay": "留在此页面",
   "imageUpload.leave": "离开此页面",
+  "imageUpload.discardTitle": "要放弃未能添加的照片吗？",
+  "imageUpload.discardDescription":
+    "有 {{count}} 张照片未能添加。完成后将无法重新上传，为这些照片输入的内容也会丢失。",
+  "imageUpload.keep": "返回",
+  "imageUpload.discard": "放弃并完成",
   "imageDetail.backToList": "返回列表",
   "imageDetail.untitled": "无标题图片",
   "imageDetail.loading": "正在加载图片。",

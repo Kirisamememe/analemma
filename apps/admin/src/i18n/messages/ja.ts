@@ -312,6 +312,11 @@ export const ja = {
     "画面を離れると、未送信の写真と、まだ保存していないタイトル・説明は失われます。送信中の写真は、送信が完了すると一覧に表示されます。",
   "imageUpload.stay": "この画面に残る",
   "imageUpload.leave": "画面を離れる",
+  "imageUpload.discardTitle": "追加できなかった写真を破棄しますか？",
+  "imageUpload.discardDescription":
+    "追加できなかった写真が{{count}}枚あります。完了すると、送り直せなくなり、その写真に入力した内容も失われます。",
+  "imageUpload.keep": "戻る",
+  "imageUpload.discard": "破棄して完了",
   "imageDetail.backToList": "一覧へ",
   "imageDetail.untitled": "無題の画像",
   "imageDetail.loading": "画像を読み込んでいます。",

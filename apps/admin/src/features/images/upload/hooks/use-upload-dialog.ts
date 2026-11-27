@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-import { isUploading } from "../logic/photo-uploads";
+import { countDiscarded, isUploading } from "../logic/photo-uploads";
 import { usePhotoDrop } from "./use-photo-drop";
 import { usePhotoUploads } from "./use-photo-uploads";
 import { useRetryFocus } from "./use-retry-focus";
@@ -61,6 +61,16 @@ export const useUploadDialog = () => {
     receive,
   );
 
+  const [discarded, setDiscarded] = useState(0);
+
+  const finish = (): void => {
+    const count = countDiscarded(uploads, metadata.hasChanges);
+
+    setDiscarded(count);
+
+    if (count === 0) metadata.finish();
+  };
+
   const selected = uploads.find(({ id }) => id === selectedId) ?? uploads[0];
   const { error } = metadata;
   const problem = error && uploads.find(({ id }) => id === error.id);
@@ -75,6 +85,18 @@ export const useUploadDialog = () => {
     attachPanel,
     focus,
     leaving,
+    finish,
+    discarding: {
+      _tag: discarded > 0 ? "Asking" : "Idle",
+      count: discarded,
+      stay: () => {
+        setDiscarded(0);
+      },
+      leave: () => {
+        setDiscarded(0);
+        metadata.finish();
+      },
+    } as const,
     metadata,
     isDragging: isDragging && !metadata.isSaving,
     select,

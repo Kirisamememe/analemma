@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   clearFinished,
+  countDiscarded,
   deferUpload,
   hasUnsentPhotos,
   retryUpload,
@@ -138,6 +139,38 @@ describe("送る写真の一覧", () => {
     );
 
     expect(uploads.map(({ id }) => id)).toEqual([2, 3]);
+  });
+});
+
+describe("完了の前に確かめる写真", () => {
+  const uploads = withStatus(
+    3,
+    "unsupported",
+  )(
+    withStatus(
+      2,
+      "added",
+    )(
+      queuePhotos([], {
+        files: [file("a.jpg", 11), file("b.jpg", 1), file("c.bmp", 1)],
+        maxBytes: 10,
+      }),
+    ),
+  );
+
+  test("送り直せる写真も入力のある写真も無ければ、確かめる写真は無いこと", () => {
+    expect(countDiscarded(uploads, () => false)).toBe(0);
+  });
+
+  test("追加できなかった写真に入力があれば、追加できなかった写真をすべて数えること", () => {
+    expect(countDiscarded(uploads, (id) => id === 3)).toBe(2);
+    expect(countDiscarded(uploads, (id) => id === 2)).toBe(0);
+  });
+
+  test("送り直せる写真があれば、入力が無くても追加できなかった写真をすべて数えること", () => {
+    const failed = withStatus(3, "failed")(uploads);
+
+    expect(countDiscarded(failed, () => false)).toBe(2);
   });
 });
 

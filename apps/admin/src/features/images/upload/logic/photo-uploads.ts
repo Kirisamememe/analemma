@@ -147,14 +147,22 @@ export const hasUnsentPhotos = (uploads: readonly PhotoUpload[]): boolean =>
 export const isUploading = (uploads: readonly PhotoUpload[]): boolean =>
   uploads.some(({ status }) => status === "waiting" || status === "sending");
 
+/** 「完了」の前に確かめる、破棄する写真の枚数。 */
+export const countDiscarded = (
+  uploads: readonly PhotoUpload[],
+  hasChanges: (id: number) => boolean,
+): number => {
+  const discarded = uploads.filter(({ status }) => status !== "added");
+
+  return discarded.some(
+    ({ id, status }) => status === "failed" || hasChanges(id),
+  )
+    ? discarded.length
+    : 0;
+};
+
 /** 送り終えた写真の結果を閉じる。 */
 export const clearFinished = (
   uploads: readonly PhotoUpload[],
-  retained?: ReadonlySet<number>,
 ): readonly PhotoUpload[] =>
-  uploads.filter(
-    ({ id, status }) =>
-      status === "waiting" ||
-      status === "sending" ||
-      retained?.has(id) === true,
-  );
+  uploads.filter(({ status }) => status === "waiting" || status === "sending");

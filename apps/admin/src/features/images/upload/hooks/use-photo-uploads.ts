@@ -59,8 +59,8 @@ export const usePhotoUploads = ({
 
   const metadata = useUploadMetadata(uploads, {
     isActive: () => active.current,
-    onComplete: (retained) => {
-      apply((current) => clearFinished(current, retained));
+    onComplete: () => {
+      apply(clearFinished);
       onComplete?.();
     },
   });
