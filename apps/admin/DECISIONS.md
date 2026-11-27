@@ -26,7 +26,7 @@
 - ビルドには、React の公式の `babel-plugin-react-compiler` を、`@rolldown/plugin-babel` と `@vitejs/plugin-react` の `reactCompilerPreset` で入れる。`@vitejs/plugin-react` の `compiler` の指定(Rust に移植したコンパイラ)は、experimental の間は使わない。
 - Storybook は同じ Vite の設定を読むので、story も同じ変換を通る。Bun のテストは Vite を通らないので、変換していないコードを確かめる(コンパイラは振る舞いを変えない前提)。
 - どこを再レンダリングしないかは、今までどおり設計で決め、「再レンダリングの期待」に書いてテストで守る。コンパイラは、state の置き場所や購読の範囲までは決めない。
-- 今ある `useCallback`・`useMemo`・`memo` は、そのまま残してよい(コンパイラは手で書いた memo 化を保つ)。新しく書くコードでは、ref の callback のように identity が意味を持つ所だけに書く。
+- 手で memo 化を書くのは、次の2つだけにする。(1)「再レンダリングの期待」に書いて、テストで守る境界(`memo` と、そこへ渡す handler の `useCallback`)。Bun のテストは Vite を通らず、コンパイラの変換が掛からないので、テストで守る約束は、手で書いた memo 化で成り立たせる。(2) ref の callback や effect の依存のように、identity が振る舞いを決める所。それ以外(計算が重いだけの値、props に渡すだけの handler)には書かず、コンパイラに任せる。今ある `useCallback`・`useMemo`・`memo` は、そのまま残してよい(コンパイラは手で書いた memo 化を保つ)。
 
 ## import の別名
 
@@ -144,7 +144,7 @@ effect でないと書けない処理は、次のとおり。
 | ---------------------------------- | ------------------------------------------------------- |
 | DOM の要素に結びつく準備と後片付け | cleanup を返す ref callback                             |
 | 外の store の値の読み取り          | `useSyncExternalStore`                                  |
-| props や state から計算できる値    | 描くときに計算し、重ければ `useMemo`                    |
+| props や state から計算できる値    | 描くときに計算する(memo 化は React Compiler に任せる)   |
 | 操作がきっかけの処理               | event handler や mutation の `onSuccess`                |
 | 子の state を作り直す              | `key`                                                   |
 | データの読み込み                   | 画面の中で TanStack Query を使う                        |
