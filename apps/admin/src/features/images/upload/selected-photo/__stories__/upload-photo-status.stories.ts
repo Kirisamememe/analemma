@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import type { PhotoUpload } from "../logic/photo-uploads";
+import type { PhotoUpload } from "../../logic/photo-uploads";
 import { UploadPhotoStatus } from "../upload-photo-status";
 
 const photo = {

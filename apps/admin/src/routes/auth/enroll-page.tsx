@@ -8,19 +8,15 @@ import {
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { PasskeyNameField } from "@/components/passkey-name-field";
+import { EnrollForm } from "./enroll-form";
+
 import { readEnrollmentToken } from "@/features/auth/logic/read-enrollment-token";
 import { toEnrollNotice } from "@/features/auth/logic/to-auth-notice";
 import { type EnrollInput, enroll } from "@/features/auth/queries/enroll";
-import { AppShell, Center, Stack, Text } from "@/ui/layout";
+import { AppShell, Center, Stack } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
-import { Button } from "@/ui/primitives/button";
-import { Form } from "@/ui/primitives/form";
-import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
 import { useFailureToast } from "@/ui/primitives/overlays";
-
-const PASSKEY_NAME_MAX_LENGTH = 64;
 
 /** 登録用 URL から、最初のパスキーを登録する画面。 */
 export const EnrollPage = (): ReactNode => {
@@ -69,7 +65,6 @@ export const EnrollPage = (): ReactNode => {
 
   const result = enrollment.data?._tag;
   const outcome = enrollment.variables?.token === token ? result : undefined;
-  const notice = outcome === undefined ? undefined : toEnrollNotice(outcome);
 
   return (
     <AppShell>
@@ -83,38 +78,14 @@ export const EnrollPage = (): ReactNode => {
           {token === undefined ? (
             <Notice tone="danger">{t("enroll.missingToken")}</Notice>
           ) : (
-            <Form
+            <EnrollForm
               isPending={enrollment.isPending}
-              onSubmit={(data) => {
-                const name = data.get("name");
-
+              onSubmit={(name) => {
                 failure.close();
-                enrollment.mutate({
-                  token,
-                  name: typeof name === "string" ? name : "",
-                });
+                enrollment.mutate({ token, name });
               }}
-            >
-              <PasskeyNameField
-                maxLength={PASSKEY_NAME_MAX_LENGTH}
-                showDescription
-              />
-              {notice?.place === "Notice" && (
-                <Notice tone="danger">{t(notice.message)}</Notice>
-              )}
-              {outcome === "AlreadyRegistered" && (
-                <Text>
-                  <Link href="/login">{t("enroll.signIn")}</Link>
-                </Text>
-              )}
-              <Button
-                isPending={enrollment.isPending}
-                tone="primary"
-                type="submit"
-              >
-                {t("enroll.submit")}
-              </Button>
-            </Form>
+              outcome={outcome}
+            />
           )}
         </Stack>
       </Center>

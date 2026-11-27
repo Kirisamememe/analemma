@@ -7,8 +7,9 @@ import {
   useState,
 } from "react";
 
-import { ContentFields } from "./content-fields";
-import { DeleteFixedPage } from "./delete-fixed-page";
+import { EditorFields } from "./frame/editor-fields";
+import { EditorHeader } from "./frame/editor-header";
+import { LeaveDialog } from "./frame/leave-dialog";
 import {
   type FixedPageEditorProps,
   useEditorForm,
@@ -22,57 +23,11 @@ import {
   pageInUse,
 } from "./logic/editor-fields";
 
-import type { LeaveConfirmation } from "@/api/use-leave-confirmation";
 import { KindRefreshNotice } from "@/features/fixed-pages/list/kind-refresh-notice";
 import { useTranslate } from "@/i18n/use-translate";
-import { Cluster, Stack, Text } from "@/ui/layout";
-import { PageHeader } from "@/ui/patterns";
+import { Stack } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Notice } from "@/ui/primitives/notice";
-import { Dialog } from "@/ui/primitives/overlays";
-
-/** 離れる前の確かめに渡す値。 */
-type LeaveDialogProps = {
-  /** 確かめの状態。 */
-  leaving: LeaveConfirmation;
-};
-
-const LeaveDialog = ({ leaving }: LeaveDialogProps): ReactNode => {
-  const t = useTranslate();
-
-  const stay = (): void => {
-    if (leaving._tag === "Asking") leaving.stay();
-  };
-
-  return (
-    <Dialog
-      isOpen={leaving._tag === "Asking"}
-      onOpenChange={(open) => {
-        if (!open) stay();
-      }}
-      title={t("fixedPageEditor.leaveTitle")}
-    >
-      <Text>{t("fixedPageEditor.leaveDescription")}</Text>
-      <Cluster gap={2} justify="end">
-        <Button onPress={stay}>{t("fixedPageEditor.stay")}</Button>
-        <Button
-          onPress={() => {
-            if (leaving._tag === "Asking") leaving.leave();
-          }}
-          tone="danger"
-        >
-          {t("fixedPageEditor.leave")}
-        </Button>
-      </Cluster>
-    </Dialog>
-  );
-};
-
-const focusIfLost = (input: HTMLInputElement | null): void => {
-  const active = document.activeElement;
-
-  if (active === null || active === document.body) input?.focus(); // 押した種類のボタンが消え、focus の行き先が無いとき
-};
 
 type EditorProps = {
   /** 編集する固定ページと種類。 */
@@ -96,7 +51,6 @@ const EditorContent = ({
   const { form, fields, root, errors, changed, check, saving, leaving } =
     editor;
 
-  const { kind, page } = props;
   const t = useTranslate();
 
   const save = (
@@ -110,25 +64,10 @@ const EditorContent = ({
       <form.AppForm>
         <form.Form isPending={saving.isPending} validationErrors={errors}>
           <Stack gap={8}>
-            <PageHeader
-              actions={
-                props.page !== undefined && (
-                  <>
-                    <DeleteFixedPage
-                      onDeleted={props.onDeleted}
-                      onOpenChange={onDeleteOpen}
-                      page={props.page}
-                    />
-                    {save}
-                  </>
-                )
-              }
-              description={t("fixedPageEditor.kindOf", { kind: kind.label })}
-              title={t(
-                page === undefined
-                  ? "fixedPageEditor.new"
-                  : "fixedPageEditor.edit",
-              )}
+            <EditorHeader
+              pageProps={props}
+              onDeleteOpen={onDeleteOpen}
+              save={save}
             />
             {props.refreshFailure !== undefined && (
               <KindRefreshNotice
@@ -141,50 +80,16 @@ const EditorContent = ({
                 {t("fixedPageEditor.updatedFields")}
               </Notice>
             )}
-            <Stack gap={4}>
-              {(["slug", "title"] as const).map((name) => (
-                <form.AppField
-                  key={name}
-                  name={name}
-                  validators={{ onBlur: check(name) }}
-                  listeners={{
-                    onChange: () => {
-                      changed(name);
-                    },
-                  }}
-                >
-                  {(field) => (
-                    <field.TextField
-                      label={t(
-                        name === "slug"
-                          ? "fixedPageEditor.slug"
-                          : "fixedPageEditor.title",
-                      )}
-                      description={
-                        name === "slug"
-                          ? t("fixedPageEditor.guide.slug")
-                          : undefined
-                      }
-                      inputRef={
-                        name === "slug" && props.picked === true
-                          ? focusIfLost
-                          : undefined
-                      }
-                      isRequired
-                    />
-                  )}
-                </form.AppField>
-              ))}
-              <ContentFields
-                form={form}
-                fields={fields}
-                imageErrors={editor.imageErrors}
-                prefix=""
-                errors={errors}
-                changed={changed}
-              />
-              <Cluster justify="end">{save}</Cluster>
-            </Stack>
+            <EditorFields
+              form={form}
+              fields={fields}
+              errors={errors}
+              imageErrors={editor.imageErrors}
+              check={check}
+              changed={changed}
+              picked={props.picked === true}
+              save={save}
+            />
           </Stack>
         </form.Form>
       </form.AppForm>

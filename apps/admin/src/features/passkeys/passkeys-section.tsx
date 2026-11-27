@@ -2,10 +2,8 @@ import { type ReactNode, useState } from "react";
 
 import { AddPasskeyDialog } from "@/features/passkeys/add-passkey-dialog";
 import { DeletePasskeyDialog } from "@/features/passkeys/delete-passkey-dialog";
-import {
-  PasskeyList,
-  type PasskeySummary,
-} from "@/features/passkeys/passkey-list";
+import { PasskeyList } from "@/features/passkeys/passkey-list";
+import type { PasskeySummary } from "@/features/passkeys/passkey-row";
 import { RenamePasskeyDialog } from "@/features/passkeys/rename-passkey-dialog";
 import { useTranslate } from "@/i18n/use-translate";
 import { Heading, Stack } from "@/ui/layout";

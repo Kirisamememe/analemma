@@ -78,6 +78,10 @@ const TRANSLATED_ATTRIBUTES = [
   "untitled",
 ]; // 利用者に見えるか、読み上げられる文言を受け取る属性
 
+const SHARED_UI_JSX_DEPTH = 6; // ライブラリの入れ子を包む共通の部品
+const FEATURE_UI_JSX_DEPTH = 5; // feature の見た目を組む部品
+const COMPOSED_JSX_DEPTH = 4; // 部品を組むだけの場所
+
 const SINGLE_COMPONENT_FILES = ["**/apps/admin/src/ui/**/*.tsx"]; // 片付けの済んだフォルダから足していく
 
 /** 管理画面の境界を守る設定(後に書いたものが勝つ)。 */
@@ -183,6 +187,23 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
   {
     files: ["**/apps/admin/src/testing/**"],
     rules: { "react/jsx-no-literals": "off" },
+  },
+  {
+    files: ["**/apps/admin/src/**/*.tsx"],
+    rules: { "react/jsx-max-depth": ["error", { max: COMPOSED_JSX_DEPTH }] },
+  },
+  {
+    files: ["**/apps/admin/src/features/*/ui/**/*.tsx"],
+    rules: { "react/jsx-max-depth": ["error", { max: FEATURE_UI_JSX_DEPTH }] },
+  },
+  {
+    files: [
+      "**/apps/admin/src/ui/**/*.tsx",
+      "**/apps/admin/src/**/__stories__/**",
+      "**/apps/admin/src/**/__tests__/**",
+      "**/apps/admin/src/testing/**",
+    ],
+    rules: { "react/jsx-max-depth": ["error", { max: SHARED_UI_JSX_DEPTH }] },
   },
   {
     files: [

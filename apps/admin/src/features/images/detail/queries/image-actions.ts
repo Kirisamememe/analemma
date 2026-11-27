@@ -38,3 +38,6 @@ export const setPublication = (
       : api.admin.images.unpublish({ id }),
     ["NOT_FOUND"],
   );
+
+/** 画像のタイトル・説明・alt の保存の、送信の状態を引くキー。 */
+export const imageSaveKey = (id: string) => ["admin", "images", "update", id];

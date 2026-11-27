@@ -26,8 +26,9 @@ import * as featuresImagesPhotoCarousel from "@/features/images/ui/upload/__stor
 import * as featuresImagesUploadNotice from "@/features/images/ui/upload/__stories__/upload-notice.stories";
 import * as UploadFileInputStories from "@/features/images/upload/__stories__/upload-file-input.stories";
 import * as uploadLeaveDialog from "@/features/images/upload/__stories__/upload-leave-dialog.stories";
-import * as uploadPhotoFields from "@/features/images/upload/__stories__/upload-photo-fields.stories";
-import * as UploadPhotoStatusStories from "@/features/images/upload/__stories__/upload-photo-status.stories";
+import * as uploadPhotoFields from "@/features/images/upload/selected-photo/__stories__/upload-photo-fields.stories";
+import * as UploadPhotoStatusStories from "@/features/images/upload/selected-photo/__stories__/upload-photo-status.stories";
+import * as UploadProblemStories from "@/features/images/upload/selected-photo/__stories__/upload-problem.stories";
 import * as routesSecurityPage from "@/routes/__stories__/security-page.stories";
 import * as routesEnrollPage from "@/routes/auth/__stories__/enroll-page.stories";
 import * as routesLoginPage from "@/routes/auth/__stories__/login-page.stories";
@@ -105,7 +106,7 @@ const MODULES = {
     kindRefreshNotice,
   "features/fixed-pages/ui/__stories__/content-group.stories.tsx":
     featuresFixedPagesContentGroup,
-  "features/images/upload/__stories__/upload-photo-fields.stories.tsx":
+  "features/images/upload/selected-photo/__stories__/upload-photo-fields.stories.tsx":
     uploadPhotoFields,
   "features/images/upload/__stories__/upload-leave-dialog.stories.tsx":
     uploadLeaveDialog,
@@ -126,8 +127,10 @@ const MODULES = {
   "features/images/ui/__stories__/info-list.stories.ts": featuresImagesInfoList,
   "features/images/upload/__stories__/upload-file-input.stories.ts":
     UploadFileInputStories,
-  "features/images/upload/__stories__/upload-photo-status.stories.ts":
+  "features/images/upload/selected-photo/__stories__/upload-photo-status.stories.ts":
     UploadPhotoStatusStories,
+  "features/images/upload/selected-photo/__stories__/upload-problem.stories.ts":
+    UploadProblemStories,
   "routes/auth/__stories__/enroll-page.stories.ts": routesEnrollPage,
   "routes/auth/__stories__/login-page.stories.ts": routesLoginPage,
   "routes/__stories__/security-page.stories.ts": routesSecurityPage,

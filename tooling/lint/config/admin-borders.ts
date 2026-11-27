@@ -42,12 +42,12 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
   ],
   "ui/patterns/states/empty-state.tsx": ["border", "border-dashed"],
   "ui/patterns/states/error-state.tsx": ["border"],
-  "features/fixed-pages/ui/content-group.tsx": [
+  "features/fixed-pages/ui/group-marker.tsx": [
     "border-2",
     "border-s-2",
-    "border-b-2",
     "border-danger",
   ],
+  "features/fixed-pages/ui/nest-line.tsx": ["border-s-2", "border-b-2"],
   "ui/primitives/graphics/spinner.tsx": [
     "border-2",
     "border-current",

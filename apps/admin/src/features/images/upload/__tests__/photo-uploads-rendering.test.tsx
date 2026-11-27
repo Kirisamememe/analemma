@@ -10,7 +10,7 @@ import {
 import { afterEach, expect, spyOn, test } from "bun:test";
 import { Profiler } from "react";
 
-import * as carousel from "../upload-carousel";
+import * as carousel from "../selected-photo/upload-carousel";
 
 import { ImagesSection } from "@/components/images/images-section";
 import * as controls from "@/features/images/upload/hooks/use-upload-dialog";

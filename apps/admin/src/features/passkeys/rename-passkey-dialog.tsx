@@ -4,7 +4,7 @@ import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { checkAfterSubmit, useAppForm } from "@/components/forms";
 import { checkPasskeyName } from "@/components/logic/check-passkey-name";
-import type { PasskeySummary } from "@/features/passkeys/passkey-list";
+import type { PasskeySummary } from "@/features/passkeys/passkey-row";
 import { PASSKEYS_QUERY_KEY } from "@/features/passkeys/queries/passkeys-query";
 import { renamePasskey } from "@/features/passkeys/queries/rename-passkey";
 import { useTranslate } from "@/i18n/use-translate";

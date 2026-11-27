@@ -9,8 +9,8 @@ import { callApi } from "@/api/call-api";
 import { useApiQuery } from "@/api/server-state/server-state";
 import { QueryContent } from "@/components/query-content";
 import { storedContentCheck } from "@/features/fixed-pages/editor/create-editor-values";
-import { DeleteFixedPage } from "@/features/fixed-pages/editor/delete-fixed-page";
 import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor";
+import { DeleteFixedPage } from "@/features/fixed-pages/editor/frame/delete-fixed-page";
 import {
   fixedPageQueryKey,
   loadFixedPage,
