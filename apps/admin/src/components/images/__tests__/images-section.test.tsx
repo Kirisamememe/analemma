@@ -40,6 +40,9 @@ const linkNames = async (): Promise<string[]> =>
     .getAllByRole("link")
     .map((link) => link.textContent);
 
+const announced = (text: string) =>
+  screen.findByText(text, undefined, { timeout: 4000 });
+
 const renderSection = async (
   routes: FakeRoutes,
   imageHref = (_id: string): "/fixed-pages" => "/fixed-pages",
@@ -109,6 +112,27 @@ describe("ImagesSection", () => {
 
     expect(rendered.mock.calls.slice(before)).toEqual([[converting?.id ?? ""]]);
   });
+
+  test("変換を終えたことと、変換できなかったことを、読み上げに知らせる", async () => {
+    const server = createImageRoutes([
+      { title: "新しい写真", status: "processing" },
+      { status: "processing" },
+    ]);
+
+    await renderSection(server.routes);
+    await linkNames();
+
+    const [newer, older] = server.images(); // 先に受け取った画像から、変換を終える
+
+    server.convert(older?.id ?? "", { status: "unreadable" });
+    await announced("「無題」を変換できませんでした");
+    expect(screen.getByRole("status").textContent).toBe(
+      "「無題」を変換できませんでした",
+    );
+
+    server.convert(newer?.id ?? "", { status: "published", deliveryImages });
+    await announced("「新しい写真」の変換が終わりました");
+  }, 15_000);
 
   test("画像が無ければ、中身の無い欄を出す", async () => {
     await renderSection(createImageRoutes([]).routes);

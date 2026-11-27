@@ -268,6 +268,8 @@ export const zhHans = {
   "images.moreFailed": "无法加载更多图片",
   "images.emptyTitle": "还没有图片",
   "images.emptyDescription": "上传或从 Dropbox 导入的图片会显示在这里。",
+  "images.announceConverted": "“{{title}}”已转换完成",
+  "images.announceUnconverted": "“{{title}}”无法转换",
   "images.untitled": "无标题",
   "images.unpublished": "未公开",
   "images.noDeliveryImage": "还没有可显示的图片",

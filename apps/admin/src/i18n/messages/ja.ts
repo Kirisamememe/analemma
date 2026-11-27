@@ -318,6 +318,8 @@ export const ja = {
   "images.emptyTitle": "画像はまだありません",
   "images.emptyDescription":
     "アップロードした画像や Dropbox から取り込んだ画像が、ここに並びます。",
+  "images.announceConverted": "「{{title}}」の変換が終わりました",
+  "images.announceUnconverted": "「{{title}}」を変換できませんでした",
   "images.untitled": "無題",
   "images.unpublished": "非公開",
   "images.noDeliveryImage": "表示用の画像がまだありません",

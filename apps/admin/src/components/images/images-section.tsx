@@ -2,6 +2,7 @@ import { memo, type ReactNode, type RefObject, useCallback } from "react";
 
 import { useConversionWatch } from "./hooks/use-conversion-watch";
 import { useImagePageFocus } from "./hooks/use-image-page-focus";
+import { isConverted } from "./logic/conversion-results";
 import { toImageStatusView } from "./logic/image-status";
 
 import { useAppContext } from "@/api/app-context";
@@ -19,6 +20,7 @@ import {
 } from "@/queries/images-query";
 import { Stack } from "@/ui/layout";
 import {
+  Announcement,
   EmptyState,
   ErrorState,
   ImageRows,
@@ -155,9 +157,25 @@ type ConversionWatchProps = {
 };
 
 const ConversionWatch = ({ pages }: ConversionWatchProps): ReactNode => {
-  useConversionWatch(pages);
+  const t = useTranslate();
+  const { isWatching, settled } = useConversionWatch(pages);
 
-  return null;
+  if (!isWatching && settled.length === 0) return null;
+
+  return (
+    <Announcement>
+      {settled
+        .map((image) =>
+          t(
+            isConverted(image)
+              ? "images.announceConverted"
+              : "images.announceUnconverted",
+            { title: image.title ?? t("images.untitled") },
+          ),
+        )
+        .join(" ")}
+    </Announcement>
+  );
 };
 
 const PageTiles = ({
