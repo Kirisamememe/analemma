@@ -84,7 +84,7 @@ test("写真ごとの入力を残し、全ての欄が正しくなるまで保�
     result.current.change(1, { description: "浜辺" });
     result.current.change(2, { title: "あ".repeat(201) });
   });
-  expect(result.current.dirty).toBe(true);
+  expect(result.current.isDirty()).toBe(true);
   act(() => {
     result.current.finish();
   });
@@ -95,7 +95,7 @@ test("写真ごとの入力を残し、全ての欄が正しくなるまで保�
     result.current.change(1, { description: " " });
     result.current.change(2, { title: "" });
   });
-  expect(result.current.dirty).toBe(false);
+  expect(result.current.isDirty()).toBe(false);
   act(() => {
     result.current.finish();
   });
@@ -141,6 +141,6 @@ test("追加できた写真の変更を保存し、途中で失敗したら入�
   });
   expect(updates).toEqual([first.id, second.id, second.id]);
   expect(result.current.draft(1)).toEqual({ title: "", description: "" });
-  expect(result.current.dirty).toBe(true);
+  expect(result.current.isDirty()).toBe(true);
   expect(result.current.draft(4).title).toBe("送れなかった写真");
 });

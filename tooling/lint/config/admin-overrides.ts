@@ -125,6 +125,7 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
             "features/deploy-tokens/issue/copy-text.ts",
             "features/fixed-pages/content-form.ts",
             "features/fixed-pages/editor/create-editor-values.ts",
+            "features/images/upload/upload-value.ts",
             "ui/primitives/form-fields/focus-first-invalid-field.ts",
           ],
         },

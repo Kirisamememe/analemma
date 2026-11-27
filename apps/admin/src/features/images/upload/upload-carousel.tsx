@@ -1,6 +1,11 @@
-import type { ReactNode } from "react";
+import { memo, type ReactNode, useSyncExternalStore } from "react";
 
-import { PhotoCarousel } from "@/features/images/ui/upload/photo-carousel";
+import type { UploadValue } from "./upload-value";
+
+import {
+  PhotoCarousel,
+  TransferProgress,
+} from "@/features/images/ui/upload/photo-carousel";
 import type { PhotoUpload } from "@/features/images/upload/logic/photo-uploads";
 import { useTranslate } from "@/i18n/use-translate";
 
@@ -16,6 +21,21 @@ type UploadCarouselProps = {
   onSelect: (id: number) => void;
 };
 
+type ProgressProps = {
+  /** 送信試行ごとの転送率。 */
+  progress: UploadValue<number>;
+  /** 送信している写真の名前。 */
+  label: string;
+};
+
+const UploadProgressContent = ({ progress, label }: ProgressProps) => {
+  const percent = useSyncExternalStore(progress.subscribe, progress.read);
+
+  return <TransferProgress percent={percent} label={label} />;
+};
+
+const UploadProgress = memo(UploadProgressContent);
+
 /** まとめて送る写真から編集する1枚を選ぶ欄。 */
 export const UploadCarousel = ({
   children,
@@ -26,18 +46,17 @@ export const UploadCarousel = ({
   const t = useTranslate();
   return (
     <PhotoCarousel
-      photos={uploads.map(({ id, file, previewUrl, status, percent }) => ({
+      photos={uploads.map(({ id, file, previewUrl, status, progress }) => ({
         id,
         name: file.name,
         source: file,
         previewUrl,
-        progress:
-          status === "sending"
-            ? {
-                percent: percent ?? 0,
-                label: t("imageUpload.uploadingFile", { name: file.name }),
-              }
-            : undefined,
+        overlay: status === "sending" && progress && (
+          <UploadProgress
+            progress={progress}
+            label={t("imageUpload.uploadingFile", { name: file.name })}
+          />
+        ),
       }))}
       selectedId={selectedId}
       onSelect={onSelect}

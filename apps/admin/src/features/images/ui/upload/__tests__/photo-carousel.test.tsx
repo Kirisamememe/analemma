@@ -2,7 +2,7 @@ import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { type ComponentProps, useState } from "react";
 
-import { PhotoCarousel } from "../photo-carousel";
+import { PhotoCarousel, TransferProgress } from "../photo-carousel";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
 
@@ -113,10 +113,9 @@ describe("送る写真のカルーセル", () => {
 test("別の写真を選んでも転送中の2枚の進捗が読め、転送が終わった写真から消える", () => {
   const transferring = photos.map((photo, index) => ({
     ...photo,
-    progress:
-      index < 2
-        ? { label: photo.name, percent: index === 0 ? 64 : 28 }
-        : undefined,
+    overlay: index < 2 && (
+      <TransferProgress label={photo.name} percent={index === 0 ? 64 : 28} />
+    ),
   }));
 
   const view = renderWithI18n(<Editor uploads={transferring} />, "ja");

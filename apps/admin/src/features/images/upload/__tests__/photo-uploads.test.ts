@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   screen,
@@ -134,18 +135,50 @@ test("画像一覧に落とした写真の形式と結果を確かめ、完了�
   ).toHaveLength(2);
 });
 
-test("送り直すと選んでいる写真が登録される", async () => {
+test("失敗した送信や完了した送信の通知は、送り直した写真や次に追加した写真の転送率に混ざらない", async () => {
   const held = holdUploads();
-  renderApp({ path: "/images", routes: held.routes });
+  const reports: ((fraction: number) => void)[] = [];
+  renderApp({
+    path: "/images",
+    routes: held.routes,
+    uploadProgress: (report) => {
+      reports.push(report);
+    },
+  });
   await dropPhotos("dusk.jpg");
   await held.answer({ error: "INTERNAL_SERVER_ERROR", defined: false });
   await userEvent.click(
     await screen.findByRole("button", { name: "dusk.jpg を送り直す" }),
   );
+
+  const retried = await screen.findByRole("progressbar", { name: /dusk.jpg/v });
+  await waitFor(() => {
+    expect(reports).toHaveLength(2);
+  });
+  act(() => {
+    reports[1]?.(0.37);
+    reports[0]?.(0.8);
+  });
+  expect(retried.getAttribute("value")).toBe("37");
   await held.answer();
-  expect(
-    await screen.findByRole("link", { name: /写真を見る/v }),
-  ).toBeDefined();
+  await screen.findByRole("link", { name: /写真を見る/v });
+  await userEvent.click(screen.getByRole("button", { name: "完了" }));
+  await waitFor(() => {
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+  await dropPhotos("lake.jpg");
+
+  const next = await screen.findByRole("progressbar", { name: /lake.jpg/v });
+  await waitFor(() => {
+    expect(reports).toHaveLength(3);
+  });
+  act(() => {
+    reports[2]?.(0.29);
+    reports[1]?.(1);
+  });
+  expect(next.getAttribute("value")).toBe("29");
+  await held.answer();
+  await screen.findByRole("link", { name: /写真を見る/v });
 });
 
 test("写真を追加で落としても入力中の写真と説明を保ち、完了するとタイトルと説明を保存する", async () => {

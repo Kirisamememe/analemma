@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { type ComponentProps, useState } from "react";
 
-import { PhotoCarousel } from "../photo-carousel";
+import { PhotoCarousel, TransferProgress } from "../photo-carousel";
 
 import { type SamplePhotoName, samplePhoto } from "@/testing/sample-photos";
 
@@ -65,8 +65,9 @@ export const Transferring: Story = {
       id,
       name,
       source,
-      progress:
-        index < 2 ? { label: name, percent: index === 0 ? 64 : 28 } : undefined,
+      overlay: index < 2 && (
+        <TransferProgress label={name} percent={index === 0 ? 64 : 28} />
+      ),
     })),
   },
 };

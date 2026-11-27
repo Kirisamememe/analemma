@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 
+import { createUploadValue } from "../upload-value";
+
 import { useAppContext } from "@/api/app-context";
 import { useApiCache, useApiMutation } from "@/api/server-state/server-state";
 import { isValidImageText } from "@/features/images/detail/logic/image-text";
@@ -58,17 +60,21 @@ export const useUploadMetadata = (
 ) => {
   const { api } = useAppContext();
   const { update, updatePages, refresh } = useApiCache();
-  const [entries, setEntries] = useState<ReadonlyMap<number, Entry>>(new Map());
+
+  const [entries] = useState(() =>
+    createUploadValue<ReadonlyMap<number, Entry>>(new Map()),
+  );
+
   const [error, setError] = useState<SaveError>();
   const pending = useRef<Save[] | undefined>(undefined);
 
   const reset = useCallback(() => {
-    setEntries(new Map());
+    entries.set(new Map());
     setError(undefined);
-  }, []);
+  }, [entries]);
 
   const hasChanges = (id: number): boolean => {
-    const entry = entries.get(id);
+    const entry = entries.read().get(id);
     return entry !== undefined && FIELDS.some((field) => changed(entry, field));
   };
 
@@ -79,8 +85,8 @@ export const useUploadMetadata = (
         .map(({ id }) => id),
     );
 
-    setEntries(
-      (current) => new Map([...current].filter(([id]) => retained.has(id))),
+    entries.set(
+      new Map([...entries.read()].filter(([id]) => retained.has(id))),
     );
     setError(undefined);
     onComplete(retained);
@@ -122,13 +128,15 @@ export const useUploadMetadata = (
 
       if (!isActive()) return;
 
-      setEntries((current) => {
-        const entry = current.get(item.id);
+      const current = entries.read();
+      const entry = current.get(item.id);
 
-        return entry === undefined
-          ? current
-          : new Map(current).set(item.id, { ...entry, saved: entry.values });
-      });
+      if (entry) {
+        entries.set(
+          new Map(current).set(item.id, { ...entry, saved: entry.values }),
+        );
+      }
+
       const next = pending.current?.shift();
 
       if (next === undefined) {
@@ -149,7 +157,7 @@ export const useUploadMetadata = (
     const queue: Save[] = [];
 
     for (const { id, imageId, status } of uploads) {
-      const entry = entries.get(id);
+      const entry = entries.read().get(id);
 
       if (entry === undefined || status !== "added" || imageId === undefined) {
         continue;
@@ -185,23 +193,26 @@ export const useUploadMetadata = (
   const change = (id: number, values: Partial<UploadMetadata>) => {
     if (pending.current !== undefined) return;
 
-    setError((current) => (current?.id === id ? undefined : current));
-    setEntries((current) => {
-      const entry = current.get(id) ?? { values: EMPTY, saved: EMPTY };
+    if (error?.id === id) setError(undefined);
 
-      return new Map(current).set(id, {
+    const current = entries.read();
+    const entry = current.get(id) ?? { values: EMPTY, saved: EMPTY };
+
+    entries.set(
+      new Map(current).set(id, {
         ...entry,
         values: { ...entry.values, ...values },
-      });
-    });
+      }),
+    );
   };
 
   return {
-    draft: (id: number) => entries.get(id)?.values ?? EMPTY,
+    subscribe: entries.subscribe,
+    draft: (id: number) => entries.read().get(id)?.values ?? EMPTY,
     change,
     finish,
     hasChanges,
-    dirty: uploads.some(({ id }) => hasChanges(id)),
+    isDirty: () => uploads.some(({ id }) => hasChanges(id)),
     error,
     isSaving: saving.isPending,
     reset,

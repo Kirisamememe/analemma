@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useCallback, useSyncExternalStore } from "react";
 
 import { useUploadDialog } from "./hooks/use-upload-dialog";
+import type { PhotoUpload } from "./logic/photo-uploads";
 import { uploadNotice } from "./logic/upload-view";
 import { UploadCarousel } from "./upload-carousel";
 import { UploadFileInput } from "./upload-file-input";
@@ -23,6 +24,41 @@ type PhotoUploadsProps = {
   imageHref: (id: string) => AppHref;
 };
 
+type SelectedFieldsProps = {
+  /** 入力中の写真。 */
+  upload: PhotoUpload;
+  /** 原稿を読み書きする先。 */
+  metadata: ReturnType<typeof useUploadDialog>["metadata"];
+};
+
+const SelectedFields = ({ upload, metadata }: SelectedFieldsProps) => {
+  const values = useSyncExternalStore(metadata.subscribe, () =>
+    metadata.draft(upload.id),
+  );
+
+  const onChange = useCallback(
+    (changes: Parameters<typeof metadata.change>[1]) => {
+      metadata.change(upload.id, changes);
+    },
+    [metadata, upload.id],
+  );
+
+  if (
+    (upload.status === "too-large" || upload.status === "unsupported") &&
+    !metadata.hasChanges(upload.id)
+  ) {
+    return null;
+  }
+
+  return (
+    <UploadPhotoFields
+      values={values}
+      isReadOnly={metadata.isSaving}
+      onChange={onChange}
+    />
+  );
+};
+
 /** 画像一覧の見出しと、写真を追加する Dialog。 */
 export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
   const t = useTranslate();
@@ -38,7 +74,6 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
     isDragging,
     receive,
     selected,
-    canEditSelected,
     uploads,
     select,
     metadata,
@@ -114,15 +149,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
             </UploadCarousel>
             <DialogSection>
               <Stack gap={4}>
-                {canEditSelected && (
-                  <UploadPhotoFields
-                    values={metadata.draft(selected.id)}
-                    isReadOnly={metadata.isSaving}
-                    onChange={(changes) => {
-                      metadata.change(selected.id, changes);
-                    }}
-                  />
-                )}
+                <SelectedFields upload={selected} metadata={metadata} />
                 {problem && (
                   <div role="alert">
                     <Text tone="danger">

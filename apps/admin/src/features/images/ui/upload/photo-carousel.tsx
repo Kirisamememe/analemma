@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 
 import { useCarouselSelection } from "./hooks/use-carousel-selection";
 import { usePhotoPreview } from "./hooks/use-photo-preview";
@@ -51,20 +51,22 @@ type CarouselPhoto = {
   /** 写真のファイルか配信用の URL。 */
   source: File | string;
   /** 送信中に写真の上で示す転送率。 */
-  progress?: Transfer | undefined;
+  overlay?: ReactNode;
   /** 元のファイルを表示できないときに使う配信用の URL。 */
   previewUrl?: string | undefined;
 };
 
-type PreviewProps = {
-  /** 表示する写真。 */
-  photo: CarouselPhoto;
+type PreviewProps = Pick<CarouselPhoto, "source" | "previewUrl"> & {
   /** プレビューの代わりに出す文言。 */
   missing: string;
 };
 
-const Preview = ({ photo, missing }: PreviewProps): ReactNode => {
-  const preview = usePhotoPreview(photo.source, photo.previewUrl);
+const PreviewContent = ({
+  source,
+  previewUrl,
+  missing,
+}: PreviewProps): ReactNode => {
+  const preview = usePhotoPreview(source, previewUrl);
 
   if (preview) {
     const { attach, key, onError, src } = preview;
@@ -90,7 +92,10 @@ const Preview = ({ photo, missing }: PreviewProps): ReactNode => {
   );
 };
 
-const TransferProgress = ({ percent, label }: Transfer): ReactNode => (
+const Preview = memo(PreviewContent);
+
+/** 写真の上に送信済みの割合を示す。 */
+export const TransferProgress = ({ percent, label }: Transfer): ReactNode => (
   <div className={style().overlay()}>
     <progress
       className="sr-only"
@@ -196,14 +201,13 @@ export const PhotoCarousel = ({
                 tabIndex={photo.id === selectedId ? 0 : -1}
                 type="button"
               >
-                <Preview missing={missing} photo={photo} />
-              </button>
-              {photo.progress && (
-                <TransferProgress
-                  label={photo.progress.label}
-                  percent={photo.progress.percent}
+                <Preview
+                  missing={missing}
+                  source={photo.source}
+                  previewUrl={photo.previewUrl}
                 />
-              )}
+              </button>
+              {photo.overlay}
             </div>
           ))}
         </fieldset>
