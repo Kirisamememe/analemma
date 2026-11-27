@@ -61,13 +61,12 @@ export const queuePhotos = (
   ];
 };
 
-const MAX_IN_FLIGHT = 2;
 const MAX_DEFERRALS = 12; // 待ち時間と合わせて約2分。server が1枚の変換を待つ時間と同じ
 
-/** 送信中の写真と合わせて上限(省くと2枚)まで、待機中の写真を選んだ順に返す。 */
+/** 送信中の写真と合わせて上限まで、待機中の写真を選んだ順に返す。 */
 export const nextUploads = (
   uploads: readonly PhotoUpload[],
-  limit: number = MAX_IN_FLIGHT,
+  limit: number,
 ): readonly PhotoUpload[] => {
   const available =
     limit - uploads.filter(({ status }) => status === "sending").length;
@@ -107,7 +106,7 @@ export const withAdded =
         : upload,
     );
 
-/** server の受付が埋まっていた写真を待機に戻し、待たされ続けたら送れなかったことにする。 */
+/** server の受付が埋まっていた写真の状態を変える。 */
 export const deferUpload =
   (id: number) =>
   (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
@@ -132,7 +131,7 @@ export const retryUpload =
   (uploads: readonly PhotoUpload[]): readonly PhotoUpload[] =>
     uploads.map((upload) =>
       upload.id === id && upload.status === "failed"
-        ? { ...upload, status: "waiting", retried: true }
+        ? { ...upload, status: "waiting", retried: true, deferrals: undefined }
         : upload,
     );
 

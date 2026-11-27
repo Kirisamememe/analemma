@@ -131,7 +131,7 @@ test("2枚ずつ送り、後に選んだ写真が先に応答しても空いた�
   expect(result.current.uploads).toEqual([]);
 });
 
-test("server の受付が埋まっていた写真は失敗にせず、待ちの写真を止めて、待ち時間の後に送り直す", async () => {
+test("server の受付が埋まっていた写真は失敗にせず、待つ間は送り終えて空いた枠でだけ送り、待ち時間の後に2枚で送り直す", async () => {
   const held = holdUploads();
   const { result } = await render(held.routes, { busyWait: 300 });
 
@@ -164,18 +164,24 @@ test("server の受付が埋まっていた写真は失敗にせず、待ちの�
     "b.jpg: waiting",
     "c.jpg: waiting",
   ]);
+  act(() => {
+    result.current.add([photo("d.jpg")]);
+  });
+  await inFlight([]);
 
   await inFlight(["b.jpg", "c.jpg"]);
   await held.answer("b.jpg");
   await held.answer("c.jpg");
+  await held.answer("d.jpg");
   await waitFor(() => {
     expect(statuses(result.current.uploads)).toEqual([
       "a.jpg: added",
       "b.jpg: added",
       "c.jpg: added",
+      "d.jpg: added",
     ]);
   });
-  expect(held.server.images()).toHaveLength(3);
+  expect(held.server.images()).toHaveLength(4);
 });
 
 test("先に登録した写真の応答が最後に届いても、一覧を server と同じ順に保つ", async () => {

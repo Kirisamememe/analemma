@@ -28,6 +28,7 @@ type Transfer = PhotoUpload & {
 };
 
 const LOGIN_PATH = "/login"; // セッションが切れたときに移る先。止めると、送れない画面に残る
+const MAX_IN_FLIGHT = 2; // server が同時に受ける枚数と同じ
 const BUSY_WAIT = 10_000; // server が 503 に添える Retry-After と同じ時間(ms)
 
 type Change = (current: readonly PhotoUpload[]) => readonly PhotoUpload[];
@@ -50,7 +51,7 @@ export const usePhotoUploads = ({
   const latest = useRef(uploads); // 送り終えたときに、次に送る写真を選ぶ
   const active = useRef(true); // 画面を離れたら、次の写真を送らない
   const expired = useRef(false); // セッションが切れたら、ログインの画面へ移るのを止めない
-  const busy = useRef<ReturnType<typeof setTimeout>>(undefined); // server の受付が空くのを待つ間は、1枚ずつ送る
+  const busy = useRef<ReturnType<typeof setTimeout>>(undefined); // server の受付が空くのを待つ間は、送り終えて空いた枠でだけ送る
 
   const apply = useCallback((change: Change): void => {
     latest.current = change(latest.current);
@@ -120,7 +121,7 @@ export const usePhotoUploads = ({
           ? withAdded(upload.id, result.image)
           : withStatus(upload.id, "unsupported"),
       );
-      sendNext();
+      sendNext("freed");
 
       if (result._tag !== "Added") return;
 
@@ -131,30 +132,38 @@ export const usePhotoUploads = ({
     onError: (upload) => {
       apply(withStatus(upload.id, "failed"));
       void refresh(IMAGES_QUERY_KEY); // 登録できたかが分からないので、一覧を server に合わせる
-      sendNext();
+      sendNext("freed");
     },
   });
 
   const { mutate } = sending;
 
-  const sendNext = useCallback((): void => {
-    if (!active.current || expired.current) return;
+  const sendNext = useCallback(
+    (slot?: "freed"): void => {
+      if (!active.current || expired.current) return;
 
-    const limit = busy.current === undefined ? undefined : 1;
+      const isWaiting = busy.current !== undefined;
 
-    for (const next of nextUploads(latest.current, limit)) {
-      const transfer: Transfer = {
-        ...next,
-        status: "sending",
-        progress: createUploadValue(0),
-      };
+      if (isWaiting && slot !== "freed") return;
 
-      apply((current) =>
-        current.map((upload) => (upload.id === next.id ? transfer : upload)),
-      );
-      mutate(transfer);
-    }
-  }, [apply, mutate]);
+      for (const next of nextUploads(
+        latest.current,
+        isWaiting ? 1 : MAX_IN_FLIGHT,
+      )) {
+        const transfer: Transfer = {
+          ...next,
+          status: "sending",
+          progress: createUploadValue(0),
+        };
+
+        apply((current) =>
+          current.map((upload) => (upload.id === next.id ? transfer : upload)),
+        );
+        mutate(transfer);
+      }
+    },
+    [apply, mutate],
+  );
 
   const add = useCallback(
     (files: readonly File[]): void => {
