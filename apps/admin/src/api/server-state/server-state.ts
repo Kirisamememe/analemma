@@ -126,12 +126,11 @@ export const useApiQuery = <Data>({
       ? tabStaleTime(query.data) > 0
       : tabStaleTime !== undefined;
 
+  const reloadsAsLoading = typeof tabStaleTime === "function" && !keepInTab;
+
   if (
     (query.isPending && query.errorUpdateCount === 0) ||
-    (query.isFetching &&
-      query.isSuccess &&
-      typeof tabStaleTime === "function" &&
-      !keepInTab)
+    (reloadsAsLoading && query.isSuccess && query.isFetching) // 読んだ値だけを購読する。取得中かは、要るときだけ読む
   ) {
     return { _tag: "Loading" };
   }

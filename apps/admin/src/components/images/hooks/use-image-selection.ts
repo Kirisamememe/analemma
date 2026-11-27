@@ -55,15 +55,15 @@ export const useImageSelection = (picker: PickerSelection) => {
 
   const [store] = useState(createSelectionStore);
   const group = useId();
-  const initial = picker.mode === "single" ? picker.initialImage : undefined;
+  const opened = picker.mode === "single" ? picker.initialImage : undefined;
 
-  const read = useMemo(() => {
-    const fallback: ImageSelection = new Map(
-      initial ? [[initial.id, initial]] : [],
-    );
+  const [fallback, setFallback] = useState<ImageSelection>(() => new Map());
 
-    return () => store.read() ?? fallback;
-  }, [initial, store]);
+  if (opened !== undefined && !fallback.has(opened.id)) {
+    setFallback(new Map([[opened.id, opened]])); // 同じ画像の内容が変わっただけなら、控えた値を保つ
+  }
+
+  const read = useCallback(() => store.read() ?? fallback, [fallback, store]);
 
   const options = useMemo(
     () => ({ mode, included, missing }),
