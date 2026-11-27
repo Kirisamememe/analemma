@@ -62,13 +62,16 @@ export const useUploadDialog = () => {
   );
 
   const [discarded, setDiscarded] = useState(0);
+  const [isDiscarding, setDiscarding] = useState(false);
 
   const finish = (): void => {
     const count = countDiscarded(uploads, metadata.hasChanges);
 
-    setDiscarded(count);
-
     if (count === 0) metadata.finish();
+    else {
+      setDiscarded(count);
+      setDiscarding(true);
+    }
   };
 
   const selected = uploads.find(({ id }) => id === selectedId) ?? uploads[0];
@@ -87,13 +90,13 @@ export const useUploadDialog = () => {
     leaving,
     finish,
     discarding: {
-      _tag: discarded > 0 ? "Asking" : "Idle",
+      _tag: isDiscarding ? "Asking" : "Idle",
       count: discarded,
       stay: () => {
-        setDiscarded(0);
+        setDiscarding(false);
       },
       leave: () => {
-        setDiscarded(0);
+        setDiscarding(false);
         metadata.finish();
       },
     } as const,
