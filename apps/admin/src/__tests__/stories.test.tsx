@@ -56,6 +56,7 @@ import * as primitivesButton from "@/ui/primitives/__stories__/button.stories";
 import * as primitivesForm from "@/ui/primitives/__stories__/form.stories";
 import * as primitivesNotice from "@/ui/primitives/__stories__/notice.stories";
 import * as collectionsActionList from "@/ui/primitives/collections/__stories__/action-list.stories";
+import * as collectionsFileDropButton from "@/ui/primitives/collections/__stories__/file-drop-button.stories";
 import * as primitivesReorderableList from "@/ui/primitives/collections/__stories__/reorderable-list.stories";
 import * as primitivesTextArea from "@/ui/primitives/form-fields/__stories__/text-area.stories";
 import * as primitivesTextField from "@/ui/primitives/form-fields/__stories__/text-field.stories";
@@ -145,6 +146,8 @@ const MODULES = {
     fixedPageKindGuide,
   "ui/primitives/collections/__stories__/action-list.stories.tsx":
     collectionsActionList,
+  "ui/primitives/collections/__stories__/file-drop-button.stories.tsx":
+    collectionsFileDropButton,
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.ts": layoutText,
   "ui/patterns/states/__stories__/empty-state.stories.tsx": patternsEmptyState,

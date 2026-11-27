@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { Cluster, Stack } from "@/ui/layout";
-import { Button, FileDropButton } from "@/ui/primitives/button";
+import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
 
 const meta = {
@@ -141,21 +141,3 @@ const createAction = (size: "row" | "card", label: string): Story => ({
 
 export const CreateRow = createAction("row", "トークンを発行");
 export const CreateCard = createAction("card", "新しい固定ページ");
-
-export const CreateFromFiles: Story = {
-  /** ファイルを選ぶか、落として渡す追加ボタン。 */
-  render: () => (
-    <Stack gap={1.5}>
-      <FileDropButton
-        acceptedTypes={["image/jpeg", "image/heic"]}
-        descriptionId="file-drop-hint"
-        onFiles={fn<(files: readonly File[]) => void>()}
-      >
-        写真を追加
-      </FileDropButton>
-      <span id="file-drop-hint">
-        JPEG・HEIC。ここに写真を落としても追加できます。
-      </span>
-    </Stack>
-  ),
-};

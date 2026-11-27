@@ -370,10 +370,12 @@ describe("1つの文字列の class の数", () => {
   });
 
   test("配列に分けた8個までの文字列と、class でない文字列には診断を出さないこと", () => {
-    expect(
-      ruleIdsOf(
-        lintFixture("valid/apps/admin/src/ui/primitives/split-classes.tsx"),
-      ),
-    ).toEqual([]);
+    for (const name of ["split", "default", "spread"]) {
+      expect(
+        ruleIdsOf(
+          lintFixture(`valid/apps/admin/src/ui/primitives/${name}-classes.tsx`),
+        ),
+      ).toEqual([]);
+    }
   });
 });
