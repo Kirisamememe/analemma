@@ -28,7 +28,7 @@ export type ModalFooterSlots = {
 
 type ModalFooterProps = ModalFooterSlots & {
   /** 高さを観測する要素。 */
-  ref?: Ref<HTMLElement>;
+  ref?: Ref<HTMLDivElement>;
 };
 
 /** 左右を独立して使える、モーダルの下端の帯。 */
@@ -40,16 +40,19 @@ export const ModalFooter = ({
   const left = Children.toArray(start);
   const right = Children.toArray(end);
 
-  const { container, slot } = footer({
-    isFilled: left.length > 0 || right.length > 0,
-  });
+  const isFilled = left.length > 0 || right.length > 0;
+  const { container, slot } = footer({ isFilled });
 
   return (
-    <footer className={container()} ref={ref}>
+    <div
+      className={container()}
+      ref={ref}
+      role={isFilled ? "contentinfo" : undefined}
+    >
       {left.length > 0 && <div className={slot()}>{left}</div>}
       {right.length > 0 && (
         <div className={slot({ className: "ms-auto" })}>{right}</div>
       )}
-    </footer>
+    </div>
   );
 };

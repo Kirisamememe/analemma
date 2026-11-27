@@ -1,4 +1,4 @@
-import { cleanup, screen, within } from "@testing-library/react";
+import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, test } from "bun:test";
 import { type ReactNode, useState } from "react";
@@ -39,10 +39,12 @@ test("見出しを名前に持ち、送信中を除いて閉じるボタンで�
   expect(screen.queryByRole("dialog")).toBeNull();
 });
 
-test("下端の帯に置く内容を渡さなくても、本文の下に帯を置く", async () => {
-  renderWithI18n(<OpenModal isPending={false} />, "ja");
+test("送信中は、Escape でも backdrop の押下でも閉じない", async () => {
+  renderWithI18n(<OpenModal isPending />, "ja");
 
-  const modal = await screen.findByRole("dialog", { name: "写真を追加" });
+  await screen.findByRole("dialog", { name: "写真を追加" });
+  await userEvent.keyboard("{Escape}");
+  await userEvent.click(document.body);
 
-  expect(within(modal).getByRole("contentinfo")).toBeDefined();
+  expect(screen.getByRole("dialog", { name: "写真を追加" })).toBeDefined();
 });

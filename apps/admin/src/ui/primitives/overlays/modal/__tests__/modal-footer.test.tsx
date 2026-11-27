@@ -6,7 +6,7 @@ import { ModalFooter } from "../modal-footer";
 
 afterEach(cleanup);
 
-test("左右に補足と操作を置けて、どちらも空でも下端の帯を残す", () => {
+test("左右に補足と操作を置けて、どちらも空なら landmark にしない", () => {
   const action = (
     <ModalActions>
       <button type="button">保存</button>
@@ -20,5 +20,5 @@ test("左右に補足と操作を置けて、どちらも空でも下端の帯�
   expect(screen.getByText("保存済み")).toBeDefined();
   expect(screen.getByRole("button", { name: "保存" })).toBeDefined();
   rerender(<ModalFooter start={null} end={false} />);
-  expect(screen.getByRole("contentinfo").textContent).toBe("");
+  expect(screen.queryByRole("contentinfo")).toBeNull();
 });
