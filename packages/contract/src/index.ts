@@ -36,6 +36,7 @@ export {
   dateValue,
   longTextValue,
   numberValue,
+  REPEAT_MAX_ITEMS,
   textValue,
   urlValue,
 } from "./kinds/content-values";

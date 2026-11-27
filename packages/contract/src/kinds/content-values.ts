@@ -5,6 +5,9 @@ const MULTI_LINE = /^[\P{Cc}\t\n\r]*$/v;
 
 const isWellFormed = (value: string): boolean => value.isWellFormed();
 
+/** repeat の項目に並べられる要素の数の上限。 */
+export const REPEAT_MAX_ITEMS = 100;
+
 /** テキストの項目の値。 */
 export const textValue = z
   .string()
