@@ -22,9 +22,28 @@ test("登録の結果に合わせて、知らせとログインへのリンク�
     <EnrollForm
       isPending={false}
       onSubmit={submit}
+      outcome="InvalidEnrollment"
+    />,
+  );
+
+  expect(screen.getByRole("alert")).toBeDefined();
+  expect(screen.queryByRole("link")).toBeNull();
+
+  rerender(
+    <EnrollForm
+      isPending={false}
+      onSubmit={submit}
       outcome="AlreadyRegistered"
     />,
   );
 
+  expect(screen.getByRole("alert")).toBeDefined();
   expect(screen.getByRole("link").getAttribute("href")).toBe("/login");
+
+  rerender(
+    <EnrollForm isPending={false} onSubmit={submit} outcome="Rejected" />,
+  );
+
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.queryByRole("link")).toBeNull();
 });

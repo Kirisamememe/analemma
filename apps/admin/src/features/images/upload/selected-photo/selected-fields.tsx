@@ -11,7 +11,7 @@ type SelectedFieldsProps = {
   metadata: ReturnType<typeof useUploadDialog>["metadata"];
 };
 
-/** 選択中の写真のタイトルと説明の入力欄(足せない写真には出さない)。 */
+/** 選択中の写真のタイトルと説明の入力欄。 */
 export const SelectedFields = ({
   upload,
   metadata,

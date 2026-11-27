@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-/** 部品を組むだけの場所で、6段まで入れ子にした部品。 */
+/** 共通の部品の場所で、6段まで入れ子にした部品。 */
 export const SixDeep = ({ children }: Record<"children", ReactNode>) => (
   <section>
     <ul>
