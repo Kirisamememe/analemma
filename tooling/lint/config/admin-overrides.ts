@@ -87,6 +87,7 @@ const SINGLE_COMPONENT_FILES = [
   "**/apps/admin/.storybook/**/*.tsx",
   "**/apps/admin/src/features/deploy-tokens/**/*.tsx",
   "**/apps/admin/src/features/fixed-pages/**/*.tsx",
+  "**/apps/admin/src/components/images/**/*.tsx",
   "**/apps/admin/src/routes/layout/**/*.tsx",
   "**/apps/admin/src/routes/fixed-pages/**/*.tsx",
 ]; // 片付けの済んだフォルダから足していく
