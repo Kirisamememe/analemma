@@ -1,6 +1,7 @@
 import type { Preview } from "@storybook/react-vite";
 
-import { Staged, StoryFrame } from "./story-frame";
+import { Staged } from "./staged";
+import { StoryFrame } from "./story-frame";
 
 import "@/ui/app.css";
 import { LOCALES, toLocale } from "@/i18n/locales";
