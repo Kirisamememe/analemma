@@ -1,6 +1,6 @@
 import type { ReactNode, Ref } from "react";
 
-import { LoadingState } from "../loading-state";
+import { rows } from "./image-rows-style";
 import {
   type DeliveryImages,
   toSrcSet,
@@ -10,47 +10,9 @@ import {
 
 import { Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
-import { Icon, Skeleton } from "@/ui/primitives/graphics";
+import { Icon } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
 import type { AppHref } from "@/ui/primitives/ui-provider";
-import { tv } from "@/ui/tv";
-
-const rows = tv({
-  slots: {
-    list: ["flex flex-wrap gap-x-3 gap-y-6", "after:grow-999"],
-    item: "flex min-w-0 grow-(--media-aspect) flex-col",
-    body: "flex flex-col gap-2",
-    frame: [
-      "relative aspect-(--media-aspect) w-full overflow-hidden rounded-control bg-surface-muted",
-      "min-h-28 @md:max-h-66 @md:min-h-44",
-    ],
-    photo: "absolute inset-0 size-full object-cover object-focal",
-    shade: [
-      "pointer-events-none absolute inset-0 bg-scrim/10 opacity-0 transition",
-      "group-is-hovered:opacity-100",
-    ],
-    missing: [
-      "absolute inset-0 flex flex-col items-center justify-center gap-1",
-      "p-2 text-center text-fg-muted",
-    ],
-    caption: "flex w-0 min-w-full flex-col",
-    heading: "flex min-w-0 flex-wrap items-center gap-2",
-    title: "w-8 max-w-fit min-w-0 grow truncate",
-    badge: "flex max-w-full min-w-0 wrap-anywhere",
-  },
-  variants: {
-    selectable: {
-      true: {
-        photo: "object-contain",
-        shade: "group-hover:opacity-100",
-        title: "group-has-checked:text-success",
-      },
-    },
-    isUntitled: {
-      true: { title: "text-fg-muted" },
-    },
-  },
-});
 
 /** 写真の行に渡す値。 */
 type ImageRowsProps = {
@@ -187,51 +149,5 @@ export const ImageTile = ({
         </Link>
       )}
     </li>
-  );
-};
-
-const PLACEHOLDERS = [
-  { key: "a", aspect: 1.5 },
-  { key: "b", aspect: 0.67 },
-  { key: "c", aspect: 1.5 },
-  { key: "d", aspect: 1 },
-  { key: "e", aspect: 1.78 },
-  { key: "f", aspect: 0.75 },
-  { key: "g", aspect: 1.5 },
-  { key: "h", aspect: 1.5 },
-  { key: "i", aspect: 0.67 },
-  { key: "j", aspect: 1.5 },
-] as const;
-
-/** 写真の骨組みに渡す値。 */
-type ImageRowsPlaceholderProps = {
-  /** 読み込んでいることを伝える文言。 */
-  label: string;
-};
-
-/** 一覧を読み込む間に、写真の形の灰色の枠を並べる骨組み。 */
-export const ImageRowsPlaceholder = ({
-  label,
-}: ImageRowsPlaceholderProps): ReactNode => {
-  const style = rows();
-
-  return (
-    <LoadingState layout="custom" label={label}>
-      <ul aria-hidden="true" className={style.list()}>
-        {PLACEHOLDERS.map(({ key, aspect }) => (
-          <li
-            className={style.item()}
-            key={key}
-            style={{ "--media-aspect": String(aspect) }}
-          >
-            <span className={style.body()}>
-              <span className={style.frame()}>
-                <Skeleton shape="media" width="full" />
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
-    </LoadingState>
   );
 };

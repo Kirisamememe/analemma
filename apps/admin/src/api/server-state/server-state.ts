@@ -2,8 +2,6 @@ import {
   skipToken,
   type InfiniteData,
   type Query,
-  useIsFetching,
-  useIsMutating,
   useMutation,
   useQuery,
   useQueryClient,
@@ -155,17 +153,6 @@ export const useApiQuery = <Data>({
 
   return { _tag: "Loaded", data: query.data };
 };
-
-/** 画面が使う取得のうち、まだデータの無いものを待っているかを返す。 */
-export const useIsLoadingFirstData = (): boolean =>
-  useIsFetching({
-    predicate: (query) =>
-      query.state.data === undefined && query.getObserversCount() > 0,
-  }) > 0;
-
-/** 同じキーで送った操作の応答を待っているか。 */
-export const useIsApiMutationPending = (key: readonly unknown[]): boolean =>
-  useIsMutating({ mutationKey: key, exact: true }) > 0;
 
 /** server に操作を送り、送信の状態と結果を返す。 */
 export const useApiMutation = <Data, Input = void>({

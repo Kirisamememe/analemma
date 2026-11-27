@@ -2,11 +2,8 @@ import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
-import {
-  useApiCache,
-  useApiQuery,
-  useIsLoadingFirstData,
-} from "@/api/server-state/server-state";
+import { useIsLoadingFirstData } from "@/api/server-state/pending-state";
+import { useApiCache, useApiQuery } from "@/api/server-state/server-state";
 import { withQueryClient } from "@/testing/hook-wrappers";
 
 afterEach(cleanup);

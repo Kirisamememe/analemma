@@ -1,7 +1,7 @@
 import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { useIsLoadingFirstData } from "@/api/server-state/server-state";
+import { useIsLoadingFirstData } from "@/api/server-state/pending-state";
 import { useImageNeighbors } from "@/features/images/detail/hooks/use-image-neighbors";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
