@@ -44,6 +44,12 @@ const about = defineKind({
   },
 });
 
+const links = (count: number) =>
+  Array.from({ length: count }, () => ({
+    name: "サイト",
+    url: "https://example.com",
+  }));
+
 describe("種類の定義", () => {
   test("項目を書いた順のまま、CMS に送る定義にすること", () => {
     expect(about.definition).toEqual({
@@ -160,6 +166,14 @@ describe("種類の定義", () => {
         born: "2026-02-30",
         links: [],
       },
+    },
+    {
+      title: "repeat の要素が100件の値",
+      value: { headline: "a", open: true, theme: "dark", links: links(100) },
+    },
+    {
+      title: "repeat の要素が101件の値",
+      value: { headline: "a", open: true, theme: "dark", links: links(101) },
     },
   ])(
     "$title を、CMS が定義から作るスキーマと同じように扱うこと",
