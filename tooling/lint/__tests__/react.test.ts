@@ -91,7 +91,7 @@ const multipleComponentsIn = (file: string): number =>
   ).length;
 
 describe("1ファイルに component を1つ", () => {
-  test.each(["patterns", "primitives/overlays"])(
+  test.each(["patterns", "primitives/overlays", "layout"])(
     "ルールを掛けた ui/%s の .tsx に、export しない補助の component があれば診断を出すこと",
     (folder) => {
       expect(
