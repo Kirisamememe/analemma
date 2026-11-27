@@ -3,12 +3,21 @@ import {
   check,
   doublePrecision,
   integer,
+  pgEnum,
   pgTable,
   smallint,
   text,
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+
+/** 画像の状態(変換中・変換失敗・非公開・公開)。 */
+export const imageStatus = pgEnum("image_status", [
+  "processing",
+  "failed",
+  "unpublished",
+  "published",
+]);
 
 /** 画像(写真作品を兼ねる)のテーブル。 */
 export const image = pgTable(
@@ -28,11 +37,16 @@ export const image = pgTable(
     fNumber: doublePrecision("f_number"),
     exposureTime: doublePrecision("exposure_time"), // 秒
     iso: integer("iso"),
+    status: imageStatus("status").notNull(),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
   },
   (table) => [
+    check(
+      "image_published_at_check",
+      sql`(${table.status} = 'published') = (${table.publishedAt} is not null)`,
+    ),
     check(
       "image_taken_at_offset_check",
       sql`${table.takenAtOffsetMinutes} is null or (${table.takenAt} is not null and ${table.takenAtOffsetMinutes} between -1080 and 1080)`,

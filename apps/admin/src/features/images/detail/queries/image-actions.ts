@@ -30,7 +30,7 @@ export const saveImage = async (
 /** 画像を公開するか、非公開にする。 */
 export const setPublication = (
   api: ApiClient,
-  { id, published }: Pick<AdminImage, "id" | "published">,
+  { id, published }: Pick<AdminImage, "id"> & Record<"published", boolean>,
 ) =>
   callApi(
     published

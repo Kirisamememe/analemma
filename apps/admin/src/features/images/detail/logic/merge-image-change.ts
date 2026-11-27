@@ -9,11 +9,11 @@ export const mergeImageChange =
         ? current.updatedAt
         : result.updatedAt;
 
-    const { published, publishedAt, title, description, alt } = result;
+    const { status, publishedAt, title, description, alt } = result;
 
     const change =
       kind === "publication"
-        ? { published, publishedAt }
+        ? { status, publishedAt }
         : { title, description, alt };
 
     return { ...current, ...change, updatedAt };

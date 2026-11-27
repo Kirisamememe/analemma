@@ -10,10 +10,7 @@ export type FakeImage = FakeOutput<"admin/images/get">;
 
 /** 作り物の server に最初に置く画像のプロパティ。 */
 export type FakeImageSeed = Partial<
-  Omit<
-    FakeImage,
-    "id" | "published" | "publishedAt" | "createdAt" | "updatedAt"
-  >
+  Omit<FakeImage, "id" | "status" | "publishedAt" | "createdAt" | "updatedAt">
 > & {
   /** 画像を公開しているか。 */
   readonly published?: boolean;
@@ -96,7 +93,7 @@ export const createImageRoutes = (
       ...EMPTY,
       ...seed,
       id: `019b0000-0000-7000-8000-${String(created).padStart(12, "0")}`,
-      published,
+      status: published ? "published" : "unpublished",
       publishedAt: published ? moment : null,
       deliveryImages: deliveryImages.toSorted((a, b) => a.width - b.width),
       createdAt: moment,
@@ -210,7 +207,7 @@ export const createImageRoutes = (
         "admin/images/publish",
         changeImage((image) => ({
           ...image,
-          published: true,
+          status: "published" as const,
           publishedAt: image.publishedAt ?? now(),
         })),
       ),
@@ -218,7 +215,7 @@ export const createImageRoutes = (
         "admin/images/unpublish",
         changeImage((image) => ({
           ...image,
-          published: false,
+          status: "unpublished" as const,
           publishedAt: null,
         })),
       ),

@@ -27,10 +27,10 @@ describe("createImageRoutes", () => {
       "写真 2",
       "写真 3",
     ]);
-    expect(images.map(({ published }) => published)).toEqual([
-      true,
-      false,
-      true,
+    expect(images.map(({ status }) => status)).toEqual([
+      "published",
+      "unpublished",
+      "published",
     ]);
     expect(images[0]).toMatchObject({ alt: null, takenAt: null, iso: null });
     expect(nextCursor).toBeNull();
@@ -136,7 +136,10 @@ describe("createImageRoutes", () => {
 
     const hidden = await api.admin.images.unpublish({ id: image.id });
 
-    expect(hidden).toMatchObject({ published: false, publishedAt: null });
+    expect(hidden).toMatchObject({
+      status: "unpublished",
+      publishedAt: null,
+    });
   });
 
   test("消した画像は一覧から無くなり、無い画像の操作は NOT_FOUND で断る", async () => {

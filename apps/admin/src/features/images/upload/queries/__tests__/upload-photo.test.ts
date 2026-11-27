@@ -19,7 +19,10 @@ describe("uploadPhoto", () => {
       photo: new File(["x"], "a.jpg", { type: "image/jpeg" }),
     });
 
-    expect(added).toMatchObject({ _tag: "Added", image: { published: true } });
+    expect(added).toMatchObject({
+      _tag: "Added",
+      image: { status: "published" },
+    });
     expect(
       await uploadPhoto(api, {
         photo: new File(["x"], "a.bmp", { type: "image/bmp" }),

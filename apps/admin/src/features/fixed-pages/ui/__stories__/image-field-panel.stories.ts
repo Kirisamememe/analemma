@@ -8,7 +8,7 @@ import { SAMPLE_IMAGES } from "@/testing/sample-photos";
 
 const images = createImageRoutes(SAMPLE_IMAGES).images();
 const [image] = images;
-const unpublished = images.find((photo) => !photo.published);
+const unpublished = images.find((photo) => photo.status !== "published");
 
 const meta = {
   title: "features/fixed-pages/ImageFieldPanel",
@@ -47,7 +47,7 @@ export const Panorama: Story = {
     image: panorama && {
       ...panorama,
       title: "岬の展望台から眺める、朝の海霧に包まれた海岸線と遠くの島々",
-      published: false,
+      status: "unpublished",
     },
   },
 };

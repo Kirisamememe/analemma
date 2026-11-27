@@ -47,6 +47,8 @@ export {
   imageAlt,
   imageDescription,
   imageId,
+  type ImageStatus,
+  imageStatus,
   imageTitle,
 } from "./images/image-values";
 export { deployTokenName } from "./kinds/deploy-tokens";

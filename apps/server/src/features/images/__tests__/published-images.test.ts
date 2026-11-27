@@ -35,6 +35,7 @@ test("公開画像の撮影の情報と、配信用の絶対 URL を幅の昇順
   await connection.db.insert(image).values({
     ...fields,
     id,
+    status: "published",
     publishedAt: TEST_NOW,
     createdAt: TEST_NOW,
     updatedAt: TEST_NOW,

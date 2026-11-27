@@ -24,6 +24,7 @@ const addTestImages = async (server: TestClient) => {
   const dates = {
     createdAt: TEST_NOW,
     updatedAt: TEST_NOW,
+    status: "published" as const,
     publishedAt: TEST_NOW,
   };
 

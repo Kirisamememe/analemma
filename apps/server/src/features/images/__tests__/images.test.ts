@@ -39,6 +39,7 @@ const insertImages = async (
     .insert(image)
     .values(
       values.map((value) => ({
+        status: "published" as const,
         publishedAt: TEST_NOW,
         createdAt: TEST_NOW,
         updatedAt: TEST_NOW,
@@ -78,7 +79,7 @@ describe("画像の一覧", () => {
 
     const ids = await insertImages(server, [
       { title: "1" },
-      { title: "2", publishedAt: null },
+      { title: "2", status: "unpublished", publishedAt: null },
       { title: "3" },
       { title: "4" },
       { title: "5" },
@@ -95,13 +96,13 @@ describe("画像の一覧", () => {
     const second = await list({ cursor: first.nextCursor ?? "", limit: 2 });
 
     expect(titlesOf(second)).toEqual(["3", "2"]);
-    expect(second.images.map(({ published }) => published)).toEqual([
-      true,
-      false,
+    expect(second.images.map(({ status }) => status)).toEqual([
+      "published",
+      "unpublished",
     ]);
     expect(
       await server.client.admin.images.get({ id: ids[1] ?? "" }),
-    ).toMatchObject({ title: "2", published: false, publishedAt: null });
+    ).toMatchObject({ title: "2", status: "unpublished", publishedAt: null });
 
     const last = await list({ cursor: second.nextCursor ?? "", limit: 2 });
 
@@ -180,7 +181,7 @@ describe("画像の取得", () => {
       fNumber: 2.8,
       exposureTime: 0.004,
       iso: 160,
-      published: true,
+      status: "published",
       publishedAt: TEST_NOW.toISOString(),
       createdAt: TEST_NOW.toISOString(),
       updatedAt: TEST_NOW.toISOString(),
@@ -211,7 +212,7 @@ describe("前後の画像", () => {
 
     const [oldest = "", middle = "", newest = ""] = await insertImages(server, [
       { title: "1" },
-      { title: "2", publishedAt: null },
+      { title: "2", status: "unpublished", publishedAt: null },
       { title: "3" },
     ]);
 
@@ -335,7 +336,7 @@ describe("画像の書き換え", () => {
       title: "夕立のあと",
       description: null,
       alt: "雨に濡れた横断歩道",
-      published: true,
+      status: "published",
       updatedAt: "2026-01-04T00:00:00.000Z",
     });
   });
@@ -383,7 +384,7 @@ describe("公開と非公開", () => {
     const images = server.client.admin.images;
 
     expect(await images.unpublish({ id })).toMatchObject({
-      published: false,
+      status: "unpublished",
       publishedAt: null,
       updatedAt: TEST_NOW.toISOString(),
     });
@@ -391,7 +392,7 @@ describe("公開と非公開", () => {
     const republished = now;
 
     expect(await images.publish({ id })).toMatchObject({
-      published: true,
+      status: "published",
       publishedAt: republished.toISOString(),
       updatedAt: TEST_NOW.toISOString(),
     });

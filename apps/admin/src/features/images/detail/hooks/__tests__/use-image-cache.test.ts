@@ -47,7 +47,7 @@ test("書き換えの応答は、その操作が変えた欄だけを、詳細�
 
   await act(() =>
     cache.current.applyChange(
-      { ...first, title: "稜線", published: false },
+      { ...first, title: "稜線", status: "unpublished" },
       "text",
     ),
   );

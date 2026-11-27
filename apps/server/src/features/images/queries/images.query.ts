@@ -1,4 +1,4 @@
-import { type SQL, isNotNull, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
+import { type SQL, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
 
 import { image } from "@/db/schema/image";
 import type { DatabaseExecutor } from "@/platform/database";
@@ -15,11 +15,11 @@ export type ImageRange = {
 };
 
 /** 画像を公開しているか。 */
-export const isPublished = (row: Pick<ImageRow, "publishedAt">): boolean =>
-  row.publishedAt !== null;
+export const isPublished = (row: Pick<ImageRow, "status">): boolean =>
+  row.status === "published";
 
 /** 公開サイトに見せてよい画像だけを選ぶ SQL の条件。 */
-export const matchPublished = (): SQL => isNotNull(image.publishedAt);
+export const matchPublished = (): SQL => eq(image.status, "published");
 
 /** ID で画像の行を引く。 */
 export const findImage = async (
