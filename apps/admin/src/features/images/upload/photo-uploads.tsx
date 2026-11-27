@@ -63,54 +63,42 @@ const SelectedFields = ({ upload, metadata }: SelectedFieldsProps) => {
 export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
   const t = useTranslate();
 
-  const {
-    page,
-    attach,
-    attachPanel,
-    focus: { addButton, retry, restore },
-    open,
-    isOpen,
-    setOpen,
-    isDragging,
-    receive,
-    selected,
-    uploads,
-    select,
-    metadata,
-    isUploading,
-    problem,
-    leaving,
-  } = useUploadDialog();
-
-  const notice = uploadNotice(uploads);
+  const dialog = useUploadDialog();
+  const notice = uploadNotice(dialog.uploads);
 
   return (
-    <div ref={attach}>
+    <div ref={dialog.attach}>
       <PageHeader
         title={t("images.title")}
         description={t("images.description")}
         actions={
-          <Button tone="primary" ref={addButton} onPress={open}>
+          <Button
+            tone="primary"
+            ref={dialog.focus.addButton}
+            onPress={dialog.open}
+          >
             <Icon name="plus" />
             {t("imageUpload.add")}
           </Button>
         }
       />
-      {isDragging && !isOpen && page && <PhotoDropHint page={page} />}
+      {dialog.isDragging && !dialog.isOpen && dialog.page && (
+        <PhotoDropHint page={dialog.page} />
+      )}
       <Dialog
         layout="wide"
-        isOpen={isOpen}
-        onOpenChange={setOpen}
-        isPending={metadata.isSaving}
+        isOpen={dialog.isOpen}
+        onOpenChange={dialog.setOpen}
+        isPending={dialog.metadata.isSaving}
         title={t("imageUpload.title")}
         footer={{
-          end: selected && (
+          end: dialog.selected && (
             <DialogActions>
               <Button
                 tone="primary"
-                isPending={metadata.isSaving}
-                isDisabled={isUploading}
-                onPress={metadata.finish}
+                isPending={dialog.metadata.isSaving}
+                isDisabled={dialog.isUploading}
+                onPress={dialog.metadata.finish}
               >
                 {t("imageUpload.finish")}
               </Button>
@@ -118,10 +106,13 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
           ),
         }}
       >
-        {isDragging && <PhotoDropHint />}
-        <DialogSection ref={attachPanel}>
+        {dialog.isDragging && <PhotoDropHint />}
+        <DialogSection ref={dialog.attachPanel}>
           <Stack gap={3}>
-            <UploadFileInput onFiles={receive} isDisabled={metadata.isSaving} />
+            <UploadFileInput
+              onFiles={dialog.receive}
+              isDisabled={dialog.metadata.isSaving}
+            />
             {notice && (
               <Notice tone={notice.tone}>
                 <Cluster gap={2}>
@@ -132,31 +123,34 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
             )}
           </Stack>
         </DialogSection>
-        {selected && (
+        {dialog.selected && (
           <>
             <UploadCarousel
-              uploads={uploads}
-              selectedId={selected.id}
-              onSelect={select}
+              uploads={dialog.uploads}
+              selectedId={dialog.selected.id}
+              onSelect={dialog.select}
             >
               <UploadPhotoStatus
-                isSaving={metadata.isSaving}
-                upload={selected}
-                retry={retry}
-                restore={restore}
+                isSaving={dialog.metadata.isSaving}
+                upload={dialog.selected}
+                retry={dialog.focus.retry}
+                restore={dialog.focus.restore}
                 imageHref={imageHref}
               />
             </UploadCarousel>
             <DialogSection>
               <Stack gap={4}>
-                <SelectedFields upload={selected} metadata={metadata} />
-                {problem && (
+                <SelectedFields
+                  upload={dialog.selected}
+                  metadata={dialog.metadata}
+                />
+                {dialog.problem && (
                   <div role="alert">
                     <Text tone="danger">
-                      {problem.name} · {t(problem.message)}
+                      {dialog.problem.name} · {t(dialog.problem.message)}
                     </Text>
-                    {problem.show && (
-                      <Button onPress={problem.show}>
+                    {dialog.problem.show && (
+                      <Button onPress={dialog.problem.show}>
                         {t("imageUpload.editPhoto")}
                       </Button>
                     )}
@@ -167,7 +161,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
           </>
         )}
       </Dialog>
-      <UploadLeaveDialog leaving={leaving} />
+      <UploadLeaveDialog leaving={dialog.leaving} />
     </div>
   );
 };
