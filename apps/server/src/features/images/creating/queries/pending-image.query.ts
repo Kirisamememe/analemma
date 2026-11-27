@@ -56,12 +56,23 @@ export const markConverted = async (
   return row;
 };
 
-/** 変換を待つ画像を、変換失敗にする。 */
+/** 変換できなかった理由を表す、画像の状態。 */
+export type ConversionFailure = "unreadable" | "interrupted";
+
+/** 変換できなかった画像と、その理由。 */
+type FailedConversion = {
+  /** 画像の ID。 */
+  id: string;
+  /** 変換できなかった理由を表す、画像の状態。 */
+  failure: ConversionFailure;
+};
+
+/** 変換を待つ画像を、変換できなかった理由の状態にする。 */
 export const markFailed = async (
   db: DatabaseExecutor,
-  id: string,
+  { id, failure }: FailedConversion,
 ): Promise<void> => {
-  await db.update(image).set({ status: "failed" }).where(isProcessing(id));
+  await db.update(image).set({ status: failure }).where(isProcessing(id));
 };
 
 /** 変換を待つ画像の ID を、受け取った順に読む。 */

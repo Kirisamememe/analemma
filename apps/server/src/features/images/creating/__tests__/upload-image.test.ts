@@ -142,7 +142,7 @@ describe("受け取った写真の変換", () => {
     expect(server.logs.filter(({ level }) => level === "error")).toEqual([]);
   });
 
-  test("変換できなかった写真は変換失敗にし、原本を消して、ログに書くこと", async () => {
+  test("読めずに変換できなかった写真は、読めない写真の状態にし、原本を消して、ログに書くこと", async () => {
     await using server = await createTestClient({
       conversions: {
         run: () => Promise.reject(new Error("壊れた写真")),
@@ -155,7 +155,7 @@ describe("受け取った写真の変換", () => {
     const { id } = await images.upload({ photo: await photo("high-iso.jpg") });
 
     expect(await converted(server, id)).toMatchObject({
-      status: "failed",
+      status: "unreadable",
       publishedAt: null,
       deliveryImages: [],
     });
@@ -185,7 +185,7 @@ describe("受け取った写真の変換", () => {
     expect(server.logs.filter(({ level }) => level === "error")).toEqual([]);
   });
 
-  test("止まる前に受け取った画像を、起動のときに変換し直し、原本の無い画像は変換失敗にして、画像の無い原本を消すこと", async () => {
+  test("止まる前に受け取った画像を、起動のときに変換し直し、原本の無い画像は変換を終えられなかった状態にして、画像の無い原本を消すこと", async () => {
     const held = holdFirstConversion();
     await using server = await createTestClient({
       conversions: held.conversions,
@@ -210,7 +210,7 @@ describe("受け取った写真の変換", () => {
       status: "published",
     });
     expect(await images.get({ id: lost.id })).toMatchObject({
-      status: "failed",
+      status: "interrupted",
     });
     expect(await server.storage.read(orphan)).toBeUndefined();
   });

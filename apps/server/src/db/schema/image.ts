@@ -11,10 +11,11 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-/** 画像の状態(変換中・変換失敗・非公開・公開)。 */
+/** 画像の状態(変換中・読めない写真・変換の中断・非公開・公開)。 */
 export const imageStatus = pgEnum("image_status", [
   "processing",
-  "failed",
+  "unreadable",
+  "interrupted",
   "unpublished",
   "published",
 ]);

@@ -19,10 +19,11 @@ export const resumePendingImages = async (
       startPendingConversion(context, imageId);
     } else {
       // oxlint-disable-next-line eslint/no-await-in-loop -- 受け取った順に並べる
-      await markFailed(context.db, imageId);
+      await markFailed(context.db, { id: imageId, failure: "interrupted" });
       context.logger.write({
         level: "warn",
-        message: "変換を待つ画像の原本が無いので、変換失敗にした",
+        message:
+          "変換を待つ画像の原本が無いので、変換を終えられなかった状態にした",
         details: { imageId },
       });
     }
