@@ -52,7 +52,9 @@ export const UploadLeaveDialog = ({
       </Text>
       <Cluster gap={2} justify="end">
         <Button onPress={leaving.stay}>{t(keys.stay)}</Button>
-        <Button onPress={leaving.leave}>{t(keys.leave)}</Button>
+        <Button tone="danger" onPress={leaving.leave}>
+          {t(keys.leave)}
+        </Button>
       </Cluster>
     </Dialog>
   );
