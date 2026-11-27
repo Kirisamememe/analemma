@@ -20,10 +20,10 @@ import * as featuresFixedPagesContentGroup from "@/features/fixed-pages/ui/__sto
 import * as imageFieldPanel from "@/features/fixed-pages/ui/__stories__/image-field-panel.stories";
 import * as fixedPageKindGuide from "@/features/fixed-pages/ui/__stories__/kind-guide.stories";
 import * as featuresImagesImageDetail from "@/features/images/detail/__stories__/image-detail.stories";
-import * as featuresImagesImageViewer from "@/features/images/ui/__stories__/image-viewer.stories";
 import * as featuresImagesInfoList from "@/features/images/ui/__stories__/info-list.stories";
 import * as featuresImagesPhotoCarousel from "@/features/images/ui/upload/__stories__/photo-carousel.stories";
 import * as featuresImagesUploadNotice from "@/features/images/ui/upload/__stories__/upload-notice.stories";
+import * as featuresImagesImageViewer from "@/features/images/ui/viewer/__stories__/image-viewer.stories";
 import * as UploadFileInputStories from "@/features/images/upload/__stories__/upload-file-input.stories";
 import * as uploadLeaveDialog from "@/features/images/upload/__stories__/upload-leave-dialog.stories";
 import * as uploadPhotoFields from "@/features/images/upload/selected-photo/__stories__/upload-photo-fields.stories";
@@ -122,7 +122,7 @@ const MODULES = {
   "ui/patterns/photos/__stories__/image-thumbnail.stories.ts": imageThumbnail,
   "ui/patterns/photos/__stories__/image-rows.stories.tsx":
     featuresImagesImageRows,
-  "features/images/ui/__stories__/image-viewer.stories.tsx":
+  "features/images/ui/viewer/__stories__/image-viewer.stories.tsx":
     featuresImagesImageViewer,
   "features/images/ui/__stories__/info-list.stories.ts": featuresImagesInfoList,
   "features/images/upload/__stories__/upload-file-input.stories.ts":

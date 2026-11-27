@@ -7,7 +7,7 @@ import { createUploadValue } from "../../upload-value";
 import { UploadCarousel } from "../upload-carousel";
 
 import * as previews from "@/features/images/ui/upload/hooks/use-photo-preview";
-import * as carousel from "@/features/images/ui/upload/photo-carousel";
+import * as carousel from "@/features/images/ui/upload/transfer-progress";
 import { renderWithI18n } from "@/testing/render-with-i18n";
 
 afterEach(cleanup);

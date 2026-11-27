@@ -8,7 +8,7 @@ import type { ApiOutputs } from "@/api/api-types";
 import { DeleteImage } from "@/features/images/detail/delete-image";
 import { EditImage } from "@/features/images/detail/edit-image";
 import { PublicationButton } from "@/features/images/detail/publication-button";
-import { ViewerActions } from "@/features/images/ui/viewer-visit";
+import { ViewerActions } from "@/features/images/ui/viewer/viewer-actions";
 import { isConverted } from "@/queries/image-query";
 
 type Image = ApiOutputs["admin"]["images"]["get"];

@@ -2,7 +2,8 @@ import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { type ComponentProps, useState } from "react";
 
-import { PhotoCarousel, TransferProgress } from "../photo-carousel";
+import { PhotoCarousel } from "../photo-carousel";
+import { TransferProgress } from "../transfer-progress";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
 

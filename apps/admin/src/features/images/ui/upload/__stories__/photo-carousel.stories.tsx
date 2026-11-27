@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { type ComponentProps, useState } from "react";
 
-import { PhotoCarousel, TransferProgress } from "../photo-carousel";
+import { PhotoCarousel } from "../photo-carousel";
+import { TransferProgress } from "../transfer-progress";
 
 import { type SamplePhotoName, samplePhoto } from "@/testing/sample-photos";
 

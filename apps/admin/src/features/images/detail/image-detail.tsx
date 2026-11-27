@@ -4,8 +4,11 @@ import { toShotInfo } from "./logic/shot-info";
 
 import type { ApiOutputs } from "@/api/api-types";
 import { toImageStatusView } from "@/components/images/logic/image-status";
-import { ImageViewer, type Neighbor } from "@/features/images/ui/image-viewer";
 import { InfoList } from "@/features/images/ui/info-list";
+import {
+  ImageViewer,
+  type Neighbor,
+} from "@/features/images/ui/viewer/image-viewer";
 import { formatDateTime } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 import { Cluster, Heading, Stack, Text } from "@/ui/layout";

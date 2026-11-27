@@ -19,8 +19,9 @@ import {
   useImageNeighbors,
 } from "@/features/images/detail/hooks/use-image-neighbors";
 import { ImageDetail } from "@/features/images/detail/image-detail";
-import { ViewerFrame, ViewerMessage } from "@/features/images/ui/viewer-frame";
-import { ViewerVisit } from "@/features/images/ui/viewer-visit";
+import { ViewerFrame } from "@/features/images/ui/viewer/viewer-frame";
+import { ViewerMessage } from "@/features/images/ui/viewer/viewer-message";
+import { ViewerVisit } from "@/features/images/ui/viewer/viewer-visit";
 import { Heading, PageTransition, Text } from "@/ui/layout";
 import { ErrorState, LoadingState } from "@/ui/patterns";
 import { Link } from "@/ui/primitives/navigation";

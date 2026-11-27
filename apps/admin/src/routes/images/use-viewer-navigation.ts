@@ -1,7 +1,7 @@
 import { type RefObject, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { Neighbor } from "@/features/images/ui/image-viewer";
+import type { Neighbor } from "@/features/images/ui/viewer/image-viewer";
 
 type PhotoSide = "previous" | "next";
 
