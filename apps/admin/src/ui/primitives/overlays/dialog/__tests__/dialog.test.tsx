@@ -4,7 +4,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { type ReactNode, useState } from "react";
 
 import { renderWithI18n } from "@/testing/render-with-i18n";
-import { Dialog } from "@/ui/primitives/overlays/dialog";
+import { Dialog } from "@/ui/primitives/overlays/dialog/dialog";
 
 afterEach(cleanup);
 

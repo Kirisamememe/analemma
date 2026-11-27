@@ -6,9 +6,9 @@ import {
   ModalOverlay,
 } from "react-aria-components";
 
-import { DialogFooter, type DialogFooterSlots } from "./dialog-footer";
-import { useDialogScrollInsets } from "./hooks/use-dialog-scroll-insets";
-import { overlayPanel } from "./overlay-panel-style";
+import { DialogFooter, type DialogFooterSlots } from "../dialog-footer";
+import { useDialogScrollInsets } from "../hooks/use-dialog-scroll-insets";
+import { overlayPanel } from "../overlay-panel-style";
 
 import { useTranslate } from "@/i18n/use-translate";
 import { Button } from "@/ui/primitives/button";

@@ -74,10 +74,10 @@ import * as primitivesNavItem from "@/ui/primitives/navigation/__stories__/nav-i
 import * as primitivesNavSelect from "@/ui/primitives/navigation/__stories__/nav-select.stories";
 import * as primitivesNavigationProgress from "@/ui/primitives/navigation/__stories__/navigation-progress.stories";
 import * as primitivesScrollView from "@/ui/primitives/navigation/__stories__/scroll-view.stories";
-import * as primitivesDialog from "@/ui/primitives/overlays/__stories__/dialog.stories";
 import * as primitivesFocusScope from "@/ui/primitives/overlays/__stories__/focus-scope.stories";
 import * as primitivesOverlayLayer from "@/ui/primitives/overlays/__stories__/overlay-layer.stories";
 import * as primitivesTooltip from "@/ui/primitives/overlays/__stories__/tooltip.stories";
+import * as primitivesDialog from "@/ui/primitives/overlays/dialog/__stories__/dialog.stories";
 import * as primitivesToast from "@/ui/primitives/overlays/toast/__stories__/toast.stories";
 import * as specimensColors from "@/ui/specimens/__stories__/colors.stories";
 import * as specimensTypography from "@/ui/specimens/__stories__/typography.stories";
@@ -184,7 +184,8 @@ const MODULES = {
     primitivesNavSelect,
   "ui/primitives/navigation/__stories__/navigation-progress.stories.ts":
     primitivesNavigationProgress,
-  "ui/primitives/overlays/__stories__/dialog.stories.tsx": primitivesDialog,
+  "ui/primitives/overlays/dialog/__stories__/dialog.stories.tsx":
+    primitivesDialog,
   "ui/primitives/overlays/__stories__/focus-scope.stories.tsx":
     primitivesFocusScope,
   "ui/primitives/overlays/__stories__/overlay-layer.stories.tsx":
