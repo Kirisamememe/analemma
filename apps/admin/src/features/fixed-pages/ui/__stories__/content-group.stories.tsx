@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Branch, ContentGroup } from "@/features/fixed-pages/ui/content-group";
+import { Branch } from "@/features/fixed-pages/ui/branch";
+import { ContentGroup } from "@/features/fixed-pages/ui/content-group";
 import { Button } from "@/ui/primitives/button";
 import { TextField } from "@/ui/primitives/form-fields";
 import { Icon } from "@/ui/primitives/graphics";

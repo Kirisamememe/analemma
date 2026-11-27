@@ -4,7 +4,7 @@ import { Profiler, type ProfilerOnRenderCallback, type ReactNode } from "react";
 
 import { fieldDefinitions } from "@analemma/contract";
 
-import { useEditorForm } from "../hooks/use-editor-form";
+import { useEditorForm } from "../../hooks/use-editor-form";
 import { RepeatField } from "../repeat-field";
 
 import { createTestApp } from "@/testing/create-test-app";

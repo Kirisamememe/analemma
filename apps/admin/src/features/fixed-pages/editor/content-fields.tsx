@@ -2,11 +2,12 @@ import { memo, type ReactNode } from "react";
 
 import type { FieldDefinition } from "@analemma/contract";
 
-import { Branch, ContentGroup } from "../ui/content-group";
+import { Branch } from "../ui/branch";
+import { ContentGroup } from "../ui/content-group";
 import type { EditorForm } from "./hooks/use-editor-form";
 import { ImageField } from "./image-field";
 import type { RefusedSave } from "./logic/editor-errors";
-import { RepeatField } from "./repeat-field";
+import { RepeatField } from "./repeat/repeat-field";
 
 import { useTranslate } from "@/i18n/use-translate";
 
