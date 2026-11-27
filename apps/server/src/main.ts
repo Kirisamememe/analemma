@@ -6,6 +6,8 @@ import {
   createChallengeStore,
 } from "@/features/auth/challenge/create-challenge-store";
 import { createDropboxContext } from "@/features/dropbox/dropbox-context";
+import { createPendingPhotos } from "@/features/images/creating/pending-photos";
+import { resumePendingImages } from "@/features/images/creating/resume-pending-images";
 import { createConversionQueue } from "@/features/images/processing/conversion-queue";
 import { systemClock } from "@/platform/clock";
 import { openDatabase } from "@/platform/database";
@@ -65,6 +67,7 @@ const context: AppContext = {
     lifetimeMs: CHALLENGE_LIFETIME_MS,
   }),
   conversions: createConversionQueue(),
+  pending: createPendingPhotos(storage),
   dropbox: createDropboxContext(
     env.dropbox === undefined ? undefined : createDropboxApi(env.dropbox),
   ),
@@ -74,23 +77,20 @@ resources.defer(async () => {
   await context.dropbox.imports.stop(); // HTTP を止めた後、DB を閉じる前に、取り込んでいる途中の1枚を終える
 });
 
+resources.defer(async () => {
+  await context.pending.stop(); // 変換している1枚を終え、残りは次の起動で続ける
+});
+
+await resumePendingImages(context);
+
 const internalOptions = {
   fetch: createInternalApp(context).fetch,
   port: env.internal.port,
   hostname: env.internal.host,
 };
 
-const PHOTO_IDLE_TIMEOUT_SECONDS = 120; // 写真の変換を待つ間に、接続を切らない(Bun の既定は10秒)
-
 const externalOptions = {
-  fetch: createExternalApp(context, {
-    dist: adminDist,
-    listener: {
-      keepAlive: (request) => {
-        external.timeout(request, PHOTO_IDLE_TIMEOUT_SECONDS);
-      },
-    },
-  }).fetch,
+  fetch: createExternalApp(context, { dist: adminDist }).fetch,
   port: env.port,
 };
 

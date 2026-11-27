@@ -12,6 +12,7 @@ export const deleteImage = adminProcedures.images.delete.handler(
     }
 
     await context.storage.remove(deliveryImages.map(({ fileKey }) => fileKey));
+    await context.pending.discard(input.id);
 
     context.logger.write({
       level: "info",

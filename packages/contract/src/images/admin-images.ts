@@ -51,7 +51,7 @@ export const images = {
       method: "POST",
       path: "/admin/images/upload",
       summary:
-        "写真1枚から、撮影の情報と配信用の画像を持つ画像を作る(公開する)",
+        "写真1枚を受け取り、撮影の情報を持つ、変換を待つ画像を作る(変換を終えると公開になる)",
     })
     .input(z.object({ photo: photoFile }))
     .output(adminImage),
@@ -89,7 +89,10 @@ export const images = {
     )
     .output(adminImage),
   publish: adminAccess
-    .errors({ NOT_FOUND: { status: 404 } })
+    .errors({
+      NOT_FOUND: { status: 404 },
+      NOT_CONVERTED: { status: 409 },
+    })
     .route({
       method: "POST",
       path: "/admin/images/publish",
@@ -98,7 +101,10 @@ export const images = {
     .input(byId)
     .output(adminImage),
   unpublish: adminAccess
-    .errors({ NOT_FOUND: { status: 404 } })
+    .errors({
+      NOT_FOUND: { status: 404 },
+      NOT_CONVERTED: { status: 409 },
+    })
     .route({
       method: "POST",
       path: "/admin/images/unpublish",

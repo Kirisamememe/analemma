@@ -5,12 +5,99 @@ import { PHOTO_MAX_BYTES } from "@analemma/contract";
 import {
   catchErrorCode,
   createTestClient,
+  holdFirstConversion,
+  photo,
+  SUCCEEDED,
   signInAsAdmin,
   TEST_NOW,
   uploadRequest,
 } from "@/test-client";
 
 const MEGABYTE = 1024 * 1024;
+
+describe("同時に受け取る写真の数と、置き場所の上限", () => {
+  test("本文を読んでいる写真が2枚あると、3枚目は、末尾の / の有無によらず本文を読まずに 503 で断り、空いたら受けること", async () => {
+    await using server = await createTestClient();
+    await signInAsAdmin(server);
+
+    const bodies = [1, 2].map(() => {
+      const reading = Promise.withResolvers<undefined>();
+      const { promise, resolve } = Promise.withResolvers<undefined>();
+
+      return {
+        reading: reading.promise,
+        finish: resolve,
+        stream: new ReadableStream<Uint8Array>({
+          pull: async (controller) => {
+            reading.resolve(undefined);
+            await promise;
+            controller.enqueue(new Uint8Array(16));
+            controller.close();
+          },
+        }),
+      };
+    });
+
+    const receiving = bodies.map(async ({ stream }) =>
+      server.app.fetch(
+        uploadRequest(server, { size: 16, cookie: true, body: stream }),
+      ),
+    );
+
+    await Promise.all(bodies.map(async ({ reading }) => reading));
+
+    for (const path of ["images/upload", "images/upload/"]) {
+      const request = uploadRequest(server, { size: 16, cookie: true, path });
+      const response = await server.app.fetch(request);
+
+      expect(response.status).toBe(503);
+      expect(response.headers.get("retry-after")).toBe("10");
+      expect(request.bodyUsed).toBe(false);
+    }
+
+    for (const { finish } of bodies) finish(undefined);
+
+    await Promise.all(receiving);
+
+    expect(
+      await catchErrorCode(
+        server.client.admin.images.upload({
+          photo: await photo("high-iso.jpg"),
+        }),
+      ),
+    ).toBe(SUCCEEDED);
+  });
+
+  test("変換を待つ原本の合計が上限に達している間は、本文を読まずに 503 で断り、変換が進んで空いたら受けること", async () => {
+    const held = holdFirstConversion();
+    const file = await photo("high-iso.jpg");
+
+    await using server = await createTestClient({
+      conversions: held.conversions,
+      pendingLimit: file.size,
+    });
+
+    await signInAsAdmin(server);
+
+    const upload = async () =>
+      catchErrorCode(server.client.admin.images.upload({ photo: file }));
+
+    expect(await upload()).toBe(SUCCEEDED);
+    expect(await upload()).toBe("SERVICE_UNAVAILABLE");
+
+    const request = uploadRequest(server, { size: file.size, cookie: true });
+    const response = await server.app.fetch(request);
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("retry-after")).toBe("10");
+    expect(request.bodyUsed).toBe(false);
+
+    held.release();
+    await server.pending.settle();
+
+    expect(await upload()).toBe(SUCCEEDED);
+  });
+});
 
 describe("写真を送る本文の大きさ", () => {
   test("セッションが無いと、ほかの API と同じ 1 MB を超える本文を 413 で断ること", async () => {

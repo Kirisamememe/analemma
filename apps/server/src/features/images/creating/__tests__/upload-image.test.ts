@@ -6,25 +6,39 @@ import {
   createTestClient,
   holdFirstConversion,
   photo,
-  SUCCEEDED,
   signInAsAdmin,
   TEST_NOW,
-  uploadRequest,
+  type TestClient,
 } from "@/test-client";
 
-describe("写真を送って画像を作る", () => {
-  test("JPEG から、撮影の情報と配信用の画像を持つ公開の画像を作り、一覧の先頭に出すこと", async () => {
+const converted = async (server: TestClient, id: string) => {
+  await server.pending.settle();
+
+  return server.client.admin.images.get({ id });
+};
+
+describe("写真を受け取る", () => {
+  test("JPEG を受け取ると、撮影の情報を持つ変換中の画像を返し、変換を終えると公開にして一覧の先頭に出すこと", async () => {
     await using server = await createTestClient();
     await signInAsAdmin(server);
 
-    const image = await server.client.admin.images.upload({
+    const received = await server.client.admin.images.upload({
       photo: await photo("high-iso.jpg", "image/jpeg"),
     });
 
-    expect(image).toMatchObject({
+    expect(received).toMatchObject({
       title: null,
       description: null,
       alt: null,
+      iso: 102_400,
+      status: "processing",
+      publishedAt: null,
+      deliveryImages: [],
+    });
+
+    const image = await converted(server, received.id);
+
+    expect(image).toMatchObject({
       iso: 102_400,
       status: "published",
       publishedAt: TEST_NOW.toISOString(),
@@ -36,9 +50,11 @@ describe("写真を送って画像を作る", () => {
     await using server = await createTestClient();
     await signInAsAdmin(server);
 
-    const image = await server.client.admin.images.upload({
+    const { id } = await server.client.admin.images.upload({
       photo: await photo("wide-red.jpg", "image/jpeg"),
     });
+
+    const image = await converted(server, id);
 
     expect(image.deliveryImages.map(({ width }) => width)).toEqual([
       640, 1280, 1920, 2560,
@@ -60,13 +76,15 @@ describe("写真を送って画像を作る", () => {
     await using server = await createTestClient();
     await signInAsAdmin(server);
 
-    const image = await server.client.admin.images.upload({
+    const received = await server.client.admin.images.upload({
       photo: await photo("rotated-with-gps.heic"),
     });
 
-    expect(image).toMatchObject({
+    expect(received).toMatchObject({
       takenAt: "2025-05-01T14:03:27",
       takenAtOffset: "+09:00",
+    });
+    expect(await converted(server, received.id)).toMatchObject({
       deliveryImages: [{ width: 64, height: 96 }],
     });
   });
@@ -84,100 +102,112 @@ describe("写真を送って画像を作る", () => {
     ).toBe("UNSUPPORTED_FORMAT");
     expect((await server.client.admin.images.list({})).images).toEqual([]);
   });
+});
 
-  test("同時に送った写真は1枚ずつ変換し、3枚目は、末尾の / の有無によらず本文を読まずに 503 で断り、空いたら受けること", async () => {
+describe("受け取った写真の変換", () => {
+  test("変換を待たずに次の写真を受け取り、変換中の画像は公開も非公開もできず、1枚ずつ変換して公開にすること", async () => {
     const held = holdFirstConversion();
     await using server = await createTestClient({
       conversions: held.conversions,
     });
     await signInAsAdmin(server);
 
-    const upload = async () =>
-      catchErrorCode(
-        server.client.admin.images.upload({
-          photo: await photo("high-iso.jpg"),
-        }),
-      );
-
-    const first = [upload(), upload()];
-    await held.queued(2);
+    const images = server.client.admin.images;
+    const first = await images.upload({ photo: await photo("high-iso.jpg") });
+    const second = await images.upload({ photo: await photo("wide-red.jpg") });
 
     expect(held.converted()).toBe(0);
-    expect(await upload()).toBe("SERVICE_UNAVAILABLE");
-
-    for (const path of ["images/upload", "images/upload/"]) {
-      const request = uploadRequest(server, { size: 16, cookie: true, path });
-      const response = await server.app.fetch(request);
-
-      expect(response.status).toBe(503);
-      expect(response.headers.get("retry-after")).toBe("10");
-      expect(request.bodyUsed).toBe(false);
-    }
-
-    held.release();
-
-    expect(await Promise.all(first)).toEqual([SUCCEEDED, SUCCEEDED]);
-    expect(await upload()).toBe(SUCCEEDED);
-    expect((await server.client.admin.images.list({})).images).toHaveLength(3);
-  });
-
-  test("変換を待つ間に送るのをやめた写真は、画像にせず、枠を空けて、ログに失敗と書かないこと", async () => {
-    const held = holdFirstConversion();
-    await using server = await createTestClient({
-      conversions: held.conversions,
-    });
-    await signInAsAdmin(server);
-
-    const first = server.client.admin.images.upload({
-      photo: await photo("high-iso.jpg"),
-    });
-
-    const controller = new AbortController();
-
-    const abandoned = server.client.admin.images.upload(
-      { photo: await photo("wide-red.jpg") },
-      { signal: controller.signal },
+    expect((await images.list({})).images.map(({ status }) => status)).toEqual([
+      "processing",
+      "processing",
+    ]);
+    expect(await catchErrorCode(images.publish({ id: first.id }))).toBe(
+      "NOT_CONVERTED",
+    );
+    expect(await catchErrorCode(images.unpublish({ id: second.id }))).toBe(
+      "NOT_CONVERTED",
     );
 
-    await held.queued(2);
-    controller.abort();
-    await Promise.allSettled([abandoned]);
-
-    const next = server.client.admin.images.upload({
-      photo: await photo("rotated-with-gps.heic"),
-    });
-
     held.release();
+    await server.pending.settle();
 
-    const images = await Promise.all([first, next]);
-    const listed = (await server.client.admin.images.list({})).images;
-
-    expect(listed.map(({ id }) => id).toSorted()).toEqual(
-      images.map(({ id }) => id).toSorted(),
-    );
     expect(held.converted()).toBe(2);
+    expect((await images.list({})).images.map(({ status }) => status)).toEqual([
+      "published",
+      "published",
+    ]);
+    expect(
+      await server.storage.read(`pending/${first.id}.bin`),
+    ).toBeUndefined();
     expect(server.logs.filter(({ level }) => level === "error")).toEqual([]);
   });
 
-  test("ログイン中に送った写真だけ、変換を待つ間の接続を長く保たせること", async () => {
-    const kept: string[] = [];
-
+  test("変換できなかった写真は変換失敗にし、原本を消して、ログに書くこと", async () => {
     await using server = await createTestClient({
-      listener: {
-        keepAlive: (request) => {
-          kept.push(new URL(request.url).pathname);
-        },
+      conversions: {
+        run: () => Promise.reject(new Error("壊れた写真")),
       },
     });
 
-    await server.app.fetch(uploadRequest(server, { size: 16, cookie: false }));
-    expect(kept).toEqual([]);
-
     await signInAsAdmin(server);
-    await server.client.admin.images.upload({
-      photo: await photo("high-iso.jpg"),
-    });
 
-    expect(kept).toEqual(["/api/admin/images/upload"]);
+    const images = server.client.admin.images;
+    const { id } = await images.upload({ photo: await photo("high-iso.jpg") });
+
+    expect(await converted(server, id)).toMatchObject({
+      status: "failed",
+      publishedAt: null,
+      deliveryImages: [],
+    });
+    expect(await catchErrorCode(images.publish({ id }))).toBe("NOT_CONVERTED");
+    expect(await server.storage.read(`pending/${id}.bin`)).toBeUndefined();
+    expect(server.logs.filter(({ level }) => level === "error")).toMatchObject([
+      { message: "受け取った写真を変換できなかった" },
+    ]);
+  });
+
+  test("変換を待つ間に消した画像は、変換の順番が来ても戻さず、原本を残さないこと", async () => {
+    const held = holdFirstConversion();
+    await using server = await createTestClient({
+      conversions: held.conversions,
+    });
+    await signInAsAdmin(server);
+
+    const images = server.client.admin.images;
+    const { id } = await images.upload({ photo: await photo("high-iso.jpg") });
+
+    await images.delete({ id });
+    held.release();
+    await server.pending.settle();
+
+    expect((await images.list({})).images).toEqual([]);
+    expect(await server.storage.read(`pending/${id}.bin`)).toBeUndefined();
+    expect(server.logs.filter(({ level }) => level === "error")).toEqual([]);
+  });
+
+  test("止まる前に受け取った画像を、起動のときに変換し直し、原本の無い画像は変換失敗にすること", async () => {
+    const held = holdFirstConversion();
+    await using server = await createTestClient({
+      conversions: held.conversions,
+    });
+    await signInAsAdmin(server);
+
+    const images = server.client.admin.images;
+    const kept = await images.upload({ photo: await photo("high-iso.jpg") });
+    const lost = await images.upload({ photo: await photo("wide-red.jpg") });
+
+    await server.storage.remove([`pending/${lost.id}.bin`]);
+
+    const restarting = server.restart();
+
+    held.release();
+    await restarting;
+
+    expect(await converted(server, kept.id)).toMatchObject({
+      status: "published",
+    });
+    expect(await images.get({ id: lost.id })).toMatchObject({
+      status: "failed",
+    });
   });
 });

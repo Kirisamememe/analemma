@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 import { image } from "@/db/schema/image";
 import type { ImageRow } from "@/features/images/queries/images.query";
@@ -14,7 +14,7 @@ export type PublishChange = {
   readonly now: Date;
 };
 
-/** 画像を公開するか非公開にし、書き換えた行を返す。 */
+/** 変換を終えた画像を公開するか非公開にし、書き換えた行を返す。 */
 export const setPublished = async (
   db: DatabaseExecutor,
   { id, now, published }: PublishChange,
@@ -29,7 +29,12 @@ export const setPublished = async (
           }
         : { status: "unpublished", publishedAt: null },
     )
-    .where(eq(image.id, id))
+    .where(
+      and(
+        eq(image.id, id),
+        inArray(image.status, ["unpublished", "published"]),
+      ),
+    )
     .returning();
 
   return row;

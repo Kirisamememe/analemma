@@ -1,5 +1,6 @@
 import { setPublished } from "@/features/images/publishing/queries/set-published.query";
 import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
+import { findImage } from "@/features/images/queries/images.query";
 import { toAdminImage } from "@/features/images/to-image";
 import { adminProcedures } from "@/procedures";
 
@@ -15,7 +16,9 @@ export const unpublishImage = adminProcedures.images.unpublish.handler(
     });
 
     if (row === undefined) {
-      throw errors.NOT_FOUND();
+      throw (await findImage(context.db, input.id)) === undefined
+        ? errors.NOT_FOUND()
+        : errors.NOT_CONVERTED();
     }
 
     context.logger.write({
