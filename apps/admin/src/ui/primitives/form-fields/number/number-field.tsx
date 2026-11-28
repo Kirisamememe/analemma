@@ -29,6 +29,8 @@ export type NumberFieldProps = {
   defaultValue?: number;
   /** 入力が要ることを示す文言。 */
   requiredLabel?: string | undefined;
+  /** 入力が任意であることを示す文言。 */
+  optionalLabel?: string | undefined;
   /** 値を減らすボタンの、アクセシブルな名前。 */
   decrementLabel: string;
   /** 値を増やすボタンの、アクセシブルな名前。 */
@@ -58,6 +60,7 @@ export const NumberField = ({
   description,
   defaultValue = Number.NaN,
   requiredLabel,
+  optionalLabel,
   decrementLabel,
   incrementLabel,
   isDisabled = false,
@@ -96,7 +99,9 @@ export const NumberField = ({
       validate={(next) => validate?.(next)}
       {...fieldState}
     >
-      <FieldLabel requiredLabel={requiredLabel}>{label}</FieldLabel>
+      <FieldLabel optionalLabel={optionalLabel} requiredLabel={requiredLabel}>
+        {label}
+      </FieldLabel>
       <Group
         className={fieldControl({
           className:

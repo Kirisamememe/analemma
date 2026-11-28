@@ -35,6 +35,7 @@ export const AppTextArea = (props: AppTextAreaProps): ReactNode => {
       errorMessage={errorMessage}
       isDisabled={props.isDisabled}
       isReadOnly={isSubmitting || props.isReadOnly === true}
+      optionalLabel={props.isRequired === true ? undefined : t("ui.optional")}
       requiredLabel={props.isRequired === true ? t("ui.required") : undefined}
       label={props.label}
       maxLength={props.maxLength}

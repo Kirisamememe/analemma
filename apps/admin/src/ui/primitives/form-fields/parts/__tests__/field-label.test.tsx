@@ -101,6 +101,33 @@ describe("入力欄のラベル", () => {
       screen.getByRole<HTMLInputElement>("textbox", { name: "名前" }).required,
     ).toBe(true);
   });
+
+  test("「任意」を渡すと、ラベルに添え、入力欄の名前には含めず、入力を必須にしない", () => {
+    renderWithI18n(
+      <TextField optionalLabel="任意" label="名前" name="name" />,
+      "ja",
+    );
+
+    expect(screen.getByText("任意")).toBeDefined();
+    expect(
+      screen.getByRole<HTMLInputElement>("textbox", { name: "名前" }).required,
+    ).toBe(false);
+  });
+
+  test("「必須」と「任意」の両方を渡すと、「必須」だけを添える", () => {
+    renderWithI18n(
+      <TextField
+        optionalLabel="任意"
+        requiredLabel="必須"
+        label="名前"
+        name="name"
+      />,
+      "ja",
+    );
+
+    expect(screen.getByText("必須")).toBeDefined();
+    expect(screen.queryByText("任意")).toBeNull();
+  });
 });
 
 test("ガイドの末尾だけを調べ、同じ入力欄の入力例とエラーの句点を許す", () => {

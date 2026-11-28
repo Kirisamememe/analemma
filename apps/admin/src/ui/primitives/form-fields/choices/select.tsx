@@ -18,6 +18,8 @@ export type SelectProps = Omit<
   label: string;
   /** 入力が要ることを示す文言。 */
   requiredLabel?: string | undefined;
+  /** 入力が任意であることを示す文言。 */
+  optionalLabel?: string | undefined;
   /** 補足。 */
   description?: string | undefined;
   /** 呼び出し元から渡す誤りの知らせ。 */
@@ -34,6 +36,7 @@ export const Select = ({
   value,
   isDisabled,
   requiredLabel,
+  optionalLabel,
   onBlur,
   onChange,
   validationBehavior,
@@ -52,7 +55,9 @@ export const Select = ({
     onChange={onChange}
     validationBehavior={validationBehavior}
   >
-    <FieldLabel requiredLabel={requiredLabel}>{label}</FieldLabel>
+    <FieldLabel optionalLabel={optionalLabel} requiredLabel={requiredLabel}>
+      {label}
+    </FieldLabel>
     <SelectControl
       isRequired={requiredLabel !== undefined}
       noneLabel={noneLabel}

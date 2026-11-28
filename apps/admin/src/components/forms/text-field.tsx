@@ -46,6 +46,7 @@ export const AppTextField = ({
       errorMessage={errorMessage}
       inputRef={inputRef}
       isReadOnly={isSubmitting || isReadOnly === true}
+      optionalLabel={isRequired === true ? undefined : t("ui.optional")}
       requiredLabel={isRequired === true ? t("ui.required") : undefined}
       label={label}
       maxLength={maxLength}

@@ -29,6 +29,8 @@ export type TextAreaProps = {
   maxLength?: number | undefined;
   /** 入力が要ることを示す文言。 */
   requiredLabel?: string | undefined;
+  /** 入力が任意であることを示す文言。 */
+  optionalLabel?: string | undefined;
   /** 入力欄が無効か。 */
   isDisabled?: boolean | undefined;
   /** 読み取り専用か。 */
@@ -56,6 +58,7 @@ export const TextArea = ({
   maxLength,
   placeholder,
   requiredLabel,
+  optionalLabel,
   isDisabled = false,
   isReadOnly = false,
   validationBehavior,
@@ -88,7 +91,9 @@ export const TextArea = ({
       validate={(next) => validate?.(next)}
       {...fieldState}
     >
-      <FieldLabel requiredLabel={requiredLabel}>{label}</FieldLabel>
+      <FieldLabel optionalLabel={optionalLabel} requiredLabel={requiredLabel}>
+        {label}
+      </FieldLabel>
       <AriaTextArea
         className={fieldControl({
           className: [

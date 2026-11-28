@@ -35,6 +35,7 @@ const PhotoFieldContent = ({
     <Field
       name={name}
       label={t(`imageDetail.${name}`)}
+      optionalLabel={t("ui.optional")}
       description={guide(name === "title" ? imageTitle : imageDescription)}
       placeholder={t(`imageDetail.${name}Placeholder`)}
       value={value}
