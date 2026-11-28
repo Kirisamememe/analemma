@@ -18,7 +18,6 @@ export const ImageRows = ({
   listRef,
   children,
 }: ImageRowsProps): ReactNode => (
-  // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- WebKit はマーカーのない ul を group として読み上げる
   <ul aria-label={label} className={rows().list()} ref={listRef} role="list">
     {children}
   </ul>

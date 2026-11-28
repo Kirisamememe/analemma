@@ -1,5 +1,3 @@
-// oxlint-disable project/max-code-lines -- 定数の表で、分けると対応が追えなくなる
-
 export const value0001 = 1;
 export const value0002 = 2;
 export const value0003 = 3;

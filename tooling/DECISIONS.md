@@ -17,8 +17,8 @@
   - `no-standalone-comment`:単独の行のコメントとブロックコメントを禁止し、行末のコメントは40文字までにする。lint への指示(`oxlint-disable` など)と `@ts-expect-error` は除く。TSDoc は宣言・型のプロパティ・メンバーの直前にだけ書ける。分割の見出し(10本以上の `-` の罫線・見出しの行・罫線の3行)は、コードが200行を超えるファイルでだけ許し、400行を超えるファイルには1つ以上を求める。行数は、空行とコメントだけの行を除いて数える(`eslint/max-lines` の `skipBlankLines`・`skipComments` と同じ数え方)。見出しの行は、文字か数字を含み、lint への指示ではないものに限り、40文字までにする。必須の条件を満たすのは、後ろにコードが続く見出しだけ(ファイルの末尾に置いただけの見出しは数えない)。改行は LF・CRLF・CR・U+2028・U+2029 のどれでも1行と数える。TSDoc と宣言のあいだに見出しを挟むと、宣言の直前に無い TSDoc の診断を出す。
   - `tsdoc-role-only`:TSDoc の説明とタグを、それぞれ1行・1文・60文字までにし、条件・例・補足・理由の言い回しと、`@param`・`@returns`・`@deprecated` 以外のタグを禁止する。言い回しは正規表現で見る(「割り切ったこと」)。「起動時に組み立てる」のような定義まで止めていたので、「時に」「ときに」は条件の言い回しから外した。`test.if` のようなコードの名前で引っかからないよう、バッククォートで囲んだ部分は言い回しの検査から外す。
   - `no-markup-test`:テストで、test id による検索、DOM のたどり方(`querySelector` など)、クラス名や HTML の中身、スナップショットを禁止する。
-  - `max-code-lines`・`file-length-limit`:ファイルのコードの行数(空行とコメントだけの行を除く)に上限を設ける。同じ実装を、400行(`max-code-lines`。1行目に理由付きで抑制できる)と800行(`file-length-limit`。抑制できない)の2つの名前で使う。Oxlint の `eslint/max-lines` は、複数行のコメントや CR だけの改行で数え方が食い違ったので使わない。
-  - `require-disable-reason`:lint の抑制に、ルールの名前と `--` の後の理由を求める。ルールの名前と説明の区切りは、Oxlint と同じ読み方にする(カンマと空白で区切り、`--` か前後に空白のある `-` から説明が始まる。`/` の無い名前はプラグイン名を除いた部分で照らし合わせる)。抑制できないルール(`file-length-limit`・`no-standalone-comment`・このルール自身)の抑制を止め、`max-code-lines` の抑制は1行目の `// oxlint-disable` の形だけを許す。
+  - `max-code-lines`・`file-length-limit`:ファイルのコードの行数(空行とコメントだけの行を除く)に上限を設ける。同じ実装を、400行(`max-code-lines`。ルールを外すファイルの一覧で外せる)と800行(`file-length-limit`。外せない)の2つの名前で使う。Oxlint の `eslint/max-lines` は、複数行のコメントや CR だけの改行で数え方が食い違ったので使わない。
+  - `no-lint-suppression`:lint を抑制するコメント(`oxlint-disable`・`eslint-disable` と、その `-next-line`・`-line`)を、理由があっても止める(ユーザーが決めた)。抑制がコードに散らばると、ルールは守られないものになる。props の spread を止めるルールは、管理画面の spread の全部が抑制していて、ルールが現実のコードを1件も通していなかった。lint に当たったら、設計を見直すか、ルールを目的どおりに直す。ユーザーと決めて特定のファイルでルールを外すときは、ルールを外すファイルの一覧(`tooling/lint/config/rule-exemptions.ts`)に、ルール・理由・ファイルを書く。設定は、この一覧から、ファイルごとにルールを外す `overrides` を作る。外せないルール(`file-length-limit`・`no-standalone-comment`・このルール自身)を一覧に書くと、`tooling/structure/` のテストで止まる。設定の `overrides` で、特定のファイルのルールを外す書き方は、この一覧のほかに置かない(テストや story のように、ファイルの種類で緩める設定は、今までどおり `overrides` に書く)。
   - `no-focused-test`:`test.only`・`describe.skip`・`test.todo`・`test.if` などを禁止する。
   - `no-cross-workspace-import`:相対パスと server・管理画面の `@/` が自分のワークスペース(`apps/<名前>`・`packages/<名前>`)の外を指す import と re-export を止める。Bun の isolated linker が依存を制限するのはパッケージ名での import なので、ファイルを直接指すパスはこのルールで検査する。
   - `require-sibling-test`:管理画面の `src/` の `.ts` が関数(hook を含む)を export するなら、同じフォルダの `__tests__` にテストを求める。`.tsx` の部品には求めない。出し分けのある部品にテストを求めると、飾りの線のように利用者に見える違いの無い部品にも、lint を通すためだけのテストを書くことになる。部品のテストを書くかは、確かめる振る舞いがあるかで決める(`apps/admin/AGENTS.md`)。テストのファイルは、`.test.ts` と `.test.tsx` のどちらでも数える(テストの拡張子は、テストに JSX があるかで決まる)。テストのファイルは、中に `test(` か `it(` があるときだけ数える。lint を通すためだけの空のファイルやフォルダでは通らない。`.storybook/` には掛けない。管理画面のテストは `src/` から流す(`apps/admin/bunfig.toml` の `root`)ので、`.storybook/__tests__` に置いても流れない。`.storybook/` の `useHtmlPreferences` は、全部の story を描くテスト(`src/__tests__/stories.test.tsx`)が、html の `lang` と `data-theme` で確かめる。
@@ -33,7 +33,7 @@
     - テストのファイルと、テストの部品(`src/test-client/`・`src/platform/test-database/`)でも外す。テストは失敗を値として受け取って確かめるので、握りつぶしではない。本番のコードは、この2つのフォルダを import できない(`tooling/structure/` のテストが止める)。import できると、`catchErrorCode` のような部品を通して、このルールをすり抜けられる。
   - `styling-boundary`:管理画面の見た目の境界を守る(デザインシステムの判断は `apps/admin/src/ui/DECISIONS.md`)。画面のコード(`ui/` の外)では、`style` と、文字列のリテラルでない `className`(と `…ClassName`)を止める。式を渡すと、class の検査(eslint-plugin-better-tailwindcss)が中身を読めず、すり抜けるため。`ui/` の中では、`className` を、リテラル・関数の呼び出し・呼び出しを返す関数(React Aria Components の render props)に限り、`style` にその場で書いたオブジェクトだけを許して、キーを `--` で始まる CSS 変数に限る。どちらでも、中身を検査できない JSX の props の spread を止める(spread で渡した `className` や `style` は検査が見ない)。止めるのは、受け取った props やその残り(`{...props}`・`{...rest}`)、ほかのファイルの値、書き換えられる変数。通すのは、キーを読めて `className`・`style`・`…ClassName` を含まない、その場か同じファイルの `const` に書いたオブジェクト(条件で空のオブジェクトと出し分ける形を含む)と、見た目の props を返さないと確かめた React Aria の hook の戻り値を分割代入した値(ルールの中の一覧に挙げる。今は `useDrop` の `dropProps`)。React Aria の hook には `style` を返すもの(`useOverlayPosition` など)があるので、import 元だけでは通さない。`const` の値は、spread のほかに使っていないものだけを通す(プロパティの書き換えや、ほかの関数に渡す形があると、中身を読み切れない)。`exactOptionalPropertyTypes` の下では、未指定の props を React Aria Components に `undefined` で渡せないので、条件で省くオブジェクトの spread が要る。spread をすべて止めると、この形を書くたびに抑制が要った。
   - `max-classes-per-string`:`ui/` と `features/*/ui/` で、class を書く文字列(JSX の `className` と `…ClassName` の属性、`tv`・`merge` の呼び出しの中、`class`・`className` のプロパティ、名前が `ClassName(s)` で終わる変数)の1つに、9個以上の class を書くと止める(上限はユーザーが決めた8個)。理由は `apps/admin/src/ui/DECISIONS.md` の「検査」。空白で区切って数える。テンプレートリテラルでは、補間を空文字としても9個以上になる場合に止める。class を選ぶ条件の比較文字列は数えない。eslint-plugin-better-tailwindcss の `enforce-consistent-line-wrapping` は、行の幅で折り返させるルールで、整形と食い違うので使わない(下の「管理画面の Tailwind CSS の class の検査」)。class の数で区切れば、整形とぶつからない。JSX の `className` の文字列は、配列にできないので、文言で `tv` に移すように伝える。
-  - `no-dynamic-import`:`import()` による動的な import を禁止する。境界を守る `no-restricted-imports` は動的な import を見ないので、`import()` なら Drizzle や Bun の API を、決めた場所の外から読めてしまう。今のコードでは、client の CLI の入口(`packages/client/src/cli/main.ts`)の1か所だけで、理由付きで抑制している(利用者の定義のファイルは、実行するときにしかパスが分からない)。
+  - `no-dynamic-import`:`import()` による動的な import を禁止する。境界を守る `no-restricted-imports` は動的な import を見ないので、`import()` なら Drizzle や Bun の API を、決めた場所の外から読めてしまう。今のコードでは、client の CLI の入口(`packages/client/src/cli/main.ts`)だけを、ルールを外すファイルの一覧で外している(利用者の定義のファイルは、実行するときにしかパスが分からない)。
   - `no-effect-outside-allowed-hook`:React の `useEffect`・`useLayoutEffect`・`useInsertionEffect` を、一覧に載せた hook の直下でだけ呼べるようにする。React の外と同期する処理の目的を hook の名前で示し、effect が必要な場所を一覧で把握するため。React からの import を参照する呼び出しを見て、直接囲む関数の名前を `allowedHooks` と照らし合わせる。管理画面全体(`src/` のテスト・story と `.storybook/` を含む)に掛ける設定と hook の一覧は、管理画面の層の境界と同じ `tooling/lint/config/admin-overrides.ts` に置く。effect を使う判断は `apps/admin/DECISIONS.md` の「React の effect」に書く。
 - **管理画面の層の境界**(`tooling/lint/config/admin-overrides.ts`):React Aria Components とその下の層と lucide-react を import できるのは `ui/primitives/` だけ、`tailwind-variants` を import できるのは `ui/tv.ts` だけ(どれもサブパスを含む)。`ui/layout/` から primitives と patterns へ、`ui/primitives/` から patterns への import は、相対パスと `@/` のどちらでも止める。理由は `apps/admin/src/ui/DECISIONS.md` の「部品の層」。場所ごとに `no-restricted-imports` の options が違うので、Bun・Node・React の制限と同じ部品から、場所ごとに組み立てる。
 - **管理画面の Tailwind CSS の class の検査**(eslint-plugin-better-tailwindcss を、Oxlint の JS のプラグインで動かす。設定は `tooling/lint/config/admin-classes.ts`)
@@ -56,6 +56,7 @@
   - 管理画面の `.ts` で React の値を import できるのは、hook のファイルと context のファイルだけ(`no-react-in-logic`)。こうすると、ロジックを React なしでテストできる。拡張子は JSX の有無で決めるので(`require-jsx-in-tsx`)、JSX を書かない hook や context も `.ts` に置く。
   - `console`(ログは context で渡す logger を使う)、`process.env`(環境変数は起動時に検証する1か所だけで読む)、引数のプロパティの書き換えを禁止する。
 - **足したルール**:`no-unnecessary-condition`(要らない `?.` や条件)、`no-abusive-eslint-disable`(ルールを指定しない抑制)、React の `only-export-components`・`no-danger`・`button-has-type`。
+- **`ul` の `role="list"`**:`jsx-a11y/no-redundant-roles` は、`ul` に書いた `role="list"` だけを許す。WebKit は、マーカーを消した `ul` を list として読み上げないので、`role` を書いて戻す。
 - **React の書き方をそろえるルール**(ユーザーが決めた。厳しめに):`restriction` と `style` の category は有効にしていないので、React のルールを名前で足す。
   - 書き方:`function-component-definition`(arrow function)・`prefer-function-component`(class で書かない)・`jsx-boolean-value`・`jsx-curly-brace-presence`・`jsx-fragments`・`jsx-pascal-case`・`self-closing-comp`・`jsx-filename-extension`(`.tsx` だけ)。
   - 誤りを防ぐ:`no-unknown-property`・`no-clone-element`・`no-react-children`(`Children` と `cloneElement` は、子の形に頼る壊れやすい部品を作る)。
@@ -78,7 +79,7 @@
 - **テストでも緩めないルール**
   - `no-unsafe-*`:bun-types は、非対称の matcher(`expect.any()`・`expect.stringContaining()` など)の型 `AsymmetricMatcher` を、型の食い違いを起こさないために、わざと `any` の別名にしている。テストで使うと `no-unsafe-*` に掛かるので、非対称の matcher は使わず、`toMatchObject` や具体的な値で確かめる。
   - `await-thenable`:Bun 1.4 の `expect(…).rejects`・`resolves` は、Promise が settled になるまでその場で待つ(50ms 後に失敗する Promise でも、`await` なしで正しく確かめた)。bun-types が戻り値を `void` と型付けしているのは、この動きに合っている。`await` を付けずに書けば、このルールにも掛からない。
-- **テストで緩めるルール**:テストは、ユーザーの判断で製品のコードより lint を緩めてよい。テストの書き方とぶつかる一般のルールは、テストのファイルの `overrides` で外し、テストを曲げない。テストのためのルール(`no-focused-test`・`no-markup-test`・`test-location`)と、抑制できないルールは緩めない。
+- **テストで緩めるルール**:テストは、ユーザーの判断で製品のコードより lint を緩めてよい。テストの書き方とぶつかる一般のルールは、テストのファイルの `overrides` で外し、テストを曲げない。テストのためのルール(`no-focused-test`・`no-markup-test`・`test-location`)と、一覧でも外せないルールは緩めない。
   - `no-non-null-assertion`:テストでは、あると分かっている値を読む場面が多い。無ければテストが落ちるので、それで足りる。
   - `no-await-in-loop`:テストでは、順に待つこと自体を確かめたい場面がある。
   - `consistent-type-assertions`:項目の一部だけを持つ作り物を `as` で作れるようにする。
@@ -157,12 +158,12 @@ Claude Code では、作業の終わりに `tooling/hooks/stop-check.ts` が `bu
 - 作業ツリーに変更が無いときは流さない。会話だけのやり取りでも、毎回 check を待たせないため。コミットした後の変更は CI が流す。
 - `git status` が失敗したときは、変更があるものとして流す。
 
-## 抑制できない約束の検査
+## 抑制のコメントに左右されない検査
 
-Oxlint には、抑制のコメントを無視して実行する仕組みが無い。`oxlint-disable-line project/require-disable-reason -- 理由` のように、抑制を禁じるルールの診断さえ、コメント1つで消せてしまう。設定の `overrides` で切ることも、`foo-min.ts` のような Oxlint が飛ばす名前にすることもできる。そこで、次の約束は `tooling/structure/` のテストでも検査する。テストは `git ls-files` で一覧にした全ソースを oxc-parser で読むので、抑制のコメントにも設定にも左右されない。
+Oxlint には、抑制のコメントを無視して実行する仕組みが無い。`oxlint-disable-line project/no-lint-suppression` のように、抑制を禁じるルールの診断さえ、コメント1つで消せてしまう。設定の `overrides` で切ることも、`foo-min.ts` のような Oxlint が飛ばす名前にすることもできる。そこで、次の約束は `tooling/structure/` のテストでも検査する。テストは `git ls-files` で一覧にした全ソースを oxc-parser で読むので、抑制のコメントにも設定にも左右されない。
 
-- コードが800行を超えない。400行を超えるなら、1行目に理由付きの `// oxlint-disable project/max-code-lines -- 理由` があり、後ろにコードが続く分割の見出しがある。
-- 抑制にルールの名前と理由があり、抑制できないルールを抑制していない。
+- コードが800行を超えない。400行を超えるなら、ルールを外すファイルの一覧にあり、後ろにコードが続く分割の見出しがある。一覧に挙げたファイルが、今も400行を超えている。
+- lint を抑制するコメントが無い。ルールを外すファイルの一覧が、外せないルールを外さず、今あるファイルだけを挙げていて、どの行にも理由がある。
 - Oxlint が飛ばす名前のソースのファイルが無い。Oxlint の設定は直下の `oxlint.config.ts` だけ(`bun run lint` は `--disable-nested-config` で入れ子の設定を読まない)。
 - 守るべきルールが Oxlint の設定で `error` になっていて、`overrides` で弱めていない。lint とテストで、行数の境目がそろっている。
 

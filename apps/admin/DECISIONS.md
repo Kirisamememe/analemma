@@ -65,11 +65,11 @@ TanStack Router の、ファイルから route を作る仕組み(`routeTree.gen
 
 - 生成するファイルは、整形・lint・用語集の検査から外す設定が要り、生成し忘れると型が古いまま残る。
 - ファイルの名前に `__root.tsx`・`$id.tsx`・`_layout.tsx` のような形を求めるので、kebab-case の検査とぶつかり、route が増えると1つのフォルダに10件を超えて並ぶ。
-- route の型(`Link` の `to` など)は、コードで組んでも同じように付く。型を登録する `declare module` の `interface Register` は、宣言のマージでしか書けないので、`consistent-type-definitions` をその1行だけ抑制している。
+- route の型(`Link` の `to` など)は、コードで組んでも同じように付く。型を登録する `declare module` の `interface Register` は、宣言のマージでしか書けないので、`consistent-type-definitions` を、そのファイルで外している(ルールを外すファイルの一覧)。
 
 ## code splitting はしない
 
-route ごとの `lazy(() => import(…))` は使わない。管理画面を使うのは管理者1人で、全部を1つの bundle にしても大きくない(i18next を足した今の bundle で約 710 KB、gzip で約 224 KB)。分ける得が無い間は、分けない。エディタのような大きなライブラリを入れるときに、決め直す。そのときは、`import()` を書く場所(route を組むファイル)を決め、`no-dynamic-import` をそこでだけ理由付きで抑制する。
+route ごとの `lazy(() => import(…))` は使わない。管理画面を使うのは管理者1人で、全部を1つの bundle にしても大きくない(i18next を足した今の bundle で約 710 KB、gzip で約 224 KB)。分ける得が無い間は、分けない。エディタのような大きなライブラリを入れるときに、決め直す。そのときは、`import()` を書く場所(route を組むファイル)を決め、`no-dynamic-import` を、そのファイルで外す(ルールを外すファイルの一覧に足す)。
 
 ## 対応するブラウザ
 
@@ -167,7 +167,7 @@ effect を使う hook の表は、次のとおり。
 | `useHtmlPreferences`     | `.storybook/use-html-preferences.ts`                       | (4) ブラウザが描く前に html の `lang` と `data-theme` を story の値に合わせる                      |
 | `useLoadingAnnouncement` | `src/ui/patterns/states/hooks/use-loading-announcement.ts` | (2) 空の通知欄を先に置き、150ms 続いた読み込みを伝える。欄が消えたら timer を止める。              |
 
-表の hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` にも足す。どうしても避けられない呼び出しを表の hook の外に書く場合は、`// oxlint-disable-next-line project/no-effect-outside-allowed-hook -- 理由` で抑制する。
+表の hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` にも足す。表の hook の外には書かない。どうしても要るなら、目的の分かる名前の hook にして、表に足す。
 
 ## 開発のときの API
 

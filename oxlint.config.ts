@@ -7,6 +7,7 @@ import {
 import { ADMIN_OVERRIDES } from "./tooling/lint/config/admin-overrides.ts";
 import { CORE_RULES } from "./tooling/lint/config/core-rules.ts";
 import { PROJECT_RULES } from "./tooling/lint/config/project-rules.ts";
+import { RULE_EXEMPTION_OVERRIDES } from "./tooling/lint/config/rule-exemptions.ts";
 import { SERVER_OVERRIDES } from "./tooling/lint/config/server-overrides.ts";
 import { WORKSPACE_OVERRIDES } from "./tooling/lint/config/workspace-overrides.ts";
 
@@ -58,5 +59,6 @@ export default defineConfig({
     ...ADMIN_OVERRIDES,
     ...SERVER_OVERRIDES,
     ...ADMIN_CLASS_OVERRIDES,
+    ...RULE_EXEMPTION_OVERRIDES,
   ],
 });

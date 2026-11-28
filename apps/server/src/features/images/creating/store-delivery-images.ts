@@ -65,7 +65,6 @@ export const storeDeliveryImages = async <T>(
 
   for (const file of files) {
     written.push(file.fileKey);
-    // oxlint-disable-next-line eslint/no-await-in-loop -- 失敗した書き込みの後始末より後に別のファイルを作らない
     await storage.write(file.fileKey, file.avif);
   }
 

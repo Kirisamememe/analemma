@@ -1,4 +1,3 @@
-// oxlint-disable project/max-code-lines -- 訳は、言語ごとに1ファイルに置く(見比べて抜けを見つけるため。ユーザーが決めた)
 import type { Translation } from "@/i18n/translation";
 
 /** 日本語の訳。 */

@@ -1,5 +1,5 @@
+import noLintSuppression from "./rules/comments/no-lint-suppression.mjs";
 import noStandaloneComment from "./rules/comments/no-standalone-comment.mjs";
-import requireDisableReason from "./rules/comments/require-disable-reason.mjs";
 import tsdocRoleOnly from "./rules/comments/tsdoc-role-only.mjs";
 import noCatchOutsideEntry from "./rules/errors/no-catch-outside-entry.mjs";
 import adminModuleLocation from "./rules/modules/admin-module-location.mjs";
@@ -36,10 +36,10 @@ const plugin = {
     "no-focused-test": noFocusedTest,
     "no-inline-parameter-type": noInlineParameterType,
     "no-jsx-logic": noJsxLogic,
+    "no-lint-suppression": noLintSuppression,
     "no-markup-test": noMarkupTest,
     "no-react-in-logic": noReactInLogic,
     "no-standalone-comment": noStandaloneComment,
-    "require-disable-reason": requireDisableReason,
     "require-jsx-in-tsx": requireJsxInTsx,
     "require-sibling-test": requireSiblingTest,
     "styling-boundary": stylingBoundary,

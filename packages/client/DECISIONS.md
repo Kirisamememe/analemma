@@ -26,7 +26,7 @@
 ## CLI(`cli/`)
 
 - `analemma push-kinds <定義のファイル>` で、定義のファイルの default export の種類を、デプロイ用 API に送る。
-- 定義のファイルは、実行するときにしかパスが分からないので、`import()` で読み込む(`main.ts` の1か所だけ。`project/no-dynamic-import` を理由付きで抑制する)。抑制の理由に書いたとおり、`no-restricted-imports` の境界を避けるための `import()` ではない。
+- 定義のファイルは、実行するときにしかパスが分からないので、`import()` で読み込む(`main.ts` の1か所だけ。`project/no-dynamic-import` を、ルールを外すファイルの一覧で外している)。`no-restricted-imports` の境界を避けるための `import()` ではない。
 - トークンは環境変数(`ANALEMMA_DEPLOY_TOKEN`)だけで受け取る。引数で受け取ると、シェルの履歴やプロセスの一覧に残る。URL は、環境変数(`ANALEMMA_URL`)か `--url` で受け取る。
 - 送る前に、トークンの形(`{id}.{secret}`)を確かめ、違えば値を出さずに使い方の誤りで終える。改行の混ざった値を Node の fetch に渡すと、ヘッダーの例外のメッセージに値が入り、標準エラーに出る(Codex のレビューで見つかった)。
 - CMS へのリクエストは、リダイレクトを追わない(`redirect: "error"`)。リダイレクトの先に、定義とトークンを送り直さないため(Codex のレビューで見つかった)。

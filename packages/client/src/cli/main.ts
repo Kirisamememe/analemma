@@ -4,7 +4,6 @@ import { pathToFileURL } from "node:url";
 import { runCli } from "./run-cli";
 
 const loadModule = async (path: string): Promise<unknown> =>
-  // oxlint-disable-next-line project/no-dynamic-import -- 利用者の定義のファイルは、実行するときにしかパスが分からない
   import(pathToFileURL(resolve(path)).href);
 
 process.exitCode = await runCli({

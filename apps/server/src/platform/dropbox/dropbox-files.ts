@@ -150,7 +150,6 @@ export const createDropboxFiles = (
       };
 
       for (;;) {
-        // oxlint-disable-next-line eslint/no-await-in-loop -- 次のページは前のページの cursor で読む
         const page = await readPage(call);
 
         if ("_tag" in page) return page;

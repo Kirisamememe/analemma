@@ -2,14 +2,14 @@ import { describe, expect, test } from "bun:test";
 
 import { checkSourceFile } from "../source-file";
 
-const EXCEPTION =
-  "// oxlint-disable project/max-code-lines -- 表で、分けると追えない";
-
 const DIVIDER = [
   "// ----------------------------------------",
   "// 値",
   "// ----------------------------------------",
 ].join("\n");
+
+const LONG = "long.ts";
+const longFiles = new Set([LONG]);
 
 const codeLines = (count: number): string =>
   Array.from(
@@ -17,77 +17,43 @@ const codeLines = (count: number): string =>
     (_, index) => `export const v${String(index)} = ${String(index)};`,
   ).join("\n");
 
-const check = (lines: readonly string[]): string[] =>
-  checkSourceFile({ path: "sample.ts", text: `${lines.join("\n")}\n` });
+const check = (lines: readonly string[], path = "sample.ts"): string[] =>
+  checkSourceFile({ path, text: `${lines.join("\n")}\n` }, longFiles);
 
 describe("ファイルの長さ", () => {
-  test("コードが400行までなら、理由付きの抑制も見出しも要らないこと", () => {
+  test("コードが400行までなら、ルールを外すファイルの一覧にも見出しも要らないこと", () => {
     expect(check([codeLines(400)])).toEqual([]);
   });
 
-  test("コードが401〜800行なら、1行目の理由付きの抑制と、コードが続く見出しで許すこと", () => {
-    expect(check([EXCEPTION, DIVIDER, codeLines(800)])).toEqual([]);
+  test("コードが401〜800行なら、ルールを外すファイルの一覧にあって、コードが続く見出しがあれば許すこと", () => {
+    expect(check([DIVIDER, codeLines(800)], LONG)).toEqual([]);
   });
 
-  test("コードが400行を超えるのに、1行目に理由付きの抑制が無ければ診断を出すこと", () => {
+  test("コードが400行を超えるのに、ルールを外すファイルの一覧に無ければ診断を出すこと", () => {
     expect(check([DIVIDER, codeLines(401)])).toEqual([
-      "コードが 400 行を超えるのに、1行目に理由付きの抑制が無い",
+      "コードが 400 行を超えるのに、ルールを外すファイルの一覧に無い",
     ]);
-  });
-
-  test("理由付きの抑制を1行目より後に書いても、400行を超えることを許さないこと", () => {
-    const problems = check([DIVIDER, EXCEPTION, codeLines(401)]);
-
-    expect(problems).toContain(
-      "コードが 400 行を超えるのに、1行目に理由付きの抑制が無い",
-    );
-    expect(problems).toContain(
-      "project/max-code-lines の抑制は、1行目に `// oxlint-disable` の形で書く",
-    );
-  });
-
-  test("理由付きの抑制をブロックコメントで書いても、400行を超えることを許さないこと", () => {
-    const problems = check([
-      "/* oxlint-disable project/max-code-lines -- 理由 */",
-      DIVIDER,
-      codeLines(401),
-    ]);
-
-    expect(problems).toContain(
-      "コードが 400 行を超えるのに、1行目に理由付きの抑制が無い",
-    );
   });
 
   test.each([
     {
       label: "末尾にしか無い見出し",
-      lines: [EXCEPTION, codeLines(401), DIVIDER],
+      lines: [codeLines(401), DIVIDER],
     },
     {
       label: "後ろにコメントしか無い見出し",
-      lines: [EXCEPTION, codeLines(401), DIVIDER, "// @ts-check"],
+      lines: [codeLines(401), DIVIDER, "// @ts-check"],
     },
   ])("$label は、見出しとして数えないこと", ({ lines }) => {
-    expect(check(lines)).toEqual([
+    expect(check(lines, LONG)).toEqual([
       "コードが 400 行を超えるのに、後ろにコードが続く分割の見出しが無い",
     ]);
   });
 
-  test("コードが800行を超えたら、どんな抑制があっても診断を出すこと", () => {
-    const problems = check([
-      EXCEPTION,
-      "// oxlint-disable project/file-length-limit, project/require-disable-reason -- 理由",
-      DIVIDER,
-      codeLines(801),
+  test("コードが800行を超えたら、ルールを外すファイルの一覧にあっても診断を出すこと", () => {
+    expect(check([DIVIDER, codeLines(801)], LONG)).toEqual([
+      "コードが 801 行あり、800 行を超えている",
     ]);
-
-    expect(problems).toContain("コードが 801 行あり、800 行を超えている");
-    expect(problems).toContain(
-      "抑制できない project/file-length-limit を抑制している",
-    );
-    expect(problems).toContain(
-      "抑制できない project/require-disable-reason を抑制している",
-    );
   });
 
   test("空行とコメントだけの行は数えないこと", () => {
@@ -95,7 +61,7 @@ describe("ファイルの長さ", () => {
 
     expect(check([codeLines(400), ...padding])).toEqual([]);
     expect(check([codeLines(401), ...padding])).toContain(
-      "コードが 400 行を超えるのに、1行目に理由付きの抑制が無い",
+      "コードが 400 行を超えるのに、ルールを外すファイルの一覧に無い",
     );
   });
 
@@ -107,49 +73,48 @@ describe("ファイルの長さ", () => {
 
   test("絵文字を含むコメントの後でも、後ろにコードが続く見出しを数えること", () => {
     expect(
-      check([
-        EXCEPTION,
-        "export const a = 1; // 😀😀😀😀😀😀😀😀",
-        codeLines(400),
-        DIVIDER,
-        "f();",
-      ]),
+      check(
+        [
+          "export const a = 1; // 😀😀😀😀😀😀😀😀",
+          codeLines(400),
+          DIVIDER,
+          "f();",
+        ],
+        LONG,
+      ),
     ).toEqual([]);
   });
 
-  test("BOM で始まるファイルでも、1行目の理由付きの抑制で許すこと", () => {
+  test("BOM で始まるファイルでも、コードの行を同じように数えること", () => {
     expect(
-      checkSourceFile({
-        path: "sample.ts",
-        text: `\uFEFF${[EXCEPTION, DIVIDER, codeLines(401)].join("\n")}\n`,
-      }),
+      checkSourceFile(
+        {
+          path: LONG,
+          text: `\uFEFF${[DIVIDER, codeLines(401)].join("\n")}\n`,
+        },
+        longFiles,
+      ),
     ).toEqual([]);
   });
 });
 
 describe("lint の抑制", () => {
   test.each([
-    {
-      label: "理由の無い抑制",
-      line: "// oxlint-disable-next-line typescript/no-explicit-any",
-      problem: "`--` の後の理由の無い抑制がある",
-    },
-    {
-      label: "ルールの名前の無い抑制",
-      line: "// oxlint-disable-next-line -- 理由",
-      problem: "ルールの名前の無い抑制がある",
-    },
-    {
-      label: "プラグイン名を省いた、抑制できないルールの抑制",
-      line: "// oxlint-disable-next-line no-standalone-comment -- 理由",
-      problem: "抑制できない project/no-standalone-comment を抑制している",
-    },
-    {
-      label: "単一の - の後ろに理由を隠した抑制",
-      line: "// oxlint-disable file-length-limit - メモ -- 理由",
-      problem: "抑制できない project/file-length-limit を抑制している",
-    },
-  ])("$label に診断を出すこと", ({ line, problem }) => {
-    expect(check([line, "export const value = 1;"])).toContain(problem);
+    "// oxlint-disable-next-line typescript/no-explicit-any -- 理由",
+    "// oxlint-disable project/max-code-lines -- 理由",
+    "/* eslint-disable no-console */",
+  ])("理由があっても、抑制のコメント(%s)に診断を出すこと", (line) => {
+    expect(check([line, "export const value = 1;"])).toEqual([
+      "lint を抑制するコメントがある",
+    ]);
+  });
+
+  test("ルールを外すファイルの一覧にあるファイルでも、抑制のコメントに診断を出すこと", () => {
+    expect(
+      check(
+        ["// oxlint-disable project/max-code-lines -- 理由", codeLines(1)],
+        LONG,
+      ),
+    ).toEqual(["lint を抑制するコメントがある"]);
   });
 });

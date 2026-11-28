@@ -169,7 +169,6 @@ export const ImageViewer = ({
         aria-label={t("imageViewer.info")}
         ref={resetScroll}
         className={style.panel()}
-        // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- WebKit ではスクロールする情報欄に Tab で移れない
         tabIndex={0}
       >
         {children}

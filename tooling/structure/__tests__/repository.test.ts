@@ -4,6 +4,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import config from "../../../oxlint.config";
+import {
+  RULE_EXEMPTION_OVERRIDES,
+  RULE_EXEMPTIONS,
+} from "../../lint/config/rule-exemptions";
 import { findMissingRerenderExpectations } from "../admin/rerender-expectations";
 import { findStrayStoryFiles } from "../admin/story-files";
 import {
@@ -18,6 +22,7 @@ import { findPrivateNames } from "../private-names";
 import { extractProse, hasProse } from "../prose";
 import {
   HARD_LIMIT,
+  LONG_FILES,
   PROTECTED_RULES,
   SOFT_LIMIT,
   SOFT_LIMIT_RULE,
@@ -119,8 +124,9 @@ const optionOf = ({ name, value }: OptionQuery): unknown =>
 
 const rules: Readonly<Record<string, unknown>> = config.rules;
 const { overrides } = config;
+const exemptionOverrides: readonly unknown[] = RULE_EXEMPTION_OVERRIDES;
 
-test("どのソースのファイルも、抑制できない約束を守っていること", () => {
+test("どのソースのファイルも、抑制のコメントに左右されない約束を守っていること", () => {
   const problems = sourcePaths.flatMap((path) =>
     checkSourceFile({
       path,
@@ -176,16 +182,48 @@ test("Oxlint の設定はリポジトリの直下の1つだけであること", 
 test("守るべきルールを、設定で弱めていないこと", () => {
   const guarded = [...PROTECTED_RULES, SOFT_LIMIT_RULE];
 
-  const overridden = overrides.flatMap((override: unknown) =>
-    isRecord(override) && isRecord(override["rules"])
-      ? Object.keys(override["rules"]).filter((rule) => guarded.includes(rule))
-      : [],
-  );
+  const overridden = overrides
+    .filter((override: unknown) => !exemptionOverrides.includes(override))
+    .flatMap((override: unknown) =>
+      isRecord(override) && isRecord(override["rules"])
+        ? Object.keys(override["rules"]).filter((rule) =>
+            guarded.includes(rule),
+          )
+        : [],
+    );
 
   expect(guarded.map((rule) => severityOf(rules[rule]))).toEqual(
     guarded.map(() => "error"),
   );
   expect(overridden).toEqual([]);
+});
+
+test("ルールを外すファイルの一覧が、外せないルールを外さず、今あるファイルだけを挙げていること", () => {
+  expect(
+    RULE_EXEMPTIONS.filter(({ rule }) => PROTECTED_RULES.includes(rule)),
+  ).toEqual([]);
+  expect(
+    RULE_EXEMPTIONS.flatMap(({ files }) => files).filter(
+      (file) => !paths.includes(file),
+    ),
+  ).toEqual([]);
+  expect(RULE_EXEMPTIONS.filter(({ reason }) => reason.trim() === "")).toEqual(
+    [],
+  );
+});
+
+test("400行を超えてよいと挙げたファイルが、今も400行を超えていること", () => {
+  expect(
+    [...LONG_FILES].filter(
+      (path) =>
+        !checkSourceFile(
+          { path, text: readFileSync(join(repoRoot, path), "utf8") },
+          new Set(),
+        ).some((problem) =>
+          problem.includes("ルールを外すファイルの一覧に無い"),
+        ),
+    ),
+  ).toEqual([]);
 });
 
 test("lint とこの検査で、行数の境目がそろっていること", () => {

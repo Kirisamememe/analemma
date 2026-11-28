@@ -142,17 +142,7 @@ export const PROJECT_RULES = {
       max: 800,
     },
   ],
-  "project/require-disable-reason": [
-    "error",
-    {
-      unsuppressible: [
-        "project/file-length-limit",
-        "project/no-standalone-comment",
-        "project/require-disable-reason",
-      ],
-      topOfFileOnly: ["project/max-code-lines"],
-    },
-  ],
+  "project/no-lint-suppression": "error",
   "project/max-code-lines": [
     "error",
     {
