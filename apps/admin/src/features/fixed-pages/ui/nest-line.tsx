@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import type { NestShape } from "./logic/branch-lines";
+
 import { tv } from "@/ui/tv";
 
 const PARENT_COLUMN = [
@@ -35,14 +37,7 @@ const nestLine = tv({
 
 type NestLineProps = {
   /** 線の形。 */
-  shape:
-    | "gapUnderGroup"
-    | "gapUnderRepeat"
-    | "through"
-    | "lead"
-    | "elbowToHeading"
-    | "elbowToItem"
-    | "elbowToAdd";
+  shape: NestShape;
 };
 
 /** 入れ子のまとまりの、親の列を通る線と、子へつなぐ枝。 */
