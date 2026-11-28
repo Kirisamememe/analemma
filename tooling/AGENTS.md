@@ -20,7 +20,7 @@
 - pre-commit と pre-merge-commit は、ステージしたファイルのパスと中身から、ほかのリポジトリの名前を探す。整形・lint・型検査・テストは流さない(CI と `bun run check` に任せる)。
 - commit-msg は、commitlint(設定は直下の `commitlint.config.ts`、足したルールは `commit-rules.ts`)と、メッセージの中の、ほかのリポジトリの名前と「機械で探す語」の検索を流す。commitlint は Bun で流す。足したルールが `Bun.stringWidth` を使うので、Node では動かない。
 - hook を飛ばさない。`git commit --no-verify`(`-n`)を使わず、`core.hooksPath` を外さず、hook を飛ばすための環境変数や設定も足さない。通らなければ直してからコミットする。hook の側に無理があるなら、ユーザーに報告する。
-- CI は `.github/workflows/` にある(理由は `tooling/DECISIONS.md` の「CI」)。job の `check`(`check.yml`)は、PR と、main とフェーズのブランチへの push で `bun install --frozen-lockfile` と `bun run check --all` を流し、client をビルドして CLI を1回流す。job の `commit-messages`(`commit-messages.yml`)は、PR で、PR のコミットのメッセージと、PR のタイトル(merge commit か squash で入れたときの1行目。` (#番号)` を足したもの)を、`tooling/ci/check-pull-request-messages.ts` で確かめる。
+- CI は `.github/workflows/` にある(理由は `tooling/DECISIONS.md` の「CI」)。`check.yml` は、PR と、main とフェーズのブランチへの push で、`bun run check --all` と同じ中身を、3つの job に分けて並べて流す(`static`:整形の確認・lint・型検査と、client をビルドして CLI を1回流す。`test-server`:server と tooling のテスト。`test-admin`:管理画面のテスト)。job の `check` は、3つとも通ったことを確かめる。job の `commit-messages`(`commit-messages.yml`)は、PR で、PR のコミットのメッセージと、PR のタイトル(merge commit か squash で入れたときの1行目。` (#番号)` を足したもの)を、`tooling/ci/check-pull-request-messages.ts` で確かめる。
 - 下の PR 作成前のコマンドは、タイトルの検査に先立って追加行数を表示する。501〜800行は通知して続行し、801行以上は失敗する。CI も同じコマンドを使う。
 - job の名前(`check`・`commit-messages`)は、main とフェーズのブランチの ruleset で、通ることを必須にする check として登録した名前。変えるときは、ruleset も直す(ユーザーに頼む)。
 - `commit-messages` は、メッセージを commit-msg の hook のスクリプトに1件ずつ渡すだけ。メッセージの検査を変えるときは `tooling/git-hooks/` を直し、CI の側に検査を書き足さない。

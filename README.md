@@ -84,7 +84,7 @@ bun --cwd=apps/server run passkey:enroll
 | `bun run db:migrate`           | まだ適用していない migration を適用する。server の起動とは別に、1回だけ流す |
 | `bun run db:generate`          | テーブルの定義(`src/db/schema/`)から migration を作る(drizzle-kit)          |
 | `bun run passkey:enroll`       | 管理者のパスキーを登録するための、1回きりで10分だけ使える登録用 URL を出す  |
-| `bun run test:prepare`         | `bun run test` が `bun test` の前に流すもの                                 |
+| `bun run test:prepare`         | `bun run test:root` が `bun test` の前に流すもの                            |
 
 Dropbox につなぐときは、Dropbox の App Console(https://www.dropbox.com/developers/apps)でアプリを作り、app key と app secret を `apps/server/.env` の `DROPBOX_APP_KEY`・`DROPBOX_APP_SECRET` に書く。書かなければ、server は Dropbox につながない設定で起動する。
 
