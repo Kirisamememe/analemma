@@ -81,6 +81,7 @@ describe("管理画面の部品の class", () => {
       [43, "余白は"],
       [44, "余白は"],
       [45, "余白は"],
+      [46, "文字の大きさと太さは"],
     ];
 
     expect(diagnosticsOf({ file, rule: RESTRICTED }, expected)).toEqual(

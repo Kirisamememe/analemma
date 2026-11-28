@@ -34,6 +34,7 @@ export const TEXT_PAIRS = [
   "base/2xl",
   "lg/2xl",
   "xl/3xl",
+  "2xl/3xl",
   "3xl/5xl",
 ] as const;
 

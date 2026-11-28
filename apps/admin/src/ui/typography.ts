@@ -11,6 +11,7 @@ export const typography = tv({
       section: "text-base/2xl font-semibold",
       dialog: "text-lg/2xl font-bold",
       page: "text-xl/3xl font-bold",
+      "page-header": "text-2xl/3xl font-bold",
       display: "text-3xl/5xl font-bold",
     },
   },

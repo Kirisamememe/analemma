@@ -262,7 +262,7 @@ export const zhHans = {
   "imageUpload.uploadingFile": "正在上传“{{name}}”",
   "imageUpload.dropHere": "松开即可上传并公开照片",
   "images.title": "图片",
-  "images.description": "兼作摄影作品的图片，按添加时间从新到旧排列。",
+  "images.description": "图片内容列表，支持拖放上传",
   "images.loading": "正在加载图片。",
   "images.loadFailed": "无法加载图片",
   "images.refreshFailed": "无法更新图片列表",

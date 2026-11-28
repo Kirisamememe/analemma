@@ -15,6 +15,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Page: Story = {};
 
+export const PageHeader: Story = { args: { variant: "page-header" } };
+
 export const Section: Story = { args: { level: 2, children: "パスキー" } };
 
 export const Display: Story = {

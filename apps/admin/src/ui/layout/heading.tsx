@@ -12,7 +12,7 @@ type HeadingProps = {
   /** 見出しのレベル(h1〜h3)。 */
   level: 1 | 2 | 3;
   /** 文字の役割(既定は見出しのレベルから決める)。 */
-  variant?: "page" | "section" | "display";
+  variant?: "page" | "page-header" | "section" | "display";
   /** 見出しの中身。 */
   children: ReactNode;
 };
