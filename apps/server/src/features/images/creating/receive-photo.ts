@@ -25,5 +25,5 @@ export const receivePhoto = async (
   await pending.put(row.id, bytes);
   stored = true;
 
-  return toAdminImage(row, []);
+  return toAdminImage(row, undefined);
 };

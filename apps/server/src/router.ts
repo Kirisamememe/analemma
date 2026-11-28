@@ -56,6 +56,8 @@ import {
   reorderImageTags,
 } from "@/features/image-tags";
 import {
+  addImageTag,
+  removeImageTag,
   deleteImage,
   getPublishedImage,
   getImage,
@@ -124,6 +126,8 @@ export const router = implement(contract)
         update: updateImage,
         publish: publishImage,
         unpublish: unpublishImage,
+        addTag: addImageTag,
+        removeTag: removeImageTag,
         delete: deleteImage,
       },
       imageTags: {

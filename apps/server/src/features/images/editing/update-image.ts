@@ -1,6 +1,6 @@
 import { updateImageText } from "@/features/images/editing/queries/update-image.query";
-import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
 import { lockImage } from "@/features/images/queries/images.query";
+import { readImageRelations } from "@/features/images/queries/read-image-relations.query";
 import { toAdminImage } from "@/features/images/to-image";
 import { adminProcedures } from "@/procedures";
 
@@ -10,7 +10,7 @@ export const updateImage = adminProcedures.images.update.handler(
     const image = await context.db.transaction(async (tx) => {
       await lockImage(tx, input.id);
 
-      const deliveryImages = await listDeliveryImages(tx, [input.id]);
+      const relations = await readImageRelations(tx, [input.id]);
 
       const row = await updateImageText(tx, {
         id: input.id,
@@ -20,7 +20,7 @@ export const updateImage = adminProcedures.images.update.handler(
         now: context.clock.now(),
       });
 
-      return row && toAdminImage(row, deliveryImages);
+      return row && toAdminImage(row, relations.get(row.id));
     });
 
     if (image === undefined) {

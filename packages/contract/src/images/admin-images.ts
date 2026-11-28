@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { adminAccess } from "../access-errors";
+import { imageTagId } from "./image-tag-values";
 import {
   adminImage,
   imageAlt,
@@ -11,6 +12,8 @@ import {
 } from "./image-values";
 
 const byId = z.object({ id: imageId });
+const tagSelection = byId.extend({ tagId: imageTagId });
+const existingTag = adminAccess.errors({ NOT_FOUND: { status: 404 } });
 
 /** 管理画面で画像を扱う procedure の contract。 */
 export const images = {
@@ -112,6 +115,22 @@ export const images = {
     })
     .input(byId)
     .output(adminImage),
+  addTag: existingTag
+    .route({
+      method: "POST",
+      path: "/admin/images/add-tag",
+      summary: "画像にタグを付ける",
+    })
+    .input(tagSelection)
+    .output(z.void()),
+  removeTag: existingTag
+    .route({
+      method: "POST",
+      path: "/admin/images/remove-tag",
+      summary: "画像からタグを外す",
+    })
+    .input(tagSelection)
+    .output(z.void()),
   delete: adminAccess
     .errors({ NOT_FOUND: { status: 404 } })
     .route({

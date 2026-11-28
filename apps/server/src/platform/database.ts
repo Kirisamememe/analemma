@@ -3,13 +3,17 @@ import { type PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js/session";
 import postgres from "postgres";
 
+import { imageRelations } from "@/db/image-relations";
 import type { Logger } from "@/platform/logger";
 
 /** Drizzle で問い合わせる DB。 */
-export type Database = PostgresJsDatabase;
+export type Database = PostgresJsDatabase<typeof imageRelations>;
 
 /** Drizzle で問い合わせる DB か、その中のトランザクション。 */
-export type DatabaseExecutor = PgAsyncDatabase<PostgresJsQueryResultHKT>;
+export type DatabaseExecutor = PgAsyncDatabase<
+  PostgresJsQueryResultHKT,
+  typeof imageRelations
+>;
 
 /** つなぐ DB と、つなぐときのロール。 */
 export type DatabaseTarget = {
@@ -68,7 +72,7 @@ export const openDatabase = ({
   });
 
   return {
-    db: drizzle({ client }),
+    db: drizzle({ client, relations: imageRelations }),
     client,
     [Symbol.asyncDispose]: () => client.end(),
   };

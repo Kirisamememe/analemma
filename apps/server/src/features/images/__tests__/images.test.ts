@@ -186,6 +186,7 @@ describe("画像の取得", () => {
       createdAt: TEST_NOW.toISOString(),
       updatedAt: TEST_NOW.toISOString(),
       deliveryImages: [],
+      tags: [],
     });
     expect((await server.client.admin.images.list({})).images).toEqual([found]);
     expect(
