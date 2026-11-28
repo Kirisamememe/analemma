@@ -1,10 +1,13 @@
 import { ORPCError } from "@orpc/client";
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
 
 import {
   findNextConverting,
   loadImagesPage,
+  IMAGE_PICKER_KEY,
+  IMAGES_QUERY_KEY,
   prependImage,
+  settleImageLists,
   settleListedImage,
 } from "../images-query";
 
@@ -143,5 +146,38 @@ describe("settleListedImage", () => {
     });
 
     expect(settle?.(page).images).toEqual([harbor]);
+  });
+});
+
+describe("settleImageLists", () => {
+  test("変換中のままなら、どの一覧にも触れず、変換を終えていたら、一覧と画像を選ぶ Dialog の一覧に当てる", async () => {
+    const { converting, page } = listedImages();
+    const keys: (readonly unknown[])[] = [];
+
+    const updatePages = mock((key: readonly unknown[]) => {
+      keys.push(key);
+
+      return Promise.resolve();
+    });
+
+    await settleImageLists(
+      { updatePages },
+      { id: converting.id, loaded: { _tag: "Succeeded", data: converting } },
+    );
+    expect(updatePages).not.toHaveBeenCalled();
+
+    await settleImageLists(
+      { updatePages },
+      {
+        id: converting.id,
+        loaded: {
+          _tag: "Succeeded",
+          data: { ...converting, status: "published" },
+        },
+      },
+    );
+
+    expect(keys).toEqual([IMAGES_QUERY_KEY, IMAGE_PICKER_KEY]);
+    expect(page.images[0]?.status).toBe("processing");
   });
 });

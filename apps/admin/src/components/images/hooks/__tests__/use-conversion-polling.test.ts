@@ -36,7 +36,7 @@ const setUp = async () => {
   const poll = (id: string | null) =>
     renderHook(
       (current: string | null) => {
-        useConversionPolling(current, POLL_MS);
+        useConversionPolling(current, { pollMs: POLL_MS });
       },
       { initialProps: id, wrapper: withAppProviders(app) },
     );

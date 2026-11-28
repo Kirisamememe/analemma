@@ -1,7 +1,9 @@
 import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
+import type { ApiOutputs } from "@/api/api-types";
 import { useImage } from "@/components/images/hooks/use-image";
+import { IMAGES_QUERY_KEY } from "@/queries/images-query";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";
@@ -112,5 +114,70 @@ test("変換中の画像の取り直しが失敗し続けても、読む側を�
       _tag: "Loaded",
       data: { data: { status: "published" } },
     });
+  });
+});
+
+test("変換中の画像を読んだ直後には取り直さず、間隔を待ってから取り直す", async () => {
+  const server = createImageRoutes([{ title: "港", status: "processing" }]);
+  const id = server.images()[0]?.id ?? "";
+  const app = createTestApp({ path: "/", routes: server.routes });
+
+  await app.router.load();
+
+  const gets = () => app.calls.filter((path) => path === "admin/images/get");
+
+  const { result } = renderHook(() => useImage(id, { pollMs: 200 }), {
+    wrapper: withAppProviders(app),
+  });
+
+  await waitFor(() => {
+    expect(result.current._tag).toBe("Loaded");
+  });
+  await Bun.sleep(50);
+  expect(gets()).toHaveLength(1);
+  await waitFor(() => {
+    expect(gets().length).toBeGreaterThan(1);
+  });
+});
+
+test("読み込んだ一覧で変換中だった画像を読んで、変換を終えていたか無くなっていたら、一覧に当てる", async () => {
+  const server = createImageRoutes([
+    { title: "消える", status: "processing" },
+    { title: "終える", status: "processing" },
+  ]);
+
+  const [removed, converted] = server.images();
+  const app = createTestApp({ path: "/", routes: server.routes });
+
+  await app.router.load();
+  app.queryClient.setQueryDefaults(IMAGES_QUERY_KEY, { gcTime: Infinity });
+  app.queryClient.setQueryData(IMAGES_QUERY_KEY, {
+    pageParams: [undefined],
+    pages: [{ images: server.images(), nextCursor: null }],
+  });
+  server.routes["admin/images/delete"]({ id: removed?.id ?? "" });
+  server.convert(converted?.id ?? "", { status: "published" });
+
+  const listed = () =>
+    app.queryClient
+      .getQueryData<Record<"pages", ApiOutputs["admin"]["images"]["list"][]>>(
+        IMAGES_QUERY_KEY,
+      )
+      ?.pages[0]?.images.map(({ title, status }) => [title, status]);
+
+  const { rerender } = renderHook((id: string) => useImage(id), {
+    initialProps: converted?.id ?? "",
+    wrapper: withAppProviders(app),
+  });
+
+  await waitFor(() => {
+    expect(listed()).toEqual([
+      ["消える", "processing"],
+      ["終える", "published"],
+    ]);
+  });
+  rerender(removed?.id ?? "");
+  await waitFor(() => {
+    expect(listed()).toEqual([["終える", "published"]]);
   });
 });

@@ -8,11 +8,7 @@ import {
 import type { PhotoUpload } from "@/features/images/upload/logic/photo-uploads";
 import { uploadConversionKey } from "@/features/images/upload/queries/upload-photo";
 import { isConverting, loadImage } from "@/queries/image-query";
-import {
-  IMAGE_PICKER_KEY,
-  IMAGES_QUERY_KEY,
-  settleListedImage,
-} from "@/queries/images-query";
+import { settleImageLists } from "@/queries/images-query";
 
 const CONVERSION_POLL_MS = 2000;
 
@@ -33,7 +29,7 @@ export const useUploadConversions = ({
   pollMs = CONVERSION_POLL_MS,
 }: UploadConversions): void => {
   const { api } = useAppContext();
-  const { updatePages } = useApiCache();
+  const cache = useApiCache();
   const next = nextConverting(uploads);
 
   useApiPolling({
@@ -44,14 +40,8 @@ export const useUploadConversions = ({
         ? undefined
         : async () => {
             const loaded = await loadImage(api, next.imageId);
-            const settle = settleListedImage(next.imageId, loaded);
 
-            if (settle !== undefined) {
-              await Promise.all([
-                updatePages(IMAGES_QUERY_KEY, settle),
-                updatePages(IMAGE_PICKER_KEY, settle),
-              ]);
-            }
+            await settleImageLists(cache, { id: next.imageId, loaded });
 
             const { id, imageId } = next;
 

@@ -10,7 +10,7 @@ afterEach(cleanup);
 const KEY = ["admin", "images", "conversion", "a"] as const;
 const POLL_MS = 10;
 
-const setUp = (reply: (count: number) => string) => {
+const setUp = (reply: (count: number) => string, seed?: string) => {
   let loads = 0;
   let renders = 0;
 
@@ -19,6 +19,7 @@ const setUp = (reply: (count: number) => string) => {
       renders += 1;
       useApiPolling({
         key: KEY,
+        ...(seed !== undefined && { seed }),
         every: (data) => (data === "done" ? false : POLL_MS),
         load: load
           ? () => {
@@ -77,9 +78,22 @@ test("最初の応答が届いても、内容が変わっても、失敗して�
     return count < 6 ? `waiting ${count}` : "done";
   });
 
+  const rendered = renders();
+
   await waitFor(() => {
     expect(loads()).toBe(6);
   });
   await Bun.sleep(POLL_MS * 2);
-  expect(renders()).toBe(1);
+  expect(renders()).toBe(rendered);
+});
+
+test("取得済みのデータを渡すと、すぐには取得せず、1回分の間隔を待ってから取り直す", async () => {
+  const { loads } = setUp(() => "done", "waiting");
+
+  expect(loads()).toBe(0);
+  await waitFor(() => {
+    expect(loads()).toBe(1);
+  });
+  await Bun.sleep(POLL_MS * 4);
+  expect(loads()).toBe(1);
 });

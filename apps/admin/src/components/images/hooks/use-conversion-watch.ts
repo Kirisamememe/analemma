@@ -27,7 +27,7 @@ export const useConversionWatch = (pages: Pages, pollMs?: number) => {
     if (settled.length > 0) setResult({ round: result.round + 1, settled });
   }
 
-  useConversionPolling(findNextConverting(pages), pollMs);
+  useConversionPolling(findNextConverting(pages), { pollMs });
 
   return { isWatching: converting.size > 0, ...result };
 };
