@@ -37,6 +37,35 @@ const countOperators = (node) => {
   );
 };
 
+const STATEMENT_LISTS = ["body", "consequent", "cases"];
+const NESTED_STATEMENTS = ["alternate", "block", "handler", "finalizer"];
+
+const countStatements = (node) => {
+  if (FUNCTIONS.has(node.type) || node.type === "FunctionDeclaration") {
+    return 0;
+  }
+
+  const own = /(?:Statement|Declaration)$/v.test(node.type) ? 1 : 0;
+
+  const nested = [...STATEMENT_LISTS, ...NESTED_STATEMENTS]
+    .flatMap((key) => node[key] ?? [])
+    .filter((child) => isNode(child))
+    .reduce((count, child) => count + countStatements(child), 0);
+
+  return node.type === "BlockStatement" ? nested : own + nested;
+};
+
+const isRenderedChild = (node) =>
+  node.parent.type === "JSXExpressionContainer" &&
+  JSX.has(node.parent.parent.type);
+
+const isBranch = (node) =>
+  node.parent.type === "ConditionalExpression" && node.parent.test !== node;
+
+const isCondition = (node) =>
+  containsJsx(node.right) ||
+  (node.operator === "&&" && (isRenderedChild(node) || isBranch(node)));
+
 const noJsxLogic = {
   meta: {
     type: "suggestion",
@@ -49,9 +78,9 @@ const noJsxLogic = {
       complexCondition:
         "JSX の中の出し分けの条件に、演算子が{{count}}つあります。1つまでにし、込み入った条件は、名前を付けた値か logic/ の関数にします。",
       nestedCondition:
-        "JSX の中で、出し分けを入れ子にしています。内側を別の部品にするか、出し分けを決める値を関数にします。",
+        "JSX の中で、出し分けを入れ子にしています。内側を別の部品にするか、名前を付けた値や関数に出します。",
       longFunction:
-        "JSX の中の関数に、文が{{count}}つあります。2つまでにし、長い処理は hook か関数にします。",
+        "JSX の中の関数に、文が{{count}}つあります(if やループの中の文も数えます)。2つまでにし、長い処理は hook か関数にします。",
     },
   },
   /** JSX の式の中にある、出し分けと関数を調べる。 */
@@ -88,20 +117,19 @@ const noJsxLogic = {
     };
 
     const checkFunction = (node) => {
-      if (
-        expressions === 0 ||
-        !FUNCTIONS.has(node.type) ||
-        node.body.type !== "BlockStatement" ||
-        node.body.body.length <= MAX_STATEMENTS
-      ) {
+      if (expressions === 0 || node.body.type !== "BlockStatement") {
         return;
       }
 
-      context.report({
-        node,
-        messageId: "longFunction",
-        data: { count: String(node.body.body.length) },
-      });
+      const count = countStatements(node.body);
+
+      if (count > MAX_STATEMENTS) {
+        context.report({
+          node,
+          messageId: "longFunction",
+          data: { count: String(count) },
+        });
+      }
     };
 
     return {
@@ -116,12 +144,12 @@ const noJsxLogic = {
       },
       "ConditionalExpression:exit": leaveCondition,
       LogicalExpression(node) {
-        if (containsJsx(node.right)) {
+        if (isCondition(node)) {
           enterCondition(node, node.left);
         }
       },
       "LogicalExpression:exit"(node) {
-        if (containsJsx(node.right)) {
+        if (isCondition(node)) {
           leaveCondition();
         }
       },

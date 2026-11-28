@@ -13,8 +13,12 @@ type Props = {
 export const LogicInJsx = ({ title, note, isSaving, onPress }: Props) => (
   <section>
     {title !== undefined && title !== "" && <h2>{title}</h2>}
-    {isSaving ? <p>saving</p> : <p>{note === undefined ? "none" : note}</p>}
+    {title !== undefined && title !== "" && title}
+    {isSaving && !title ? <p>{note}</p> : <p>{title}</p>}
+    {isSaving ? <p>{title}</p> : <p>{note === undefined ? title : note}</p>}
     {isSaving && <div>{note !== undefined && <p>{note}</p>}</div>}
+    {isSaving && <div>{note !== undefined && note}</div>}
+    {isSaving ? title : note !== undefined && note}
     <button
       type="button"
       onClick={() => {
@@ -23,7 +27,18 @@ export const LogicInJsx = ({ title, note, isSaving, onPress }: Props) => (
         onPress(first + second);
       }}
     >
-      press
+      {title}
+    </button>
+    <button
+      type="button"
+      onClick={() => {
+        if (isSaving) {
+          onPress(1);
+          onPress(2);
+        }
+      }}
+    >
+      {note}
     </button>
   </section>
 );
