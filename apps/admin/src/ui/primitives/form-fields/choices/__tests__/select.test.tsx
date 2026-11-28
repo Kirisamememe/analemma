@@ -24,9 +24,11 @@ describe("Select", () => {
         }}
       >
         <Select
+          noneLabel="選択なし"
+          placeholder="選択してください"
           defaultValue="spring"
           description="公開サイトで使う季節。"
-          isRequired
+          requiredLabel="必須"
           label="季節"
           name="season"
           options={OPTIONS}
@@ -67,6 +69,8 @@ describe("Select", () => {
         }}
       >
         <Select
+          noneLabel="選択なし"
+          placeholder="選択してください"
           defaultValue="spring"
           label="季節"
           name="season"
@@ -89,6 +93,8 @@ describe("Select", () => {
   test("Escape で選択肢を閉じ、元の選択と focus に戻ること", async () => {
     renderWithI18n(
       <Select
+        noneLabel="選択なし"
+        placeholder="選択してください"
         defaultValue="spring"
         label="季節"
         name="season"
@@ -114,7 +120,13 @@ describe("Select", () => {
         onSubmit={() => undefined}
         validationErrors={{ season: "季節を選び直してください。" }}
       >
-        <Select label="季節" name="season" options={OPTIONS} />
+        <Select
+          noneLabel="選択なし"
+          placeholder="選択してください"
+          label="季節"
+          name="season"
+          options={OPTIONS}
+        />
       </Form>,
     );
 

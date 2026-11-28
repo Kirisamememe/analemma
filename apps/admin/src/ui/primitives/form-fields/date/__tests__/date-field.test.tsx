@@ -21,6 +21,7 @@ describe("DateField", () => {
   test("最初の segment を探せて、ラベルと補足を読み上げること", () => {
     renderWithI18n(
       <DateField
+        incompleteMessage="年・月・日を入力してください。"
         description="記事に表示する日付です。"
         label="公開日"
         name="published"
@@ -48,14 +49,20 @@ describe("DateField", () => {
           );
         }}
       >
-        <DateField label="公開日" name="empty" />
         <DateField
+          incompleteMessage="年・月・日を入力してください。"
+          label="公開日"
+          name="empty"
+        />
+        <DateField
+          incompleteMessage="年・月・日を入力してください。"
           defaultValue="2024-02-29"
           isReadOnly
           label="作成日"
           name="readOnly"
         />
         <DateField
+          incompleteMessage="年・月・日を入力してください。"
           defaultValue="2024-02-29"
           isDisabled
           label="更新日"
@@ -75,7 +82,12 @@ describe("DateField", () => {
         onSubmit={() => undefined}
         validationErrors={{ published: "公開日を確認してください。" }}
       >
-        <DateField defaultValue="2024-02-29" label="公開日" name="published" />
+        <DateField
+          incompleteMessage="年・月・日を入力してください。"
+          defaultValue="2024-02-29"
+          label="公開日"
+          name="published"
+        />
       </Form>,
     );
 
@@ -147,6 +159,7 @@ describe("日付の未完の検証", () => {
         }}
       >
         <DateField
+          incompleteMessage="年・月・日を入力してください。"
           label="公開日"
           name="published"
           validationBehavior="aria"
@@ -163,9 +176,9 @@ describe("日付の未完の検証", () => {
     await user.click(day);
     await user.keyboard("{Backspace}");
     await user.click(screen.getByRole("button", { name: "次へ" }));
-    expect(screen.getByText("Enter the year, month, and day.")).toBeDefined();
+    expect(screen.getByText("年・月・日を入力してください。")).toBeDefined();
     rerender(form("2024-03-02"));
-    expect(screen.queryByText("Enter the year, month, and day.")).toBeNull();
+    expect(screen.queryByText("年・月・日を入力してください。")).toBeNull();
 
     await user.click(screen.getByRole("button", { name: "保存" }));
     expect(values).toEqual(["2024-03-02"]);

@@ -21,6 +21,10 @@ export type SelectInputProps = {
   "aria-label"?: string | undefined;
   /** 選択肢。 */
   options: readonly SelectOption[];
+  /** 何も選んでいないときに出す文言。 */
+  placeholder: string;
+  /** 必須でないときに足す、選ばない選択肢の文言。 */
+  noneLabel: string;
   /** 最初に選んでおく値。 */
   defaultValue?: string | undefined;
   /** 呼び出し元で管理する選択値。 */
@@ -39,7 +43,10 @@ export type SelectInputProps = {
   validationBehavior?: "aria" | "native" | undefined;
 };
 
-type SelectRootProps = Omit<SelectInputProps, "options"> & {
+type SelectRootProps = Omit<
+  SelectInputProps,
+  "noneLabel" | "options" | "placeholder"
+> & {
   /** Select を構成する部品。 */
   children: ReactNode;
 };

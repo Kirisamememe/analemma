@@ -5,6 +5,7 @@ import { useFieldContext } from "./hooks/use-field-context";
 import { useFieldError } from "./hooks/use-field-error";
 import { useIsSubmitting } from "./hooks/use-is-submitting";
 
+import { useTranslate } from "@/i18n/use-translate";
 import { TextArea, type TextAreaProps } from "@/ui/primitives/form-fields";
 
 type AppTextAreaProps = Pick<
@@ -12,11 +13,13 @@ type AppTextAreaProps = Pick<
   | "description"
   | "isDisabled"
   | "isReadOnly"
-  | "isRequired"
   | "label"
   | "maxLength"
   | "placeholder"
->;
+> & {
+  /** 入力が要るか。 */
+  isRequired?: boolean | undefined;
+};
 
 /** TanStack Form につないだ長いテキストの入力欄。 */
 export const AppTextArea = (props: AppTextAreaProps): ReactNode => {
@@ -24,6 +27,7 @@ export const AppTextArea = (props: AppTextAreaProps): ReactNode => {
   const value = useSelector(field.store, (state) => state.value);
   const errorMessage = useFieldError();
   const isSubmitting = useIsSubmitting();
+  const t = useTranslate();
 
   return (
     <TextArea
@@ -31,7 +35,7 @@ export const AppTextArea = (props: AppTextAreaProps): ReactNode => {
       errorMessage={errorMessage}
       isDisabled={props.isDisabled}
       isReadOnly={isSubmitting || props.isReadOnly === true}
-      isRequired={props.isRequired}
+      requiredLabel={props.isRequired === true ? t("ui.required") : undefined}
       label={props.label}
       maxLength={props.maxLength}
       name={field.name}

@@ -9,12 +9,14 @@ import { FieldErrorMessage } from "@/ui/primitives/form-fields/parts/field-error
 /** ラベル付きの Checkbox に渡す値。 */
 export type CheckboxProps = Omit<
   CheckboxInputProps,
-  "aria-label" | "isInvalid" | "name"
+  "aria-label" | "isInvalid" | "isRequired" | "name"
 > & {
   /** フォームのキー。 */
   name: string;
   /** ラベル。 */
   label: string;
+  /** 入力が要ることを示す文言(渡すと、入力を必須にする)。 */
+  requiredLabel?: string | undefined;
   /** 補足。 */
   description?: string | undefined;
   /** 呼び出し元から渡す誤りの知らせ。 */
@@ -31,7 +33,7 @@ export const Checkbox = ({
   isSelected,
   isDisabled,
   isReadOnly,
-  isRequired,
+  requiredLabel,
   onBlur,
   onChange,
   validationBehavior,
@@ -43,12 +45,12 @@ export const Checkbox = ({
     isSelected={isSelected}
     isDisabled={isDisabled}
     isReadOnly={isReadOnly}
-    isRequired={isRequired}
+    isRequired={requiredLabel !== undefined}
     onBlur={onBlur}
     onChange={onChange}
     validationBehavior={validationBehavior}
   >
-    <CheckboxControl isRequired={isRequired} label={label} />
+    <CheckboxControl label={label} requiredLabel={requiredLabel} />
     {description !== undefined && (
       <FieldDescription>{description}</FieldDescription>
     )}

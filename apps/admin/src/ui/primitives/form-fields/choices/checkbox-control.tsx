@@ -20,34 +20,32 @@ const checkboxBox = tv({
 type CheckboxControlProps = {
   /** チェックに添えるラベル。 */
   label?: string;
-  /** チェックが必須か。 */
-  isRequired?: boolean | undefined;
+  /** チェックが要ることを示す文言。 */
+  requiredLabel?: string | undefined;
 };
 
 /** チェックを切り替えるボタン。 */
 export const CheckboxControl = ({
   label,
-  isRequired = false,
-}: CheckboxControlProps): ReactNode => {
-  const showRequired = label !== undefined && isRequired;
-
-  return (
-    <CheckboxButton
-      className={typography({
-        role: "label",
-        className:
-          "group flex items-start gap-2 py-0.5 text-fg is-disabled:state-disabled",
-      })}
-    >
-      <span aria-hidden="true" className="flex h-5 shrink-0 items-center">
-        <span className={checkboxBox()}>
-          <CheckMark />
-        </span>
+  requiredLabel,
+}: CheckboxControlProps): ReactNode => (
+  <CheckboxButton
+    className={typography({
+      role: "label",
+      className:
+        "group flex items-start gap-2 py-0.5 text-fg is-disabled:state-disabled",
+    })}
+  >
+    <span aria-hidden="true" className="flex h-5 shrink-0 items-center">
+      <span className={checkboxBox()}>
+        <CheckMark />
       </span>
-      {label !== undefined && (
-        <span className="min-w-0 wrap-anywhere">{label}</span>
-      )}
-      {showRequired && <RequiredBadge />}
-    </CheckboxButton>
-  );
-};
+    </span>
+    {label !== undefined && (
+      <span className="min-w-0 wrap-anywhere">{label}</span>
+    )}
+    {requiredLabel !== undefined && (
+      <RequiredBadge>{requiredLabel}</RequiredBadge>
+    )}
+  </CheckboxButton>
+);

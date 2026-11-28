@@ -5,6 +5,7 @@
 - `TextInput` は入力欄とその見た目を持つ。単独で使うときは呼び出し元がアクセシブルな名前を付ける。
 - `TextField` は `TextInput` にラベル・補足・誤りの知らせを結び付ける。関連付けには React Aria Components の slot を使う。単独の呼び出し元は `defaultValue` と `validate` を使える。外から状態を管理するときは `value`・`onChange`・`onBlur`・`errorMessage` を使う。
 - `@/components/forms` の `useAppForm` は TanStack Form の `createFormHook` で部品を登録する。feature は `form.AppField` の中で、field の値の型に合う部品を選ぶ。`field.TextField` は文字列の field の値・変更・blur と、validator が返した文字列の誤りの知らせを `TextField` に渡す。
+- 入力欄が出す決まった文言(「必須」、Select の placeholder と「選択なし」、日付の未入力の知らせ、数値の増減のボタンの名前)は、`field.*` の部品が訳から引いて、`ui/` の入力欄に渡す。feature は `isRequired` を渡すだけでよい。`ui/` の入力欄を直に使う部品(パスキーの名前の入力欄など)は、自分で文言を渡す。
 
 フォームは `form.AppForm` の中に `form.Form` を置いて組む。`form.Form` は、送ったときに `form.handleSubmit` を呼び、送信の検証と `onSubmit` の間は Enter で送り直させない。`onSubmit` が応答を待たずに終わるときは、送っている間を `isPending` で渡す。server が断った入力は `validationErrors` で渡す。`field.TextField` は React Aria Components の `validationBehavior="aria"` を指定する。必須の状態を伝えながら、ブラウザが送信を先に止めるのを防ぎ、TanStack Form の validator が出す誤りの知らせを入力欄に結び付ける。blur で出た誤りを直した直後の Enter でも、現在の値を検証して送れるように `canSubmitWhenInvalid` を使う。
 

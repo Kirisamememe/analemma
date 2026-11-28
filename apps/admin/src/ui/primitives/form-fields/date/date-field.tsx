@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 
 import { type DateInputProps, DateRoot } from "./date-root";
 import { DateSegments } from "./date-segments";
@@ -12,12 +11,16 @@ import { FieldLabel } from "@/ui/primitives/form-fields/parts/field-label";
 /** ラベル付きの日付の入力欄に渡す値。 */
 export type DateFieldProps = Omit<
   DateInputProps,
-  "aria-label" | "isInvalid" | "name"
+  "aria-label" | "isInvalid" | "isRequired" | "name"
 > & {
   /** フォームのキー。 */
   name: string;
   /** ラベル。 */
   label: string;
+  /** 入力が要ることを示す文言(渡すと、入力を必須にする)。 */
+  requiredLabel?: string | undefined;
+  /** 年・月・日が埋まっていないときに出す、誤りの知らせ。 */
+  incompleteMessage: string;
   /** 補足。 */
   description?: string | undefined;
   /** 呼び出し元から渡す誤りの知らせ。 */
@@ -33,19 +36,17 @@ export const DateField = ({
   defaultValue,
   value,
   isDisabled,
-  isRequired,
+  requiredLabel,
+  incompleteMessage,
   isReadOnly,
   onBlur,
   onChange,
   validationBehavior,
   validate,
 }: DateFieldProps): ReactNode => {
-  const { t } = useTranslation();
   const draft = useDateDraft({ value, onBlur, onChange });
 
-  const message = draft.incomplete
-    ? t("ui.dateField.incomplete")
-    : errorMessage;
+  const message = draft.incomplete ? incompleteMessage : errorMessage;
 
   return (
     <DateRoot
@@ -54,14 +55,14 @@ export const DateField = ({
       isDisabled={isDisabled}
       isInvalid={message === undefined ? undefined : true}
       isReadOnly={isReadOnly}
-      isRequired={isRequired}
+      isRequired={requiredLabel !== undefined}
       name={name}
       onChange={draft.onChange}
       validate={validate}
       validationBehavior={validationBehavior}
       value={value}
     >
-      <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
+      <FieldLabel requiredLabel={requiredLabel}>{label}</FieldLabel>
       <DateSegments onBlur={draft.onBlur} />
       {description !== undefined && (
         <FieldDescription>{description}</FieldDescription>

@@ -29,7 +29,7 @@ describe("Checkbox", () => {
   test("チェックが必須のときだけ、ラベルに「必須」を添え、名前には含めないこと", () => {
     renderWithI18n(
       <>
-        <Checkbox isRequired label="規約に同意する" name="agreed" />
+        <Checkbox requiredLabel="必須" label="規約に同意する" name="agreed" />
         <Checkbox label="先頭に表示する" name="pinned" />
       </>,
       "ja",

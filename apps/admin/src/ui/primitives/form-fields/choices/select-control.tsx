@@ -1,6 +1,5 @@
 import { useContext, type ReactNode } from "react";
 import { Button, SelectStateContext, SelectValue } from "react-aria-components";
-import { useTranslation } from "react-i18next";
 
 import type { SelectInputProps } from "./select-root";
 
@@ -9,19 +8,24 @@ import { Icon } from "@/ui/primitives/graphics";
 import { ListBoxPopover } from "@/ui/primitives/overlays";
 import { typography } from "@/ui/typography";
 
+type SelectControlProps = Pick<
+  SelectInputProps,
+  "isRequired" | "noneLabel" | "options" | "placeholder"
+>;
+
 /** 選択のボタンと選択肢の一覧。 */
 export const SelectControl = ({
   options,
   isRequired,
-}: Pick<SelectInputProps, "isRequired" | "options">): ReactNode => {
-  const { t } = useTranslation();
+  placeholder,
+  noneLabel,
+}: SelectControlProps): ReactNode => {
   const state = useContext(SelectStateContext);
-  const placeholder = t("ui.select.placeholder");
 
   const choices =
     isRequired === true
       ? options
-      : [{ value: "", label: t("ui.select.none") }, ...options];
+      : [{ value: "", label: noneLabel }, ...options];
 
   return (
     <>

@@ -52,7 +52,11 @@ const renderForm = (
       onSubmit={submissions.onSubmit}
       validationErrors={validationErrors ?? NO_ERRORS}
     >
-      <TextField isRequired={isRequired} label="パスキーの名前" name="name" />
+      <TextField
+        requiredLabel={isRequired ? "必須" : undefined}
+        label="パスキーの名前"
+        name="name"
+      />
       <Button isPending={isPending} type="submit">
         登録
       </Button>

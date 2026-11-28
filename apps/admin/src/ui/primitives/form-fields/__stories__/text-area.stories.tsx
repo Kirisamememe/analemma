@@ -26,7 +26,7 @@ export const Default: Story = {};
 
 export const Filled: Story = { args: { defaultValue: BODY } };
 
-export const Required: Story = { args: { isRequired: true } };
+export const Required: Story = { args: { requiredLabel: "必須" } };
 
 export const ReadOnly: Story = {
   args: { defaultValue: BODY, isReadOnly: true },

@@ -5,6 +5,7 @@ import { useFieldContext } from "./hooks/use-field-context";
 import { useFieldError } from "./hooks/use-field-error";
 import { useIsSubmitting } from "./hooks/use-is-submitting";
 
+import { useTranslate } from "@/i18n/use-translate";
 import {
   NumberField,
   type NumberFieldProps,
@@ -12,8 +13,11 @@ import {
 
 type AppNumberFieldProps = Pick<
   NumberFieldProps,
-  "description" | "isDisabled" | "isReadOnly" | "isRequired" | "label"
->;
+  "description" | "isDisabled" | "isReadOnly" | "label"
+> & {
+  /** 入力が要るか。 */
+  isRequired?: boolean | undefined;
+};
 
 /** TanStack Form につないだ数値の入力欄。 */
 export const AppNumberField = (props: AppNumberFieldProps): ReactNode => {
@@ -21,6 +25,7 @@ export const AppNumberField = (props: AppNumberFieldProps): ReactNode => {
   const value = useSelector(field.store, (state) => state.value);
   const errorMessage = useFieldError();
   const isSubmitting = useIsSubmitting();
+  const t = useTranslate();
 
   return (
     <NumberField
@@ -28,7 +33,9 @@ export const AppNumberField = (props: AppNumberFieldProps): ReactNode => {
       errorMessage={errorMessage}
       isDisabled={props.isDisabled}
       isReadOnly={isSubmitting || props.isReadOnly === true}
-      isRequired={props.isRequired}
+      requiredLabel={props.isRequired === true ? t("ui.required") : undefined}
+      decrementLabel={t("ui.numberField.decrease", { label: props.label })}
+      incrementLabel={t("ui.numberField.increase", { label: props.label })}
       label={props.label}
       name={field.name}
       onBlur={field.handleBlur}

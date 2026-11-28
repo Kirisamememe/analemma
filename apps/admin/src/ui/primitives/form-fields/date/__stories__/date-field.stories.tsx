@@ -14,6 +14,7 @@ const meta = {
     name: "published",
     label: "公開日",
     description: "記事に表示する日付です",
+    incompleteMessage: "年・月・日を入力してください。",
   },
 } satisfies Meta<typeof DateField>;
 
@@ -30,7 +31,7 @@ export const InputOnly: Story = {
 
 export const Filled: Story = { args: { defaultValue: "2024-02-29" } };
 
-export const Required: Story = { args: { isRequired: true } };
+export const Required: Story = { args: { requiredLabel: "必須" } };
 
 export const ReadOnly: Story = {
   args: { defaultValue: "2024-02-29", isReadOnly: true },
@@ -63,5 +64,5 @@ export const InForm: Story = {
       </Form>
     ),
   ],
-  args: { isRequired: true },
+  args: { requiredLabel: "必須" },
 };

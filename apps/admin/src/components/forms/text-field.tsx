@@ -5,6 +5,7 @@ import { useFieldContext } from "./hooks/use-field-context";
 import { useFieldError } from "./hooks/use-field-error";
 import { useIsSubmitting } from "./hooks/use-is-submitting";
 
+import { useTranslate } from "@/i18n/use-translate";
 import { TextField, type TextFieldProps } from "@/ui/primitives/form-fields";
 
 type AppTextFieldProps = Pick<
@@ -13,11 +14,13 @@ type AppTextFieldProps = Pick<
   | "inputRef"
   | "description"
   | "isReadOnly"
-  | "isRequired"
   | "label"
   | "maxLength"
   | "placeholder"
->;
+> & {
+  /** 入力が要るか。 */
+  isRequired?: boolean | undefined;
+};
 
 /** TanStack Form につないだ1行の入力欄。 */
 export const AppTextField = ({
@@ -34,6 +37,7 @@ export const AppTextField = ({
   const value = useSelector(field.store, (state) => state.value);
   const errorMessage = useFieldError();
   const isSubmitting = useIsSubmitting();
+  const t = useTranslate();
 
   return (
     <TextField
@@ -42,7 +46,7 @@ export const AppTextField = ({
       errorMessage={errorMessage}
       inputRef={inputRef}
       isReadOnly={isSubmitting || isReadOnly === true}
-      isRequired={isRequired}
+      requiredLabel={isRequired === true ? t("ui.required") : undefined}
       label={label}
       maxLength={maxLength}
       name={field.name}

@@ -22,15 +22,15 @@ export const Default: Story = {};
 
 export const Filled: Story = { args: { defaultValue: "MacBook Air" } };
 
-export const Required: Story = { args: { isRequired: true } };
+export const Required: Story = { args: { requiredLabel: "必須" } };
 
 export const RequiredInvalid: Story = {
-  args: { isRequired: true, errorMessage: "名前を入力してください" },
+  args: { requiredLabel: "必須", errorMessage: "名前を入力してください" },
 };
 
 export const RequiredLongLabel: Story = {
   args: {
-    isRequired: true,
+    requiredLabel: "必須",
     label: "公開サイトのフッターに表示する、問い合わせ先のメールアドレス",
   },
 };

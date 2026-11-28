@@ -17,8 +17,8 @@ export type TextFieldProps = {
   description?: string | undefined;
   /** 入力欄の検証の伝え方。 */
   validationBehavior?: "aria" | "native";
-  /** 入力が要るか。 */
-  isRequired?: boolean | undefined;
+  /** 入力が要ることを示す文言(渡すと、入力を必須にする)。 */
+  requiredLabel?: string | undefined;
   /** 読み取り専用か。 */
   isReadOnly?: boolean | undefined;
   /** 空欄のときに表示する入力例。 */
@@ -49,7 +49,7 @@ export const TextField = ({
   label,
   description,
   validationBehavior,
-  isRequired = false,
+  requiredLabel,
   isReadOnly = false,
   maxLength,
   placeholder,
@@ -73,7 +73,7 @@ export const TextField = ({
       className={fieldRoot()}
       defaultValue={defaultValue}
       isReadOnly={isReadOnly}
-      isRequired={isRequired}
+      isRequired={requiredLabel !== undefined}
       name={name}
       onBlur={() => {
         onBlur?.();
@@ -84,7 +84,7 @@ export const TextField = ({
       validate={(next) => validate?.(next)}
       {...fieldState}
     >
-      <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
+      <FieldLabel requiredLabel={requiredLabel}>{label}</FieldLabel>
       <TextInput
         autoComplete={autoComplete}
         maxLength={maxLength}

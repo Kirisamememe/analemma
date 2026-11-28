@@ -25,6 +25,8 @@ describe("ListBoxPopover", () => {
   test("選んでいる選択肢だけを、選んだ状態として伝える", async () => {
     renderWithI18n(
       <SelectInput
+        noneLabel="選択なし"
+        placeholder="選択してください"
         aria-label="言語"
         isRequired
         options={LANGUAGES}
@@ -60,6 +62,8 @@ describe("ListBoxPopover", () => {
     cleanup();
     renderWithI18n(
       <SelectInput
+        noneLabel="選択なし"
+        placeholder="選択してください"
         aria-label="言語"
         isRequired
         options={LANGUAGES}
