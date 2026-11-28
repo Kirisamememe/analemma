@@ -5,7 +5,9 @@ export const lastPageIndex = (
   pages: readonly ImagePage[],
   hasNext: boolean,
 ): number | undefined =>
-  !hasNext || pages.at(-1)?.images.length === 0 ? pages.length - 1 : undefined;
+  pages.length > 0 && (!hasNext || pages.at(-1)?.images.length === 0)
+    ? pages.length - 1
+    : undefined;
 
 /** 一覧のページの key を、最初のページか、先頭の画像から決める。 */
 export const imagePageKey = (

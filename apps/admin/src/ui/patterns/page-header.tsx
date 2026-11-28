@@ -15,9 +15,6 @@ type PageHeaderProps = {
 const isShown = (node: ReactNode): boolean =>
   node !== undefined && node !== null && typeof node !== "boolean";
 
-const hasText = (text: string | undefined): text is string =>
-  text !== undefined && text !== "";
-
 /** 画面の名前と補足と操作を並べた、画面の見出し。 */
 export const PageHeader = ({
   title,
@@ -28,7 +25,7 @@ export const PageHeader = ({
     <div className="pt-1">
       <Stack gap={1}>
         <Heading level={1}>{title}</Heading>
-        {hasText(description) && <Text tone="muted">{description}</Text>}
+        {description && <Text tone="muted">{description}</Text>}
       </Stack>
     </div>
     {isShown(actions) && <Cluster gap={2}>{actions}</Cluster>}

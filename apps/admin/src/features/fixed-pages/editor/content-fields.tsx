@@ -4,7 +4,7 @@ import type { FieldDefinition } from "@analemma/contract";
 
 import { Branch } from "../ui/branch";
 import { ContentGroup } from "../ui/content-group";
-import type { EditorForm } from "./hooks/use-editor-form";
+import type { EditorField, EditorForm } from "./hooks/use-editor-form";
 import { ImageField } from "./image-field";
 import type { RefusedSave } from "./logic/editor-errors";
 import { RepeatField } from "./repeat/repeat-field";
@@ -29,6 +29,71 @@ export type ContentFieldsProps = {
   changed: (name: string) => void;
   /** group の直下の項目か。 */
   inGroup?: boolean;
+};
+
+/** 入力欄を描くのに要る、項目の定義と文言。 */
+type InputOptions = {
+  /** 項目の定義。 */
+  readonly definition: Exclude<
+    FieldDefinition,
+    Record<"fields", readonly FieldDefinition[]>
+  >;
+  /** 操作する項目と、そこまでの group や repeat の要素名。 */
+  readonly target: string;
+  /** 最後に送った画像の項目の誤り。 */
+  readonly issue: NonNullable<RefusedSave["images"]>[string] | undefined;
+  /** URL の項目の補足。 */
+  readonly urlGuide: string;
+};
+
+const drawInput = (
+  field: EditorField,
+  { definition, target, issue, urlGuide }: InputOptions,
+): ReactNode => {
+  const required = definition.optional !== true;
+  const { label } = definition;
+
+  switch (definition.type) {
+    case "text":
+      return <field.TextField label={label} isRequired={required} />;
+    case "image":
+      return (
+        <ImageField
+          label={label}
+          required={required}
+          target={target}
+          issue={issue}
+          value={
+            typeof field.state.value === "string" ? field.state.value : null
+          }
+          onChange={field.handleChange}
+        />
+      );
+    case "url":
+      return (
+        <field.TextField
+          description={urlGuide}
+          isRequired={required}
+          label={label}
+        />
+      );
+    case "longText":
+      return <field.TextArea label={label} isRequired={required} />;
+    case "number":
+      return <field.NumberField label={label} isRequired={required} />;
+    case "boolean":
+      return <field.Checkbox label={label} />;
+    case "date":
+      return <field.DateField label={label} isRequired={required} />;
+    case "select":
+      return (
+        <field.Select
+          label={label}
+          isRequired={required}
+          options={definition.options}
+        />
+      );
+  }
 };
 
 const ContentFieldsContent = ({
@@ -89,7 +154,6 @@ const ContentFieldsContent = ({
       );
     }
 
-    const required = definition.optional !== true;
     const label = definition.label;
 
     return (
@@ -102,51 +166,14 @@ const ContentFieldsContent = ({
           },
         }}
       >
-        {(field) => {
-          switch (definition.type) {
-            case "text":
-              return <field.TextField label={label} isRequired={required} />;
-            case "image":
-              return (
-                <ImageField
-                  label={label}
-                  required={required}
-                  target={target(label)}
-                  issue={imageErrors?.[name]}
-                  value={
-                    typeof field.state.value === "string"
-                      ? field.state.value
-                      : null
-                  }
-                  onChange={field.handleChange}
-                />
-              );
-            case "url":
-              return (
-                <field.TextField
-                  description={t("fixedPageEditor.guide.url")}
-                  isRequired={required}
-                  label={label}
-                />
-              );
-            case "longText":
-              return <field.TextArea label={label} isRequired={required} />;
-            case "number":
-              return <field.NumberField label={label} isRequired={required} />;
-            case "boolean":
-              return <field.Checkbox label={label} />;
-            case "date":
-              return <field.DateField label={label} isRequired={required} />;
-            case "select":
-              return (
-                <field.Select
-                  label={label}
-                  isRequired={required}
-                  options={definition.options}
-                />
-              );
-          }
-        }}
+        {(field) =>
+          drawInput(field, {
+            definition,
+            target: target(label),
+            issue: imageErrors?.[name],
+            urlGuide: t("fixedPageEditor.guide.url"),
+          })
+        }
       </form.AppField>
     );
   };

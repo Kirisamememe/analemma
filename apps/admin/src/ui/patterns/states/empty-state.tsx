@@ -31,9 +31,6 @@ type EmptyStateProps = {
 const isShown = (node: ReactNode): boolean =>
   node !== undefined && node !== null && typeof node !== "boolean";
 
-const hasText = (text: string | undefined): text is string =>
-  text !== undefined && text !== "";
-
 /** 一覧などの中身がまだ無いことを伝える欄。 */
 export const EmptyState = ({
   icon,
@@ -47,7 +44,7 @@ export const EmptyState = ({
     </span>
     <Stack align="center" gap={1}>
       <Heading level={2}>{title}</Heading>
-      {hasText(description) && <Text tone="muted">{description}</Text>}
+      {description && <Text tone="muted">{description}</Text>}
     </Stack>
     {isShown(actions) && <Cluster gap={2}>{actions}</Cluster>}
   </div>

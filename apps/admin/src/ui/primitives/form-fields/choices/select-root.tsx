@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { Select as AriaSelect } from "react-aria-components";
 
+import { toSelectedValue } from "./logic/selected-value";
+
 import { fieldRoot } from "@/ui/primitives/form-fields/field-control";
 
 /** Select の選択肢。 */
@@ -42,9 +44,6 @@ type SelectRootProps = Omit<SelectInputProps, "options"> & {
   children: ReactNode;
 };
 
-const toValue = (key: string | number | null): string | null =>
-  typeof key === "string" && key !== "" ? key : null;
-
 /** Select の状態と関連付けを子の部品に渡す。 */
 export const SelectRoot = ({
   "aria-label": ariaLabel,
@@ -79,7 +78,7 @@ export const SelectRoot = ({
         onBlur?.();
       }}
       onChange={(key) => {
-        onChange?.(toValue(key));
+        onChange?.(toSelectedValue(key));
       }}
       // oxlint-disable-next-line project/styling-boundary -- React Aria の未指定の props を省く。見た目の props は含まない。
       {...state}

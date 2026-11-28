@@ -100,6 +100,13 @@ export const ImageViewer = ({
     <Icon name="image-off" size="xl" />
   );
 
+  const resetScroll = (panel: HTMLElement | null): void => {
+    if (panel === null || panelPhoto.current === photoId) return;
+
+    panelPhoto.current = photoId;
+    panel.scrollTo({ top: 0, behavior: "instant" });
+  };
+
   return (
     <div className={style.body()}>
       <div
@@ -160,12 +167,7 @@ export const ImageViewer = ({
       </div>
       <aside
         aria-label={t("imageViewer.info")}
-        ref={(panel) => {
-          if (panel !== null && panelPhoto.current !== photoId) {
-            panelPhoto.current = photoId;
-            panel.scrollTo({ top: 0, behavior: "instant" });
-          }
-        }}
+        ref={resetScroll}
         className={style.panel()}
         // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- WebKit ではスクロールする情報欄に Tab で移れない
         tabIndex={0}

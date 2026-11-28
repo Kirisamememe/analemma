@@ -9,6 +9,10 @@ describe("lastPageIndex", () => {
     expect(lastPageIndex([page("3"), page("2")], true)).toBeUndefined();
   });
 
+  test("読んだページが無ければ、続きが無くても、最後のページを決めない", () => {
+    expect(lastPageIndex([], false)).toBeUndefined();
+  });
+
   test("続きが無ければ、読んだ最後のページの番号を返す", () => {
     expect(lastPageIndex([page("3"), page("2")], false)).toBe(1);
   });

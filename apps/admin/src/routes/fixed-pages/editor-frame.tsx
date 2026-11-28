@@ -19,6 +19,8 @@ export const EditorFrame = ({
 }: EditorFrameProps): ReactNode => {
   const { t } = useTranslation();
 
+  const readyText = ready === true && t("fixedPageEditor.editReady");
+
   return (
     <Center width="nestedForm">
       <Stack gap={3}>
@@ -29,7 +31,7 @@ export const EditorFrame = ({
         </Text>
         {ready !== undefined && (
           <span aria-live="polite" className="sr-only">
-            {ready && t("fixedPageEditor.editReady")}
+            {readyText}
           </span>
         )}
         {children}

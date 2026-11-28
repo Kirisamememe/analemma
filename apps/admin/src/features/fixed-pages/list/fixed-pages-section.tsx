@@ -62,6 +62,12 @@ export const FixedPagesSection = ({
       : [],
   );
 
+  const retryAll = (): void => {
+    if (pages._tag === "Failed") pages.retry();
+
+    if (kinds._tag === "Failed") kinds.retry(); // 種類のラベルも読めていなければ、一緒に取り直す
+  };
+
   const content = (): ReactNode => {
     if (pages._tag === "Loading" || kinds._tag === "Loading") {
       return <LoadingState layout="list" />;
@@ -73,11 +79,7 @@ export const FixedPagesSection = ({
           isRetrying={pages.isRetrying || kindsRetrying}
           layout="inline"
           level={2}
-          onRetry={() => {
-            pages.retry();
-
-            if (kinds._tag === "Failed") kinds.retry(); // 種類のラベルも読めていなければ、一緒に取り直す
-          }}
+          onRetry={retryAll}
           title={t("fixedPages.loadFailed")}
         />
       );

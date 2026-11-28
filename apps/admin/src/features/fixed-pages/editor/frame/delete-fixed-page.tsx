@@ -77,6 +77,13 @@ export const DeleteFixedPage = ({
     onOpenChange?.(false);
   };
 
+  const submit = (): void => {
+    if (!isOpen) return; // 閉じ始めた後に遅れて届いた押下では送らない
+
+    failure.close();
+    deleting.mutate();
+  };
+
   return (
     <>
       <Button
@@ -102,12 +109,7 @@ export const DeleteFixedPage = ({
           <Button
             isDisabled={deleting.data?._tag === "NotFound"}
             isPending={deleting.isPending}
-            onPress={() => {
-              if (isOpen) {
-                failure.close();
-                deleting.mutate(); // 閉じ始めた後に遅れて届いた押下では送らない
-              }
-            }}
+            onPress={submit}
             tone="danger"
           >
             {t("fixedPages.delete")}
