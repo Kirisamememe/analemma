@@ -212,16 +212,17 @@ describe("JSX の中のロジック", () => {
     ]);
   });
 
-  test("文が3つ以上の関数に、if の中の文も数えて診断を出すこと", () => {
+  test("文が3つ以上の関数に、if の中の文も数えて診断を出し、spread に書いた込み入った条件にも診断を出すこと", () => {
     expect(
       logicIn("invalid/apps/admin/src/routes/logic-in-jsx.tsx").slice(7),
     ).toEqual([
       [24, LONG],
       [34, LONG],
+      [43, COMPLEX],
     ]);
   });
 
-  test("演算子1つの条件・名前を付けた値・2文までの関数は止めないこと", () => {
+  test("演算子1つの条件(算術の演算子は数えない)・名前を付けた値・2文までの関数は止めないこと", () => {
     expect(logicIn("valid/apps/admin/src/routes/plain-jsx.tsx")).toEqual([]);
   });
 });

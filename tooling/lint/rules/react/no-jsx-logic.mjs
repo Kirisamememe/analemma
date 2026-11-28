@@ -21,9 +21,22 @@ const childrenOf = (node) =>
 const containsJsx = (node) =>
   JSX.has(node.type) || childrenOf(node).some((child) => containsJsx(child));
 
+const COMPARISONS = new Set([
+  "==",
+  "!=",
+  "===",
+  "!==",
+  "<",
+  "<=",
+  ">",
+  ">=",
+  "in",
+  "instanceof",
+]);
+
 const isOperator = (node) =>
   node.type === "LogicalExpression" ||
-  node.type === "BinaryExpression" ||
+  (node.type === "BinaryExpression" && COMPARISONS.has(node.operator)) ||
   (node.type === "UnaryExpression" && node.operator === "!");
 
 const countOperators = (node) => {
@@ -137,6 +150,12 @@ const noJsxLogic = {
         expressions += 1;
       },
       "JSXExpressionContainer:exit"() {
+        expressions -= 1;
+      },
+      JSXSpreadAttribute() {
+        expressions += 1;
+      },
+      "JSXSpreadAttribute:exit"() {
         expressions -= 1;
       },
       ConditionalExpression(node) {

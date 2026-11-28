@@ -31,6 +31,7 @@ export const PlainJsx = (props: Props) => {
     <section>
       {hasText(title) && <h2>{title}</h2>}
       {!isSaving && <p>{note ?? "none"}</p>}
+      {saving.length === label.length - 1 ? <p>{saving}</p> : <p>{label}</p>}
       {isSaving ? <p>{saving}</p> : <div>{noteLine}</div>}
       <button
         type="button"

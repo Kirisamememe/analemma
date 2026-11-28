@@ -40,5 +40,6 @@ export const LogicInJsx = ({ title, note, isSaving, onPress }: Props) => (
     >
       {note}
     </button>
+    <p {...(isSaving && note !== undefined && title ? { title } : {})} />
   </section>
 );
