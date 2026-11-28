@@ -1,18 +1,16 @@
 import { desc, eq } from "drizzle-orm";
 
-import { deliveryImage } from "@/db/schema/delivery-image";
 import { image } from "@/db/schema/image";
 import { series, seriesImage } from "@/db/schema/series";
 import type { DatabaseExecutor } from "@/platform/database";
 
-/** シリーズと、その画像と配信用の画像の行。 */
+/** シリーズと、その画像の行。 */
 export const readSeriesRows = (db: DatabaseExecutor, id: string) =>
   db
-    .select({ series, image, deliveryImage })
+    .select({ series, image })
     .from(series)
     .leftJoin(seriesImage, eq(series.id, seriesImage.seriesId))
     .leftJoin(image, eq(image.id, seriesImage.imageId))
-    .leftJoin(deliveryImage, eq(deliveryImage.imageId, image.id))
     .where(eq(series.id, id))
     .orderBy(seriesImage.position);
 

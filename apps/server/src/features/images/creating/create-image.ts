@@ -38,7 +38,7 @@ export const createImage = async (
 
         return {
           transactionId: row.transactionId,
-          value: toAdminImage(row, rows),
+          value: toAdminImage(row, { deliveryImages: rows, tags: [] }),
         };
       },
     },

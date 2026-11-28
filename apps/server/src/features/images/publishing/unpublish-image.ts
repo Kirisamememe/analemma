@@ -1,5 +1,5 @@
 import { setPublished } from "@/features/images/publishing/queries/set-published.query";
-import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
+import { readImageRelations } from "@/features/images/queries/image-relations.query";
 import { findImage, lockImage } from "@/features/images/queries/images.query";
 import { toAdminImage } from "@/features/images/to-image";
 import { adminProcedures } from "@/procedures";
@@ -10,7 +10,7 @@ export const unpublishImage = adminProcedures.images.unpublish.handler(
     const change = await context.db.transaction(async (tx) => {
       await lockImage(tx, input.id);
 
-      const deliveryImages = await listDeliveryImages(tx, [input.id]);
+      const relations = await readImageRelations(tx, [input.id]);
 
       const row = await setPublished(tx, {
         id: input.id,
@@ -18,7 +18,7 @@ export const unpublishImage = adminProcedures.images.unpublish.handler(
         now: context.clock.now(),
       });
 
-      if (row !== undefined) return toAdminImage(row, deliveryImages);
+      if (row !== undefined) return toAdminImage(row, relations.get(row.id));
 
       return (await findImage(tx, input.id)) === undefined
         ? "not-found"

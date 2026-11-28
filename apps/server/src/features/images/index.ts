@@ -1,4 +1,6 @@
 export { uploadImage } from "@/features/images/creating/upload-image";
+export { addImageTag } from "@/features/images/editing/add-image-tag";
+export { removeImageTag } from "@/features/images/editing/remove-image-tag";
 export { deleteImage } from "@/features/images/editing/delete-image";
 export { updateImage } from "@/features/images/editing/update-image";
 export { getImage } from "@/features/images/reading/get-image";

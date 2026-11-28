@@ -75,13 +75,21 @@ export const toPublishedImage = (
   };
 };
 
+type ImageRelations = {
+  /** 画像の幅ごとの配信用の画像。 */
+  readonly deliveryImages: readonly DeliveryImageRow[];
+  /** 管理画面で決めた順に並べたタグ。 */
+  readonly tags: AdminImage["tags"];
+};
+
 /** 画像の行を管理画面に返す形にする。 */
 export const toAdminImage = (
   row: ImageRow,
-  deliveryImages: readonly DeliveryImageRow[],
+  relations: ImageRelations | undefined,
 ): AdminImage => ({
   ...toImageDetails(row),
-  deliveryImages: toDeliveryImages(deliveryImages),
+  deliveryImages: toDeliveryImages(relations?.deliveryImages ?? []),
+  tags: relations?.tags ?? [],
   status: row.status,
   publishedAt: row.publishedAt?.toISOString() ?? null,
   createdAt: row.createdAt.toISOString(),

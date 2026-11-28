@@ -1,4 +1,4 @@
-import { listDeliveryImages } from "@/features/images/queries/delivery-images.query";
+import { readImageRelations } from "@/features/images/queries/image-relations.query";
 import { toAdminImage } from "@/features/images/to-image";
 import { listSeriesRows } from "@/features/series/reading/queries/series.query";
 import { toAdminSeries } from "@/features/series/to-admin-series";
@@ -14,17 +14,14 @@ export const listSeries = adminProcedures.series.list.handler(({ context }) =>
         cover === null ? [] : [cover.id],
       );
 
-      const deliveries = Map.groupBy(
-        await listDeliveryImages(tx, coverIds),
-        (item) => item.imageId,
-      );
+      const relations = await readImageRelations(tx, coverIds);
 
       return {
         series: rows.map(({ series, imageCount, cover }) => {
           const coverImage =
             cover === null
               ? null
-              : toAdminImage(cover, deliveries.get(cover.id) ?? []);
+              : toAdminImage(cover, relations.get(cover.id));
 
           return Object.assign(toAdminSeries(series), {
             imageCount,

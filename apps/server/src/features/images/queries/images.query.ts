@@ -35,12 +35,14 @@ export const findImage = async (
 export const lockImage = async (
   tx: DatabaseExecutor,
   id: string,
-): Promise<void> => {
-  await tx
+): Promise<boolean> => {
+  const rows = await tx
     .select({ id: image.id })
     .from(image)
     .where(eq(image.id, id))
     .for("update");
+
+  return rows.length > 0;
 };
 
 /** 画像の行を、新しく足した順に読む。 */

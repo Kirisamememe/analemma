@@ -94,6 +94,7 @@ export const createImageRoutes = (
 
     return {
       ...EMPTY,
+      tags: [],
       ...seed,
       id: `019b0000-0000-7000-8000-${String(created).padStart(12, "0")}`,
       status: status ?? (published ? "published" : "unpublished"),

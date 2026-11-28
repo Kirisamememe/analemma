@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { imageTagSummary } from "./image-tag-values";
+
 /** 文字列に使える文字の決まりと、合わないときの文言。 */
 type TextRule = {
   /** 使える文字だけからなる文字列に合う正規表現。 */
@@ -129,6 +131,9 @@ export type ImageStatus = z.output<typeof imageStatus>;
 
 /** 管理画面に返す画像。 */
 export const adminImage = imageDetails.extend({
+  tags: z
+    .array(imageTagSummary)
+    .describe("画像に付けたタグ。管理画面で決めた順。"),
   status: imageStatus,
   publishedAt: z.iso
     .datetime({ offset: true })
