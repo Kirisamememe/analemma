@@ -25,9 +25,9 @@
 - 部品と hook の memo 化は、React Compiler に任せる(ユーザーが決めた)。handler や値を props に渡すたびに `useCallback`・`useMemo`・`memo` を手で書かなくても、関係の無い再レンダリングを減らせる。lint の React Compiler の診断(`tooling/DECISIONS.md` の「React の書き方をそろえるルール」)が、コンパイラの扱えない書き方を止める。
 - ビルドには、Rust に移植したコンパイラ(`oxc-transform-react`)を、`@vitejs/plugin-react` の `compiler` の指定で入れる。
   - Babel の plugin(`babel-plugin-react-compiler` 1.0.0)は、`@babel/core` 8 の下では、props の分割代入に既定値を書いた部品と hook(`Button`・`Modal`・`Stack` など51ファイル)を、知らせずに変換しない。Rust に移植したコンパイラは、同じファイルを変換する。
-  - コンパイラが変換を諦めたファイルは、ビルドでは知らされない。どのファイルも診断なしで変換できることを、テストで確かめる(`__tests__/react-compiler.test.ts`)。コンパイラが扱えない書き方(`??=` などの論理代入)は、扱える書き方に直す。
+  - コンパイラが変換を諦めたファイルは、ビルドでは知らされない。製品のコードと Storybook の設定(テスト・story・`src/testing/` を除く `src/` と、`.storybook/`)のどのファイルも、診断なしで変換できることを、テストで確かめる(`__tests__/react-compiler.test.ts`)。コンパイラが扱えない書き方(`??=` などの論理代入)は、扱える書き方に直す。
   - 変換が速い(全ファイルで、1.7秒が0.2秒になる)。
-  - `@vitejs/plugin-react` は、この指定を experimental としている。`oxc-transform-react` の版は、plugin の peer の範囲に入る版に固定し、plugin を上げるときに一緒に上げる。変換の結果に食い違いが見つかったら、Babel の plugin に戻す(戻すのは `vite.config.ts` と依存だけ)。
+  - `@vitejs/plugin-react` は、この指定を experimental としている。`oxc-transform-react` のバージョンは、plugin の peer の範囲に入るものに固定し、plugin を上げるときに一緒に上げる。変換の結果に食い違いが見つかったら、Babel の plugin に戻す(戻すのは `vite.config.ts` と依存だけ)。
 - Storybook は同じ Vite の設定を読むので、story も同じ変換を通る。Bun のテストは Vite を通らないので、変換していないコードを確かめる(コンパイラは振る舞いを変えない前提)。
 - どこを再レンダリングしないかは、今までどおり設計で決め、「再レンダリングの期待」に書いてテストで守る。コンパイラは、state の置き場所や購読の範囲までは決めない。
 - 手で memo 化を書くのは、次の2つだけにする。(1)「再レンダリングの期待」に書いて、テストで守る境界(`memo` と、そこへ渡す handler の `useCallback`)。Bun のテストは Vite を通らず、コンパイラの変換が掛からないので、テストで守る約束は、手で書いた memo 化で成り立たせる。(2) ref の callback や effect の依存のように、identity が振る舞いを決める所。それ以外(計算が重いだけの値、props に渡すだけの handler)には書かず、コンパイラに任せる。今ある `useCallback`・`useMemo`・`memo` は、そのまま残してよい(コンパイラは手で書いた memo 化を保つ)。
