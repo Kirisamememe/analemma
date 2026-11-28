@@ -140,15 +140,19 @@ describe("field.* の部品が訳から渡す文言", () => {
     expect(screen.getByRole("option", { name: "選択なし" })).toBeDefined();
   });
 
-  test("NumberField の増減のボタンに、ラベルを入れた訳の名前を付ける", () => {
+  test("NumberField の増減のボタンに、ラベルを入れた訳の名前を付け、名前どおりに値を増減する", async () => {
+    const user = userEvent.setup();
+
     renderWithI18n(<Example isRequired={false} />, "ja");
 
-    expect(
-      screen.getByRole("button", { name: "気温の値を増やす" }),
-    ).toBeDefined();
-    expect(
-      screen.getByRole("button", { name: "気温の値を減らす" }),
-    ).toBeDefined();
+    const input = screen.getByRole<HTMLInputElement>("textbox", {
+      name: "気温",
+    });
+
+    await user.click(screen.getByRole("button", { name: "気温の値を増やす" }));
+    expect(input.value).toBe("5");
+    await user.click(screen.getByRole("button", { name: "気温の値を減らす" }));
+    expect(input.value).toBe("4");
   });
 
   test("DateField は、日付が未完のまま離れると、訳の知らせを出す", async () => {
