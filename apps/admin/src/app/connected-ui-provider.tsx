@@ -21,8 +21,8 @@ export const ConnectedUiProvider = ({
   return (
     <UiProvider
       locale={toRegionalLocale(i18n.language)}
-      navigate={(href, options) => {
-        void router.navigate({ ...options, href });
+      navigate={(href) => {
+        void router.navigate({ href });
       }}
     >
       {children}

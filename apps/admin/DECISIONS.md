@@ -49,6 +49,15 @@ Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・�
 
 複数の feature から使う、管理画面に固有の部品は `src/components/` に置き、`@/components/...` から import する。パスキーの名前の入力欄のように、管理画面の訳と contract の検査を持つ部品を、ラベルや検査を呼び出し元から受け取る `src/ui/` の部品と分ける。`components/` は features を import しない。利用する feature 同士が、部品を通じて依存し合わずに済む。
 
+## 業務の知識を足す層
+
+`src/ui/` の部品は、値を props で受けるだけにし、管理画面の業務と配線を知らない(ユーザーが決めた)。部品に業務の知識を足すときは、`ui/` の部品を包む部品を、`ui/` の外に置く。
+
+- 包む部品を置くのは、足す処理があるときだけ。アプリのライブラリの状態や型につなぐ(フォーム・query・router)、API の形を読む、決まった文面を持つ、など。文字列を1つ渡せば済むもの(閉じるボタンの名前など)は、包まずに、呼ぶ側が `ui/` の部品に props で渡す。
+- 置き場所は、使う範囲で決める。1つの feature だけが使うなら、その feature に置く。複数の feature が使うなら `src/components/`、`routes/` だけが使うなら `src/routes/` に置く。
+- `ui/` の部品を直に使うことは止めない。知識を持ち込む場所だけが、包む部品を通る。
+- **行き先**:`ui/` の `Link` は、行き先を文字列で受ける。route のパスを知っているのは `routes/` なので、`routes/` が型付きで作る。画面に直に書くリンクは `RouteLink`(`src/routes/navigation/`。TanStack Router の `createLink` で、`to` と `params` を route の型で受ける)を使い、値として下へ渡す行き先は `router.buildLocation(…).href` で作る。無い route と、`params` の書き漏れは、型検査で落ちる。features は、行き先を props で受け取り、`ui/` の部品にそのまま渡す。`RouteLink` は、router が作った `href` だけを `ui/` の `Link` に渡す。移る処理は、今までどおり `UiProvider` に渡した関数が受け持つ(router のクリックの処理は使わない)。
+
 ## hook・純粋な関数・server の API を呼ぶ処理の置き場所
 
 `features/`・`components/`・`ui/` では、ファイルを役割ごとのフォルダに分ける(ユーザーが決めた。`project/admin-module-location` で止まる)。部品と、それと一緒に変わる処理を同じ場所からたどれ、フォルダの名前で、React なしでテストできるものと server を呼ぶものが分かる。

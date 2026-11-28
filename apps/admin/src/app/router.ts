@@ -4,8 +4,6 @@ import {
   createRoute,
   createRouter,
   type RouterHistory,
-  type NavigateOptions,
-  type ToOptions,
 } from "@tanstack/react-router";
 
 import type { ApiClient } from "@/api/api-types";
@@ -287,23 +285,5 @@ declare module "@tanstack/react-router" {
   interface Register {
     /** 管理画面の router。 */
     router: AppRouter;
-  }
-}
-
-type WithParams<Path extends string> =
-  Path extends `${infer Head}$${string}/${infer Tail}`
-    ? `${Head}${string}/${WithParams<Tail>}`
-    : Path extends `${infer Head}$${string}`
-      ? `${Head}${string}`
-      : Path;
-
-type RoutePath = Extract<ToOptions["to"], `/${string}`>;
-
-declare module "react-aria-components" {
-  interface RouterConfig {
-    /** 部品のリンクの行き先(route のパスか、その `$id` などに値を入れたもの)。 */
-    href: WithParams<RoutePath>;
-    /** 移るときの options。 */
-    routerOptions: Omit<NavigateOptions, keyof ToOptions>;
   }
 }

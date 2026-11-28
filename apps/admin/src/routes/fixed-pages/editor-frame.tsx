@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { RouteLink } from "@/routes/navigation/route-link";
 import { Center, Stack, Text } from "@/ui/layout";
-import { Link } from "@/ui/primitives/navigation";
 
 /** 作成と編集の画面の枠に渡す値。 */
 type EditorFrameProps = {
@@ -25,9 +25,9 @@ export const EditorFrame = ({
     <Center width="nestedForm">
       <Stack gap={3}>
         <Text variant="caption">
-          <Link href="/fixed-pages" variant="back">
+          <RouteLink to="/fixed-pages" variant="back">
             {t("fixedPageEditor.backToList")}
-          </Link>
+          </RouteLink>
         </Text>
         {ready !== undefined && (
           <span aria-live="polite" className="sr-only">

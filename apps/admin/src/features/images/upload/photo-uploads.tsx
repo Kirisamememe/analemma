@@ -13,12 +13,11 @@ import { Stack } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
-import type { Href } from "@/ui/primitives/navigation";
 import { Modal, ModalActions, ModalSection } from "@/ui/primitives/overlays";
 
 type PhotoUploadsProps = {
   /** 画像を見る画面への行き先を返す関数。 */
-  imageHref: (id: string) => Href;
+  imageHref: (id: string) => string;
 };
 
 /** 画像一覧の見出しと、写真を追加する Dialog。 */

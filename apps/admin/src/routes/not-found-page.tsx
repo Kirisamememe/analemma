@@ -2,9 +2,9 @@ import { useLocation } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { RouteLink } from "@/routes/navigation/route-link";
 import { AppShell, Center, Stack, Text } from "@/ui/layout";
 import { PageHeader } from "@/ui/patterns";
-import { Link } from "@/ui/primitives/navigation";
 
 /** 無いパスを開いたときの画面。 */
 export const NotFoundPage = (): ReactNode => {
@@ -20,7 +20,7 @@ export const NotFoundPage = (): ReactNode => {
             title={t("notFound.title")}
           />
           <Text>
-            <Link href="/">{t("notFound.backHome")}</Link>
+            <RouteLink to="/">{t("notFound.backHome")}</RouteLink>
           </Text>
         </Stack>
       </Center>

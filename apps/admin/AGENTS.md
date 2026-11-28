@@ -51,6 +51,8 @@
 - 言語は i18next の `changeLanguage` で切り替える。html の `lang` と `localStorage` は、`sync-locale.ts` がそろえる。
 - route の code splitting(`import()`)は使わない。`no-dynamic-import` は、今はそのまま効かせる。
 - 画面のコード(`src/ui/` と `src/features/*/ui/` の外)には、見た目の class を書かない。書けるのは `grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only` だけで、`className` は文字列のリテラルにし、`style` は書かない。並べ方・文字・色は `ui/` の部品の props で決める(lint で止まる)。
+- `ui/` の部品は、値を props で受ける。業務の知識(フォーム・query・router の状態や型、API の形、決まった文面)を足すときは、`ui/` の外に包む部品を置く。置き場所は使う範囲で決める(1つの feature だけならその feature、複数の feature なら `components/`、`routes/` だけなら `routes/`)。文字列を1つ渡せば済むなら、包まずに props で渡す(理由は `DECISIONS.md` の「業務の知識を足す層」)。
+- 管理画面の中の行き先は、`routes/` が route の型から作る。画面に直に書くリンクは `RouteLink`、値で渡す行き先は `router.buildLocation(…).href`。`href` に、パスの文字列を直に書かない(lint では止まらないので、セルフレビューで見る)。
 - 部品は、層の向き(patterns → primitives・layout)を守る。React Aria Components は `ui/primitives/` の中でだけ使い、`tv` は `ui/tv.ts` から import する(ここまでは lint で止まる)。primitives は自分の props の型を持ち、ライブラリの props の型を extends しない(lint では止まらないので、セルフレビューで見る)。
 - 文字の役割は `Text`・`Heading` の `variant` で選ぶ。
 - 部品を足したら、同じフォルダの `__stories__` に story を足し、`src/__tests__/stories.test.tsx` の一覧にも足す。story は画面のコードと同じ決まりで、部品と props だけで組む(lint で止まる)。title と export 名は `DECISIONS.md` の「Storybook」の命名規則に従う。tone・variant・状態(無効・送信中・invalid など)ごとに story を分け、見比べられるようにする。

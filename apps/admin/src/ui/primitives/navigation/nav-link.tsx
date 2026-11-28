@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 import { Link as AriaLink } from "react-aria-components";
 
-import type { Href } from "./href";
-
 import { Icon, type IconName } from "@/ui/primitives/graphics";
 import { navItem } from "@/ui/primitives/navigation/nav-item-style";
 import { typography } from "@/ui/typography";
@@ -10,7 +8,7 @@ import { typography } from "@/ui/typography";
 /** ナビのリンクに渡す値。 */
 export type NavLinkProps = {
   /** 管理画面の中の行き先。 */
-  href: Href;
+  href: string;
   /** リンクの文言。 */
   children: ReactNode;
   /** リンクに添えるアイコン。 */
