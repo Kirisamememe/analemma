@@ -29,6 +29,7 @@ export const AppDateField = (props: AppDateFieldProps): ReactNode => {
       description={props.description}
       isDisabled={props.isDisabled}
       isReadOnly={isSubmitting || props.isReadOnly === true}
+      optionalLabel={props.isRequired === true ? undefined : t("ui.optional")}
       requiredLabel={props.isRequired === true ? t("ui.required") : undefined}
       incompleteMessage={t("ui.dateField.incomplete")}
       label={props.label}

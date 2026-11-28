@@ -3,7 +3,7 @@ import { CheckboxButton } from "react-aria-components";
 
 import { CheckMark } from "./check-mark";
 
-import { RequiredBadge } from "@/ui/primitives/form-fields/parts/required-badge";
+import { NecessityBadge } from "@/ui/primitives/form-fields/parts/necessity-badge";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
@@ -45,7 +45,7 @@ export const CheckboxControl = ({
       <span className="min-w-0 wrap-anywhere">{label}</span>
     )}
     {requiredLabel !== undefined && (
-      <RequiredBadge>{requiredLabel}</RequiredBadge>
+      <NecessityBadge necessity="required">{requiredLabel}</NecessityBadge>
     )}
   </CheckboxButton>
 );

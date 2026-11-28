@@ -99,6 +99,7 @@ export const zhHans = {
   "ui.guide.characterLimit": "最多 {{max}} 个字符",
   "ui.guide.characterMinimum": "至少 {{min}} 个字符",
   "ui.guide.characterRange": "{{min}}–{{max}} 个字符",
+  "ui.optional": "选填",
   "ui.required": "必填",
   "ui.errorState.description": "请检查网络连接，然后重试。",
   "ui.errorState.failedAgain": "仍然无法加载。",

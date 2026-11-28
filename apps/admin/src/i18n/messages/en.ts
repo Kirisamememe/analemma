@@ -108,6 +108,7 @@ export const en = {
   "ui.guide.characterLimit": "Enter up to {{max}} characters.",
   "ui.guide.characterMinimum": "Enter at least {{min}} characters.",
   "ui.guide.characterRange": "Enter {{min}}–{{max}} characters.",
+  "ui.optional": "Optional",
   "ui.required": "Required",
   "ui.errorState.description": "Check your connection, then try again.",
   "ui.errorState.failedAgain": "Still could not load.",

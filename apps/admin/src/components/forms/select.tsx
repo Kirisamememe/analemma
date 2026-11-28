@@ -26,6 +26,7 @@ export const AppSelect = (props: AppSelectProps): ReactNode => {
     <Select
       description={props.description}
       isDisabled={props.isDisabled}
+      optionalLabel={props.isRequired === true ? undefined : t("ui.optional")}
       requiredLabel={props.isRequired === true ? t("ui.required") : undefined}
       noneLabel={t("ui.select.none")}
       placeholder={t("ui.select.placeholder")}

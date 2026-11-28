@@ -110,6 +110,7 @@ export const ja = {
   "ui.guide.characterLimit": "{{max}}文字まで",
   "ui.guide.characterMinimum": "{{min}}文字以上",
   "ui.guide.characterRange": "{{min}}〜{{max}}文字",
+  "ui.optional": "任意",
   "ui.required": "必須",
   "ui.errorState.description": "接続を確かめてから、もう一度試してください。",
   "ui.errorState.failedAgain": "まだ読み込めません。",

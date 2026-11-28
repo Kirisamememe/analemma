@@ -24,6 +24,8 @@ export const Filled: Story = { args: { defaultValue: "MacBook Air" } };
 
 export const Required: Story = { args: { requiredLabel: "必須" } };
 
+export const Optional: Story = { args: { optionalLabel: "任意" } };
+
 export const RequiredInvalid: Story = {
   args: { requiredLabel: "必須", errorMessage: "名前を入力してください" },
 };

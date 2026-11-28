@@ -91,6 +91,7 @@ describe("field.* の部品が訳から渡す文言", () => {
     renderWithI18n(<Example isRequired />, "ja");
 
     expect(screen.getAllByText("必須")).toHaveLength(6);
+    expect(screen.queryByText("任意")).toBeNull();
     expect(
       [
         screen.getByRole("textbox", { name: "タイトル" }),
@@ -101,10 +102,11 @@ describe("field.* の部品が訳から渡す文言", () => {
     ).toEqual(["true", "true", "true", "true"]);
   });
 
-  test("必須でない入力欄には、「必須」を添えない", () => {
+  test("必須でない入力欄には、「必須」を添えず、Checkbox のほかの5種に訳の「任意」を添える", () => {
     renderWithI18n(<Example isRequired={false} />, "ja");
 
     expect(screen.queryByText("必須")).toBeNull();
+    expect(screen.getAllByText("任意")).toHaveLength(5);
     expect(
       screen
         .getByRole("textbox", { name: "タイトル" })

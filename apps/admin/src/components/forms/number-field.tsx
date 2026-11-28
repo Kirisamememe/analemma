@@ -33,6 +33,7 @@ export const AppNumberField = (props: AppNumberFieldProps): ReactNode => {
       errorMessage={errorMessage}
       isDisabled={props.isDisabled}
       isReadOnly={isSubmitting || props.isReadOnly === true}
+      optionalLabel={props.isRequired === true ? undefined : t("ui.optional")}
       requiredLabel={props.isRequired === true ? t("ui.required") : undefined}
       decrementLabel={t("ui.numberField.decrease", { label: props.label })}
       incrementLabel={t("ui.numberField.increase", { label: props.label })}

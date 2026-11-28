@@ -19,6 +19,8 @@ export type DateFieldProps = Omit<
   label: string;
   /** 入力が要ることを示す文言。 */
   requiredLabel?: string | undefined;
+  /** 入力が任意であることを示す文言。 */
+  optionalLabel?: string | undefined;
   /** 年・月・日が埋まっていないときに出す、誤りの知らせ。 */
   incompleteMessage: string;
   /** 補足。 */
@@ -37,6 +39,7 @@ export const DateField = ({
   value,
   isDisabled,
   requiredLabel,
+  optionalLabel,
   incompleteMessage,
   isReadOnly,
   onBlur,
@@ -62,7 +65,9 @@ export const DateField = ({
       validationBehavior={validationBehavior}
       value={value}
     >
-      <FieldLabel requiredLabel={requiredLabel}>{label}</FieldLabel>
+      <FieldLabel optionalLabel={optionalLabel} requiredLabel={requiredLabel}>
+        {label}
+      </FieldLabel>
       <DateSegments onBlur={draft.onBlur} />
       {description !== undefined && (
         <FieldDescription>{description}</FieldDescription>
