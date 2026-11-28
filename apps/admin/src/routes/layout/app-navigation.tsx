@@ -1,9 +1,10 @@
 import { useMatchRoute, useRouter } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { LocaleSelect, ThemeSelect } from "@/features/preferences";
 import { LogOutButton, useLogOut } from "@/features/session";
-import { type MessageKey, useTranslate } from "@/i18n/use-translate";
+import type { MessageKey } from "@/i18n/use-translate";
 import { SideNav } from "@/ui/patterns";
 import type { NavLinkProps } from "@/ui/primitives/navigation";
 
@@ -46,7 +47,7 @@ const GROUPS = [
 
 /** ログインした後の画面のナビ。 */
 export const AppNavigation = (): ReactNode => {
-  const t = useTranslate();
+  const { t } = useTranslation();
   const logOut = useLogOut();
   const router = useRouter();
   const matchRoute = useMatchRoute();
