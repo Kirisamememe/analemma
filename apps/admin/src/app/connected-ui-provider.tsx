@@ -11,7 +11,7 @@ type ConnectedUiProviderProps = {
   children: ReactNode;
 };
 
-/** 部品に、i18next の今の言語と、TanStack Router での移動をつなぐ Provider。 */
+/** 部品に、i18next の今の言語と訳と、TanStack Router での移動をつなぐ Provider。 */
 export const ConnectedUiProvider = ({
   children,
 }: ConnectedUiProviderProps): ReactNode => {

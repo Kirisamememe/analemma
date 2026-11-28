@@ -15,7 +15,7 @@ type UiProviderProps = {
   children: ReactNode;
 };
 
-/** 部品に、言語と、行き先へ移る関数を渡す Provider。 */
+/** 部品に、言語・行き先へ移る関数・知らせを閉じるボタンの名前を渡す Provider。 */
 export const UiProvider = ({
   locale,
   navigate,
