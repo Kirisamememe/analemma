@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { branchLines } from "./logic/branch-lines";
 import { NestLine } from "./nest-line";
 
 import { Text } from "@/ui/layout";
@@ -30,25 +31,29 @@ export const Branch = ({
   isLast = false,
   note,
   children,
-}: BranchProps): ReactNode => (
-  <div>
-    <NestLine shape={parent === "group" ? "gapUnderGroup" : "gapUnderRepeat"} />
-    <div className={branch({ add: target === "add" })}>
-      {(!isLast || target === undefined) && <NestLine shape="through" />}
-      {target === "item" && <NestLine shape="elbowToItem" />}
-      {target === "add" && <NestLine shape="elbowToAdd" />}
-      {children}
+}: BranchProps): ReactNode => {
+  const lines = branchLines({ parent, target, isLast });
+
+  return (
+    <div>
+      <NestLine shape={lines.gap} />
+      <div className={branch({ add: target === "add" })}>
+        {lines.beside.map((shape) => (
+          <NestLine key={shape} shape={shape} />
+        ))}
+        {children}
+      </div>
+      {target === "add" && (
+        <output className="block">
+          {note !== undefined && (
+            <span className="block ps-3 pt-1.5 @max-3xs/nested-form:ps-1">
+              <Text as="span" tone="muted" variant="caption">
+                {note}
+              </Text>
+            </span>
+          )}
+        </output>
+      )}
     </div>
-    {target === "add" && (
-      <output className="block">
-        {note !== undefined && (
-          <span className="block ps-3 pt-1.5 @max-3xs/nested-form:ps-1">
-            <Text as="span" tone="muted" variant="caption">
-              {note}
-            </Text>
-          </span>
-        )}
-      </output>
-    )}
-  </div>
-);
+  );
+};
