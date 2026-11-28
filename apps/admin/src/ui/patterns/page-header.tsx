@@ -22,7 +22,7 @@ export const PageHeader = ({
   actions,
 }: PageHeaderProps): ReactNode => (
   <Cluster align="start" gap={4} justify="between">
-    <Stack gap={1}>
+    <Stack gap={2}>
       <Heading level={1} variant="page-header">
         {title}
       </Heading>

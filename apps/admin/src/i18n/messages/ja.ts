@@ -311,7 +311,7 @@ export const ja = {
   "imageUpload.dropHere": "ドロップすると写真をアップロードして公開します",
   "images.title": "画像",
   "images.description":
-    "画像コンテンツの一覧です。写真をここにドラッグ＆ドロップすると、アップロードが始まります。",
+    "画像コンテンツの一覧、ドラッグ&ドロップでアップロード可能",
   "images.loading": "画像を読み込んでいます。",
   "images.loadFailed": "画像を読み込めませんでした",
   "images.refreshFailed": "画像の一覧を更新できませんでした",
