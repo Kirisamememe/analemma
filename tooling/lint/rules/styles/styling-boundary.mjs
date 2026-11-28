@@ -37,6 +37,80 @@ const propertyKey = (property) => {
   return property.key.type === "Identifier" ? property.key.name : undefined;
 };
 
+const ARIA_LIBRARIES = new Set([
+  "react-aria",
+  "react-aria-components",
+  "react-stately",
+]);
+
+const isStyleKey = (key) => key === "style" || CLASS_ATTRIBUTE.test(key);
+
+const findVariable = (scope, name) => {
+  for (let current = scope; current !== null; current = current.upper) {
+    const variable = current.set.get(name);
+
+    if (variable !== undefined) {
+      return variable;
+    }
+  }
+
+  return undefined;
+};
+
+const isAriaHookCall = (init, scope) => {
+  if (init?.type !== "CallExpression" || init.callee.type !== "Identifier") {
+    return false;
+  }
+
+  const [definition] = findVariable(scope, init.callee.name)?.defs ?? [];
+
+  return (
+    definition?.type === "ImportBinding" &&
+    ARIA_LIBRARIES.has(definition.parent.source.value)
+  );
+};
+
+const isPlainProps = (node, scope) => {
+  if (node.type === "ConditionalExpression") {
+    return (
+      isPlainProps(node.consequent, scope) &&
+      isPlainProps(node.alternate, scope)
+    );
+  }
+
+  if (node.type === "ObjectExpression") {
+    return node.properties.every((property) => {
+      if (property.type === "SpreadElement") {
+        return isPlainProps(property.argument, scope);
+      }
+
+      const key = propertyKey(property);
+
+      return key !== undefined && !isStyleKey(key);
+    });
+  }
+
+  if (node.type !== "Identifier") {
+    return false;
+  }
+
+  const [definition] = findVariable(scope, node.name)?.defs ?? [];
+
+  if (definition?.type !== "Variable" || definition.parent.kind !== "const") {
+    return false;
+  }
+
+  const { id, init } = definition.node;
+
+  if (id.type === "ObjectPattern") {
+    return isAriaHookCall(init, scope);
+  }
+
+  return (
+    init !== null && init.type !== "Identifier" && isPlainProps(init, scope)
+  );
+};
+
 const isCheckedExpression = (expression) =>
   expression.type === "CallExpression" ||
   (expression.type === "ArrowFunctionExpression" &&
@@ -127,7 +201,7 @@ const stylingBoundary = {
       uncheckedClassName:
         "部品の className には、文字列のリテラルか、tv などの関数の呼び出し(render props なら、呼び出しを返す関数)を渡します。変数や条件の式を渡すと、class の検査をすり抜けます。",
       spread:
-        "JSX の props は spread しません。className や style が、検査をすり抜けて渡るため。props を1つずつ書きます。",
+        "JSX の props に spread できるのは、同じファイルに書いた、className と style を含まないオブジェクトと、React Aria の hook が返す props だけです。受け取った props をそのまま渡すと、className や style が検査をすり抜けます。",
       styleOutsideUi:
         "style は ui/ の部品の中でだけ使います。画面のコードは、部品の props を使います。",
       styleNotObject:
@@ -146,7 +220,11 @@ const stylingBoundary = {
         check(context, node);
       },
       JSXSpreadAttribute(node) {
-        context.report({ node, messageId: "spread" });
+        const scope = context.sourceCode.getScope(node);
+
+        if (!isPlainProps(node.argument, scope)) {
+          context.report({ node, messageId: "spread" });
+        }
       },
     };
   },

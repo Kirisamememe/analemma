@@ -65,7 +65,6 @@ export const FileDropButton = ({
       className={fileDrop()}
       data-drop-target={isDropTarget || undefined}
       ref={area}
-      // oxlint-disable-next-line project/styling-boundary -- React Aria の落とす操作の handler と属性を渡す。見た目の props は含まない。
       {...dropProps}
     >
       <FileTrigger

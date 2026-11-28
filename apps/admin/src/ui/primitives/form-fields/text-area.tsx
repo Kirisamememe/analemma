@@ -86,7 +86,6 @@ export const TextArea = ({
         onChange?.(next);
       }}
       validate={(next) => validate?.(next)}
-      // oxlint-disable-next-line project/styling-boundary -- React Aria の未指定の props を省く。見た目の props は含まない。
       {...fieldState}
     >
       <FieldLabel isRequired={isRequired}>{label}</FieldLabel>

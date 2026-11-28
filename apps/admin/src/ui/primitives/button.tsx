@@ -147,7 +147,6 @@ export const Button = ({
       onPress={() => onPress?.()}
       ref={ref}
       type={type}
-      // oxlint-disable-next-line project/styling-boundary -- 名前と送信先の指定が無いときは属性を省く。見た目の props は含まない。
       {...attributes}
     >
       {isPending && (
