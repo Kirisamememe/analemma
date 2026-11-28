@@ -8,8 +8,8 @@
 ## 見た目の部品
 
 - 写真の一覧の行(`ImageRows`)・タイル(`ImageTile`)・選択のマーク(`ImageRadio`)・選択中の表示(`ImageSelectionStatus`)・サムネイル(`ImageThumbnail`)は `ui/` に置く。文言と値は props で受け、訳と画像の状態は、呼ぶ側(`list/gallery-image.tsx` など)が渡す。
-- タイルは、開くリンクか選ぶ label の枠(`ImageTile`)と、写真の枠とタイトルの中身(`ImageTileBody`)に分ける。
-- 配信用の画像から `srcset`・`sizes`・枠の縦横比を作る関数は `logic/delivery-image.ts`。写真を大きく見せる画面(features)も使う。
+- タイルは、開くリンクか選ぶ label の枠(`ImageTile`)と、写真の枠とタイトルの中身(`ImageTileBody`)に分ける。押したときの動き(開く・選ぶ)を枠が、見せるものを中身が受け持つ。1つの部品に書くと、JSX の入れ子が、この場所の上限(5段)を超える。
+- 配信用の画像から `srcset`・`sizes`・枠の縦横比を作る関数は `logic/delivery-image.ts`。写真を大きく見せる画面と、固定ページの画像の欄(どちらも features)も使う。
 
 ## 変換中の画像
 

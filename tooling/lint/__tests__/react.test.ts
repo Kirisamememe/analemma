@@ -173,6 +173,12 @@ test("JSX の深さは、部品を組むだけの場所では4段、feature の 
   expect(tooDeepIn("ui/layout/six-deep.tsx")).toBe(0);
 });
 
+test("components の部品でも、JSX の深さは、ui の外では4段、ui では5段までにすること", () => {
+  expect(tooDeepIn("components/depth/five-deep.tsx")).toBe(1);
+  expect(tooDeepIn("components/depth/ui/five-deep.tsx")).toBe(0);
+  expect(tooDeepIn("components/depth/ui/six-deep.tsx")).toBe(1);
+});
+
 const COMPLEX = "JSX の中の出し分けの条件に";
 const NESTED = "JSX の中で、出し分けを入れ子に";
 const LONG = "JSX の中の関数に";

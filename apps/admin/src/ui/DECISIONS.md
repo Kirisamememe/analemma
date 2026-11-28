@@ -98,15 +98,16 @@
 
 ## 部品の層
 
-| 置く所                | 中身                                                                                                  |
-| --------------------- | ----------------------------------------------------------------------------------------------------- |
-| `tv.ts`               | デザインシステムの class の組を設定した `tv` と `merge`                                               |
-| `typography.ts`       | 文字の役割と、目盛りの組と太さの対応(組を書けるのはここだけ)                                          |
-| `primitives/`         | ボタン・リンク・入力欄・`Notice` など、いちばん小さな部品。React Aria Components を使えるのはここだけ |
-| `layout/`             | 並べ方(`Stack`・`Cluster`・`Center`・`AppShell`)と文字(`Text`・`Heading`)                             |
-| `patterns/`           | primitives と layout を組み合わせた、画面に共通の形(`PageHeader` など)                                |
-| `features/<名前>/ui/` | 1つの画面だけの部品(`ui/` と同じ決まり)                                                               |
-| `specimens/`          | 色と文字の見本と、story の展示用の枠(`story-stage.tsx`)。Storybook で見る                             |
+| 置く所                  | 中身                                                                                                  |
+| ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| `tv.ts`                 | デザインシステムの class の組を設定した `tv` と `merge`                                               |
+| `typography.ts`         | 文字の役割と、目盛りの組と太さの対応(組を書けるのはここだけ)                                          |
+| `primitives/`           | ボタン・リンク・入力欄・`Notice` など、いちばん小さな部品。React Aria Components を使えるのはここだけ |
+| `layout/`               | 並べ方(`Stack`・`Cluster`・`Center`・`AppShell`)と文字(`Text`・`Heading`)                             |
+| `patterns/`             | primitives と layout を組み合わせた、画面に共通の形(`PageHeader` など)                                |
+| `features/<名前>/ui/`   | 1つの画面だけの部品(`ui/` と同じ決まり)                                                               |
+| `components/<名前>/ui/` | 複数の feature が使う、管理画面に固有の部品の見た目(`ui/` と同じ決まり)                               |
+| `specimens/`            | 色と文字の見本と、story の展示用の枠(`story-stage.tsx`)。Storybook で見る                             |
 
 - import の向きは、patterns → primitives・layout。layout は primitives と patterns を、primitives は patterns を import しない(lint で止まる)。layout は並べ方と文字だけを持つ層で、操作を持たない。
 - `layout/`・`patterns/` と、`primitives/` の入力欄・図形・ナビ・overlay・並べ直せる一覧(`collections/`)の各フォルダには、フォルダの外から使う部品・hook・型を `index.ts` にまとめる。たとえば、画面では `@/ui/layout` から `Stack` と `Text` を一度に import できる。各フォルダで部品の実装に使うもの(余白の型、入力欄の枠、`ShowToastContext` など)は入口に含めない。`primitives/` 直下と `ui/` には、フォルダごとの責務が分かる import を保つため、まとめた入口を置かない。
