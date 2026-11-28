@@ -49,6 +49,13 @@ import {
 } from "@/features/fixed-pages";
 import { getHealth } from "@/features/health/get-health";
 import {
+  createImageTag,
+  deleteImageTag,
+  listImageTags,
+  renameImageTag,
+  reorderImageTags,
+} from "@/features/image-tags";
+import {
   deleteImage,
   getPublishedImage,
   getImage,
@@ -118,6 +125,13 @@ export const router = implement(contract)
         publish: publishImage,
         unpublish: unpublishImage,
         delete: deleteImage,
+      },
+      imageTags: {
+        list: listImageTags,
+        create: createImageTag,
+        rename: renameImageTag,
+        reorder: reorderImageTags,
+        delete: deleteImageTag,
       },
       kinds: { list: listKinds, get: getKind },
       passkeys: {

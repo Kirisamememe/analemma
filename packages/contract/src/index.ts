@@ -11,6 +11,7 @@ import { dropbox } from "./dropbox/admin-dropbox";
 import { fixedPages } from "./fixed-pages/admin-fixed-pages";
 import { publicFixedPages } from "./fixed-pages/public-fixed-pages";
 import { health } from "./health";
+import { imageTags } from "./images/admin-image-tags";
 import { images } from "./images/admin-images";
 import { publicImages } from "./images/public-images";
 import { kinds } from "./kinds/admin-kinds";
@@ -51,6 +52,7 @@ export {
   imageStatus,
   imageTitle,
 } from "./images/image-values";
+export { imageTagId, imageTagSummary } from "./images/image-tag-values";
 export { deployTokenName } from "./kinds/deploy-tokens";
 export {
   type FieldDefinition,
@@ -82,6 +84,7 @@ export const contract = {
     dropbox,
     fixedPages,
     images,
+    imageTags,
     kinds,
     passkeys,
     series,
