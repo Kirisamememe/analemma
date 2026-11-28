@@ -72,7 +72,14 @@ export const images = {
     })
     .input(imageListOptions.extend({ id: imageId }))
     .output(
-      z.object({ previous: imageId.nullable(), next: imageId.nullable() }),
+      z.object({
+        previous: imageId
+          .nullable()
+          .describe("一覧で一つ手前の画像の ID。追加順では一つ新しい画像。"),
+        next: imageId
+          .nullable()
+          .describe("一覧で一つ先の画像の ID。追加順では一つ古い画像。"),
+      }),
     ),
   get: adminAccess
     .errors({ NOT_FOUND: { status: 404 } })
