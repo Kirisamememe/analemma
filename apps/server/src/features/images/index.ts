@@ -1,6 +1,8 @@
 export { uploadImage } from "@/features/images/creating/upload-image";
 export { deleteImage } from "@/features/images/editing/delete-image";
 export { updateImage } from "@/features/images/editing/update-image";
+export { countImages } from "@/features/images/reading/count-images";
+export { getBrowseNeighbors } from "@/features/images/reading/get-browse-neighbors";
 export { getImage } from "@/features/images/reading/get-image";
 export { getImageNeighbors } from "@/features/images/reading/get-image-neighbors";
 export { listImages } from "@/features/images/reading/list-images";
