@@ -40,14 +40,16 @@ brew install libheif ffmpeg
 bun run check
 ```
 
-| コマンド            | 中身                                                                                                                                                                                                      |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `bun run check`     | 整形の確認・lint・型検査・テストを順に流す。server のテストが読む場所(`apps/server/`・`packages/`・直下の共有のファイル)に触れていない変更では、server のテストを流さない。`--all` を付けると全部流す(CI) |
-| `bun run format`    | oxfmt で整形する                                                                                                                                                                                          |
-| `bun run lint:fix`  | Oxlint で自動で直せるものを直す                                                                                                                                                                           |
-| `bun run typecheck` | リポジトリの直下の tsconfig と、各ワークスペースの tsconfig を検査する                                                                                                                                    |
-| `bun run test`      | テスト用の PostgreSQL を Docker Compose で起動し、migration を適用したテンプレートの DB を用意してから、`bun test` を流す。管理画面のテストは、続けて `apps/admin` で流す                                 |
-| `bun run review`    | ブランチを、観点を1つ選んでレビューする(観点ごとに、Codex CLI か Antigravity の CLI で流す。進め方は `AGENTS.md` の「ブランチとレビュー」)                                                                |
+| コマンド             | 中身                                                                                                                                                                                                                                          |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run check`      | 整形の確認・lint・型検査・テストを順に流す。server のテストが読む場所(`apps/server/`・`packages/`・直下の共有のファイル)に触れていない変更では、server のテストを流さない。`--all` を付けると全部流す(CI は、同じ中身を job に分けて全部流す) |
+| `bun run format`     | oxfmt で整形する                                                                                                                                                                                                                              |
+| `bun run lint:fix`   | Oxlint で自動で直せるものを直す                                                                                                                                                                                                               |
+| `bun run typecheck`  | リポジトリの直下の tsconfig と、各ワークスペースの tsconfig を検査する                                                                                                                                                                        |
+| `bun run test`       | `bun run test:root` と `bun run test:admin` を順に流す                                                                                                                                                                                        |
+| `bun run test:root`  | テスト用の PostgreSQL を Docker Compose で起動し、migration を適用したテンプレートの DB を用意してから、`bun test` を流す(server・`packages/`・tooling と、管理画面の `__tests__/` のテスト)                                                  |
+| `bun run test:admin` | 管理画面の `src/` のテストを、`apps/admin` で流す                                                                                                                                                                                             |
+| `bun run review`     | ブランチを、観点を1つ選んでレビューする(観点ごとに、Codex CLI か Antigravity の CLI で流す。進め方は `AGENTS.md` の「ブランチとレビュー」)                                                                                                    |
 
 server を手元で動かすときは、開発用の PostgreSQL を起動し、migration を適用してから起動する。
 
@@ -84,7 +86,7 @@ bun --cwd=apps/server run passkey:enroll
 | `bun run db:migrate`           | まだ適用していない migration を適用する。server の起動とは別に、1回だけ流す |
 | `bun run db:generate`          | テーブルの定義(`src/db/schema/`)から migration を作る(drizzle-kit)          |
 | `bun run passkey:enroll`       | 管理者のパスキーを登録するための、1回きりで10分だけ使える登録用 URL を出す  |
-| `bun run test:prepare`         | `bun run test` が `bun test` の前に流すもの                                 |
+| `bun run test:prepare`         | `bun run test:root` が `bun test` の前に流すもの                            |
 
 Dropbox につなぐときは、Dropbox の App Console(https://www.dropbox.com/developers/apps)でアプリを作り、app key と app secret を `apps/server/.env` の `DROPBOX_APP_KEY`・`DROPBOX_APP_SECRET` に書く。書かなければ、server は Dropbox につながない設定で起動する。
 

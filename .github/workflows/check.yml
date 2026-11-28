@@ -13,10 +13,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
-    name: check
+  static:
+    name: static
     runs-on: ubuntu-26.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -25,13 +25,9 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
-      - name: HEIC と AVIF に使うコマンドを入れる
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libheif-examples libheif-plugin-libde265 ffmpeg
-          heif-dec --version
-          ffmpeg -version
-      - run: bun run check --all
+      - run: bun run format:check
+      - run: bun run lint
+      - run: bun run typecheck
       - name: client の CLI を、ビルドした形で1回流す
         working-directory: packages/client
         env:
@@ -48,3 +44,53 @@ jobs:
           test "$status" -eq 1
           grep -q '種類の定義を読めない' errors.txt
           grep -q '^0\.name: ' errors.txt
+
+  test-server:
+    name: test-server
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - name: HEIC と AVIF に使うコマンドを入れる
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libheif-examples libheif-plugin-libde265 ffmpeg
+          heif-dec --version
+          ffmpeg -version
+      - run: bun run test:root
+
+  test-admin:
+    name: test-admin
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - run: bun run test:admin
+
+  check:
+    name: check
+    needs: [static, test-server, test-admin]
+    if: ${{ always() }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - name: どの job も通ったことを確かめる
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          for result in $RESULTS; do
+            test "$result" = "success"
+          done
