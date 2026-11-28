@@ -341,6 +341,7 @@ server の判断は `apps/server/src/features/auth/DECISIONS.md` にある。
 
 `DECISIONS.md` を持たないフォルダの期待は、次のとおり。どれも、頻繁に変わる state も、件数に比例して増える部品も無い。
 
+- `src/components/states/`:state は、読み込めなかった欄で、取り直しが終わった回数だけ。取り直しのボタンを押して、応答が届いたときに変わる。
 - `src/features/passkeys/`:state は、開いている Dialog と、選んだパスキーだけ。Dialog を開け閉めしたときに変わり、一覧は数件。
 - `src/features/session/`:state は、確認の Dialog の開閉だけ。
 - `src/routes/auth/`:state は、登録用 URL から読んだ token だけ。URL の `#` の後ろが替わったときに変わる。

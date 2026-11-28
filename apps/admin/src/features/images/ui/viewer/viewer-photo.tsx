@@ -4,9 +4,10 @@ import {
   type DeliveryImages,
   toSrcSet,
 } from "@/components/images/logic/delivery-image";
+import { ErrorState } from "@/components/states/ui/error-state";
 import { useTranslate } from "@/i18n/use-translate";
 import { Text } from "@/ui/layout";
-import { ErrorState, LoadingStatus } from "@/ui/patterns";
+import { LoadingStatus } from "@/ui/patterns";
 import { Spinner } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 

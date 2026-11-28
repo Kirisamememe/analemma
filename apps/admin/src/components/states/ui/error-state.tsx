@@ -1,8 +1,9 @@
 import type { ReactNode, Ref } from "react";
-import { useTranslation } from "react-i18next";
 
+import { useFailedRetries } from "../hooks/use-failed-retries";
+
+import { useTranslate } from "@/i18n/use-translate";
 import { Heading, Stack, Text } from "@/ui/layout";
-import { useFailedRetries } from "@/ui/patterns/states/hooks/use-failed-retries";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
@@ -56,7 +57,7 @@ export const ErrorState = ({
   onRetry,
   retryRef,
 }: ErrorStateProps): ReactNode => {
-  const { t } = useTranslation();
+  const t = useTranslate();
   const failedRetries = useFailedRetries(isRetrying);
 
   return (

@@ -5,9 +5,10 @@ import { useTranslation } from "react-i18next";
 import { useKind } from "./hooks/use-kind";
 import { Titled } from "./titled";
 
+import { ErrorState } from "@/components/states/ui/error-state";
 import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor";
 import { Stack } from "@/ui/layout";
-import { ErrorState, LoadingState } from "@/ui/patterns";
+import { LoadingState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { Notice } from "@/ui/primitives/notice";
 

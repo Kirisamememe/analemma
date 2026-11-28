@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { ImageViewerContext } from "./image-viewer-context";
 import { useViewerNavigation } from "./use-viewer-navigation";
 
+import { ErrorState } from "@/components/states/ui/error-state";
 import {
   type ImageNeighbors,
   useImageNeighbors,
@@ -13,7 +14,7 @@ import { ImageDetail } from "@/features/images/detail/image-detail";
 import { ViewerMessage } from "@/features/images/ui/viewer/viewer-message";
 import { ViewerVisit } from "@/features/images/ui/viewer/viewer-visit";
 import { Heading } from "@/ui/layout";
-import { ErrorState, LoadingState } from "@/ui/patterns";
+import { LoadingState } from "@/ui/patterns";
 import { Notice } from "@/ui/primitives/notice";
 
 /** 一覧へ戻るリンクを受け取る部品に渡す値。 */

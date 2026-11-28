@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
 import type { NextPage } from "@/api/server-state/use-api-infinite-query";
+import { ErrorState } from "@/components/states/ui/error-state";
 import { useTranslate } from "@/i18n/use-translate";
 import { Stack } from "@/ui/layout";
-import { ErrorState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 
 /** 続きを読む操作に渡す値。 */

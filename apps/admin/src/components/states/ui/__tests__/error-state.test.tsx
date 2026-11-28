@@ -2,8 +2,8 @@ import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { ErrorState } from "@/components/states/ui/error-state";
 import { renderWithI18n } from "@/testing/render-with-i18n";
-import { ErrorState } from "@/ui/patterns/states/error-state";
 
 afterEach(cleanup);
 

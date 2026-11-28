@@ -41,7 +41,7 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     "forced-colors:outline",
   ],
   "ui/patterns/states/empty-state.tsx": ["border", "border-dashed"],
-  "ui/patterns/states/error-state.tsx": ["border"],
+  "components/states/ui/error-state.tsx": ["border"],
   "features/fixed-pages/ui/group-marker.tsx": [
     "border-2",
     "border-s-2",

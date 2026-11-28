@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { type ReactNode, useState } from "react";
 
-import { ErrorState } from "@/ui/patterns/states/error-state";
+import { ErrorState } from "@/components/states/ui/error-state";
 
 const RETRY_MILLISECONDS = 1500;
 
@@ -40,7 +40,7 @@ const FailingRetry = ({
 };
 
 const meta = {
-  title: "patterns/ErrorState",
+  title: "components/states/ErrorState",
   component: ErrorState,
   args: {
     title: "トークンを読み込めませんでした",
