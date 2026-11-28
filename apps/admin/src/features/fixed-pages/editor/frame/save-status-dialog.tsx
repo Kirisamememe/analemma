@@ -38,6 +38,7 @@ export const SaveStatusDialog = ({
 
   return (
     <StatusDialog
+      closeLabel={t("ui.close")}
       isOpen
       title={t(
         isPending ? "fixedPageEditor.saving" : `fixedPageEditor.${status}`,

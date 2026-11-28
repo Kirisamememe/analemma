@@ -75,7 +75,7 @@ export const EditFixedPage = (): ReactNode => {
     return query._tag === "Loaded" && page === undefined ? (
       <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
     ) : (
-      <LoadingState layout="form" />
+      <LoadingState label={t("ui.loading")} layout="form" />
     );
   };
 

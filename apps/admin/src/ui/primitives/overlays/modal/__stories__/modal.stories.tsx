@@ -30,6 +30,7 @@ const EditModal = ({ width, hasActions }: EditModalProps): ReactNode => {
         説明を編集
       </Button>
       <Modal
+        closeLabel="閉じる"
         isOpen={isOpen}
         onOpenChange={setIsOpen}
         title="説明を編集"

@@ -1,6 +1,7 @@
 import type { ReactNode, Ref } from "react";
 
 import type { ApiQueryResult } from "@/api/server-state/server-state";
+import { useTranslate } from "@/i18n/use-translate";
 import { ErrorState, LoadingState } from "@/ui/patterns";
 
 /** 取得の結果に合わせて出し分ける欄に渡す値。 */
@@ -28,7 +29,11 @@ export const QueryContent = <Data,>({
   level,
   children,
 }: QueryContentProps<Data>): ReactNode => {
-  if (query._tag === "Loading") return <LoadingState layout={loading} />;
+  const t = useTranslate();
+
+  if (query._tag === "Loading") {
+    return <LoadingState label={t("ui.loading")} layout={loading} />;
+  }
 
   if (query._tag === "Failed") {
     return (

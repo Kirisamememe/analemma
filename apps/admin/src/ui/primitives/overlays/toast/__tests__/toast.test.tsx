@@ -41,7 +41,7 @@ const ToastControls = (): ReactNode => {
 
 const renderToastControls = (): RenderResult =>
   renderWithI18n(
-    <ToastProvider>
+    <ToastProvider closeLabel="閉じる">
       <ToastControls />
     </ToastProvider>,
     "ja",
@@ -70,7 +70,7 @@ describe("Toast", () => {
     expect(screen.getAllByRole("alert")).toHaveLength(1);
   });
 
-  test("訳した名前の閉じるボタンで消える", async () => {
+  test("渡した名前の閉じるボタンで消える", async () => {
     renderToastControls();
     await userEvent.click(
       screen.getByRole("button", { name: "保存に失敗する" }),

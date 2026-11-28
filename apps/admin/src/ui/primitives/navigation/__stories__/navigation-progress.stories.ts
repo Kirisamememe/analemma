@@ -5,7 +5,7 @@ import { NavigationProgress } from "@/ui/primitives/navigation/navigation-progre
 const meta = {
   title: "primitives/NavigationProgress",
   component: NavigationProgress,
-  args: { isActive: true },
+  args: { isActive: true, label: "読み込んでいます" },
   parameters: { layout: "fullscreen", stage: null },
 } satisfies Meta<typeof NavigationProgress>;
 

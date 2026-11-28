@@ -11,12 +11,12 @@ type ConnectedUiProviderProps = {
   children: ReactNode;
 };
 
-/** 部品に、i18next の今の言語と、TanStack Router での移動をつなぐ Provider。 */
+/** 部品に、i18next の今の言語と訳と、TanStack Router での移動をつなぐ Provider。 */
 export const ConnectedUiProvider = ({
   children,
 }: ConnectedUiProviderProps): ReactNode => {
   const router = useRouter();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   return (
     <UiProvider
@@ -24,6 +24,7 @@ export const ConnectedUiProvider = ({
       navigate={(href) => {
         void router.navigate({ href });
       }}
+      toastCloseLabel={t("ui.close")}
     >
       {children}
     </UiProvider>

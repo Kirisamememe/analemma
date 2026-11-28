@@ -38,7 +38,7 @@ export const withAppProviders = ({ queryClient, router }: AppParts) => {
     <I18n>
       <QueryClientProvider client={queryClient}>
         <RouterContextProvider router={router}>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider closeLabel="閉じる">{children}</ToastProvider>
         </RouterContextProvider>
       </QueryClientProvider>
     </I18n>

@@ -19,6 +19,7 @@ const OpenStatusDialog = ({
 
   return (
     <StatusDialog
+      closeLabel="閉じる"
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       status={status}

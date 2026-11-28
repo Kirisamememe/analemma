@@ -14,6 +14,7 @@ const OpenModal = ({ isPending }: Record<"isPending", boolean>): ReactNode => {
 
   return (
     <Modal
+      closeLabel="閉じる"
       isOpen={isOpen}
       isPending={isPending}
       onOpenChange={setIsOpen}

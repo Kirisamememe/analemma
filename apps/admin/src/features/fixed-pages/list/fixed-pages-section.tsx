@@ -70,7 +70,7 @@ export const FixedPagesSection = ({
 
   const content = (): ReactNode => {
     if (pages._tag === "Loading" || kinds._tag === "Loading") {
-      return <LoadingState layout="list" />;
+      return <LoadingState label={t("ui.loading")} layout="list" />;
     }
 
     if (pages._tag === "Failed") {
@@ -85,7 +85,9 @@ export const FixedPagesSection = ({
       );
     }
 
-    if (kindsRetrying) return <LoadingState layout="list" />;
+    if (kindsRetrying) {
+      return <LoadingState label={t("ui.loading")} layout="list" />;
+    }
 
     if (rows.length === 0) {
       return (

@@ -30,6 +30,10 @@ type SideNavProps = Pick<SideNavContentProps, "label" | "groups" | "footer"> & {
   appName: string;
   /** drawer の Dialog の名前。 */
   drawerLabel: string;
+  /** drawer を開くボタンの、アクセシブルな名前。 */
+  drawerOpenLabel: string;
+  /** drawer を閉じるボタンの、アクセシブルな名前。 */
+  drawerCloseLabel: string;
   /** drawer の操作を送信中か。 */
   isDrawerPending?: boolean;
 };
@@ -39,6 +43,8 @@ export const SideNav = ({
   appName,
   label,
   drawerLabel,
+  drawerOpenLabel,
+  drawerCloseLabel,
   isDrawerPending = false,
   groups,
   footer,
@@ -70,8 +76,10 @@ export const SideNav = ({
           heading={heading}
           isOpen={isOpen}
           isPending={isDrawerPending}
+          closeLabel={drawerCloseLabel}
           label={drawerLabel}
           onOpenChange={setIsOpen}
+          openLabel={drawerOpenLabel}
         >
           <SideNavContent
             footer={footer}

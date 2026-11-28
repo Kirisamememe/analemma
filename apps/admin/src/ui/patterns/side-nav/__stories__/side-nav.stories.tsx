@@ -12,6 +12,8 @@ const meta = {
     appName: "Stilus",
     label: "メイン",
     drawerLabel: "ナビ",
+    drawerOpenLabel: "ナビを開く",
+    drawerCloseLabel: "ナビを閉じる",
     groups: [
       {
         items: [

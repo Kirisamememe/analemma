@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { ProgressBar } from "react-aria-components";
-import { useTranslation } from "react-i18next";
 
 import { tv } from "@/ui/tv";
 
@@ -19,23 +18,21 @@ const progress = tv({
 type NavigationProgressProps = {
   /** 読み込んでいるか。 */
   isActive: boolean;
+  /** 読み込んでいることを伝える、アクセシブルな名前。 */
+  label: string;
 };
 
 /** 読み込んでいる間、画面の上端に流す帯。 */
 export const NavigationProgress = ({
   isActive,
+  label,
 }: NavigationProgressProps): ReactNode => {
-  const { t } = useTranslation();
   const { track, indicator } = progress();
 
   return (
     <>
       {isActive && (
-        <ProgressBar
-          aria-label={t("ui.loading")}
-          className="sr-only"
-          isIndeterminate
-        />
+        <ProgressBar aria-label={label} className="sr-only" isIndeterminate />
       )}
       <div
         aria-hidden="true"

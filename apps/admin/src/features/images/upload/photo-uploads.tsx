@@ -51,6 +51,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
       />
       {dropPage && <PhotoDropHint page={dropPage} />}
       <Modal
+        closeLabel={t("ui.close")}
         isOpen={dialog.isOpen}
         onOpenChange={dialog.setOpen}
         isPending={dialog.metadata.isSaving}

@@ -19,25 +19,21 @@ const loading = tv({
 });
 
 /** 読み込み中の欄に渡す値。 */
-type LoadingStateProps =
+type LoadingStateProps = {
+  /** 読み込んでいることを伝える文言。 */
+  label: string;
+} & (
   | {
-      /** 読み込む中身の形。 */
-      layout: "list" | "form";
-    }
-  | {
-      /** 写真と情報の読み込み表示。 */
-      layout: "media";
-      /** 読み込んでいる内容を伝える文言。 */
-      label?: string;
+      /** 読み込む中身の形(一覧・フォーム・写真と情報)。 */
+      layout: "list" | "form" | "media";
     }
   | {
       /** 画面の形に合わせた骨組み。 */
       layout: "custom";
-      /** 読み込んでいる内容を伝える文言。 */
-      label: string;
       /** 読み込み中に表示する骨組み。 */
       children: ReactNode;
-    };
+    }
+);
 
 /** 中身の形をなぞる骨組みで、読み込んでいることを伝える欄。 */
 export const LoadingState = (props: LoadingStateProps): ReactNode => {
@@ -74,7 +70,7 @@ export const LoadingState = (props: LoadingStateProps): ReactNode => {
 
   return (
     <div className={base({ className: rows() })}>
-      <LoadingStatus />
+      <LoadingStatus label={props.label} />
       {ROWS.map((index) =>
         props.layout === "list" ? (
           <span className={row()} key={index}>

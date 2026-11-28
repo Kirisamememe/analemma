@@ -8,7 +8,6 @@ import {
   UNSTABLE_ToastRegion as AriaToastRegion,
 } from "react-aria-components";
 import { flushSync } from "react-dom";
-import { useTranslation } from "react-i18next";
 
 import { Icon } from "@/ui/primitives/graphics";
 import {
@@ -78,13 +77,17 @@ const createQueue = (): AriaToastQueue<ToastMessage> => {
 };
 
 type ToastProviderProps = {
+  /** 知らせを閉じるボタンの、アクセシブルな名前。 */
+  closeLabel: string;
   /** 管理画面の中身。 */
   children: ReactNode;
 };
 
 /** Toast の queue と region を持つ Provider。 */
-export const ToastProvider = ({ children }: ToastProviderProps): ReactNode => {
-  const { t } = useTranslation();
+export const ToastProvider = ({
+  closeLabel,
+  children,
+}: ToastProviderProps): ReactNode => {
   const [queue] = useState(createQueue);
 
   const showToast = useCallback(
@@ -127,7 +130,7 @@ export const ToastProvider = ({ children }: ToastProviderProps): ReactNode => {
                   </AriaText>
                 </AriaToastContent>
                 <AriaButton
-                  aria-label={t("ui.close")}
+                  aria-label={closeLabel}
                   className={slots.close()}
                   slot="close"
                 >

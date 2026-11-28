@@ -5,7 +5,6 @@ import { OverlayFrame } from "../overlay-frame";
 import { useModalScrollInsets } from "./hooks/use-modal-scroll-insets";
 import { ModalFooter, type ModalFooterSlots } from "./modal-footer";
 
-import { useTranslate } from "@/i18n/use-translate";
 import { Button } from "@/ui/primitives/button";
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
@@ -39,6 +38,8 @@ type ModalProps = {
   onOpenChange: (isOpen: boolean) => void;
   /** モーダルの名前。 */
   title: string;
+  /** 閉じるボタンの、アクセシブルな名前。 */
+  closeLabel: string;
   /** 送信中か。 */
   isPending?: boolean;
   /** 本文の最大幅(フォームか、写真などの一覧か)。 */
@@ -54,12 +55,12 @@ export const Modal = ({
   isOpen,
   onOpenChange,
   title,
+  closeLabel,
   isPending = false,
   width = "form",
   children,
   footer,
 }: ModalProps): ReactNode => {
-  const t = useTranslate();
   const { attachHeader, attachFooter } = useModalScrollInsets();
 
   return (
@@ -76,7 +77,7 @@ export const Modal = ({
           </Heading>
           <div className="shrink-0">
             <Button
-              aria-label={t("ui.close")}
+              aria-label={closeLabel}
               icon="x"
               iconWeight="bold"
               isDisabled={isPending}

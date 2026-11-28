@@ -12,6 +12,8 @@ import {
 
 const DrawerPreview = ({
   label,
+  openLabel,
+  closeLabel,
   heading,
   children,
   isOpen,
@@ -21,6 +23,8 @@ const DrawerPreview = ({
 
   return (
     <NavDrawer
+      closeLabel={closeLabel}
+      openLabel={openLabel}
       heading={heading}
       isOpen={isOpen}
       label={label}
@@ -39,6 +43,8 @@ const meta = {
   component: NavDrawer,
   args: {
     label: "ナビ",
+    openLabel: "ナビを開く",
+    closeLabel: "ナビを閉じる",
     heading: (
       <Cluster>
         <AppMark />

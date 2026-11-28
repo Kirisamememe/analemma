@@ -5,7 +5,7 @@ import { LoadingState } from "@/ui/patterns/states/loading-state";
 const meta = {
   title: "patterns/LoadingState",
   component: LoadingState,
-  args: { layout: "list" },
+  args: { layout: "list", label: "読み込んでいます" },
   parameters: { stage: "fill" },
 } satisfies Meta<typeof LoadingState>;
 

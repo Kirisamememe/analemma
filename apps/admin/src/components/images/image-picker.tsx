@@ -44,6 +44,7 @@ export const ImagePicker = (props: ImagePickerProps): ReactNode => {
 
   return (
     <Modal
+      closeLabel={t("ui.close")}
       isPending={isPending}
       isOpen
       width="page"
