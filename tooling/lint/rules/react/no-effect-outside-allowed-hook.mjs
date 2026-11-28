@@ -105,7 +105,7 @@ const noEffectOutsideAllowedHook = {
     ],
     messages: {
       outsideAllowedHook:
-        "React の `{{effect}}` は、`ADMIN_EFFECT_HOOKS` にある hook の直下でだけ呼べます。effect が必要なら、目的が分かる名前の hook を作り、`tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` と、`apps/admin/DECISIONS.md` の「React の effect」の hook の表に足します。どうしても避けられない場合は、理由を書いてこの診断を抑制します。",
+        "React の `{{effect}}` は、`ADMIN_EFFECT_HOOKS` にある hook の直下でだけ呼べます。effect が必要なら、目的が分かる名前の hook を作り、`tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` と、`apps/admin/DECISIONS.md` の「React の effect」の hook の表に足します。表の hook の外には書けません。",
     },
   },
   /** React の effect を呼ぶ場所を調べる。 */

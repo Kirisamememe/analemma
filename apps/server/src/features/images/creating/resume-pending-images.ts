@@ -14,11 +14,9 @@ export const resumePendingImages = async (
   await context.pending.sweep(new Set(imageIds));
 
   for (const imageId of imageIds) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- 受け取った順に並べる
     if (await context.pending.restore(imageId)) {
       startPendingConversion(context, imageId);
     } else {
-      // oxlint-disable-next-line eslint/no-await-in-loop -- 受け取った順に並べる
       await markFailed(context.db, { id: imageId, failure: "interrupted" });
       context.logger.write({
         level: "warn",

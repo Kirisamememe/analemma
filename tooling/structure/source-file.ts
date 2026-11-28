@@ -1,22 +1,30 @@
 import { parseSync } from "oxc-parser";
 
-import { matchesRule, parseDisableDirective } from "./disable-directives";
+import { RULE_EXEMPTIONS } from "../lint/config/rule-exemptions";
+import { isDisableDirective } from "./disable-directives";
 
-/** 理由付きの抑制が無ければ越えられない、コードの行数。 */
+/** ルールを外すファイルの一覧に無ければ越えられない、コードの行数。 */
 export const SOFT_LIMIT = 400;
 
 /** 理由があっても越えられない、コードの行数。 */
 export const HARD_LIMIT = 800;
 
-/** 400行を超えるときに、理由付きの抑制で抑制するルール。 */
+/** 400行を超えるファイルを、ルールを外すファイルの一覧で外すルール。 */
 export const SOFT_LIMIT_RULE = "project/max-code-lines";
 
-/** 抑制できないルール。 */
+/** 一覧でも外せないルール。 */
 export const PROTECTED_RULES = [
   "project/file-length-limit",
   "project/no-standalone-comment",
-  "project/require-disable-reason",
+  "project/no-lint-suppression",
 ];
+
+/** ルールを外すファイルの一覧にある、400行を超えてよいファイル。 */
+export const LONG_FILES: ReadonlySet<string> = new Set(
+  RULE_EXEMPTIONS.filter(({ rule }) => rule === SOFT_LIMIT_RULE).flatMap(
+    ({ files }) => files,
+  ),
+);
 
 /** 検査するソースのファイル。 */
 export type SourceFile = {
@@ -75,7 +83,7 @@ const isStandaloneLine = (text: string, comment: Comment): boolean => {
 const isTitle = (comment: Comment): boolean =>
   !DIVIDER_LINE.test(comment.value) &&
   HAS_WORD.test(comment.value) &&
-  parseDisableDirective(comment.value) === undefined;
+  !isDisableDirective(comment.value);
 
 const hasDividerFollowedByCode = (
   text: string,
@@ -101,52 +109,16 @@ const hasDividerFollowedByCode = (
   });
 };
 
-const isSoftLimitException = (comment: Comment | undefined): boolean => {
-  const directive =
-    comment === undefined ? undefined : parseDisableDirective(comment.value);
-
-  return (
-    comment?.type === "Line" &&
-    comment.start === 0 &&
-    directive?.kind === "disable" &&
-    directive.reason !== "" &&
-    directive.rules.some((token) =>
-      matchesRule({ rule: SOFT_LIMIT_RULE, token }),
-    )
-  );
-};
-
 const directiveProblems = (comments: readonly Comment[]): string[] =>
-  comments.flatMap((comment, index) => {
-    const directive = parseDisableDirective(comment.value);
+  comments.some((comment) => isDisableDirective(comment.value))
+    ? ["lint を抑制するコメントがある"]
+    : [];
 
-    if (directive === undefined) {
-      return [];
-    }
-
-    const softLimitSuppressed = directive.rules.some((token) =>
-      matchesRule({ rule: SOFT_LIMIT_RULE, token }),
-    );
-
-    return [
-      ...(directive.rules.length === 0 ? ["ルールの名前の無い抑制がある"] : []),
-      ...(directive.reason === "" ? ["`--` の後の理由の無い抑制がある"] : []),
-      ...PROTECTED_RULES.filter((rule) =>
-        directive.rules.some((token) => matchesRule({ rule, token })),
-      ).map((rule) => `抑制できない ${rule} を抑制している`),
-      ...(softLimitSuppressed && !(index === 0 && isSoftLimitException(comment))
-        ? [
-            `${SOFT_LIMIT_RULE} の抑制は、1行目に \`// oxlint-disable\` の形で書く`,
-          ]
-        : []),
-    ];
-  });
-
-/** ソースのファイル1つについて、抑制できない約束の違反を集める。 */
-export const checkSourceFile = ({
-  path,
-  text: source,
-}: SourceFile): string[] => {
+/** ソースのファイル1つについて、抑制のコメントに左右されない約束の違反を集める。 */
+export const checkSourceFile = (
+  { path, text: source }: SourceFile,
+  longFiles: ReadonlySet<string> = LONG_FILES,
+): string[] => {
   const text = source.replace(BOM, "");
   const comments: readonly Comment[] = parseSync(path, text).comments;
   const lines = countCodeLines(text, comments);
@@ -161,10 +133,10 @@ export const checkSourceFile = ({
   const exceptionProblems =
     lines > SOFT_LIMIT
       ? [
-          ...(isSoftLimitException(comments[0])
+          ...(longFiles.has(path)
             ? []
             : [
-                `コードが ${String(SOFT_LIMIT)} 行を超えるのに、1行目に理由付きの抑制が無い`,
+                `コードが ${String(SOFT_LIMIT)} 行を超えるのに、ルールを外すファイルの一覧に無い`,
               ]),
           ...(hasDividerFollowedByCode(text, comments)
             ? []

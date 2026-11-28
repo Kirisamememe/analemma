@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
 
 declare module "react" {
-  // oxlint-disable-next-line typescript/consistent-type-definitions -- React の型の登録は、interface の宣言のマージでしか書けない
   interface CSSProperties {
     /** 進み具合(0〜1)。 */
     "--progress"?: number;

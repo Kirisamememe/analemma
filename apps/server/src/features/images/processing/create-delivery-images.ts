@@ -67,7 +67,6 @@ export const createDeliveryImages = async (
   const images: AvifImage[] = [];
 
   for (const width of chooseWidths(largest.width)) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- 1段ずつ順に作り、メモリの山を1段の分に抑える
     const image = await encodeAvif(largest.png, {
       width,
       quality: AVIF_QUALITY,

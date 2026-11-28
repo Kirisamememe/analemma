@@ -6,7 +6,6 @@ export const runEach = async (
 
   for (const step of steps) {
     try {
-      // oxlint-disable-next-line eslint/no-await-in-loop -- 1つずつ流す
       await step();
     } catch {
       failed += 1;

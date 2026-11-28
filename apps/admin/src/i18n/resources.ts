@@ -14,7 +14,6 @@ export const RESOURCES = {
 >;
 
 declare module "i18next" {
-  // oxlint-disable-next-line typescript/consistent-type-definitions -- i18next の型の設定は、interface の宣言のマージでしか書けない
   interface CustomTypeOptions {
     /** キーと引数の型の出どころ(英語の訳)。 */
     resources: (typeof RESOURCES)["en"];

@@ -35,7 +35,6 @@ export const runDropboxImport = async (
     );
 
     try {
-      // oxlint-disable-next-line eslint/no-await-in-loop -- 写真は1枚ずつ読み、変換のキューにも1枚ずつ並べる
       const outcome = await importPhoto({ ...context, added }, photo);
 
       if (outcome._tag === "ConnectionLost") {

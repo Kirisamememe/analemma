@@ -282,7 +282,6 @@ export const createApp = (dependencies: AppDependencies): AppParts => {
 };
 
 declare module "@tanstack/react-router" {
-  // oxlint-disable-next-line typescript/consistent-type-definitions -- TanStack Router の型の登録は、interface の宣言のマージでしか書けない
   interface Register {
     /** 管理画面の router。 */
     router: AppRouter;

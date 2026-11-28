@@ -237,6 +237,7 @@ export const CORE_RULES = {
   "react/jsx-curly-brace-presence": "error",
   "react/jsx-filename-extension": ["error", { extensions: [".tsx"] }],
   "react/jsx-fragments": "error",
+  "jsx-a11y/no-redundant-roles": ["error", { ul: ["list"] }],
   "react/jsx-max-depth": ["error", { max: 6 }],
   "react/jsx-pascal-case": "error",
   "react/no-clone-element": "error",

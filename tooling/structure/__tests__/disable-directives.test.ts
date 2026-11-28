@@ -1,62 +1,21 @@
-import { describe, expect, test } from "bun:test";
+import { expect, test } from "bun:test";
 
-import { matchesRule, parseDisableDirective } from "../disable-directives";
+import { isDisableDirective } from "../disable-directives";
 
-describe("抑制のコメントの読み方", () => {
-  test.each([
-    {
-      label: "カンマで区切ったルールと理由",
-      value: " oxlint-disable-next-line a/one, two -- 理由",
-      expected: {
-        kind: "disable-next-line",
-        reason: "理由",
-        rules: ["a/one", "two"],
-      },
-    },
-    {
-      label: "空白で区切ったルール",
-      value: " eslint-disable-line one two -- 理由",
-      expected: { kind: "disable-line", reason: "理由", rules: ["one", "two"] },
-    },
-    {
-      label: "ルールに続けて書いた --",
-      value: " oxlint-disable one-- 理由",
-      expected: { kind: "disable", reason: "理由", rules: ["one"] },
-    },
-    {
-      label: "前後に空白のある - から始まる説明",
-      value: " oxlint-disable a/one - メモ -- 理由",
-      expected: { kind: "disable", reason: "", rules: ["a/one"] },
-    },
-    {
-      label: "ルールも理由も無い抑制",
-      value: " oxlint-disable-next-line",
-      expected: { kind: "disable-next-line", reason: "", rules: [] },
-    },
-  ])("$label を、Oxlint と同じように読むこと", ({ expected, value }) => {
-    expect(parseDisableDirective(value)).toEqual(expected);
-  });
-
-  test.each([" oxlint-disablefoo", " oxlint-enable one", " ふつうのコメント"])(
-    "抑制でないコメント %p は読まないこと",
-    (value) => {
-      expect(parseDisableDirective(value)).toBeUndefined();
-    },
-  );
+test.each([
+  " oxlint-disable project/max-code-lines -- 理由",
+  " oxlint-disable-next-line typescript/no-explicit-any",
+  " oxlint-disable-line",
+  " eslint-disable-next-line no-console -- 理由",
+])("lint を抑制するコメント(%s)を見分けること", (value) => {
+  expect(isDisableDirective(value)).toBe(true);
 });
 
-describe("ルールの名前の照らし合わせ", () => {
-  test.each([
-    { token: "project/file-length-limit", matches: true },
-    { token: "file-length-limit", matches: true },
-    { token: "other/file-length-limit", matches: false },
-    { token: "length-limit", matches: false },
-  ])(
-    "$token は project/file-length-limit を指すか: $matches",
-    ({ matches, token }) => {
-      expect(matchesRule({ rule: "project/file-length-limit", token })).toBe(
-        matches,
-      );
-    },
-  );
+test.each([
+  " oxlint-enable",
+  " oxlint-disabled は語の一部",
+  " 抑制のコメント oxlint-disable を説明する文",
+  " 値",
+])("抑制ではないコメント(%s)は数えないこと", (value) => {
+  expect(isDisableDirective(value)).toBe(false);
 });

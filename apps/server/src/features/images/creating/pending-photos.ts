@@ -44,7 +44,6 @@ export const createPendingPhotos = (
 
   const settle = async (): Promise<void> => {
     while (works.size > 0) {
-      // oxlint-disable-next-line eslint/no-await-in-loop -- 待つ間に足された変換も待つ
       await Promise.allSettled(works);
     }
   };

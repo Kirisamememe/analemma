@@ -1,5 +1,3 @@
-// oxlint-disable project/max-code-lines -- 定数の表で、分けると対応が追えなくなる
-
 // ----------------------------------------
 // oxlint-disable-next-line eslint/no-console -- 見出しではない
 // ----------------------------------------

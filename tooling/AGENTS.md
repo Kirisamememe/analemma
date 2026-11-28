@@ -3,6 +3,7 @@
 理由は同じフォルダの `DECISIONS.md` にある。
 
 - lint の設定は直下の `oxlint.config.ts` で、中身は `tooling/lint/config/` に分けて置く(ルールの一覧、ワークスペースごとの `overrides`、server の `overrides`、API の制限の部品)。設定のファイルは Node が TypeScript のまま読むので、相対 import に `.ts` を付ける。自作のルールは `tooling/lint/rules/` の `comments/`・`errors/`・`tests/`・`modules/`・`react/`・`styles/`(`tooling/lint/plugin.mjs` がまとめる)。管理画面の Tailwind CSS の class の検査は `tooling/lint/config/admin-classes.ts`。
+- lint を抑制するコメント(`oxlint-disable`)は書けない(lint と `tooling/structure/` のテストで止まる)。特定のファイルでルールを外すのは、ユーザーと決めたときだけで、`tooling/lint/config/rule-exemptions.ts` の一覧に、ルール・理由・ファイルを足す。fixture のうち、一覧で外したファイルを lint が通すことを確かめるもの(`valid/files/800-lines-with-exception.ts`)は、一覧に書く(`tooling/structure/` のテストも、この一覧で確かめる)。ほかの fixture だけで外すものは、`oxlint.fixtures.config.ts` の `overrides` に書く。
 - `tooling/lint/config/` のモジュールを直したら、エディタで `Oxc: Restart oxlint Server` を実行する。エディタの Oxlint(LSP)は `oxlint.config.ts` だけを監視し、ほかのモジュールを直しても読み直さない(CLI と CI は毎回読み直す)。
 - フォルダの中身の数と名前は、lint ではなく `tooling/structure/` のテストが検査する(1ファイルずつ見る lint では、フォルダ全体を数えられない)。
 - `GLOSSARY.md` の「機械で探す語」に挙げた表記は、`tooling/structure/` のテストが文書・コメント・文字列から探す。コミットのメッセージからは、commit-msg の hook が探す。表記を足すときは、別の概念を指す正しい文まで落とさないかを確かめ、落としそうな文を `tooling/structure/__tests__/repository.test.ts` の例に足す。「機械で探す語」の表の見出しや書き方を変えるときは、`tooling/structure/glossary.ts` も合わせて直す。

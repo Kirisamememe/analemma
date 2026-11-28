@@ -24,7 +24,6 @@ export type RoutePath = Extract<ToOptions["to"], `/${string}`>;
 export type AppHref = WithParams<RoutePath>;
 
 declare module "react-aria-components" {
-  // oxlint-disable-next-line typescript/consistent-type-definitions -- React Aria Components の型の登録は、interface の宣言のマージでしか書けない
   interface RouterConfig {
     /** リンクの行き先。 */
     href: AppHref;
