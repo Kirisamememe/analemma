@@ -6,7 +6,8 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, describe, expect, mock, spyOn, test } from "bun:test";
+import { Profiler } from "react";
 
 import { ImagesSection } from "@/components/images/images-section";
 import type { FakeRoutes } from "@/testing/create-fake-api";
@@ -17,6 +18,7 @@ import {
 } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";
 import { samplePhoto } from "@/testing/sample-photos";
+import * as patterns from "@/ui/patterns";
 
 afterEach(cleanup);
 
@@ -79,17 +81,40 @@ describe("ImagesSection", () => {
       { title: "夕暮れの稜線", deliveryImages },
     ]);
 
-    const rendered = mock((_id: string): "/fixed-pages" => "/fixed-pages");
+    const commits: string[] = [];
+    const Tile = patterns.ImageTile;
 
-    const app = await renderSection(server.routes, rendered);
+    using tiles = spyOn(patterns, "ImageTile").mockImplementation((props) => (
+      <Profiler
+        id={props.title ?? ""}
+        onRender={(id) => {
+          commits.push(id);
+        }}
+      >
+        <Tile
+          alt={props.alt ?? null}
+          badge={props.badge}
+          choice={props.choice}
+          date={props.date}
+          href={props.href}
+          images={props.images}
+          linkRef={props.linkRef}
+          missing={props.missing}
+          title={props.title}
+          untitled={props.untitled}
+        />
+      </Profiler>
+    ));
+
+    const app = await renderSection(server.routes);
     const names = await linkNames();
 
     expect(names[0]).toBe("表示用の画像を作っています新しい写真変換中");
     expect(names[1]).toBe("読み取れませんでした壊れた写真変換失敗");
     expect(names[2]).toBe("夕暮れの稜線");
 
-    const [converting] = server.images();
-    const before = rendered.mock.calls.length;
+    expect(tiles).toHaveBeenCalled();
+    commits.length = 0;
 
     await waitFor(
       () => {
@@ -97,9 +122,9 @@ describe("ImagesSection", () => {
       },
       { timeout: 4000 },
     );
-    expect(rendered.mock.calls).toHaveLength(before);
+    expect(commits).toEqual([]);
 
-    server.convert(converting?.id ?? "", {
+    server.convert(server.images()[0]?.id ?? "", {
       status: "published",
       deliveryImages,
     });
@@ -110,7 +135,7 @@ describe("ImagesSection", () => {
       { timeout: 4000 },
     );
 
-    expect(rendered.mock.calls.slice(before)).toEqual([[converting?.id ?? ""]]);
+    expect(new Set(commits)).toEqual(new Set(["新しい写真"]));
   });
 
   test("変換を終えたことと、変換できなかったことを、読み上げに知らせる", async () => {
