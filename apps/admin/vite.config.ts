@@ -1,6 +1,5 @@
-import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
-import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
 import { build, defineConfig, type Plugin } from "vite";
 
@@ -68,12 +67,7 @@ const inlineBootScript = (): Plugin => ({
 });
 
 export default defineConfig({
-  plugins: [
-    react(),
-    babel({ presets: [reactCompilerPreset()] }),
-    tailwindcss(),
-    inlineBootScript(),
-  ],
+  plugins: [react({ compiler: true }), tailwindcss(), inlineBootScript()],
   resolve,
   server: devServer,
   preview: devServer,

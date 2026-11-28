@@ -6,7 +6,8 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, describe, expect, spyOn, test } from "bun:test";
+import { Profiler } from "react";
 
 import { ImagesSection } from "@/components/images/images-section";
 import type { FakeRoutes } from "@/testing/create-fake-api";
@@ -17,6 +18,7 @@ import {
 } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";
 import { samplePhoto } from "@/testing/sample-photos";
+import * as patterns from "@/ui/patterns";
 
 afterEach(cleanup);
 
@@ -42,6 +44,43 @@ const linkNames = async (): Promise<string[]> =>
 
 const announced = (text: string) =>
   screen.findByText(text, undefined, { timeout: 4000 });
+
+const profileTiles = () => {
+  const commits: string[] = [];
+  const Tile = patterns.ImageTile;
+
+  const spy = spyOn(patterns, "ImageTile").mockImplementation((props) => (
+    <Profiler
+      id={props.title ?? ""}
+      onRender={(id) => {
+        commits.push(id);
+      }}
+    >
+      <Tile
+        alt={props.alt ?? null}
+        badge={props.badge}
+        badgeTone={props.badgeTone}
+        choice={props.choice}
+        date={props.date}
+        href={props.href}
+        images={props.images}
+        isPending={props.isPending}
+        linkRef={props.linkRef}
+        missing={props.missing}
+        singleChoice={props.singleChoice}
+        title={props.title}
+        untitled={props.untitled}
+      />
+    </Profiler>
+  ));
+
+  return {
+    commits,
+    [Symbol.dispose]: () => {
+      spy.mockRestore();
+    },
+  };
+};
 
 const renderSection = async (
   routes: FakeRoutes,
@@ -79,17 +118,17 @@ describe("ImagesSection", () => {
       { title: "夕暮れの稜線", deliveryImages },
     ]);
 
-    const rendered = mock((_id: string): "/fixed-pages" => "/fixed-pages");
+    using tiles = profileTiles();
 
-    const app = await renderSection(server.routes, rendered);
+    const app = await renderSection(server.routes);
     const names = await linkNames();
 
     expect(names[0]).toBe("表示用の画像を作っています新しい写真変換中");
     expect(names[1]).toBe("読み取れませんでした壊れた写真変換失敗");
     expect(names[2]).toBe("夕暮れの稜線");
 
-    const [converting] = server.images();
-    const before = rendered.mock.calls.length;
+    expect(tiles.commits).not.toEqual([]);
+    tiles.commits.length = 0;
 
     await waitFor(
       () => {
@@ -97,9 +136,9 @@ describe("ImagesSection", () => {
       },
       { timeout: 4000 },
     );
-    expect(rendered.mock.calls).toHaveLength(before);
+    expect(tiles.commits).toEqual([]);
 
-    server.convert(converting?.id ?? "", {
+    server.convert(server.images()[0]?.id ?? "", {
       status: "published",
       deliveryImages,
     });
@@ -110,7 +149,7 @@ describe("ImagesSection", () => {
       { timeout: 4000 },
     );
 
-    expect(rendered.mock.calls.slice(before)).toEqual([[converting?.id ?? ""]]);
+    expect(new Set(tiles.commits)).toEqual(new Set(["新しい写真"]));
   });
 
   test("変換を終えたことと、変換できなかったことを、読み上げに知らせる", async () => {
@@ -224,11 +263,12 @@ describe("ImagesSection", () => {
   }, 15_000);
 
   test("続きを読むと下に足して、足した最初の画像に focus を移し、最後まで読むと操作を消す", async () => {
-    const imageHref = mock((_id: string): "/fixed-pages" => "/fixed-pages");
+    using tiles = profileTiles();
 
-    await renderSection(createImageRoutes(many(55)).routes, imageHref);
+    await renderSection(createImageRoutes(many(55)).routes);
 
     expect(await linkNames()).toHaveLength(50);
+    tiles.commits.length = 0;
     await userEvent.click(
       screen.getByRole("button", { name: "さらに読み込む" }),
     );
@@ -239,7 +279,9 @@ describe("ImagesSection", () => {
       expect(document.activeElement?.textContent).toBe("写真 51");
     });
     expect(screen.queryByRole("button", { name: "さらに読み込む" })).toBeNull();
-    expect(imageHref).toHaveBeenCalledTimes(55);
+    expect(new Set(tiles.commits)).toEqual(
+      new Set(["写真 51", "写真 52", "写真 53", "写真 54", "写真 55"]),
+    );
   });
 
   test("続きを待つ間に表示済みの写真へ戻ったら、読み終えてもその写真に focus を残す", async () => {

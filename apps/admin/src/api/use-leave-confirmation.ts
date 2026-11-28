@@ -22,10 +22,12 @@ export const useLeaveConfirmation = (
     shouldBlockFn: ({ next }) => {
       if (!needsConfirmation(next.pathname)) return false;
 
-      pending.current ??= Promise.withResolvers<boolean>();
+      const asked = pending.current ?? Promise.withResolvers<boolean>(); // コンパイラは ??= を扱えない
+
+      pending.current = asked;
       setAsking(true);
 
-      return pending.current.promise;
+      return asked.promise;
     },
     enableBeforeUnload: () => needsConfirmation(),
   });

@@ -19,7 +19,7 @@
 - `.storybook/`:Storybook の設定(`main.ts`・`preview.tsx`)と、story を管理画面と同じ言語・配色・router の中で描く枠(`story-frame.tsx`)と、html の `lang` と `data-theme` を当てる hook(`use-html-preferences.ts`)。
 - `src/testing/`:テストの部品(contract で型を付けた作り物の server と、管理画面の全体を描く関数と、部品を i18next の instance の下で描く関数)。テストと story だけが import できる(`tooling/structure/` のテストが止める)。
 - `src/ui/`:デザインシステム。`theme.css`、`animation.css`(animation の class と keyframes)、`tv.ts`(merge の設定を入れた `tv`)、`typography.ts`(文字の役割)、`primitives/`(React Aria Components を包む部品。Dialog・Modal・Toast・Tooltip・選択肢の一覧・`FocusScope` は `primitives/overlays/`、並べ直せる一覧は `primitives/collections/`)、`layout/`(並べ方と文字)、`patterns/`(組み合わせた形)、`specimens/`(色と文字の見本と、story の展示用の枠 `story-stage.tsx`。本番のコードからは import できない)。層と決まりは `src/ui/DECISIONS.md`。
-- `test-setup/`:管理画面のテストの前に読み込む、DOM の用意(happy-dom)。
+- `test-setup/`:管理画面のテストの前に読み込む、DOM の用意(happy-dom)と、製品のコードに React Compiler を通す plugin。
 
 ## 書き方
 
@@ -31,7 +31,7 @@
 - `.tsx` は、JSX の要素か fragment を書くファイルだけにする。JSX を書かない hook・context・テスト・story は `.ts` にする(lint で止まる)。
 - `.ts` で React の値を import できるのは、hook のファイル(`use-*.ts`。export する関数は1つだけで、名前は `use` で始まる)と、context のファイル(`*-context.ts`。値として export するのは `createContext` の結果だけで、少なくとも1つは export する)だけ。lint はこの import の条件を検査し、`src/` の hook には隣のテストも求める。
 - ロジックに切り出しにくい表示の出し分けは、同じフォルダの `__tests__` のコンポーネントのテストで確かめる。要素は role・label・text など利用者に見えるもので探し、利用者に見える結果を確かめる。マークアップの作りをなぞるテストは書かない。
-- memo 化は React Compiler に任せる。`useCallback`・`useMemo`・`memo` を手で書くのは、「再レンダリングの期待」のテストで守る境界と、ref の callback のように identity が振る舞いを決める所だけにする(テストはコンパイラを通らない。理由は `DECISIONS.md` の「React Compiler」)。
+- memo 化は React Compiler に任せる。`useCallback`・`useMemo`・`memo` を手で書くのは、「再レンダリングの期待」のテストで守る境界と、ref の callback のように identity が振る舞いを決める所だけにする(テストにも同じコンパイラを通すが、この境界をコンパイラに任せるかは、`DECISIONS.md` の「React Compiler」の TODO)。
 - React の effect は、ほかの手段で書けない処理だけを、目的が分かる名前の hook の直下で使う。hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` と、`DECISIONS.md` の「React の effect」の hook の表に足す。この決まりはテスト・story・`.storybook/` にも掛かる(lint で止まる)。
 - server との通信には contract の型を使い、応答の型を手で書かない。
 - features の製品のコードから import できるのは、`react`(`.ts` では hook と context のファイルだけ)・`@analemma/contract`・管理画面の中のモジュールだけ。外のライブラリは `src/i18n/` と `src/api/` の部品を通して使う(lint で止まる)。`src/routes/` は今は対象外。

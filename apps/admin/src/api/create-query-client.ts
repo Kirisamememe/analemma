@@ -1,4 +1,9 @@
-import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import {
+  MutationCache,
+  notifyManager,
+  QueryCache,
+  QueryClient,
+} from "@tanstack/react-query";
 
 import { isUnauthorized } from "@/api/api-errors";
 
@@ -9,6 +14,8 @@ export type QueryClientOptions = {
 };
 
 const MAX_RETRIES = 2;
+
+notifyManager.setScheduler(queueMicrotask);
 
 /** 管理画面の、server の状態を持つ query client を作る。 */
 export const createQueryClient = ({
