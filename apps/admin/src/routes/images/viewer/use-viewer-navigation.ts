@@ -1,3 +1,4 @@
+import { useRouter } from "@tanstack/react-router";
 import { type RefObject, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -24,6 +25,7 @@ export const useViewerNavigation = (
   disabled: boolean,
 ) => {
   const { t } = useTranslation();
+  const router = useRouter();
   const previous = useRef<HTMLAnchorElement>(null);
   const next = useRef<HTMLAnchorElement>(null);
   const pending = useRef<PendingFocus>(undefined);
@@ -37,7 +39,8 @@ export const useViewerNavigation = (
     id === undefined
       ? undefined
       : {
-          href: `/images/${id}`,
+          href: router.buildLocation({ to: "/images/$id", params: { id } })
+            .href,
           disabled,
           label: t(
             side === "next" ? "imageDetail.next" : "imageDetail.previous",

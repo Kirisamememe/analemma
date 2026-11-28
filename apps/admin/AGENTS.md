@@ -47,10 +47,12 @@
 - パスキーの追加と削除は、再認証(`src/queries/reauthenticate.ts`)の資格情報と一緒に送る。取り消せない操作は、確認の Dialog を出してから送る。
 - 画面のテストは、`src/testing/render-app.tsx` で、作り物の server(`create-fake-api.ts`)と作り物の認証器につないだ管理画面の全体を描いて、利用者に見える結果で確かめる。`App` を通さずに部品だけを描くテストは、`src/testing/render-with-i18n.tsx` で、i18next の instance の下で描く。
 - 画面に出す文言は `src/i18n/messages/` の訳から引く。言語の選択肢の名前だけは、その言語での名前を `localeName`(`Intl.DisplayNames`)で引く。features は `useTranslate` を使い、`src/routes/` は今は react-i18next の `useTranslation` を直接使う。キーは英語の訳(`en.ts`)に足し、同じキーをほかの言語にも足す。引数は `{{name}}` で書き、どの言語も英語と同じ引数を持つ(テストで止まる)。features で引数を取らないキーを値として持つ型は `MessageKey` にする。
-- 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/resources.ts` の `RESOURCES` と、`src/ui/primitives/ui-provider.tsx` の `ARIA_LOCALES`(React Aria Components に渡す地域を付けた言語)に足し、`messages/` にファイルを置く。
+- 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/resources.ts` の `RESOURCES` と、`src/i18n/locales.ts` の `REGIONAL_LOCALES`(部品に渡す、地域を付けた言語)に足し、`messages/` にファイルを置く。
 - 言語は i18next の `changeLanguage` で切り替える。html の `lang` と `localStorage` は、`sync-locale.ts` がそろえる。
 - route の code splitting(`import()`)は使わない。`no-dynamic-import` は、今はそのまま効かせる。
 - 画面のコード(`src/ui/` と `src/features/*/ui/` の外)には、見た目の class を書かない。書けるのは `grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only` だけで、`className` は文字列のリテラルにし、`style` は書かない。並べ方・文字・色は `ui/` の部品の props で決める(lint で止まる)。
+- `ui/` の部品は、値を props で受ける。業務の知識(フォーム・query・router の状態や型、API の形、決まった文面)を足すときは、`ui/` の外に包む部品を置く。置き場所は使う範囲で決める(1つの feature だけならその feature、複数の feature なら `components/`、`routes/` だけなら `routes/`)。文字列を1つ渡せば済むなら、包まずに props で渡す(理由は `DECISIONS.md` の「業務の知識を足す層」)。
+- 管理画面の中の行き先は、`routes/` が route の型から作る。画面に直に書くリンクは `RouteLink`、値で渡す行き先は `router.buildLocation(…).href`。`href` に、パスの文字列を直に書かない(lint では止まらないので、セルフレビューで見る)。
 - 部品は、層の向き(patterns → primitives・layout)を守る。React Aria Components は `ui/primitives/` の中でだけ使い、`tv` は `ui/tv.ts` から import する(ここまでは lint で止まる)。primitives は自分の props の型を持ち、ライブラリの props の型を extends しない(lint では止まらないので、セルフレビューで見る)。
 - 文字の役割は `Text`・`Heading` の `variant` で選ぶ。
 - 部品を足したら、同じフォルダの `__stories__` に story を足し、`src/__tests__/stories.test.tsx` の一覧にも足す。story は画面のコードと同じ決まりで、部品と props だけで組む(lint で止まる)。title と export 名は `DECISIONS.md` の「Storybook」の命名規則に従う。tone・variant・状態(無効・送信中・invalid など)ごとに story を分け、見比べられるようにする。

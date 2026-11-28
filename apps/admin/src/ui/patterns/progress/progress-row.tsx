@@ -6,7 +6,6 @@ import { Button } from "@/ui/primitives/button";
 import { ActionListRow } from "@/ui/primitives/collections";
 import { Spinner } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
-import type { AppHref } from "@/ui/primitives/ui-provider";
 
 /** 作業の1件の、状態の見せ方。 */
 export type ProgressTone = "neutral" | "info" | "success" | "danger";
@@ -18,7 +17,7 @@ type ProgressRowProps = {
   /** 名前(ファイルの名前など)。 */
   name: string;
   /** 終わった後に開ける行き先。 */
-  href?: AppHref | undefined;
+  href?: string | undefined;
   /** 名前の下に出す補足(大きさなど)。 */
   detail: string;
   /** 状態の文言。 */

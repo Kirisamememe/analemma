@@ -199,24 +199,24 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-photo-direction="next"] [data-photo-ready] {
-    animation: photo-from-right var(--transition-duration-normal)
+  [data-enter-from="right"] [data-entered] {
+    animation: enter-from-right var(--transition-duration-normal)
       var(--ease-standard);
   }
 
-  [data-photo-direction="previous"] [data-photo-ready] {
-    animation: photo-from-left var(--transition-duration-normal)
+  [data-enter-from="left"] [data-entered] {
+    animation: enter-from-left var(--transition-duration-normal)
       var(--ease-standard);
   }
 }
 
-@keyframes photo-from-right {
+@keyframes enter-from-right {
   from {
     translate: 100% 0;
   }
 }
 
-@keyframes photo-from-left {
+@keyframes enter-from-left {
   from {
     translate: -100% 0;
   }

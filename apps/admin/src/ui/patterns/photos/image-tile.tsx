@@ -12,14 +12,13 @@ import { Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Icon, Spinner } from "@/ui/primitives/graphics";
 import { Link } from "@/ui/primitives/navigation";
-import type { AppHref } from "@/ui/primitives/ui-provider";
 
 /** 写真のタイルに渡す値。 */
 type ImageTileProps = {
   /** 1枚の選択用に写真全体を見せるか。 */
   singleChoice?: boolean | undefined;
   /** 開く画面。 */
-  href?: AppHref | undefined;
+  href?: string | undefined;
   /** 写真を選ぶ入力欄。 */
   choice?: ReactNode;
   /** 配信用の画像(幅の昇順)。 */

@@ -1,4 +1,4 @@
-export { Link } from "./link";
+export { Link, type LinkProps } from "./link";
 export { NavDrawer } from "./nav-drawer";
 export { NavButton } from "./nav-button";
 export { NavLink, type NavLinkProps } from "./nav-link";

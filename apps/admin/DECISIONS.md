@@ -49,6 +49,15 @@ Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・�
 
 複数の feature から使う、管理画面に固有の部品は `src/components/` に置き、`@/components/...` から import する。パスキーの名前の入力欄のように、管理画面の訳と contract の検査を持つ部品を、ラベルや検査を呼び出し元から受け取る `src/ui/` の部品と分ける。`components/` は features を import しない。利用する feature 同士が、部品を通じて依存し合わずに済む。
 
+## 業務の知識を足す層
+
+`src/ui/` の部品は、値を props で受けるだけにし、管理画面の業務と配線を知らない(ユーザーが決めた)。部品に業務の知識を足すときは、`ui/` の部品を包む部品を、`ui/` の外に置く。
+
+- 包む部品を置くのは、足す処理があるときだけ。アプリのライブラリの状態や型につなぐ(フォーム・query・router)、API の形を読む、決まった文面を持つ、など。文字列を1つ渡せば済むもの(閉じるボタンの名前など)は、包まずに、呼ぶ側が `ui/` の部品に props で渡す。
+- 置き場所は、使う範囲で決める。1つの feature だけが使うなら、その feature に置く。複数の feature が使うなら `src/components/`、`routes/` だけが使うなら `src/routes/` に置く。
+- `ui/` の部品を直に使うことは止めない。知識を持ち込む場所だけが、包む部品を通る。
+- **行き先**:`ui/` の `Link` は、行き先を文字列で受ける。route のパスを知っているのは `routes/` なので、`routes/` が型付きで作る。画面に直に書くリンクは `RouteLink`(`src/routes/navigation/`。TanStack Router の `createLink` で、`to` と `params` を route の型で受ける)を使い、値として下へ渡す行き先は `router.buildLocation(…).href` で作る。無い route と、`params` の書き漏れは、型検査で落ちる。features は、行き先を props で受け取り、`ui/` の部品にそのまま渡す。`RouteLink` は、router が作った `href` だけを `ui/` の `Link` に渡す。移る処理は、今までどおり `UiProvider` に渡した関数が受け持つ(router のクリックの処理は使わない)。
+
 ## hook・純粋な関数・server の API を呼ぶ処理の置き場所
 
 `features/`・`components/`・`ui/` では、ファイルを役割ごとのフォルダに分ける(ユーザーが決めた。`project/admin-module-location` で止まる)。部品と、それと一緒に変わる処理を同じ場所からたどれ、フォルダの名前で、React なしでテストできるものと server を呼ぶものが分かる。
@@ -111,7 +120,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 
 - 写真の撮影日時は時差を含まない撮影地の日時なので、読み取りと表示の間だけ UTC として扱う。見る場所のタイムゾーンによって日付や時刻がずれるのを防ぐ。
 
-`en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `RESOURCES`(`src/i18n/resources.ts`)と、React Aria Components に渡す地域を付けた言語(`src/ui/primitives/ui-provider.tsx` の `ARIA_LOCALES`)に足し、`messages/` にファイルを置くだけにする。
+`en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `RESOURCES`(`src/i18n/resources.ts`)と、部品に渡す地域を付けた言語(`src/i18n/locales.ts` の `REGIONAL_LOCALES`)に足し、`messages/` にファイルを置くだけにする。
 
 訳を引くのは、i18next 27 と react-i18next にする(ユーザーが決めた)。コードの生成も、訳を取りに行く通信も要らず、v27 からキーと引数に厳しく型が付き(`strictInterpolationChecks` が既定で有効)、複数形と fallback を扱える。公開サイトの i18n は、公開サイトを作るときに決める。
 
@@ -202,7 +211,6 @@ features のビジネスロジックを外のライブラリから独立させ�
 
 - features に渡すのは、今使う操作と値に絞る。ライブラリの型を返したり、名前を変えて出し直したりすると、呼び出し側もライブラリの型や振る舞いに依存するため。
 - query のキーと、server の API を呼ぶ操作の中身は features が持つ。複数の feature が使うもの(再認証と画像一覧の読み込み)は `src/queries/` に置く(「hook・純粋な関数・server の API を呼ぶ処理の置き場所」)。パスキーなど、feature 専用の hook を `src/api/` に置くと、feature のロジックを呼ぶために `src/api/` が features を import し、依存の向きが逆になる。`src/queries/reauthenticate.ts` は、認証器の型だけを `@/features/auth/webauthn` から `import type` する。型だけなので、実行時には features に依存しない。
-- ナビには、今いる画面へのリンクかを返す関数を渡す。`SignedInLayout` が既存の route の組み立てと一緒に `useMatchRoute` を使うので、ナビのリンクは同じ照合を使える。
 - `callApi` は呼び出し側が扱う code だけを `Failed` で返し、ほかの失敗は元の error を throw する。セッション切れを表す `UNAUTHORIZED` を query client に届け、ログインの画面への移動を query client に任せるため。
 - `useApiMutation` は、送信か送信後の処理が想定外の失敗で終わったら `onError` を呼ぶ。操作の失敗を、Dialog の中で送ったものも外で送ったものも、Toast で知らせるため。セッション切れ(`UNAUTHORIZED`)では呼ばない。query client がログインの画面に移すので、閉じるまで残る失敗の Toast を、ログインの画面に持ち越さない。
 - `useApiMutation` は `send` の Promise が resolve したら `onSuccess` を呼ぶ。もう無いパスキーを操作したときの `NotFound` など、操作が断られた結果も `onSuccess` に渡り、その処理が完了すると `data` に入る。`send` や `onSuccess` が error で終わると `isError` が立つ。同じ操作を続けて送らせないよう、`onSuccess` の処理が終わるまで `isPending` を保つ。 部品を保ったまま対象が替わるときは操作名と画像IDを変更のキーにし、結果を送信時の対象に適用する。
@@ -226,7 +234,7 @@ features のビジネスロジックを外のライブラリから独立させ�
 - パスキーの名前は、認証器でパスキーを作る前に、contract と同じスキーマ(`passkeyName`)で確かめ、入力欄に誤りを出す。作った後で server に名前を断られると、認証器に、ログインに使えないパスキーが残る。
 - セッションを確かめる API が 401 以外で失敗しても(server が落ちているなど)、何も知らせず、画面は止めない。server が落ちていれば、各画面が読むデータ(固定ページやパスキーの一覧など)の取得も失敗するので、その欄(`ErrorState`)が読み込めなかったことを知らせ、その場で取り直せる。訳した知らせとやり直すボタンの画面(`SessionErrorPage`)は、ログインした後の画面で想定外の失敗が throw されたときに出す(router の既定の画面は英語で、やり直せない)。
 - ログアウトしたら、持っている状態を消して、ログインの画面に移る。
-- ナビは `signed-in` の骨組みに置き、ログインした後の画面にだけ出す。セッションの確認の応答は待たずに描く。今いる画面は `useMatchRoute` で決める。`/` のリンクはホームを開いているときだけ、ほかのリンクは配下の画面を開いているときも、今いる画面として示す。ログアウトの送信状態は `AppNavigation` が1つだけ持ち、広い画面のナビと引き出したナビで共有する(drawer を開き直しても、続けて送れないように)。
+- ナビは `signed-in` の骨組みに置き、ログインした後の画面にだけ出す。セッションの確認の応答は待たずに描く。ナビの項目(行き先の route・文言・アイコン)は、どの画面があるかの知識なので、`routes/layout/app-navigation.tsx` に置き、行き先と今いる画面を router から作る(`buildLocation`・`useMatchRoute`)。`/` のリンクはホームを開いているときだけ、ほかのリンクは配下の画面を開いているときも、今いる画面として示す。ログアウトの送信状態は `AppNavigation` が1つだけ持ち、広い画面のナビと引き出したナビで共有する(drawer を開き直しても、続けて送れないように)。
 
 ## 画面の遷移と読み込み
 

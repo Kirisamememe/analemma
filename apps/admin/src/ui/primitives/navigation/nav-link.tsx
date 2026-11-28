@@ -3,13 +3,12 @@ import { Link as AriaLink } from "react-aria-components";
 
 import { Icon, type IconName } from "@/ui/primitives/graphics";
 import { navItem } from "@/ui/primitives/navigation/nav-item-style";
-import type { RoutePath } from "@/ui/primitives/ui-provider";
 import { typography } from "@/ui/typography";
 
 /** ナビのリンクに渡す値。 */
 export type NavLinkProps = {
-  /** 管理画面の中の行き先。 */
-  href: RoutePath;
+  /** 行き先。 */
+  href: string;
   /** リンクの文言。 */
   children: ReactNode;
   /** リンクに添えるアイコン。 */

@@ -9,7 +9,6 @@ import { UploadProblem } from "./upload-problem";
 
 import { Stack } from "@/ui/layout";
 import { ModalSection } from "@/ui/primitives/overlays";
-import type { AppHref } from "@/ui/primitives/ui-provider";
 
 type SelectedPhotoProps = {
   /** 写真を追加する Dialog の状態と操作。 */
@@ -17,7 +16,7 @@ type SelectedPhotoProps = {
   /** 選択中の写真。 */
   selected: PhotoUpload;
   /** 画像を見る画面への行き先を返す関数。 */
-  imageHref: (id: string) => AppHref;
+  imageHref: (id: string) => string;
 };
 
 /** 送る写真のカルーセルと、選択中の写真の状態・入力欄・保存の誤り。 */

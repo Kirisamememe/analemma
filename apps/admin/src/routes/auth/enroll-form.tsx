@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next";
 import { PasskeyNameField } from "@/components/passkey-name-field";
 import { toEnrollNotice } from "@/features/auth/logic/to-auth-notice";
 import type { enroll } from "@/features/auth/queries/enroll";
+import { RouteLink } from "@/routes/navigation/route-link";
 import { Text } from "@/ui/layout";
 import { Button } from "@/ui/primitives/button";
 import { Form } from "@/ui/primitives/form";
-import { Link } from "@/ui/primitives/navigation";
 import { Notice } from "@/ui/primitives/notice";
 
 const PASSKEY_NAME_MAX_LENGTH = 64;
@@ -45,7 +45,7 @@ export const EnrollForm = ({
       )}
       {outcome === "AlreadyRegistered" && (
         <Text>
-          <Link href="/login">{t("enroll.signIn")}</Link>
+          <RouteLink to="/login">{t("enroll.signIn")}</RouteLink>
         </Text>
       )}
       <Button isPending={isPending} tone="primary" type="submit">

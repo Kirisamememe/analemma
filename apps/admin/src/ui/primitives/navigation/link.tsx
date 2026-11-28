@@ -2,7 +2,6 @@ import type { MouseEvent, ReactNode, Ref } from "react";
 import { Link as AriaLink } from "react-aria-components";
 
 import { Icon } from "@/ui/primitives/graphics";
-import type { AppHref } from "@/ui/primitives/ui-provider";
 import { tv } from "@/ui/tv";
 
 const link = tv({
@@ -24,8 +23,8 @@ const chevron = tv({
 
 /** リンクに渡す値。 */
 export type LinkProps = {
-  /** 管理画面の中の行き先(route のパスか、その `$id` などに値を入れたもの)。 */
-  href: AppHref;
+  /** 行き先。 */
+  href: string;
   /** 取得を待つ間も focus を保つリンクの移動方法。 */
   navigation?: {
     /** 一時的に移動できないか。 */

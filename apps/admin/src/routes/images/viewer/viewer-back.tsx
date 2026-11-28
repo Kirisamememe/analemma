@@ -1,8 +1,8 @@
 import type { ReactNode, RefObject } from "react";
 import { useTranslation } from "react-i18next";
 
+import { RouteLink } from "@/routes/navigation/route-link";
 import { Text } from "@/ui/layout";
-import { Link } from "@/ui/primitives/navigation";
 
 /** 一覧へ戻るリンクを受け取る部品に渡す値。 */
 type BackProps = {
@@ -16,9 +16,9 @@ export const ViewerBack = ({ back }: BackProps): ReactNode => {
 
   return (
     <Text variant="caption">
-      <Link ref={back} href="/images" variant="back">
+      <RouteLink ref={back} to="/images" variant="back">
         {t("imageDetail.backToList")}
-      </Link>
+      </RouteLink>
     </Text>
   );
 };
