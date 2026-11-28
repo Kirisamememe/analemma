@@ -14,8 +14,7 @@ const frame = tv({
     ],
     panel: [
       "max-h-full w-full rounded-surface",
-      "dialog-panel-animation",
-      overlayPanel(),
+      overlayPanel({ animated: true }),
     ],
   },
   variants: {

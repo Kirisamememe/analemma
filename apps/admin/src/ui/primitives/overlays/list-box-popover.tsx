@@ -12,7 +12,7 @@ const listBoxPopover = tv({
     popover: [
       "z-overlay w-(--trigger-width) overflow-y-auto overscroll-contain",
       "rounded-control",
-      overlayPanel(),
+      overlayPanel({ animated: true }),
     ],
     heading: "px-3 pt-2 text-fg-muted",
     option: [
@@ -58,51 +58,59 @@ export const ListBoxPopover = ({
   onOptionPress,
 }: ListBoxPopoverProps): ReactNode => (
   <Popover className={popover()} offset={4} placement={placement}>
-    {heading !== undefined && (
-      <p
-        aria-hidden="true"
-        className={typography({ role: "caption", className: headingStyle() })}
-      >
-        {heading}
-      </p>
-    )}
-    <ListBox
-      className="flex flex-col gap-1 p-1 outline-hidden"
-      dependencies={[onOptionPress]}
-      items={options}
-    >
-      {({ value, label, icon, lang }) => (
-        <ListBoxItem
-          className={typography({ role: "body", className: option() })}
-          id={value}
-          lang={lang}
-          onPressStart={(event) => {
-            if (event.pointerType === "keyboard") {
-              onOptionPress?.(value);
-            }
-          }}
-          onPressUp={(event) => {
-            if (event.pointerType !== "keyboard") {
-              onOptionPress?.(value);
-            }
-          }}
-          textValue={label}
-        >
-          {icon !== undefined && (
-            <span className={mark()}>
-              <Icon name={icon} />
-            </span>
-          )}
-          <span className="min-w-0 grow wrap-anywhere">{label}</span>
-          <span
-            className={mark({
-              className: "opacity-0 group-is-selected:opacity-100",
+    {({ isExiting }) => (
+      <>
+        {heading !== undefined && (
+          <p
+            aria-hidden="true"
+            className={typography({
+              role: "caption",
+              className: headingStyle(),
             })}
           >
-            <Icon name="check" />
-          </span>
-        </ListBoxItem>
-      )}
-    </ListBox>
+            {heading}
+          </p>
+        )}
+        <ListBox
+          className="flex flex-col gap-1 p-1 outline-hidden"
+          dependencies={[onOptionPress]}
+          inert={isExiting}
+          items={options}
+        >
+          {({ value, label, icon, lang }) => (
+            <ListBoxItem
+              className={typography({ role: "body", className: option() })}
+              id={value}
+              lang={lang}
+              onPressStart={(event) => {
+                if (event.pointerType === "keyboard") {
+                  onOptionPress?.(value);
+                }
+              }}
+              onPressUp={(event) => {
+                if (event.pointerType !== "keyboard") {
+                  onOptionPress?.(value);
+                }
+              }}
+              textValue={label}
+            >
+              {icon !== undefined && (
+                <span className={mark()}>
+                  <Icon name={icon} />
+                </span>
+              )}
+              <span className="min-w-0 grow wrap-anywhere">{label}</span>
+              <span
+                className={mark({
+                  className: "opacity-0 group-is-selected:opacity-100",
+                })}
+              >
+                <Icon name="check" />
+              </span>
+            </ListBoxItem>
+          )}
+        </ListBox>
+      </>
+    )}
   </Popover>
 );

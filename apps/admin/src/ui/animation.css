@@ -53,19 +53,21 @@
   }
 }
 
-@utility dialog-panel-animation {
-  --dialog-closed-scale: 0.97;
+@utility overlay-panel-animation {
+  --overlay-closed-scale: 0.97;
+  transform-origin: var(--trigger-anchor-point, center);
 
   @media (prefers-reduced-motion: reduce) {
-    --dialog-closed-scale: 1;
+    --overlay-closed-scale: 1;
   }
 
   @variant is-entering {
-    animation: dialog-in var(--transition-duration-normal) var(--ease-standard);
+    animation: overlay-in var(--transition-duration-normal) var(--ease-standard);
   }
 
   @variant is-exiting {
-    animation: dialog-out var(--overlay-exit-duration) var(--ease-exit) forwards;
+    animation: overlay-out var(--overlay-exit-duration) var(--ease-exit)
+      forwards;
   }
 }
 
@@ -101,17 +103,17 @@
   }
 }
 
-@keyframes dialog-in {
+@keyframes overlay-in {
   from {
     opacity: 0;
-    scale: var(--dialog-closed-scale);
+    scale: var(--overlay-closed-scale);
   }
 }
 
-@keyframes dialog-out {
+@keyframes overlay-out {
   to {
     opacity: 0;
-    scale: var(--dialog-closed-scale);
+    scale: var(--overlay-closed-scale);
   }
 }
 

@@ -105,7 +105,7 @@ const UTILITY_PARTNERS: Readonly<Record<string, string | null>> = {
   "separator-e": "separator-s",
   "page-drop-frame": null,
   "dialog-backdrop-animation": null,
-  "dialog-panel-animation": null,
+  "overlay-panel-animation": null,
   "modal-title-animation": null,
   "modal-bar-backdrop": null,
   "modal-scroller": null,
