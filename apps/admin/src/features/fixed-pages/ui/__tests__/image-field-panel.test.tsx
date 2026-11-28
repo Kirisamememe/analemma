@@ -30,6 +30,8 @@ test("任意の未入力欄に画像一覧への入口が一つある", async ()
   );
   expect(choose).toHaveBeenCalledTimes(1);
   expect(screen.queryByText("必須")).toBeNull();
+  expect(screen.getByText("任意")).toBeDefined();
+  expect(screen.getByRole("group", { name: "肖像" })).toBeDefined();
 });
 
 test("配信用の画像がなくても名前と非公開の状態を保ち、必須の画像を差し替えられる", () => {

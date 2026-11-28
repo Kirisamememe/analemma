@@ -53,3 +53,18 @@ test("写真に入力できる上限と例を示し、保存中は値を読め�
   await userEvent.type(description, "浜");
   expect(change).toHaveBeenCalledTimes(2);
 });
+
+test("タイトルと説明は任意で、どちらの欄にも「任意」を添え、欄の名前には含めない", () => {
+  renderWithI18n(
+    <UploadPhotoFields
+      values={{ title: "", description: "" }}
+      isReadOnly={false}
+      onChange={() => undefined}
+    />,
+    "ja",
+  );
+
+  expect(screen.getAllByText("任意")).toHaveLength(2);
+  expect(screen.getByRole("textbox", { name: "タイトル" })).toBeDefined();
+  expect(screen.getByRole("textbox", { name: "説明" })).toBeDefined();
+});

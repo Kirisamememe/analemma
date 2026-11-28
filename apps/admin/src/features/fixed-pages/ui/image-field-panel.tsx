@@ -9,6 +9,7 @@ import type { ImageSummary } from "@/queries/images-query";
 import { Cluster, Stack, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
+import { NecessityBadge } from "@/ui/primitives/form-fields";
 import { Icon, Spinner } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 
@@ -192,10 +193,14 @@ export const ImageFieldPanel = ({
           <Text as="span" variant="label">
             {label}
           </Text>
-          {required && (
+          {required ? (
             <Badge tone="danger" variant="soft">
               {t("ui.required")}
             </Badge>
+          ) : (
+            <NecessityBadge necessity="optional">
+              {t("ui.optional")}
+            </NecessityBadge>
           )}
         </span>
       </legend>
