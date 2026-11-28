@@ -1,4 +1,4 @@
-import { type SQL, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
+import { type SQL, eq } from "drizzle-orm";
 
 import { image } from "@/db/schema/image";
 import type { DatabaseExecutor } from "@/platform/database";
@@ -33,32 +33,4 @@ export const lockImage = async (
     .from(image)
     .where(eq(image.id, id))
     .for("update");
-};
-
-/** 一つ新しい画像と一つ古い画像の ID を引く。 */
-export const findNeighborIds = async (db: DatabaseExecutor, id: string) => {
-  const newer = db
-    .select({ id: image.id })
-    .from(image)
-    .where(gt(image.id, id))
-    .orderBy(asc(image.id))
-    .limit(1)
-    .as("newer");
-
-  const older = db
-    .select({ id: image.id })
-    .from(image)
-    .where(lt(image.id, id))
-    .orderBy(desc(image.id))
-    .limit(1)
-    .as("older");
-
-  const [neighbors] = await db
-    .select({ newerId: newer.id, olderId: older.id })
-    .from(image)
-    .leftJoin(newer, sql`true`)
-    .leftJoin(older, sql`true`)
-    .where(eq(image.id, id));
-
-  return neighbors;
 };

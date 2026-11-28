@@ -3,7 +3,7 @@ import { describe, expect, spyOn, test } from "bun:test";
 import type { ContractInputs, ContractOutputs } from "@analemma/contract";
 
 import { deliveryImage } from "@/db/schema/delivery-image";
-import { findNeighborIds } from "@/features/images/queries/images.query";
+import { findBrowseNeighbors } from "@/features/images/reading/queries/find-browse-neighbors.query";
 import {
   SUCCEEDED,
   catchErrorCode,
@@ -168,7 +168,7 @@ describe("前後の画像", () => {
     await using connection = openTestDatabase(server);
     const statement = spyOn(connection.client, "unsafe");
 
-    expect(await findNeighborIds(connection.db, id)).toBeDefined();
+    expect(await findBrowseNeighbors(connection.db, { id })).toBeDefined();
     expect(statement).toHaveBeenCalledTimes(1);
   });
 

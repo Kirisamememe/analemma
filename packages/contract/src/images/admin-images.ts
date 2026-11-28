@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 import { adminAccess } from "../access-errors";
-import { imageListCursor, imageListPage } from "./image-list";
+import {
+  imageListCursor,
+  imageListFilter,
+  imageListOptions,
+  imageListPage,
+} from "./image-list";
 import {
   adminImage,
   imageAlt,
@@ -28,6 +33,52 @@ export const images = {
         nextCursor: imageListCursor
           .nullable()
           .describe("次のページを読むときの cursor。次が無ければ null。"),
+      }),
+    ),
+  counts: adminAccess
+    .route({
+      method: "GET",
+      path: "/admin/images/counts",
+      summary: "画像の総枚数、タグ無しの枚数、タグの条件と状態ごとの枚数",
+    })
+    .input(imageListFilter)
+    .output(
+      z.object({
+        total: z.int().nonnegative(),
+        untagged: z.int().nonnegative(),
+        any: z.int().nonnegative(),
+        all: z.int().nonnegative(),
+        byStatus: z
+          .array(
+            z.object({
+              status: z.enum([
+                "published",
+                "unpublished",
+                "processing",
+                "failed",
+              ]),
+              count: z.int().positive(),
+            }),
+          )
+          .describe("絞り込み結果にある状態。変換の失敗はまとめる。"),
+      }),
+    ),
+  browseNeighbors: adminAccess
+    .errors({ NOT_FOUND: { status: 404 } })
+    .route({
+      method: "GET",
+      path: "/admin/images/{id}/browse-neighbors",
+      summary: "一覧の絞り込みと並び順に従って前後の画像の ID を返す",
+    })
+    .input(imageListOptions.extend({ id: imageId }))
+    .output(
+      z.object({
+        previous: imageId
+          .nullable()
+          .describe("一覧で一つ手前の画像の ID。追加順では一つ新しい画像。"),
+        next: imageId
+          .nullable()
+          .describe("一覧で一つ先の画像の ID。追加順では一つ古い画像。"),
       }),
     ),
   get: adminAccess
