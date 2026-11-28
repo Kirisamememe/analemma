@@ -39,7 +39,7 @@ export const Button: Story = {
 export const PendingButton: Story = {
   /** 送信中のボタンの見本。 */
   render: () => (
-    <NavButton icon="log-out" isPending>
+    <NavButton icon="log-out" pendingLabel="処理中" isPending>
       ログアウト
     </NavButton>
   ),
@@ -56,7 +56,7 @@ export const Comparison: Story = {
         セキュリティ
       </NavLink>
       <NavButton icon="log-out">ログアウト</NavButton>
-      <NavButton icon="log-out" isPending>
+      <NavButton icon="log-out" pendingLabel="処理中" isPending>
         ログアウト
       </NavButton>
     </Stack>

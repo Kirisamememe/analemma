@@ -53,6 +53,7 @@ export const LoginPage = (): ReactNode => {
             title={t("login.title")}
           />
           <Button
+            pendingLabel={t("ui.pending")}
             isPending={login.isPending}
             onPress={() => {
               failure.close();

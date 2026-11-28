@@ -82,6 +82,7 @@ export const RevokeDeployTokenDialog = ({
           {t("deployTokens.cancel")}
         </Button>
         <Button
+          pendingLabel={t("ui.pending")}
           isPending={revoking.isPending}
           onPress={() => {
             failure.close();

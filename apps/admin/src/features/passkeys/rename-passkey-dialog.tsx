@@ -105,7 +105,12 @@ export const RenamePasskeyDialog = ({
             <Button isDisabled={renaming.isPending} onPress={close}>
               {t("passkeys.cancel")}
             </Button>
-            <Button isPending={renaming.isPending} tone="primary" type="submit">
+            <Button
+              pendingLabel={t("ui.pending")}
+              isPending={renaming.isPending}
+              tone="primary"
+              type="submit"
+            >
               {t("passkeys.save")}
             </Button>
           </Cluster>

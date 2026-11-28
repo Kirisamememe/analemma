@@ -29,6 +29,7 @@ export const PublicationButton = ({
     <>
       <Button
         size="sm-to-md"
+        pendingLabel={t("ui.pending")}
         isPending={publication.isPending && !publication.isConfirming}
         onPress={publication.toggle}
         tone={isPublished ? "secondary" : "primary"}
@@ -53,6 +54,7 @@ export const PublicationButton = ({
             {t("imageDetail.cancel")}
           </Button>
           <Button
+            pendingLabel={t("ui.pending")}
             isPending={publication.isPending}
             onPress={publication.unpublish}
             tone="primary"

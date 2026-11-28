@@ -249,15 +249,15 @@ describe("story", () => {
   });
 
   test("ツールバーの配色と言語を、html の属性と部品の訳に渡す(見本の文の言語は lang に残す)", () => {
-    const { Pending } = composeStories(primitivesButton, {
+    const { WithDescription } = composeStories(componentsPasskeyNameField, {
       initialGlobals: { theme: "dark", locale: "zh-Hans" },
     });
 
-    render(<Pending />);
+    render(<WithDescription />);
 
     expect(document.documentElement.dataset["theme"]).toBe("dark");
     expect(document.documentElement.lang).toBe("ja");
-    expect(screen.getByRole("progressbar", { name: "正在处理" })).toBeDefined();
+    expect(screen.getByRole("textbox", { name: "通行密钥名称" })).toBeDefined();
   });
 
   test("Toast の Stacked は、開いた時点で3つの知らせが見える", async () => {

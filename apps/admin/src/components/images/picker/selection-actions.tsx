@@ -37,6 +37,7 @@ export const SelectionActions = ({
         {t("imageDetail.cancel")}
       </Button>
       <Button
+        pendingLabel={t("ui.pending")}
         isPending={pending}
         tone="primary"
         isDisabled={selected === 0}

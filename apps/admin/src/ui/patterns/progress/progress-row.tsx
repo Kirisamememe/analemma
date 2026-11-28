@@ -32,6 +32,8 @@ type ProgressRowProps = {
   actionName?: string | undefined;
   /** 操作を送っている最中か。 */
   isActionPending?: boolean | undefined;
+  /** 操作を送っている最中であることを伝える名前。 */
+  actionPendingLabel?: string | undefined;
   /** 操作を押したときに、ID を渡して呼ぶ関数。 */
   onAction?: ((id: number) => void) | undefined;
   /** 行の要素(終わったときに focus を引き継ぐ)。 */
@@ -50,35 +52,43 @@ export const ProgressRow = ({
   actionLabel,
   actionName,
   isActionPending = false,
+  actionPendingLabel,
   onAction,
   ref,
-}: ProgressRowProps): ReactNode => (
-  <li ref={ref}>
-    <ActionListRow>
-      <Stack gap={0.5}>
-        <Text variant="label">
-          {href === undefined ? name : <Link href={href}>{name}</Link>}
-        </Text>
-        <Text tone="muted" variant="caption">
-          {detail}
-        </Text>
-      </Stack>
-      <Cluster align="center" gap={2}>
-        {isBusy && <Spinner />}
-        <Badge tone={tone}>{status}</Badge>
-        {actionLabel !== undefined && (
-          <Button
-            aria-label={actionName}
-            isPending={isActionPending}
-            onPress={() => {
-              onAction?.(id);
-            }}
-            size="sm"
-          >
-            {actionLabel}
-          </Button>
-        )}
-      </Cluster>
-    </ActionListRow>
-  </li>
-);
+}: ProgressRowProps): ReactNode => {
+  const actionPending =
+    actionPendingLabel === undefined
+      ? {}
+      : { isPending: isActionPending, pendingLabel: actionPendingLabel };
+
+  return (
+    <li ref={ref}>
+      <ActionListRow>
+        <Stack gap={0.5}>
+          <Text variant="label">
+            {href === undefined ? name : <Link href={href}>{name}</Link>}
+          </Text>
+          <Text tone="muted" variant="caption">
+            {detail}
+          </Text>
+        </Stack>
+        <Cluster align="center" gap={2}>
+          {isBusy && <Spinner />}
+          <Badge tone={tone}>{status}</Badge>
+          {actionLabel !== undefined && (
+            <Button
+              aria-label={actionName}
+              {...actionPending}
+              onPress={() => {
+                onAction?.(id);
+              }}
+              size="sm"
+            >
+              {actionLabel}
+            </Button>
+          )}
+        </Cluster>
+      </ActionListRow>
+    </li>
+  );
+};

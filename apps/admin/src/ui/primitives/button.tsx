@@ -1,6 +1,5 @@
 import type { ReactNode, Ref } from "react";
 import { Button as AriaButton, ProgressBar } from "react-aria-components";
-import { useTranslation } from "react-i18next";
 
 import { Icon, type IconName, Spinner } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
@@ -80,31 +79,45 @@ type ButtonContent =
       "aria-label": string;
     };
 
+/** 送信中の状態と、それを伝える名前。 */
+export type PendingState =
+  | {
+      /** 送信中か。 */
+      isPending?: undefined;
+      /** 送信中であることを伝える、アクセシブルな名前。 */
+      pendingLabel?: undefined;
+    }
+  | {
+      /** 送信中か(押せなくし、待っていることを示す)。 */
+      isPending: boolean;
+      /** 送信中であることを伝える、アクセシブルな名前。 */
+      pendingLabel: string;
+    };
+
 /** ボタンに渡す値。 */
-type ButtonProps = ButtonContent & {
-  /** 見た目の用途。 */
-  tone?: "primary" | "secondary" | "quiet" | "danger" | "dashed";
-  /** 高さ(`sm-to-md` は画面の幅で変わる)。 */
-  size?: "row" | "card" | "md" | "sm" | "sm-to-md";
-  /** `icon` で指定したアイコンの線の太さ。 */
-  iconWeight?: "regular" | "bold";
-  /** 角の丸み。 */
-  rounded?: "control" | "xs" | "full";
-  /** 送信先のフォームの ID。 */
-  form?: string | undefined;
-  /** フォームを送るボタンか。 */
-  type?: "button" | "submit";
-  /** 送信中か(押せなくし、待っていることを示す)。 */
-  isPending?: boolean;
-  /** 押せないか。 */
-  isDisabled?: boolean;
-  /** 押したときに呼ぶ関数。 */
-  onPress?: () => void;
-  /** ボタンの要素(focus を移すときに使う)。 */
-  ref?: Ref<HTMLButtonElement> | undefined;
-  /** ボタンを説明する要素の ID。 */
-  "aria-describedby"?: string | undefined;
-};
+type ButtonProps = ButtonContent &
+  PendingState & {
+    /** 見た目の用途。 */
+    tone?: "primary" | "secondary" | "quiet" | "danger" | "dashed";
+    /** 高さ(`sm-to-md` は画面の幅で変わる)。 */
+    size?: "row" | "card" | "md" | "sm" | "sm-to-md";
+    /** `icon` で指定したアイコンの線の太さ。 */
+    iconWeight?: "regular" | "bold";
+    /** 角の丸み。 */
+    rounded?: "control" | "xs" | "full";
+    /** 送信先のフォームの ID。 */
+    form?: string | undefined;
+    /** フォームを送るボタンか。 */
+    type?: "button" | "submit";
+    /** 押せないか。 */
+    isDisabled?: boolean;
+    /** 押したときに呼ぶ関数。 */
+    onPress?: () => void;
+    /** ボタンの要素(focus を移すときに使う)。 */
+    ref?: Ref<HTMLButtonElement> | undefined;
+    /** ボタンを説明する要素の ID。 */
+    "aria-describedby"?: string | undefined;
+  };
 
 /** 操作のボタン。 */
 export const Button = ({
@@ -113,6 +126,7 @@ export const Button = ({
   type = "button",
   form,
   isPending = false,
+  pendingLabel,
   isDisabled = false,
   onPress,
   ref,
@@ -123,7 +137,7 @@ export const Button = ({
   "aria-describedby": describedBy,
   children,
 }: ButtonProps): ReactNode => {
-  const { t } = useTranslation();
+  const shownPendingLabel = isPending ? pendingLabel : undefined;
 
   const attributes = {
     ...(ariaLabel === undefined ? {} : { "aria-label": ariaLabel }),
@@ -149,9 +163,9 @@ export const Button = ({
       type={type}
       {...attributes}
     >
-      {isPending && (
+      {shownPendingLabel !== undefined && (
         <ProgressBar
-          aria-label={t("ui.pending")}
+          aria-label={shownPendingLabel}
           className={style.progress()}
           isIndeterminate
         >

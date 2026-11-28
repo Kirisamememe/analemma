@@ -73,12 +73,19 @@ export const InsetCorner: Story = {
   },
 };
 
-export const Pending: Story = { args: { tone: "primary", isPending: true } };
+export const Pending: Story = {
+  args: { tone: "primary", isPending: true, pendingLabel: "処理中" },
+};
 
 export const Disabled: Story = { args: { tone: "primary", isDisabled: true } };
 
 export const DangerPending: Story = {
-  args: { tone: "danger", children: "削除する", isPending: true },
+  args: {
+    tone: "danger",
+    children: "削除する",
+    isPending: true,
+    pendingLabel: "処理中",
+  },
 };
 
 export const PendingWidth: Story = {
@@ -87,23 +94,25 @@ export const PendingWidth: Story = {
     <Cluster align="start" gap={6}>
       <Stack align="start" gap={2}>
         <Button tone="primary">保存する</Button>
-        <Button isPending tone="primary">
+        <Button pendingLabel="処理中" isPending tone="primary">
           保存する
         </Button>
       </Stack>
       <Stack align="start" gap={2}>
         <Button>保存する</Button>
-        <Button isPending>保存する</Button>
+        <Button pendingLabel="処理中" isPending>
+          保存する
+        </Button>
       </Stack>
       <Stack align="start" gap={2}>
         <Button tone="danger">削除する</Button>
-        <Button isPending tone="danger">
+        <Button pendingLabel="処理中" isPending tone="danger">
           削除する
         </Button>
       </Stack>
       <Stack align="start" gap={2}>
         <Button size="sm">保存する</Button>
-        <Button isPending size="sm">
+        <Button pendingLabel="処理中" isPending size="sm">
           保存する
         </Button>
       </Stack>
@@ -112,18 +121,29 @@ export const PendingWidth: Story = {
           <Icon name="trash-2" />
           削除する
         </Button>
-        <Button isPending>
+        <Button pendingLabel="処理中" isPending>
           <Icon name="trash-2" />
           削除する
         </Button>
       </Stack>
       <Stack align="start" gap={2}>
         <Button aria-label="削除する" icon="trash-2" />
-        <Button aria-label="削除する" icon="trash-2" isPending />
+        <Button
+          aria-label="削除する"
+          icon="trash-2"
+          pendingLabel="処理中"
+          isPending
+        />
       </Stack>
       <Stack align="start" gap={2}>
         <Button aria-label="削除する" icon="trash-2" size="sm" />
-        <Button aria-label="削除する" icon="trash-2" isPending size="sm" />
+        <Button
+          aria-label="削除する"
+          icon="trash-2"
+          pendingLabel="処理中"
+          isPending
+          size="sm"
+        />
       </Stack>
     </Cluster>
   ),

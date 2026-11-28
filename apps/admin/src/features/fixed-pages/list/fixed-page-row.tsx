@@ -103,6 +103,7 @@ export const FixedPageRow = ({
               : "fixedPages.publishPage",
             { title },
           )}
+          pendingLabel={t("ui.pending")}
           isPending={publication.isPending}
           onPress={() => {
             publication.mutate();

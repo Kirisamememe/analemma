@@ -74,7 +74,11 @@ const FormExample = (): ReactNode => {
                 />
               )}
             </form.AppField>
-            <Button isPending={isSubmitting} type="submit">
+            <Button
+              pendingLabel="処理中"
+              isPending={isSubmitting}
+              type="submit"
+            >
               保存
             </Button>
             {saved !== undefined && (

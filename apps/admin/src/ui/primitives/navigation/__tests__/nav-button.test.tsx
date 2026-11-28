@@ -23,7 +23,12 @@ describe("NavButton", () => {
     expect(onPress).toHaveBeenCalledTimes(1);
 
     view.rerender(
-      <NavButton icon="log-out" isPending onPress={onPress}>
+      <NavButton
+        icon="log-out"
+        pendingLabel="処理中"
+        isPending
+        onPress={onPress}
+      >
         ログアウト
       </NavButton>,
     );

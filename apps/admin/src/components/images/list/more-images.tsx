@@ -45,6 +45,7 @@ export const MoreImages = ({
   return (
     <Stack align="center">
       <Button
+        pendingLabel={t("ui.pending")}
         isPending={next.isLoading}
         onPress={() => {
           onLoad();

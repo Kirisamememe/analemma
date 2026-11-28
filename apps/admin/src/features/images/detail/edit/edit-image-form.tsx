@@ -30,7 +30,12 @@ export const EditImageForm = ({
           <Button isDisabled={isSaving} onPress={requestClose}>
             {t("imageDetail.cancel")}
           </Button>
-          <Button isPending={isSaving} tone="primary" type="submit">
+          <Button
+            pendingLabel={t("ui.pending")}
+            isPending={isSaving}
+            tone="primary"
+            type="submit"
+          >
             {t("imageDetail.save")}
           </Button>
         </Cluster>

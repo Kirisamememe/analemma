@@ -108,6 +108,7 @@ export const DeleteFixedPage = ({
           </Button>
           <Button
             isDisabled={deleting.data?._tag === "NotFound"}
+            pendingLabel={t("ui.pending")}
             isPending={deleting.isPending}
             onPress={submit}
             tone="danger"

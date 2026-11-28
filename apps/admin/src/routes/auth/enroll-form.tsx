@@ -48,7 +48,12 @@ export const EnrollForm = ({
           <RouteLink to="/login">{t("enroll.signIn")}</RouteLink>
         </Text>
       )}
-      <Button isPending={isPending} tone="primary" type="submit">
+      <Button
+        pendingLabel={t("ui.pending")}
+        isPending={isPending}
+        tone="primary"
+        type="submit"
+      >
         {t("enroll.submit")}
       </Button>
     </Form>

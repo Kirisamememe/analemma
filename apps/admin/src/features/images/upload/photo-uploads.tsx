@@ -60,6 +60,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
             <ModalActions>
               <Button
                 tone="primary"
+                pendingLabel={t("ui.pending")}
                 isPending={dialog.metadata.isSaving}
                 isDisabled={dialog.isUploading}
                 onPress={dialog.finish}

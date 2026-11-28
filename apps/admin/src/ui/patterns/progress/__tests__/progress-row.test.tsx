@@ -61,6 +61,7 @@ describe("ProgressRow", () => {
           detail="5 MB"
           id={3}
           isActionPending
+          actionPendingLabel="処理中"
           isBusy
           name="busy.jpg"
           onAction={onAction}

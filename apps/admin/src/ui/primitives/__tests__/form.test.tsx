@@ -57,7 +57,7 @@ const renderForm = (
         label="パスキーの名前"
         name="name"
       />
-      <Button isPending={isPending} type="submit">
+      <Button pendingLabel="処理中" isPending={isPending} type="submit">
         登録
       </Button>
     </Form>,
@@ -137,7 +137,7 @@ describe("Form", () => {
     rerender(
       <Form isPending={false} onSubmit={submissions.onSubmit}>
         <TextField label="パスキーの名前" name="name" />
-        <Button isPending={false} type="submit">
+        <Button pendingLabel="処理中" isPending={false} type="submit">
           登録
         </Button>
       </Form>,

@@ -98,6 +98,7 @@ export const EditImage = ({
     <>
       <Button
         size="sm-to-md"
+        pendingLabel={t("ui.pending")}
         isPending={
           isSaving || (opening.isPending && !isDisabled && openingId === id)
         }

@@ -36,6 +36,7 @@ export const DeleteImage = ({
         size="sm-to-md"
         aria-label={t("imageDetail.delete")}
         icon="trash-2"
+        pendingLabel={t("ui.pending")}
         isPending={deleting.isDeleting && !deleting.isConfirming}
         onPress={deleting.confirm}
       />
@@ -57,6 +58,7 @@ export const DeleteImage = ({
           </Button>
           <Button
             isDisabled={deleting.isGone}
+            pendingLabel={t("ui.pending")}
             isPending={deleting.isPending}
             onPress={deleting.remove}
             tone="danger"

@@ -66,6 +66,7 @@ export const LogOutAllSection = (): ReactNode => {
             {t("passkeys.cancel")}
           </Button>
           <Button
+            pendingLabel={t("ui.pending")}
             isPending={logOutAll.isPending}
             onPress={() => {
               failure.close();

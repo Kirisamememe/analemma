@@ -81,6 +81,7 @@ export const DeletePasskeyDialog = ({
           {t("passkeys.cancel")}
         </Button>
         <Button
+          pendingLabel={t("ui.pending")}
           isPending={deleting.isPending}
           onPress={() => {
             failure.close();
