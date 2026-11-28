@@ -12,6 +12,8 @@ import {
 
 const DrawerPreview = ({
   label,
+  openLabel,
+  closeLabel,
   heading,
   children,
   isOpen,
@@ -21,8 +23,8 @@ const DrawerPreview = ({
 
   return (
     <NavDrawer
-      openLabel="ナビを開く"
-      closeLabel="ナビを閉じる"
+      closeLabel={closeLabel}
+      openLabel={openLabel}
       heading={heading}
       isOpen={isOpen}
       label={label}

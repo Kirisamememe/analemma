@@ -161,6 +161,12 @@ test("文言を受け取る属性に直接書いた文言を止め、class や�
   ).toEqual([]);
 });
 
+test("閉じるボタンや送信中の名前を受ける props に直接書いた文言を止めること", () => {
+  expect(
+    literalsIn("invalid/apps/admin/src/routes/literal-labels.tsx"),
+  ).toEqual([11, 12, 13, 14, 15, 16, 17]);
+});
+
 const tooDeepIn = (file: string): number =>
   lintFixture(`invalid/apps/admin/src/${file}`).diagnostics.filter(
     ({ code }) => code === "react(jsx-max-depth)",
