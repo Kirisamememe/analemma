@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { adminAccess } from "../access-errors";
+import { imageListCursor, imageListPage } from "./image-list";
 import {
   adminImage,
   imageAlt,
@@ -18,20 +19,13 @@ export const images = {
     .route({
       method: "GET",
       path: "/admin/images",
-      summary: "画像の一覧(新しく足した順)",
+      summary: "タグで絞り込み、追加順かタイトル順で読む画像の一覧",
     })
-    .input(
-      z.object({
-        cursor: imageId
-          .optional()
-          .describe("前のページの nextCursor。省くと最初のページ。"),
-        limit: z.int().min(1).max(100).default(50).describe("1ページの件数。"),
-      }),
-    )
+    .input(imageListPage)
     .output(
       z.object({
         images: z.array(adminImage),
-        nextCursor: imageId
+        nextCursor: imageListCursor
           .nullable()
           .describe("次のページを読むときの cursor。次が無ければ null。"),
       }),

@@ -29,7 +29,11 @@ export {
   holdFirstConversion,
   photo,
   uploadRequest,
-} from "@/test-client/photo-uploads";
+} from "@/test-client/images/photo-uploads";
+export {
+  insertImages,
+  openTestDatabase,
+} from "@/test-client/images/seed-images";
 export {
   issueTestDeployToken,
   prepareTestKinds,
