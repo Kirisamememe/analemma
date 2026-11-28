@@ -5,10 +5,11 @@ import {
 import { TEST_ORIGIN, type TestClient } from "@/test-client/create-test-client";
 
 const FIXTURES = {
-  "wide-red.jpg": "../features/images/processing/__tests__/wide-red.jpg",
-  "high-iso.jpg": "../features/images/processing/__tests__/high-iso.jpg",
-  "red.bmp": "../features/images/processing/__tests__/red.bmp",
-  "rotated-with-gps.heic": "../platform/images/__tests__/rotated-with-gps.heic",
+  "wide-red.jpg": "../../features/images/processing/__tests__/wide-red.jpg",
+  "high-iso.jpg": "../../features/images/processing/__tests__/high-iso.jpg",
+  "red.bmp": "../../features/images/processing/__tests__/red.bmp",
+  "rotated-with-gps.heic":
+    "../../platform/images/__tests__/rotated-with-gps.heic",
 };
 
 /** テストで送る写真のファイルを読む。 */
