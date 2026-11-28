@@ -30,7 +30,7 @@
 - `.tsx` には、component を1つだけ書く。export しない補助の component も、別のファイルにする。管理画面の `src/` と `.storybook/` の全体で、lint が止める。story・テスト・テストの補助(`src/testing/`)は対象にしない。
 - `.tsx` は、JSX の要素か fragment を書くファイルだけにする。JSX を書かない hook・context・テスト・story は `.ts` にする(lint で止まる)。
 - `.ts` で React の値を import できるのは、hook のファイル(`use-*.ts`。export する関数は1つだけで、名前は `use` で始まる)と、context のファイル(`*-context.ts`。値として export するのは `createContext` の結果だけで、少なくとも1つは export する)だけ。lint はこの import の条件を検査し、`src/` の hook には隣のテストも求める。
-- ロジックに切り出しにくい表示の出し分けは、同じフォルダの `__tests__` のコンポーネントのテストで確かめる。要素は role・label・text など利用者に見えるもので探し、利用者に見える結果を確かめる。マークアップの作りをなぞるテストは書かない。
+- ロジックに切り出しにくい表示の出し分けは、同じフォルダの `__tests__` のコンポーネントのテストで確かめる(lint は求めない)。飾りのように、利用者に見える違いの無い出し分けには、テストを書かない。要素は role・label・text など利用者に見えるもので探し、利用者に見える結果を確かめる。マークアップの作りをなぞるテストは書かない。
 - memo 化は React Compiler に任せる。`useCallback`・`useMemo`・`memo` を手で書くのは、「再レンダリングの期待」のテストで守る境界と、ref の callback のように identity が振る舞いを決める所だけにする(テストにも同じコンパイラを通すが、この境界をコンパイラに任せるかは、`DECISIONS.md` の「React Compiler」の TODO)。
 - React の effect は、ほかの手段で書けない処理だけを、目的が分かる名前の hook の直下で使う。hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` と、`DECISIONS.md` の「React の effect」の hook の表に足す。この決まりはテスト・story・`.storybook/` にも掛かる(lint で止まる)。
 - server との通信には contract の型を使い、応答の型を手で書かない。

@@ -169,12 +169,6 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     },
   },
   {
-    files: ["**/apps/admin/src/**/*.tsx"],
-    rules: {
-      "project/require-sibling-test": ["error", { branchingComponents: true }],
-    },
-  },
-  {
     files: SINGLE_COMPONENT_FILES,
     rules: { "react/no-multi-comp": "error" },
   },
