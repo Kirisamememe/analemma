@@ -46,18 +46,14 @@ export const NavSelect = <Value extends string>({
 }: NavSelectProps<Value>): ReactNode => {
   const selected = options.find((option) => option.value === value);
 
-  return (
-    <AriaSelect
-      aria-label={label}
-      onChange={(key) => {
-        const next = options.find((option) => option.value === key);
+  const select = (key: string | number | null): void => {
+    const next = options.find((option) => option.value === key);
 
-        if (next !== undefined) {
-          onChange(next.value);
-        }
-      }}
-      value={value}
-    >
+    if (next !== undefined) onChange(next.value);
+  };
+
+  return (
+    <AriaSelect aria-label={label} onChange={select} value={value}>
       <AriaButton
         className={navItem({
           opensList: true,

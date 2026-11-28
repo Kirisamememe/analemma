@@ -65,10 +65,23 @@ export const DeleteFixedPage = ({
     },
   });
 
+  const open = (): void => {
+    deleting.reset(); // 開き直したら、前の送信の結果を消す
+    setIsOpen(true);
+    onOpenChange?.(true);
+  };
+
   const close = (): void => {
     failure.close();
     setIsOpen(false);
     onOpenChange?.(false);
+  };
+
+  const submit = (): void => {
+    if (!isOpen) return; // 閉じ始めた後に遅れて届いた押下では送らない
+
+    failure.close();
+    deleting.mutate();
   };
 
   return (
@@ -78,17 +91,13 @@ export const DeleteFixedPage = ({
         icon="trash-2"
         isDisabled={isDisabled}
         ref={trigger}
-        onPress={() => {
-          deleting.reset(); // 開き直したら、前の送信の結果を消す
-          setIsOpen(true);
-          onOpenChange?.(true);
-        }}
+        onPress={open}
       />
       <Dialog
         isOpen={isOpen}
         isPending={deleting.isPending}
-        onOpenChange={(open) => {
-          if (!open) close();
+        onOpenChange={(isShown) => {
+          if (!isShown) close();
         }}
         title={t("fixedPages.deleteTitle", { title: page.title })}
       >
@@ -100,12 +109,7 @@ export const DeleteFixedPage = ({
           <Button
             isDisabled={deleting.data?._tag === "NotFound"}
             isPending={deleting.isPending}
-            onPress={() => {
-              if (isOpen) {
-                failure.close();
-                deleting.mutate(); // 閉じ始めた後に遅れて届いた押下では送らない
-              }
-            }}
+            onPress={submit}
             tone="danger"
           >
             {t("fixedPages.delete")}

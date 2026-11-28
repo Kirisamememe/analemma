@@ -80,6 +80,20 @@ export const EditImage = ({
     },
   });
 
+  const open = (): void => {
+    if (isDisabled) return;
+
+    failure.close();
+    const target = { id };
+    setOpeningId(id);
+    request.current = target;
+    opening.mutate(target);
+  };
+
+  const close = (): void => {
+    setEditing((current) => (current === editing ? undefined : current));
+  };
+
   return (
     <>
       <Button
@@ -88,29 +102,13 @@ export const EditImage = ({
           isSaving || (opening.isPending && !isDisabled && openingId === id)
         }
         ref={attach}
-        onPress={() => {
-          if (isDisabled) return;
-
-          failure.close();
-          const target = { id };
-          setOpeningId(id);
-          request.current = target;
-          opening.mutate(target);
-        }}
+        onPress={open}
       >
         <Icon name="pencil" />
         {t("imageDetail.edit")}
       </Button>
       {editing !== undefined && (
-        <EditImageDialog
-          key={editing.id}
-          image={editing}
-          onClose={() => {
-            setEditing((current) =>
-              current === editing ? undefined : current,
-            );
-          }}
-        />
+        <EditImageDialog key={editing.id} image={editing} onClose={close} />
       )}
     </>
   );

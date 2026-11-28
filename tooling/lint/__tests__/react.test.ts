@@ -172,3 +172,57 @@ test("JSX の深さは、部品を組むだけの場所では4段、feature の 
   expect(tooDeepIn("features/depth/ui/six-deep.tsx")).toBe(1);
   expect(tooDeepIn("ui/layout/six-deep.tsx")).toBe(0);
 });
+
+const COMPLEX = "JSX の中の出し分けの条件に";
+const NESTED = "JSX の中で、出し分けを入れ子に";
+const LONG = "JSX の中の関数に";
+
+const logicIn = (file: string): readonly (readonly [number, string])[] =>
+  lintFixture(file)
+    .diagnostics.filter(({ code }) => code === "project(no-jsx-logic)")
+    .map(
+      ({ line, message }) =>
+        [
+          line,
+          [COMPLEX, NESTED, LONG].find((start) => message.startsWith(start)) ??
+            message,
+        ] as const,
+    )
+    .toSorted(([left], [right]) => left - right);
+
+describe("JSX の中のロジック", () => {
+  test("演算子が2つ以上の条件に、JSX を出す出し分けでも、文字列を出す出し分けでも、三項でも診断を出すこと", () => {
+    expect(
+      logicIn("invalid/apps/admin/src/routes/logic-in-jsx.tsx").slice(0, 3),
+    ).toEqual([
+      [15, COMPLEX],
+      [16, COMPLEX],
+      [17, COMPLEX],
+    ]);
+  });
+
+  test("出し分けの入れ子に、内側が JSX でも文字列でも診断を出すこと", () => {
+    expect(
+      logicIn("invalid/apps/admin/src/routes/logic-in-jsx.tsx").slice(3, 7),
+    ).toEqual([
+      [18, NESTED],
+      [19, NESTED],
+      [20, NESTED],
+      [21, NESTED],
+    ]);
+  });
+
+  test("文が3つ以上の関数に、if の中の文も数えて診断を出し、spread に書いた込み入った条件にも診断を出すこと", () => {
+    expect(
+      logicIn("invalid/apps/admin/src/routes/logic-in-jsx.tsx").slice(7),
+    ).toEqual([
+      [24, LONG],
+      [34, LONG],
+      [43, COMPLEX],
+    ]);
+  });
+
+  test("演算子1つの条件(算術の演算子は数えない)・名前を付けた値・2文までの関数は止めないこと", () => {
+    expect(logicIn("valid/apps/admin/src/routes/plain-jsx.tsx")).toEqual([]);
+  });
+});

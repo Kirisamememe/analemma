@@ -33,6 +33,10 @@ export const ImageChoice = ({ image, focus }: ImageChoiceProps): ReactNode => {
     );
   }
 
+  const note = missing
+    ? t("imageDetail.gone")
+    : included && t("imagePicker.included");
+
   return (
     <span>
       <input
@@ -43,7 +47,7 @@ export const ImageChoice = ({ image, focus }: ImageChoiceProps): ReactNode => {
         type={type}
         onChange={onChange}
       />
-      {missing ? t("imageDetail.gone") : included && t("imagePicker.included")}
+      {note}
     </span>
   );
 };

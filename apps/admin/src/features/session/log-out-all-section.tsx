@@ -28,6 +28,12 @@ export const LogOutAllSection = (): ReactNode => {
     },
   });
 
+  const changeOpen = (open: boolean): void => {
+    if (!open) failure.close();
+
+    setConfirming(open);
+  };
+
   return (
     <Stack as="section" gap={4}>
       <Heading level={2}>{t("sessions.title")}</Heading>
@@ -45,13 +51,7 @@ export const LogOutAllSection = (): ReactNode => {
       <Dialog
         isOpen={isConfirming}
         isPending={logOutAll.isPending}
-        onOpenChange={(open) => {
-          if (!open) {
-            failure.close();
-          }
-
-          setConfirming(open);
-        }}
+        onOpenChange={changeOpen}
         title={t("sessions.logOutAllTitle")}
       >
         <Text>{t("sessions.description")}</Text>

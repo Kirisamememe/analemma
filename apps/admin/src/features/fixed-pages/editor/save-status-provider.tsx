@@ -1,12 +1,10 @@
 import { type ReactNode, useState } from "react";
 
+import { SaveStatusDialog } from "./frame/save-status-dialog";
 import {
   SaveStatusContext,
   type SaveStatus,
 } from "./hooks/save-status-context";
-
-import { useTranslate } from "@/i18n/use-translate";
-import { StatusDialog } from "@/ui/primitives/overlays";
 
 type SaveStatusProviderProps = {
   /** 固定ページの作成・編集画面を見分けるパスと検索条件。 */
@@ -21,7 +19,6 @@ export const SaveStatusProvider = ({
   children,
 }: SaveStatusProviderProps): ReactNode => {
   const [status, setStatus] = useState<SaveStatus>();
-  const t = useTranslate();
 
   const [previousLocation, setPreviousLocation] = useState(location);
 
@@ -35,29 +32,10 @@ export const SaveStatusProvider = ({
     <SaveStatusContext value={setStatus}>
       <div inert={status !== undefined}>{children}</div>
       {status !== undefined && (
-        <StatusDialog
-          isOpen
-          title={t(
-            status === "pending"
-              ? "fixedPageEditor.saving"
-              : `fixedPageEditor.${status}`,
-          )}
-          status={status === "pending" ? "pending" : "success"}
-          onOpenChange={(open) => {
-            if (open || status === "pending") return;
-
+        <SaveStatusDialog
+          status={status}
+          onClose={() => {
             setStatus(undefined);
-
-            if (status === "created") {
-              requestAnimationFrame(() => {
-                const main = document.querySelector("main");
-
-                const field =
-                  main?.querySelector("input") ?? main?.querySelector("a");
-
-                field?.focus();
-              });
-            }
           }}
         />
       )}

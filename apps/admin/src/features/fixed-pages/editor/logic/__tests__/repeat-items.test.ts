@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
+import { REPEAT_MAX_ITEMS } from "@analemma/contract";
+
 import {
+  isRepeatFull,
   addRepeatItem,
   moveRepeatItem,
   removeRepeatItem,
@@ -81,4 +84,15 @@ test("focus を移すボタンを、要素とボタンごとに見分ける", ()
     repeatFocusKey({ id: "a", button: "down" }),
   );
   expect(repeatFocusKey("add")).toBe("add");
+});
+
+describe("isRepeatFull", () => {
+  test("要素が上限の数に達したら、満杯とする", () => {
+    const full = Array.from({ length: REPEAT_MAX_ITEMS }, (_, index) =>
+      String(index),
+    );
+
+    expect(isRepeatFull(full.slice(1))).toBe(false);
+    expect(isRepeatFull(full)).toBe(true);
+  });
 });

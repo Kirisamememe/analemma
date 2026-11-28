@@ -30,15 +30,17 @@ describe("テストの置き場所", () => {
       file: "apps/admin/src/empty-test.ts",
     },
     {
-      label: "テストの無い、表示を出し分けるコンポーネント",
-      file: "apps/admin/src/branchy.tsx",
-    },
-    {
       label: "テストの無い hook",
       file: "apps/admin/src/use-title.ts",
     },
   ])("$label に診断を出すこと", ({ file }) => {
     expect(countRule(file, "project(require-sibling-test)")).toBe(1);
+  });
+
+  test("出し分けのある部品に、隣のテストが無くても診断を出さないこと", () => {
+    expect(
+      lintFixture("valid/apps/admin/src/status-badge.tsx").diagnostics,
+    ).toEqual([]);
   });
 });
 

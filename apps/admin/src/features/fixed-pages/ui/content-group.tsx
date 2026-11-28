@@ -69,6 +69,12 @@ export const ContentGroup = (props: ContentGroupProps): ReactNode => {
     </div>
   );
 
+  const labelTone = invalid ? "danger" : "default";
+
+  const branchedMessage = kind !== "item" && invalid && (
+    <Branch parent={kind}>{message}</Branch>
+  );
+
   return (
     <fieldset
       aria-describedby={invalid ? errorId : undefined}
@@ -81,7 +87,7 @@ export const ContentGroup = (props: ContentGroupProps): ReactNode => {
         <>
           <div className={bar()}>
             <div className="self-start py-1.5" id={titleId}>
-              <Text variant="label" tone={invalid ? "danger" : "default"}>
+              <Text variant="label" tone={labelTone}>
                 {label}
               </Text>
             </div>
@@ -110,7 +116,7 @@ export const ContentGroup = (props: ContentGroupProps): ReactNode => {
               className="w-7 shrink-0 @max-3xs/nested-form:w-3"
             />
             <div className="min-w-0 grow">
-              {invalid && <Branch parent={kind}>{message}</Branch>}
+              {branchedMessage}
               {children}
             </div>
           </div>

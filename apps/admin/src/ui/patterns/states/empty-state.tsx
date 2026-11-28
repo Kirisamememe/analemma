@@ -44,9 +44,7 @@ export const EmptyState = ({
     </span>
     <Stack align="center" gap={1}>
       <Heading level={2}>{title}</Heading>
-      {description !== undefined && description !== "" && (
-        <Text tone="muted">{description}</Text>
-      )}
+      {description && <Text tone="muted">{description}</Text>}
     </Stack>
     {isShown(actions) && <Cluster gap={2}>{actions}</Cluster>}
   </div>

@@ -26,6 +26,7 @@ export const PageFields = ({
   picked,
 }: PageFieldsProps): ReactNode => {
   const t = useTranslate();
+  const slugRef = picked ? focusIfLost : undefined;
 
   return (["slug", "title"] as const).map((name) => (
     <form.AppField
@@ -46,7 +47,7 @@ export const PageFields = ({
           description={
             name === "slug" ? t("fixedPageEditor.guide.slug") : undefined
           }
-          inputRef={name === "slug" && picked ? focusIfLost : undefined}
+          inputRef={name === "slug" ? slugRef : undefined}
           isRequired
         />
       )}

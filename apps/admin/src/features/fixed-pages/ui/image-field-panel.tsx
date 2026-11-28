@@ -139,12 +139,14 @@ export const ImageFieldPanel = ({
     </Button>
   );
 
+  const canRemove = selected && !required;
+
   const buttons = (
     <div className={style.controls()}>
       <div className={style.action()} title={chooseLabel}>
         {chooseButton}
       </div>
-      {selected && !required && (
+      {canRemove && (
         <div className={style.action()} title={removeLabel}>
           <Button
             tone="quiet"
@@ -160,6 +162,11 @@ export const ImageFieldPanel = ({
   );
 
   const view = image && toImageStatusView(image.status);
+
+  const missing = photo === undefined ? view : undefined;
+
+  const missingIcon =
+    missing?.isPending === true ? <Spinner /> : <Icon name="image-off" />;
 
   const caption = image && (
     <div className={style.caption()}>
@@ -214,11 +221,11 @@ export const ImageFieldPanel = ({
               width={photo.width}
             />
           )}
-          {view && !photo && (
+          {missing && (
             <Cluster>
-              {view.isPending ? <Spinner /> : <Icon name="image-off" />}
+              {missingIcon}
               <Text variant="caption" tone="muted">
-                {t(view.missing)}
+                {t(missing.missing)}
               </Text>
             </Cluster>
           )}

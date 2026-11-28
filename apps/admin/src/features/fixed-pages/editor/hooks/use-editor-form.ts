@@ -237,3 +237,18 @@ export const useEditorForm = (
 
 /** 固定ページの各項目が使うフォーム。 */
 export type EditorForm = ReturnType<typeof useEditorForm>["form"];
+
+type AnyEditorField = Parameters<
+  Parameters<EditorForm["AppField"]>[0]["children"]
+>[0];
+
+/** 中身の項目の入力欄を描くのに使う、フォームの項目の部品と値。 */
+export type EditorField = Pick<
+  AnyEditorField,
+  "TextField" | "TextArea" | "NumberField" | "Checkbox" | "DateField" | "Select"
+> & {
+  /** 項目の今の値。 */
+  readonly state: Record<"value", unknown>;
+  /** 項目の値を替える関数。 */
+  readonly handleChange: (value: string | null) => void;
+};

@@ -73,6 +73,31 @@ export const ViewerPhoto = ({
   const [attempt, setAttempt] = useState(0);
   const retrySource = useRef<Element | null>(null);
   const style = photo({ visible: status === "loaded", pending });
+  const hasFailed = status === "failed" || status === "retrying";
+
+  const focusAfterRetry = (image: HTMLImageElement | null): void => {
+    const source = retrySource.current;
+
+    if (image === null || status !== "loaded" || source === null) return;
+
+    retrySource.current = null;
+
+    if (
+      document.activeElement === source ||
+      (document.activeElement === document.body && !source.isConnected)
+    ) {
+      image.focus();
+    }
+  };
+
+  const retry = (): void => {
+    retrySource.current =
+      document.activeElement instanceof HTMLButtonElement
+        ? document.activeElement
+        : null;
+    setStatus("retrying");
+    setAttempt((count) => count + 1);
+  };
 
   return (
     <div
@@ -95,20 +120,7 @@ export const ViewerPhoto = ({
           setStatus("loaded");
           onSettled?.();
         }}
-        ref={(image) => {
-          const source = retrySource.current;
-
-          if (image === null || status !== "loaded" || source === null) return;
-
-          retrySource.current = null;
-
-          if (
-            document.activeElement === source ||
-            (document.activeElement === document.body && !source.isConnected)
-          ) {
-            image.focus();
-          }
-        }}
+        ref={focusAfterRetry}
         tabIndex={-1}
         sizes="(min-width: 48rem) calc(100vw - 25rem), 100vw"
         src={smallest.url}
@@ -124,20 +136,13 @@ export const ViewerPhoto = ({
           </span>
         </div>
       )}
-      {(status === "failed" || status === "retrying") && (
+      {hasFailed && (
         <div className={style.error()}>
           <ErrorState
             isRetrying={status === "retrying"}
             layout="screen"
             level={2}
-            onRetry={() => {
-              retrySource.current =
-                document.activeElement instanceof HTMLButtonElement
-                  ? document.activeElement
-                  : null;
-              setStatus("retrying");
-              setAttempt((count) => count + 1);
-            }}
+            onRetry={retry}
             title={t("imageViewer.loadFailed")}
           />
         </div>

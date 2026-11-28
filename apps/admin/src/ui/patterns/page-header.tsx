@@ -25,9 +25,7 @@ export const PageHeader = ({
     <div className="pt-1">
       <Stack gap={1}>
         <Heading level={1}>{title}</Heading>
-        {description !== undefined && description !== "" && (
-          <Text tone="muted">{description}</Text>
-        )}
+        {description && <Text tone="muted">{description}</Text>}
       </Stack>
     </div>
     {isShown(actions) && <Cluster gap={2}>{actions}</Cluster>}

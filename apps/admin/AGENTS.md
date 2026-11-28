@@ -27,11 +27,12 @@
 
 - `features/`・`components/`・`ui/` では、hook を `hooks/`、純粋な関数を `logic/`、server の API を呼ぶ処理(読み込み・書き込み・query のキー)を feature の中の `queries/` に、使う部品の近くに置く。複数の feature が使う処理は `src/queries/` に置く。純粋な関数でも server の API を呼ぶ処理でもない `.ts`(ブラウザの API を呼ぶ、呼び出しのあいだ状態を持つ、渡された関数で外に書き込む、`crypto.randomUUID()` で値を作る、など)は、今の場所に置き、lint の設定の `effectfulModules` に足す(lint で止まる)。今はログインの gate・WebAuthn のブラウザでの処理・クリップボードへの書き込み・固定ページのフォームの最初の値を作る処理。
 - ロジックはできる限り `.ts` に置き、同じフォルダの `__tests__` に `.test.ts` を置いてテストする。`.tsx` にはマークアップと、それをロジックにつなぐコードを置く。
+- JSX の中にロジックを書かない。JSX の式の中では、出し分けの条件は演算子1つまで、出し分けを入れ子にしない、関数は2文まで(lint で止まる)。込み入った条件は、名前を付けた値か `logic/` の純粋な関数にし、長い処理は、名前を付けた関数か hook にする。
 - `.tsx` には、component を1つだけ書く。export しない補助の component も、別のファイルにする。管理画面の `src/` と `.storybook/` の全体で、lint が止める。story・テスト・テストの補助(`src/testing/`)は対象にしない。
 - `.tsx` は、JSX の要素か fragment を書くファイルだけにする。JSX を書かない hook・context・テスト・story は `.ts` にする(lint で止まる)。
 - `.ts` で React の値を import できるのは、hook のファイル(`use-*.ts`。export する関数は1つだけで、名前は `use` で始まる)と、context のファイル(`*-context.ts`。値として export するのは `createContext` の結果だけで、少なくとも1つは export する)だけ。lint はこの import の条件を検査し、`src/` の hook には隣のテストも求める。
-- ロジックに切り出しにくい表示の出し分けは、同じフォルダの `__tests__` のコンポーネントのテストで確かめる。要素は role・label・text など利用者に見えるもので探し、利用者に見える結果を確かめる。マークアップの作りをなぞるテストは書かない。
-- memo 化は React Compiler に任せる。`useCallback`・`useMemo`・`memo` を手で書くのは、「再レンダリングの期待」のテストで守る境界と、ref の callback のように identity が振る舞いを決める所だけにする(テストにも同じコンパイラを通すが、この境界をコンパイラに任せるかは、`DECISIONS.md` の「React Compiler」の TODO)。
+- ロジックに切り出しにくい表示の出し分けは、同じフォルダの `__tests__` のコンポーネントのテストで確かめる(lint は求めない)。飾りのように、利用者に見える違いの無い出し分けには、テストを書かない。要素は role・label・text など利用者に見えるもので探し、利用者に見える結果を確かめる。マークアップの作りをなぞるテストは書かない。
+- memo 化は React Compiler に任せる。`useCallback`・`useMemo`・`memo` は、まず書かない。「再レンダリングの期待」や、関数の identity を確かめるテスト(変換した後のコードを確かめる)が落ちたときにだけ、その境界に手で書く(理由は `DECISIONS.md` の「React Compiler」)。
 - React の effect は、ほかの手段で書けない処理だけを、目的が分かる名前の hook の直下で使う。hook は `tooling/lint/config/admin-overrides.ts` の `ADMIN_EFFECT_HOOKS` と、`DECISIONS.md` の「React の effect」の hook の表に足す。この決まりはテスト・story・`.storybook/` にも掛かる(lint で止まる)。
 - server との通信には contract の型を使い、応答の型を手で書かない。
 - features の製品のコードから import できるのは、`react`(`.ts` では hook と context のファイルだけ)・`@analemma/contract`・管理画面の中のモジュールだけ。外のライブラリは `src/i18n/` と `src/api/` の部品を通して使う(lint で止まる)。`src/routes/` は今は対象外。

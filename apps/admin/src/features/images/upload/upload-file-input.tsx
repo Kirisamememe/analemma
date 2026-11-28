@@ -1,4 +1,4 @@
-import { type ReactNode, useId, useRef } from "react";
+import { type ChangeEvent, type ReactNode, useId, useRef } from "react";
 
 import { PHOTO_MAX_BYTES } from "@analemma/contract";
 
@@ -28,6 +28,15 @@ export const UploadFileInput = ({
   const hintId = useId();
   const input = useRef<HTMLInputElement>(null);
 
+  const pick = (event: ChangeEvent<HTMLInputElement>): void => {
+    const { currentTarget } = event;
+    const files = Array.from(currentTarget.files ?? []);
+
+    currentTarget.value = "";
+
+    if (files.length > 0) onFiles(files);
+  };
+
   return (
     <>
       <Button
@@ -55,14 +64,7 @@ export const UploadFileInput = ({
         disabled={isDisabled}
         hidden
         multiple
-        onChange={(event) => {
-          const { currentTarget } = event;
-          const files = Array.from(currentTarget.files ?? []);
-
-          currentTarget.value = "";
-
-          if (files.length > 0) onFiles(files);
-        }}
+        onChange={pick}
         ref={input}
         type="file"
       />

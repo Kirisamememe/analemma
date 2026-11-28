@@ -72,20 +72,30 @@ export const ImageTile = ({
     selectable: singleChoice,
   });
 
+  const missingIcon = isPending ? (
+    <Spinner />
+  ) : (
+    <Icon name="image-off" size="lg" />
+  );
+
+  const isUntitled = title === null;
+  const hiddenAlt = isUntitled && alt && <span className="sr-only">{alt}</span>;
+  const photoAlt = isUntitled ? (alt ?? "") : "";
+
   const content = (
     <span className={style.body()}>
       <span className={style.frame()}>
         {smallest === undefined ? (
           <span className={style.missing()}>
-            {isPending ? <Spinner /> : <Icon name="image-off" size="lg" />}
+            {missingIcon}
             <Text as="span" variant="caption">
               {missing}
             </Text>
-            {title === null && alt && <span className="sr-only">{alt}</span>}
+            {hiddenAlt}
           </span>
         ) : (
           <img
-            alt={title === null ? (alt ?? "") : ""}
+            alt={photoAlt}
             className={style.photo()}
             decoding="async"
             height={smallest.height}

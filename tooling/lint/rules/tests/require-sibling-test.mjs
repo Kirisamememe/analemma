@@ -25,119 +25,42 @@ const testFilesFor = (filename) =>
 
 const testNames = (paths) => paths.map((path) => basename(path)).join(" か ");
 
-const isJsx = (node) => {
-  if (node?.type === "ParenthesizedExpression") {
-    return isJsx(node.expression);
-  }
-
-  return node?.type === "JSXElement" || node?.type === "JSXFragment";
-};
-
-const returnsJsx = (statement) => {
-  if (statement?.type === "ReturnStatement") {
-    return isJsx(statement.argument);
-  }
-
-  if (statement?.type === "BlockStatement") {
-    return statement.body.some(returnsJsx);
-  }
-
-  return false;
-};
-
-const branchingVisitors = (onBranch) => ({
-  ConditionalExpression(node) {
-    if (isJsx(node.consequent) || isJsx(node.alternate)) {
-      onBranch();
-    }
-  },
-  LogicalExpression(node) {
-    if (isJsx(node.right)) {
-      onBranch();
-    }
-  },
-  IfStatement(node) {
-    if (returnsJsx(node.consequent)) {
-      onBranch();
-    }
-  },
-  SwitchCase(node) {
-    if (node.consequent.some(returnsJsx)) {
-      onBranch();
-    }
-  },
-});
-
 const requireSiblingTest = {
   meta: {
     type: "problem",
     docs: {
       description:
-        "ロジックの .ts と、表示を出し分けるコンポーネントに、同じフォルダの __tests__ のテストのファイルを求める。",
+        "関数を export する .ts に、同じフォルダの __tests__ のテストのファイルを求める。",
     },
-    schema: [
-      {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          branchingComponents: {
-            type: "boolean",
-          },
-        },
-      },
-    ],
+    schema: [],
     messages: {
       missingLogicTest:
         "このファイルは関数を export しています。同じフォルダの __tests__ に {{test}} を置き、ロジックのテストを書きます。",
-      missingComponentTest:
-        "このコンポーネントは表示を出し分けています。同じフォルダの __tests__ に {{test}} を置き、出し分けの結果を利用者に見えるもので確かめます。",
     },
   },
   /** ファイルごとに、__tests__ のテストのファイルが要るかを調べる。 */
   create(context) {
     const { filename } = context;
 
-    const branchingComponents =
-      context.options[0]?.branchingComponents === true;
-
-    if (filename.endsWith(".d.ts") || isTestFile(filename)) {
+    if (
+      filename.endsWith(".d.ts") ||
+      isTestFile(filename) ||
+      !LOGIC_FILE.test(filename)
+    ) {
       return {};
     }
 
     const testFiles = testFilesFor(filename);
 
-    if (LOGIC_FILE.test(filename)) {
-      return {
-        "Program:exit"(program) {
-          if (
-            collectExportedFunctions(program).size > 0 &&
-            !hasTests(testFiles)
-          ) {
-            context.report({
-              node: program,
-              messageId: "missingLogicTest",
-              data: { test: testNames(testFiles) },
-            });
-          }
-        },
-      };
-    }
-
-    if (!branchingComponents || !filename.endsWith(".tsx")) {
-      return {};
-    }
-
-    let branches = false;
-
     return {
-      ...branchingVisitors(() => {
-        branches = true;
-      }),
       "Program:exit"(program) {
-        if (branches && !hasTests(testFiles)) {
+        if (
+          collectExportedFunctions(program).size > 0 &&
+          !hasTests(testFiles)
+        ) {
           context.report({
             node: program,
-            messageId: "missingComponentTest",
+            messageId: "missingLogicTest",
             data: { test: testNames(testFiles) },
           });
         }

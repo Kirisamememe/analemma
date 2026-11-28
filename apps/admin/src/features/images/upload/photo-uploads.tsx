@@ -35,6 +35,9 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
     focus: { addButton },
   } = dialog;
 
+  const dropPage =
+    dialog.isDragging && !dialog.isOpen ? dialog.page : undefined;
+
   return (
     <div ref={attach}>
       <PageHeader
@@ -47,9 +50,7 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
           </Button>
         }
       />
-      {dialog.isDragging && !dialog.isOpen && dialog.page && (
-        <PhotoDropHint page={dialog.page} />
-      )}
+      {dropPage && <PhotoDropHint page={dropPage} />}
       <Modal
         isOpen={dialog.isOpen}
         onOpenChange={dialog.setOpen}

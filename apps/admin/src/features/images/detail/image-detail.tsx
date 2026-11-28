@@ -56,6 +56,12 @@ export const ImageDetail = ({
   const altFor = (photo: Image) =>
     photo.alt ?? photo.title ?? t("imageDetail.untitled");
 
+  const swipe = (side: "previous" | "next"): void => {
+    const target = side === "previous" ? previous : next;
+
+    if (target !== undefined && target.disabled !== true) onMove(target.href);
+  };
+
   return (
     <ImageViewer
       photoId={image.id}
@@ -76,13 +82,7 @@ export const ImageDetail = ({
       isPending={status.isPending}
       missing={t(status.detail)}
       next={next}
-      onSwipe={(side) => {
-        const target = side === "previous" ? previous : next;
-
-        if (target !== undefined && target.disabled !== true) {
-          onMove(target.href);
-        }
-      }}
+      onSwipe={swipe}
       previous={previous}
     >
       <ImageInfo image={image} navigationError={navigationError} />

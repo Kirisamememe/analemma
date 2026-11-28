@@ -62,6 +62,12 @@ export const FixedPagesSection = ({
       : [],
   );
 
+  const retryAll = (): void => {
+    if (pages._tag === "Failed") pages.retry();
+
+    if (kinds._tag === "Failed") kinds.retry(); // 種類のラベルも読めていなければ、一緒に取り直す
+  };
+
   const content = (): ReactNode => {
     if (pages._tag === "Loading" || kinds._tag === "Loading") {
       return <LoadingState layout="list" />;
@@ -73,11 +79,7 @@ export const FixedPagesSection = ({
           isRetrying={pages.isRetrying || kindsRetrying}
           layout="inline"
           level={2}
-          onRetry={() => {
-            pages.retry();
-
-            if (kinds._tag === "Failed") kinds.retry(); // 種類のラベルも読めていなければ、一緒に取り直す
-          }}
+          onRetry={retryAll}
           title={t("fixedPages.loadFailed")}
         />
       );
@@ -115,34 +117,36 @@ export const FixedPagesSection = ({
     );
   };
 
+  const canReorder = showRows && rows.length > 1;
+
+  const savingOrder = reordering.isSaving && (
+    <Cluster align="center" gap={1.5}>
+      <Spinner />
+      <Text as="span" tone="muted" variant="caption">
+        {t("fixedPages.savingOrder")}
+      </Text>
+    </Cluster>
+  );
+
+  const kindRefreshFailure =
+    kinds._tag === "Loaded" ? kinds.refreshFailure : undefined;
+
   return (
     <Stack gap={2}>
       <Button size="card" tone="dashed" onPress={onCreate}>
         <Icon name="plus" />
         {t("fixedPages.create")}
       </Button>
-      {showRows && rows.length > 1 && (
+      {canReorder && (
         <Cluster align="center" gap={2} justify="between">
           <Text tone="muted" variant="caption">
             {t("fixedPages.reorderHint")}
           </Text>
-          <output>
-            {reordering.isSaving && (
-              <Cluster align="center" gap={1.5}>
-                <Spinner />
-                <Text as="span" tone="muted" variant="caption">
-                  {t("fixedPages.savingOrder")}
-                </Text>
-              </Cluster>
-            )}
-          </output>
+          <output>{savingOrder}</output>
         </Cluster>
       )}
-      {kinds._tag === "Loaded" && kinds.refreshFailure !== undefined && (
-        <KindRefreshNotice
-          source="list"
-          refreshFailure={kinds.refreshFailure}
-        />
+      {kindRefreshFailure !== undefined && (
+        <KindRefreshNotice source="list" refreshFailure={kindRefreshFailure} />
       )}
       {content()}
     </Stack>

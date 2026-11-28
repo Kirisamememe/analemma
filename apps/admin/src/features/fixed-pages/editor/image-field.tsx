@@ -35,6 +35,8 @@ export const ImageField = (props: ImageFieldProps): ReactNode => {
       ? query.data.data
       : undefined;
 
+  const isUnloaded = value !== null && image === undefined;
+
   return (
     <>
       <ImageFieldPanel
@@ -45,8 +47,7 @@ export const ImageField = (props: ImageFieldProps): ReactNode => {
         selected={value !== null}
         image={image}
         status={
-          value !== null &&
-          !image && (
+          isUnloaded && (
             <QueryContent
               query={query}
               level={3}
