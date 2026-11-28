@@ -43,8 +43,8 @@ const FIELDS: readonly {
     name: "NumberField",
     render: (isRequired) => (
       <NumberField
-        decrementLabel="気温の値を減らす"
-        incrementLabel="気温の値を増やす"
+        decrementLabel="値を減らす"
+        incrementLabel="値を増やす"
         requiredLabel={isRequired ? "必須" : undefined}
         label="名前"
         name="name"

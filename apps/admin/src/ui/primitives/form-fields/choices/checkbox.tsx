@@ -15,7 +15,7 @@ export type CheckboxProps = Omit<
   name: string;
   /** ラベル。 */
   label: string;
-  /** 入力が要ることを示す文言(渡すと、入力を必須にする)。 */
+  /** 入力が要ることを示す文言。 */
   requiredLabel?: string | undefined;
   /** 補足。 */
   description?: string | undefined;

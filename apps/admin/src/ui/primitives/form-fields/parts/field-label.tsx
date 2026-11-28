@@ -9,7 +9,7 @@ import { typography } from "@/ui/typography";
 type FieldLabelProps = {
   /** ラベルの文言。 */
   children: string;
-  /** 入力が要ることを示す文言(渡すと、入力を必須にする)。 */
+  /** 入力が要ることを示す文言。 */
   requiredLabel?: string | undefined;
 };
 

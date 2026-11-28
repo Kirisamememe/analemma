@@ -17,7 +17,7 @@ export type TextFieldProps = {
   description?: string | undefined;
   /** 入力欄の検証の伝え方。 */
   validationBehavior?: "aria" | "native";
-  /** 入力が要ることを示す文言(渡すと、入力を必須にする)。 */
+  /** 入力が要ることを示す文言。 */
   requiredLabel?: string | undefined;
   /** 読み取り専用か。 */
   isReadOnly?: boolean | undefined;

@@ -27,7 +27,7 @@ export type TextAreaProps = {
   placeholder?: string | undefined;
   /** 文字の数の上限。 */
   maxLength?: number | undefined;
-  /** 入力が要ることを示す文言(渡すと、入力を必須にする)。 */
+  /** 入力が要ることを示す文言。 */
   requiredLabel?: string | undefined;
   /** 入力欄が無効か。 */
   isDisabled?: boolean | undefined;

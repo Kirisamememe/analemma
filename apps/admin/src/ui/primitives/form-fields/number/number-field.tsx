@@ -27,7 +27,7 @@ export type NumberFieldProps = {
   description?: string | undefined;
   /** 最初に入れておく値。 */
   defaultValue?: number;
-  /** 入力が要ることを示す文言(渡すと、入力を必須にする)。 */
+  /** 入力が要ることを示す文言。 */
   requiredLabel?: string | undefined;
   /** 値を減らすボタンの、アクセシブルな名前。 */
   decrementLabel: string;

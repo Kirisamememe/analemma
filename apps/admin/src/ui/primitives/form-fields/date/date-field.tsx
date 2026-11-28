@@ -17,7 +17,7 @@ export type DateFieldProps = Omit<
   name: string;
   /** ラベル。 */
   label: string;
-  /** 入力が要ることを示す文言(渡すと、入力を必須にする)。 */
+  /** 入力が要ることを示す文言。 */
   requiredLabel?: string | undefined;
   /** 年・月・日が埋まっていないときに出す、誤りの知らせ。 */
   incompleteMessage: string;
