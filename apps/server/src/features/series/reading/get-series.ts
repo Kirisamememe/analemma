@@ -1,4 +1,4 @@
-import { readImageRelations } from "@/features/images/queries/image-relations.query";
+import { readImageRelations } from "@/features/images/queries/read-image-relations.query";
 import { toAdminImage } from "@/features/images/to-image";
 import { readSeriesRows } from "@/features/series/reading/queries/series.query";
 import { toAdminSeries } from "@/features/series/to-admin-series";

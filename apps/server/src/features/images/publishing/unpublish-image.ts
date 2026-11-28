@@ -1,6 +1,6 @@
 import { setPublished } from "@/features/images/publishing/queries/set-published.query";
-import { readImageRelations } from "@/features/images/queries/image-relations.query";
 import { findImage, lockImage } from "@/features/images/queries/images.query";
+import { readImageRelations } from "@/features/images/queries/read-image-relations.query";
 import { toAdminImage } from "@/features/images/to-image";
 import { adminProcedures } from "@/procedures";
 
