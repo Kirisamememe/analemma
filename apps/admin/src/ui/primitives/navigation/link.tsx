@@ -23,7 +23,7 @@ const chevron = tv({
 
 /** リンクに渡す値。 */
 export type LinkProps = {
-  /** 管理画面の中の行き先(route のパスか、その `$id` などに値を入れたもの)。 */
+  /** 行き先。 */
   href: string;
   /** 取得を待つ間も focus を保つリンクの移動方法。 */
   navigation?: {

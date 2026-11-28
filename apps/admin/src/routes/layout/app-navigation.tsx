@@ -1,3 +1,4 @@
+import { useMatchRoute, useRouter } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { LocaleSelect, ThemeSelect } from "@/features/preferences";
@@ -6,18 +7,10 @@ import { type MessageKey, useTranslate } from "@/i18n/use-translate";
 import { SideNav } from "@/ui/patterns";
 import type { NavLinkProps } from "@/ui/primitives/navigation";
 
-/** ナビから行ける画面のパス。 */
-type NavigationPath =
-  | "/"
-  | "/fixed-pages"
-  | "/images"
-  | "/security"
-  | "/deploy-tokens";
-
 /** 管理画面のナビのリンクの定義。 */
 type NavigationLink = Pick<NavLinkProps, "icon"> & {
-  /** 行き先の画面のパス。 */
-  readonly href: NavigationPath;
+  /** 行き先の画面の route のパス。 */
+  readonly to: string;
   /** リンクの文言の訳のキー。 */
   readonly label: MessageKey;
 };
@@ -25,43 +18,48 @@ type NavigationLink = Pick<NavLinkProps, "icon"> & {
 /** 管理画面のナビのリンクのまとまり。 */
 type NavigationGroup = {
   /** 見出しの訳のキー。 */
-  readonly heading?: MessageKey;
+  readonly heading: MessageKey | undefined;
   /** まとまりのリンクの定義。 */
   readonly items: readonly NavigationLink[];
 };
 
-const GROUPS: readonly NavigationGroup[] = [
-  { items: [{ href: "/", label: "home.title", icon: "house" }] },
+const GROUPS = [
+  {
+    heading: undefined,
+    items: [{ to: "/", label: "home.title", icon: "house" }],
+  },
   {
     heading: "navigation.content",
     items: [
-      { href: "/fixed-pages", label: "fixedPages.title", icon: "file-text" },
-      { href: "/images", label: "images.title", icon: "image" },
+      { to: "/fixed-pages", label: "fixedPages.title", icon: "file-text" },
+      { to: "/images", label: "images.title", icon: "image" },
     ],
   },
   {
     heading: "navigation.settings",
     items: [
-      { href: "/security", label: "security.title", icon: "shield-check" },
-      {
-        href: "/deploy-tokens",
-        label: "deployTokens.title",
-        icon: "key-round",
-      },
+      { to: "/security", label: "security.title", icon: "shield-check" },
+      { to: "/deploy-tokens", label: "deployTokens.title", icon: "key-round" },
     ],
   },
-];
-
-/** ログインした後の画面のナビに渡す値。 */
-type AppNavigationProps = {
-  /** 今いる画面へのリンクかを返す関数。 */
-  isCurrent: (href: NavigationPath) => boolean;
-};
+] as const satisfies readonly NavigationGroup[];
 
 /** ログインした後の画面のナビ。 */
-export const AppNavigation = ({ isCurrent }: AppNavigationProps): ReactNode => {
+export const AppNavigation = (): ReactNode => {
   const t = useTranslate();
   const logOut = useLogOut();
+  const router = useRouter();
+  const matchRoute = useMatchRoute();
+
+  const groups = GROUPS.map(({ heading, items }) => ({
+    heading: heading === undefined ? undefined : t(heading),
+    items: items.map(({ to, label, icon }) => ({
+      href: router.buildLocation({ to }).href,
+      label: t(label),
+      icon,
+      isCurrent: matchRoute({ to, fuzzy: to !== "/" }) !== false,
+    })),
+  }));
 
   return (
     <SideNav
@@ -74,15 +72,7 @@ export const AppNavigation = ({ isCurrent }: AppNavigationProps): ReactNode => {
           <LogOutButton logOut={logOut} />
         </>
       }
-      groups={GROUPS.map(({ heading, items }) => ({
-        heading: heading === undefined ? undefined : t(heading),
-        items: items.map(({ href, label, icon }) => ({
-          href,
-          label: t(label),
-          icon,
-          isCurrent: isCurrent(href),
-        })),
-      }))}
+      groups={groups}
       isDrawerPending={logOut.isPending}
       label={t("navigation.main")}
     />
