@@ -10,6 +10,7 @@ import noDynamicImport from "./rules/modules/no-dynamic-import.mjs";
 import noInlineParameterType from "./rules/modules/no-inline-parameter-type.mjs";
 import requireJsxInTsx from "./rules/modules/require-jsx-in-tsx.mjs";
 import noEffectOutsideAllowedHook from "./rules/react/no-effect-outside-allowed-hook.mjs";
+import noJsxLogic from "./rules/react/no-jsx-logic.mjs";
 import noReactInLogic from "./rules/react/no-react-in-logic.mjs";
 import maxClassesPerString from "./rules/styles/max-classes-per-string.mjs";
 import stylingBoundary from "./rules/styles/styling-boundary.mjs";
@@ -34,6 +35,7 @@ const plugin = {
     "no-effect-outside-allowed-hook": noEffectOutsideAllowedHook,
     "no-focused-test": noFocusedTest,
     "no-inline-parameter-type": noInlineParameterType,
+    "no-jsx-logic": noJsxLogic,
     "no-markup-test": noMarkupTest,
     "no-react-in-logic": noReactInLogic,
     "no-standalone-comment": noStandaloneComment,

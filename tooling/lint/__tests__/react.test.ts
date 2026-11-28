@@ -172,3 +172,21 @@ test("JSX の深さは、部品を組むだけの場所では4段、feature の 
   expect(tooDeepIn("features/depth/ui/six-deep.tsx")).toBe(1);
   expect(tooDeepIn("ui/layout/six-deep.tsx")).toBe(0);
 });
+
+const logicIn = (file: string): readonly number[] =>
+  lintFixture(file)
+    .diagnostics.filter(({ code }) => code === "project(no-jsx-logic)")
+    .map(({ line }) => line)
+    .toSorted((left, right) => left - right);
+
+describe("JSX の中のロジック", () => {
+  test("演算子が2つ以上の条件・出し分けの入れ子・3文以上の関数に、1つずつ診断を出すこと", () => {
+    expect(logicIn("invalid/apps/admin/src/routes/logic-in-jsx.tsx")).toEqual([
+      15, 16, 17, 20,
+    ]);
+  });
+
+  test("演算子1つの条件・名前を付けた値・2文までの関数は止めないこと", () => {
+    expect(logicIn("valid/apps/admin/src/routes/plain-jsx.tsx")).toEqual([]);
+  });
+});
