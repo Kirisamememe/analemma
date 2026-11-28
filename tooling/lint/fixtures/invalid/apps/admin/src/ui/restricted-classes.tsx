@@ -43,5 +43,6 @@ export const RestrictedClasses = () => (
     <span className="ps-panel" />
     <span className="mt-panel" />
     <span className="scroll-my-panel" />
+    <span className="text-2xl/3xl" />
   </>
 );

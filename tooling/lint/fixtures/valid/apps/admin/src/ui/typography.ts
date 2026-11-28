@@ -9,6 +9,7 @@ export const text = tv({
       label: "text-sm/xl font-semibold",
       dialog: "text-lg/2xl font-bold",
       page: "text-xl/3xl font-bold",
+      "page-header": "text-2xl/3xl font-bold",
     },
   },
 });
