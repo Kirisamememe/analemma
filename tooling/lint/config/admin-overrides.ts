@@ -47,10 +47,10 @@ const UI_OUTSIDE = [
 const UI_BOUNDARY = [
   {
     group: [
-      ...UI_OUTSIDE.flatMap((folder) => [`@/${folder}`, `@/${folder}/**`]),
-      "@analemma/*",
-      "@orpc/*",
-      "@tanstack/*",
+      ...UI_OUTSIDE.flatMap((folder) => [`**/${folder}`, `**/${folder}/**`]),
+      "@analemma/**",
+      "@orpc/**",
+      "@tanstack/**",
     ],
     message:
       "ui/ は、管理画面の業務と配線(API・router・features)を知りません。値は props で受けます。",
@@ -173,7 +173,7 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     files: ["**/apps/admin/src/ui/tv.ts"],
     rules: restrictApis(
       adminApis({
-        imports: { patterns: UI_LIBRARY_PATTERNS },
+        imports: { patterns: [...UI_LIBRARY_PATTERNS, ...UI_BOUNDARY] },
         globals: [],
       }),
     ),

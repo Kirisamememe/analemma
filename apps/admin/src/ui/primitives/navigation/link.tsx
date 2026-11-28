@@ -1,8 +1,9 @@
 import type { MouseEvent, ReactNode, Ref } from "react";
 import { Link as AriaLink } from "react-aria-components";
 
+import type { Href } from "./href";
+
 import { Icon } from "@/ui/primitives/graphics";
-import type { Href } from "@/ui/primitives/navigation";
 import { tv } from "@/ui/tv";
 
 const link = tv({

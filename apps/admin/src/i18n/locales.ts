@@ -23,7 +23,7 @@ const REGIONAL_LOCALES: Readonly<Record<Locale, string>> = {
   "zh-Hans": "zh-CN",
 };
 
-/** html の `lang` の値を、部品が辞書を引く、地域を付けた言語にする。 */
+/** 言語の tag を、部品に渡す、地域を付けた言語にする。 */
 export const toRegionalLocale = (lang: string): string =>
   REGIONAL_LOCALES[toLocale(lang)];
 

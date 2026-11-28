@@ -5,7 +5,7 @@ import { ToastProvider } from "@/ui/primitives/overlays";
 
 /** `UiProvider` に渡す値。 */
 type UiProviderProps = {
-  /** 部品が持つ文言と、日付や数の並びを決める、地域を付けた言語。 */
+  /** React Aria Components の内蔵の文言と、日付や数の並びを決める、地域を付けた言語。 */
   locale: string;
   /** 部品のリンクが、行き先へ移るときに呼ぶ関数。 */
   navigate: ComponentProps<typeof RouterProvider>["navigate"];

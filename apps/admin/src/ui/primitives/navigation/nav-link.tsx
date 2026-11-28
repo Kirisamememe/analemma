@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import { Link as AriaLink } from "react-aria-components";
 
+import type { Href } from "./href";
+
 import { Icon, type IconName } from "@/ui/primitives/graphics";
-import type { Href } from "@/ui/primitives/navigation";
 import { navItem } from "@/ui/primitives/navigation/nav-item-style";
 import { typography } from "@/ui/typography";
 

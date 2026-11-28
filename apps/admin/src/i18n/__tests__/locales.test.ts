@@ -50,7 +50,7 @@ describe("toRegionalLocale", () => {
     expect(toRegionalLocale(lang)).toBe(regional);
   });
 
-  test("対応していない言語は、英語の地域にする", () => {
+  test("対応していない言語は、地域を付けた英語にする", () => {
     expect(toRegionalLocale("fr")).toBe("en-US");
   });
 });
