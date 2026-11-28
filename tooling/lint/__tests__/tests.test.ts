@@ -36,6 +36,12 @@ describe("テストの置き場所", () => {
   ])("$label に診断を出すこと", ({ file }) => {
     expect(countRule(file, "project(require-sibling-test)")).toBe(1);
   });
+
+  test("出し分けのある部品に、隣のテストが無くても診断を出さないこと", () => {
+    expect(
+      lintFixture("valid/apps/admin/src/status-badge.tsx").diagnostics,
+    ).toEqual([]);
+  });
 });
 
 describe("テストの書き方", () => {
