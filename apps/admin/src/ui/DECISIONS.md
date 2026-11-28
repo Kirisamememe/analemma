@@ -187,7 +187,7 @@
 - 書いてよい class は、子の大きさと見せ方の5つ(`grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only`)だけ。並べ方(`flex`・`grid`・gap・padding)・文字(`text-*`・`font-*`)・色は、部品と props で決める(`<Stack gap={2}>`・`<Text variant="caption">`・`<Badge tone="danger">` など)。許す側の一覧にするので、新しい class を使いたくなったら、部品を足すか、一覧を足すかを決めることになる。
 - `className` には文字列のリテラルだけを渡す。変数や式を渡すと、class の検査が中身を読めない。
 - `style` は書かない。
-- 受け取った props を、JSX にそのまま spread しない(`{...props}`・`{...rest}`)。spread で渡した `className` や `style` は、検査が見ない(部品でも同じ)。spread できるのは、同じファイルに書いた、`className` と `style` を含まないオブジェクトと、React Aria の hook が返す props だけ(`tooling/DECISIONS.md`)。
+- 受け取った props を、JSX にそのまま spread しない(`{...props}`・`{...rest}`)。spread で渡した `className` や `style` は、検査が見ない(部品でも同じ)。spread できるのは、同じファイルの `const` に書いて書き換えない、`className` と `style` を含まないオブジェクトと、見た目の props を返さないと確かめた React Aria の hook の値だけ(`tooling/DECISIONS.md`)。
 
 ### 部品(`ui/` と `features/*/ui/`)
 

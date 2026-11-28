@@ -163,24 +163,35 @@ describe("管理画面の部品の class", () => {
     ).toEqual(expected);
   });
 
-  test("受け取った props・ほかのファイルの値・React Aria のほかの hook の戻り値・書き換えられる変数の spread に診断を出すこと", () => {
-    const expected: Expected[] = [22, 23, 24, 25, 26].map((line) => [
-      line,
-      "JSX の props に spread できるのは",
-    ]);
+  test.each([
+    { label: "受け取った props", line: 33 },
+    { label: "受け取った props の残り", line: 34 },
+    { label: "ほかのファイルの値", line: 35 },
+    { label: "React Aria 以外の hook の戻り値", line: 36 },
+    { label: "let で宣言した変数", line: 37 },
+    { label: "見た目の props を返しうる React Aria の hook の値", line: 38 },
+    { label: "ほかの関数に渡した React Aria の hook の値", line: 39 },
+    { label: "受け取った props を中に spread したオブジェクト", line: 40 },
+    { label: "プロパティを後から書き換えた const のオブジェクト", line: 41 },
+    { label: "style を含むオブジェクト", line: 42 },
+    { label: "…ClassName を含むオブジェクト", line: 43 },
+    { label: "キーを読めない計算プロパティ", line: 44 },
+    { label: "片方の枝に className がある条件", line: 45 },
+  ])("$label の spread に診断を出すこと", ({ line }) => {
+    const found = diagnosticsOf(
+      {
+        file: "invalid/apps/admin/src/ui/primitives/forwarded-props.tsx",
+        rule: BOUNDARY,
+      },
+      [[line, "JSX の props に spread できるのは"]],
+    );
 
-    expect(
-      diagnosticsOf(
-        {
-          file: "invalid/apps/admin/src/ui/primitives/forwarded-props.tsx",
-          rule: BOUNDARY,
-        },
-        expected,
-      ),
-    ).toEqual(expected);
+    expect(found.filter(([at]) => at === line)).toEqual([
+      [line, "JSX の props に spread できるのは"],
+    ]);
   });
 
-  test("同じファイルに書いた、className と style を含まないオブジェクトと、React Aria の hook が返す props の spread は止めないこと", () => {
+  test("同じファイルの const に書いた、className と style を含まないオブジェクトと、確かめてある React Aria の hook の値の spread は止めないこと", () => {
     expect(
       diagnosticsOf(
         {
