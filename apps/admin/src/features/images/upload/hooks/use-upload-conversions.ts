@@ -1,5 +1,6 @@
 import { useAppContext } from "@/api/app-context";
-import { useApiCache, useApiQuery } from "@/api/server-state/server-state";
+import { useApiCache } from "@/api/server-state/server-state";
+import { useApiPolling } from "@/api/server-state/use-api-polling";
 import {
   type ConversionResult,
   nextConverting,
@@ -35,9 +36,9 @@ export const useUploadConversions = ({
   const { updatePages } = useApiCache();
   const next = nextConverting(uploads);
 
-  useApiQuery({
+  useApiPolling({
     key: uploadConversionKey(next?.imageId ?? null),
-    pollEvery: () => pollMs,
+    every: () => pollMs,
     load:
       next === undefined
         ? undefined

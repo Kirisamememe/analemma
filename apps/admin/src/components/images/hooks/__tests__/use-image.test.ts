@@ -52,3 +52,65 @@ test("上の帯と写真の欄が同じ画像を待っても、画像の取得�
     1,
   );
 });
+
+test("変換中の画像の取り直しが失敗し続けても、読む側を再レンダリングせず、変換中の画像を返し続け、通信が戻ったら変換の結果を返す", async () => {
+  const server = createImageRoutes([{ title: "港", status: "processing" }]);
+  const id = server.images()[0]?.id ?? "";
+  let failing = false;
+  let failed = 0;
+
+  const app = createTestApp({
+    path: "/",
+    routes: {
+      ...server.routes,
+      "admin/images/get": (input) => {
+        if (!failing) return server.routes["admin/images/get"](input);
+
+        failed += 1;
+
+        return { error: "INTERNAL_SERVER_ERROR", defined: false };
+      },
+    },
+  });
+
+  await app.router.load();
+
+  let renders = 0;
+
+  const { result } = renderHook(
+    () => {
+      renders += 1;
+
+      return useImage(id, { pollMs: 20 });
+    },
+    { wrapper: withAppProviders(app) },
+  );
+
+  await waitFor(() => {
+    expect(result.current).toMatchObject({
+      _tag: "Loaded",
+      data: { data: { status: "processing" } },
+    });
+  });
+
+  const rendered = renders;
+
+  failing = true;
+  await waitFor(() => {
+    expect(failed).toBeGreaterThanOrEqual(3);
+  });
+  expect(renders).toBe(rendered);
+  expect(result.current).toMatchObject({
+    _tag: "Loaded",
+    data: { data: { status: "processing" } },
+  });
+
+  server.convert(id, { status: "published" });
+  failing = false;
+  await waitFor(() => {
+    expect(result.current).toMatchObject({
+      _tag: "Loaded",
+      data: { data: { status: "published" } },
+    });
+  });
+});

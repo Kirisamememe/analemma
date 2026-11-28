@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { convertingIds, settledSince } from "../logic/conversion-results";
-import { useImage } from "./use-image";
+import { useConversionPolling } from "./use-conversion-polling";
 
 import type { ApiOutputs } from "@/api/api-types";
 import { findNextConverting } from "@/queries/images-query";
@@ -27,10 +27,7 @@ export const useConversionWatch = (pages: Pages, pollMs?: number) => {
     if (settled.length > 0) setResult({ round: result.round + 1, settled });
   }
 
-  useImage(findNextConverting(pages), {
-    isListedAsConverting: true,
-    ...(pollMs !== undefined && { pollMs }),
-  });
+  useConversionPolling(findNextConverting(pages), pollMs);
 
   return { isWatching: converting.size > 0, ...result };
 };

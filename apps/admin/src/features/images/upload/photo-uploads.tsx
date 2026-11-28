@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
+import { useUploadConversions } from "./hooks/use-upload-conversions";
 import { useUploadDialog } from "./hooks/use-upload-dialog";
 import { SelectedPhoto } from "./selected-photo/selected-photo";
-import { UploadConversions } from "./upload-conversions";
 import { UploadFileInput } from "./upload-file-input";
 import { UploadLeaveDialog } from "./upload-leave-dialog";
 
@@ -27,6 +27,8 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
 
   const dialog = useUploadDialog();
 
+  useUploadConversions({ uploads: dialog.uploads, onSettled: dialog.settle });
+
   const {
     attach,
     attachPanel,
@@ -35,7 +37,6 @@ export const PhotoUploads = ({ imageHref }: PhotoUploadsProps): ReactNode => {
 
   return (
     <div ref={attach}>
-      <UploadConversions uploads={dialog.uploads} onSettled={dialog.settle} />
       <PageHeader
         title={t("images.title")}
         description={t("images.description")}
