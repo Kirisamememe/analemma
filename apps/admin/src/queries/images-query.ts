@@ -75,7 +75,7 @@ export const settleListedImage = (id: string, loaded: LoadedImage) => {
       );
 };
 
-/** 取り直した画像と、その結果。 */
+/** 読んだ画像と、その結果。 */
 type SettledImage = {
   /** 画像の ID。 */
   readonly id: string;
@@ -83,7 +83,7 @@ type SettledImage = {
   readonly loaded: LoadedImage;
 };
 
-/** 取り直した画像の結果を、読み込んだ一覧と、画像を選ぶ Dialog の一覧に当てる。 */
+/** 画像を読んだ結果を、読み込んだ一覧と、画像を選ぶ Dialog の一覧に当てる。 */
 export const settleImageLists = async (
   { updatePages }: Pick<ReturnType<typeof useApiCache>, "updatePages">,
   { id, loaded }: SettledImage,
