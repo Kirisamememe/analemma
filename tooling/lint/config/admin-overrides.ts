@@ -102,7 +102,7 @@ const TRANSLATED_ATTRIBUTES = [
 ]; // 利用者に見えるか、読み上げられる文言を受け取る属性
 
 const SHARED_UI_JSX_DEPTH = 6; // ライブラリの入れ子を包む共通の部品
-const FEATURE_UI_JSX_DEPTH = 5; // feature の見た目を組む部品
+const FEATURE_UI_JSX_DEPTH = 5; // feature や components の見た目を組む部品
 const COMPOSED_JSX_DEPTH = 4; // 部品を組むだけの場所
 
 const SINGLE_COMPONENT_FILES = [
@@ -237,7 +237,10 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     rules: { "react/jsx-max-depth": ["error", { max: COMPOSED_JSX_DEPTH }] },
   },
   {
-    files: ["**/apps/admin/src/features/*/ui/**/*.tsx"],
+    files: [
+      "**/apps/admin/src/features/*/ui/**/*.tsx",
+      "**/apps/admin/src/components/*/ui/**/*.tsx",
+    ],
     rules: { "react/jsx-max-depth": ["error", { max: FEATURE_UI_JSX_DEPTH }] },
   },
   {

@@ -35,7 +35,7 @@ export const BORDER_CLASSES: Readonly<Record<string, readonly string[]>> = {
     ...STATE_BORDER_COLORS,
   ],
   "ui/primitives/notice.tsx": ["border", ...STATE_BORDER_COLORS],
-  "ui/patterns/photos/image-radio.tsx": [
+  "components/images/ui/image-radio.tsx": [
     "border-2",
     "border-current",
     "forced-colors:outline",

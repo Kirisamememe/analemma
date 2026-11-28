@@ -2,11 +2,11 @@ import type { ReactNode, Ref } from "react";
 
 import { usePhotoOverlay } from "./hooks/use-photo-overlay";
 
+import { toSrcSet } from "@/components/images/logic/delivery-image";
 import { toImageStatusView } from "@/components/images/logic/image-status";
 import { useTranslate } from "@/i18n/use-translate";
 import type { ImageSummary } from "@/queries/images-query";
 import { Cluster, Stack, Text } from "@/ui/layout";
-import { toSrcSet } from "@/ui/patterns/photos/logic/delivery-image";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
 import { Icon, Spinner } from "@/ui/primitives/graphics";

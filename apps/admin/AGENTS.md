@@ -12,7 +12,7 @@
 - `src/api/`:server の API の client(contract の型付き)と、query client。features が使う、oRPC の失敗の仕分け(`call-api.ts`)・TanStack Router の context とログインの画面への移動(`app-context.ts`)・画面を離れる前の確かめ(`leave-confirmation.ts`)・TanStack Query の取得と送信とキャッシュ(`server-state/`)の包みも置く。取得したデータを画面間で保持する条件は `DECISIONS.md` の「server の API の呼び方」に従う。route はコードで定義する(ファイルから route を作る仕組みは使わない)。
 - `src/routes/`:route ごとの画面。
 - `src/queries/`:複数の feature が使う、server の API を呼ぶ処理(再認証と画像一覧の読み込み)。
-- `src/components/`:複数の feature から使う、管理画面に固有の部品。`@/components/...` で import する。部品のコードは features を import しない(lint で止まる)。
+- `src/components/`:複数の feature から使う、管理画面に固有の部品。`@/components/...` で import する。部品のコードは features を import しない(lint で止まる)。その部品だけの見た目は `components/<名前>/ui/`。
 - `src/i18n/`:訳と言語(i18next と react-i18next)。訳は `messages/` に言語ごとに1ファイル。i18next の instance は `create-i18n.ts` で作る。features が使う、訳を引く hook と今の言語を読む hook と訳のキーの型は `use-translate.ts` が、言語を切り替える hook は `use-change-locale.ts` が包む。
 - `src/preferences/`:利用者が選ぶ言語と配色の、置き場所と値と、最初の描画の前に流す script(`boot.ts`)。言語の切り替えに html の `lang` と置き場所をそろえる関数(`sync-locale.ts`)。今の配色を読んで切り替える hook(`use-theme.ts`)と、html の `data-theme` に配色を当てる関数(`apply-theme.ts`。head の script と共有する)。
 - `src/features/<名前>/`:画面をまたぐ、ひとまとまりの事柄(ログインと登録の判断、WebAuthn の変換など)。1つの画面だけの部品は `features/<名前>/ui/`。
@@ -50,14 +50,14 @@
 - 言語を足すときは、`src/i18n/locales.ts` の `LOCALES` と、`src/i18n/resources.ts` の `RESOURCES` と、`src/i18n/locales.ts` の `REGIONAL_LOCALES`(部品に渡す、地域を付けた言語)に足し、`messages/` にファイルを置く。
 - 言語は i18next の `changeLanguage` で切り替える。html の `lang` と `localStorage` は、`sync-locale.ts` がそろえる。
 - route の code splitting(`import()`)は使わない。`no-dynamic-import` は、今はそのまま効かせる。
-- 画面のコード(`src/ui/` と `src/features/*/ui/` の外)には、見た目の class を書かない。書けるのは `grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only` だけで、`className` は文字列のリテラルにし、`style` は書かない。並べ方・文字・色は `ui/` の部品の props で決める(lint で止まる)。
+- 画面のコード(`src/ui/`・`src/features/*/ui/`・`src/components/*/ui/` の外)には、見た目の class を書かない。書けるのは `grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only` だけで、`className` は文字列のリテラルにし、`style` は書かない。並べ方・文字・色は `ui/` の部品の props で決める(lint で止まる)。
 - `ui/` の部品は、値を props で受ける。業務の知識(フォーム・query・router の状態や型、API の形、決まった文面)を足すときは、`ui/` の外に包む部品を置く。置き場所は使う範囲で決める(1つの feature だけならその feature、複数の feature なら `components/`、`routes/` だけなら `routes/`)。文字列を1つ渡せば済むなら、包まずに props で渡す(理由は `DECISIONS.md` の「業務の知識を足す層」)。
 - 管理画面の中の行き先は、`routes/` が route の型から作る。画面に直に書くリンクは `RouteLink`、値で渡す行き先は `router.buildLocation(…).href`。`href` に、パスの文字列を直に書かない(lint では止まらないので、セルフレビューで見る)。
 - 部品は、層の向き(patterns → primitives・layout)を守る。React Aria Components は `ui/primitives/` の中でだけ使い、`tv` は `ui/tv.ts` から import する(ここまでは lint で止まる)。primitives は自分の props の型を持ち、ライブラリの props の型を extends しない(lint では止まらないので、セルフレビューで見る)。
 - 文字の役割は `Text`・`Heading` の `variant` で選ぶ。
 - 部品を足したら、同じフォルダの `__stories__` に story を足し、`src/__tests__/stories.test.tsx` の一覧にも足す。story は画面のコードと同じ決まりで、部品と props だけで組む(lint で止まる)。title と export 名は `DECISIONS.md` の「Storybook」の命名規則に従う。tone・variant・状態(無効・送信中・invalid など)ごとに story を分け、見比べられるようにする。
 - `ui/` の部品の class は、`theme.css` の役割と `animation.css` の animation の class だけで書く。止める class と理由は `src/ui/DECISIONS.md` の「検査」。止められたら、部品や役割を足すかを考え、`[…]` や抑制で逃げない。
-- `ui/` と `features/*/ui/` で、1つの文字列に書ける class は8個まで。超えるなら、`tv` の設定と `tv` の関数に渡す `className` は配列にし、意味のまとまり(並べ方・箱・色・状態など)ごとに分ける。JSX の `className` の文字列は `tv` に移す(lint で止まる)。
+- `ui/`・`features/*/ui/`・`components/*/ui/` で、1つの文字列に書ける class は8個まで。超えるなら、`tv` の設定と `tv` の関数に渡す `className` は配列にし、意味のまとまり(並べ方・箱・色・状態など)ごとに分ける。JSX の `className` の文字列は `tv` に移す(lint で止まる)。
 
 ## 開発とテスト
 

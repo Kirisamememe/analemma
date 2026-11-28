@@ -123,7 +123,7 @@ describe("管理画面の部品の class", () => {
   test.each([
     ["ui/primitives/overlays/dialog.tsx", [3, 3, 4, 5, 5, 6, 6, 7, 7, 8]],
     ["ui/primitives/navigation/scroll/scroll-view.tsx", [4]],
-    ["ui/patterns/photos/image-radio.tsx", [4]],
+    ["components/images/ui/image-radio.tsx", [4]],
     ["features/images/ui/upload/photo-drop-hint.tsx", [3, 3, 4, 4, 4]],
     ["ui/primitives/form-fields/choices/checkbox-control.tsx", [3]],
     ["ui/layout/media-layout.ts", [2, 2, 5, 9, 9]],
@@ -349,6 +349,31 @@ describe("管理画面の画面のコードの class", () => {
         expected,
       ),
     ).toEqual(expected);
+  });
+
+  test("components の部品の ui/ の外では、部品の class に診断を出すこと", () => {
+    const expected: Expected[] = [
+      [2, "画面のコードは"],
+      [2, "画面のコードは"],
+      [2, "画面のコードは"],
+    ];
+
+    expect(
+      diagnosticsOf(
+        {
+          file: "invalid/apps/admin/src/components/images/styled-section.tsx",
+          rule: RESTRICTED,
+        },
+        expected,
+      ),
+    ).toEqual(expected);
+  });
+
+  test("components の部品の ui/ では、部品の class に診断を出さないこと", () => {
+    expect(
+      lintFixture("valid/apps/admin/src/components/images/ui/photo-frame.tsx")
+        .diagnostics,
+    ).toEqual([]);
   });
 });
 

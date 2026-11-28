@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { ImageRows } from "@/components/images/ui/image-rows";
+import { ImageRowsPlaceholder } from "@/components/images/ui/image-rows-placeholder";
+import { ImageTile } from "@/components/images/ui/image-tile";
 import { samplePhoto } from "@/testing/sample-photos";
 import { AppShell } from "@/ui/layout";
-import { ImageRows } from "@/ui/patterns/photos/image-rows";
-import { ImageRowsPlaceholder } from "@/ui/patterns/photos/image-rows-placeholder";
-import { ImageTile } from "@/ui/patterns/photos/image-tile";
 
 const meta = {
-  title: "patterns/photos/ImageRows",
+  title: "components/images/ImageRows",
   component: ImageRows,
   args: { label: "画像", children: null },
   decorators: [

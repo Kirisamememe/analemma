@@ -5,11 +5,11 @@ import { Profiler } from "react";
 
 import { ImageField } from "../image-field";
 
+import * as imageTile from "@/components/images/ui/image-tile";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";
 import { samplePhoto } from "@/testing/sample-photos";
-import * as patterns from "@/ui/patterns";
 import * as overlays from "@/ui/primitives/overlays";
 
 afterEach(cleanup);
@@ -28,8 +28,8 @@ test("変換中の画像を選んだまま画像を選ぶ Dialog を開いてい
 
   await app.router.load();
   const commits: string[] = [];
-  const Tile = patterns.ImageTile;
-  using tiles = spyOn(patterns, "ImageTile").mockImplementation((props) => (
+  const Tile = imageTile.ImageTile;
+  using tiles = spyOn(imageTile, "ImageTile").mockImplementation((props) => (
     <Profiler
       id={props.title ?? ""}
       onRender={(id) => {

@@ -7,9 +7,9 @@ import { ViewerPhoto } from "./viewer-photo";
 import { ViewerProgress } from "./viewer-progress";
 import { viewerStyle as style } from "./viewer-styles";
 
+import type { DeliveryImages } from "@/components/images/logic/delivery-image";
 import { useTranslate } from "@/i18n/use-translate";
 import { Text } from "@/ui/layout";
-import type { DeliveryImages } from "@/ui/patterns/photos/logic/delivery-image";
 import { Icon, Spinner } from "@/ui/primitives/graphics";
 
 /** 前後の画像へ移るリンク。 */

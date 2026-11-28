@@ -259,7 +259,11 @@ export const ADMIN_CLASS_OVERRIDES: readonly OxlintOverride[] = [
     },
   },
   {
-    files: ["**/apps/admin/src/ui/**", "**/apps/admin/src/features/*/ui/**"],
+    files: [
+      "**/apps/admin/src/ui/**",
+      "**/apps/admin/src/features/*/ui/**",
+      "**/apps/admin/src/components/*/ui/**",
+    ],
     rules: {
       "better-tailwindcss/no-restricted-classes": restrictClasses(
         uiClassRestrictions("ui/"),

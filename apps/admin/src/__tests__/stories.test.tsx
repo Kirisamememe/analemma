@@ -13,6 +13,9 @@ import * as componentsFormFields from "@/components/forms/__stories__/form-field
 import * as componentsForm from "@/components/forms/__stories__/form.stories";
 import * as componentsSubmitting from "@/components/forms/__stories__/submitting.stories";
 import * as featuresImagesSection from "@/components/images/__stories__/images-section.stories";
+import * as imageRadio from "@/components/images/ui/__stories__/image-radio.stories";
+import * as featuresImagesImageRows from "@/components/images/ui/__stories__/image-rows.stories";
+import * as imageThumbnail from "@/components/images/ui/__stories__/image-thumbnail.stories";
 import * as featuresDeployTokensCopyButton from "@/features/deploy-tokens/ui/__stories__/copy-button.stories";
 import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
 import * as kindRefreshNotice from "@/features/fixed-pages/list/__stories__/kind-refresh-notice.stories";
@@ -45,9 +48,6 @@ import * as layoutPageTransition from "@/ui/layout/__stories__/page-transition.s
 import * as layoutStack from "@/ui/layout/__stories__/stack.stories";
 import * as layoutText from "@/ui/layout/__stories__/text.stories";
 import * as patternsPageHeader from "@/ui/patterns/__stories__/page-header.stories";
-import * as imageRadio from "@/ui/patterns/photos/__stories__/image-radio.stories";
-import * as featuresImagesImageRows from "@/ui/patterns/photos/__stories__/image-rows.stories";
-import * as imageThumbnail from "@/ui/patterns/photos/__stories__/image-thumbnail.stories";
 import * as patternsProgressList from "@/ui/patterns/progress/__stories__/progress-list.stories";
 import * as patternsSideNav from "@/ui/patterns/side-nav/__stories__/side-nav.stories";
 import * as patternsEmptyState from "@/ui/patterns/states/__stories__/empty-state.stories";
@@ -118,9 +118,9 @@ const MODULES = {
     featuresImagesUploadNotice,
   "features/images/ui/upload/__stories__/photo-carousel.stories.tsx":
     featuresImagesPhotoCarousel,
-  "ui/patterns/photos/__stories__/image-radio.stories.tsx": imageRadio,
-  "ui/patterns/photos/__stories__/image-thumbnail.stories.ts": imageThumbnail,
-  "ui/patterns/photos/__stories__/image-rows.stories.tsx":
+  "components/images/ui/__stories__/image-radio.stories.tsx": imageRadio,
+  "components/images/ui/__stories__/image-thumbnail.stories.ts": imageThumbnail,
+  "components/images/ui/__stories__/image-rows.stories.tsx":
     featuresImagesImageRows,
   "features/images/ui/viewer/__stories__/image-viewer.stories.tsx":
     featuresImagesImageViewer,

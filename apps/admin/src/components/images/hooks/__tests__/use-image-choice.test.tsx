@@ -5,10 +5,10 @@ import { Profiler } from "react";
 
 import { ImagePicker } from "../../image-picker";
 
+import * as imageTile from "@/components/images/ui/image-tile";
 import { createTestApp } from "@/testing/create-test-app";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";
-import * as patterns from "@/ui/patterns";
 import * as overlays from "@/ui/primitives/overlays";
 
 afterEach(cleanup);
@@ -23,8 +23,8 @@ test("1枚を選択・解除すると、その写真の選択状態と枚数が�
   const app = createTestApp({ path: "/", routes });
   await app.router.load();
   const commits: string[] = [];
-  const Tile = patterns.ImageTile;
-  using tiles = spyOn(patterns, "ImageTile").mockImplementation((props) => (
+  const Tile = imageTile.ImageTile;
+  using tiles = spyOn(imageTile, "ImageTile").mockImplementation((props) => (
     <Profiler
       id={props.title ?? ""}
       onRender={(id) => {

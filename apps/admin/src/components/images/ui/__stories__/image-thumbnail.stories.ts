@@ -8,7 +8,7 @@ import { SAMPLE_IMAGES } from "@/testing/sample-photos";
 const [image] = createImageRoutes(SAMPLE_IMAGES).images();
 
 const meta = {
-  title: "patterns/photos/ImageThumbnail",
+  title: "components/images/ImageThumbnail",
   component: ImageThumbnail,
   args: { src: image?.deliveryImages[0]?.url, alt: image?.alt },
 } satisfies Meta<typeof ImageThumbnail>;

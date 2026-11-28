@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { rows } from "./image-rows-style";
 
-import { LoadingState } from "@/ui/patterns/states/loading-state";
+import { LoadingState } from "@/ui/patterns";
 import { Skeleton } from "@/ui/primitives/graphics";
 
 const PLACEHOLDERS = [

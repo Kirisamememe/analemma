@@ -2,9 +2,9 @@ import type { ReactNode, Ref } from "react";
 
 import { useImageChoice } from "../hooks/use-image-choice";
 
+import { ImageRadio } from "@/components/images/ui/image-radio";
 import { useTranslate } from "@/i18n/use-translate";
 import type { ImageSummary } from "@/queries/images-query";
-import { ImageRadio } from "@/ui/patterns";
 
 /** 1枚の画像を選ぶ入力欄に渡す値。 */
 type ImageChoiceProps = {
