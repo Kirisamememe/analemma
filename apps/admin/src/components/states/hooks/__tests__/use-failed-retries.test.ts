@@ -1,7 +1,7 @@
 import { cleanup, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { useFailedRetries } from "@/ui/patterns/states/hooks/use-failed-retries";
+import { useFailedRetries } from "@/components/states/hooks/use-failed-retries";
 
 afterEach(cleanup);
 

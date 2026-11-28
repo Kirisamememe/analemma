@@ -1,8 +1,9 @@
 import type { ReactNode, Ref } from "react";
 
 import type { ApiQueryResult } from "@/api/server-state/server-state";
+import { ErrorState } from "@/components/states/ui/error-state";
 import { useTranslate } from "@/i18n/use-translate";
-import { ErrorState, LoadingState } from "@/ui/patterns";
+import { LoadingState } from "@/ui/patterns";
 
 /** 取得の結果に合わせて出し分ける欄に渡す値。 */
 type QueryContentProps<Data> = {

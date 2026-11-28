@@ -4,6 +4,7 @@ import { KindRefreshNotice } from "./kind-refresh-notice";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
+import { ErrorState } from "@/components/states/ui/error-state";
 import { FixedPageRow } from "@/features/fixed-pages/list/fixed-page-row";
 import { useReorderFixedPages } from "@/features/fixed-pages/list/hooks/use-reorder-fixed-pages";
 import {
@@ -15,7 +16,7 @@ import {
 } from "@/features/fixed-pages/queries/fixed-pages-query";
 import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Stack, Text } from "@/ui/layout";
-import { EmptyState, ErrorState, LoadingState } from "@/ui/patterns";
+import { EmptyState, LoadingState } from "@/ui/patterns";
 import { Button } from "@/ui/primitives/button";
 import { ReorderableList } from "@/ui/primitives/collections";
 import { Icon, Spinner } from "@/ui/primitives/graphics";

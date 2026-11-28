@@ -16,6 +16,7 @@ import * as featuresImagesSection from "@/components/images/__stories__/images-s
 import * as imageRadio from "@/components/images/ui/__stories__/image-radio.stories";
 import * as featuresImagesImageRows from "@/components/images/ui/__stories__/image-rows.stories";
 import * as imageThumbnail from "@/components/images/ui/__stories__/image-thumbnail.stories";
+import * as patternsErrorState from "@/components/states/ui/__stories__/error-state.stories";
 import * as featuresDeployTokensCopyButton from "@/features/deploy-tokens/ui/__stories__/copy-button.stories";
 import * as featuresDeployTokensTokenValue from "@/features/deploy-tokens/ui/__stories__/token-value.stories";
 import * as kindRefreshNotice from "@/features/fixed-pages/list/__stories__/kind-refresh-notice.stories";
@@ -51,7 +52,6 @@ import * as patternsPageHeader from "@/ui/patterns/__stories__/page-header.stori
 import * as patternsProgressList from "@/ui/patterns/progress/__stories__/progress-list.stories";
 import * as patternsSideNav from "@/ui/patterns/side-nav/__stories__/side-nav.stories";
 import * as patternsEmptyState from "@/ui/patterns/states/__stories__/empty-state.stories";
-import * as patternsErrorState from "@/ui/patterns/states/__stories__/error-state.stories";
 import * as patternsLoadingState from "@/ui/patterns/states/__stories__/loading-state.stories";
 import * as primitivesBadge from "@/ui/primitives/__stories__/badge.stories";
 import * as primitivesButton from "@/ui/primitives/__stories__/button.stories";
@@ -157,7 +157,8 @@ const MODULES = {
   "ui/layout/__stories__/stack.stories.tsx": layoutStack,
   "ui/layout/__stories__/text.stories.ts": layoutText,
   "ui/patterns/states/__stories__/empty-state.stories.tsx": patternsEmptyState,
-  "ui/patterns/states/__stories__/error-state.stories.tsx": patternsErrorState,
+  "components/states/ui/__stories__/error-state.stories.tsx":
+    patternsErrorState,
   "ui/patterns/states/__stories__/loading-state.stories.ts":
     patternsLoadingState,
   "ui/patterns/__stories__/page-header.stories.tsx": patternsPageHeader,

@@ -8,13 +8,14 @@ import { Titled } from "./titled";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiQuery } from "@/api/server-state/server-state";
+import { ErrorState } from "@/components/states/ui/error-state";
 import { FixedPageEditor } from "@/features/fixed-pages/editor/fixed-page-editor";
 import { DeleteFixedPage } from "@/features/fixed-pages/editor/frame/delete-fixed-page";
 import {
   fixedPageQueryKey,
   loadFixedPage,
 } from "@/features/fixed-pages/editor/queries/fixed-page-query";
-import { ErrorState, LoadingState } from "@/ui/patterns";
+import { LoadingState } from "@/ui/patterns";
 import { Notice } from "@/ui/primitives/notice";
 
 /** 固定ページと種類の定義を読んで編集する画面。 */
