@@ -1,4 +1,5 @@
 import type { ApiClient, ApiOutputs } from "@/api/api-types";
+import type { useApiCache } from "@/api/server-state/server-state";
 import type { LoadedImage } from "@/queries/image-query";
 
 /** 画像の一覧の、query のキー。 */
@@ -72,4 +73,27 @@ export const settleListedImage = (id: string, loaded: LoadedImage) => {
           ? { ...listed, status, publishedAt, deliveryImages }
           : listed,
       );
+};
+
+/** 読んだ画像と、その結果。 */
+type SettledImage = {
+  /** 画像の ID。 */
+  readonly id: string;
+  /** 画像を読んだ結果。 */
+  readonly loaded: LoadedImage;
+};
+
+/** 画像を読んだ結果を、読み込んだ一覧と、画像を選ぶ Dialog の一覧に当てる。 */
+export const settleImageLists = async (
+  { updatePages }: Pick<ReturnType<typeof useApiCache>, "updatePages">,
+  { id, loaded }: SettledImage,
+): Promise<void> => {
+  const settle = settleListedImage(id, loaded);
+
+  if (settle === undefined) return;
+
+  await Promise.all([
+    updatePages(IMAGES_QUERY_KEY, settle),
+    updatePages(IMAGE_PICKER_KEY, settle),
+  ]);
 };

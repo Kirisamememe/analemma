@@ -97,3 +97,58 @@ test("取り直した画像が無くなっていたら、画像の無い結果�
     { id: 1, imageId: earlier.id, image: undefined },
   ]);
 });
+
+test("取り直しの最初の応答が届いても、取り直しが失敗し続けても、呼ぶ側を描き直さない", async () => {
+  const { server, uploads, onSettled } = await setUp();
+  const first = Promise.withResolvers<undefined>();
+  let replies: "waiting" | "failing" = "waiting";
+  let failed = 0;
+
+  const app = createTestApp({
+    path: "/",
+    routes: {
+      ...server.routes,
+      "admin/images/get": (input) => {
+        if (replies === "failing") {
+          failed += 1;
+
+          return { error: "INTERNAL_SERVER_ERROR", defined: false };
+        }
+
+        return first.promise.then(() =>
+          server.routes["admin/images/get"](input),
+        );
+      },
+    },
+  });
+
+  await app.router.load();
+
+  const gets = () => app.calls.filter((path) => path === "admin/images/get");
+  let renders = 0;
+
+  renderHook(
+    () => {
+      renders += 1;
+      useUploadConversions({ uploads, onSettled, pollMs: POLL_MS });
+    },
+    { wrapper: withAppProviders(app) },
+  );
+  await waitFor(() => {
+    expect(gets()).toHaveLength(1);
+  });
+
+  const rendered = renders;
+
+  first.resolve(undefined);
+  await waitFor(() => {
+    expect(gets().length).toBeGreaterThanOrEqual(2);
+  });
+  replies = "failing";
+  await waitFor(() => {
+    expect(failed).toBeGreaterThanOrEqual(3);
+  });
+
+  expect(renders).toBe(rendered);
+  expect(onSettled).not.toHaveBeenCalled();
+});

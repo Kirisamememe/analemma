@@ -1,15 +1,22 @@
 import { ORPCError } from "@orpc/client";
+import { QueryClient } from "@tanstack/react-query";
+import { renderHook } from "@testing-library/react";
 import { describe, expect, test } from "bun:test";
 
 import {
   findNextConverting,
   loadImagesPage,
+  IMAGE_PICKER_KEY,
+  IMAGES_QUERY_KEY,
   prependImage,
+  settleImageLists,
   settleListedImage,
 } from "../images-query";
 
+import { useApiCache } from "@/api/server-state/server-state";
 import { createFakeApi } from "@/testing/create-fake-api";
 import { createImageRoutes } from "@/testing/fake-routes/create-image-routes";
+import { withQueryClient } from "@/testing/hook-wrappers";
 
 describe("loadImagesPage", () => {
   test("cursor を省くと最初のページを、渡すとその続きを読む", async () => {
@@ -143,5 +150,47 @@ describe("settleListedImage", () => {
     });
 
     expect(settle?.(page).images).toEqual([harbor]);
+  });
+});
+
+describe("settleImageLists", () => {
+  test("変換中のままなら、どの一覧にも触れず、変換を終えていたら、一覧と画像を選ぶ Dialog の一覧のその画像を差し替える", async () => {
+    const { converting, page } = listedImages();
+    const client = new QueryClient();
+    const keys = [IMAGES_QUERY_KEY, IMAGE_PICKER_KEY];
+
+    for (const key of keys) {
+      client.setQueryData(key, { pageParams: [undefined], pages: [page] });
+    }
+
+    const { result } = renderHook(() => useApiCache(), {
+      wrapper: withQueryClient(client),
+    });
+
+    const firstPages = () =>
+      keys.map(
+        (key) =>
+          client.getQueryData<Record<"pages", (typeof page)[]>>(key)?.pages[0],
+      );
+
+    await settleImageLists(result.current, {
+      id: converting.id,
+      loaded: { _tag: "Succeeded", data: converting },
+    });
+    expect(firstPages()).toEqual([page, page]);
+
+    await settleImageLists(result.current, {
+      id: converting.id,
+      loaded: {
+        _tag: "Succeeded",
+        data: { ...converting, status: "published" },
+      },
+    });
+
+    expect(firstPages().map((current) => current?.images[0]?.status)).toEqual([
+      "published",
+      "published",
+    ]);
+    expect(page.images[0]?.status).toBe("processing");
   });
 });
