@@ -55,6 +55,7 @@ test("配信用の画像がなくても名前と非公開の状態を保ち、�
   expect(screen.getByText("青い海")).toBeDefined();
   expect(screen.getByText("非公開")).toBeDefined();
   expect(screen.getByText("必須")).toBeDefined();
+  expect(screen.getByRole("group", { name: /肖像.*必須/v })).toBeDefined();
   expect(
     screen.getByRole("button", { name: "差し替える（紹介 / 肖像）" }),
   ).toBeDefined();

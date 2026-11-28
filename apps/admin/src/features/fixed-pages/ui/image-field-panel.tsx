@@ -182,6 +182,8 @@ export const ImageFieldPanel = ({
     </div>
   );
 
+  const necessity = required ? "required" : "optional";
+
   return (
     <fieldset
       className="min-w-0"
@@ -193,15 +195,9 @@ export const ImageFieldPanel = ({
           <Text as="span" variant="label">
             {label}
           </Text>
-          {required ? (
-            <Badge tone="danger" variant="soft">
-              {t("ui.required")}
-            </Badge>
-          ) : (
-            <NecessityBadge necessity="optional">
-              {t("ui.optional")}
-            </NecessityBadge>
-          )}
+          <NecessityBadge isSpoken necessity={necessity}>
+            {t(`ui.${necessity}`)}
+          </NecessityBadge>
         </span>
       </legend>
       <Stack gap={1.5}>
