@@ -226,3 +226,22 @@ describe("JSX の中のロジック", () => {
     expect(logicIn("valid/apps/admin/src/routes/plain-jsx.tsx")).toEqual([]);
   });
 });
+
+const redundantRolesIn = (file: string): number =>
+  lintFixture(file).diagnostics.filter(
+    ({ code }) => code === "jsx-a11y(no-redundant-roles)",
+  ).length;
+
+describe("要素が元から持つ role", () => {
+  test('ol に書いた role="list" に診断を出すこと', () => {
+    expect(
+      redundantRolesIn("invalid/apps/admin/src/ui/layout/redundant-role.tsx"),
+    ).toBe(1);
+  });
+
+  test('ul に書いた role="list" には診断を出さないこと', () => {
+    expect(
+      redundantRolesIn("valid/apps/admin/src/ui/layout/plain-list.tsx"),
+    ).toBe(0);
+  });
+});
