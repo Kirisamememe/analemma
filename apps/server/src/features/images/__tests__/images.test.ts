@@ -3,53 +3,20 @@ import { describe, expect, spyOn, test } from "bun:test";
 import type { ContractInputs, ContractOutputs } from "@analemma/contract";
 
 import { deliveryImage } from "@/db/schema/delivery-image";
-import { image } from "@/db/schema/image";
 import { findNeighborIds } from "@/features/images/queries/images.query";
-import { openDatabase } from "@/platform/database";
-import { toTestDatabaseTarget } from "@/platform/test-database/to-test-database-target";
 import {
   SUCCEEDED,
   catchErrorCode,
   createTestClient,
+  insertImages,
+  openTestDatabase,
   signInAsAdmin,
   TEST_NOW,
   type TestClient,
 } from "@/test-client";
 
-/** テストのために DB に直接入れる、画像の行の値。 */
-type ImageValues = Partial<typeof image.$inferInsert>;
-
 /** テストのために DB に直接入れる、配信用の画像の行の値。 */
 type DeliveryImageValues = typeof deliveryImage.$inferInsert;
-
-const openTestDatabase = (server: TestClient) =>
-  openDatabase({
-    target: toTestDatabaseTarget(server.databaseName),
-    logger: { write: () => undefined },
-    max: 1,
-  });
-
-const insertImages = async (
-  server: TestClient,
-  values: readonly ImageValues[],
-): Promise<string[]> => {
-  await using connection = openTestDatabase(server);
-
-  const rows = await connection.db
-    .insert(image)
-    .values(
-      values.map((value) => ({
-        status: "published" as const,
-        publishedAt: TEST_NOW,
-        createdAt: TEST_NOW,
-        updatedAt: TEST_NOW,
-        ...value,
-      })),
-    )
-    .returning({ id: image.id });
-
-  return rows.map(({ id }) => id);
-};
 
 const insertDeliveryImages = async (
   server: TestClient,
