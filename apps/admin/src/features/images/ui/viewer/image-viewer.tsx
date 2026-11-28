@@ -1,6 +1,7 @@
 import { type ReactNode, useRef } from "react";
 
 import { usePhotoGestures } from "../hooks/use-photo-gestures";
+import { photoEnds } from "../logic/photo-ends";
 import { SideLink } from "./side-link";
 import { ViewerPhoto } from "./viewer-photo";
 import { ViewerProgress } from "./viewer-progress";
@@ -90,10 +91,14 @@ export const ImageViewer = ({
   });
 
   const panelPhoto = useRef<string>(undefined);
-  const smallest = images[0];
-  const largest = images.at(-1);
-  const pendingSmallest = pending?.images[0];
-  const pendingLargest = pending?.images.at(-1);
+  const shown = photoEnds(images);
+  const upcoming = pending && photoEnds(pending.images);
+
+  const missingIcon = isPending ? (
+    <Spinner />
+  ) : (
+    <Icon name="image-off" size="xl" />
+  );
 
   return (
     <div className={style.body()}>
@@ -103,34 +108,32 @@ export const ImageViewer = ({
         onPointerUp={handlers.onPointerUp}
         onPointerCancel={handlers.onPointerCancel}
       >
-        {smallest === undefined || largest === undefined ? (
+        {shown === undefined ? (
           <output className={style.missing()}>
-            {isPending ? <Spinner /> : <Icon name="image-off" size="xl" />}
+            {missingIcon}
             <Text as="span">{missing}</Text>
           </output>
         ) : (
           <ViewerPhoto
             alt={alt}
             images={images}
-            key={photoId ?? smallest.url}
+            key={photoId ?? shown.smallest.url}
             direction={direction}
-            largest={largest}
-            smallest={smallest}
+            largest={shown.largest}
+            smallest={shown.smallest}
           />
         )}
-        {pending !== undefined &&
-          pendingSmallest !== undefined &&
-          pendingLargest !== undefined && (
-            <ViewerPhoto
-              key={pending.id}
-              alt={pending.alt}
-              images={pending.images}
-              largest={pendingLargest}
-              smallest={pendingSmallest}
-              pending
-              onSettled={() => onSettled?.(pending.id)}
-            />
-          )}
+        {pending && upcoming && (
+          <ViewerPhoto
+            key={pending.id}
+            alt={pending.alt}
+            images={pending.images}
+            largest={upcoming.largest}
+            smallest={upcoming.smallest}
+            pending
+            onSettled={() => onSettled?.(pending.id)}
+          />
+        )}
         {waiting !== undefined && <ViewerProgress label={waiting} />}
         {previous !== undefined && (
           <SideLink

@@ -8,6 +8,7 @@ import type { ContentFieldsProps } from "../content-fields";
 import { flattenContent } from "../logic/flat-content";
 import {
   addRepeatItem,
+  isRepeatFull,
   moveRepeatItem,
   removeRepeatItem,
   type RepeatChange,
@@ -85,11 +86,32 @@ export const RepeatField = ({
     [apply, form, name],
   );
 
+  const add = (ids: readonly string[]): void => {
+    const id = crypto.randomUUID();
+    const change = addRepeatItem(ids, id);
+
+    if (change === undefined) return;
+
+    const added = flattenContent(
+      createContentForm(definition.fields),
+      path + "/" + id + "/",
+    );
+
+    for (const [key, value] of Object.entries(added.content)) {
+      form.setFieldValue(`content.${key}`, value);
+    }
+
+    for (const [key, value] of Object.entries(added.items)) {
+      form.setFieldValue(`items.${key}`, value);
+    }
+
+    apply(change);
+  };
+
   return (
     <form.Field name={name}>
       {(field) => {
         const ids = field.state.value;
-        const isFull = ids.length >= REPEAT_MAX_ITEMS;
 
         return (
           <>
@@ -114,7 +136,7 @@ export const RepeatField = ({
               target="add"
               isLast
               note={
-                isFull
+                isRepeatFull(ids)
                   ? t("fixedPageEditor.addLimit", { limit: REPEAT_MAX_ITEMS })
                   : undefined
               }
@@ -123,27 +145,9 @@ export const RepeatField = ({
                 ref={remember("add")}
                 size="sm"
                 tone="secondary"
-                isDisabled={isFull}
+                isDisabled={isRepeatFull(ids)}
                 onPress={() => {
-                  const id = crypto.randomUUID();
-                  const change = addRepeatItem(ids, id);
-
-                  if (change === undefined) return;
-
-                  const added = flattenContent(
-                    createContentForm(definition.fields),
-                    path + "/" + id + "/",
-                  );
-
-                  for (const [key, value] of Object.entries(added.content)) {
-                    form.setFieldValue(`content.${key}`, value);
-                  }
-
-                  for (const [key, value] of Object.entries(added.items)) {
-                    form.setFieldValue(`items.${key}`, value);
-                  }
-
-                  apply(change);
+                  add(ids);
                 }}
               >
                 <Icon name="plus" size="md" weight="bold" />

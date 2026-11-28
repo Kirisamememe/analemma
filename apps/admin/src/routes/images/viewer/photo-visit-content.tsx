@@ -102,6 +102,22 @@ export const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
       />
     ) : undefined;
 
+  const navigationError = failure && (
+    <ErrorState
+      layout="inline"
+      level={2}
+      retryRef={navigation.retryRef}
+      isRetrying={failure.isRetrying}
+      onRetry={() => {
+        navigation.retry(id, failure.retry);
+      }}
+      title={t("imageDetail.neighborsFailed")}
+    />
+  );
+
+  const shownDirection = shown?.id === id ? direction : undefined;
+  const empty = shown === undefined ? query._tag : undefined; // 写真を出せていないときの、取得の状態
+
   return (
     <ViewerVisit
       ref={(element) => {
@@ -110,25 +126,12 @@ export const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
     >
       {shown !== undefined && (
         <ImageDetail
-          navigationError={
-            failure && (
-              <ErrorState
-                layout="inline"
-                level={2}
-                retryRef={navigation.retryRef}
-                isRetrying={failure.isRetrying}
-                onRetry={() => {
-                  navigation.retry(id, failure.retry);
-                }}
-                title={t("imageDetail.neighborsFailed")}
-              />
-            )
-          }
+          navigationError={navigationError}
           image={shown}
           error={error}
           pending={pending}
           waiting={waiting()}
-          direction={shown.id === id ? direction : undefined}
+          direction={shownDirection}
           onSettled={settle}
           next={navigation.neighbor("next", neighbors?.next)}
           previous={navigation.neighbor("previous", neighbors?.previous)}
@@ -137,13 +140,11 @@ export const PhotoVisitContent = ({ back }: BackProps): ReactNode => {
           }}
         />
       )}
-      {query._tag === "Loading" && shown === undefined && (
+      {empty === "Loading" && (
         <LoadingState layout="media" label={t("imageDetail.loading")} />
       )}
-      {error !== undefined && shown === undefined && (
-        <ViewerMessage>{error}</ViewerMessage>
-      )}
-      {query._tag === "Loaded" && shown === undefined && (
+      {empty === "Failed" && <ViewerMessage>{error}</ViewerMessage>}
+      {empty === "Loaded" && (
         <ViewerMessage>
           <Notice tone="warning">
             <Heading level={1} variant="section">

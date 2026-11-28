@@ -1,4 +1,4 @@
-import type { ReactNode, Ref } from "react";
+import type { MouseEvent, ReactNode, Ref } from "react";
 import { Link as AriaLink } from "react-aria-components";
 
 import { Icon } from "@/ui/primitives/graphics";
@@ -50,6 +50,22 @@ export const Link = ({
   ref,
 }: LinkProps): ReactNode => {
   if (navigation !== undefined) {
+    const open = (event: MouseEvent<HTMLAnchorElement>): void => {
+      if (
+        navigation.disabled ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      navigation.open();
+    };
+
     return (
       <a
         aria-disabled={navigation.disabled || undefined}
@@ -63,21 +79,7 @@ export const Link = ({
         ref={ref}
         role={navigation.disabled ? "link" : undefined}
         tabIndex={0}
-        onClick={(event) => {
-          if (
-            navigation.disabled ||
-            event.button !== 0 ||
-            event.metaKey ||
-            event.ctrlKey ||
-            event.altKey ||
-            event.shiftKey
-          ) {
-            return;
-          }
-
-          event.preventDefault();
-          navigation.open();
-        }}
+        onClick={open}
       >
         {children}
       </a>

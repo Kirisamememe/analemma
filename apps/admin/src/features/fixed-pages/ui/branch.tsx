@@ -34,6 +34,14 @@ export const Branch = ({
 }: BranchProps): ReactNode => {
   const lines = branchLines({ parent, target, isLast });
 
+  const noteLine = note !== undefined && (
+    <span className="block ps-3 pt-1.5 @max-3xs/nested-form:ps-1">
+      <Text as="span" tone="muted" variant="caption">
+        {note}
+      </Text>
+    </span>
+  );
+
   return (
     <div>
       <NestLine shape={lines.gap} />
@@ -43,17 +51,7 @@ export const Branch = ({
         ))}
         {children}
       </div>
-      {target === "add" && (
-        <output className="block">
-          {note !== undefined && (
-            <span className="block ps-3 pt-1.5 @max-3xs/nested-form:ps-1">
-              <Text as="span" tone="muted" variant="caption">
-                {note}
-              </Text>
-            </span>
-          )}
-        </output>
-      )}
+      {target === "add" && <output className="block">{noteLine}</output>}
     </div>
   );
 };

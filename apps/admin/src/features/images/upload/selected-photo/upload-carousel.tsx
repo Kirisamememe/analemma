@@ -26,20 +26,23 @@ export const UploadCarousel = ({
   onSelect,
 }: UploadCarouselProps): ReactNode => {
   const t = useTranslate();
+
+  const photos = uploads.map(({ id, file, previewUrl, status, progress }) => ({
+    id,
+    name: file.name,
+    source: file,
+    previewUrl,
+    overlay: status === "sending" && progress && (
+      <UploadProgress
+        progress={progress}
+        label={t("imageUpload.uploadingFile", { name: file.name })}
+      />
+    ),
+  }));
+
   return (
     <PhotoCarousel
-      photos={uploads.map(({ id, file, previewUrl, status, progress }) => ({
-        id,
-        name: file.name,
-        source: file,
-        previewUrl,
-        overlay: status === "sending" && progress && (
-          <UploadProgress
-            progress={progress}
-            label={t("imageUpload.uploadingFile", { name: file.name })}
-          />
-        ),
-      }))}
+      photos={photos}
       selectedId={selectedId}
       onSelect={onSelect}
       label={t("imageUpload.selectPhoto")}

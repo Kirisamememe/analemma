@@ -115,34 +115,36 @@ export const FixedPagesSection = ({
     );
   };
 
+  const canReorder = showRows && rows.length > 1;
+
+  const savingOrder = reordering.isSaving && (
+    <Cluster align="center" gap={1.5}>
+      <Spinner />
+      <Text as="span" tone="muted" variant="caption">
+        {t("fixedPages.savingOrder")}
+      </Text>
+    </Cluster>
+  );
+
+  const kindRefreshFailure =
+    kinds._tag === "Loaded" ? kinds.refreshFailure : undefined;
+
   return (
     <Stack gap={2}>
       <Button size="card" tone="dashed" onPress={onCreate}>
         <Icon name="plus" />
         {t("fixedPages.create")}
       </Button>
-      {showRows && rows.length > 1 && (
+      {canReorder && (
         <Cluster align="center" gap={2} justify="between">
           <Text tone="muted" variant="caption">
             {t("fixedPages.reorderHint")}
           </Text>
-          <output>
-            {reordering.isSaving && (
-              <Cluster align="center" gap={1.5}>
-                <Spinner />
-                <Text as="span" tone="muted" variant="caption">
-                  {t("fixedPages.savingOrder")}
-                </Text>
-              </Cluster>
-            )}
-          </output>
+          <output>{savingOrder}</output>
         </Cluster>
       )}
-      {kinds._tag === "Loaded" && kinds.refreshFailure !== undefined && (
-        <KindRefreshNotice
-          source="list"
-          refreshFailure={kinds.refreshFailure}
-        />
+      {kindRefreshFailure !== undefined && (
+        <KindRefreshNotice source="list" refreshFailure={kindRefreshFailure} />
       )}
       {content()}
     </Stack>

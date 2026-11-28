@@ -37,12 +37,16 @@ export const NewPageEditor = ({
       ? kind.data.data
       : undefined;
 
-  return (
-    <>
-      <output className="sr-only">
-        {definition !== undefined && t("fixedPageEditor.formReady")}
-      </output>
-      {definition === undefined ? (
+  const ready = (
+    <output className="sr-only">
+      {definition !== undefined && t("fixedPageEditor.formReady")}
+    </output>
+  );
+
+  if (definition === undefined) {
+    return (
+      <>
+        {ready}
         <Titled title={t("fixedPageEditor.new")}>
           {kind._tag === "Loading" && <LoadingState layout="form" />}
           {kind._tag === "Failed" && (
@@ -64,24 +68,30 @@ export const NewPageEditor = ({
             </Stack>
           )}
         </Titled>
-      ) : (
-        <FixedPageEditor
-          key={name}
-          kind={definition}
-          refreshFailure={
-            kind._tag === "Loaded" ? kind.refreshFailure : undefined
-          }
-          picked={picked}
-          onSaved={(saved) => {
-            void navigate({
-              to: "/fixed-pages/$id",
-              params: { id: saved.id },
-              replace: true,
-              ignoreBlocker: true,
-            });
-          }}
-        />
-      )}
+      </>
+    );
+  }
+
+  const refreshFailure =
+    kind._tag === "Loaded" ? kind.refreshFailure : undefined;
+
+  return (
+    <>
+      {ready}
+      <FixedPageEditor
+        key={name}
+        kind={definition}
+        refreshFailure={refreshFailure}
+        picked={picked}
+        onSaved={(saved) => {
+          void navigate({
+            to: "/fixed-pages/$id",
+            params: { id: saved.id },
+            replace: true,
+            ignoreBlocker: true,
+          });
+        }}
+      />
     </>
   );
 };

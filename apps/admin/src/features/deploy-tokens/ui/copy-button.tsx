@@ -14,6 +14,11 @@ const face = tv({
   },
 });
 
+const ANNOUNCEMENTS = {
+  Copied: "deployTokens.copied",
+  Failed: "deployTokens.copyFailed",
+} as const;
+
 /** コピーのボタンに渡す値。 */
 type CopyButtonProps = {
   /** ボタンで返す、コピーした結果。 */
@@ -57,9 +62,7 @@ export const CopyButton = ({
         </span>
       </Button>
       <output className="sr-only">
-        {result === undefined
-          ? ""
-          : t(isCopied ? "deployTokens.copied" : "deployTokens.copyFailed")}
+        {result !== undefined && t(ANNOUNCEMENTS[result])}
       </output>
     </>
   );

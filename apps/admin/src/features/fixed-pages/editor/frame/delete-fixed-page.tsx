@@ -65,6 +65,12 @@ export const DeleteFixedPage = ({
     },
   });
 
+  const open = (): void => {
+    deleting.reset(); // 開き直したら、前の送信の結果を消す
+    setIsOpen(true);
+    onOpenChange?.(true);
+  };
+
   const close = (): void => {
     failure.close();
     setIsOpen(false);
@@ -78,17 +84,13 @@ export const DeleteFixedPage = ({
         icon="trash-2"
         isDisabled={isDisabled}
         ref={trigger}
-        onPress={() => {
-          deleting.reset(); // 開き直したら、前の送信の結果を消す
-          setIsOpen(true);
-          onOpenChange?.(true);
-        }}
+        onPress={open}
       />
       <Dialog
         isOpen={isOpen}
         isPending={deleting.isPending}
-        onOpenChange={(open) => {
-          if (!open) close();
+        onOpenChange={(isShown) => {
+          if (!isShown) close();
         }}
         title={t("fixedPages.deleteTitle", { title: page.title })}
       >

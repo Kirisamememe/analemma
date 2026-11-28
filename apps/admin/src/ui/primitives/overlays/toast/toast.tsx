@@ -18,6 +18,8 @@ import {
 import { tv } from "@/ui/tv";
 import { typography } from "@/ui/typography";
 
+const TONE_ICONS = { success: "circle-check", danger: "circle-alert" } as const;
+
 const toastStyle = tv({
   slots: {
     region: [
@@ -106,19 +108,14 @@ export const ToastProvider = ({ children }: ToastProviderProps): ReactNode => {
       {children}
       <AriaToastRegion className={region()} queue={queue}>
         {({ toast }) => {
-          const { tone, message } = toast.content;
-          const slots = toastStyle({ tone });
+          const slots = toastStyle({ tone: toast.content.tone });
 
           return (
             <AriaToast className={slots.toast()} toast={toast}>
               <div className={slots.panel()}>
                 <AriaToastContent className={slots.content()}>
                   <span className={slots.iconFrame()}>
-                    <Icon
-                      name={
-                        tone === "success" ? "circle-check" : "circle-alert"
-                      }
-                    />
+                    <Icon name={TONE_ICONS[toast.content.tone]} />
                   </span>
                   <AriaText
                     className={slots.message({
@@ -126,7 +123,7 @@ export const ToastProvider = ({ children }: ToastProviderProps): ReactNode => {
                     })}
                     slot="title"
                   >
-                    {message}
+                    {toast.content.message}
                   </AriaText>
                 </AriaToastContent>
                 <AriaButton

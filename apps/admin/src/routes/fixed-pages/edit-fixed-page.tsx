@@ -59,24 +59,30 @@ export const EditFixedPage = (): ReactNode => {
     );
   }
 
+  const unloaded = (): ReactNode => {
+    if (query._tag === "Failed") {
+      return (
+        <ErrorState
+          isRetrying={query.isRetrying}
+          layout="screen"
+          level={2}
+          onRetry={query.retry}
+          title={t("fixedPageEditor.loadFailed")}
+        />
+      );
+    }
+
+    return query._tag === "Loaded" && page === undefined ? (
+      <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
+    ) : (
+      <LoadingState layout="form" />
+    );
+  };
+
   if (page === undefined || kind._tag === "Loading") {
     return (
       <EditorFrame ready={false}>
-        <Titled title={t("fixedPageEditor.edit")}>
-          {query._tag === "Failed" ? (
-            <ErrorState
-              isRetrying={query.isRetrying}
-              layout="screen"
-              level={2}
-              onRetry={query.retry}
-              title={t("fixedPageEditor.loadFailed")}
-            />
-          ) : query._tag === "Loaded" && page === undefined ? (
-            <Notice tone="warning">{t("fixedPageEditor.pageGone")}</Notice>
-          ) : (
-            <LoadingState layout="form" />
-          )}
-        </Titled>
+        <Titled title={t("fixedPageEditor.edit")}>{unloaded()}</Titled>
       </EditorFrame>
     );
   }

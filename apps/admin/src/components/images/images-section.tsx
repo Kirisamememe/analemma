@@ -5,6 +5,7 @@ import { ConversionWatch } from "./list/conversion-watch";
 import type { GalleryOptions } from "./list/gallery-options";
 import { ImagePage } from "./list/image-page";
 import { MoreImages } from "./list/more-images";
+import { imagePageKey, lastPageIndex } from "./logic/image-pages";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiInfiniteQuery } from "@/api/server-state/use-api-infinite-query";
@@ -96,29 +97,24 @@ export const ImagesSection = ({
         listRef={(list) => {
           focusList(list, {
             first: query.refreshFailure === undefined,
-            lastPage:
-              query.next._tag === "None" ||
-              query.pages.at(-1)?.images.length === 0
-                ? query.pages.length - 1
-                : undefined,
+            lastPage: lastPageIndex(query.pages, query.next._tag !== "None"),
           });
         }}
       >
-        {query.pages.map(({ images }, pageIndex) => {
-          const [first] = images;
-
-          return first === undefined ? null : (
-            <ImagePage
-              imageHref={imageHref}
-              renderChoice={renderChoice}
-              singleChoice={singleChoice}
-              images={images}
-              key={pageIndex === 0 ? "first" : first.id} // 送った写真を先頭に足しても、最初のページを作り直さない
-              onFirstLink={focusResult}
-              pageIndex={pageIndex}
-            />
-          );
-        })}
+        {query.pages.map(
+          ({ images }, pageIndex) =>
+            images.length > 0 && (
+              <ImagePage
+                imageHref={imageHref}
+                renderChoice={renderChoice}
+                singleChoice={singleChoice}
+                images={images}
+                key={imagePageKey(images, pageIndex)} // 送った写真を先頭に足しても、最初のページを作り直さない
+                onFirstLink={focusResult}
+                pageIndex={pageIndex}
+              />
+            ),
+        )}
       </ImageRows>
       {query.refreshFailure !== undefined && (
         <ErrorState

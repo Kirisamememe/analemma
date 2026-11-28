@@ -33,13 +33,13 @@ export const KindPicker = ({ onPick }: KindPickerProps): ReactNode => {
     load: () => loadKinds(api),
   });
 
+  const refreshFailure =
+    query._tag === "Loaded" ? query.refreshFailure : undefined;
+
   return (
     <Stack gap={3}>
-      {query._tag === "Loaded" && query.refreshFailure !== undefined && (
-        <KindRefreshNotice
-          source="list"
-          refreshFailure={query.refreshFailure}
-        />
+      {refreshFailure !== undefined && (
+        <KindRefreshNotice source="list" refreshFailure={refreshFailure} />
       )}
       <QueryContent
         failedTitle={t("fixedPageEditor.kindsLoadFailed")}

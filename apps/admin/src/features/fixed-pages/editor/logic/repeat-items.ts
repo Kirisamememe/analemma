@@ -21,12 +21,16 @@ export type RepeatChange = {
   readonly focus: RepeatFocus;
 };
 
+/** repeat の要素が、上限に達しているか。 */
+export const isRepeatFull = (ids: readonly string[]): boolean =>
+  ids.length >= REPEAT_MAX_ITEMS;
+
 /** 要素を末尾に足した後の ID の並びと、focus を移すボタンを返す。 */
 export const addRepeatItem = (
   ids: readonly string[],
   id: string,
 ): RepeatChange | undefined => {
-  if (ids.length >= REPEAT_MAX_ITEMS) return undefined;
+  if (isRepeatFull(ids)) return undefined;
 
   const next = [...ids, id];
 

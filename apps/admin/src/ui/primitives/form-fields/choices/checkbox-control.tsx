@@ -28,22 +28,26 @@ type CheckboxControlProps = {
 export const CheckboxControl = ({
   label,
   isRequired = false,
-}: CheckboxControlProps): ReactNode => (
-  <CheckboxButton
-    className={typography({
-      role: "label",
-      className:
-        "group flex items-start gap-2 py-0.5 text-fg is-disabled:state-disabled",
-    })}
-  >
-    <span aria-hidden="true" className="flex h-5 shrink-0 items-center">
-      <span className={checkboxBox()}>
-        <CheckMark />
+}: CheckboxControlProps): ReactNode => {
+  const showRequired = label !== undefined && isRequired;
+
+  return (
+    <CheckboxButton
+      className={typography({
+        role: "label",
+        className:
+          "group flex items-start gap-2 py-0.5 text-fg is-disabled:state-disabled",
+      })}
+    >
+      <span aria-hidden="true" className="flex h-5 shrink-0 items-center">
+        <span className={checkboxBox()}>
+          <CheckMark />
+        </span>
       </span>
-    </span>
-    {label !== undefined && (
-      <span className="min-w-0 wrap-anywhere">{label}</span>
-    )}
-    {label !== undefined && isRequired && <RequiredBadge />}
-  </CheckboxButton>
-);
+      {label !== undefined && (
+        <span className="min-w-0 wrap-anywhere">{label}</span>
+      )}
+      {showRequired && <RequiredBadge />}
+    </CheckboxButton>
+  );
+};
