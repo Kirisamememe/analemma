@@ -1,13 +1,36 @@
-import { execFile } from "node:child_process";
 import { access, mkdtempDisposable, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { promisify } from "node:util";
 import sharp, { type Sharp } from "sharp";
 import { z } from "zod";
 
-// oxlint-disable-next-line typescript/strict-void-return -- execFile は promisify 用の関数を持ち、ChildProcess の戻り値を使わない。
-const run = promisify(execFile);
+/** 外のコマンドが書き出した文字列。 */
+type CommandOutput = {
+  /** 標準出力。 */
+  readonly stdout: string;
+  /** 標準エラー出力。 */
+  readonly stderr: string;
+};
+
+const run = async (
+  command: string,
+  args: readonly string[],
+): Promise<CommandOutput> => {
+  const child = Bun.spawn([command, ...args], {
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+
+  const [code, stdout, stderr] = await Promise.all([
+    child.exited,
+    new Response(child.stdout).text(),
+    new Response(child.stderr).text(),
+  ]);
+
+  if (code !== 0) throw new Error(`${command}: ${stderr}`);
+
+  return { stdout, stderr };
+};
 
 const videoStream = z.object({
   color_primaries: z.string().optional(),

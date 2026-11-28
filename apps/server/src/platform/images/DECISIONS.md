@@ -35,7 +35,7 @@
 - sharp の prebuilt は HEVC を decode できない。OS の libheif のコマンド `heif-dec` を子プロセスで呼び、PNG の一時ファイルにしてから sharp に渡す(ユーザーと決めた)。wasm の libheif は、decode の後もプロセスに約550MB が残り、ICC が落ちる(iPhone の P3 の色がくすむ)ので使わない。
 - PNG は `--png-compression-level 1` で書く。既定の水準より速い(24MP で 7.5 秒が 3.0 秒)。TIFF は速いが ICC が落ち、stdout には書けない。heif-dec は PNG に EXIF を書かない。
 - 一時ファイルは、OS の一時フォルダに `mkdtempDisposable` で作ったフォルダに置き、`AsyncDisposableStack` と `await using` で消す。heif-dec は PNG を書けなくても正常終了することがある。書き込みのエラーと出力ファイルの有無も確かめ、失敗したときはフォルダを消してから throw する。PNG は、sharp に渡すまでメモリに読まず、パスで渡す。
-- 子プロセスには、引数を配列で渡し、shell を通さない(`execFile`)。渡すパスは、作ったフォルダの中の決まった名前だけ。
+- 子プロセスには、引数を配列で渡し、shell を通さない(`Bun.spawn`)。渡すパスは、作ったフォルダの中の決まった名前だけ。
 - Mac(Homebrew の libheif)、Alpine(`libheif-tools`)、CI の Ubuntu 26.04(`libheif-examples` 1.21)のどれでも `heif-dec` の名前で入る。1.18 より前の libheif では `heif-convert` という名前だった。
 - CI では、workflow が `libheif-examples` と `libheif-plugin-libde265` を `--no-install-recommends` で入れる。plugin を書かないと、HEVC の decoder が入らない。
 
