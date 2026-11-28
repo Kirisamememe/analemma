@@ -14,7 +14,7 @@
 | route          | TanStack Router                                              | path params と search params に型が付く。                                                                                              |
 | server の状態  | TanStack Query                                               | 取得・再取得・送信中の状態を、画面ごとに書かずに済む。                                                                                 |
 | ビルド         | Vite 8                                                       | SPA の静的ファイルを作るだけなら、設定が一番少ない。                                                                                   |
-| memo 化        | React Compiler(`babel-plugin-react-compiler`)                | ユーザーが決めた。理由は「React Compiler」。                                                                                           |
+| memo 化        | React Compiler(`oxc-transform-react`)                        | ユーザーが決めた。理由は「React Compiler」。                                                                                           |
 | 見た目         | Tailwind CSS v4 + tailwind-variants                          | 理由は `src/ui/DECISIONS.md`。                                                                                                         |
 | 部品の振る舞い | React Aria Components                                        | キーボードの操作・focus・ARIA を、部品ごとに自分で書かずに済む。shadcn/ui は使わない(ユーザーが決めた。見た目は自分たちの規則で持つ)。 |
 | テストの DOM   | happy-dom(`@happy-dom/global-registrator`)と Testing Library | Bun の公式の案内にある組み合わせ。                                                                                                     |
@@ -23,7 +23,11 @@
 ## React Compiler
 
 - 部品と hook の memo 化は、React Compiler に任せる(ユーザーが決めた)。handler や値を props に渡すたびに `useCallback`・`useMemo`・`memo` を手で書かなくても、関係の無い再レンダリングを減らせる。lint の React Compiler の診断(`tooling/DECISIONS.md` の「React の書き方をそろえるルール」)が、コンパイラの扱えない書き方を止める。
-- ビルドには、React の公式の `babel-plugin-react-compiler` を、`@rolldown/plugin-babel` と `@vitejs/plugin-react` の `reactCompilerPreset` で入れる。`@vitejs/plugin-react` の `compiler` の指定(Rust に移植したコンパイラ)は、experimental の間は使わない。
+- ビルドには、Rust に移植したコンパイラ(`oxc-transform-react`)を、`@vitejs/plugin-react` の `compiler` の指定で入れる。
+  - Babel の plugin(`babel-plugin-react-compiler` 1.0.0)は、`@babel/core` 8 の下では、props の分割代入に既定値を書いた部品と hook(`Button`・`Modal`・`Stack` など51ファイル)を、知らせずに変換しない。Rust に移植したコンパイラは、同じファイルを変換する。
+  - コンパイラが変換を諦めたファイルは、ビルドでは知らされない。どのファイルも診断なしで変換できることを、テストで確かめる(`__tests__/react-compiler.test.ts`)。コンパイラが扱えない書き方(`??=` などの論理代入)は、扱える書き方に直す。
+  - 変換が速い(全ファイルで、1.7秒が0.2秒になる)。
+  - `@vitejs/plugin-react` は、この指定を experimental としている。`oxc-transform-react` の版は、plugin の peer の範囲に入る版に固定し、plugin を上げるときに一緒に上げる。変換の結果に食い違いが見つかったら、Babel の plugin に戻す(戻すのは `vite.config.ts` と依存だけ)。
 - Storybook は同じ Vite の設定を読むので、story も同じ変換を通る。Bun のテストは Vite を通らないので、変換していないコードを確かめる(コンパイラは振る舞いを変えない前提)。
 - どこを再レンダリングしないかは、今までどおり設計で決め、「再レンダリングの期待」に書いてテストで守る。コンパイラは、state の置き場所や購読の範囲までは決めない。
 - 手で memo 化を書くのは、次の2つだけにする。(1)「再レンダリングの期待」に書いて、テストで守る境界(`memo` と、そこへ渡す handler の `useCallback`)。Bun のテストは Vite を通らず、コンパイラの変換が掛からないので、テストで守る約束は、手で書いた memo 化で成り立たせる。(2) ref の callback や effect の依存のように、identity が振る舞いを決める所。それ以外(計算が重いだけの値、props に渡すだけの handler)には書かず、コンパイラに任せる。今ある `useCallback`・`useMemo`・`memo` は、そのまま残してよい(コンパイラは手で書いた memo 化を保つ)。
