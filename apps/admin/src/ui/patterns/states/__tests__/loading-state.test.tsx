@@ -10,7 +10,10 @@ describe("LoadingState", () => {
   test.each(["list", "form", "media"] as const)(
     "%s の形でも、骨組みは読ませず、読み込んでいることだけを伝える",
     async (layout) => {
-      renderWithI18n(<LoadingState layout={layout} />, "ja");
+      renderWithI18n(
+        <LoadingState label="読み込んでいます" layout={layout} />,
+        "ja",
+      );
 
       const status = screen.getByRole("status");
       expect(status.textContent).toBe("");

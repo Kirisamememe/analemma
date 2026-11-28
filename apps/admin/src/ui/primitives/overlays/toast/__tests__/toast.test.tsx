@@ -41,7 +41,7 @@ const ToastControls = (): ReactNode => {
 
 const renderToastControls = (): RenderResult =>
   renderWithI18n(
-    <ToastProvider>
+    <ToastProvider closeLabel="閉じる">
       <ToastControls />
     </ToastProvider>,
     "ja",

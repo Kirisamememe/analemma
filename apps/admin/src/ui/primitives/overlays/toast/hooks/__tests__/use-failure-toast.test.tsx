@@ -16,7 +16,7 @@ const I18n = withI18n(createI18n("ja"));
 
 const withToast = ({ children }: WrapperProps): ReactNode => (
   <I18n>
-    <ToastProvider>{children}</ToastProvider>
+    <ToastProvider closeLabel="閉じる">{children}</ToastProvider>
   </I18n>
 );
 

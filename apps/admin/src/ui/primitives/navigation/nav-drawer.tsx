@@ -6,7 +6,6 @@ import {
   Modal,
   ModalOverlay,
 } from "react-aria-components";
-import { useTranslation } from "react-i18next";
 
 import { Icon } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
@@ -38,6 +37,10 @@ const { overlay, panel } = drawer();
 export type NavDrawerProps = {
   /** Dialog の名前。 */
   label: string;
+  /** 開くボタンの、アクセシブルな名前。 */
+  openLabel: string;
+  /** 閉じるボタンの、アクセシブルな名前。 */
+  closeLabel: string;
   /** 閉じるボタンと並べて、上の段に描く見出し。 */
   heading: ReactNode;
   /** 開いているか。 */
@@ -53,45 +56,43 @@ export type NavDrawerProps = {
 /** ナビを左から引き出す drawer。 */
 export const NavDrawer = ({
   label,
+  openLabel,
+  closeLabel,
   heading,
   isOpen,
   isPending = false,
   onOpenChange,
   children,
-}: NavDrawerProps): ReactNode => {
-  const { t } = useTranslation();
-
-  return (
-    <DialogTrigger isOpen={isOpen} onOpenChange={onOpenChange}>
-      <AriaButton aria-label={t("ui.openNav")} className={iconButton()}>
-        <Icon name="menu" />
-      </AriaButton>
-      <ModalOverlay
-        className={overlay()}
-        isDismissable={isOpen && !isPending}
-        isKeyboardDismissDisabled={isPending}
-      >
-        <Modal className={panel()}>
-          <Dialog
-            aria-label={label}
-            className="flex min-h-full flex-col outline-hidden"
-            inert={!isOpen}
-          >
-            <div className="flex h-nav-bar shrink-0 items-center gap-2 px-3">
-              <AriaButton
-                aria-label={t("ui.closeNav")}
-                className={iconButton()}
-                isDisabled={isPending}
-                slot="close"
-              >
-                <Icon name="x" />
-              </AriaButton>
-              {heading}
-            </div>
-            {children}
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </DialogTrigger>
-  );
-};
+}: NavDrawerProps): ReactNode => (
+  <DialogTrigger isOpen={isOpen} onOpenChange={onOpenChange}>
+    <AriaButton aria-label={openLabel} className={iconButton()}>
+      <Icon name="menu" />
+    </AriaButton>
+    <ModalOverlay
+      className={overlay()}
+      isDismissable={isOpen && !isPending}
+      isKeyboardDismissDisabled={isPending}
+    >
+      <Modal className={panel()}>
+        <Dialog
+          aria-label={label}
+          className="flex min-h-full flex-col outline-hidden"
+          inert={!isOpen}
+        >
+          <div className="flex h-nav-bar shrink-0 items-center gap-2 px-3">
+            <AriaButton
+              aria-label={closeLabel}
+              className={iconButton()}
+              isDisabled={isPending}
+              slot="close"
+            >
+              <Icon name="x" />
+            </AriaButton>
+            {heading}
+          </div>
+          {children}
+        </Dialog>
+      </Modal>
+    </ModalOverlay>
+  </DialogTrigger>
+);

@@ -9,6 +9,8 @@ type UiProviderProps = {
   locale: string;
   /** 部品のリンクが、行き先へ移るときに呼ぶ関数。 */
   navigate: (href: string) => void;
+  /** 知らせ(Toast)を閉じるボタンの、アクセシブルな名前。 */
+  toastCloseLabel: string;
   /** 中身。 */
   children: ReactNode;
 };
@@ -17,11 +19,12 @@ type UiProviderProps = {
 export const UiProvider = ({
   locale,
   navigate,
+  toastCloseLabel,
   children,
 }: UiProviderProps): ReactNode => (
   <RouterProvider navigate={navigate}>
     <I18nProvider locale={locale}>
-      <ToastProvider>{children}</ToastProvider>
+      <ToastProvider closeLabel={toastCloseLabel}>{children}</ToastProvider>
     </I18nProvider>
   </RouterProvider>
 );

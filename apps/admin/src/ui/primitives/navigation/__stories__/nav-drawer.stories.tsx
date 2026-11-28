@@ -21,6 +21,8 @@ const DrawerPreview = ({
 
   return (
     <NavDrawer
+      openLabel="ナビを開く"
+      closeLabel="ナビを閉じる"
       heading={heading}
       isOpen={isOpen}
       label={label}
@@ -39,6 +41,8 @@ const meta = {
   component: NavDrawer,
   args: {
     label: "ナビ",
+    openLabel: "ナビを開く",
+    closeLabel: "ナビを閉じる",
     heading: (
       <Cluster>
         <AppMark />

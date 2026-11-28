@@ -48,7 +48,9 @@ export const NewPageEditor = ({
       <>
         {ready}
         <Titled title={t("fixedPageEditor.new")}>
-          {kind._tag === "Loading" && <LoadingState layout="form" />}
+          {kind._tag === "Loading" && (
+            <LoadingState label={t("ui.loading")} layout="form" />
+          )}
           {kind._tag === "Failed" && (
             <ErrorState
               description={t("fixedPageEditor.kindLoadFailedDescription")}

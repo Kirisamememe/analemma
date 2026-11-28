@@ -65,7 +65,9 @@ export const AppNavigation = (): ReactNode => {
   return (
     <SideNav
       appName={t("app.name")}
+      drawerCloseLabel={t("ui.closeNav")}
       drawerLabel={t("navigation.drawer")}
+      drawerOpenLabel={t("ui.openNav")}
       footer={
         <>
           <LocaleSelect />

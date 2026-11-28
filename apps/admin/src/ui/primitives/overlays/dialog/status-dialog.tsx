@@ -3,7 +3,6 @@ import { Dialog as AriaDialog, Heading } from "react-aria-components";
 
 import { OverlayFrame } from "../overlay-frame";
 
-import { useTranslate } from "@/i18n/use-translate";
 import { Button } from "@/ui/primitives/button";
 import { Icon } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
@@ -36,6 +35,8 @@ type StatusDialogProps = {
   onOpenChange: (isOpen: boolean) => void;
   /** 処理の状態を伝える文言。 */
   title: string;
+  /** 閉じるボタンの、アクセシブルな名前。 */
+  closeLabel: string;
   /** 処理中か、成功したか。 */
   status: "pending" | "success";
 };
@@ -45,9 +46,9 @@ export const StatusDialog = ({
   isOpen,
   onOpenChange,
   title,
+  closeLabel,
   status,
 }: StatusDialogProps): ReactNode => {
-  const t = useTranslate();
   const style = statusDialog({ status });
 
   const panel = useCallback(
@@ -98,7 +99,7 @@ export const StatusDialog = ({
         {status === "success" && (
           <div className={style.close()}>
             <Button
-              aria-label={t("ui.close")}
+              aria-label={closeLabel}
               icon="x"
               onPress={() => {
                 onOpenChange(false);

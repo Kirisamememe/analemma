@@ -86,7 +86,7 @@ export const NoDeliveryImage: Story = {
 
 export const Loading: Story = {
   /** 写真の代わりに、読み込んでいることを出す骨組み。 */
-  render: () => <LoadingState layout="media" />,
+  render: () => <LoadingState label="読み込んでいます" layout="media" />,
 };
 
 export const WaitingForNext: Story = {
