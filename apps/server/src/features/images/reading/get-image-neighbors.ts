@@ -1,4 +1,4 @@
-import { findBrowseNeighbors } from "@/features/images/reading/queries/browse-neighbors.query";
+import { findBrowseNeighbors } from "@/features/images/reading/queries/find-browse-neighbors.query";
 import { adminProcedures } from "@/procedures";
 
 /** 前後の画像の ID を返す procedure。 */

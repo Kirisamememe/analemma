@@ -3,7 +3,7 @@ import { describe, expect, spyOn, test } from "bun:test";
 import type { ContractInputs, ContractOutputs } from "@analemma/contract";
 
 import { deliveryImage } from "@/db/schema/delivery-image";
-import { findBrowseNeighbors } from "@/features/images/reading/queries/browse-neighbors.query";
+import { findBrowseNeighbors } from "@/features/images/reading/queries/find-browse-neighbors.query";
 import {
   SUCCEEDED,
   catchErrorCode,

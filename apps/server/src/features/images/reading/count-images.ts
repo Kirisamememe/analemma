@@ -1,6 +1,6 @@
 import type { ContractOutputs } from "@analemma/contract";
 
-import { countImagesByStatus } from "@/features/images/reading/queries/image-counts.query";
+import { countImagesByStatus } from "@/features/images/reading/queries/count-images-by-status.query";
 import { adminProcedures } from "@/procedures";
 
 type Counts = ContractOutputs["admin"]["images"]["counts"];
