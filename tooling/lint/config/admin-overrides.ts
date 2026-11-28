@@ -34,6 +34,29 @@ const PRIMITIVE_LAYERS = layerPatterns(
   "ui/primitives/ は patterns を import しません(patterns が primitives を組み合わせる)。",
 );
 
+const UI_OUTSIDE = [
+  "api",
+  "app",
+  "components",
+  "features",
+  "preferences",
+  "queries",
+  "routes",
+];
+
+const UI_BOUNDARY = [
+  {
+    group: [
+      ...UI_OUTSIDE.flatMap((folder) => [`@/${folder}`, `@/${folder}/**`]),
+      "@analemma/*",
+      "@orpc/*",
+      "@tanstack/*",
+    ],
+    message:
+      "ui/ は、管理画面の業務と配線(API・router・features)を知りません。値は props で受けます。",
+  },
+];
+
 const COMPONENT_LAYERS = layerPatterns(
   ["features"],
   "components/ は features を import しません(複数の feature から使う部品を置く場所)。",
@@ -115,9 +138,23 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
     },
     globals: [],
   }),
+  inDirectory("ui/**/", {
+    imports: {
+      patterns: [
+        ...VARIANT_LIBRARY_PATTERNS,
+        ...UI_LIBRARY_PATTERNS,
+        ...UI_BOUNDARY,
+      ],
+    },
+    globals: [],
+  }),
   inDirectory("ui/primitives/**/", {
     imports: {
-      patterns: [...VARIANT_LIBRARY_PATTERNS, ...PRIMITIVE_LAYERS],
+      patterns: [
+        ...VARIANT_LIBRARY_PATTERNS,
+        ...PRIMITIVE_LAYERS,
+        ...UI_BOUNDARY,
+      ],
     },
     globals: [],
   }),
@@ -127,6 +164,7 @@ export const ADMIN_OVERRIDES: readonly OxlintOverride[] = [
         ...VARIANT_LIBRARY_PATTERNS,
         ...UI_LIBRARY_PATTERNS,
         ...LAYOUT_LAYERS,
+        ...UI_BOUNDARY,
       ],
     },
     globals: [],

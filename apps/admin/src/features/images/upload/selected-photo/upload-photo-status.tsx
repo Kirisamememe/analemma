@@ -11,9 +11,8 @@ import { useTranslate } from "@/i18n/use-translate";
 import { Cluster, Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Button } from "@/ui/primitives/button";
-import { Link } from "@/ui/primitives/navigation";
+import { type Href, Link } from "@/ui/primitives/navigation";
 import { Tooltip } from "@/ui/primitives/overlays";
-import type { AppHref } from "@/ui/primitives/ui-provider";
 
 type UploadPhotoStatusProps = {
   /** 選択中の写真。 */
@@ -25,7 +24,7 @@ type UploadPhotoStatusProps = {
   /** 送り直した後に focus を戻す操作。 */
   restore: (element: HTMLElement | null, upload: PhotoUpload) => void;
   /** 写真の詳細画面の行き先。 */
-  imageHref: (id: string) => AppHref;
+  imageHref: (id: string) => Href;
 };
 
 /** 選択した写真の送信状態と、その写真に対する操作。 */

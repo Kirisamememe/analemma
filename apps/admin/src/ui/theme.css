@@ -334,7 +334,7 @@
 }
 
 @utility max-h-viewer-photo {
-  max-height: calc(100dvh - var(--viewer-bar-height, var(--size-nav-bar)));
+  max-height: calc(100dvh - var(--top-bar-height, var(--size-nav-bar)));
 }
 
 @utility min-h-nav-bar {
@@ -464,13 +464,13 @@
 
   :root:has([data-top-bar]) {
     @variant max-md {
-      --viewport-top-inset: var(--viewer-bar-height, var(--size-nav-bar));
+      --viewport-top-inset: var(--top-bar-height, var(--size-nav-bar));
       scroll-padding-top: calc(var(--viewport-top-inset) + --spacing(1));
     }
   }
 
-  :root:has([data-top-bar="viewer"]) {
-    --viewport-top-inset: var(--viewer-bar-height, var(--size-nav-bar));
+  :root:has([data-top-bar="always"]) {
+    --viewport-top-inset: var(--top-bar-height, var(--size-nav-bar));
 
     @variant short-viewport {
       --viewport-top-inset: 0px;

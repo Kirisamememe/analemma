@@ -11,7 +11,7 @@ const observeBar = (header: HTMLElement | null) => {
     const height = entry?.borderBoxSize[0]?.blockSize;
 
     if (height !== undefined) {
-      root.style.setProperty("--viewer-bar-height", `${height}px`);
+      root.style.setProperty("--top-bar-height", `${height}px`);
     }
   });
 
@@ -19,7 +19,7 @@ const observeBar = (header: HTMLElement | null) => {
 
   return () => {
     observer.disconnect();
-    root.style.removeProperty("--viewer-bar-height");
+    root.style.removeProperty("--top-bar-height");
   };
 };
 
@@ -40,7 +40,7 @@ export const ViewerFrame = ({
   children,
 }: ViewerFrameProps): ReactNode => (
   <div className={style.root()}>
-    <header ref={observeBar} data-top-bar="viewer" className={style.bar()}>
+    <header ref={observeBar} data-top-bar="always" className={style.bar()}>
       {back}
       <div className={style.actions()}>{actions}</div>
     </header>

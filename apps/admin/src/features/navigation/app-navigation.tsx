@@ -6,8 +6,18 @@ import { type MessageKey, useTranslate } from "@/i18n/use-translate";
 import { SideNav } from "@/ui/patterns";
 import type { NavLinkProps } from "@/ui/primitives/navigation";
 
+/** ナビから行ける画面のパス。 */
+type NavigationPath =
+  | "/"
+  | "/fixed-pages"
+  | "/images"
+  | "/security"
+  | "/deploy-tokens";
+
 /** 管理画面のナビのリンクの定義。 */
-type NavigationLink = Pick<NavLinkProps, "href" | "icon"> & {
+type NavigationLink = Pick<NavLinkProps, "icon"> & {
+  /** 行き先の画面のパス。 */
+  readonly href: NavigationPath;
   /** リンクの文言の訳のキー。 */
   readonly label: MessageKey;
 };
@@ -45,7 +55,7 @@ const GROUPS: readonly NavigationGroup[] = [
 /** ログインした後の画面のナビに渡す値。 */
 type AppNavigationProps = {
   /** 今いる画面へのリンクかを返す関数。 */
-  isCurrent: (href: NavigationLink["href"]) => boolean;
+  isCurrent: (href: NavigationPath) => boolean;
 };
 
 /** ログインした後の画面のナビ。 */

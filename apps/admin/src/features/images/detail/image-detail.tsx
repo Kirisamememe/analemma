@@ -9,7 +9,7 @@ import {
   type Neighbor,
 } from "@/features/images/ui/viewer/image-viewer";
 import { useTranslate } from "@/i18n/use-translate";
-import type { AppHref } from "@/ui/primitives/ui-provider";
+import type { Href } from "@/ui/primitives/navigation";
 
 type Image = ApiOutputs["admin"]["images"]["get"];
 
@@ -34,7 +34,7 @@ type ImageDetailProps = {
   /** 次の画像を見る画面(無ければ undefined)。 */
   next: Neighbor | undefined;
   /** 前後の画像を見る画面に移る関数(スワイプで移るとき)。 */
-  onMove: (href: AppHref) => void;
+  onMove: (href: Href) => void;
 };
 
 /** 1枚の画像を大きく出し、その情報を添える。 */

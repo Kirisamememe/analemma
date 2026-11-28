@@ -182,41 +182,40 @@ const procedures = {
   "auth/login/verify": bindReply(api.auth.login.verify),
 };
 
-type RoutePath = keyof typeof procedures;
-type FakeProcedure = NonNullable<ReturnType<(typeof procedures)[RoutePath]>>;
+type Href = keyof typeof procedures;
+type FakeProcedure = NonNullable<ReturnType<(typeof procedures)[Href]>>;
 
 /** 作り物の server が返す procedure ごとの応答。 */
 export type FakeRoutes = {
-  readonly [Path in RoutePath]?: Parameters<(typeof procedures)[Path]>[0];
+  readonly [Path in Href]?: Parameters<(typeof procedures)[Path]>[0];
 };
 
 /** 作り物の server の procedure が受け取る入力。 */
-export type FakeInput<Path extends RoutePath> = Parameters<
+export type FakeInput<Path extends Href> = Parameters<
   NonNullable<FakeRoutes[Path]>
 >[0];
 
 /** 作り物の server の procedure が返す応答。 */
-export type FakeReply<Path extends RoutePath> = Awaited<
+export type FakeReply<Path extends Href> = Awaited<
   ReturnType<NonNullable<FakeRoutes[Path]>>
 >;
 
 /** 作り物の server の procedure が返す成功の出力。 */
-export type FakeOutput<Path extends RoutePath> = Extract<
+export type FakeOutput<Path extends Href> = Extract<
   FakeReply<Path>,
   Record<"output", unknown>
 >["output"];
 
 const mount: {
-  [Path in RoutePath]: (reply: FakeRoutes[Path]) => FakeProcedure | undefined;
+  [Path in Href]: (reply: FakeRoutes[Path]) => FakeProcedure | undefined;
 } = procedures;
 
-const mountProcedure = <Path extends RoutePath>(
+const mountProcedure = <Path extends Href>(
   path: Path,
   routes: Pick<FakeRoutes, Path>,
 ): FakeProcedure | undefined => mount[path](routes[path]);
 
-const isRoutePath = (path: string): path is RoutePath =>
-  Object.hasOwn(procedures, path);
+const isHref = (path: string): path is Href => Object.hasOwn(procedures, path);
 
 type FakeRouter = Record<string, Record<string, Record<string, FakeProcedure>>>;
 
@@ -225,7 +224,7 @@ const createFakeRouter = (routes: FakeRoutes) => {
   const router: FakeRouter = {};
 
   for (const path of Object.keys(routes)) {
-    if (!isRoutePath(path)) {
+    if (!isHref(path)) {
       continue;
     }
 
@@ -269,7 +268,7 @@ export const createFakeApi = (
   const calls: string[] = [];
 
   const replyBeforeInput = (path: string) =>
-    isRoutePath(path) ? routes[path]?.replyBeforeInput?.() : undefined;
+    isHref(path) ? routes[path]?.replyBeforeInput?.() : undefined;
 
   const fetch: ApiClientOptions["fetch"] = async (request, init) => {
     calls.push(new URL(request.url).pathname.replace(/^\/api\//v, ""));

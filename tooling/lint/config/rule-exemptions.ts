@@ -35,7 +35,6 @@ export const RULE_EXEMPTIONS: readonly RuleExemption[] = [
       "apps/admin/src/app/router.ts",
       "apps/admin/src/i18n/resources.ts",
       "apps/admin/src/ui/css-variables.ts",
-      "apps/admin/src/ui/primitives/ui-provider.tsx",
     ],
   },
   {

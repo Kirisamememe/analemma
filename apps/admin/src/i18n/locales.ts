@@ -17,6 +17,16 @@ export const isLocale = (value: string): value is Locale =>
 export const toLocale = (lang: string): Locale =>
   isLocale(lang) ? lang : FALLBACK_LOCALE;
 
+const REGIONAL_LOCALES: Readonly<Record<Locale, string>> = {
+  en: "en-US",
+  ja: "ja-JP",
+  "zh-Hans": "zh-CN",
+};
+
+/** html の `lang` の値を、部品が辞書を引く、地域を付けた言語にする。 */
+export const toRegionalLocale = (lang: string): string =>
+  REGIONAL_LOCALES[toLocale(lang)];
+
 /** 言語の、その言語で書いた名前(English・日本語・简体中文)。 */
 export const localeName = (locale: Locale): string =>
   new Intl.DisplayNames([locale], {

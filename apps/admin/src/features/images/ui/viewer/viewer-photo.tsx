@@ -10,6 +10,8 @@ import {
 import { Spinner } from "@/ui/primitives/graphics";
 import { tv } from "@/ui/tv";
 
+const ENTER_FROM = { next: "right", previous: "left" } as const; // 次の写真は右から、前の写真は左から入る
+
 const photo = tv({
   slots: {
     frame: [
@@ -104,12 +106,12 @@ export const ViewerPhoto = ({
       className={style.frame()}
       aria-hidden={pending || undefined}
       inert={pending}
-      data-photo-direction={direction}
+      data-enter-from={direction && ENTER_FROM[direction]}
     >
       <img
         alt={alt}
         className={style.image()}
-        data-photo-ready={status === "loaded" || undefined}
+        data-entered={status === "loaded" || undefined}
         height={largest.height}
         key={attempt}
         onError={() => {

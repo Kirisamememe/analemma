@@ -1,8 +1,15 @@
-import type { ApiOutputs } from "@/api/api-types";
+/** 幅の違う候補の1つ。 */
+type SizedImage = {
+  /** 画像の URL。 */
+  readonly url: string;
+  /** 幅(px)。 */
+  readonly width: number;
+  /** 高さ(px)。 */
+  readonly height: number;
+};
 
-/** 配信用の画像(幅の昇順)。 */
-export type DeliveryImages =
-  ApiOutputs["admin"]["images"]["get"]["deliveryImages"];
+/** 同じ写真の、幅の違う候補(幅の昇順)。 */
+export type DeliveryImages = readonly SizedImage[];
 
 const MIN_TILE_ASPECT = 1 / 2;
 const MAX_TILE_ASPECT = 5 / 2;

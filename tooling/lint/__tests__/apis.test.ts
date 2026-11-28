@@ -46,6 +46,21 @@ describe("使える API と書き方", () => {
       rule: "eslint(no-restricted-imports)",
     },
     {
+      label: "管理画面の ui/patterns/ からの features の import",
+      file: "apps/admin/src/ui/patterns/uses-feature.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/primitives/ からの router の型の import",
+      file: "apps/admin/src/ui/primitives/uses-router.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
+      label: "管理画面の ui/layout/ からの API の型の import",
+      file: "apps/admin/src/ui/layout/uses-api.ts",
+      rule: "eslint(no-restricted-imports)",
+    },
+    {
       label: "管理画面の ui/layout/ からの primitives の import",
       file: "apps/admin/src/ui/layout/uses-primitive.tsx",
       rule: "eslint(no-restricted-imports)",

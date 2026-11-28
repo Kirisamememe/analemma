@@ -111,7 +111,7 @@ html の `lang` と `data-theme` は、React が描き始める前に、`index.h
 
 - 写真の撮影日時は時差を含まない撮影地の日時なので、読み取りと表示の間だけ UTC として扱う。見る場所のタイムゾーンによって日付や時刻がずれるのを防ぐ。
 
-`en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `RESOURCES`(`src/i18n/resources.ts`)と、React Aria Components に渡す地域を付けた言語(`src/ui/primitives/ui-provider.tsx` の `ARIA_LOCALES`)に足し、`messages/` にファイルを置くだけにする。
+`en`・`ja`・`zh-Hans` を、フェーズ1から持つ(ユーザーが決めた)。繁体字などを足すときは、`LOCALES` と `RESOURCES`(`src/i18n/resources.ts`)と、部品に渡す地域を付けた言語(`src/i18n/locales.ts` の `REGIONAL_LOCALES`)に足し、`messages/` にファイルを置くだけにする。
 
 訳を引くのは、i18next 27 と react-i18next にする(ユーザーが決めた)。コードの生成も、訳を取りに行く通信も要らず、v27 からキーと引数に厳しく型が付き(`strictInterpolationChecks` が既定で有効)、複数形と fallback を扱える。公開サイトの i18n は、公開サイトを作るときに決める。
 

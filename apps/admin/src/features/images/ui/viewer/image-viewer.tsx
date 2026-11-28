@@ -11,12 +11,12 @@ import { useTranslate } from "@/i18n/use-translate";
 import { Text } from "@/ui/layout";
 import type { DeliveryImages } from "@/ui/patterns/photos/logic/delivery-image";
 import { Icon, Spinner } from "@/ui/primitives/graphics";
-import type { AppHref } from "@/ui/primitives/ui-provider";
+import type { Href } from "@/ui/primitives/navigation";
 
 /** 前後の画像へ移るリンク。 */
 export type Neighbor = {
   /** 移る先。 */
-  readonly href: AppHref;
+  readonly href: Href;
   /** 次の写真を待っていて、この向きの移動を受け付けないか。 */
   readonly disabled?: boolean;
   /** リンクのアクセシブルな名前。 */
