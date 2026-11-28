@@ -37,6 +37,119 @@ const propertyKey = (property) => {
   return property.key.type === "Identifier" ? property.key.name : undefined;
 };
 
+const ARIA_LIBRARIES = new Set([
+  "react-aria",
+  "react-aria-components",
+  "react-stately",
+]);
+
+const PLAIN_ARIA_PROPS = new Map([["useDrop", new Set(["dropProps"])]]); // 見た目の props を返さないと確かめた、hook と値
+
+const READ_ONLY_USES = new Set(["JSXSpreadAttribute", "SpreadElement"]);
+
+const isStyleKey = (key) => key === "style" || CLASS_ATTRIBUTE.test(key);
+
+const findVariable = (scope, name) => {
+  for (let current = scope; current !== null; current = current.upper) {
+    const variable = current.set.get(name);
+
+    if (variable !== undefined) {
+      return { variable, scope: current };
+    }
+  }
+
+  return undefined;
+};
+
+const ariaHookName = (init, scope) => {
+  if (init?.type !== "CallExpression" || init.callee.type !== "Identifier") {
+    return undefined;
+  }
+
+  const [definition] =
+    findVariable(scope, init.callee.name)?.variable.defs ?? [];
+
+  if (
+    definition?.type !== "ImportBinding" ||
+    !ARIA_LIBRARIES.has(definition.parent.source.value) ||
+    definition.node.type !== "ImportSpecifier"
+  ) {
+    return undefined;
+  }
+
+  const { imported } = definition.node;
+
+  return imported.type === "Identifier" ? imported.name : imported.value;
+};
+
+const destructuredKey = (pattern, name) => {
+  const property = pattern.properties.find(
+    (candidate) =>
+      candidate.type === "Property" &&
+      candidate.value.type === "Identifier" &&
+      candidate.value.name === name,
+  );
+
+  return property === undefined ? undefined : propertyKey(property);
+};
+
+const isOnlySpread = (variable, declared) =>
+  variable.references.every(
+    ({ identifier }) =>
+      identifier === declared || READ_ONLY_USES.has(identifier.parent.type),
+  );
+
+const isPlainProps = (node, scope) => {
+  if (node.type === "ConditionalExpression") {
+    return (
+      isPlainProps(node.consequent, scope) &&
+      isPlainProps(node.alternate, scope)
+    );
+  }
+
+  if (node.type === "ObjectExpression") {
+    return node.properties.every((property) => {
+      if (property.type === "SpreadElement") {
+        return isPlainProps(property.argument, scope);
+      }
+
+      const key = propertyKey(property);
+
+      return key !== undefined && !isStyleKey(key);
+    });
+  }
+
+  if (node.type !== "Identifier") {
+    return false;
+  }
+
+  const found = findVariable(scope, node.name);
+  const [definition] = found?.variable.defs ?? [];
+
+  if (definition?.type !== "Variable" || definition.parent.kind !== "const") {
+    return false;
+  }
+
+  const { id, init } = definition.node;
+
+  if (!isOnlySpread(found.variable, definition.name)) {
+    return false;
+  }
+
+  if (id.type === "ObjectPattern") {
+    const hook = ariaHookName(init, found.scope);
+    const key = destructuredKey(id, node.name);
+
+    return PLAIN_ARIA_PROPS.get(hook)?.has(key) === true;
+  }
+
+  return (
+    init !== null &&
+    init.type !== "Identifier" &&
+    isPlainProps(init, found.scope)
+  );
+};
+
 const isCheckedExpression = (expression) =>
   expression.type === "CallExpression" ||
   (expression.type === "ArrowFunctionExpression" &&
@@ -109,7 +222,7 @@ const stylingBoundary = {
     type: "problem",
     docs: {
       description:
-        "画面のコードでは式の className と style を止め、ui/ では className を検査できる形に、style を CSS 変数だけに限る。どちらでも JSX の props の spread を止める。",
+        "画面のコードでは式の className と style を止め、ui/ では className を検査できる形に、style を CSS 変数だけに限る。どちらでも、中身を検査できない JSX の props の spread を止める。",
     },
     schema: [
       {
@@ -127,7 +240,7 @@ const stylingBoundary = {
       uncheckedClassName:
         "部品の className には、文字列のリテラルか、tv などの関数の呼び出し(render props なら、呼び出しを返す関数)を渡します。変数や条件の式を渡すと、class の検査をすり抜けます。",
       spread:
-        "JSX の props は spread しません。className や style が、検査をすり抜けて渡るため。props を1つずつ書きます。",
+        "JSX の props に spread できるのは、その場か同じファイルの const に書いて書き換えない、className・style・…ClassName を含まないオブジェクトと、見た目の props を返さないと確かめた React Aria の hook の値だけです。中身を検査できない値を渡すと、className や style が検査をすり抜けます。",
       styleOutsideUi:
         "style は ui/ の部品の中でだけ使います。画面のコードは、部品の props を使います。",
       styleNotObject:
@@ -146,7 +259,11 @@ const stylingBoundary = {
         check(context, node);
       },
       JSXSpreadAttribute(node) {
-        context.report({ node, messageId: "spread" });
+        const scope = context.sourceCode.getScope(node);
+
+        if (!isPlainProps(node.argument, scope)) {
+          context.report({ node, messageId: "spread" });
+        }
       },
     };
   },

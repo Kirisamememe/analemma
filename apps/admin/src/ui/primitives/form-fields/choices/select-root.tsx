@@ -80,7 +80,6 @@ export const SelectRoot = ({
       onChange={(key) => {
         onChange?.(toSelectedValue(key));
       }}
-      // oxlint-disable-next-line project/styling-boundary -- React Aria の未指定の props を省く。見た目の props は含まない。
       {...state}
     >
       {children}

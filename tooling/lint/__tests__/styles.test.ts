@@ -163,13 +163,53 @@ describe("管理画面の部品の class", () => {
     ).toEqual(expected);
   });
 
+  test.each([
+    { label: "受け取った props", line: 33 },
+    { label: "受け取った props の残り", line: 34 },
+    { label: "ほかのファイルの値", line: 35 },
+    { label: "React Aria 以外の hook の戻り値", line: 36 },
+    { label: "let で宣言した変数", line: 37 },
+    { label: "見た目の props を返しうる React Aria の hook の値", line: 38 },
+    { label: "ほかの関数に渡した React Aria の hook の値", line: 39 },
+    { label: "受け取った props を中に spread したオブジェクト", line: 40 },
+    { label: "プロパティを後から書き換えた const のオブジェクト", line: 41 },
+    { label: "style を含むオブジェクト", line: 42 },
+    { label: "…ClassName を含むオブジェクト", line: 43 },
+    { label: "キーを読めない計算プロパティ", line: 44 },
+    { label: "片方の枝に className がある条件", line: 45 },
+  ])("$label の spread に診断を出すこと", ({ line }) => {
+    const found = diagnosticsOf(
+      {
+        file: "invalid/apps/admin/src/ui/primitives/forwarded-props.tsx",
+        rule: BOUNDARY,
+      },
+      [[line, "JSX の props に spread できるのは"]],
+    );
+
+    expect(found.filter(([at]) => at === line)).toEqual([
+      [line, "JSX の props に spread できるのは"],
+    ]);
+  });
+
+  test("同じファイルの const に書いた、className と style を含まないオブジェクトと、確かめてある React Aria の hook の値の spread は止めないこと", () => {
+    expect(
+      diagnosticsOf(
+        {
+          file: "valid/apps/admin/src/ui/primitives/plain-spread.tsx",
+          rule: BOUNDARY,
+        },
+        [],
+      ),
+    ).toEqual([]);
+  });
+
   test("style と className と spread の、検査できない形に診断を出すこと", () => {
     const expected: Expected[] = [
       [8, "style に書けるのは"],
       [9, "style には、その場に"],
       [10, "部品の className には"],
       [11, "部品の className には"],
-      [12, "JSX の props は spread"],
+      [12, "JSX の props に spread できるのは"],
     ];
 
     expect(
@@ -251,7 +291,7 @@ describe("管理画面の画面のコードの class", () => {
     const expected: Expected[] = [
       [6, "画面のコードの className"],
       [7, "style は ui/ の部品"],
-      [8, "JSX の props は spread"],
+      [8, "JSX の props に spread できるのは"],
     ];
 
     expect(diagnosticsOf({ file, rule: BOUNDARY }, expected)).toEqual(expected);

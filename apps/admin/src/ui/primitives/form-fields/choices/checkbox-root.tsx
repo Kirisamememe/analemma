@@ -71,7 +71,6 @@ export const CheckboxRoot = ({
         onChange?.(selected);
       }}
       value="true"
-      // oxlint-disable-next-line project/styling-boundary -- React Aria の未指定の props を省く。見た目の props は含まない。
       {...state}
     >
       {children}

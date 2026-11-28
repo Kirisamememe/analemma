@@ -41,7 +41,6 @@ export const Form = ({
 
   return (
     <AriaForm
-      // oxlint-disable-next-line project/styling-boundary -- 外から参照する ID の指定が無いときは属性を省く。見た目の props は含まない。
       {...(id === undefined ? {} : { id })}
       className="flex flex-col gap-4"
       onSubmit={submit}

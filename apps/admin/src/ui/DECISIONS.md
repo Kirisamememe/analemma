@@ -136,7 +136,7 @@
 - **入力例とガイド**。`TextField`・`TextArea` の `placeholder` には空欄に表示する入力例を渡す。文字数の上下限、使える文字や形式など、入力中も必要な案内は `description` に渡し、欄の下に残す。ラベルで足りる欄では省く。ガイドはできるだけ1行で読める長さにする。英語は簡潔に書き、文にはピリオドを付ける。中国語・日本語・韓国語のガイドは末尾に句点を付けない。入力ガイドの訳にはキーの用途を表す `<画面名>.guide.<入力欄の名前>` を使う。共通の文字数表示は `ui.guide.*` に置く。翻訳カタログでは、中国語・日本語・韓国語のガイドの末尾を検査する。Story のテストでは、実際に描画した言語のガイドに同じ判定を適用する。狭い画面では折り返して条件を最後まで見せる。
 - **「必須」のラベル**:入力が要る欄のラベルには、文字の「必須」のラベル(`RequiredBadge`)を添える(ユーザーが決めた)。`*` だけでは、意味を知らない人に伝わらない。見た目は、`Badge` の `danger` の `soft`(薄い赤の面に赤い文字。線は見せない)にする(ユーザーが決めた)。大きさは `caption` の文字に透明の線を足して 20px の高さになり、ラベルの1行の高さ(`label` の 20px)と同じなので、どちらも上にそろえれば中心がそろう。ラベルが長いと文字だけが折り返し、「必須」は1行目の右に残る(文字に `min-w-0` と `wrap-anywhere` を付ける)。読み上げは入力欄の `required`(`aria-required`)が「必須」を伝えるので、「必須」の文字は `aria-hidden` で読み上げから外し、入力欄の名前にも含めない。含めると「名前 必須、必須」と重ねて読まれる。Checkbox は、チェックが必須のとき(`isRequired`)だけ付ける。
 - **送信の検証で止めたときの focus**(`focusFirstInvalidField`):範囲の中で、React Aria Components が `data-invalid` を付けた最初の欄の外枠を見える位置まで scroll し、欄の中の Tab で届く要素に focus を移す。React Aria Components の部品でないまとまり(固定ページの group など)も、外枠に `data-invalid` を付ければ対象になる。外枠が `tabindex` を持つときは、外枠そのものに focus を移し、まとまりの見出しと誤りを読ませる。保存の失敗を知らせる上部の Toast で見出しが隠れないよう、まとまりの見出しを画面の中央に表示する。使い方とつなぎは `../components/forms/DECISIONS.md` の「送信の検証で止めたときの focus」にある。
-- **1行のテキストの入力欄(`TextInput` と `TextField`)**:`TextInput` は入力操作と枠を持ち、`TextField` がラベル・補足・誤りの知らせを結び付ける。フォームの状態を持つ部品とのつなぎは `../components/forms/DECISIONS.md` にある。React Aria Components の `isInvalid` に `false` を渡すと、必須の検証や `Form` の誤りの知らせを上書きする。未指定の `value` や `isInvalid` を React Aria Components に渡さないため、見た目を含まないオブジェクトを `TextField` の JSX で1か所だけ spread する。
+- **1行のテキストの入力欄(`TextInput` と `TextField`)**:`TextInput` は入力操作と枠を持ち、`TextField` がラベル・補足・誤りの知らせを結び付ける。フォームの状態を持つ部品とのつなぎは `../components/forms/DECISIONS.md` にある。React Aria Components の `isInvalid` に `false` を渡すと、必須の検証や `Form` の誤りの知らせを上書きする。未指定の `value` や `isInvalid` を React Aria Components に渡さないため、入力欄の部品は、指定された props だけを持つオブジェクトを作って spread する。
 - **長いテキストの入力欄(`TextArea`)**:初めから4行分の高さを取り、縦に resize できるようにする。入力欄の幅をそろえたまま、利用者が長い文を見渡せるようにする。
 - **数値の入力欄(`NumberField`)**:表示は React Aria Components が言語に合わせて整え、`FormData` には桁区切りの無い値を入れる。表示にも桁区切りを入れない。入れると、年のような数が「2,014」と出る。金額のように桁区切りが要る欄を作るときに、その欄で入れるかを決める(ユーザーが決めた)。数値の項目の値には小数の桁数に上限が無いため、入力欄を出るときに Intl の既定で小数が丸まらないよう、有効数字を17桁まで使う。増減はボタンと上下の矢印キーで行い、フォームを scroll するときに値が変わらないよう、ホイールでの増減は切る。入力欄と増減ボタンを1つの枠に収め、どこに focus があっても枠全体で示す。増減ボタンの名前には管理画面の訳を使い、どの入力欄の値を増やすか、減らすかを自然な語順で伝える。
 - **Checkbox**。保存時に反映する真偽値に使う。チェックのマークは、16px の箱に合わせて `viewBox` を 16×16 にした SVG の線(太さ 1.75px)で描き、箱の中心にそろえる。`Icon` の `check`(lucide-react。`viewBox` は 24×24)を箱の大きさに縮めると、線が 1.2px ほどに細くなり、腕が箱の縁の近くまで伸びて、ラベルの太さと釣り合わなかった(ユーザーが見つけた)。ラベルを CheckboxButton の中に置き、ラベルでもチェックを切り替えられるようにする。単独のフォームでは HTML と同じくチェックした値だけを送る。種類の定義の真偽値は `false` も有効な値なので、チェックの必須とは分ける。
@@ -187,7 +187,7 @@
 - 書いてよい class は、子の大きさと見せ方の5つ(`grow`・`shrink-0`・`min-w-0`・`truncate`・`sr-only`)だけ。並べ方(`flex`・`grid`・gap・padding)・文字(`text-*`・`font-*`)・色は、部品と props で決める(`<Stack gap={2}>`・`<Text variant="caption">`・`<Badge tone="danger">` など)。許す側の一覧にするので、新しい class を使いたくなったら、部品を足すか、一覧を足すかを決めることになる。
 - `className` には文字列のリテラルだけを渡す。変数や式を渡すと、class の検査が中身を読めない。
 - `style` は書かない。
-- JSX の props を spread しない(`{...props}`)。spread で渡した `className` や `style` は、検査が見ない(部品でも同じ)。
+- 受け取った props を、JSX にそのまま spread しない(`{...props}`・`{...rest}`)。spread で渡した `className` や `style` は、検査が見ない(部品でも同じ)。spread できるのは、その場か同じファイルの `const` に書いて書き換えない、`className`・`style`・`…ClassName` を含まないオブジェクトと、見た目の props を返さないと確かめた React Aria の hook の値だけ(`tooling/DECISIONS.md`)。
 
 ### 部品(`ui/` と `features/*/ui/`)
 
