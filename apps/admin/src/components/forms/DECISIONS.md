@@ -27,7 +27,11 @@ return (
       </form.AppField>
       <form.Subscribe selector={(state) => state.isSubmitting}>
         {(isSubmitting) => (
-          <Button isPending={isSubmitting} type="submit">
+          <Button
+            isPending={isSubmitting}
+            pendingLabel={pendingLabel}
+            type="submit"
+          >
             {saveLabel}
           </Button>
         )}

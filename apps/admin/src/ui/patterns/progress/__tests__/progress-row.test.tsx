@@ -76,6 +76,6 @@ describe("ProgressRow", () => {
     if (button !== undefined) await userEvent.click(button);
 
     expect(onAction).not.toHaveBeenCalled();
-    expect(screen.getAllByRole("progressbar").length).toBeGreaterThan(0);
+    expect(screen.getByRole("progressbar", { name: "処理中" })).toBeDefined();
   });
 });
