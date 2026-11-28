@@ -9,6 +9,8 @@ import { imagePageKey, lastPageIndex } from "./logic/image-pages";
 
 import { useAppContext } from "@/api/app-context";
 import { useApiInfiniteQuery } from "@/api/server-state/use-api-infinite-query";
+import { ImageRows } from "@/components/images/ui/image-rows";
+import { ImageRowsPlaceholder } from "@/components/images/ui/image-rows-placeholder";
 import { useTranslate } from "@/i18n/use-translate";
 import {
   IMAGES_QUERY_KEY,
@@ -16,12 +18,7 @@ import {
   loadImagesPage,
 } from "@/queries/images-query";
 import { Stack } from "@/ui/layout";
-import {
-  EmptyState,
-  ErrorState,
-  ImageRows,
-  ImageRowsPlaceholder,
-} from "@/ui/patterns";
+import { EmptyState, ErrorState } from "@/ui/patterns";
 
 /** 画像の一覧に渡す値。 */
 type ImagesSectionProps = GalleryOptions & {

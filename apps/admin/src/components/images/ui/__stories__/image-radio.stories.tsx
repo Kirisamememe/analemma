@@ -48,7 +48,7 @@ const Gallery = ({ disabled = false }) => {
 };
 
 const meta = {
-  title: "patterns/photos/ImageRadio",
+  title: "components/images/ImageRadio",
   component: ImageRadio,
   render: ({ disabled }) => <Gallery disabled={disabled} />,
   parameters: { layout: "padded" },

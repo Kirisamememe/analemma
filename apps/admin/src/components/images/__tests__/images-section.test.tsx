@@ -10,6 +10,7 @@ import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { Profiler } from "react";
 
 import { ImagesSection } from "@/components/images/images-section";
+import * as imageTile from "@/components/images/ui/image-tile";
 import type { FakeRoutes } from "@/testing/create-fake-api";
 import { createTestApp } from "@/testing/create-test-app";
 import {
@@ -18,7 +19,6 @@ import {
 } from "@/testing/fake-routes/create-image-routes";
 import { withAppProviders } from "@/testing/hook-wrappers";
 import { samplePhoto } from "@/testing/sample-photos";
-import * as patterns from "@/ui/patterns";
 
 afterEach(cleanup);
 
@@ -47,9 +47,9 @@ const announced = (text: string) =>
 
 const profileTiles = () => {
   const commits: string[] = [];
-  const Tile = patterns.ImageTile;
+  const Tile = imageTile.ImageTile;
 
-  const spy = spyOn(patterns, "ImageTile").mockImplementation((props) => (
+  const spy = spyOn(imageTile, "ImageTile").mockImplementation((props) => (
     <Profiler
       id={props.title ?? ""}
       onRender={(id) => {

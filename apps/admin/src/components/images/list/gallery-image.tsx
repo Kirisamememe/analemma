@@ -1,12 +1,12 @@
 import { memo, type ReactNode } from "react";
 
 import { toImageStatusView } from "../logic/image-status";
+import { ImageTile } from "../ui/image-tile";
 import type { GalleryOptions } from "./gallery-options";
 
 import { formatLocalDate } from "@/i18n/format-date-time";
 import { useLocale, useTranslate } from "@/i18n/use-translate";
 import type { ImageSummary } from "@/queries/images-query";
-import { ImageTile } from "@/ui/patterns";
 
 /** 一覧の1枚のタイルに渡す値。 */
 type GalleryImageProps = GalleryOptions & {

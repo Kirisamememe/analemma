@@ -2,8 +2,8 @@ import { type ReactNode, useSyncExternalStore } from "react";
 
 import type { useImageSelection } from "../hooks/use-image-selection";
 
+import { ImageSelectionStatus } from "@/components/images/ui/image-selection-status";
 import { useTranslate } from "@/i18n/use-translate";
-import { ImageSelectionStatus } from "@/ui/patterns";
 
 /** 選択の状態の表示に渡す値。 */
 type SelectionStatusProps = {

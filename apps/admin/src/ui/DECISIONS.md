@@ -54,7 +54,7 @@
 - light の `fg-muted` は neutral-600 にする(ユーザーが決めた)。neutral-500 では、`surface-muted` の上の文字が約 4.35:1 で、4.5:1 に届かなかった。`fg` と `fg-muted` の文字が、どの面の上でも light と dark で 4.5:1 に届くことを、コントラストのテストで確かめる。
 - light の `focus` は neutral-500 にする。白に対して 3:1 に届く。
 - 枠を使える条件は下の「枠と面の境界」に従う。`border` の既定の色は `line`(light で neutral-300、dark で neutral-700)、入力を受ける部品(入力欄・Checkbox・Radio・Switch・Select など)の枠は `line-strong`(light で neutral-400、dark で neutral-600)で描く。どちらの値も、ユーザーが決めた。文字の色の `fg-muted` を枠に流用しない(役割を混ぜない。ユーザーが決めた)。
-- `line-strong` は、入力を受ける部品の専用にする(ユーザーが決めた)。入力を受ける部品は React Aria Components を包むので、どれも `primitives/` にある。`line-strong` の class を書けるのは `primitives/` だけで、patterns・layout・`features/*/ui/` では書けない(lint で止まる)。
+- `line-strong` は、入力を受ける部品の専用にする(ユーザーが決めた)。入力を受ける部品は React Aria Components を包むので、どれも `primitives/` にある。`line-strong` の class を書けるのは `primitives/` だけで、patterns・layout・`features/*/ui/`・`components/*/ui/` では書けない(lint で止まる)。
 - border の色は、`theme.css` の base の層(`@layer base`)で `line` を既定にする。線を引くときは幅の class(`border`・`border-s`・`border-b` など)だけを書き、`border-line` は書かない。色の class を書くのは、`line` のほかの色(`line-strong`・意味の色・`transparent` など)にするときと、`tv` の variant や状態の variant(`is-*:`)でほかの色にした線を `line` に戻すときだけにする(ユーザーが決めた)。既定と同じ class が並ぶと、どこで色を変えているのかが読み取りにくい。
 
 ### 枠と面の境界
@@ -98,18 +98,18 @@
 
 ## 部品の層
 
-| 置く所                | 中身                                                                                                  |
-| --------------------- | ----------------------------------------------------------------------------------------------------- |
-| `tv.ts`               | デザインシステムの class の組を設定した `tv` と `merge`                                               |
-| `typography.ts`       | 文字の役割と、目盛りの組と太さの対応(組を書けるのはここだけ)                                          |
-| `primitives/`         | ボタン・リンク・入力欄・`Notice` など、いちばん小さな部品。React Aria Components を使えるのはここだけ |
-| `layout/`             | 並べ方(`Stack`・`Cluster`・`Center`・`AppShell`)と文字(`Text`・`Heading`)                             |
-| `patterns/`           | primitives と layout を組み合わせた、画面に共通の形(`PageHeader` など)                                |
-| `features/<名前>/ui/` | 1つの画面だけの部品(`ui/` と同じ決まり)                                                               |
-| `specimens/`          | 色と文字の見本と、story の展示用の枠(`story-stage.tsx`)。Storybook で見る                             |
+| 置く所                  | 中身                                                                                                  |
+| ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| `tv.ts`                 | デザインシステムの class の組を設定した `tv` と `merge`                                               |
+| `typography.ts`         | 文字の役割と、目盛りの組と太さの対応(組を書けるのはここだけ)                                          |
+| `primitives/`           | ボタン・リンク・入力欄・`Notice` など、いちばん小さな部品。React Aria Components を使えるのはここだけ |
+| `layout/`               | 並べ方(`Stack`・`Cluster`・`Center`・`AppShell`)と文字(`Text`・`Heading`)                             |
+| `patterns/`             | primitives と layout を組み合わせた、画面に共通の形(`PageHeader` など)                                |
+| `features/<名前>/ui/`   | 1つの画面だけの部品(`ui/` と同じ決まり)                                                               |
+| `components/<名前>/ui/` | 複数の feature が使う、管理画面に固有の部品の見た目(`ui/` と同じ決まり)                               |
+| `specimens/`            | 色と文字の見本と、story の展示用の枠(`story-stage.tsx`)。Storybook で見る                             |
 
 - import の向きは、patterns → primitives・layout。layout は primitives と patterns を、primitives は patterns を import しない(lint で止まる)。layout は並べ方と文字だけを持つ層で、操作を持たない。
-- 選んだ写真のサムネイルには `ImageThumbnail` を使う。配信用の画像の URL と alt を渡すので、シリーズのカバーにもフォームで選んだ写真にも同じ表示を使える。
 - `layout/`・`patterns/` と、`primitives/` の入力欄・図形・ナビ・overlay・並べ直せる一覧(`collections/`)の各フォルダには、フォルダの外から使う部品・hook・型を `index.ts` にまとめる。たとえば、画面では `@/ui/layout` から `Stack` と `Text` を一度に import できる。各フォルダで部品の実装に使うもの(余白の型、入力欄の枠、`ShowToastContext` など)は入口に含めない。`primitives/` 直下と `ui/` には、フォルダごとの責務が分かる import を保つため、まとめた入口を置かない。
 - React Aria Components(`react-aria`・`react-stately`・`@react-aria/*`・`@react-stately/*`・`@internationalized/*` と、型だけの import も)を import できるのは `primitives/` だけ。primitives は、React Aria Components の props の型を extends せず、自分の props の型を持つ。画面のコードに、ライブラリの props(`className` の関数や、`data-*` の render props など)を見せない。ライブラリを替えるときに直すのは primitives だけになる。
 - UI の外部ライブラリは、`ui/` の部品で包む。lucide-react を import できるのは `primitives/` だけで、ほかの層は `Icon` に名前を渡す(ユーザーが決めた)。
@@ -190,7 +190,7 @@
 - `style` は書かない。
 - 受け取った props を、JSX にそのまま spread しない(`{...props}`・`{...rest}`)。spread で渡した `className` や `style` は、検査が見ない(部品でも同じ)。spread できるのは、その場か同じファイルの `const` に書いて書き換えない、`className`・`style`・`…ClassName` を含まないオブジェクトと、見た目の props を返さないと確かめた React Aria の hook の値だけ(`tooling/DECISIONS.md`)。
 
-### 部品(`ui/` と `features/*/ui/`)
+### 部品(`ui/`・`features/*/ui/`・`components/*/ui/`)
 
 - `app.css` を入口にした Tailwind CSS の設定で生成できない class(Tailwind CSS の既定の色や目盛りなど)。`app.css` は `theme.css` と `animation.css` を読む。
 - `[…]` の付く class(任意の値・任意のプロパティ・任意の variant)。値は theme.css の役割か、部品の props で決める。`[&>svg]:size-icon` のような子を選ぶ variant も止める。子の大きさは、子の部品の props で決める。

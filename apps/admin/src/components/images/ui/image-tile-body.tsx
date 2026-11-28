@@ -1,32 +1,28 @@
-import type { ReactNode, Ref } from "react";
+import type { ReactNode } from "react";
 
-import { rows } from "./image-rows-style";
 import {
   type DeliveryImages,
   toSrcSet,
-  toTileAspect,
   toTileSizes,
-} from "./logic/delivery-image";
+} from "../logic/delivery-image";
+import { rows } from "./image-rows-style";
 
 import { Text } from "@/ui/layout";
 import { Badge } from "@/ui/primitives/badge";
 import { Icon, Spinner } from "@/ui/primitives/graphics";
-import { Link } from "@/ui/primitives/navigation";
 
-/** 写真のタイルに渡す値。 */
-type ImageTileProps = {
+/** 写真のタイルの中身に渡す値。 */
+export type ImageTileBodyProps = {
   /** 1枚の選択用に写真全体を見せるか。 */
-  singleChoice?: boolean | undefined;
-  /** 開く画面。 */
-  href?: string | undefined;
-  /** 写真を選ぶ入力欄。 */
-  choice?: ReactNode;
+  singleChoice: boolean;
   /** 配信用の画像(幅の昇順)。 */
   images: DeliveryImages;
+  /** 枠の縦横比(幅 ÷ 高さ)。 */
+  aspect: number;
   /** タイトル(無ければ null)。 */
   title: string | null;
   /** 写真の alt。 */
-  alt?: string | null;
+  alt?: string | null | undefined;
   /** タイトルが無いときに出す文言。 */
   untitled: string;
   /** 配信用の画像が無いときに出す文言。 */
@@ -34,42 +30,30 @@ type ImageTileProps = {
   /** タイトルの横に添えるバッジの文言(無ければ出さない)。 */
   badge?: string | undefined;
   /** バッジの色の用途。 */
-  badgeTone?: "neutral" | "info" | "danger" | undefined;
+  badgeTone: "neutral" | "info" | "danger";
   /** 配信用の画像ができるのを待っているか。 */
-  isPending?: boolean | undefined;
+  isPending: boolean;
   /** タイトルの下に出す日付(無ければ出さない)。 */
   date?: string | undefined;
-  /** 開くリンクの要素(focus を移すときに使う)。 */
-  linkRef?: Ref<HTMLAnchorElement> | undefined;
 };
 
-/** 写真と、タイトル・バッジ・日付を出し、押すと開くタイル。 */
-export const ImageTile = ({
-  href,
-  singleChoice = false,
-  choice,
+/** 写真のタイルの、写真の枠と、タイトル・バッジ・日付。 */
+export const ImageTileBody = ({
+  singleChoice,
   images,
+  aspect,
   title,
   alt,
   untitled,
   missing,
   badge,
-  badgeTone = "neutral",
-  isPending = false,
+  badgeTone,
+  isPending,
   date,
-  linkRef,
-}: ImageTileProps): ReactNode => {
+}: ImageTileBodyProps): ReactNode => {
   const [smallest] = images;
-
-  const aspect =
-    singleChoice && smallest
-      ? smallest.width / smallest.height
-      : toTileAspect(images);
-
-  const style = rows({
-    isUntitled: title === null,
-    selectable: singleChoice,
-  });
+  const isUntitled = title === null;
+  const style = rows({ isUntitled, selectable: singleChoice });
 
   const missingIcon = isPending ? (
     <Spinner />
@@ -77,11 +61,10 @@ export const ImageTile = ({
     <Icon name="image-off" size="lg" />
   );
 
-  const isUntitled = title === null;
   const hiddenAlt = isUntitled && alt && <span className="sr-only">{alt}</span>;
   const photoAlt = isUntitled ? (alt ?? "") : "";
 
-  const content = (
+  return (
     <span className={style.body()}>
       <span className={style.frame()}>
         {smallest === undefined ? (
@@ -110,7 +93,7 @@ export const ImageTile = ({
       <span className={style.caption()}>
         <span className={style.heading()}>
           <span className={style.title()} title={title ?? undefined}>
-            <Text as="span" variant={title === null ? "body" : "label"}>
+            <Text as="span" variant={isUntitled ? "body" : "label"}>
               {title ?? untitled}
             </Text>
           </span>
@@ -127,20 +110,5 @@ export const ImageTile = ({
         )}
       </span>
     </span>
-  );
-
-  return (
-    <li className={style.item()} style={{ "--media-aspect": String(aspect) }}>
-      {href === undefined ? (
-        <label className="group relative flex cursor-pointer flex-col gap-2 rounded-control has-focus-visible:focus-ring">
-          {content}
-          {choice}
-        </label>
-      ) : (
-        <Link href={href} ref={linkRef} variant="block">
-          {content}
-        </Link>
-      )}
-    </li>
   );
 };

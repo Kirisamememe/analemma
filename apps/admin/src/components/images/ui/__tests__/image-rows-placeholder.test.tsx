@@ -1,8 +1,8 @@
 import { cleanup, screen } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
+import { ImageRowsPlaceholder } from "@/components/images/ui/image-rows-placeholder";
 import { renderWithI18n } from "@/testing/render-with-i18n";
-import { ImageRowsPlaceholder } from "@/ui/patterns/photos/image-rows-placeholder";
 
 afterEach(cleanup);
 

@@ -49,6 +49,8 @@ Vite は `resolve.tsconfigPaths` で `paths` を読み、本番のビルド・�
 
 複数の feature から使う、管理画面に固有の部品は `src/components/` に置き、`@/components/...` から import する。パスキーの名前の入力欄のように、管理画面の訳と contract の検査を持つ部品を、ラベルや検査を呼び出し元から受け取る `src/ui/` の部品と分ける。`components/` は features を import しない。利用する feature 同士が、部品を通じて依存し合わずに済む。
 
+その部品だけの見た目(class を書く部品)は、`components/<名前>/ui/` に置く(ユーザーが決めた)。feature の `ui/` と同じ決まりで class を書ける。写真の一覧のタイルと行(`components/images/ui/`)は、配信用の画像・変換を待つ状態・選択のような、管理画面の写真の言葉でできていて、使うのも `components/images` だけなので、デザインシステム(`src/ui/`)には置かない。
+
 ## 業務の知識を足す層
 
 `src/ui/` の部品は、値を props で受けるだけにし、管理画面の業務と配線を知らない(ユーザーが決めた)。部品に業務の知識を足すときは、`ui/` の部品を包む部品を、`ui/` の外に置く。

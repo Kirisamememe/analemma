@@ -1,9 +1,9 @@
 import { cleanup, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { ImageRows } from "@/components/images/ui/image-rows";
+import { ImageTile } from "@/components/images/ui/image-tile";
 import { renderWithI18n } from "@/testing/render-with-i18n";
-import { ImageRows } from "@/ui/patterns/photos/image-rows";
-import { ImageTile } from "@/ui/patterns/photos/image-tile";
 
 afterEach(cleanup);
 
