@@ -50,7 +50,7 @@ const DeleteDialog = ({
           >
             キャンセル
           </Button>
-          <Button isPending={isPending} tone="danger">
+          <Button pendingLabel="処理中" isPending={isPending} tone="danger">
             削除
           </Button>
         </Cluster>

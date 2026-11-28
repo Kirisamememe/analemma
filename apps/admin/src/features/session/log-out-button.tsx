@@ -17,6 +17,7 @@ export const LogOutButton = ({ logOut }: LogOutButtonProps): ReactNode => {
   return (
     <NavButton
       icon="log-out"
+      pendingLabel={t("ui.pending")}
       isPending={logOut.isPending}
       onPress={() => {
         logOut.mutate();

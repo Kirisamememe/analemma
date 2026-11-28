@@ -1,19 +1,17 @@
 import type { ReactNode } from "react";
 import { Button as AriaButton, ProgressBar } from "react-aria-components";
-import { useTranslation } from "react-i18next";
 
+import type { PendingState } from "@/ui/primitives/button";
 import { Icon, type IconName, Spinner } from "@/ui/primitives/graphics";
 import { navItem } from "@/ui/primitives/navigation/nav-item-style";
 import { typography } from "@/ui/typography";
 
 /** ナビのボタンに渡す値。 */
-type NavButtonProps = {
+type NavButtonProps = PendingState & {
   /** ボタンの文言。 */
   children: ReactNode;
   /** ボタンに添えるアイコン。 */
   icon: IconName;
-  /** 送信中か。 */
-  isPending?: boolean;
   /** 押したときに呼ぶ関数。 */
   onPress?: () => void;
 };
@@ -23,9 +21,10 @@ export const NavButton = ({
   children,
   icon,
   isPending = false,
+  pendingLabel,
   onPress,
 }: NavButtonProps): ReactNode => {
-  const { t } = useTranslation();
+  const shownPendingLabel = isPending ? pendingLabel : undefined;
 
   return (
     <AriaButton
@@ -40,9 +39,9 @@ export const NavButton = ({
     >
       <Icon name={icon} />
       <span className="min-w-0 truncate">{children}</span>
-      {isPending && (
+      {shownPendingLabel !== undefined && (
         <ProgressBar
-          aria-label={t("ui.pending")}
+          aria-label={shownPendingLabel}
           className="ml-auto shrink-0"
           isIndeterminate
         >

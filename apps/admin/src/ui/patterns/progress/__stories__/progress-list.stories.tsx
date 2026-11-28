@@ -61,6 +61,7 @@ export const States: Story = {
         detail="5.1 MB"
         id={5}
         isActionPending
+        actionPendingLabel="処理中"
         isBusy
         name="IMG_0790.JPG"
         status="送っています"

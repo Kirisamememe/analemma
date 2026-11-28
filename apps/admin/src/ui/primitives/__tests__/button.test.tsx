@@ -37,17 +37,25 @@ describe("Button", () => {
   });
 
   test("送信中は、ボタンの名前を残したまま、待っていることをスクリーンリーダーに伝える", () => {
-    renderWithI18n(<Button isPending>保存</Button>);
+    renderWithI18n(
+      <Button pendingLabel="処理中" isPending>
+        保存
+      </Button>,
+    );
 
     expect(screen.getByRole("button", { name: /保存/v })).toBeDefined();
-    expect(screen.getByRole("progressbar", { name: "Working" })).toBeDefined();
+    expect(screen.getByRole("progressbar", { name: "処理中" })).toBeDefined();
   });
 
   test("送信中になっても、文言を残し、ボタンの名前を変えない", () => {
     const { rerender } = renderWithI18n(<Button>保存</Button>);
     const idle = screen.getByRole("button", { name: "保存" }).textContent;
 
-    rerender(<Button isPending>保存</Button>);
+    rerender(
+      <Button pendingLabel="処理中" isPending>
+        保存
+      </Button>,
+    );
 
     expect(screen.getByRole("button", { name: "保存" }).textContent).toBe(idle);
   });
@@ -62,7 +70,7 @@ describe("Button", () => {
     const counter = countPresses();
 
     renderWithI18n(
-      <Button isPending onPress={counter.onPress}>
+      <Button pendingLabel="処理中" isPending onPress={counter.onPress}>
         保存
       </Button>,
     );

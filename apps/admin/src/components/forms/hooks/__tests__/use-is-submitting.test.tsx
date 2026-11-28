@@ -96,7 +96,11 @@ const Example = ({
             <form.AppField name="season">
               {(field) => <field.Select label="季節" options={OPTIONS} />}
             </form.AppField>
-            <Button isPending={isSubmitting} type="submit">
+            <Button
+              pendingLabel="処理中"
+              isPending={isSubmitting}
+              type="submit"
+            >
               保存
             </Button>
           </form.Form>
@@ -174,7 +178,7 @@ describe("送信の途中の入力欄", () => {
     });
 
     expect(titleInput().readOnly).toBe(true);
-    expect(screen.getByRole("progressbar", { name: "Working" })).toBeDefined();
+    expect(screen.getByRole("progressbar", { name: "処理中" })).toBeDefined();
     await user.type(titleInput(), "の追記");
     expect(titleInput().value).toBe("春の便り");
 

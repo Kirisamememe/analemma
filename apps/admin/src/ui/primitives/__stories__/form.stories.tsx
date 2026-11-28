@@ -38,7 +38,7 @@ export const Pending: Story = {
           label="パスキーの名前"
           name="name"
         />
-        <Button isPending tone="primary" type="submit">
+        <Button pendingLabel="処理中" isPending tone="primary" type="submit">
           登録する
         </Button>
       </>

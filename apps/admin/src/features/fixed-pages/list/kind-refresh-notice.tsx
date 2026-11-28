@@ -52,7 +52,11 @@ export const KindRefreshNotice = ({
       <Notice tone="warning">
         <Cluster align="center" gap={2} justify="between">
           <Text>{t(message)}</Text>
-          <Button isPending={isRetrying} onPress={retry}>
+          <Button
+            pendingLabel={t("ui.pending")}
+            isPending={isRetrying}
+            onPress={retry}
+          >
             {t("fixedPageEditor.reloadKinds")}
           </Button>
         </Cluster>

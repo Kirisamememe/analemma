@@ -71,6 +71,7 @@ export const UploadPhotoStatus = ({
               tone="quiet"
               icon="rotate-cw"
               isDisabled={isSaving}
+              pendingLabel={t("ui.pending")}
               isPending={action === "pending"}
               aria-label={t("imageUpload.retryPhoto", {
                 name: upload.file.name,

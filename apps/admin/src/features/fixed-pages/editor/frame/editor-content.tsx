@@ -40,7 +40,12 @@ const Content = ({
   const t = useTranslate();
 
   const save = (
-    <Button isPending={saving.isPending} type="submit" tone="primary">
+    <Button
+      pendingLabel={t("ui.pending")}
+      isPending={saving.isPending}
+      type="submit"
+      tone="primary"
+    >
       {t("fixedPageEditor.save")}
     </Button>
   );

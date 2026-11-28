@@ -58,7 +58,12 @@ export const IssueForm = ({
           <Button isDisabled={isPending} onPress={onClose}>
             {t("deployTokens.cancel")}
           </Button>
-          <Button isPending={isPending} tone="primary" type="submit">
+          <Button
+            pendingLabel={t("ui.pending")}
+            isPending={isPending}
+            tone="primary"
+            type="submit"
+          >
             {t("deployTokens.issue")}
           </Button>
         </Cluster>

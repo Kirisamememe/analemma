@@ -108,7 +108,12 @@ export const AddPasskeyDialog = ({
             <Button isDisabled={adding.isPending} onPress={close}>
               {t("passkeys.cancel")}
             </Button>
-            <Button isPending={adding.isPending} tone="primary" type="submit">
+            <Button
+              pendingLabel={t("ui.pending")}
+              isPending={adding.isPending}
+              tone="primary"
+              type="submit"
+            >
               {t("passkeys.add")}
             </Button>
           </Cluster>

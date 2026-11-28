@@ -10,8 +10,23 @@ import { Link } from "@/ui/primitives/navigation";
 /** 作業の1件の、状態の見せ方。 */
 export type ProgressTone = "neutral" | "info" | "success" | "danger";
 
+/** 操作を送っている最中の状態と、それを伝える名前。 */
+type ActionPendingState =
+  | {
+      /** 操作を送っている最中か。 */
+      isActionPending?: undefined;
+      /** 操作を送っている最中であることを伝える、アクセシブルな名前。 */
+      actionPendingLabel?: undefined;
+    }
+  | {
+      /** 操作を送っている最中か。 */
+      isActionPending: boolean;
+      /** 操作を送っている最中であることを伝える、アクセシブルな名前。 */
+      actionPendingLabel: string;
+    };
+
 /** 作業の1件に渡す値。 */
-type ProgressRowProps = {
+type ProgressRowProps = ActionPendingState & {
   /** 1件を見分ける ID(操作の関数に渡す)。 */
   id: number;
   /** 名前(ファイルの名前など)。 */
@@ -30,8 +45,6 @@ type ProgressRowProps = {
   actionLabel?: string | undefined;
   /** 操作の、対象を含むアクセシブルな名前。 */
   actionName?: string | undefined;
-  /** 操作を送っている最中か。 */
-  isActionPending?: boolean | undefined;
   /** 操作を押したときに、ID を渡して呼ぶ関数。 */
   onAction?: ((id: number) => void) | undefined;
   /** 行の要素(終わったときに focus を引き継ぐ)。 */
@@ -50,35 +63,43 @@ export const ProgressRow = ({
   actionLabel,
   actionName,
   isActionPending = false,
+  actionPendingLabel,
   onAction,
   ref,
-}: ProgressRowProps): ReactNode => (
-  <li ref={ref}>
-    <ActionListRow>
-      <Stack gap={0.5}>
-        <Text variant="label">
-          {href === undefined ? name : <Link href={href}>{name}</Link>}
-        </Text>
-        <Text tone="muted" variant="caption">
-          {detail}
-        </Text>
-      </Stack>
-      <Cluster align="center" gap={2}>
-        {isBusy && <Spinner />}
-        <Badge tone={tone}>{status}</Badge>
-        {actionLabel !== undefined && (
-          <Button
-            aria-label={actionName}
-            isPending={isActionPending}
-            onPress={() => {
-              onAction?.(id);
-            }}
-            size="sm"
-          >
-            {actionLabel}
-          </Button>
-        )}
-      </Cluster>
-    </ActionListRow>
-  </li>
-);
+}: ProgressRowProps): ReactNode => {
+  const actionPending =
+    actionPendingLabel === undefined
+      ? {}
+      : { isPending: isActionPending, pendingLabel: actionPendingLabel };
+
+  return (
+    <li ref={ref}>
+      <ActionListRow>
+        <Stack gap={0.5}>
+          <Text variant="label">
+            {href === undefined ? name : <Link href={href}>{name}</Link>}
+          </Text>
+          <Text tone="muted" variant="caption">
+            {detail}
+          </Text>
+        </Stack>
+        <Cluster align="center" gap={2}>
+          {isBusy && <Spinner />}
+          <Badge tone={tone}>{status}</Badge>
+          {actionLabel !== undefined && (
+            <Button
+              aria-label={actionName}
+              {...actionPending}
+              onPress={() => {
+                onAction?.(id);
+              }}
+              size="sm"
+            >
+              {actionLabel}
+            </Button>
+          )}
+        </Cluster>
+      </ActionListRow>
+    </li>
+  );
+};
