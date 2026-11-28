@@ -28,7 +28,7 @@ export const PasskeyNameField = ({
       autoComplete="off"
       defaultValue={defaultValue}
       description={showDescription ? t("enroll.guide.name") : undefined}
-      isRequired
+      requiredLabel={t("ui.required")}
       label={t("enroll.name")}
       maxLength={maxLength}
       name="name"

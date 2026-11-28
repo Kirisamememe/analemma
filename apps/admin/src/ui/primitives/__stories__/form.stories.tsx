@@ -13,7 +13,7 @@ const meta = {
     onSubmit: fn<(data: FormData) => void>(),
     children: (
       <>
-        <TextField isRequired label="パスキーの名前" name="name" />
+        <TextField requiredLabel="必須" label="パスキーの名前" name="name" />
         <Button tone="primary" type="submit">
           登録する
         </Button>

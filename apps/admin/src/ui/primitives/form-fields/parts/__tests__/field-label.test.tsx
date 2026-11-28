@@ -22,26 +22,42 @@ const FIELDS: readonly {
   {
     name: "TextField",
     render: (isRequired) => (
-      <TextField isRequired={isRequired} label="名前" name="name" />
+      <TextField
+        requiredLabel={isRequired ? "必須" : undefined}
+        label="名前"
+        name="name"
+      />
     ),
   },
   {
     name: "TextArea",
     render: (isRequired) => (
-      <TextArea isRequired={isRequired} label="名前" name="name" />
+      <TextArea
+        requiredLabel={isRequired ? "必須" : undefined}
+        label="名前"
+        name="name"
+      />
     ),
   },
   {
     name: "NumberField",
     render: (isRequired) => (
-      <NumberField isRequired={isRequired} label="名前" name="name" />
+      <NumberField
+        decrementLabel="値を減らす"
+        incrementLabel="値を増やす"
+        requiredLabel={isRequired ? "必須" : undefined}
+        label="名前"
+        name="name"
+      />
     ),
   },
   {
     name: "Select",
     render: (isRequired) => (
       <Select
-        isRequired={isRequired}
+        noneLabel="選択なし"
+        placeholder="選択してください"
+        requiredLabel={isRequired ? "必須" : undefined}
         label="名前"
         name="name"
         options={[{ value: "a", label: "A" }]}
@@ -51,7 +67,12 @@ const FIELDS: readonly {
   {
     name: "DateField",
     render: (isRequired) => (
-      <DateField isRequired={isRequired} label="名前" name="name" />
+      <DateField
+        incompleteMessage="年・月・日を入力してください。"
+        requiredLabel={isRequired ? "必須" : undefined}
+        label="名前"
+        name="name"
+      />
     ),
   },
 ];
@@ -71,7 +92,10 @@ describe("入力欄のラベル", () => {
   );
 
   test("「必須」は、入力欄の名前に含めない", () => {
-    renderWithI18n(<TextField isRequired label="名前" name="name" />, "ja");
+    renderWithI18n(
+      <TextField requiredLabel="必須" label="名前" name="name" />,
+      "ja",
+    );
 
     expect(
       screen.getByRole<HTMLInputElement>("textbox", { name: "名前" }).required,

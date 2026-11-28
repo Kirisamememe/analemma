@@ -10,12 +10,14 @@ import { FieldLabel } from "@/ui/primitives/form-fields/parts/field-label";
 /** ラベル付きの Select に渡す値。 */
 export type SelectProps = Omit<
   SelectInputProps,
-  "aria-label" | "isInvalid" | "name"
+  "aria-label" | "isInvalid" | "isRequired" | "name"
 > & {
   /** フォームのキー。 */
   name: string;
   /** ラベル。 */
   label: string;
+  /** 入力が要ることを示す文言。 */
+  requiredLabel?: string | undefined;
   /** 補足。 */
   description?: string | undefined;
   /** 呼び出し元から渡す誤りの知らせ。 */
@@ -31,11 +33,13 @@ export const Select = ({
   defaultValue,
   value,
   isDisabled,
-  isRequired,
+  requiredLabel,
   onBlur,
   onChange,
   validationBehavior,
   options,
+  placeholder,
+  noneLabel,
 }: SelectProps): ReactNode => (
   <SelectRoot
     isInvalid={errorMessage === undefined ? undefined : true}
@@ -43,13 +47,18 @@ export const Select = ({
     defaultValue={defaultValue}
     value={value}
     isDisabled={isDisabled}
-    isRequired={isRequired}
+    isRequired={requiredLabel !== undefined}
     onBlur={onBlur}
     onChange={onChange}
     validationBehavior={validationBehavior}
   >
-    <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
-    <SelectControl isRequired={isRequired} options={options} />
+    <FieldLabel requiredLabel={requiredLabel}>{label}</FieldLabel>
+    <SelectControl
+      isRequired={requiredLabel !== undefined}
+      noneLabel={noneLabel}
+      options={options}
+      placeholder={placeholder}
+    />
     {description !== undefined && (
       <FieldDescription>{description}</FieldDescription>
     )}

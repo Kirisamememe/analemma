@@ -13,6 +13,8 @@ const meta = {
     name: "season",
     label: "季節",
     description: "公開サイトで使う季節を選びます",
+    placeholder: "選択してください",
+    noneLabel: "選択なし",
     options: [
       { value: "spring", label: "春" },
       { value: "summer", label: "夏" },
@@ -30,12 +32,19 @@ export const Default: Story = {};
 
 export const InputOnly: Story = {
   /** ラベルを描かない Select の見本。 */
-  render: ({ options }) => <SelectInput aria-label="季節" options={options} />,
+  render: ({ options }) => (
+    <SelectInput
+      noneLabel="選択なし"
+      placeholder="選択してください"
+      aria-label="季節"
+      options={options}
+    />
+  ),
 };
 
 export const Selected: Story = { args: { defaultValue: "spring" } };
 
-export const Required: Story = { args: { isRequired: true } };
+export const Required: Story = { args: { requiredLabel: "必須" } };
 
 export const Disabled: Story = {
   args: { defaultValue: "spring", isDisabled: true },

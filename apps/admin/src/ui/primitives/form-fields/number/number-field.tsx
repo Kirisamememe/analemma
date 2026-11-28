@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { Group, NumberField as AriaNumberField } from "react-aria-components";
-import { useTranslation } from "react-i18next";
 
 import { NumberInput } from "./number-input";
 import { StepButton } from "./step-button";
@@ -28,8 +27,12 @@ export type NumberFieldProps = {
   description?: string | undefined;
   /** 最初に入れておく値。 */
   defaultValue?: number;
-  /** 入力が要るか。 */
-  isRequired?: boolean | undefined;
+  /** 入力が要ることを示す文言。 */
+  requiredLabel?: string | undefined;
+  /** 値を減らすボタンの、アクセシブルな名前。 */
+  decrementLabel: string;
+  /** 値を増やすボタンの、アクセシブルな名前。 */
+  incrementLabel: string;
   /** 入力欄が無効か。 */
   isDisabled?: boolean | undefined;
   /** 読み取り専用か。 */
@@ -54,7 +57,9 @@ export const NumberField = ({
   label,
   description,
   defaultValue = Number.NaN,
-  isRequired = false,
+  requiredLabel,
+  decrementLabel,
+  incrementLabel,
   isDisabled = false,
   isReadOnly = false,
   validationBehavior,
@@ -64,8 +69,6 @@ export const NumberField = ({
   errorMessage,
   validate,
 }: NumberFieldProps): ReactNode => {
-  const { t } = useTranslation();
-
   const fieldState = {
     ...(errorMessage === undefined ? {} : { isInvalid: true }),
     ...(validationBehavior === undefined ? {} : { validationBehavior }),
@@ -75,13 +78,13 @@ export const NumberField = ({
   return (
     <AriaNumberField
       className={fieldRoot()}
-      decrementAriaLabel={t("ui.numberField.decrease", { label })}
+      decrementAriaLabel={decrementLabel}
       defaultValue={defaultValue}
       formatOptions={FORMAT_OPTIONS}
-      incrementAriaLabel={t("ui.numberField.increase", { label })}
+      incrementAriaLabel={incrementLabel}
       isDisabled={isDisabled}
       isReadOnly={isReadOnly}
-      isRequired={isRequired}
+      isRequired={requiredLabel !== undefined}
       isWheelDisabled
       name={name}
       onBlur={() => {
@@ -93,7 +96,7 @@ export const NumberField = ({
       validate={(next) => validate?.(next)}
       {...fieldState}
     >
-      <FieldLabel isRequired={isRequired}>{label}</FieldLabel>
+      <FieldLabel requiredLabel={requiredLabel}>{label}</FieldLabel>
       <Group
         className={fieldControl({
           className:

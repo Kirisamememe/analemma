@@ -18,6 +18,16 @@ describe("PasskeyNameField", () => {
     expect(field.getAttribute("maxlength")).toBe("64");
   });
 
+  test("名前は必須で、訳の「必須」を添えること", () => {
+    renderWithI18n(<PasskeyNameField />, "ja");
+
+    expect(
+      screen.getByRole<HTMLInputElement>("textbox", { name: "パスキーの名前" })
+        .required,
+    ).toBe(true);
+    expect(screen.getByText("必須")).toBeDefined();
+  });
+
   test("名前の変更では今の名前を表示し、補足や入力できる文字数の上限を持たないこと", () => {
     renderWithI18n(<PasskeyNameField defaultValue="MacBook" />, "ja");
 

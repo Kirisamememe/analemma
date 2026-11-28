@@ -61,7 +61,7 @@ const EditModal = ({ width, hasActions }: EditModalProps): ReactNode => {
             }}
           >
             <TextArea
-              isRequired
+              requiredLabel="必須"
               label="説明"
               name="description"
               value={description}

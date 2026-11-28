@@ -29,7 +29,7 @@ export const InputOnly: Story = {
 
 export const Checked: Story = { args: { defaultSelected: true } };
 
-export const Required: Story = { args: { isRequired: true } };
+export const Required: Story = { args: { requiredLabel: "必須" } };
 
 export const ReadOnly: Story = {
   args: { defaultSelected: true, isReadOnly: true },

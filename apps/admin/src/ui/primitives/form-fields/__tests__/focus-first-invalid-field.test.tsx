@@ -21,6 +21,8 @@ describe("focusFirstInvalidField", () => {
       <>
         <TextField label="タイトル" name="title" />
         <NumberField
+          decrementLabel="値を減らす"
+          incrementLabel="値を増やす"
           errorMessage="件数を入力してください"
           label="件数"
           name="count"

@@ -12,6 +12,8 @@ describe("NumberField", () => {
   test("ラベルで入力欄を探せて、補足を入力欄の説明として読み上げる", () => {
     renderWithI18n(
       <NumberField
+        decrementLabel="値を減らす"
+        incrementLabel="値を増やす"
         description="小数も入力できます。"
         label="値"
         name="value"
@@ -27,7 +29,15 @@ describe("NumberField", () => {
   });
 
   test("上下の矢印キーと増減ボタンで値を変えられる", async () => {
-    renderWithI18n(<NumberField defaultValue={4} label="値" name="value" />);
+    renderWithI18n(
+      <NumberField
+        decrementLabel="値を減らす"
+        incrementLabel="値を増やす"
+        defaultValue={4}
+        label="値"
+        name="value"
+      />,
+    );
 
     const input = screen.getByRole<HTMLInputElement>("textbox", { name: "値" });
 
@@ -37,29 +47,22 @@ describe("NumberField", () => {
     expect(input.value).toBe("5");
     await userEvent.keyboard("{ArrowDown}");
     expect(input.value).toBe("4");
-    await userEvent.click(
-      screen.getByRole("button", { name: /Increase.*値/v }),
-    );
+    await userEvent.click(screen.getByRole("button", { name: "値を増やす" }));
     expect(input.value).toBe("5");
-    await userEvent.click(
-      screen.getByRole("button", { name: /Decrease.*値/v }),
-    );
+    await userEvent.click(screen.getByRole("button", { name: "値を減らす" }));
     expect(input.value).toBe("4");
   });
 
-  test("日本語ではラベルと増減の操作を自然な語順で読み上げる", () => {
-    renderWithI18n(<NumberField label="気温" name="value" />, "ja");
-
-    expect(
-      screen.getByRole("button", { name: "気温の値を増やす" }),
-    ).toBeDefined();
-    expect(
-      screen.getByRole("button", { name: "気温の値を減らす" }),
-    ).toBeDefined();
-  });
-
   test("千より大きい値も、桁区切りを入れずに出す", async () => {
-    renderWithI18n(<NumberField defaultValue={2014} label="年" name="year" />);
+    renderWithI18n(
+      <NumberField
+        decrementLabel="値を減らす"
+        incrementLabel="値を増やす"
+        defaultValue={2014}
+        label="年"
+        name="year"
+      />,
+    );
 
     const input = screen.getByRole<HTMLInputElement>("textbox", { name: "年" });
 
@@ -79,7 +82,12 @@ describe("NumberField", () => {
           values.push(data.get("value"));
         }}
       >
-        <NumberField label="値" name="value" />
+        <NumberField
+          decrementLabel="値を減らす"
+          incrementLabel="値を増やす"
+          label="値"
+          name="value"
+        />
         <button type="submit">保存</button>
       </Form>,
     );
@@ -102,7 +110,12 @@ describe("NumberField", () => {
         onSubmit={() => undefined}
         validationErrors={{ value: "値を確認してください。" }}
       >
-        <NumberField label="値" name="value" />
+        <NumberField
+          decrementLabel="値を減らす"
+          incrementLabel="値を増やす"
+          label="値"
+          name="value"
+        />
       </Form>,
     );
 

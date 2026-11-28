@@ -16,6 +16,8 @@ export const SelectInput = ({
   onChange,
   validationBehavior,
   options,
+  placeholder,
+  noneLabel,
 }: SelectInputProps): ReactNode => (
   <SelectRoot
     aria-label={ariaLabel}
@@ -29,6 +31,11 @@ export const SelectInput = ({
     onChange={onChange}
     validationBehavior={validationBehavior}
   >
-    <SelectControl isRequired={isRequired} options={options} />
+    <SelectControl
+      isRequired={isRequired}
+      noneLabel={noneLabel}
+      options={options}
+      placeholder={placeholder}
+    />
   </SelectRoot>
 );

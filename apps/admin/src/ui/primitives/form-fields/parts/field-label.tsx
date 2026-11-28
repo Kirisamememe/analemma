@@ -9,14 +9,14 @@ import { typography } from "@/ui/typography";
 type FieldLabelProps = {
   /** ラベルの文言。 */
   children: string;
-  /** 入力が要るか。 */
-  isRequired?: boolean | undefined;
+  /** 入力が要ることを示す文言。 */
+  requiredLabel?: string | undefined;
 };
 
 /** 入力欄のラベル。 */
 export const FieldLabel = ({
   children,
-  isRequired = false,
+  requiredLabel,
 }: FieldLabelProps): ReactNode => (
   <Label
     className={typography({
@@ -25,6 +25,8 @@ export const FieldLabel = ({
     })}
   >
     <span className="min-w-0 wrap-anywhere">{children}</span>
-    {isRequired && <RequiredBadge />}
+    {requiredLabel !== undefined && (
+      <RequiredBadge>{requiredLabel}</RequiredBadge>
+    )}
   </Label>
 );

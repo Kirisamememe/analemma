@@ -12,6 +12,8 @@ const meta = {
     name: "temperature",
     label: "気温 (°C)",
     description: "小数と負の値も入力できます",
+    decrementLabel: "気温の値を減らす",
+    incrementLabel: "気温の値を増やす",
   },
 } satisfies Meta<typeof NumberField>;
 
@@ -25,7 +27,7 @@ export const Filled: Story = { args: { defaultValue: -1.25 } };
 
 export const LargeValue: Story = { args: { defaultValue: 1234567.5 } };
 
-export const Required: Story = { args: { isRequired: true } };
+export const Required: Story = { args: { requiredLabel: "必須" } };
 
 export const ReadOnly: Story = {
   args: { defaultValue: -1.25, isReadOnly: true },
