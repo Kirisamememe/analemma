@@ -300,7 +300,8 @@ export const en = {
   "imageUpload.uploadingFile": "Uploading {{name}}",
   "imageUpload.dropHere": "Drop photos to upload and publish",
   "images.title": "Images",
-  "images.description": "Photos that double as works, newest first.",
+  "images.description":
+    "Your image library. Drag and drop photos here to upload them.",
   "images.loading": "Loading images.",
   "images.loadFailed": "Could not load images",
   "images.refreshFailed": "Could not refresh the image list",

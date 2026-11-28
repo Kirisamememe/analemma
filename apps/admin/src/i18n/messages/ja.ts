@@ -310,7 +310,8 @@ export const ja = {
   "imageUpload.uploadingFile": "「{{name}}」をアップロード中",
   "imageUpload.dropHere": "ドロップすると写真をアップロードして公開します",
   "images.title": "画像",
-  "images.description": "写真作品を兼ねる画像。新しく足した順に並びます。",
+  "images.description":
+    "画像コンテンツの一覧です。写真をここにドラッグ＆ドロップすると、アップロードが始まります。",
   "images.loading": "画像を読み込んでいます。",
   "images.loadFailed": "画像を読み込めませんでした",
   "images.refreshFailed": "画像の一覧を更新できませんでした",
